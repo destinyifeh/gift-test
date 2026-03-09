@@ -5,6 +5,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import Marketplace from "./pages/Marketplace.tsx";
+import GiftDetail from "./pages/GiftDetail.tsx";
+import GiftPage from "./pages/GiftPage.tsx";
+import Dashboard from "./pages/Dashboard.tsx";
+import VendorDashboard from "./pages/VendorDashboard.tsx";
+import Developers from "./pages/Developers.tsx";
+import CreateCampaign from "./pages/CreateCampaign.tsx";
 
 const queryClient = new QueryClient();
 
