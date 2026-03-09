@@ -23,7 +23,13 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/marketplace" element={<Marketplace />} />
+          <Route path="/marketplace/:id" element={<GiftDetail />} />
+          <Route path="/gift/:code" element={<GiftPage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/vendor" element={<VendorDashboard />} />
+          <Route path="/developers" element={<Developers />} />
+          <Route path="/create-campaign" element={<CreateCampaign />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
