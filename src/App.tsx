@@ -12,6 +12,12 @@ import Dashboard from "./pages/Dashboard.tsx";
 import VendorDashboard from "./pages/VendorDashboard.tsx";
 import Developers from "./pages/Developers.tsx";
 import CreateCampaign from "./pages/CreateCampaign.tsx";
+import Login from "./pages/Login.tsx";
+import Signup from "./pages/Signup.tsx";
+import CampaignPage from "./pages/CampaignPage.tsx";
+import ClaimGift from "./pages/ClaimGift.tsx";
+import CreatorProfile from "./pages/CreatorProfile.tsx";
+import ProfileSettings from "./pages/ProfileSettings.tsx";
 
 const queryClient = new QueryClient();
 
@@ -23,13 +29,19 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
           <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/marketplace/:id" element={<GiftDetail />} />
           <Route path="/gift/:code" element={<GiftPage />} />
+          <Route path="/claim/:code" element={<ClaimGift />} />
+          <Route path="/campaign/:slug" element={<CampaignPage />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/vendor" element={<VendorDashboard />} />
           <Route path="/developers" element={<Developers />} />
           <Route path="/create-campaign" element={<CreateCampaign />} />
+          <Route path="/profile/settings" element={<ProfileSettings />} />
+          <Route path="/u/:username" element={<CreatorProfile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

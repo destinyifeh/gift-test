@@ -5,12 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, ArrowRight, CheckCircle, Gift, Users, Star, CreditCard, Image, Link as LinkIcon } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ArrowLeft, ArrowRight, CheckCircle, Gift, Users, Star, CreditCard, Image, Link as LinkIcon, Globe, Lock, Eye, EyeOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/landing/Navbar";
 
-const steps = ["Category", "Details", "Payment", "Review"];
+const steps = ["Category", "Details", "Visibility", "Payment", "Review"];
 const categories = [
   { id: "personal", label: "Personal Gift", icon: Gift, desc: "Birthday, anniversary, or special occasion" },
   { id: "group", label: "Group Gift", icon: Users, desc: "Pool contributions from friends and family" },
@@ -26,9 +26,11 @@ const CreateCampaign = () => {
   const [goal, setGoal] = useState("");
   const [recipientEmail, setRecipientEmail] = useState("");
   const [payment, setPayment] = useState("");
+  const [visibility, setVisibility] = useState<"public" | "private">("public");
+  const [contributorsSeeEachOther, setContributorsSeeEachOther] = useState(true);
   const [submitted, setSubmitted] = useState(false);
 
-  const next = () => setStep((s) => Math.min(s + 1, 3));
+  const next = () => setStep((s) => Math.min(s + 1, steps.length - 1));
   const prev = () => setStep((s) => Math.max(s - 1, 0));
 
   if (submitted) {
@@ -47,7 +49,7 @@ const CreateCampaign = () => {
               </div>
               <div className="flex gap-3">
                 <Link to="/dashboard" className="flex-1"><Button variant="outline" className="w-full">Go to Dashboard</Button></Link>
-                <Button variant="hero" className="flex-1">Share Campaign</Button>
+                <Link to="/campaign/birthday-gift-for-sarah" className="flex-1"><Button variant="hero" className="w-full">View Campaign</Button></Link>
               </div>
             </CardContent>
           </Card>
@@ -72,11 +74,11 @@ const CreateCampaign = () => {
           <div className="flex items-center gap-2 mb-8">
             {steps.map((s, i) => (
               <div key={s} className="flex items-center gap-2 flex-1">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${i <= step ? "bg-gradient-hero text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold shrink-0 ${i <= step ? "bg-gradient-hero text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
                   {i < step ? <CheckCircle className="w-4 h-4" /> : i + 1}
                 </div>
-                <span className={`text-sm hidden sm:block ${i <= step ? "text-foreground font-medium" : "text-muted-foreground"}`}>{s}</span>
-                {i < 3 && <div className={`flex-1 h-0.5 ${i < step ? "bg-primary" : "bg-muted"}`} />}
+                <span className={`text-xs hidden sm:block ${i <= step ? "text-foreground font-medium" : "text-muted-foreground"}`}>{s}</span>
+                {i < steps.length - 1 && <div className={`flex-1 h-0.5 ${i < step ? "bg-primary" : "bg-muted"}`} />}
               </div>
             ))}
           </div>
@@ -119,6 +121,62 @@ const CreateCampaign = () => {
 
               {step === 2 && (
                 <div className="space-y-5">
+                  <h2 className="text-xl font-semibold text-foreground mb-4">Campaign Visibility</h2>
+                  <div className="space-y-3">
+                    <button
+                      onClick={() => setVisibility("public")}
+                      className={`w-full p-4 rounded-xl border-2 text-left flex items-start gap-4 transition-all ${visibility === "public" ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"}`}
+                    >
+                      <Globe className={`w-6 h-6 mt-0.5 ${visibility === "public" ? "text-primary" : "text-muted-foreground"}`} />
+                      <div>
+                        <p className="font-semibold text-foreground">Public Campaign</p>
+                        <p className="text-sm text-muted-foreground">Anyone can see this campaign and contributions</p>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => setVisibility("private")}
+                      className={`w-full p-4 rounded-xl border-2 text-left flex items-start gap-4 transition-all ${visibility === "private" ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"}`}
+                    >
+                      <Lock className={`w-6 h-6 mt-0.5 ${visibility === "private" ? "text-primary" : "text-muted-foreground"}`} />
+                      <div>
+                        <p className="font-semibold text-foreground">Private Campaign</p>
+                        <p className="text-sm text-muted-foreground">Only invited people or link holders can see this campaign</p>
+                      </div>
+                    </button>
+                  </div>
+
+                  {visibility === "private" && (
+                    <div className="bg-muted/50 rounded-xl p-4 space-y-3 border border-border">
+                      <p className="font-medium text-foreground text-sm">Privacy Settings</p>
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          id="see-each-other"
+                          checked={contributorsSeeEachOther}
+                          onCheckedChange={(v) => setContributorsSeeEachOther(!!v)}
+                        />
+                        <div>
+                          <Label htmlFor="see-each-other" className="cursor-pointer font-medium">Contributors see each other</Label>
+                          <p className="text-xs text-muted-foreground mt-0.5">Invite-only social campaign — contributors can see who else contributed</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          id="no-see-each-other"
+                          checked={!contributorsSeeEachOther}
+                          onCheckedChange={(v) => setContributorsSeeEachOther(!v)}
+                        />
+                        <div>
+                          <Label htmlFor="no-see-each-other" className="cursor-pointer font-medium">Contributors cannot see each other</Label>
+                          <p className="text-xs text-muted-foreground mt-0.5">Strictly private — no one can see who else contributed</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {step === 3 && (
+                <div className="space-y-5">
                   <h2 className="text-xl font-semibold text-foreground mb-4">Payment Account</h2>
                   <p className="text-muted-foreground">Connect a payment account to receive contributions</p>
                   <div className="space-y-3">
@@ -135,7 +193,7 @@ const CreateCampaign = () => {
                 </div>
               )}
 
-              {step === 3 && (
+              {step === 4 && (
                 <div className="space-y-5">
                   <h2 className="text-xl font-semibold text-foreground mb-4">Review & Launch</h2>
                   <div className="space-y-3">
@@ -143,6 +201,19 @@ const CreateCampaign = () => {
                     <div className="flex justify-between py-2 border-b border-border"><span className="text-muted-foreground">Title</span><span className="text-foreground font-medium">{title || "—"}</span></div>
                     <div className="flex justify-between py-2 border-b border-border"><span className="text-muted-foreground">Goal</span><span className="text-foreground font-medium">{goal ? `$${goal}` : "No goal"}</span></div>
                     <div className="flex justify-between py-2 border-b border-border"><span className="text-muted-foreground">Recipient</span><span className="text-foreground font-medium">{recipientEmail || "Public"}</span></div>
+                    <div className="flex justify-between py-2 border-b border-border">
+                      <span className="text-muted-foreground">Visibility</span>
+                      <span className="text-foreground font-medium flex items-center gap-1">
+                        {visibility === "public" ? <Globe className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
+                        {visibility === "public" ? "Public" : "Private"}
+                      </span>
+                    </div>
+                    {visibility === "private" && (
+                      <div className="flex justify-between py-2 border-b border-border">
+                        <span className="text-muted-foreground">Contributors</span>
+                        <span className="text-foreground font-medium text-sm">{contributorsSeeEachOther ? "Can see each other" : "Cannot see each other"}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between py-2"><span className="text-muted-foreground">Payment</span><span className="text-foreground font-medium">{payment || "—"}</span></div>
                   </div>
                 </div>
@@ -150,7 +221,7 @@ const CreateCampaign = () => {
 
               <div className="flex justify-between mt-8">
                 <Button variant="outline" onClick={prev} disabled={step === 0}><ArrowLeft className="w-4 h-4 mr-2" /> Back</Button>
-                {step < 3 ? (
+                {step < steps.length - 1 ? (
                   <Button variant="hero" onClick={next}> Next <ArrowRight className="w-4 h-4 ml-2" /></Button>
                 ) : (
                   <Button variant="hero" onClick={() => setSubmitted(true)}>Launch Campaign 🚀</Button>
