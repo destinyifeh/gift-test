@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Gift, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Signup = () => {
   const [name, setName] = useState("");
@@ -13,6 +13,7 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8">
@@ -75,7 +76,7 @@ const Signup = () => {
               </div>
             </div>
 
-            <Button variant="hero" className="w-full h-11" onClick={() => window.location.href = "/dashboard"}>Create Account</Button>
+            <Button variant="hero" className="w-full h-11" onClick={() => navigate("/dashboard")}>Create Account</Button>
 
             <p className="text-center text-sm text-muted-foreground">
               Already have an account? <Link to="/login" className="text-primary font-medium hover:underline">Sign in</Link>
