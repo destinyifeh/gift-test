@@ -1,22 +1,42 @@
 import { Gift } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   const columns = [
     {
       title: "Product",
-      links: ["Send a Gift", "Start Campaign", "Gift Marketplace", "Pricing"],
+      links: [
+        { label: "Marketplace", to: "/marketplace" },
+        { label: "Campaigns", to: "/campaigns" },
+        { label: "Create Campaign", to: "/create-campaign" },
+        { label: "Dashboard", to: "/dashboard" },
+      ],
     },
     {
       title: "Developers",
-      links: ["API Docs", "Widget SDK", "NPM Package", "Webhooks"],
+      links: [
+        { label: "API Docs", to: "/developers" },
+        { label: "Widget SDK", to: "/developers" },
+        { label: "NPM Package", to: "/developers" },
+        { label: "Integrations", to: "/developers" },
+      ],
     },
     {
       title: "Company",
-      links: ["About Us", "Blog", "Careers", "Contact"],
+      links: [
+        { label: "About Us", to: "#" },
+        { label: "Blog", to: "#" },
+        { label: "Careers", to: "#" },
+        { label: "Contact", to: "#" },
+      ],
     },
     {
       title: "Legal",
-      links: ["Privacy Policy", "Terms of Service", "Cookie Policy"],
+      links: [
+        { label: "Privacy Policy", to: "#" },
+        { label: "Terms of Service", to: "#" },
+        { label: "Cookie Policy", to: "#" },
+      ],
     },
   ];
 
@@ -25,12 +45,12 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
           <div className="col-span-2 md:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
+            <Link to="/" className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-lg bg-gradient-hero flex items-center justify-center">
                 <Gift className="w-4 h-4 text-primary-foreground" />
               </div>
               <span className="text-lg font-bold font-display text-background">GiftTogether</span>
-            </div>
+            </Link>
             <p className="text-sm text-background/50">
               Making every occasion special through the power of collective giving.
             </p>
@@ -41,10 +61,10 @@ const Footer = () => {
               <h4 className="font-semibold text-background mb-4 text-sm font-body">{col.title}</h4>
               <ul className="space-y-2">
                 {col.links.map((link) => (
-                  <li key={link}>
-                    <a href="#" className="text-sm text-background/50 hover:text-background transition-colors">
-                      {link}
-                    </a>
+                  <li key={link.label}>
+                    <Link to={link.to} className="text-sm text-background/50 hover:text-background transition-colors">
+                      {link.label}
+                    </Link>
                   </li>
                 ))}
               </ul>
