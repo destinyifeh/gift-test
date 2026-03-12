@@ -8,16 +8,15 @@ import { Gift, Heart, Share2 } from "lucide-react";
 import Navbar from "@/components/landing/Navbar";
 import SendGiftModal from "@/components/SendGiftModal";
 
-// Mock: users with gift pages enabled
 const enabledUsers: Record<string, {
-  name: string; bio: string; suggestedAmounts: number[]; showSupporters: boolean;
+  name: string; bio: string; suggestedAmounts: number[]; showSupporters: boolean; plan: "free" | "pro";
   supporters: { id: number; name: string; amount: number; message: string; anonymous: boolean; date: string }[];
   vendorGifts: { id: number; name: string; price: number }[];
   totalReceived: number; totalSupporters: number;
 }> = {
   destiny: {
     name: "Destiny O.", bio: "Frontend developer. Appreciate your support! 🚀",
-    suggestedAmounts: [5, 10, 25], showSupporters: true,
+    suggestedAmounts: [5, 10, 25], showSupporters: true, plan: "free",
     supporters: [
       { id: 1, name: "John", amount: 10, message: "Great work!", anonymous: false, date: "2026-03-08" },
       { id: 2, name: "Mary", amount: 25, message: "Keep building!", anonymous: false, date: "2026-03-07" },
@@ -38,7 +37,6 @@ const CreatorProfile = () => {
   const [showGiftModal, setShowGiftModal] = useState(false);
   const profile = username ? enabledUsers[username] : null;
 
-  // User exists but gift page not enabled
   if (!profile) {
     return (
       <div className="min-h-screen bg-background">
@@ -131,6 +129,15 @@ const CreatorProfile = () => {
           <div className="text-center mt-6">
             <Button variant="outline" className="gap-2"><Share2 className="w-4 h-4" /> Share this page</Button>
           </div>
+
+          {/* Powered by branding for free plan */}
+          {profile.plan === "free" && (
+            <div className="text-center mt-8 pb-4">
+              <p className="text-xs text-muted-foreground">
+                Powered by <a href="/" className="font-semibold text-primary hover:underline">GiftTogether</a>
+              </p>
+            </div>
+          )}
         </div>
       </div>
       <SendGiftModal open={showGiftModal} onOpenChange={setShowGiftModal} recipientName={profile.name} />

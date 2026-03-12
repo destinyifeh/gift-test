@@ -6,16 +6,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, ArrowRight, CheckCircle, Gift, Users, Star, CreditCard, Image, Link as LinkIcon, Globe, Lock, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle, Gift, Users, CreditCard, Image, Link as LinkIcon, Globe, Lock, Heart, Palette, Gamepad2, Briefcase, Sun, Calendar } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/landing/Navbar";
 
-const steps = ["Category", "Details", "Visibility", "Payment", "Review"];
+const steps = ["Category", "Details", "Visibility", "Review"];
 const categories = [
   { id: "personal", label: "Personal Gift", icon: Gift, desc: "Birthday, anniversary, or special occasion" },
   { id: "group", label: "Group Gift", icon: Users, desc: "Pool contributions from friends and family" },
-  { id: "creator", label: "Creator / Influencer", icon: Star, desc: "Accept gifts and appreciation from fans" },
   { id: "claimable", label: "Claimable / Prepaid", icon: CreditCard, desc: "Send a gift the recipient claims later" },
+  { id: "appreciation", label: "Appreciation Gifts", icon: Heart, desc: "Thank teachers, mentors, coworkers, friends" },
+  { id: "hobby", label: "Hobby & Interest Gifts", icon: Gamepad2, desc: "For gamers, artists, sports fans, music lovers" },
+  { id: "project", label: "Gift for Projects", icon: Briefcase, desc: "Support someone's creative or personal project" },
+  { id: "support", label: "Support & Care Gifts", icon: Sun, desc: "Get well soon, encouragement, tough times" },
+  { id: "holiday", label: "Holiday & Seasonal Gifts", icon: Calendar, desc: "Christmas, Valentine's Day, Easter, Thanksgiving" },
 ];
 
 const CreateCampaign = () => {
@@ -25,9 +29,10 @@ const CreateCampaign = () => {
   const [description, setDescription] = useState("");
   const [goal, setGoal] = useState("");
   const [recipientEmail, setRecipientEmail] = useState("");
-  const [payment, setPayment] = useState("");
   const [visibility, setVisibility] = useState<"public" | "private">("public");
   const [contributorsSeeEachOther, setContributorsSeeEachOther] = useState(true);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
   const next = () => setStep((s) => Math.min(s + 1, steps.length - 1));
@@ -109,6 +114,10 @@ const CreateCampaign = () => {
                     <div><Label htmlFor="goal">Goal Amount (optional)</Label><Input id="goal" type="number" value={goal} onChange={(e) => setGoal(e.target.value)} placeholder="$0" /></div>
                     <div><Label htmlFor="email">Recipient Email (optional)</Label><Input id="email" type="email" value={recipientEmail} onChange={(e) => setRecipientEmail(e.target.value)} placeholder="recipient@email.com" /></div>
                   </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div><Label htmlFor="start-date">Start Date</Label><Input id="start-date" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} /></div>
+                    <div><Label htmlFor="end-date">End Date</Label><Input id="end-date" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} /></div>
+                  </div>
                   <div>
                     <Label>Campaign Image</Label>
                     <div className="mt-1 border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-primary/30 transition-colors cursor-pointer">
@@ -149,22 +158,14 @@ const CreateCampaign = () => {
                     <div className="bg-muted/50 rounded-xl p-4 space-y-3 border border-border">
                       <p className="font-medium text-foreground text-sm">Privacy Settings</p>
                       <div className="flex items-start gap-3">
-                        <Checkbox
-                          id="see-each-other"
-                          checked={contributorsSeeEachOther}
-                          onCheckedChange={(v) => setContributorsSeeEachOther(!!v)}
-                        />
+                        <Checkbox id="see-each-other" checked={contributorsSeeEachOther} onCheckedChange={(v) => setContributorsSeeEachOther(!!v)} />
                         <div>
                           <Label htmlFor="see-each-other" className="cursor-pointer font-medium">Contributors see each other</Label>
                           <p className="text-xs text-muted-foreground mt-0.5">Invite-only social campaign — contributors can see who else contributed</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
-                        <Checkbox
-                          id="no-see-each-other"
-                          checked={!contributorsSeeEachOther}
-                          onCheckedChange={(v) => setContributorsSeeEachOther(!v)}
-                        />
+                        <Checkbox id="no-see-each-other" checked={!contributorsSeeEachOther} onCheckedChange={(v) => setContributorsSeeEachOther(!v)} />
                         <div>
                           <Label htmlFor="no-see-each-other" className="cursor-pointer font-medium">Contributors cannot see each other</Label>
                           <p className="text-xs text-muted-foreground mt-0.5">Strictly private — no one can see who else contributed</p>
@@ -177,30 +178,14 @@ const CreateCampaign = () => {
 
               {step === 3 && (
                 <div className="space-y-5">
-                  <h2 className="text-xl font-semibold text-foreground mb-4">Payment Account</h2>
-                  <p className="text-muted-foreground">Connect a payment account to receive contributions</p>
-                  <div className="space-y-3">
-                    {["Stripe", "Paystack", "Flutterwave"].map((p) => (
-                      <button key={p} onClick={() => setPayment(p)} className={`w-full p-4 rounded-xl border-2 text-left flex items-center gap-4 transition-all ${payment === p ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"}`}>
-                        <CreditCard className={`w-5 h-5 ${payment === p ? "text-primary" : "text-muted-foreground"}`} />
-                        <div>
-                          <p className="font-semibold text-foreground">{p}</p>
-                          <p className="text-sm text-muted-foreground">Connect your {p} account</p>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {step === 4 && (
-                <div className="space-y-5">
                   <h2 className="text-xl font-semibold text-foreground mb-4">Review & Launch</h2>
                   <div className="space-y-3">
                     <div className="flex justify-between py-2 border-b border-border"><span className="text-muted-foreground">Category</span><Badge variant="secondary">{category || "—"}</Badge></div>
                     <div className="flex justify-between py-2 border-b border-border"><span className="text-muted-foreground">Title</span><span className="text-foreground font-medium">{title || "—"}</span></div>
                     <div className="flex justify-between py-2 border-b border-border"><span className="text-muted-foreground">Goal</span><span className="text-foreground font-medium">{goal ? `$${goal}` : "No goal"}</span></div>
                     <div className="flex justify-between py-2 border-b border-border"><span className="text-muted-foreground">Recipient</span><span className="text-foreground font-medium">{recipientEmail || "Public"}</span></div>
+                    {startDate && <div className="flex justify-between py-2 border-b border-border"><span className="text-muted-foreground">Start Date</span><span className="text-foreground font-medium">{startDate}</span></div>}
+                    {endDate && <div className="flex justify-between py-2 border-b border-border"><span className="text-muted-foreground">End Date</span><span className="text-foreground font-medium">{endDate}</span></div>}
                     <div className="flex justify-between py-2 border-b border-border">
                       <span className="text-muted-foreground">Visibility</span>
                       <span className="text-foreground font-medium flex items-center gap-1">
@@ -214,7 +199,6 @@ const CreateCampaign = () => {
                         <span className="text-foreground font-medium text-sm">{contributorsSeeEachOther ? "Can see each other" : "Cannot see each other"}</span>
                       </div>
                     )}
-                    <div className="flex justify-between py-2"><span className="text-muted-foreground">Payment</span><span className="text-foreground font-medium">{payment || "—"}</span></div>
                   </div>
                 </div>
               )}

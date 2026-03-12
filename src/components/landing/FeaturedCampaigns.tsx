@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const campaigns = [
   { title: "Sarah's 30th Birthday Bash", category: "Birthday", raised: 850, goal: 1000, donors: 23, emoji: "🎂" },
@@ -21,9 +22,11 @@ const FeaturedCampaigns = () => {
               Trending <span className="text-gradient">right now</span>
             </h2>
           </motion.div>
-          <Button variant="ghost" className="mt-4 md:mt-0 text-primary">
-            View all campaigns <ArrowRight className="w-4 h-4 ml-1" />
-          </Button>
+          <Link to="/campaigns">
+            <Button variant="ghost" className="mt-4 md:mt-0 text-primary">
+              View all campaigns <ArrowRight className="w-4 h-4 ml-1" />
+            </Button>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

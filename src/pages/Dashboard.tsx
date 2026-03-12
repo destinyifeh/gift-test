@@ -11,10 +11,11 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Gift, Send, Clock, DollarSign, Users, ArrowUpRight, Plus, LayoutDashboard,
   Heart, Wallet, Settings, Star, Code, BarChart3, Eye, Sparkles, Globe,
-  CreditCard, Camera, Link as LinkIcon, LogOut, Menu, X, ChevronRight, User
+  CreditCard, Camera, Link as LinkIcon, LogOut, Menu, X, ChevronRight, User,
+  Key, Copy, CheckCircle, Crown, Zap, Palette, Globe2, MessageSquare, Trophy,
+  Calendar, BanknoteIcon, ArrowDownLeft, Building
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import Navbar from "@/components/landing/Navbar";
 
 const sentGifts = [
   { id: 1, name: "Birthday Gift for Sarah", recipient: "sarah@email.com", amount: 50, status: "delivered", date: "2026-03-05" },
@@ -34,19 +35,21 @@ const contributions = [
 ];
 
 const myCampaigns = [
-  { id: 1, title: "Birthday Gift for Sarah 🎂", slug: "birthday-gift-for-sarah", raised: 340, goal: 500, contributors: 12, status: "active", daysLeft: 5 },
-  { id: 2, title: "Team Appreciation Fund", slug: "team-appreciation", raised: 200, goal: 200, contributors: 8, status: "completed", daysLeft: 0 },
+  { id: 1, title: "Birthday Gift for Sarah 🎂", slug: "birthday-gift-for-sarah", raised: 340, goal: 500, contributors: 12, status: "active", endDate: "2026-03-17" },
+  { id: 2, title: "Team Appreciation Fund", slug: "team-appreciation", raised: 200, goal: 200, contributors: 8, status: "completed", endDate: "2026-03-01" },
 ];
 
 const walletData = {
-  balance: 195,
-  pending: 50,
+  availableBalance: 48,
+  totalReceived: 50,
+  platformFees: 2,
+  pending: 0,
   totalWithdrawn: 320,
   transactions: [
-    { id: 1, type: "received", desc: "Gift from John D.", amount: 50, date: "2026-03-07" },
-    { id: 2, type: "received", desc: "Gift from Sarah M.", amount: 25, date: "2026-03-06" },
-    { id: 3, type: "withdrawn", desc: "Withdrawal to Stripe", amount: -100, date: "2026-03-04" },
-    { id: 4, type: "received", desc: "Creator gift (fans)", amount: 120, date: "2026-03-03" },
+    { id: 1, type: "received", from: "John Doe", desc: "Gift", amount: 20, date: "2026-05-10" },
+    { id: 2, type: "received", from: "Anonymous", desc: "Gift", amount: 10, date: "2026-05-10" },
+    { id: 3, type: "received", from: "Sarah K", desc: "Gift", amount: 20, date: "2026-05-11" },
+    { id: 4, type: "withdrawn", from: "Withdrawal", desc: "Bank", amount: -48, date: "2026-05-12" },
   ],
 };
 
@@ -86,14 +89,32 @@ const Dashboard = () => {
   const [section, setSection] = useState<Section>("overview");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [creatorEnabled, setCreatorEnabled] = useState(false);
+  const [creatorPlan, setCreatorPlan] = useState<"free" | "pro">("free");
+  const [apiKeyRevealed, setApiKeyRevealed] = useState(false);
+  const [apiKeyCopied, setApiKeyCopied] = useState(false);
+  const [showWithdrawForm, setShowWithdrawForm] = useState(false);
+  const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [customDomain, setCustomDomain] = useState("");
   const navigate = useNavigate();
 
-  // Mock user
   const user = { name: "Destiny O.", username: "destiny", email: "destiny@email.com" };
+  const mockApiKey = "gt_live_sk_9f8a7b6c5d4e3f2a1b0c";
+
+  const copyApiKey = () => {
+    navigator.clipboard.writeText(mockApiKey);
+    setApiKeyCopied(true);
+    setTimeout(() => setApiKeyCopied(false), 2000);
+  };
+
+  const getDaysLeft = (endDate: string) => {
+    const end = new Date(endDate);
+    const now = new Date();
+    const diff = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    return diff > 0 ? diff : 0;
+  };
 
   const renderSidebar = () => (
     <div className="flex flex-col h-full">
-      {/* User info */}
       <div className="p-4 border-b border-border">
         <div className="flex items-center gap-3">
           <Avatar className="w-10 h-10">
@@ -106,7 +127,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
         {navItems.map((item) => (
           <button
@@ -119,7 +139,6 @@ const Dashboard = () => {
           </button>
         ))}
 
-        {/* Creator section */}
         <div className="pt-4 mt-4 border-t border-border">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-2">Creator</p>
           {!creatorEnabled ? (
@@ -145,7 +164,6 @@ const Dashboard = () => {
         </div>
       </nav>
 
-      {/* Footer */}
       <div className="p-3 border-t border-border">
         <Link to="/">
           <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
@@ -192,7 +210,6 @@ const Dashboard = () => {
 
       {/* Main content */}
       <main className="flex-1 min-w-0">
-        {/* Top bar */}
         <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border px-4 md:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button className="md:hidden" onClick={() => setSidebarOpen(true)}><Menu className="w-5 h-5 text-foreground" /></button>
@@ -228,7 +245,6 @@ const Dashboard = () => {
                 ))}
               </div>
 
-              {/* Recent activity */}
               <Card className="border-border">
                 <CardHeader><CardTitle className="text-base font-body">Recent Activity</CardTitle></CardHeader>
                 <CardContent className="space-y-3">
@@ -267,6 +283,28 @@ const Dashboard = () => {
                       <p className="text-sm text-muted-foreground mt-1">Let people send you gifts at gifttogether.com/{user.username}</p>
                     </div>
                     <Button variant="hero" size="sm" onClick={() => { setCreatorEnabled(true); setSection("gift-page"); }}>Enable</Button>
+                  </CardContent>
+                </Card>
+              )}
+
+              {creatorEnabled && creatorPlan === "free" && (
+                <Card className="border-accent/30 bg-gradient-to-r from-accent/5 to-primary/5">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="font-semibold text-foreground flex items-center gap-2"><Crown className="w-5 h-5 text-accent" /> Upgrade to Pro</h3>
+                        <p className="text-sm text-muted-foreground mt-1 max-w-md">Remove branding and unlock powerful tools for your gift page.</p>
+                        <ul className="mt-3 space-y-1.5 text-sm text-muted-foreground">
+                          <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-secondary" /> Remove "Powered by" branding</li>
+                          <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-secondary" /> Custom themes and layout</li>
+                          <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-secondary" /> Advanced supporter insights</li>
+                          <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-secondary" /> Custom domain support</li>
+                        </ul>
+                      </div>
+                      <Button variant="hero" size="sm" onClick={() => setCreatorPlan("pro")}>
+                        <Crown className="w-4 h-4 mr-1" /> Upgrade — $8/mo
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               )}
@@ -355,7 +393,10 @@ const Dashboard = () => {
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between mb-3">
                         <p className="font-semibold text-foreground">{c.title}</p>
-                        <Badge variant={statusColor(c.status) as any}>{c.status}</Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={statusColor(c.status) as any}>{c.status}</Badge>
+                          {getDaysLeft(c.endDate) > 0 && <Badge variant="outline" className="gap-1"><Clock className="w-3 h-3" />{getDaysLeft(c.endDate)}d left</Badge>}
+                        </div>
                       </div>
                       <Progress value={(c.raised / c.goal) * 100} className="h-2 mb-2" />
                       <div className="flex justify-between text-sm">
@@ -375,24 +416,99 @@ const Dashboard = () => {
           {/* WALLET */}
           {section === "wallet" && (
             <div className="space-y-6">
+              {/* Wallet Overview */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Card className="border-border"><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-foreground">${walletData.balance}</p><p className="text-xs text-muted-foreground">Available Balance</p></CardContent></Card>
-                <Card className="border-border"><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-accent">${walletData.pending}</p><p className="text-xs text-muted-foreground">Pending</p></CardContent></Card>
-                <Card className="border-border"><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-secondary">${walletData.totalWithdrawn}</p><p className="text-xs text-muted-foreground">Total Withdrawn</p></CardContent></Card>
+                <Card className="border-border">
+                  <CardContent className="p-5 text-center">
+                    <Wallet className="w-6 h-6 text-primary mx-auto mb-2" />
+                    <p className="text-3xl font-bold text-foreground">${walletData.availableBalance}.00</p>
+                    <p className="text-xs text-muted-foreground mt-1">Available Balance</p>
+                  </CardContent>
+                </Card>
+                <Card className="border-border">
+                  <CardContent className="p-5 text-center">
+                    <ArrowDownLeft className="w-6 h-6 text-secondary mx-auto mb-2" />
+                    <p className="text-3xl font-bold text-foreground">${walletData.totalReceived}.00</p>
+                    <p className="text-xs text-muted-foreground mt-1">Total Gifts Received</p>
+                  </CardContent>
+                </Card>
+                <Card className="border-border">
+                  <CardContent className="p-5 text-center">
+                    <DollarSign className="w-6 h-6 text-destructive mx-auto mb-2" />
+                    <p className="text-3xl font-bold text-foreground">${walletData.platformFees}.00</p>
+                    <p className="text-xs text-muted-foreground mt-1">Platform Fees</p>
+                  </CardContent>
+                </Card>
               </div>
-              <Button variant="hero"><ArrowUpRight className="w-4 h-4 mr-2" /> Withdraw Funds</Button>
+
+              {/* Wallet Actions */}
+              <div className="flex flex-wrap gap-3">
+                <Button variant="hero" onClick={() => setShowWithdrawForm(!showWithdrawForm)}>
+                  <ArrowUpRight className="w-4 h-4 mr-2" /> Withdraw Funds
+                </Button>
+                <Button variant="outline" onClick={() => {}}>
+                  <Clock className="w-4 h-4 mr-2" /> View Transactions
+                </Button>
+                <Button variant="outline">
+                  <Building className="w-4 h-4 mr-2" /> Connect Bank Account
+                </Button>
+              </div>
+
+              {/* Withdrawal Form */}
+              {showWithdrawForm && (
+                <Card className="border-primary/20">
+                  <CardContent className="p-6 space-y-4">
+                    <h3 className="font-semibold text-foreground">Withdraw Funds</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Amount</Label>
+                        <Input type="number" placeholder="$0.00" value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} max={walletData.availableBalance} />
+                        <p className="text-xs text-muted-foreground">Max: ${walletData.availableBalance}.00</p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Bank Account</Label>
+                        <div className="bg-muted rounded-lg p-3">
+                          <p className="text-sm font-medium text-foreground">First Bank</p>
+                          <p className="text-xs text-muted-foreground">••••••••1234</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <Button variant="hero" onClick={() => setShowWithdrawForm(false)}>Confirm Withdrawal</Button>
+                      <Button variant="outline" onClick={() => setShowWithdrawForm(false)}>Cancel</Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Transaction History */}
               <Card className="border-border">
                 <CardHeader><CardTitle className="text-base font-body">Transaction History</CardTitle></CardHeader>
-                <CardContent className="space-y-3">
-                  {walletData.transactions.map((t) => (
-                    <div key={t.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{t.desc}</p>
-                        <p className="text-xs text-muted-foreground">{t.date}</p>
-                      </div>
-                      <span className={`font-semibold ${t.amount > 0 ? "text-secondary" : "text-destructive"}`}>{t.amount > 0 ? "+" : ""}${t.amount}</span>
-                    </div>
-                  ))}
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-border text-muted-foreground">
+                          <th className="text-left py-2 font-medium">Date</th>
+                          <th className="text-left py-2 font-medium">From</th>
+                          <th className="text-left py-2 font-medium">Type</th>
+                          <th className="text-right py-2 font-medium">Amount</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {walletData.transactions.map((t) => (
+                          <tr key={t.id} className="border-b border-border last:border-0">
+                            <td className="py-3 text-foreground">{t.date}</td>
+                            <td className="py-3 text-foreground">{t.from}</td>
+                            <td className="py-3 text-muted-foreground">{t.desc}</td>
+                            <td className={`py-3 text-right font-semibold ${t.amount > 0 ? "text-secondary" : "text-destructive"}`}>
+                              {t.amount > 0 ? "+" : ""}${Math.abs(t.amount)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -441,15 +557,56 @@ const Dashboard = () => {
           {/* CREATOR: MY GIFT PAGE */}
           {section === "gift-page" && creatorEnabled && (
             <div className="space-y-6">
-              <Card className="border-primary/20 bg-primary/5">
+              {/* Plan indicator */}
+              <Card className={creatorPlan === "pro" ? "border-accent/30 bg-accent/5" : "border-primary/20 bg-primary/5"}>
                 <CardContent className="p-4 flex items-center justify-between">
                   <div>
-                    <p className="font-semibold text-foreground">Your gift page is live! 🎉</p>
+                    <p className="font-semibold text-foreground flex items-center gap-2">
+                      {creatorPlan === "pro" ? <Crown className="w-4 h-4 text-accent" /> : <Sparkles className="w-4 h-4 text-primary" />}
+                      Your gift page is live! 🎉
+                      <Badge variant={creatorPlan === "pro" ? "default" : "outline"} className="ml-2">{creatorPlan === "pro" ? "Pro" : "Free"}</Badge>
+                    </p>
                     <p className="text-sm text-muted-foreground">gifttogether.com/{user.username}</p>
                   </div>
-                  <Link to={`/u/${user.username}`}><Button variant="outline" size="sm"><Eye className="w-4 h-4 mr-1" /> View Page</Button></Link>
+                  <div className="flex gap-2">
+                    <Link to={`/u/${user.username}`}><Button variant="outline" size="sm"><Eye className="w-4 h-4 mr-1" /> View Page</Button></Link>
+                    <Link to="/profile/settings"><Button variant="outline" size="sm"><Settings className="w-4 h-4 mr-1" /> Edit Profile</Button></Link>
+                  </div>
                 </CardContent>
               </Card>
+
+              {/* Pro upgrade card for free users */}
+              {creatorPlan === "free" && (
+                <Card className="border-accent/30 bg-gradient-to-r from-accent/5 to-primary/5">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between flex-wrap gap-4">
+                      <div>
+                        <h3 className="text-lg font-bold text-foreground flex items-center gap-2"><Crown className="w-5 h-5 text-accent" /> Upgrade to Pro</h3>
+                        <p className="text-sm text-muted-foreground mt-1">Remove branding and unlock powerful tools for your gift page.</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1.5 mt-4 text-sm text-muted-foreground">
+                          <span className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-secondary shrink-0" /> Remove "Powered by" branding</span>
+                          <span className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-secondary shrink-0" /> Custom themes and layout</span>
+                          <span className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-secondary shrink-0" /> Advanced supporter insights</span>
+                          <span className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-secondary shrink-0" /> Custom thank-you messages</span>
+                          <span className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-secondary shrink-0" /> Custom domain support</span>
+                          <span className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-secondary shrink-0" /> Priority integrations</span>
+                          <span className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-secondary shrink-0" /> Custom banner images</span>
+                          <span className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-secondary shrink-0" /> Supporter leaderboard</span>
+                          <span className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-secondary shrink-0" /> Scheduled campaigns</span>
+                          <span className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-secondary shrink-0" /> Email notifications</span>
+                        </div>
+                      </div>
+                      <div className="text-center space-y-2">
+                        <Button variant="hero" onClick={() => setCreatorPlan("pro")} className="gap-2">
+                          <Crown className="w-4 h-4" /> Upgrade to Pro
+                        </Button>
+                        <p className="text-xs text-muted-foreground">$8/month or $79/year</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               <Card className="border-border">
                 <CardContent className="p-6 space-y-5">
                   <h3 className="font-semibold text-foreground">Gift Page Settings</h3>
@@ -459,6 +616,29 @@ const Dashboard = () => {
                   <div className="flex items-center justify-between"><div><p className="font-medium text-foreground">Accept vendor gifts</p></div><Switch defaultChecked /></div>
                   <div className="flex items-center justify-between"><div><p className="font-medium text-foreground">Show supporters</p></div><Switch defaultChecked /></div>
                   <div className="flex items-center justify-between"><div><p className="font-medium text-foreground">Show amounts</p></div><Switch defaultChecked /></div>
+
+                  {/* Custom Domain - Pro only */}
+                  {creatorPlan === "pro" && (
+                    <div className="border-t border-border pt-5 space-y-4">
+                      <h3 className="font-semibold text-foreground flex items-center gap-2"><Globe2 className="w-4 h-4" /> Custom Domain <Badge variant="default" className="text-xs">Pro</Badge></h3>
+                      <p className="text-sm text-muted-foreground">Use your own domain instead of gifttogether.com/{user.username}</p>
+                      <Input placeholder="gifts.yourdomain.com" value={customDomain} onChange={(e) => setCustomDomain(e.target.value)} />
+                      {customDomain && (
+                        <Card className="border-border bg-muted/50">
+                          <CardContent className="p-4 space-y-2">
+                            <p className="text-sm font-medium text-foreground">Add this DNS record:</p>
+                            <div className="bg-background rounded-lg p-3 font-mono text-xs space-y-1">
+                              <p><span className="text-muted-foreground">Type:</span> <span className="text-foreground">CNAME</span></p>
+                              <p><span className="text-muted-foreground">Host:</span> <span className="text-foreground">{customDomain.split('.')[0]}</span></p>
+                              <p><span className="text-muted-foreground">Value:</span> <span className="text-foreground">gifttogether.com</span></p>
+                            </div>
+                            <p className="text-xs text-muted-foreground">Add this record in your domain provider (Cloudflare, GoDaddy, Namecheap, etc.)</p>
+                          </CardContent>
+                        </Card>
+                      )}
+                    </div>
+                  )}
+
                   <Button variant="hero">Save Settings</Button>
                 </CardContent>
               </Card>
@@ -514,6 +694,32 @@ const Dashboard = () => {
           {/* CREATOR: INTEGRATIONS */}
           {section === "integrations" && creatorEnabled && (
             <div className="space-y-6">
+              {/* API Key */}
+              <Card className="border-border">
+                <CardContent className="p-6 space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center"><Key className="w-5 h-5 text-primary" /></div>
+                    <div>
+                      <h3 className="font-semibold text-foreground">Your API Key</h3>
+                      <p className="text-sm text-muted-foreground">Use this key to authenticate your requests</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <code className="flex-1 bg-muted rounded-lg px-4 py-3 font-mono text-sm text-foreground">
+                      {apiKeyRevealed ? mockApiKey : "gt_live_••••••••••••••••••••"}
+                    </code>
+                    <Button variant="outline" size="sm" onClick={() => setApiKeyRevealed(!apiKeyRevealed)}>
+                      {apiKeyRevealed ? "Hide" : "Reveal"}
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={copyApiKey}>
+                      {apiKeyCopied ? <><CheckCircle className="w-3.5 h-3.5 mr-1 text-secondary" /> Copied</> : <><Copy className="w-3.5 h-3.5 mr-1" /> Copy</>}
+                    </Button>
+                    <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">Regenerate</Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Widget */}
               <Card className="border-border">
                 <CardContent className="p-6 space-y-4">
                   <h3 className="font-semibold text-foreground">Embed Gift Widget</h3>

@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Gift, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const CTASection = () => {
   return (
@@ -23,13 +24,17 @@ const CTASection = () => {
               Join thousands of people making every occasion unforgettable. Start a campaign or explore gifts today.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-background text-foreground hover:bg-background/90 font-semibold text-base px-8 shadow-elevated">
-                <Gift className="w-5 h-5 mr-2" />
-                Start a Campaign
-              </Button>
-              <Button size="lg" variant="outline" className="border-2 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 font-semibold text-base px-8">
-                Explore Gifts <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
+              <Link to="/create-campaign">
+                <Button size="lg" className="bg-background text-foreground hover:bg-background/90 font-semibold text-base px-8 shadow-elevated">
+                  <Gift className="w-5 h-5 mr-2" />
+                  Start a Campaign
+                </Button>
+              </Link>
+              <Link to="/marketplace">
+                <Button size="lg" variant="outline" className="border-2 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 font-semibold text-base px-8">
+                  Explore Gifts <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </Link>
             </div>
           </div>
         </motion.div>
