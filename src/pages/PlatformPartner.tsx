@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import {
-  Globe, Users, DollarSign, Key, Code, Settings, Palette, Crown,
+  Globe, Users, DollarSign, Key, Code, Settings, Palette, Crown, Gift,
   CheckCircle, ArrowRight, BarChart3, CreditCard, ShoppingCart, Zap
 } from "lucide-react";
 import Navbar from "@/components/landing/Navbar";
