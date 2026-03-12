@@ -20,6 +20,7 @@ import Campaigns from "./pages/Campaigns.tsx";
 import ClaimGift from "./pages/ClaimGift.tsx";
 import CreatorProfile from "./pages/CreatorProfile.tsx";
 import ProfileSettings from "./pages/ProfileSettings.tsx";
+import PlatformPartner from "./pages/PlatformPartner.tsx";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,7 @@ const App = () => (
           <Route path="/create-campaign" element={<CreateCampaign />} />
           <Route path="/profile/settings" element={<ProfileSettings />} />
           <Route path="/u/:username" element={<CreatorProfile />} />
+          <Route path="/platforms" element={<PlatformPartner />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

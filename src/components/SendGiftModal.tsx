@@ -60,6 +60,7 @@ const SendGiftModal = ({ open, onOpenChange, campaignTitle, recipientName }: Sen
             <h2 className="text-xl font-bold font-display text-foreground mb-2">Gift Sent! 🎉</h2>
             <p className="text-muted-foreground mb-6">Your {selectedGift ? "gift" : `$${finalAmount}`} contribution to {target} has been processed.</p>
             <Button variant="hero" onClick={handleClose}>Done</Button>
+            <p className="text-xs text-muted-foreground mt-4">Powered by <span className="font-semibold text-primary">GiftTogether</span></p>
           </div>
         </DialogContent>
       </Dialog>
@@ -148,6 +149,8 @@ const SendGiftModal = ({ open, onOpenChange, campaignTitle, recipientName }: Sen
         <Button variant="hero" className="w-full h-12 mt-2" onClick={handleSubmit} disabled={!finalAmount && !selectedGift}>
           <Heart className="w-4 h-4 mr-2" /> Send Gift {finalAmount > 0 && `— $${finalAmount}`}
         </Button>
+
+        <p className="text-xs text-center text-muted-foreground">Powered by <span className="font-semibold text-primary">GiftTogether</span></p>
       </DialogContent>
     </Dialog>
   );

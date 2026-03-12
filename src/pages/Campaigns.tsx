@@ -12,15 +12,22 @@ import Footer from "@/components/landing/Footer";
 import { motion } from "framer-motion";
 
 const campaigns = [
-  { id: 1, slug: "birthday-gift-for-sarah", title: "Birthday Gift for Sarah 🎂", description: "Let's surprise Sarah with an amazing birthday gift!", category: "personal", raised: 340, goal: 500, contributors: 12, daysLeft: 5, creator: "John D." },
-  { id: 2, slug: "wedding-gift-alex-kim", title: "Wedding Gift for Alex & Kim 💍", description: "Help us celebrate their special day with a group gift.", category: "group", raised: 450, goal: 500, contributors: 18, daysLeft: 12, creator: "Mary K." },
-  { id: 3, slug: "team-appreciation", title: "Team Appreciation Fund 🌟", description: "Show some love to our amazing team members.", category: "group", raised: 200, goal: 300, contributors: 8, daysLeft: 20, creator: "Sarah L." },
-  { id: 4, slug: "graduation-gift-tom", title: "Graduation Gift for Tom 🎓", description: "Tom just graduated! Let's celebrate this milestone.", category: "personal", raised: 120, goal: 200, contributors: 6, daysLeft: 8, creator: "Lisa M." },
-  { id: 5, slug: "teacher-appreciation", title: "Teacher Appreciation - Ms. Johnson 📚", description: "Thank Ms. Johnson for an incredible year.", category: "personal", raised: 180, goal: 250, contributors: 15, daysLeft: 3, creator: "Parent Group" },
-  { id: 6, slug: "charity-run-fund", title: "Charity Run Fundraiser 🏃", description: "Support our team running for a great cause.", category: "group", raised: 890, goal: 1000, contributors: 35, daysLeft: 15, creator: "RunTeam" },
+  { id: 1, slug: "birthday-gift-for-sarah", title: "Birthday Gift for Sarah 🎂", description: "Let's surprise Sarah with an amazing birthday gift!", category: "personal", raised: 340, goal: 500, contributors: 12, endDate: "2026-03-17", creator: "John D." },
+  { id: 2, slug: "wedding-gift-alex-kim", title: "Wedding Gift for Alex & Kim 💍", description: "Help us celebrate their special day with a group gift.", category: "group", raised: 450, goal: 500, contributors: 18, endDate: "2026-03-24", creator: "Mary K." },
+  { id: 3, slug: "team-appreciation", title: "Team Appreciation Fund 🌟", description: "Show some love to our amazing team members.", category: "appreciation", raised: 200, goal: 300, contributors: 8, endDate: "2026-04-01", creator: "Sarah L." },
+  { id: 4, slug: "graduation-gift-tom", title: "Graduation Gift for Tom 🎓", description: "Tom just graduated! Let's celebrate this milestone.", category: "personal", raised: 120, goal: 200, contributors: 6, endDate: "2026-03-20", creator: "Lisa M." },
+  { id: 5, slug: "teacher-appreciation", title: "Teacher Appreciation - Ms. Johnson 📚", description: "Thank Ms. Johnson for an incredible year.", category: "appreciation", raised: 180, goal: 250, contributors: 15, endDate: "2026-03-15", creator: "Parent Group" },
+  { id: 6, slug: "charity-run-fund", title: "Charity Run Fundraiser 🏃", description: "Support our team running for a great cause.", category: "group", raised: 890, goal: 1000, contributors: 35, endDate: "2026-03-27", creator: "RunTeam" },
 ];
 
-const categories = ["all", "personal", "group", "creator"];
+const categories = ["all", "personal", "group", "appreciation", "hobby", "holiday", "support", "project"];
+
+const getDaysLeft = (endDate: string) => {
+  const end = new Date(endDate);
+  const now = new Date();
+  const diff = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  return diff > 0 ? diff : 0;
+};
 
 const Campaigns = () => {
   const [search, setSearch] = useState("");
@@ -79,7 +86,7 @@ const Campaigns = () => {
                       </div>
                       <div className="flex justify-between text-xs text-muted-foreground">
                         <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {c.contributors} contributors</span>
-                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {c.daysLeft} days left</span>
+                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {getDaysLeft(c.endDate)} days left</span>
                       </div>
                       <p className="text-xs text-muted-foreground mt-3">by {c.creator}</p>
                     </CardContent>

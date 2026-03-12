@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Package, Tag, ShoppingCart, DollarSign, CreditCard, Plus, Eye, MoreHorizontal } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Package, Tag, ShoppingCart, DollarSign, CreditCard, Plus, MoreHorizontal, Wallet, ArrowUpRight, Clock, Building } from "lucide-react";
 import Navbar from "@/components/landing/Navbar";
 
 const products = [
@@ -23,7 +26,23 @@ const orders = [
   { id: "#ORD-003", product: "Couples Package", buyer: "Alex K.", amount: 120, date: "2026-03-06", status: "pending" },
 ];
 
+const vendorWallet = {
+  available: 420,
+  pending: 180,
+  totalSales: 2340,
+  transactions: [
+    { id: 1, type: "sale", desc: "Spa Gift Card — John D.", amount: 50, date: "2026-03-08" },
+    { id: 2, type: "sale", desc: "Deluxe Massage — Sarah M.", amount: 80, date: "2026-03-07" },
+    { id: 3, type: "redeemed", desc: "SPA-9173 redeemed", amount: 0, date: "2026-03-07" },
+    { id: 4, type: "withdrawal", desc: "Withdrawal to Bank", amount: -200, date: "2026-03-05" },
+    { id: 5, type: "sale", desc: "Couples Package — Alex K.", amount: 120, date: "2026-03-06" },
+  ],
+};
+
 const VendorDashboard = () => {
+  const [showWithdrawForm, setShowWithdrawForm] = useState(false);
+  const [withdrawAmount, setWithdrawAmount] = useState("");
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -60,10 +79,11 @@ const VendorDashboard = () => {
           </div>
 
           <Tabs defaultValue="products" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4 max-w-lg">
+            <TabsList className="grid w-full grid-cols-5 max-w-xl">
               <TabsTrigger value="products">Products</TabsTrigger>
               <TabsTrigger value="codes">Codes</TabsTrigger>
               <TabsTrigger value="orders">Orders</TabsTrigger>
+              <TabsTrigger value="wallet">Wallet</TabsTrigger>
               <TabsTrigger value="payouts">Payouts</TabsTrigger>
             </TabsList>
 
@@ -119,6 +139,100 @@ const VendorDashboard = () => {
                   </CardContent>
                 </Card>
               ))}
+            </TabsContent>
+
+            {/* Vendor Wallet */}
+            <TabsContent value="wallet" className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <Card className="border-border">
+                  <CardContent className="p-5 text-center">
+                    <Wallet className="w-6 h-6 text-primary mx-auto mb-2" />
+                    <p className="text-3xl font-bold text-foreground">${vendorWallet.available}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Available Balance</p>
+                  </CardContent>
+                </Card>
+                <Card className="border-border">
+                  <CardContent className="p-5 text-center">
+                    <Clock className="w-6 h-6 text-accent mx-auto mb-2" />
+                    <p className="text-3xl font-bold text-foreground">${vendorWallet.pending}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Pending Balance</p>
+                    <p className="text-xs text-muted-foreground">(purchased but not redeemed)</p>
+                  </CardContent>
+                </Card>
+                <Card className="border-border">
+                  <CardContent className="p-5 text-center">
+                    <DollarSign className="w-6 h-6 text-secondary mx-auto mb-2" />
+                    <p className="text-3xl font-bold text-foreground">${vendorWallet.totalSales.toLocaleString()}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Total Sales</p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <Button variant="hero" onClick={() => setShowWithdrawForm(!showWithdrawForm)}>
+                  <ArrowUpRight className="w-4 h-4 mr-2" /> Withdraw Funds
+                </Button>
+                <Button variant="outline"><Clock className="w-4 h-4 mr-2" /> Transaction History</Button>
+                <Button variant="outline"><Building className="w-4 h-4 mr-2" /> Connect Bank Account</Button>
+              </div>
+
+              <p className="text-xs text-muted-foreground">You can only withdraw from your Available Balance (${vendorWallet.available}), not Pending Balance.</p>
+
+              {showWithdrawForm && (
+                <Card className="border-primary/20">
+                  <CardContent className="p-6 space-y-4">
+                    <h3 className="font-semibold text-foreground">Withdraw Funds</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Amount</Label>
+                        <Input type="number" placeholder="$0.00" value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} max={vendorWallet.available} />
+                        <p className="text-xs text-muted-foreground">Max: ${vendorWallet.available}</p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Bank Account</Label>
+                        <div className="bg-muted rounded-lg p-3">
+                          <p className="text-sm font-medium text-foreground">Business Bank</p>
+                          <p className="text-xs text-muted-foreground">••••••••5678</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <Button variant="hero" onClick={() => setShowWithdrawForm(false)}>Confirm Withdrawal</Button>
+                      <Button variant="outline" onClick={() => setShowWithdrawForm(false)}>Cancel</Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              <Card className="border-border">
+                <CardHeader><CardTitle className="text-base font-body">Transaction History</CardTitle></CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-border text-muted-foreground">
+                          <th className="text-left py-2 font-medium">Date</th>
+                          <th className="text-left py-2 font-medium">Description</th>
+                          <th className="text-left py-2 font-medium">Type</th>
+                          <th className="text-right py-2 font-medium">Amount</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {vendorWallet.transactions.map((t) => (
+                          <tr key={t.id} className="border-b border-border last:border-0">
+                            <td className="py-3 text-foreground">{t.date}</td>
+                            <td className="py-3 text-foreground">{t.desc}</td>
+                            <td className="py-3"><Badge variant="outline" className="text-xs">{t.type}</Badge></td>
+                            <td className={`py-3 text-right font-semibold ${t.amount > 0 ? "text-secondary" : t.amount < 0 ? "text-destructive" : "text-muted-foreground"}`}>
+                              {t.amount > 0 ? `+$${t.amount}` : t.amount < 0 ? `-$${Math.abs(t.amount)}` : "—"}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             <TabsContent value="payouts">
