@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Package, Tag, ShoppingCart, DollarSign, CreditCard, Plus, MoreHorizontal, Wallet, ArrowUpRight, Clock, Building } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Package, Tag, ShoppingCart, DollarSign, CreditCard, Plus, MoreHorizontal, Wallet, ArrowUpRight, Clock, Building, Shield, Trash2, CheckCircle } from "lucide-react";
 import Navbar from "@/components/landing/Navbar";
 
 const products = [
@@ -42,10 +43,77 @@ const vendorWallet = {
 const VendorDashboard = () => {
   const [showWithdrawForm, setShowWithdrawForm] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [showTransactions, setShowTransactions] = useState(false);
+  const [showBankForm, setShowBankForm] = useState(false);
+  const [bankAccounts, setBankAccounts] = useState([
+    { id: 1, bankName: "Business Bank", accountNumber: "••••••••5678", holderName: "Relax Spa Ltd.", country: "Nigeria", isPrimary: true }
+  ]);
+  const [bankForm, setBankForm] = useState({ country: "", bankName: "", accountNumber: "", holderName: "" });
+  const [verifyAction, setVerifyAction] = useState<null | string>(null);
+  const [verifyPassword, setVerifyPassword] = useState("");
+  const [withdrawBank, setWithdrawBank] = useState("");
+
+  const handleAddBank = () => {
+    if (!bankForm.country || !bankForm.bankName || !bankForm.accountNumber || !bankForm.holderName) return;
+    setBankAccounts([...bankAccounts, {
+      id: Date.now(), bankName: bankForm.bankName,
+      accountNumber: "••••••••" + bankForm.accountNumber.slice(-4),
+      holderName: bankForm.holderName, country: bankForm.country,
+      isPrimary: bankAccounts.length === 0
+    }]);
+    setBankForm({ country: "", bankName: "", accountNumber: "", holderName: "" });
+    setShowBankForm(false);
+    setVerifyAction(null);
+  };
+
+  const confirmVerifiedAction = () => {
+    if (!verifyPassword) return;
+    if (verifyAction?.startsWith("remove-bank-")) {
+      const id = Number(verifyAction.split("-")[2]);
+      setBankAccounts(bankAccounts.filter(b => b.id !== id));
+    }
+    if (verifyAction === "withdraw") {
+      setShowWithdrawForm(false);
+      setWithdrawAmount("");
+    }
+    if (verifyAction === "add-bank") {
+      handleAddBank();
+    }
+    setVerifyAction(null);
+    setVerifyPassword("");
+  };
+
+  const renderVerifyModal = () => {
+    if (!verifyAction) return null;
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="absolute inset-0 bg-foreground/50" onClick={() => { setVerifyAction(null); setVerifyPassword(""); }} />
+        <Card className="relative z-10 w-full max-w-sm mx-4 border-border shadow-elevated">
+          <CardContent className="p-6 space-y-4">
+            <div className="text-center">
+              <Shield className="w-10 h-10 text-primary mx-auto mb-2" />
+              <h3 className="font-semibold text-foreground">Security Verification</h3>
+              <p className="text-sm text-muted-foreground mt-1">Enter your password to confirm this action</p>
+            </div>
+            <div className="space-y-2">
+              <Label>Password</Label>
+              <Input type="password" placeholder="Enter your password" value={verifyPassword} onChange={e => setVerifyPassword(e.target.value)} />
+            </div>
+            <p className="text-xs text-muted-foreground text-center">Or we can send a verification code to your email</p>
+            <div className="flex gap-3">
+              <Button variant="hero" className="flex-1" onClick={confirmVerifiedAction} disabled={!verifyPassword}>Confirm</Button>
+              <Button variant="outline" className="flex-1" onClick={() => { setVerifyAction(null); setVerifyPassword(""); }}>Cancel</Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
+      {renderVerifyModal()}
       <div className="pt-20 pb-16">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="flex items-center justify-between mb-8">
@@ -56,7 +124,6 @@ const VendorDashboard = () => {
             <Button variant="hero"><Plus className="w-4 h-4 mr-2" /> Add Product</Button>
           </div>
 
-          {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             {[
               { label: "Products", value: "3", icon: Package },
@@ -172,67 +239,141 @@ const VendorDashboard = () => {
                 <Button variant="hero" onClick={() => setShowWithdrawForm(!showWithdrawForm)}>
                   <ArrowUpRight className="w-4 h-4 mr-2" /> Withdraw Funds
                 </Button>
-                <Button variant="outline"><Clock className="w-4 h-4 mr-2" /> Transaction History</Button>
-                <Button variant="outline"><Building className="w-4 h-4 mr-2" /> Connect Bank Account</Button>
+                <Button variant="outline" onClick={() => setShowTransactions(!showTransactions)}>
+                  <Clock className="w-4 h-4 mr-2" /> View Transactions
+                </Button>
+                <Button variant="outline" onClick={() => setShowBankForm(!showBankForm)}>
+                  <Building className="w-4 h-4 mr-2" /> {bankAccounts.length > 0 ? "Manage Bank Accounts" : "Connect Bank Account"}
+                </Button>
               </div>
 
               <p className="text-xs text-muted-foreground">You can only withdraw from your Available Balance (${vendorWallet.available}), not Pending Balance.</p>
 
+              {/* Bank Account Management */}
+              {showBankForm && (
+                <Card className="border-border">
+                  <CardContent className="p-6 space-y-4">
+                    <h3 className="font-semibold text-foreground">Bank Accounts</h3>
+                    {bankAccounts.map(b => (
+                      <div key={b.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{b.bankName} {b.isPrimary && <Badge variant="secondary" className="ml-2 text-xs">Primary</Badge>}</p>
+                          <p className="text-xs text-muted-foreground">{b.holderName} · {b.accountNumber} · {b.country}</p>
+                        </div>
+                        <div className="flex gap-2">
+                          {!b.isPrimary && (
+                            <Button variant="ghost" size="sm" onClick={() => {
+                              setBankAccounts(bankAccounts.map(ba => ({ ...ba, isPrimary: ba.id === b.id })));
+                            }}>Set Primary</Button>
+                          )}
+                          <Button variant="ghost" size="sm" className="text-destructive" onClick={() => setVerifyAction(`remove-bank-${b.id}`)}>
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="border-t border-border pt-4 space-y-3">
+                      <h4 className="text-sm font-medium text-foreground">Add New Bank Account</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <Label className="text-xs">Country</Label>
+                          <Select value={bankForm.country} onValueChange={v => setBankForm({ ...bankForm, country: v })}>
+                            <SelectTrigger><SelectValue placeholder="Select country" /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Nigeria">Nigeria</SelectItem>
+                              <SelectItem value="United States">United States</SelectItem>
+                              <SelectItem value="United Kingdom">United Kingdom</SelectItem>
+                              <SelectItem value="Ghana">Ghana</SelectItem>
+                              <SelectItem value="Kenya">Kenya</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Bank Name</Label>
+                          <Input value={bankForm.bankName} onChange={e => setBankForm({ ...bankForm, bankName: e.target.value })} placeholder="e.g. First Bank" />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Account Number</Label>
+                          <Input value={bankForm.accountNumber} onChange={e => setBankForm({ ...bankForm, accountNumber: e.target.value })} placeholder="e.g. 0123456789" />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Account Holder Name</Label>
+                          <Input value={bankForm.holderName} onChange={e => setBankForm({ ...bankForm, holderName: e.target.value })} placeholder="Full name" />
+                        </div>
+                      </div>
+                      <Button variant="hero" size="sm" onClick={() => setVerifyAction("add-bank")}>
+                        <CheckCircle className="w-4 h-4 mr-1" /> Verify & Add Account
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Withdrawal Form */}
               {showWithdrawForm && (
                 <Card className="border-primary/20">
                   <CardContent className="p-6 space-y-4">
                     <h3 className="font-semibold text-foreground">Withdraw Funds</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
+                        <Label>Select Bank Account</Label>
+                        <Select value={withdrawBank} onValueChange={setWithdrawBank}>
+                          <SelectTrigger><SelectValue placeholder="Choose bank" /></SelectTrigger>
+                          <SelectContent>
+                            {bankAccounts.map(b => (
+                              <SelectItem key={b.id} value={String(b.id)}>{b.bankName} — {b.accountNumber}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
                         <Label>Amount</Label>
                         <Input type="number" placeholder="$0.00" value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} max={vendorWallet.available} />
                         <p className="text-xs text-muted-foreground">Max: ${vendorWallet.available}</p>
                       </div>
-                      <div className="space-y-2">
-                        <Label>Bank Account</Label>
-                        <div className="bg-muted rounded-lg p-3">
-                          <p className="text-sm font-medium text-foreground">Business Bank</p>
-                          <p className="text-xs text-muted-foreground">••••••••5678</p>
-                        </div>
-                      </div>
                     </div>
                     <div className="flex gap-3">
-                      <Button variant="hero" onClick={() => setShowWithdrawForm(false)}>Confirm Withdrawal</Button>
+                      <Button variant="hero" onClick={() => setVerifyAction("withdraw")} disabled={!withdrawBank || !withdrawAmount}>
+                        <Shield className="w-4 h-4 mr-1" /> Verify & Withdraw
+                      </Button>
                       <Button variant="outline" onClick={() => setShowWithdrawForm(false)}>Cancel</Button>
                     </div>
                   </CardContent>
                 </Card>
               )}
 
-              <Card className="border-border">
-                <CardHeader><CardTitle className="text-base font-body">Transaction History</CardTitle></CardHeader>
-                <CardContent>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b border-border text-muted-foreground">
-                          <th className="text-left py-2 font-medium">Date</th>
-                          <th className="text-left py-2 font-medium">Description</th>
-                          <th className="text-left py-2 font-medium">Type</th>
-                          <th className="text-right py-2 font-medium">Amount</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {vendorWallet.transactions.map((t) => (
-                          <tr key={t.id} className="border-b border-border last:border-0">
-                            <td className="py-3 text-foreground">{t.date}</td>
-                            <td className="py-3 text-foreground">{t.desc}</td>
-                            <td className="py-3"><Badge variant="outline" className="text-xs">{t.type}</Badge></td>
-                            <td className={`py-3 text-right font-semibold ${t.amount > 0 ? "text-secondary" : t.amount < 0 ? "text-destructive" : "text-muted-foreground"}`}>
-                              {t.amount > 0 ? `+$${t.amount}` : t.amount < 0 ? `-$${Math.abs(t.amount)}` : "—"}
-                            </td>
+              {/* Transaction History */}
+              {showTransactions && (
+                <Card className="border-border">
+                  <CardHeader><CardTitle className="text-base font-body">Transaction History</CardTitle></CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-border text-muted-foreground">
+                            <th className="text-left py-2 font-medium">Date</th>
+                            <th className="text-left py-2 font-medium">Description</th>
+                            <th className="text-left py-2 font-medium">Type</th>
+                            <th className="text-right py-2 font-medium">Amount</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </CardContent>
-              </Card>
+                        </thead>
+                        <tbody>
+                          {vendorWallet.transactions.map((t) => (
+                            <tr key={t.id} className="border-b border-border last:border-0">
+                              <td className="py-3 text-foreground">{t.date}</td>
+                              <td className="py-3 text-foreground">{t.desc}</td>
+                              <td className="py-3"><Badge variant="outline" className="text-xs">{t.type}</Badge></td>
+                              <td className={`py-3 text-right font-semibold ${t.amount > 0 ? "text-secondary" : t.amount < 0 ? "text-destructive" : "text-muted-foreground"}`}>
+                                {t.amount > 0 ? `+$${t.amount}` : t.amount < 0 ? `-$${Math.abs(t.amount)}` : "—"}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </TabsContent>
 
             <TabsContent value="payouts">

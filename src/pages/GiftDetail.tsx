@@ -23,6 +23,7 @@ const GiftDetail = () => {
   const { id } = useParams<{ id: string }>();
   const gift = id ? giftsData[id] : null;
   const [showGiftModal, setShowGiftModal] = useState(false);
+  const [liked, setLiked] = useState(false);
 
   if (!gift) {
     return (
@@ -71,9 +72,17 @@ const GiftDetail = () => {
                 <Button variant="hero" size="lg" className="flex-1" onClick={() => setShowGiftModal(true)}>
                   <ShoppingBag className="w-4 h-4 mr-2" /> Send as Gift
                 </Button>
-                <Button variant="outline" size="lg"><Heart className="w-4 h-4" /></Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => setLiked(!liked)}
+                  className={liked ? "text-destructive border-destructive/30 bg-destructive/5" : ""}
+                >
+                  <Heart className={`w-4 h-4 ${liked ? "fill-destructive" : ""}`} />
+                </Button>
                 <Button variant="outline" size="lg"><Share2 className="w-4 h-4" /></Button>
               </div>
+              {liked && <p className="text-xs text-muted-foreground mt-2">❤️ Added to your favorites</p>}
             </div>
           </div>
         </div>

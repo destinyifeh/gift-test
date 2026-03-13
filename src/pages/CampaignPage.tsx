@@ -4,9 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Gift, Share2, Heart, Users, Clock, Lock, Globe, Edit, Calendar } from "lucide-react";
+import { Gift, Share2, Heart, Users, Clock, Lock, Globe, Calendar } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/landing/Navbar";
 import SendGiftModal from "@/components/SendGiftModal";
@@ -23,7 +21,6 @@ const campaignData = {
   endDate: "2026-03-17",
   visibility: "public" as const,
   image: "/placeholder.svg",
-  isOwner: true,
   contributions: [
     { id: 1, name: "Mary K.", amount: 50, message: "Happy birthday Sarah! 🎉", anonymous: false, hideAmount: false, date: "2026-03-08" },
     { id: 2, name: "Anonymous", amount: 25, message: "Wishing you the best!", anonymous: true, hideAmount: false, date: "2026-03-07" },
@@ -35,13 +32,10 @@ const campaignData = {
 
 const CampaignPage = () => {
   const [showGiftModal, setShowGiftModal] = useState(false);
-  const [editing, setEditing] = useState(false);
-  const [editEndDate, setEditEndDate] = useState(campaignData.endDate);
-  const [editTitle, setEditTitle] = useState(campaignData.title);
   const progress = (campaignData.raised / campaignData.goal) * 100;
 
   const getDaysLeft = () => {
-    const end = new Date(editEndDate);
+    const end = new Date(campaignData.endDate);
     const now = new Date();
     const diff = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
     return diff > 0 ? diff : 0;
@@ -64,31 +58,12 @@ const CampaignPage = () => {
                   {campaignData.visibility}
                 </Badge>
               </div>
-
-              {editing ? (
-                <div className="space-y-4 mb-4">
-                  <div><Label>Campaign Title</Label><Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} /></div>
-                  <div><Label>End Date</Label><Input type="date" value={editEndDate} onChange={(e) => setEditEndDate(e.target.value)} /></div>
-                  <div className="flex gap-2">
-                    <Button variant="hero" size="sm" onClick={() => setEditing(false)}>Save Changes</Button>
-                    <Button variant="outline" size="sm" onClick={() => setEditing(false)}>Cancel</Button>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <h1 className="text-3xl font-bold font-display text-foreground mb-3">{editTitle}</h1>
-                  <p className="text-muted-foreground leading-relaxed mb-4">{campaignData.description}</p>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-                    <span>Created by <span className="text-foreground font-medium">{campaignData.creator}</span></span>
-                    <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> {campaignData.startDate} — {editEndDate}</span>
-                  </div>
-                  {campaignData.isOwner && (
-                    <Button variant="outline" size="sm" onClick={() => setEditing(true)} className="gap-2 mb-4">
-                      <Edit className="w-3.5 h-3.5" /> Edit Campaign
-                    </Button>
-                  )}
-                </>
-              )}
+              <h1 className="text-3xl font-bold font-display text-foreground mb-3">{campaignData.title}</h1>
+              <p className="text-muted-foreground leading-relaxed mb-4">{campaignData.description}</p>
+              <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+                <span>Created by <span className="text-foreground font-medium">{campaignData.creator}</span></span>
+                <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> {campaignData.startDate} — {campaignData.endDate}</span>
+              </div>
             </div>
 
             {/* Sidebar */}

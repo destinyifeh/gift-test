@@ -8,12 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Gift, Send, Clock, DollarSign, Users, ArrowUpRight, Plus, LayoutDashboard,
   Heart, Wallet, Settings, Star, Code, BarChart3, Eye, Sparkles, Globe,
   CreditCard, Camera, Link as LinkIcon, LogOut, Menu, X, ChevronRight, User,
   Key, Copy, CheckCircle, Crown, Zap, Palette, Globe2, MessageSquare, Trophy,
-  Calendar, BanknoteIcon, ArrowDownLeft, Building
+  Calendar, BanknoteIcon, ArrowDownLeft, Building, Shield, Edit, Trash2, Upload, Image
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -35,8 +36,8 @@ const contributions = [
 ];
 
 const myCampaigns = [
-  { id: 1, title: "Birthday Gift for Sarah 🎂", slug: "birthday-gift-for-sarah", raised: 340, goal: 500, contributors: 12, status: "active", endDate: "2026-03-17" },
-  { id: 2, title: "Team Appreciation Fund", slug: "team-appreciation", raised: 200, goal: 200, contributors: 8, status: "completed", endDate: "2026-03-01" },
+  { id: 1, title: "Birthday Gift for Sarah 🎂", slug: "birthday-gift-for-sarah", raised: 340, goal: 500, contributors: 12, status: "active", endDate: "2026-03-17", startDate: "2026-03-01", category: "Appreciation", description: "Let's surprise Sarah with an amazing birthday gift!" },
+  { id: 2, title: "Team Appreciation Fund", slug: "team-appreciation", raised: 200, goal: 200, contributors: 8, status: "completed", endDate: "2026-03-01", startDate: "2026-02-15", category: "Appreciation", description: "Celebrate the team's hard work." },
 ];
 
 const walletData = {
@@ -50,6 +51,10 @@ const walletData = {
     { id: 2, type: "received", from: "Anonymous", desc: "Gift", amount: 10, date: "2026-05-10" },
     { id: 3, type: "received", from: "Sarah K", desc: "Gift", amount: 20, date: "2026-05-11" },
     { id: 4, type: "withdrawn", from: "Withdrawal", desc: "Bank", amount: -48, date: "2026-05-12" },
+    { id: 5, type: "received", from: "Mike T", desc: "Campaign", amount: 15, date: "2026-05-09" },
+    { id: 6, type: "received", from: "Lisa M", desc: "Gift", amount: 30, date: "2026-05-08" },
+    { id: 7, type: "withdrawn", from: "Withdrawal", desc: "Bank", amount: -100, date: "2026-05-05" },
+    { id: 8, type: "received", from: "Anonymous", desc: "Gift", amount: 5, date: "2026-05-04" },
   ],
 };
 
@@ -95,6 +100,24 @@ const Dashboard = () => {
   const [showWithdrawForm, setShowWithdrawForm] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [customDomain, setCustomDomain] = useState("");
+  const [showTransactions, setShowTransactions] = useState(false);
+  const [showBankForm, setShowBankForm] = useState(false);
+  const [bankAccounts, setBankAccounts] = useState([
+    { id: 1, bankName: "First Bank", accountNumber: "••••••••1234", holderName: "Destiny O.", country: "Nigeria", isPrimary: true }
+  ]);
+  const [bankForm, setBankForm] = useState({ country: "", bankName: "", accountNumber: "", holderName: "" });
+  const [verifyAction, setVerifyAction] = useState<null | string>(null);
+  const [verifyPassword, setVerifyPassword] = useState("");
+  const [withdrawBank, setWithdrawBank] = useState("");
+  const [editingCampaign, setEditingCampaign] = useState<number | null>(null);
+  const [editCampaignTitle, setEditCampaignTitle] = useState("");
+  const [editCampaignEndDate, setEditCampaignEndDate] = useState("");
+  const [editCampaignDesc, setEditCampaignDesc] = useState("");
+  // Pro features state
+  const [proTheme, setProTheme] = useState("default");
+  const [proBanner, setProBanner] = useState("");
+  const [proThankYou, setProThankYou] = useState("Thank you so much for your generous gift! 🎉");
+  const [proRemoveBranding, setProRemoveBranding] = useState(true);
   const navigate = useNavigate();
 
   const user = { name: "Destiny O.", username: "destiny", email: "destiny@email.com" };
@@ -111,6 +134,40 @@ const Dashboard = () => {
     const now = new Date();
     const diff = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
     return diff > 0 ? diff : 0;
+  };
+
+  const handleAddBank = () => {
+    if (!bankForm.country || !bankForm.bankName || !bankForm.accountNumber || !bankForm.holderName) return;
+    setBankAccounts([...bankAccounts, {
+      id: Date.now(), bankName: bankForm.bankName,
+      accountNumber: "••••••••" + bankForm.accountNumber.slice(-4),
+      holderName: bankForm.holderName, country: bankForm.country,
+      isPrimary: bankAccounts.length === 0
+    }]);
+    setBankForm({ country: "", bankName: "", accountNumber: "", holderName: "" });
+    setShowBankForm(false);
+    setVerifyAction(null);
+  };
+
+  const handleRemoveBank = (id: number) => {
+    setVerifyAction(`remove-bank-${id}`);
+  };
+
+  const confirmVerifiedAction = () => {
+    if (!verifyPassword) return;
+    if (verifyAction?.startsWith("remove-bank-")) {
+      const id = Number(verifyAction.split("-")[2]);
+      setBankAccounts(bankAccounts.filter(b => b.id !== id));
+    }
+    if (verifyAction === "withdraw") {
+      setShowWithdrawForm(false);
+      setWithdrawAmount("");
+    }
+    if (verifyAction === "add-bank") {
+      handleAddBank();
+    }
+    setVerifyAction(null);
+    setVerifyPassword("");
   };
 
   const renderSidebar = () => (
@@ -174,8 +231,37 @@ const Dashboard = () => {
     </div>
   );
 
+  // Verify Modal
+  const renderVerifyModal = () => {
+    if (!verifyAction) return null;
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="absolute inset-0 bg-foreground/50" onClick={() => { setVerifyAction(null); setVerifyPassword(""); }} />
+        <Card className="relative z-10 w-full max-w-sm mx-4 border-border shadow-elevated">
+          <CardContent className="p-6 space-y-4">
+            <div className="text-center">
+              <Shield className="w-10 h-10 text-primary mx-auto mb-2" />
+              <h3 className="font-semibold text-foreground">Security Verification</h3>
+              <p className="text-sm text-muted-foreground mt-1">Enter your password to confirm this action</p>
+            </div>
+            <div className="space-y-2">
+              <Label>Password</Label>
+              <Input type="password" placeholder="Enter your password" value={verifyPassword} onChange={e => setVerifyPassword(e.target.value)} />
+            </div>
+            <p className="text-xs text-muted-foreground text-center">Or we can send a verification code to {user.email}</p>
+            <div className="flex gap-3">
+              <Button variant="hero" className="flex-1" onClick={confirmVerifiedAction} disabled={!verifyPassword}>Confirm</Button>
+              <Button variant="outline" className="flex-1" onClick={() => { setVerifyAction(null); setVerifyPassword(""); }}>Cancel</Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-background flex">
+      {renderVerifyModal()}
       {/* Desktop sidebar */}
       <aside className="hidden md:flex w-64 border-r border-border bg-card flex-col shrink-0 sticky top-0 h-screen">
         <div className="p-4 border-b border-border">
@@ -388,24 +474,53 @@ const Dashboard = () => {
                 <Link to="/create-campaign"><Button variant="hero" size="sm"><Plus className="w-4 h-4 mr-1" /> New Campaign</Button></Link>
               </div>
               {myCampaigns.map((c) => (
-                <Link key={c.id} to={`/campaign/${c.slug}`}>
-                  <Card className="border-border hover:border-primary/30 transition-colors cursor-pointer">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <p className="font-semibold text-foreground">{c.title}</p>
-                        <div className="flex items-center gap-2">
-                          <Badge variant={statusColor(c.status) as any}>{c.status}</Badge>
-                          {getDaysLeft(c.endDate) > 0 && <Badge variant="outline" className="gap-1"><Clock className="w-3 h-3" />{getDaysLeft(c.endDate)}d left</Badge>}
+                <Card key={c.id} className="border-border">
+                  <CardContent className="p-4">
+                    {editingCampaign === c.id ? (
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label>Campaign Title</Label>
+                          <Input value={editCampaignTitle} onChange={e => setEditCampaignTitle(e.target.value)} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Description</Label>
+                          <Textarea value={editCampaignDesc} onChange={e => setEditCampaignDesc(e.target.value)} rows={2} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>End Date</Label>
+                          <Input type="date" value={editCampaignEndDate} onChange={e => setEditCampaignEndDate(e.target.value)} />
+                        </div>
+                        <div className="flex gap-2">
+                          <Button variant="hero" size="sm" onClick={() => setEditingCampaign(null)}>Save Changes</Button>
+                          <Button variant="outline" size="sm" onClick={() => setEditingCampaign(null)}>Cancel</Button>
                         </div>
                       </div>
-                      <Progress value={(c.raised / c.goal) * 100} className="h-2 mb-2" />
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">${c.raised} raised of ${c.goal}</span>
-                        <span className="text-muted-foreground">{c.contributors} contributors</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                    ) : (
+                      <>
+                        <div className="flex items-center justify-between mb-3">
+                          <Link to={`/campaign/${c.slug}`} className="hover:underline">
+                            <p className="font-semibold text-foreground">{c.title}</p>
+                          </Link>
+                          <div className="flex items-center gap-2">
+                            <Badge variant={statusColor(c.status) as any}>{c.status}</Badge>
+                            {getDaysLeft(c.endDate) > 0 && <Badge variant="outline" className="gap-1"><Clock className="w-3 h-3" />{getDaysLeft(c.endDate)}d left</Badge>}
+                            <Button variant="ghost" size="sm" onClick={() => {
+                              setEditingCampaign(c.id);
+                              setEditCampaignTitle(c.title);
+                              setEditCampaignEndDate(c.endDate);
+                              setEditCampaignDesc(c.description);
+                            }}><Edit className="w-3.5 h-3.5" /></Button>
+                          </div>
+                        </div>
+                        <Progress value={(c.raised / c.goal) * 100} className="h-2 mb-2" />
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">${c.raised} raised of ${c.goal}</span>
+                          <span className="text-muted-foreground">{c.contributors} contributors</span>
+                        </div>
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
               ))}
               <Link to="/campaigns">
                 <Button variant="outline" className="w-full mt-2">Browse All Public Campaigns <ChevronRight className="w-4 h-4 ml-1" /></Button>
@@ -416,7 +531,6 @@ const Dashboard = () => {
           {/* WALLET */}
           {section === "wallet" && (
             <div className="space-y-6">
-              {/* Wallet Overview */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <Card className="border-border">
                   <CardContent className="p-5 text-center">
@@ -441,18 +555,77 @@ const Dashboard = () => {
                 </Card>
               </div>
 
-              {/* Wallet Actions */}
               <div className="flex flex-wrap gap-3">
                 <Button variant="hero" onClick={() => setShowWithdrawForm(!showWithdrawForm)}>
                   <ArrowUpRight className="w-4 h-4 mr-2" /> Withdraw Funds
                 </Button>
-                <Button variant="outline" onClick={() => {}}>
+                <Button variant="outline" onClick={() => setShowTransactions(!showTransactions)}>
                   <Clock className="w-4 h-4 mr-2" /> View Transactions
                 </Button>
-                <Button variant="outline">
-                  <Building className="w-4 h-4 mr-2" /> Connect Bank Account
+                <Button variant="outline" onClick={() => setShowBankForm(!showBankForm)}>
+                  <Building className="w-4 h-4 mr-2" /> {bankAccounts.length > 0 ? "Manage Bank Accounts" : "Connect Bank Account"}
                 </Button>
               </div>
+
+              {/* Bank Account Management */}
+              {showBankForm && (
+                <Card className="border-border">
+                  <CardContent className="p-6 space-y-4">
+                    <h3 className="font-semibold text-foreground">Bank Accounts</h3>
+                    {bankAccounts.map(b => (
+                      <div key={b.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{b.bankName} {b.isPrimary && <Badge variant="secondary" className="ml-2 text-xs">Primary</Badge>}</p>
+                          <p className="text-xs text-muted-foreground">{b.holderName} · {b.accountNumber} · {b.country}</p>
+                        </div>
+                        <div className="flex gap-2">
+                          {!b.isPrimary && (
+                            <Button variant="ghost" size="sm" onClick={() => {
+                              setBankAccounts(bankAccounts.map(ba => ({ ...ba, isPrimary: ba.id === b.id })));
+                            }}>Set Primary</Button>
+                          )}
+                          <Button variant="ghost" size="sm" className="text-destructive" onClick={() => handleRemoveBank(b.id)}>
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="border-t border-border pt-4 space-y-3">
+                      <h4 className="text-sm font-medium text-foreground">Add New Bank Account</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <Label className="text-xs">Country</Label>
+                          <Select value={bankForm.country} onValueChange={v => setBankForm({ ...bankForm, country: v })}>
+                            <SelectTrigger><SelectValue placeholder="Select country" /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Nigeria">Nigeria</SelectItem>
+                              <SelectItem value="United States">United States</SelectItem>
+                              <SelectItem value="United Kingdom">United Kingdom</SelectItem>
+                              <SelectItem value="Ghana">Ghana</SelectItem>
+                              <SelectItem value="Kenya">Kenya</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Bank Name</Label>
+                          <Input value={bankForm.bankName} onChange={e => setBankForm({ ...bankForm, bankName: e.target.value })} placeholder="e.g. First Bank" />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Account Number</Label>
+                          <Input value={bankForm.accountNumber} onChange={e => setBankForm({ ...bankForm, accountNumber: e.target.value })} placeholder="e.g. 0123456789" />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Account Holder Name</Label>
+                          <Input value={bankForm.holderName} onChange={e => setBankForm({ ...bankForm, holderName: e.target.value })} placeholder="Full name" />
+                        </div>
+                      </div>
+                      <Button variant="hero" size="sm" onClick={() => setVerifyAction("add-bank")}>
+                        <CheckCircle className="w-4 h-4 mr-1" /> Verify & Add Account
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Withdrawal Form */}
               {showWithdrawForm && (
@@ -461,20 +634,26 @@ const Dashboard = () => {
                     <h3 className="font-semibold text-foreground">Withdraw Funds</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
+                        <Label>Select Bank Account</Label>
+                        <Select value={withdrawBank} onValueChange={setWithdrawBank}>
+                          <SelectTrigger><SelectValue placeholder="Choose bank" /></SelectTrigger>
+                          <SelectContent>
+                            {bankAccounts.map(b => (
+                              <SelectItem key={b.id} value={String(b.id)}>{b.bankName} — {b.accountNumber}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
                         <Label>Amount</Label>
                         <Input type="number" placeholder="$0.00" value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} max={walletData.availableBalance} />
                         <p className="text-xs text-muted-foreground">Max: ${walletData.availableBalance}.00</p>
                       </div>
-                      <div className="space-y-2">
-                        <Label>Bank Account</Label>
-                        <div className="bg-muted rounded-lg p-3">
-                          <p className="text-sm font-medium text-foreground">First Bank</p>
-                          <p className="text-xs text-muted-foreground">••••••••1234</p>
-                        </div>
-                      </div>
                     </div>
                     <div className="flex gap-3">
-                      <Button variant="hero" onClick={() => setShowWithdrawForm(false)}>Confirm Withdrawal</Button>
+                      <Button variant="hero" onClick={() => setVerifyAction("withdraw")} disabled={!withdrawBank || !withdrawAmount}>
+                        <Shield className="w-4 h-4 mr-1" /> Verify & Withdraw
+                      </Button>
                       <Button variant="outline" onClick={() => setShowWithdrawForm(false)}>Cancel</Button>
                     </div>
                   </CardContent>
@@ -482,35 +661,37 @@ const Dashboard = () => {
               )}
 
               {/* Transaction History */}
-              <Card className="border-border">
-                <CardHeader><CardTitle className="text-base font-body">Transaction History</CardTitle></CardHeader>
-                <CardContent>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b border-border text-muted-foreground">
-                          <th className="text-left py-2 font-medium">Date</th>
-                          <th className="text-left py-2 font-medium">From</th>
-                          <th className="text-left py-2 font-medium">Type</th>
-                          <th className="text-right py-2 font-medium">Amount</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {walletData.transactions.map((t) => (
-                          <tr key={t.id} className="border-b border-border last:border-0">
-                            <td className="py-3 text-foreground">{t.date}</td>
-                            <td className="py-3 text-foreground">{t.from}</td>
-                            <td className="py-3 text-muted-foreground">{t.desc}</td>
-                            <td className={`py-3 text-right font-semibold ${t.amount > 0 ? "text-secondary" : "text-destructive"}`}>
-                              {t.amount > 0 ? "+" : ""}${Math.abs(t.amount)}
-                            </td>
+              {showTransactions && (
+                <Card className="border-border">
+                  <CardHeader><CardTitle className="text-base font-body">Transaction History</CardTitle></CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-border text-muted-foreground">
+                            <th className="text-left py-2 font-medium">Date</th>
+                            <th className="text-left py-2 font-medium">From</th>
+                            <th className="text-left py-2 font-medium">Type</th>
+                            <th className="text-right py-2 font-medium">Amount</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </CardContent>
-              </Card>
+                        </thead>
+                        <tbody>
+                          {walletData.transactions.map((t) => (
+                            <tr key={t.id} className="border-b border-border last:border-0">
+                              <td className="py-3 text-foreground">{t.date}</td>
+                              <td className="py-3 text-foreground">{t.from}</td>
+                              <td className="py-3 text-muted-foreground">{t.desc}</td>
+                              <td className={`py-3 text-right font-semibold ${t.amount > 0 ? "text-secondary" : "text-destructive"}`}>
+                                {t.amount > 0 ? "+" : ""}${Math.abs(t.amount)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           )}
 
@@ -557,7 +738,6 @@ const Dashboard = () => {
           {/* CREATOR: MY GIFT PAGE */}
           {section === "gift-page" && creatorEnabled && (
             <div className="space-y-6">
-              {/* Plan indicator */}
               <Card className={creatorPlan === "pro" ? "border-accent/30 bg-accent/5" : "border-primary/20 bg-primary/5"}>
                 <CardContent className="p-4 flex items-center justify-between">
                   <div>
@@ -607,36 +787,185 @@ const Dashboard = () => {
                 </Card>
               )}
 
+              {/* Gift Page Settings */}
               <Card className="border-border">
                 <CardContent className="p-6 space-y-5">
                   <h3 className="font-semibold text-foreground">Gift Page Settings</h3>
                   <div className="space-y-2"><Label>Bio</Label><Textarea defaultValue="Frontend developer. Appreciate your support! 🚀" rows={3} /></div>
-                  <div className="space-y-2"><Label>Suggested Amounts</Label><Input defaultValue="5, 10, 20" /><p className="text-xs text-muted-foreground">Comma-separated</p></div>
-                  <div className="flex items-center justify-between"><div><p className="font-medium text-foreground">Accept money gifts</p></div><Switch defaultChecked /></div>
-                  <div className="flex items-center justify-between"><div><p className="font-medium text-foreground">Accept vendor gifts</p></div><Switch defaultChecked /></div>
-                  <div className="flex items-center justify-between"><div><p className="font-medium text-foreground">Show supporters</p></div><Switch defaultChecked /></div>
-                  <div className="flex items-center justify-between"><div><p className="font-medium text-foreground">Show amounts</p></div><Switch defaultChecked /></div>
+                  <div className="space-y-2">
+                    <Label>Suggested Amounts</Label>
+                    <Input defaultValue="5, 10, 20" />
+                    <p className="text-xs text-muted-foreground">Comma-separated values shown on your gift page</p>
+                  </div>
 
-                  {/* Custom Domain - Pro only */}
-                  {creatorPlan === "pro" && (
-                    <div className="border-t border-border pt-5 space-y-4">
-                      <h3 className="font-semibold text-foreground flex items-center gap-2"><Globe2 className="w-4 h-4" /> Custom Domain <Badge variant="default" className="text-xs">Pro</Badge></h3>
-                      <p className="text-sm text-muted-foreground">Use your own domain instead of gifttogether.com/{user.username}</p>
-                      <Input placeholder="gifts.yourdomain.com" value={customDomain} onChange={(e) => setCustomDomain(e.target.value)} />
-                      {customDomain && (
-                        <Card className="border-border bg-muted/50">
-                          <CardContent className="p-4 space-y-2">
-                            <p className="text-sm font-medium text-foreground">Add this DNS record:</p>
-                            <div className="bg-background rounded-lg p-3 font-mono text-xs space-y-1">
-                              <p><span className="text-muted-foreground">Type:</span> <span className="text-foreground">CNAME</span></p>
-                              <p><span className="text-muted-foreground">Host:</span> <span className="text-foreground">{customDomain.split('.')[0]}</span></p>
-                              <p><span className="text-muted-foreground">Value:</span> <span className="text-foreground">gifttogether.com</span></p>
-                            </div>
-                            <p className="text-xs text-muted-foreground">Add this record in your domain provider (Cloudflare, GoDaddy, Namecheap, etc.)</p>
-                          </CardContent>
-                        </Card>
-                      )}
+                  <div className="space-y-4 border-t border-border pt-4">
+                    <h4 className="text-sm font-semibold text-foreground">Gift Options</h4>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-foreground">Accept money gifts</p>
+                        <p className="text-xs text-muted-foreground">People can send you money directly</p>
+                      </div>
+                      <Switch defaultChecked />
                     </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-foreground">Accept vendor gifts</p>
+                        <p className="text-xs text-muted-foreground">Gift cards and vouchers from vendors</p>
+                      </div>
+                      <Switch defaultChecked />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-foreground">Accept gift cards</p>
+                        <p className="text-xs text-muted-foreground">Allow people to send digital gift cards</p>
+                      </div>
+                      <Switch defaultChecked />
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 border-t border-border pt-4">
+                    <h4 className="text-sm font-semibold text-foreground">Visibility</h4>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-foreground">Show supporters</p>
+                        <p className="text-xs text-muted-foreground">Display supporter names on your page</p>
+                      </div>
+                      <Switch defaultChecked />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-foreground">Show amounts</p>
+                        <p className="text-xs text-muted-foreground">Display gift amounts publicly</p>
+                      </div>
+                      <Switch defaultChecked />
+                    </div>
+                  </div>
+
+                  {/* Pro features */}
+                  {creatorPlan === "pro" && (
+                    <>
+                      <div className="space-y-4 border-t border-border pt-5">
+                        <h4 className="text-sm font-semibold text-foreground flex items-center gap-2"><Palette className="w-4 h-4 text-accent" /> Theme Customization <Badge variant="default" className="text-xs">Pro</Badge></h4>
+                        <div className="space-y-2">
+                          <Label>Page Theme</Label>
+                          <Select value={proTheme} onValueChange={setProTheme}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="default">Default</SelectItem>
+                              <SelectItem value="dark">Dark</SelectItem>
+                              <SelectItem value="warm">Warm Sunset</SelectItem>
+                              <SelectItem value="ocean">Ocean Blue</SelectItem>
+                              <SelectItem value="forest">Forest Green</SelectItem>
+                              <SelectItem value="minimal">Minimal</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="grid grid-cols-3 gap-3">
+                          {[
+                            { name: "Primary Color", color: "hsl(16 85% 60%)" },
+                            { name: "Background", color: "hsl(30 50% 98%)" },
+                            { name: "Text Color", color: "hsl(20 25% 12%)" },
+                          ].map(c => (
+                            <div key={c.name} className="space-y-1">
+                              <Label className="text-xs">{c.name}</Label>
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-lg border border-border" style={{ background: c.color }} />
+                                <Input defaultValue={c.color} className="text-xs" />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="space-y-4 border-t border-border pt-5">
+                        <h4 className="text-sm font-semibold text-foreground flex items-center gap-2"><Image className="w-4 h-4" /> Custom Banner <Badge variant="default" className="text-xs">Pro</Badge></h4>
+                        <div className="border-2 border-dashed border-border rounded-xl p-6 text-center">
+                          {proBanner ? (
+                            <div className="space-y-2">
+                              <div className="h-32 bg-muted rounded-lg flex items-center justify-center text-muted-foreground">Banner Preview</div>
+                              <Button variant="outline" size="sm" onClick={() => setProBanner("")}>Remove Banner</Button>
+                            </div>
+                          ) : (
+                            <>
+                              <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                              <p className="text-sm text-muted-foreground">Drop image or click to upload</p>
+                              <Button variant="outline" size="sm" className="mt-2" onClick={() => setProBanner("banner.jpg")}>Upload Banner</Button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="space-y-3 border-t border-border pt-5">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-medium text-foreground flex items-center gap-2">Remove "Powered by" Branding <Badge variant="default" className="text-xs">Pro</Badge></p>
+                            <p className="text-xs text-muted-foreground">Hide platform branding from your gift page</p>
+                          </div>
+                          <Switch checked={proRemoveBranding} onCheckedChange={setProRemoveBranding} />
+                        </div>
+                      </div>
+
+                      <div className="space-y-3 border-t border-border pt-5">
+                        <h4 className="text-sm font-semibold text-foreground flex items-center gap-2"><MessageSquare className="w-4 h-4" /> Custom Thank-You Message <Badge variant="default" className="text-xs">Pro</Badge></h4>
+                        <Textarea value={proThankYou} onChange={e => setProThankYou(e.target.value)} rows={3} />
+                        <p className="text-xs text-muted-foreground">Sent to supporters after they gift you</p>
+                      </div>
+
+                      {/* Custom Domain */}
+                      <div className="border-t border-border pt-5 space-y-4">
+                        <h3 className="font-semibold text-foreground flex items-center gap-2"><Globe2 className="w-4 h-4" /> Custom Domain <Badge variant="default" className="text-xs">Pro</Badge></h3>
+                        <p className="text-sm text-muted-foreground">Use your own domain instead of gifttogether.com/{user.username}</p>
+                        <Input placeholder="gifts.yourdomain.com" value={customDomain} onChange={(e) => setCustomDomain(e.target.value)} />
+                        {customDomain && (
+                          <Card className="border-border bg-muted/50">
+                            <CardContent className="p-4 space-y-4">
+                              <p className="text-sm font-medium text-foreground">DNS Configuration Instructions</p>
+                              <p className="text-xs text-muted-foreground">Add the following DNS records in your domain provider (Cloudflare, GoDaddy, Namecheap, etc.)</p>
+
+                              <div className="space-y-3">
+                                <div className="bg-background rounded-lg p-3 font-mono text-xs space-y-1">
+                                  <p className="text-sm font-semibold text-foreground mb-2">Step 1: Add CNAME Record</p>
+                                  <p><span className="text-muted-foreground">Type:</span> <span className="text-foreground">CNAME</span></p>
+                                  <p><span className="text-muted-foreground">Host:</span> <span className="text-foreground">{customDomain.split('.')[0]}</span></p>
+                                  <p><span className="text-muted-foreground">Value:</span> <span className="text-foreground">gifttogether.com</span></p>
+                                  <p><span className="text-muted-foreground">TTL:</span> <span className="text-foreground">3600 (or Auto)</span></p>
+                                </div>
+
+                                <div className="bg-background rounded-lg p-3 font-mono text-xs space-y-1">
+                                  <p className="text-sm font-semibold text-foreground mb-2">Step 2: Add TXT Record (Verification)</p>
+                                  <p><span className="text-muted-foreground">Type:</span> <span className="text-foreground">TXT</span></p>
+                                  <p><span className="text-muted-foreground">Host:</span> <span className="text-foreground">_gifttogether</span></p>
+                                  <p><span className="text-muted-foreground">Value:</span> <span className="text-foreground">gt-verify=usr_{user.username}_abc123</span></p>
+                                </div>
+                              </div>
+
+                              <div className="bg-primary/5 rounded-lg p-3 text-xs space-y-1">
+                                <p className="font-semibold text-foreground">How to set up:</p>
+                                <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
+                                  <li>Log in to your domain registrar (Cloudflare, GoDaddy, Namecheap, etc.)</li>
+                                  <li>Navigate to DNS settings for your domain</li>
+                                  <li>Add the CNAME record above</li>
+                                  <li>Add the TXT record for verification</li>
+                                  <li>Wait up to 48 hours for DNS propagation</li>
+                                  <li>Come back here and click "Verify Domain"</li>
+                                </ol>
+                              </div>
+
+                              <div className="flex gap-2">
+                                <Button variant="hero" size="sm"><CheckCircle className="w-4 h-4 mr-1" /> Verify Domain</Button>
+                                <Button variant="outline" size="sm" onClick={() => {
+                                  navigator.clipboard.writeText(`Type: CNAME\nHost: ${customDomain.split('.')[0]}\nValue: gifttogether.com`);
+                                }}><Copy className="w-4 h-4 mr-1" /> Copy DNS Records</Button>
+                              </div>
+
+                              <p className="text-xs text-muted-foreground">
+                                After DNS propagation, your gift page will be accessible at <span className="text-foreground font-medium">{customDomain}</span> instead of gifttogether.com/{user.username}
+                              </p>
+                            </CardContent>
+                          </Card>
+                        )}
+                      </div>
+                    </>
                   )}
 
                   <Button variant="hero">Save Settings</Button>
@@ -704,8 +1033,8 @@ const Dashboard = () => {
                       <p className="text-sm text-muted-foreground">Use this key to authenticate your requests</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <code className="flex-1 bg-muted rounded-lg px-4 py-3 font-mono text-sm text-foreground">
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <code className="flex-1 bg-muted rounded-lg px-4 py-3 font-mono text-sm text-foreground min-w-0">
                       {apiKeyRevealed ? mockApiKey : "gt_live_••••••••••••••••••••"}
                     </code>
                     <Button variant="outline" size="sm" onClick={() => setApiKeyRevealed(!apiKeyRevealed)}>
@@ -728,10 +1057,25 @@ const Dashboard = () => {
                   <Button variant="outline" size="sm">Copy Code</Button>
                 </CardContent>
               </Card>
+
+              {/* SDK Packages */}
               <Card className="border-border">
                 <CardContent className="p-6 space-y-4">
-                  <h3 className="font-semibold text-foreground">NPM Package</h3>
-                  <pre className="bg-muted rounded-lg p-4 text-sm font-mono text-foreground">npm install @gifttogether/sdk</pre>
+                  <h3 className="font-semibold text-foreground">SDK Packages</h3>
+                  <div className="space-y-3">
+                    <div className="p-3 bg-muted rounded-lg">
+                      <p className="text-sm font-medium text-foreground">React (NPM)</p>
+                      <pre className="text-xs font-mono text-muted-foreground mt-1">npm install @gifttogether/react</pre>
+                    </div>
+                    <div className="p-3 bg-muted rounded-lg">
+                      <p className="text-sm font-medium text-foreground">React Native (NPM)</p>
+                      <pre className="text-xs font-mono text-muted-foreground mt-1">npm install @gifttogether/react-native</pre>
+                    </div>
+                    <div className="p-3 bg-muted rounded-lg">
+                      <p className="text-sm font-medium text-foreground">Flutter (Pub)</p>
+                      <pre className="text-xs font-mono text-muted-foreground mt-1">flutter pub add gifttogether</pre>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
               <Link to="/developers"><Button variant="outline">View Full Developer Docs <ChevronRight className="w-4 h-4 ml-1" /></Button></Link>
