@@ -6,7 +6,7 @@ const Footer = () => {
     {
       title: "Product",
       links: [
-        { label: "Marketplace", to: "/marketplace" },
+        { label: "Gift Shop", to: "/gift-shop" },
         { label: "Campaigns", to: "/campaigns" },
         { label: "Create Campaign", to: "/create-campaign" },
         { label: "Dashboard", to: "/dashboard" },
@@ -17,7 +17,7 @@ const Footer = () => {
       links: [
         { label: "API Docs", to: "/developers" },
         { label: "Widget SDK", to: "/developers" },
-        { label: "NPM Package", to: "/developers" },
+        { label: "SDK Packages", to: "/developers" },
         { label: "Integrations", to: "/developers" },
       ],
     },
@@ -41,9 +41,9 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-foreground py-16">
+    <footer className="bg-foreground py-12 sm:py-16">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-6 sm:gap-8 mb-12">
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-lg bg-gradient-hero flex items-center justify-center">

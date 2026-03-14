@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ArrowLeft, Camera, Save, Link as LinkIcon, CreditCard, Gift, Eye } from "lucide-react";
+import { ArrowLeft, Camera, Save, Link as LinkIcon, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/landing/Navbar";
 
@@ -21,7 +21,6 @@ const ProfileSettings = () => {
   const [showSupporters, setShowSupporters] = useState(true);
   const [showAmounts, setShowAmounts] = useState(true);
   const [suggestedAmounts, setSuggestedAmounts] = useState("5, 10, 20");
-  const [payoutMethod, setPayoutMethod] = useState("Stripe");
   const [acceptMoney, setAcceptMoney] = useState(true);
   const [acceptVendorGifts, setAcceptVendorGifts] = useState(true);
   const [acceptGiftCards, setAcceptGiftCards] = useState(true);
@@ -35,10 +34,10 @@ const ProfileSettings = () => {
             <ArrowLeft className="w-4 h-4" /> Back to Dashboard
           </Link>
 
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-3">
             <div>
-              <h1 className="text-3xl font-bold font-display text-foreground">Profile & Gift Page</h1>
-              <p className="text-muted-foreground">Set up your permanent gift profile page</p>
+              <h1 className="text-2xl sm:text-3xl font-bold font-display text-foreground">Profile & Gift Page</h1>
+              <p className="text-muted-foreground text-sm sm:text-base">Set up your permanent gift profile page</p>
             </div>
             <Link to={`/u/${username}`}>
               <Button variant="outline" size="sm" className="gap-2"><Eye className="w-4 h-4" /> Preview</Button>
@@ -46,17 +45,16 @@ const ProfileSettings = () => {
           </div>
 
           <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="profile">Profile</TabsTrigger>
               <TabsTrigger value="gifts">Gift Options</TabsTrigger>
-              <TabsTrigger value="payout">Payout</TabsTrigger>
             </TabsList>
 
             <TabsContent value="profile" className="space-y-6">
               <Card className="border-border">
-                <CardContent className="p-6 space-y-5">
+                <CardContent className="p-4 sm:p-6 space-y-5">
                   <div className="flex items-center gap-4">
-                    <Avatar className="w-20 h-20 border-2 border-border">
+                    <Avatar className="w-16 sm:w-20 h-16 sm:h-20 border-2 border-border">
                       <AvatarFallback className="bg-primary/10 text-primary text-xl font-bold">D</AvatarFallback>
                     </Avatar>
                     <Button variant="outline" size="sm" className="gap-2"><Camera className="w-4 h-4" /> Upload Photo</Button>
@@ -69,8 +67,8 @@ const ProfileSettings = () => {
                   <div className="space-y-2">
                     <Label>Username</Label>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">gifttogether.com/</span>
-                      <Input value={username} onChange={(e) => setUsername(e.target.value)} className="pl-36" />
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs sm:text-sm text-muted-foreground">gifttogether.com/</span>
+                      <Input value={username} onChange={(e) => setUsername(e.target.value)} className="pl-32 sm:pl-36" />
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -92,18 +90,18 @@ const ProfileSettings = () => {
 
             <TabsContent value="gifts" className="space-y-6">
               <Card className="border-border">
-                <CardContent className="p-6 space-y-5">
+                <CardContent className="p-4 sm:p-6 space-y-5">
                   <h3 className="font-semibold text-foreground">Gift Options</h3>
-                  <div className="flex items-center justify-between">
-                    <div><p className="font-medium text-foreground">Accept money gifts</p><p className="text-sm text-muted-foreground">People can send you money directly</p></div>
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="min-w-0"><p className="font-medium text-foreground">Accept money gifts</p><p className="text-xs sm:text-sm text-muted-foreground">People can send you money directly</p></div>
                     <Switch checked={acceptMoney} onCheckedChange={setAcceptMoney} />
                   </div>
-                  <div className="flex items-center justify-between">
-                    <div><p className="font-medium text-foreground">Accept vendor gifts</p><p className="text-sm text-muted-foreground">Gift cards and vouchers from vendors</p></div>
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="min-w-0"><p className="font-medium text-foreground">Accept vendor gifts</p><p className="text-xs sm:text-sm text-muted-foreground">Gift cards and vouchers from vendors</p></div>
                     <Switch checked={acceptVendorGifts} onCheckedChange={setAcceptVendorGifts} />
                   </div>
-                  <div className="flex items-center justify-between">
-                    <div><p className="font-medium text-foreground">Accept gift cards</p><p className="text-sm text-muted-foreground">Allow people to send digital gift cards</p></div>
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="min-w-0"><p className="font-medium text-foreground">Accept gift cards</p><p className="text-xs sm:text-sm text-muted-foreground">Allow people to send digital gift cards</p></div>
                     <Switch checked={acceptGiftCards} onCheckedChange={setAcceptGiftCards} />
                   </div>
 
@@ -117,33 +115,15 @@ const ProfileSettings = () => {
 
                   <div className="border-t border-border pt-4 space-y-3">
                     <h3 className="font-semibold text-foreground">Visibility</h3>
-                    <div className="flex items-center justify-between">
-                      <div><p className="font-medium text-foreground">Show supporters</p><p className="text-sm text-muted-foreground">Display supporter names on your page</p></div>
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="min-w-0"><p className="font-medium text-foreground">Show supporters</p><p className="text-xs sm:text-sm text-muted-foreground">Display supporter names on your page</p></div>
                       <Switch checked={showSupporters} onCheckedChange={setShowSupporters} />
                     </div>
-                    <div className="flex items-center justify-between">
-                      <div><p className="font-medium text-foreground">Show amounts</p><p className="text-sm text-muted-foreground">Display gift amounts publicly</p></div>
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="min-w-0"><p className="font-medium text-foreground">Show amounts</p><p className="text-xs sm:text-sm text-muted-foreground">Display gift amounts publicly</p></div>
                       <Switch checked={showAmounts} onCheckedChange={setShowAmounts} />
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="payout" className="space-y-6">
-              <Card className="border-border">
-                <CardContent className="p-6 space-y-5">
-                  <h3 className="font-semibold text-foreground flex items-center gap-2"><CreditCard className="w-4 h-4" /> Payout Account</h3>
-                  <p className="text-sm text-muted-foreground">Connect an account to receive your gift funds</p>
-                  {["Stripe", "Paystack", "Bank Transfer"].map((m) => (
-                    <button key={m} onClick={() => setPayoutMethod(m)} className={`w-full p-4 rounded-xl border-2 text-left flex items-center gap-3 transition-all ${payoutMethod === m ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"}`}>
-                      <CreditCard className={`w-5 h-5 ${payoutMethod === m ? "text-primary" : "text-muted-foreground"}`} />
-                      <div>
-                        <p className="font-medium text-foreground">{m}</p>
-                        <p className="text-sm text-muted-foreground">{payoutMethod === m ? "Connected" : "Click to connect"}</p>
-                      </div>
-                    </button>
-                  ))}
                 </CardContent>
               </Card>
             </TabsContent>

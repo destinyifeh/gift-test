@@ -35,6 +35,9 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/gift-shop" element={<Marketplace />} />
+          <Route path="/gift-shop/:id" element={<GiftDetail />} />
+          {/* Legacy routes */}
           <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/marketplace/:id" element={<GiftDetail />} />
           <Route path="/gift/:code" element={<GiftPage />} />
