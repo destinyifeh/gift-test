@@ -11,9 +11,9 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Gift, Send, Clock, DollarSign, Users, ArrowUpRight, Plus, LayoutDashboard,
-  Heart, Wallet, Settings, Star, Code, BarChart3, Eye, Sparkles, Globe,
+  Heart, Wallet, Settings, Star, Code, BarChart3, Eye, Sparkles,
   CreditCard, Camera, Link as LinkIcon, LogOut, Menu, X, ChevronRight, User,
-  Key, Copy, CheckCircle, Crown, Zap, Palette, Globe2, MessageSquare, Trophy,
+  Key, Copy, CheckCircle, Crown, Zap, Palette, MessageSquare, Trophy,
   Calendar, BanknoteIcon, ArrowDownLeft, Building, Shield, Edit, Trash2, Upload, Image
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
@@ -65,13 +65,18 @@ const supporters = [
   { id: 4, name: "Mary K.", amount: 100, message: "You're amazing 🎉", date: "2026-03-05" },
 ];
 
+const mockFavorites = [
+  { id: "AX8H2K", name: "Cake Gift Card", emoji: "🎂", price: 25, vendor: "Sweet Delights" },
+  { id: "SP3M9N", name: "Spa Voucher", emoji: "💆", price: 50, vendor: "Relax Spa" },
+];
+
 const statusColor = (s: string) => {
   if (s === "delivered" || s === "claimed" || s === "completed") return "secondary";
   if (s === "pending" || s === "unclaimed" || s === "active") return "outline";
   return "default";
 };
 
-type Section = "overview" | "sent" | "received" | "contributions" | "campaigns" | "wallet" | "settings" | "gift-page" | "supporters" | "analytics" | "integrations";
+type Section = "overview" | "sent" | "received" | "contributions" | "campaigns" | "wallet" | "settings" | "gift-page" | "supporters" | "analytics" | "integrations" | "favorites";
 
 const navItems: { id: Section; label: string; icon: React.ElementType }[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
@@ -79,6 +84,7 @@ const navItems: { id: Section; label: string; icon: React.ElementType }[] = [
   { id: "received", label: "Gifts Received", icon: Gift },
   { id: "contributions", label: "Contributions", icon: Heart },
   { id: "campaigns", label: "Campaigns", icon: Users },
+  { id: "favorites", label: "Favorites", icon: Star },
   { id: "wallet", label: "Wallet", icon: Wallet },
   { id: "settings", label: "Settings", icon: Settings },
 ];
@@ -97,11 +103,8 @@ const Dashboard = () => {
   const [creatorPlan, setCreatorPlan] = useState<"free" | "pro">("free");
   const [apiKeyRevealed, setApiKeyRevealed] = useState(false);
   const [apiKeyCopied, setApiKeyCopied] = useState(false);
-  const [showWithdrawForm, setShowWithdrawForm] = useState(false);
+  const [walletView, setWalletView] = useState<"overview" | "transactions" | "bank" | "withdraw">("overview");
   const [withdrawAmount, setWithdrawAmount] = useState("");
-  const [customDomain, setCustomDomain] = useState("");
-  const [showTransactions, setShowTransactions] = useState(false);
-  const [showBankForm, setShowBankForm] = useState(false);
   const [bankAccounts, setBankAccounts] = useState([
     { id: 1, bankName: "First Bank", accountNumber: "••••••••1234", holderName: "Destiny O.", country: "Nigeria", isPrimary: true }
   ]);
@@ -145,12 +148,7 @@ const Dashboard = () => {
       isPrimary: bankAccounts.length === 0
     }]);
     setBankForm({ country: "", bankName: "", accountNumber: "", holderName: "" });
-    setShowBankForm(false);
     setVerifyAction(null);
-  };
-
-  const handleRemoveBank = (id: number) => {
-    setVerifyAction(`remove-bank-${id}`);
   };
 
   const confirmVerifiedAction = () => {
@@ -160,7 +158,7 @@ const Dashboard = () => {
       setBankAccounts(bankAccounts.filter(b => b.id !== id));
     }
     if (verifyAction === "withdraw") {
-      setShowWithdrawForm(false);
+      setWalletView("overview");
       setWithdrawAmount("");
     }
     if (verifyAction === "add-bank") {
@@ -183,7 +181,6 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
         {navItems.map((item) => (
           <button
@@ -195,43 +192,27 @@ const Dashboard = () => {
             {item.label}
           </button>
         ))}
-
         <div className="pt-4 mt-4 border-t border-border">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-2">Creator</p>
           {!creatorEnabled ? (
-            <button
-              onClick={() => setCreatorEnabled(true)}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-            >
-              <Sparkles className="w-4 h-4 shrink-0" />
-              Enable Gift Page
+            <button onClick={() => setCreatorEnabled(true)} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+              <Sparkles className="w-4 h-4 shrink-0" /> Enable Gift Page
             </button>
           ) : (
             creatorNavItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => { setSection(item.id); setSidebarOpen(false); }}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${section === item.id ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
-              >
-                <item.icon className="w-4 h-4 shrink-0" />
-                {item.label}
+              <button key={item.id} onClick={() => { setSection(item.id); setSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${section === item.id ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
+                <item.icon className="w-4 h-4 shrink-0" /> {item.label}
               </button>
             ))
           )}
         </div>
       </nav>
-
       <div className="p-3 border-t border-border">
-        <Link to="/">
-          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-            <LogOut className="w-4 h-4" /> Sign Out
-          </button>
-        </Link>
+        <Link to="/"><button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><LogOut className="w-4 h-4" /> Sign Out</button></Link>
       </div>
     </div>
   );
 
-  // Verify Modal
   const renderVerifyModal = () => {
     if (!verifyAction) return null;
     return (
@@ -244,10 +225,7 @@ const Dashboard = () => {
               <h3 className="font-semibold text-foreground">Security Verification</h3>
               <p className="text-sm text-muted-foreground mt-1">Enter your password to confirm this action</p>
             </div>
-            <div className="space-y-2">
-              <Label>Password</Label>
-              <Input type="password" placeholder="Enter your password" value={verifyPassword} onChange={e => setVerifyPassword(e.target.value)} />
-            </div>
+            <div className="space-y-2"><Label>Password</Label><Input type="password" placeholder="Enter your password" value={verifyPassword} onChange={e => setVerifyPassword(e.target.value)} /></div>
             <p className="text-xs text-muted-foreground text-center">Or we can send a verification code to {user.email}</p>
             <div className="flex gap-3">
               <Button variant="hero" className="flex-1" onClick={confirmVerifiedAction} disabled={!verifyPassword}>Confirm</Button>
@@ -262,29 +240,23 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background flex">
       {renderVerifyModal()}
-      {/* Desktop sidebar */}
       <aside className="hidden md:flex w-64 border-r border-border bg-card flex-col shrink-0 sticky top-0 h-screen">
         <div className="p-4 border-b border-border">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-hero flex items-center justify-center">
-              <Gift className="w-4 h-4 text-primary-foreground" />
-            </div>
+            <div className="w-8 h-8 rounded-lg bg-gradient-hero flex items-center justify-center"><Gift className="w-4 h-4 text-primary-foreground" /></div>
             <span className="text-lg font-bold font-display text-foreground">GiftTogether</span>
           </Link>
         </div>
         {renderSidebar()}
       </aside>
 
-      {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
           <div className="absolute inset-0 bg-foreground/50" onClick={() => setSidebarOpen(false)} />
           <aside className="absolute left-0 top-0 bottom-0 w-72 bg-card shadow-elevated">
             <div className="p-4 border-b border-border flex items-center justify-between">
               <Link to="/" className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-gradient-hero flex items-center justify-center">
-                  <Gift className="w-4 h-4 text-primary-foreground" />
-                </div>
+                <div className="w-8 h-8 rounded-lg bg-gradient-hero flex items-center justify-center"><Gift className="w-4 h-4 text-primary-foreground" /></div>
                 <span className="text-lg font-bold font-display text-foreground">GiftTogether</span>
               </Link>
               <button onClick={() => setSidebarOpen(false)}><X className="w-5 h-5 text-muted-foreground" /></button>
@@ -294,15 +266,14 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Main content */}
       <main className="flex-1 min-w-0">
-        <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border px-4 md:px-8 h-16 flex items-center justify-between">
+        <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border px-4 md:px-8 h-14 sm:h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button className="md:hidden" onClick={() => setSidebarOpen(true)}><Menu className="w-5 h-5 text-foreground" /></button>
-            <h1 className="text-lg font-semibold font-display text-foreground capitalize">{section.replace("-", " ")}</h1>
+            <h1 className="text-base sm:text-lg font-semibold font-display text-foreground capitalize">{section.replace("-", " ")}</h1>
           </div>
-          <div className="flex items-center gap-3">
-            <Link to="/create-campaign"><Button variant="hero" size="sm"><Plus className="w-4 h-4 mr-1" /> New Campaign</Button></Link>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link to="/create-campaign"><Button variant="hero" size="sm" className="text-xs sm:text-sm"><Plus className="w-4 h-4 mr-1" /> <span className="hidden sm:inline">New Campaign</span></Button></Link>
           </div>
         </header>
 
@@ -310,7 +281,7 @@ const Dashboard = () => {
           {/* OVERVIEW */}
           {section === "overview" && (
             <div className="space-y-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                 {[
                   { label: "Gifts Sent", value: "12", icon: Send, color: "text-primary" },
                   { label: "Gifts Received", value: "8", icon: Gift, color: "text-secondary" },
@@ -318,14 +289,9 @@ const Dashboard = () => {
                   { label: "Campaigns", value: "3", icon: Users, color: "text-primary" },
                 ].map((s) => (
                   <Card key={s.label} className="border-border">
-                    <CardContent className="p-4 flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-lg bg-muted flex items-center justify-center ${s.color}`}>
-                        <s.icon className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <p className="text-2xl font-bold text-foreground">{s.value}</p>
-                        <p className="text-xs text-muted-foreground">{s.label}</p>
-                      </div>
+                    <CardContent className="p-3 sm:p-4 flex items-center gap-3">
+                      <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-muted flex items-center justify-center ${s.color}`}><s.icon className="w-4 sm:w-5 h-4 sm:h-5" /></div>
+                      <div><p className="text-xl sm:text-2xl font-bold text-foreground">{s.value}</p><p className="text-xs text-muted-foreground">{s.label}</p></div>
                     </CardContent>
                   </Card>
                 ))}
@@ -336,24 +302,18 @@ const Dashboard = () => {
                 <CardContent className="space-y-3">
                   {sentGifts.slice(0, 2).map((g) => (
                     <div key={g.id} className="flex items-center justify-between py-2">
-                      <div className="flex items-center gap-3">
-                        <Send className="w-4 h-4 text-primary" />
-                        <div>
-                          <p className="text-sm font-medium text-foreground">{g.name}</p>
-                          <p className="text-xs text-muted-foreground">{g.date}</p>
-                        </div>
+                      <div className="flex items-center gap-3 min-w-0">
+                        <Send className="w-4 h-4 text-primary shrink-0" />
+                        <div className="min-w-0"><p className="text-sm font-medium text-foreground truncate">{g.name}</p><p className="text-xs text-muted-foreground">{g.date}</p></div>
                       </div>
                       <Badge variant={statusColor(g.status) as any}>{g.status}</Badge>
                     </div>
                   ))}
                   {receivedGifts.slice(0, 2).map((g) => (
                     <div key={g.id} className="flex items-center justify-between py-2">
-                      <div className="flex items-center gap-3">
-                        <Gift className="w-4 h-4 text-secondary" />
-                        <div>
-                          <p className="text-sm font-medium text-foreground">{g.name}</p>
-                          <p className="text-xs text-muted-foreground">{g.date}</p>
-                        </div>
+                      <div className="flex items-center gap-3 min-w-0">
+                        <Gift className="w-4 h-4 text-secondary shrink-0" />
+                        <div className="min-w-0"><p className="text-sm font-medium text-foreground truncate">{g.name}</p><p className="text-xs text-muted-foreground">{g.date}</p></div>
                       </div>
                       <Badge variant={statusColor(g.status) as any}>{g.status}</Badge>
                     </div>
@@ -363,11 +323,8 @@ const Dashboard = () => {
 
               {!creatorEnabled && (
                 <Card className="border-primary/20 bg-primary/5">
-                  <CardContent className="p-6 flex items-center justify-between">
-                    <div>
-                      <h3 className="font-semibold text-foreground flex items-center gap-2"><Sparkles className="w-5 h-5 text-primary" /> Enable Your Gift Page</h3>
-                      <p className="text-sm text-muted-foreground mt-1">Let people send you gifts at gifttogether.com/{user.username}</p>
-                    </div>
+                  <CardContent className="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div><h3 className="font-semibold text-foreground flex items-center gap-2"><Sparkles className="w-5 h-5 text-primary" /> Enable Your Gift Page</h3><p className="text-sm text-muted-foreground mt-1">Let people send you gifts at gifttogether.com/{user.username}</p></div>
                     <Button variant="hero" size="sm" onClick={() => { setCreatorEnabled(true); setSection("gift-page"); }}>Enable</Button>
                   </CardContent>
                 </Card>
@@ -375,8 +332,8 @@ const Dashboard = () => {
 
               {creatorEnabled && creatorPlan === "free" && (
                 <Card className="border-accent/30 bg-gradient-to-r from-accent/5 to-primary/5">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
                       <div>
                         <h3 className="font-semibold text-foreground flex items-center gap-2"><Crown className="w-5 h-5 text-accent" /> Upgrade to Pro</h3>
                         <p className="text-sm text-muted-foreground mt-1 max-w-md">Remove branding and unlock powerful tools for your gift page.</p>
@@ -384,12 +341,9 @@ const Dashboard = () => {
                           <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-secondary" /> Remove "Powered by" branding</li>
                           <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-secondary" /> Custom themes and layout</li>
                           <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-secondary" /> Advanced supporter insights</li>
-                          <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-secondary" /> Custom domain support</li>
                         </ul>
                       </div>
-                      <Button variant="hero" size="sm" onClick={() => setCreatorPlan("pro")}>
-                        <Crown className="w-4 h-4 mr-1" /> Upgrade — $8/mo
-                      </Button>
+                      <Button variant="hero" size="sm" onClick={() => setCreatorPlan("pro")}><Crown className="w-4 h-4 mr-1" /> Upgrade — $8/mo</Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -402,15 +356,12 @@ const Dashboard = () => {
             <div className="space-y-4">
               {sentGifts.map((g) => (
                 <Card key={g.id} className="border-border">
-                  <CardContent className="p-4 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center"><Send className="w-5 h-5 text-primary" /></div>
-                      <div>
-                        <p className="font-semibold text-foreground">{g.name}</p>
-                        <p className="text-sm text-muted-foreground">To: {g.recipient} · {g.date}</p>
-                      </div>
+                  <CardContent className="p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"><Send className="w-5 h-5 text-primary" /></div>
+                      <div className="min-w-0"><p className="font-semibold text-foreground truncate">{g.name}</p><p className="text-sm text-muted-foreground truncate">To: {g.recipient} · {g.date}</p></div>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 self-end sm:self-auto">
                       <span className="font-bold text-foreground">${g.amount}</span>
                       <Badge variant={statusColor(g.status) as any}>{g.status}</Badge>
                     </div>
@@ -425,19 +376,23 @@ const Dashboard = () => {
             <div className="space-y-4">
               {receivedGifts.map((g) => (
                 <Card key={g.id} className="border-border">
-                  <CardContent className="p-4 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center"><Gift className="w-5 h-5 text-secondary" /></div>
-                      <div>
-                        <p className="font-semibold text-foreground">{g.name}</p>
+                  <CardContent className="p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                      <div className="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center shrink-0"><Gift className="w-5 h-5 text-secondary" /></div>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-foreground truncate">{g.name}</p>
                         <p className="text-sm text-muted-foreground">From: {g.sender} · {g.date}</p>
                         {g.code && <p className="text-xs font-mono text-muted-foreground">Code: {g.code}</p>}
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3 self-end sm:self-auto flex-wrap">
                       <span className="font-bold text-foreground">${g.amount}</span>
                       <Badge variant={statusColor(g.status) as any}>{g.status}</Badge>
-                      {g.status === "withdrawable" && <Button size="sm" variant="teal"><ArrowUpRight className="w-3 h-3 mr-1" />Withdraw</Button>}
+                      {g.status === "withdrawable" && (
+                        <Button size="sm" variant="teal" onClick={() => { setSection("wallet"); setWalletView("withdraw"); }}>
+                          <ArrowUpRight className="w-3 h-3 mr-1" />Withdraw
+                        </Button>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -450,247 +405,149 @@ const Dashboard = () => {
             <div className="space-y-4">
               {contributions.map((c) => (
                 <Card key={c.id} className="border-border">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <p className="font-semibold text-foreground">{c.campaign}</p>
-                      <span className="text-sm text-muted-foreground">{c.contributors} contributors</span>
-                    </div>
+                  <CardContent className="p-3 sm:p-4">
+                    <div className="flex items-center justify-between mb-3"><p className="font-semibold text-foreground">{c.campaign}</p><span className="text-sm text-muted-foreground">{c.contributors} contributors</span></div>
                     <Progress value={c.progress} className="h-2 mb-2" />
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">You contributed: <span className="text-primary font-semibold">${c.contributed}</span></span>
-                      <span className="text-muted-foreground">{c.progress}% of ${c.goal}</span>
-                    </div>
+                    <div className="flex justify-between text-sm"><span className="text-muted-foreground">You contributed: <span className="text-primary font-semibold">${c.contributed}</span></span><span className="text-muted-foreground">{c.progress}% of ${c.goal}</span></div>
                   </CardContent>
                 </Card>
               ))}
+            </div>
+          )}
+
+          {/* FAVORITES */}
+          {section === "favorites" && (
+            <div className="space-y-4">
+              <p className="text-muted-foreground">Your favorite gifts from the Gift Shop</p>
+              {mockFavorites.length === 0 ? (
+                <Card className="border-border"><CardContent className="p-8 text-center"><Star className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" /><p className="text-muted-foreground">No favorites yet. Browse the Gift Shop to add some!</p><Link to="/gift-shop"><Button variant="outline" className="mt-3">Browse Gift Shop</Button></Link></CardContent></Card>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {mockFavorites.map(f => (
+                    <Link key={f.id} to={`/gift-shop/${f.id}`}>
+                      <Card className="border-border hover:shadow-card transition-shadow cursor-pointer">
+                        <CardContent className="p-4 flex items-center gap-4">
+                          <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center text-2xl">{f.emoji}</div>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-semibold text-foreground truncate">{f.name}</p>
+                            <p className="text-xs text-muted-foreground">{f.vendor}</p>
+                            <p className="text-sm font-bold text-primary mt-1">${f.price}</p>
+                          </div>
+                          <Heart className="w-4 h-4 fill-destructive text-destructive shrink-0" />
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
           {/* CAMPAIGNS */}
           {section === "campaigns" && (
             <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <p className="text-muted-foreground">Your campaigns</p>
-                <Link to="/create-campaign"><Button variant="hero" size="sm"><Plus className="w-4 h-4 mr-1" /> New Campaign</Button></Link>
-              </div>
+              <div className="flex justify-between items-center"><p className="text-muted-foreground">Your campaigns</p><Link to="/create-campaign"><Button variant="hero" size="sm"><Plus className="w-4 h-4 mr-1" /> New Campaign</Button></Link></div>
               {myCampaigns.map((c) => (
                 <Card key={c.id} className="border-border">
-                  <CardContent className="p-4">
+                  <CardContent className="p-3 sm:p-4">
                     {editingCampaign === c.id ? (
                       <div className="space-y-4">
-                        <div className="space-y-2">
-                          <Label>Campaign Title</Label>
-                          <Input value={editCampaignTitle} onChange={e => setEditCampaignTitle(e.target.value)} />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Description</Label>
-                          <Textarea value={editCampaignDesc} onChange={e => setEditCampaignDesc(e.target.value)} rows={2} />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>End Date</Label>
-                          <Input type="date" value={editCampaignEndDate} onChange={e => setEditCampaignEndDate(e.target.value)} />
-                        </div>
-                        <div className="flex gap-2">
-                          <Button variant="hero" size="sm" onClick={() => setEditingCampaign(null)}>Save Changes</Button>
-                          <Button variant="outline" size="sm" onClick={() => setEditingCampaign(null)}>Cancel</Button>
-                        </div>
+                        <div className="space-y-2"><Label>Campaign Title</Label><Input value={editCampaignTitle} onChange={e => setEditCampaignTitle(e.target.value)} /></div>
+                        <div className="space-y-2"><Label>Description</Label><Textarea value={editCampaignDesc} onChange={e => setEditCampaignDesc(e.target.value)} rows={2} /></div>
+                        <div className="space-y-2"><Label>End Date</Label><Input type="date" value={editCampaignEndDate} onChange={e => setEditCampaignEndDate(e.target.value)} /></div>
+                        <div className="flex gap-2"><Button variant="hero" size="sm" onClick={() => setEditingCampaign(null)}>Save Changes</Button><Button variant="outline" size="sm" onClick={() => setEditingCampaign(null)}>Cancel</Button></div>
                       </div>
                     ) : (
                       <>
-                        <div className="flex items-center justify-between mb-3">
-                          <Link to={`/campaign/${c.slug}`} className="hover:underline">
-                            <p className="font-semibold text-foreground">{c.title}</p>
-                          </Link>
+                        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+                          <Link to={`/campaign/${c.slug}`} className="hover:underline"><p className="font-semibold text-foreground">{c.title}</p></Link>
                           <div className="flex items-center gap-2">
                             <Badge variant={statusColor(c.status) as any}>{c.status}</Badge>
                             {getDaysLeft(c.endDate) > 0 && <Badge variant="outline" className="gap-1"><Clock className="w-3 h-3" />{getDaysLeft(c.endDate)}d left</Badge>}
-                            <Button variant="ghost" size="sm" onClick={() => {
-                              setEditingCampaign(c.id);
-                              setEditCampaignTitle(c.title);
-                              setEditCampaignEndDate(c.endDate);
-                              setEditCampaignDesc(c.description);
-                            }}><Edit className="w-3.5 h-3.5" /></Button>
+                            <Button variant="ghost" size="sm" onClick={() => { setEditingCampaign(c.id); setEditCampaignTitle(c.title); setEditCampaignEndDate(c.endDate); setEditCampaignDesc(c.description); }}><Edit className="w-3.5 h-3.5" /></Button>
                           </div>
                         </div>
                         <Progress value={(c.raised / c.goal) * 100} className="h-2 mb-2" />
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">${c.raised} raised of ${c.goal}</span>
-                          <span className="text-muted-foreground">{c.contributors} contributors</span>
-                        </div>
+                        <div className="flex justify-between text-sm"><span className="text-muted-foreground">${c.raised} raised of ${c.goal}</span><span className="text-muted-foreground">{c.contributors} contributors</span></div>
                       </>
                     )}
                   </CardContent>
                 </Card>
               ))}
-              <Link to="/campaigns">
-                <Button variant="outline" className="w-full mt-2">Browse All Public Campaigns <ChevronRight className="w-4 h-4 ml-1" /></Button>
-              </Link>
+              <Link to="/campaigns"><Button variant="outline" className="w-full mt-2">Browse All Public Campaigns <ChevronRight className="w-4 h-4 ml-1" /></Button></Link>
             </div>
           )}
 
-          {/* WALLET */}
+          {/* WALLET - exclusive tabs */}
           {section === "wallet" && (
             <div className="space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Card className="border-border">
-                  <CardContent className="p-5 text-center">
-                    <Wallet className="w-6 h-6 text-primary mx-auto mb-2" />
-                    <p className="text-3xl font-bold text-foreground">${walletData.availableBalance}.00</p>
-                    <p className="text-xs text-muted-foreground mt-1">Available Balance</p>
-                  </CardContent>
-                </Card>
-                <Card className="border-border">
-                  <CardContent className="p-5 text-center">
-                    <ArrowDownLeft className="w-6 h-6 text-secondary mx-auto mb-2" />
-                    <p className="text-3xl font-bold text-foreground">${walletData.totalReceived}.00</p>
-                    <p className="text-xs text-muted-foreground mt-1">Total Gifts Received</p>
-                  </CardContent>
-                </Card>
-                <Card className="border-border">
-                  <CardContent className="p-5 text-center">
-                    <DollarSign className="w-6 h-6 text-destructive mx-auto mb-2" />
-                    <p className="text-3xl font-bold text-foreground">${walletData.platformFees}.00</p>
-                    <p className="text-xs text-muted-foreground mt-1">Platform Fees</p>
-                  </CardContent>
-                </Card>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                <Card className="border-border"><CardContent className="p-4 sm:p-5 text-center"><Wallet className="w-6 h-6 text-primary mx-auto mb-2" /><p className="text-2xl sm:text-3xl font-bold text-foreground">${walletData.availableBalance}.00</p><p className="text-xs text-muted-foreground mt-1">Available Balance</p></CardContent></Card>
+                <Card className="border-border"><CardContent className="p-4 sm:p-5 text-center"><ArrowDownLeft className="w-6 h-6 text-secondary mx-auto mb-2" /><p className="text-2xl sm:text-3xl font-bold text-foreground">${walletData.totalReceived}.00</p><p className="text-xs text-muted-foreground mt-1">Total Gifts Received</p></CardContent></Card>
+                <Card className="border-border"><CardContent className="p-4 sm:p-5 text-center"><DollarSign className="w-6 h-6 text-destructive mx-auto mb-2" /><p className="text-2xl sm:text-3xl font-bold text-foreground">${walletData.platformFees}.00</p><p className="text-xs text-muted-foreground mt-1">Platform Fees</p></CardContent></Card>
               </div>
 
-              <div className="flex flex-wrap gap-3">
-                <Button variant="hero" onClick={() => setShowWithdrawForm(!showWithdrawForm)}>
-                  <ArrowUpRight className="w-4 h-4 mr-2" /> Withdraw Funds
-                </Button>
-                <Button variant="outline" onClick={() => setShowTransactions(!showTransactions)}>
-                  <Clock className="w-4 h-4 mr-2" /> View Transactions
-                </Button>
-                <Button variant="outline" onClick={() => setShowBankForm(!showBankForm)}>
-                  <Building className="w-4 h-4 mr-2" /> {bankAccounts.length > 0 ? "Manage Bank Accounts" : "Connect Bank Account"}
-                </Button>
+              <div className="flex flex-wrap gap-2 sm:gap-3">
+                <Button variant={walletView === "withdraw" ? "hero" : "outline"} onClick={() => setWalletView(walletView === "withdraw" ? "overview" : "withdraw")}><ArrowUpRight className="w-4 h-4 mr-2" /> Withdraw Funds</Button>
+                <Button variant={walletView === "transactions" ? "hero" : "outline"} onClick={() => setWalletView(walletView === "transactions" ? "overview" : "transactions")}><Clock className="w-4 h-4 mr-2" /> View Transactions</Button>
+                <Button variant={walletView === "bank" ? "hero" : "outline"} onClick={() => setWalletView(walletView === "bank" ? "overview" : "bank")}><Building className="w-4 h-4 mr-2" /> {bankAccounts.length > 0 ? "Manage Bank" : "Connect Bank"}</Button>
               </div>
 
-              {/* Bank Account Management */}
-              {showBankForm && (
-                <Card className="border-border">
-                  <CardContent className="p-6 space-y-4">
-                    <h3 className="font-semibold text-foreground">Bank Accounts</h3>
-                    {bankAccounts.map(b => (
-                      <div key={b.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                        <div>
-                          <p className="text-sm font-medium text-foreground">{b.bankName} {b.isPrimary && <Badge variant="secondary" className="ml-2 text-xs">Primary</Badge>}</p>
-                          <p className="text-xs text-muted-foreground">{b.holderName} · {b.accountNumber} · {b.country}</p>
-                        </div>
-                        <div className="flex gap-2">
-                          {!b.isPrimary && (
-                            <Button variant="ghost" size="sm" onClick={() => {
-                              setBankAccounts(bankAccounts.map(ba => ({ ...ba, isPrimary: ba.id === b.id })));
-                            }}>Set Primary</Button>
-                          )}
-                          <Button variant="ghost" size="sm" className="text-destructive" onClick={() => handleRemoveBank(b.id)}>
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </Button>
-                        </div>
+              {walletView === "bank" && (
+                <Card className="border-border"><CardContent className="p-4 sm:p-6 space-y-4">
+                  <h3 className="font-semibold text-foreground">Bank Accounts</h3>
+                  {bankAccounts.map(b => (
+                    <div key={b.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 bg-muted rounded-lg gap-2">
+                      <div><p className="text-sm font-medium text-foreground">{b.bankName} {b.isPrimary && <Badge variant="secondary" className="ml-2 text-xs">Primary</Badge>}</p><p className="text-xs text-muted-foreground">{b.holderName} · {b.accountNumber} · {b.country}</p></div>
+                      <div className="flex gap-2">
+                        {!b.isPrimary && <Button variant="ghost" size="sm" onClick={() => setBankAccounts(bankAccounts.map(ba => ({ ...ba, isPrimary: ba.id === b.id })))}>Set Primary</Button>}
+                        <Button variant="ghost" size="sm" className="text-destructive" onClick={() => setVerifyAction(`remove-bank-${b.id}`)}><Trash2 className="w-3.5 h-3.5" /></Button>
                       </div>
-                    ))}
-                    <div className="border-t border-border pt-4 space-y-3">
-                      <h4 className="text-sm font-medium text-foreground">Add New Bank Account</h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                          <Label className="text-xs">Country</Label>
-                          <Select value={bankForm.country} onValueChange={v => setBankForm({ ...bankForm, country: v })}>
-                            <SelectTrigger><SelectValue placeholder="Select country" /></SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Nigeria">Nigeria</SelectItem>
-                              <SelectItem value="United States">United States</SelectItem>
-                              <SelectItem value="United Kingdom">United Kingdom</SelectItem>
-                              <SelectItem value="Ghana">Ghana</SelectItem>
-                              <SelectItem value="Kenya">Kenya</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs">Bank Name</Label>
-                          <Input value={bankForm.bankName} onChange={e => setBankForm({ ...bankForm, bankName: e.target.value })} placeholder="e.g. First Bank" />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs">Account Number</Label>
-                          <Input value={bankForm.accountNumber} onChange={e => setBankForm({ ...bankForm, accountNumber: e.target.value })} placeholder="e.g. 0123456789" />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs">Account Holder Name</Label>
-                          <Input value={bankForm.holderName} onChange={e => setBankForm({ ...bankForm, holderName: e.target.value })} placeholder="Full name" />
-                        </div>
-                      </div>
-                      <Button variant="hero" size="sm" onClick={() => setVerifyAction("add-bank")}>
-                        <CheckCircle className="w-4 h-4 mr-1" /> Verify & Add Account
-                      </Button>
                     </div>
-                  </CardContent>
-                </Card>
+                  ))}
+                  <div className="border-t border-border pt-4 space-y-3">
+                    <h4 className="text-sm font-medium text-foreground">Add New Bank Account</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1"><Label className="text-xs">Country</Label><Select value={bankForm.country} onValueChange={v => setBankForm({ ...bankForm, country: v })}><SelectTrigger><SelectValue placeholder="Select country" /></SelectTrigger><SelectContent><SelectItem value="Nigeria">Nigeria</SelectItem><SelectItem value="United States">United States</SelectItem><SelectItem value="United Kingdom">United Kingdom</SelectItem><SelectItem value="Ghana">Ghana</SelectItem><SelectItem value="Kenya">Kenya</SelectItem></SelectContent></Select></div>
+                      <div className="space-y-1"><Label className="text-xs">Bank Name</Label><Input value={bankForm.bankName} onChange={e => setBankForm({ ...bankForm, bankName: e.target.value })} placeholder="e.g. First Bank" /></div>
+                      <div className="space-y-1"><Label className="text-xs">Account Number</Label><Input value={bankForm.accountNumber} onChange={e => setBankForm({ ...bankForm, accountNumber: e.target.value })} placeholder="e.g. 0123456789" /></div>
+                      <div className="space-y-1"><Label className="text-xs">Account Holder Name</Label><Input value={bankForm.holderName} onChange={e => setBankForm({ ...bankForm, holderName: e.target.value })} placeholder="Full name" /></div>
+                    </div>
+                    <Button variant="hero" size="sm" onClick={() => setVerifyAction("add-bank")}><CheckCircle className="w-4 h-4 mr-1" /> Verify & Add Account</Button>
+                  </div>
+                </CardContent></Card>
               )}
 
-              {/* Withdrawal Form */}
-              {showWithdrawForm && (
-                <Card className="border-primary/20">
-                  <CardContent className="p-6 space-y-4">
-                    <h3 className="font-semibold text-foreground">Withdraw Funds</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label>Select Bank Account</Label>
-                        <Select value={withdrawBank} onValueChange={setWithdrawBank}>
-                          <SelectTrigger><SelectValue placeholder="Choose bank" /></SelectTrigger>
-                          <SelectContent>
-                            {bankAccounts.map(b => (
-                              <SelectItem key={b.id} value={String(b.id)}>{b.bankName} — {b.accountNumber}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Amount</Label>
-                        <Input type="number" placeholder="$0.00" value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} max={walletData.availableBalance} />
-                        <p className="text-xs text-muted-foreground">Max: ${walletData.availableBalance}.00</p>
-                      </div>
-                    </div>
-                    <div className="flex gap-3">
-                      <Button variant="hero" onClick={() => setVerifyAction("withdraw")} disabled={!withdrawBank || !withdrawAmount}>
-                        <Shield className="w-4 h-4 mr-1" /> Verify & Withdraw
-                      </Button>
-                      <Button variant="outline" onClick={() => setShowWithdrawForm(false)}>Cancel</Button>
-                    </div>
-                  </CardContent>
-                </Card>
+              {walletView === "withdraw" && (
+                <Card className="border-primary/20"><CardContent className="p-4 sm:p-6 space-y-4">
+                  <h3 className="font-semibold text-foreground">Withdraw Funds</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2"><Label>Select Bank Account</Label><Select value={withdrawBank} onValueChange={setWithdrawBank}><SelectTrigger><SelectValue placeholder="Choose bank" /></SelectTrigger><SelectContent>{bankAccounts.map(b => <SelectItem key={b.id} value={String(b.id)}>{b.bankName} — {b.accountNumber}</SelectItem>)}</SelectContent></Select></div>
+                    <div className="space-y-2"><Label>Amount</Label><Input type="number" placeholder="$0.00" value={withdrawAmount} onChange={e => setWithdrawAmount(e.target.value)} max={walletData.availableBalance} /><p className="text-xs text-muted-foreground">Max: ${walletData.availableBalance}.00</p></div>
+                  </div>
+                  <div className="flex gap-3">
+                    <Button variant="hero" onClick={() => setVerifyAction("withdraw")} disabled={!withdrawBank || !withdrawAmount}><Shield className="w-4 h-4 mr-1" /> Verify & Withdraw</Button>
+                    <Button variant="outline" onClick={() => setWalletView("overview")}>Cancel</Button>
+                  </div>
+                </CardContent></Card>
               )}
 
-              {/* Transaction History */}
-              {showTransactions && (
-                <Card className="border-border">
-                  <CardHeader><CardTitle className="text-base font-body">Transaction History</CardTitle></CardHeader>
-                  <CardContent>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b border-border text-muted-foreground">
-                            <th className="text-left py-2 font-medium">Date</th>
-                            <th className="text-left py-2 font-medium">From</th>
-                            <th className="text-left py-2 font-medium">Type</th>
-                            <th className="text-right py-2 font-medium">Amount</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {walletData.transactions.map((t) => (
-                            <tr key={t.id} className="border-b border-border last:border-0">
-                              <td className="py-3 text-foreground">{t.date}</td>
-                              <td className="py-3 text-foreground">{t.from}</td>
-                              <td className="py-3 text-muted-foreground">{t.desc}</td>
-                              <td className={`py-3 text-right font-semibold ${t.amount > 0 ? "text-secondary" : "text-destructive"}`}>
-                                {t.amount > 0 ? "+" : ""}${Math.abs(t.amount)}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </CardContent>
-                </Card>
+              {walletView === "transactions" && (
+                <Card className="border-border"><CardHeader><CardTitle className="text-base font-body">Transaction History</CardTitle></CardHeader><CardContent>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead><tr className="border-b border-border text-muted-foreground"><th className="text-left py-2 font-medium">Date</th><th className="text-left py-2 font-medium">From</th><th className="text-left py-2 font-medium">Type</th><th className="text-right py-2 font-medium">Amount</th></tr></thead>
+                      <tbody>{walletData.transactions.map(t => (
+                        <tr key={t.id} className="border-b border-border last:border-0">
+                          <td className="py-3 text-foreground">{t.date}</td>
+                          <td className="py-3 text-foreground">{t.from}</td>
+                          <td className="py-3 text-muted-foreground">{t.desc}</td>
+                          <td className={`py-3 text-right font-semibold ${t.amount > 0 ? "text-secondary" : "text-destructive"}`}>{t.amount > 0 ? "+" : ""}${Math.abs(t.amount)}</td>
+                        </tr>
+                      ))}</tbody>
+                    </table>
+                  </div>
+                </CardContent></Card>
               )}
             </div>
           )}
@@ -699,10 +556,10 @@ const Dashboard = () => {
           {section === "settings" && (
             <div className="space-y-6">
               <Card className="border-border">
-                <CardContent className="p-6 space-y-5">
+                <CardContent className="p-4 sm:p-6 space-y-5">
                   <h3 className="font-semibold text-foreground">Account Settings</h3>
                   <div className="flex items-center gap-4">
-                    <Avatar className="w-16 h-16 border-2 border-border"><AvatarFallback className="bg-primary/10 text-primary text-xl font-bold">D</AvatarFallback></Avatar>
+                    <Avatar className="w-14 sm:w-16 h-14 sm:h-16 border-2 border-border"><AvatarFallback className="bg-primary/10 text-primary text-xl font-bold">D</AvatarFallback></Avatar>
                     <Button variant="outline" size="sm" className="gap-2"><Camera className="w-4 h-4" /> Change Photo</Button>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -718,17 +575,6 @@ const Dashboard = () => {
                       <div className="space-y-1 sm:col-span-2"><Label className="text-xs">Website</Label><Input defaultValue="https://destiny.dev" /></div>
                     </div>
                   </div>
-                  <div className="border-t border-border pt-4 space-y-4">
-                    <h3 className="font-semibold text-foreground flex items-center gap-2"><CreditCard className="w-4 h-4" /> Payout Account</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      {["Stripe", "Paystack", "Bank Transfer"].map((m) => (
-                        <button key={m} className="p-3 rounded-xl border-2 border-border hover:border-primary/30 text-center transition-all">
-                          <p className="text-sm font-medium text-foreground">{m}</p>
-                          <p className="text-xs text-muted-foreground">Connect</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
                   <Button variant="hero">Save Changes</Button>
                 </CardContent>
               </Card>
@@ -739,9 +585,9 @@ const Dashboard = () => {
           {section === "gift-page" && creatorEnabled && (
             <div className="space-y-6">
               <Card className={creatorPlan === "pro" ? "border-accent/30 bg-accent/5" : "border-primary/20 bg-primary/5"}>
-                <CardContent className="p-4 flex items-center justify-between">
+                <CardContent className="p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <div>
-                    <p className="font-semibold text-foreground flex items-center gap-2">
+                    <p className="font-semibold text-foreground flex items-center gap-2 flex-wrap">
                       {creatorPlan === "pro" ? <Crown className="w-4 h-4 text-accent" /> : <Sparkles className="w-4 h-4 text-primary" />}
                       Your gift page is live! 🎉
                       <Badge variant={creatorPlan === "pro" ? "default" : "outline"} className="ml-2">{creatorPlan === "pro" ? "Pro" : "Free"}</Badge>
@@ -749,17 +595,16 @@ const Dashboard = () => {
                     <p className="text-sm text-muted-foreground">gifttogether.com/{user.username}</p>
                   </div>
                   <div className="flex gap-2">
-                    <Link to={`/u/${user.username}`}><Button variant="outline" size="sm"><Eye className="w-4 h-4 mr-1" /> View Page</Button></Link>
-                    <Link to="/profile/settings"><Button variant="outline" size="sm"><Settings className="w-4 h-4 mr-1" /> Edit Profile</Button></Link>
+                    <Link to={`/u/${user.username}`}><Button variant="outline" size="sm"><Eye className="w-4 h-4 mr-1" /> View</Button></Link>
+                    <Link to="/profile/settings"><Button variant="outline" size="sm"><Settings className="w-4 h-4 mr-1" /> Edit</Button></Link>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Pro upgrade card for free users */}
               {creatorPlan === "free" && (
                 <Card className="border-accent/30 bg-gradient-to-r from-accent/5 to-primary/5">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between flex-wrap gap-4">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex flex-col lg:flex-row items-start justify-between gap-4">
                       <div>
                         <h3 className="text-lg font-bold text-foreground flex items-center gap-2"><Crown className="w-5 h-5 text-accent" /> Upgrade to Pro</h3>
                         <p className="text-sm text-muted-foreground mt-1">Remove branding and unlock powerful tools for your gift page.</p>
@@ -768,18 +613,14 @@ const Dashboard = () => {
                           <span className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-secondary shrink-0" /> Custom themes and layout</span>
                           <span className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-secondary shrink-0" /> Advanced supporter insights</span>
                           <span className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-secondary shrink-0" /> Custom thank-you messages</span>
-                          <span className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-secondary shrink-0" /> Custom domain support</span>
                           <span className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-secondary shrink-0" /> Priority integrations</span>
                           <span className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-secondary shrink-0" /> Custom banner images</span>
                           <span className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-secondary shrink-0" /> Supporter leaderboard</span>
-                          <span className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-secondary shrink-0" /> Scheduled campaigns</span>
                           <span className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-secondary shrink-0" /> Email notifications</span>
                         </div>
                       </div>
                       <div className="text-center space-y-2">
-                        <Button variant="hero" onClick={() => setCreatorPlan("pro")} className="gap-2">
-                          <Crown className="w-4 h-4" /> Upgrade to Pro
-                        </Button>
+                        <Button variant="hero" onClick={() => setCreatorPlan("pro")} className="gap-2"><Crown className="w-4 h-4" /> Upgrade to Pro</Button>
                         <p className="text-xs text-muted-foreground">$8/month or $79/year</p>
                       </div>
                     </div>
@@ -787,190 +628,73 @@ const Dashboard = () => {
                 </Card>
               )}
 
-              {/* Gift Page Settings */}
-              <Card className="border-border">
-                <CardContent className="p-6 space-y-5">
-                  <h3 className="font-semibold text-foreground">Gift Page Settings</h3>
-                  <div className="space-y-2"><Label>Bio</Label><Textarea defaultValue="Frontend developer. Appreciate your support! 🚀" rows={3} /></div>
-                  <div className="space-y-2">
-                    <Label>Suggested Amounts</Label>
-                    <Input defaultValue="5, 10, 20" />
-                    <p className="text-xs text-muted-foreground">Comma-separated values shown on your gift page</p>
-                  </div>
+              <Card className="border-border"><CardContent className="p-4 sm:p-6 space-y-5">
+                <h3 className="font-semibold text-foreground">Gift Page Settings</h3>
+                <div className="space-y-2"><Label>Bio</Label><Textarea defaultValue="Frontend developer. Appreciate your support! 🚀" rows={3} /></div>
+                <div className="space-y-2">
+                  <Label>Suggested Amounts</Label>
+                  <Input defaultValue="5, 10, 20" />
+                  <p className="text-xs text-muted-foreground">Comma-separated values shown on your gift page</p>
+                </div>
 
-                  <div className="space-y-4 border-t border-border pt-4">
-                    <h4 className="text-sm font-semibold text-foreground">Gift Options</h4>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-foreground">Accept money gifts</p>
-                        <p className="text-xs text-muted-foreground">People can send you money directly</p>
+                <div className="space-y-4 border-t border-border pt-4">
+                  <h4 className="text-sm font-semibold text-foreground">Gift Options</h4>
+                  <div className="flex items-center justify-between gap-4"><div className="min-w-0"><p className="font-medium text-foreground">Accept money gifts</p><p className="text-xs text-muted-foreground">People can send you money directly</p></div><Switch defaultChecked /></div>
+                  <div className="flex items-center justify-between gap-4"><div className="min-w-0"><p className="font-medium text-foreground">Accept vendor gifts</p><p className="text-xs text-muted-foreground">Gift cards and vouchers from vendors</p></div><Switch defaultChecked /></div>
+                  <div className="flex items-center justify-between gap-4"><div className="min-w-0"><p className="font-medium text-foreground">Accept gift cards</p><p className="text-xs text-muted-foreground">Allow people to send digital gift cards</p></div><Switch defaultChecked /></div>
+                </div>
+
+                <div className="space-y-4 border-t border-border pt-4">
+                  <h4 className="text-sm font-semibold text-foreground">Visibility</h4>
+                  <div className="flex items-center justify-between gap-4"><div className="min-w-0"><p className="font-medium text-foreground">Show supporters</p><p className="text-xs text-muted-foreground">Display supporter names on your page</p></div><Switch defaultChecked /></div>
+                  <div className="flex items-center justify-between gap-4"><div className="min-w-0"><p className="font-medium text-foreground">Show amounts</p><p className="text-xs text-muted-foreground">Display gift amounts publicly</p></div><Switch defaultChecked /></div>
+                </div>
+
+                {creatorPlan === "pro" && (
+                  <>
+                    <div className="space-y-4 border-t border-border pt-5">
+                      <h4 className="text-sm font-semibold text-foreground flex items-center gap-2"><Palette className="w-4 h-4 text-accent" /> Theme Customization <Badge variant="default" className="text-xs">Pro</Badge></h4>
+                      <div className="space-y-2">
+                        <Label>Page Theme</Label>
+                        <Select value={proTheme} onValueChange={setProTheme}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>
+                          <SelectItem value="default">Default</SelectItem><SelectItem value="dark">Dark</SelectItem><SelectItem value="warm">Warm Sunset</SelectItem><SelectItem value="ocean">Ocean Blue</SelectItem><SelectItem value="forest">Forest Green</SelectItem><SelectItem value="minimal">Minimal</SelectItem>
+                        </SelectContent></Select>
                       </div>
-                      <Switch defaultChecked />
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        {[{ name: "Primary Color", color: "hsl(16 85% 60%)" }, { name: "Background", color: "hsl(30 50% 98%)" }, { name: "Text Color", color: "hsl(20 25% 12%)" }].map(c => (
+                          <div key={c.name} className="space-y-1"><Label className="text-xs">{c.name}</Label><div className="flex items-center gap-2"><div className="w-8 h-8 rounded-lg border border-border" style={{ background: c.color }} /><Input defaultValue={c.color} className="text-xs" /></div></div>
+                        ))}
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-foreground">Accept vendor gifts</p>
-                        <p className="text-xs text-muted-foreground">Gift cards and vouchers from vendors</p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-foreground">Accept gift cards</p>
-                        <p className="text-xs text-muted-foreground">Allow people to send digital gift cards</p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                  </div>
 
-                  <div className="space-y-4 border-t border-border pt-4">
-                    <h4 className="text-sm font-semibold text-foreground">Visibility</h4>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-foreground">Show supporters</p>
-                        <p className="text-xs text-muted-foreground">Display supporter names on your page</p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-foreground">Show amounts</p>
-                        <p className="text-xs text-muted-foreground">Display gift amounts publicly</p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                  </div>
-
-                  {/* Pro features */}
-                  {creatorPlan === "pro" && (
-                    <>
-                      <div className="space-y-4 border-t border-border pt-5">
-                        <h4 className="text-sm font-semibold text-foreground flex items-center gap-2"><Palette className="w-4 h-4 text-accent" /> Theme Customization <Badge variant="default" className="text-xs">Pro</Badge></h4>
-                        <div className="space-y-2">
-                          <Label>Page Theme</Label>
-                          <Select value={proTheme} onValueChange={setProTheme}>
-                            <SelectTrigger><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="default">Default</SelectItem>
-                              <SelectItem value="dark">Dark</SelectItem>
-                              <SelectItem value="warm">Warm Sunset</SelectItem>
-                              <SelectItem value="ocean">Ocean Blue</SelectItem>
-                              <SelectItem value="forest">Forest Green</SelectItem>
-                              <SelectItem value="minimal">Minimal</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="grid grid-cols-3 gap-3">
-                          {[
-                            { name: "Primary Color", color: "hsl(16 85% 60%)" },
-                            { name: "Background", color: "hsl(30 50% 98%)" },
-                            { name: "Text Color", color: "hsl(20 25% 12%)" },
-                          ].map(c => (
-                            <div key={c.name} className="space-y-1">
-                              <Label className="text-xs">{c.name}</Label>
-                              <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 rounded-lg border border-border" style={{ background: c.color }} />
-                                <Input defaultValue={c.color} className="text-xs" />
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="space-y-4 border-t border-border pt-5">
-                        <h4 className="text-sm font-semibold text-foreground flex items-center gap-2"><Image className="w-4 h-4" /> Custom Banner <Badge variant="default" className="text-xs">Pro</Badge></h4>
-                        <div className="border-2 border-dashed border-border rounded-xl p-6 text-center">
-                          {proBanner ? (
-                            <div className="space-y-2">
-                              <div className="h-32 bg-muted rounded-lg flex items-center justify-center text-muted-foreground">Banner Preview</div>
-                              <Button variant="outline" size="sm" onClick={() => setProBanner("")}>Remove Banner</Button>
-                            </div>
-                          ) : (
-                            <>
-                              <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                              <p className="text-sm text-muted-foreground">Drop image or click to upload</p>
-                              <Button variant="outline" size="sm" className="mt-2" onClick={() => setProBanner("banner.jpg")}>Upload Banner</Button>
-                            </>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="space-y-3 border-t border-border pt-5">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-medium text-foreground flex items-center gap-2">Remove "Powered by" Branding <Badge variant="default" className="text-xs">Pro</Badge></p>
-                            <p className="text-xs text-muted-foreground">Hide platform branding from your gift page</p>
-                          </div>
-                          <Switch checked={proRemoveBranding} onCheckedChange={setProRemoveBranding} />
-                        </div>
-                      </div>
-
-                      <div className="space-y-3 border-t border-border pt-5">
-                        <h4 className="text-sm font-semibold text-foreground flex items-center gap-2"><MessageSquare className="w-4 h-4" /> Custom Thank-You Message <Badge variant="default" className="text-xs">Pro</Badge></h4>
-                        <Textarea value={proThankYou} onChange={e => setProThankYou(e.target.value)} rows={3} />
-                        <p className="text-xs text-muted-foreground">Sent to supporters after they gift you</p>
-                      </div>
-
-                      {/* Custom Domain */}
-                      <div className="border-t border-border pt-5 space-y-4">
-                        <h3 className="font-semibold text-foreground flex items-center gap-2"><Globe2 className="w-4 h-4" /> Custom Domain <Badge variant="default" className="text-xs">Pro</Badge></h3>
-                        <p className="text-sm text-muted-foreground">Use your own domain instead of gifttogether.com/{user.username}</p>
-                        <Input placeholder="gifts.yourdomain.com" value={customDomain} onChange={(e) => setCustomDomain(e.target.value)} />
-                        {customDomain && (
-                          <Card className="border-border bg-muted/50">
-                            <CardContent className="p-4 space-y-4">
-                              <p className="text-sm font-medium text-foreground">DNS Configuration Instructions</p>
-                              <p className="text-xs text-muted-foreground">Add the following DNS records in your domain provider (Cloudflare, GoDaddy, Namecheap, etc.)</p>
-
-                              <div className="space-y-3">
-                                <div className="bg-background rounded-lg p-3 font-mono text-xs space-y-1">
-                                  <p className="text-sm font-semibold text-foreground mb-2">Step 1: Add CNAME Record</p>
-                                  <p><span className="text-muted-foreground">Type:</span> <span className="text-foreground">CNAME</span></p>
-                                  <p><span className="text-muted-foreground">Host:</span> <span className="text-foreground">{customDomain.split('.')[0]}</span></p>
-                                  <p><span className="text-muted-foreground">Value:</span> <span className="text-foreground">gifttogether.com</span></p>
-                                  <p><span className="text-muted-foreground">TTL:</span> <span className="text-foreground">3600 (or Auto)</span></p>
-                                </div>
-
-                                <div className="bg-background rounded-lg p-3 font-mono text-xs space-y-1">
-                                  <p className="text-sm font-semibold text-foreground mb-2">Step 2: Add TXT Record (Verification)</p>
-                                  <p><span className="text-muted-foreground">Type:</span> <span className="text-foreground">TXT</span></p>
-                                  <p><span className="text-muted-foreground">Host:</span> <span className="text-foreground">_gifttogether</span></p>
-                                  <p><span className="text-muted-foreground">Value:</span> <span className="text-foreground">gt-verify=usr_{user.username}_abc123</span></p>
-                                </div>
-                              </div>
-
-                              <div className="bg-primary/5 rounded-lg p-3 text-xs space-y-1">
-                                <p className="font-semibold text-foreground">How to set up:</p>
-                                <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
-                                  <li>Log in to your domain registrar (Cloudflare, GoDaddy, Namecheap, etc.)</li>
-                                  <li>Navigate to DNS settings for your domain</li>
-                                  <li>Add the CNAME record above</li>
-                                  <li>Add the TXT record for verification</li>
-                                  <li>Wait up to 48 hours for DNS propagation</li>
-                                  <li>Come back here and click "Verify Domain"</li>
-                                </ol>
-                              </div>
-
-                              <div className="flex gap-2">
-                                <Button variant="hero" size="sm"><CheckCircle className="w-4 h-4 mr-1" /> Verify Domain</Button>
-                                <Button variant="outline" size="sm" onClick={() => {
-                                  navigator.clipboard.writeText(`Type: CNAME\nHost: ${customDomain.split('.')[0]}\nValue: gifttogether.com`);
-                                }}><Copy className="w-4 h-4 mr-1" /> Copy DNS Records</Button>
-                              </div>
-
-                              <p className="text-xs text-muted-foreground">
-                                After DNS propagation, your gift page will be accessible at <span className="text-foreground font-medium">{customDomain}</span> instead of gifttogether.com/{user.username}
-                              </p>
-                            </CardContent>
-                          </Card>
+                    <div className="space-y-4 border-t border-border pt-5">
+                      <h4 className="text-sm font-semibold text-foreground flex items-center gap-2"><Image className="w-4 h-4" /> Custom Banner <Badge variant="default" className="text-xs">Pro</Badge></h4>
+                      <div className="border-2 border-dashed border-border rounded-xl p-6 text-center">
+                        {proBanner ? (
+                          <div className="space-y-2"><div className="h-32 bg-muted rounded-lg flex items-center justify-center text-muted-foreground">Banner Preview</div><Button variant="outline" size="sm" onClick={() => setProBanner("")}>Remove Banner</Button></div>
+                        ) : (
+                          <><Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" /><p className="text-sm text-muted-foreground">Drop image or click to upload</p><Button variant="outline" size="sm" className="mt-2" onClick={() => setProBanner("banner.jpg")}>Upload Banner</Button></>
                         )}
                       </div>
-                    </>
-                  )}
+                    </div>
 
-                  <Button variant="hero">Save Settings</Button>
-                </CardContent>
-              </Card>
+                    <div className="space-y-3 border-t border-border pt-5">
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="min-w-0"><p className="font-medium text-foreground flex items-center gap-2 flex-wrap">Remove "Powered by" Branding <Badge variant="default" className="text-xs">Pro</Badge></p><p className="text-xs text-muted-foreground">Hide platform branding from your gift page</p></div>
+                        <Switch checked={proRemoveBranding} onCheckedChange={setProRemoveBranding} />
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 border-t border-border pt-5">
+                      <h4 className="text-sm font-semibold text-foreground flex items-center gap-2"><MessageSquare className="w-4 h-4" /> Custom Thank-You Message <Badge variant="default" className="text-xs">Pro</Badge></h4>
+                      <Textarea value={proThankYou} onChange={e => setProThankYou(e.target.value)} rows={3} />
+                      <p className="text-xs text-muted-foreground">Sent to supporters after they gift you</p>
+                    </div>
+                  </>
+                )}
+
+                <Button variant="hero">Save Settings</Button>
+              </CardContent></Card>
             </div>
           )}
 
@@ -980,18 +704,12 @@ const Dashboard = () => {
               <p className="text-muted-foreground">{supporters.length} total supporters</p>
               {supporters.map((s) => (
                 <Card key={s.id} className="border-border">
-                  <CardContent className="p-4 flex items-center justify-between">
+                  <CardContent className="p-3 sm:p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <Avatar className="w-9 h-9"><AvatarFallback className="bg-muted text-xs">{s.name === "Anonymous" ? "?" : s.name.charAt(0)}</AvatarFallback></Avatar>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{s.name}</p>
-                        {s.message && <p className="text-xs text-muted-foreground">"{s.message}"</p>}
-                      </div>
+                      <div><p className="text-sm font-medium text-foreground">{s.name}</p>{s.message && <p className="text-xs text-muted-foreground">"{s.message}"</p>}</div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-primary">${s.amount}</p>
-                      <p className="text-xs text-muted-foreground">{s.date}</p>
-                    </div>
+                    <div className="text-right"><p className="font-semibold text-primary">${s.amount}</p><p className="text-xs text-muted-foreground">{s.date}</p></div>
                   </CardContent>
                 </Card>
               ))}
@@ -1001,83 +719,46 @@ const Dashboard = () => {
           {/* CREATOR: ANALYTICS */}
           {section === "analytics" && creatorEnabled && (
             <div className="space-y-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
-                  { label: "Total Received", value: "$320" },
-                  { label: "Supporters", value: "28" },
-                  { label: "Page Views", value: "1.2k" },
-                  { label: "Conversion", value: "4.2%" },
-                ].map((s) => (
-                  <Card key={s.label} className="border-border"><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-foreground">{s.value}</p><p className="text-xs text-muted-foreground">{s.label}</p></CardContent></Card>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+                {[{ label: "Total Received", value: "$320" }, { label: "Supporters", value: "28" }, { label: "Page Views", value: "1.2k" }, { label: "Conversion", value: "4.2%" }].map((s) => (
+                  <Card key={s.label} className="border-border"><CardContent className="p-3 sm:p-4 text-center"><p className="text-xl sm:text-2xl font-bold text-foreground">{s.value}</p><p className="text-xs text-muted-foreground">{s.label}</p></CardContent></Card>
                 ))}
               </div>
-              <Card className="border-border">
-                <CardContent className="p-6 text-center text-muted-foreground">
-                  <BarChart3 className="w-12 h-12 mx-auto mb-3 text-muted-foreground/40" />
-                  <p>Detailed analytics charts coming soon</p>
-                </CardContent>
-              </Card>
+              <Card className="border-border"><CardContent className="p-6 text-center text-muted-foreground"><BarChart3 className="w-12 h-12 mx-auto mb-3 text-muted-foreground/40" /><p>Detailed analytics charts coming soon</p></CardContent></Card>
             </div>
           )}
 
           {/* CREATOR: INTEGRATIONS */}
           {section === "integrations" && creatorEnabled && (
             <div className="space-y-6">
-              {/* API Key */}
-              <Card className="border-border">
-                <CardContent className="p-6 space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center"><Key className="w-5 h-5 text-primary" /></div>
-                    <div>
-                      <h3 className="font-semibold text-foreground">Your API Key</h3>
-                      <p className="text-sm text-muted-foreground">Use this key to authenticate your requests</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <code className="flex-1 bg-muted rounded-lg px-4 py-3 font-mono text-sm text-foreground min-w-0">
-                      {apiKeyRevealed ? mockApiKey : "gt_live_••••••••••••••••••••"}
-                    </code>
-                    <Button variant="outline" size="sm" onClick={() => setApiKeyRevealed(!apiKeyRevealed)}>
-                      {apiKeyRevealed ? "Hide" : "Reveal"}
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={copyApiKey}>
-                      {apiKeyCopied ? <><CheckCircle className="w-3.5 h-3.5 mr-1 text-secondary" /> Copied</> : <><Copy className="w-3.5 h-3.5 mr-1" /> Copy</>}
-                    </Button>
-                    <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">Regenerate</Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <Card className="border-border"><CardContent className="p-4 sm:p-6 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center"><Key className="w-5 h-5 text-primary" /></div>
+                  <div><h3 className="font-semibold text-foreground">Your API Key</h3><p className="text-sm text-muted-foreground">Use this key to authenticate your requests</p></div>
+                </div>
+                <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                  <code className="flex-1 bg-muted rounded-lg px-3 sm:px-4 py-3 font-mono text-xs sm:text-sm text-foreground min-w-0 truncate">{apiKeyRevealed ? mockApiKey : "gt_live_••••••••••••••••••••"}</code>
+                  <Button variant="outline" size="sm" onClick={() => setApiKeyRevealed(!apiKeyRevealed)}>{apiKeyRevealed ? "Hide" : "Reveal"}</Button>
+                  <Button variant="outline" size="sm" onClick={copyApiKey}>{apiKeyCopied ? <><CheckCircle className="w-3.5 h-3.5 mr-1 text-secondary" /> Copied</> : <><Copy className="w-3.5 h-3.5 mr-1" /> Copy</>}</Button>
+                  <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">Regenerate</Button>
+                </div>
+              </CardContent></Card>
 
-              {/* Widget */}
-              <Card className="border-border">
-                <CardContent className="p-6 space-y-4">
-                  <h3 className="font-semibold text-foreground">Embed Gift Widget</h3>
-                  <p className="text-sm text-muted-foreground">Add a gifting widget to your website</p>
-                  <pre className="bg-muted rounded-lg p-4 text-sm font-mono text-foreground overflow-x-auto">{`<script src="https://cdn.gifttogether.com/widget.js"></script>\n<div id="gift-widget" data-user="${user.username}"></div>`}</pre>
-                  <Button variant="outline" size="sm">Copy Code</Button>
-                </CardContent>
-              </Card>
+              <Card className="border-border"><CardContent className="p-4 sm:p-6 space-y-4">
+                <h3 className="font-semibold text-foreground">Embed Gift Widget</h3>
+                <p className="text-sm text-muted-foreground">Add a gifting widget to your website</p>
+                <pre className="bg-muted rounded-lg p-3 sm:p-4 text-xs sm:text-sm font-mono text-foreground overflow-x-auto">{`<script src="https://cdn.gifttogether.com/widget.js"></script>\n<div id="gift-widget" data-user="${user.username}"></div>`}</pre>
+                <Button variant="outline" size="sm">Copy Code</Button>
+              </CardContent></Card>
 
-              {/* SDK Packages */}
-              <Card className="border-border">
-                <CardContent className="p-6 space-y-4">
-                  <h3 className="font-semibold text-foreground">SDK Packages</h3>
-                  <div className="space-y-3">
-                    <div className="p-3 bg-muted rounded-lg">
-                      <p className="text-sm font-medium text-foreground">React (NPM)</p>
-                      <pre className="text-xs font-mono text-muted-foreground mt-1">npm install @gifttogether/react</pre>
-                    </div>
-                    <div className="p-3 bg-muted rounded-lg">
-                      <p className="text-sm font-medium text-foreground">React Native (NPM)</p>
-                      <pre className="text-xs font-mono text-muted-foreground mt-1">npm install @gifttogether/react-native</pre>
-                    </div>
-                    <div className="p-3 bg-muted rounded-lg">
-                      <p className="text-sm font-medium text-foreground">Flutter (Pub)</p>
-                      <pre className="text-xs font-mono text-muted-foreground mt-1">flutter pub add gifttogether</pre>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <Card className="border-border"><CardContent className="p-4 sm:p-6 space-y-4">
+                <h3 className="font-semibold text-foreground">SDK Packages</h3>
+                <div className="space-y-3">
+                  <div className="p-3 bg-muted rounded-lg"><p className="text-sm font-medium text-foreground">React (NPM)</p><pre className="text-xs font-mono text-muted-foreground mt-1">npm install @gifttogether/react</pre></div>
+                  <div className="p-3 bg-muted rounded-lg"><p className="text-sm font-medium text-foreground">React Native (NPM)</p><pre className="text-xs font-mono text-muted-foreground mt-1">npm install @gifttogether/react-native</pre></div>
+                  <div className="p-3 bg-muted rounded-lg"><p className="text-sm font-medium text-foreground">Flutter (Pub)</p><pre className="text-xs font-mono text-muted-foreground mt-1">flutter pub add gifttogether</pre></div>
+                </div>
+              </CardContent></Card>
               <Link to="/developers"><Button variant="outline">View Full Developer Docs <ChevronRight className="w-4 h-4 ml-1" /></Button></Link>
             </div>
           )}
