@@ -30,7 +30,7 @@ const GiftDetail = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <p className="text-xl text-muted-foreground mb-4">Gift not found</p>
-          <Link to="/marketplace"><Button variant="hero">Back to Marketplace</Button></Link>
+          <Link to="/gift-shop"><Button variant="hero">Back to Gift Shop</Button></Link>
         </div>
       </div>
     );
@@ -39,13 +39,13 @@ const GiftDetail = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="pt-24 pb-16">
+      <div className="pt-20 sm:pt-24 pb-16">
         <div className="container mx-auto px-4 max-w-5xl">
-          <Link to="/marketplace" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8">
-            <ArrowLeft className="w-4 h-4" /> Back to Marketplace
+          <Link to="/gift-shop" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 sm:mb-8">
+            <ArrowLeft className="w-4 h-4" /> Back to Gift Shop
           </Link>
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-muted rounded-2xl flex items-center justify-center text-[120px] min-h-[320px]">
+          <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
+            <div className="bg-muted rounded-2xl flex items-center justify-center text-[80px] sm:text-[120px] min-h-[240px] sm:min-h-[320px]">
               {gift.emoji}
             </div>
             <div>
@@ -53,13 +53,13 @@ const GiftDetail = () => {
                 <Badge variant="secondary">{gift.category}</Badge>
                 <Badge variant="outline">{gift.type}</Badge>
               </div>
-              <h1 className="text-3xl font-bold font-display text-foreground mb-2">{gift.name}</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold font-display text-foreground mb-2">{gift.name}</h1>
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
                 <Star className="w-4 h-4 fill-accent text-accent" /> {gift.rating} ·{" "}
                 <Link to={`/vendors/${gift.vendorSlug}`} className="text-primary hover:underline">{gift.vendor}</Link>
               </div>
-              <p className="text-muted-foreground mb-6">{gift.description}</p>
-              <div className="text-3xl font-bold text-primary mb-6">${gift.price}</div>
+              <p className="text-muted-foreground mb-6 text-sm sm:text-base">{gift.description}</p>
+              <div className="text-2xl sm:text-3xl font-bold text-primary mb-6">${gift.price}</div>
               <Card className="border-border mb-6">
                 <CardContent className="p-4">
                   <Link to={`/vendors/${gift.vendorSlug}`} className="hover:underline">
@@ -88,7 +88,12 @@ const GiftDetail = () => {
         </div>
       </div>
       <Footer />
-      <SendGiftModal open={showGiftModal} onOpenChange={setShowGiftModal} recipientName={gift.name} />
+      <SendGiftModal
+        open={showGiftModal}
+        onOpenChange={setShowGiftModal}
+        recipientName={gift.name}
+        preselectedGift={{ name: gift.name, price: gift.price, vendor: gift.vendor }}
+      />
     </div>
   );
 };
