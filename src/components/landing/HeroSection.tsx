@@ -1,17 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Gift, Heart, Users } from "lucide-react";
+import { Link } from "react-router-dom";
 import heroImage from "@/assets/hero-illustration.png";
 
 const HeroSection = () => {
   return (
-    <section className="relative pt-24 pb-16 md:pt-32 md:pb-24 overflow-hidden bg-gradient-warm">
-      {/* Decorative blobs */}
+    <section className="relative pt-20 pb-12 sm:pt-24 sm:pb-16 md:pt-32 md:pb-24 overflow-hidden bg-gradient-warm">
       <div className="absolute top-20 right-0 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary/10 rounded-full blur-3xl" />
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 items-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -22,24 +22,28 @@ const HeroSection = () => {
               The joy of giving, simplified
             </div>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-foreground mb-6">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-foreground mb-6">
               Gift and support the people you{" "}
               <span className="text-gradient">care about</span>
             </h1>
 
-            <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-lg">
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 max-w-lg">
               Celebrate birthdays, weddings, and special occasions, or send gifts to your favorite creators and influencers.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 mb-10">
-              <Button variant="hero" size="lg" className="text-base px-8">
-                <Gift className="w-5 h-5 mr-2" />
-                Send a Gift
-              </Button>
-              <Button variant="hero-outline" size="lg" className="text-base px-8">
-                <Users className="w-5 h-5 mr-2" />
-                Start a Campaign
-              </Button>
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-10">
+              <Link to="/gift-shop">
+                <Button variant="hero" size="lg" className="text-base px-8 w-full sm:w-auto">
+                  <Gift className="w-5 h-5 mr-2" />
+                  Send a Gift
+                </Button>
+              </Link>
+              <Link to="/create-campaign">
+                <Button variant="hero-outline" size="lg" className="text-base px-8 w-full sm:w-auto">
+                  <Users className="w-5 h-5 mr-2" />
+                  Start a Campaign
+                </Button>
+              </Link>
             </div>
 
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
@@ -58,7 +62,7 @@ const HeroSection = () => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="relative"
+            className="relative hidden sm:block"
           >
             <img
               src={heroImage}

@@ -10,7 +10,7 @@ const Navbar = () => {
   const isHome = location.pathname === "/";
 
   const mainLinks = [
-    { label: "Marketplace", to: "/marketplace" },
+    { label: "Gift Shop", to: "/gift-shop" },
     { label: "Campaigns", to: "/campaigns" },
     { label: "Developers", to: "/developers" },
   ];
@@ -23,12 +23,12 @@ const Navbar = () => {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
-      <div className="container mx-auto px-4 flex items-center justify-between h-16">
+      <div className="container mx-auto px-4 flex items-center justify-between h-14 sm:h-16">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-lg bg-gradient-hero flex items-center justify-center">
-            <Gift className="w-5 h-5 text-primary-foreground" />
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-gradient-hero flex items-center justify-center">
+            <Gift className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground" />
           </div>
-          <span className="text-xl font-bold font-display text-foreground">GiftTogether</span>
+          <span className="text-lg sm:text-xl font-bold font-display text-foreground">GiftTogether</span>
         </Link>
 
         <div className="hidden md:flex items-center gap-6">
