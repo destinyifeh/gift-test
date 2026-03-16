@@ -3,7 +3,29 @@
 import {Avatar, AvatarFallback} from '@/components/ui/avatar';
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
-import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {Checkbox} from '@/components/ui/checkbox';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
 import {
@@ -17,6 +39,7 @@ import {Switch} from '@/components/ui/switch';
 import {Textarea} from '@/components/ui/textarea';
 import {
   Activity,
+  AlertTriangle,
   ArrowUpRight,
   Ban,
   BarChart3,
@@ -31,18 +54,24 @@ import {
   Flag,
   Gift,
   Globe,
+  Info,
   Key,
   LayoutDashboard,
   LogOut,
   Mail,
   Menu,
+  MoreVertical,
   Package,
   Pause,
+  Play,
+  Plus,
   Search,
   Settings,
   Shield,
+  ShieldAlert,
   ShoppingCart,
   Star,
+  Store,
   Tag,
   Trash2,
   TrendingUp,
@@ -53,6 +82,16 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import {useState} from 'react';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+import {toast} from 'sonner';
 
 // ── Mock Data ──────────────────────────────────────────────
 
@@ -113,6 +152,21 @@ const metrics = [
     color: 'text-primary',
     change: '+2',
   },
+];
+
+const revenueData = [
+  {month: 'Jan', revenue: 4500},
+  {month: 'Feb', revenue: 5200},
+  {month: 'Mar', revenue: 4800},
+  {month: 'Apr', revenue: 6100},
+  {month: 'May', revenue: 5900},
+  {month: 'Jun', revenue: 7200},
+  {month: 'Jul', revenue: 6800},
+  {month: 'Aug', revenue: 7500},
+  {month: 'Sep', revenue: 8100},
+  {month: 'Oct', revenue: 8400},
+  {month: 'Nov', revenue: 9200},
+  {month: 'Dec', revenue: 9800},
 ];
 
 const recentActivity = [
@@ -228,6 +282,7 @@ const mockCampaigns = [
     contributors: 12,
     status: 'active',
     created: '2026-03-01',
+    featured: true,
   },
   {
     id: 'C002',
@@ -239,6 +294,7 @@ const mockCampaigns = [
     contributors: 8,
     status: 'completed',
     created: '2026-02-15',
+    featured: false,
   },
   {
     id: 'C003',
@@ -250,6 +306,7 @@ const mockCampaigns = [
     contributors: 22,
     status: 'active',
     created: '2026-03-05',
+    featured: false,
   },
   {
     id: 'C004',
@@ -259,8 +316,9 @@ const mockCampaigns = [
     goal: 300,
     raised: 150,
     contributors: 6,
-    status: 'active',
+    status: 'paused',
     created: '2026-03-08',
+    featured: false,
   },
 ];
 
@@ -370,10 +428,38 @@ const mockTransactions = [
 ];
 
 const mockWallets = [
-  {user: 'Destiny O.', balance: 48, pending: 0, earned: 320, withdrawn: 272},
-  {user: 'John D.', balance: 120, pending: 25, earned: 500, withdrawn: 355},
-  {user: 'Lisa K.', balance: 200, pending: 50, earned: 1200, withdrawn: 950},
-  {user: 'Sarah M.', balance: 0, pending: 0, earned: 50, withdrawn: 50},
+  {
+    user: 'Destiny O.',
+    balance: 48,
+    pending: 0,
+    earned: 320,
+    withdrawn: 272,
+    status: 'active',
+  },
+  {
+    user: 'John D.',
+    balance: 120,
+    pending: 25,
+    earned: 500,
+    withdrawn: 355,
+    status: 'active',
+  },
+  {
+    user: 'Lisa K.',
+    balance: 200,
+    pending: 50,
+    earned: 1200,
+    withdrawn: 950,
+    status: 'restricted',
+  },
+  {
+    user: 'Sarah M.',
+    balance: 0,
+    pending: 0,
+    earned: 50,
+    withdrawn: 50,
+    status: 'active',
+  },
 ];
 
 const mockWithdrawals = [
@@ -596,30 +682,52 @@ const mockLogs = [
   },
 ];
 
-const mockAdmins = [
+type Admin = {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  permissions: string;
+  lastLogin: string;
+  status: 'active' | 'suspended';
+};
+
+const mockAdmins: Admin[] = [
   {
+    id: 'ADM001',
     name: 'Admin User',
+    email: 'admin@gifthance.com',
     role: 'Super Admin',
     permissions: 'Full Access',
     lastLogin: '2026-03-10 14:30',
+    status: 'active',
   },
   {
+    id: 'ADM002',
     name: 'Finance Team',
+    email: 'finance@gifthance.com',
     role: 'Finance Admin',
     permissions: 'Transactions, Wallets, Withdrawals',
     lastLogin: '2026-03-10 13:00',
+    status: 'active',
   },
   {
+    id: 'ADM003',
     name: 'Support Agent',
+    email: 'support@gifthance.com',
     role: 'Support Admin',
     permissions: 'Users, Campaigns, Gifts',
     lastLogin: '2026-03-09 16:00',
+    status: 'active',
   },
   {
+    id: 'ADM004',
     name: 'Mod Team',
+    email: 'mod@gifthance.com',
     role: 'Moderation Admin',
     permissions: 'Moderation, Reports',
-    lastLogin: '2026-03-08 10:00',
+    lastLogin: '2026-03-08 10:15',
+    status: 'active',
   },
 ];
 
@@ -678,6 +786,450 @@ export default function AdminDashboardPage() {
   const [section, setSection] = useState<Section>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [txTypeFilter, setTxTypeFilter] = useState('all');
+  const [txProviderFilter, setTxProviderFilter] = useState('all');
+
+  // Stateful Mock Data
+  const [vendors, setVendors] = useState(mockVendors);
+  const [users, setUsers] = useState(mockUsers);
+  const [campaigns, setCampaigns] = useState(mockCampaigns);
+  const [withdrawals, setWithdrawals] = useState(mockWithdrawals);
+  const [wallets, setWallets] = useState(mockWallets);
+  const [gifts, setGifts] = useState(mockGifts);
+  const [transactions, setTransactions] = useState(mockTransactions);
+  const [giftCodes, setGiftCodes] = useState(mockGiftCodes);
+  const [integrations, setIntegrations] = useState(mockIntegrations);
+  const [subscriptions, setSubscriptions] = useState(mockSubscriptions);
+  const [moderationQueue, setModerationQueue] = useState(mockModerationQueue);
+  const [logs, setLogs] = useState(mockLogs);
+  const [admins, setAdmins] = useState<Admin[]>(mockAdmins);
+
+  // Add Vendor State
+  const [isVendorModalOpen, setIsVendorModalOpen] = useState(false);
+  const [newVendor, setNewVendor] = useState({
+    name: '',
+    email: '',
+    products: 0,
+    orders: 0,
+    revenue: 0,
+    status: 'active' as const,
+  });
+
+  // Action Confirmation State
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: '',
+    description: '',
+    onConfirm: () => {},
+  });
+
+  // Advanced Action Modal State
+  const [advancedModal, setAdvancedModal] = useState<{
+    isOpen: boolean;
+    type:
+      | 'warn'
+      | 'suspend'
+      | 'ban'
+      | 'flag'
+      | 'restrict'
+      | 'reject'
+      | 'delete'
+      | 'remove'
+      | 'disable'
+      | 'activate'
+      | 'pause'
+      | 'resume'
+      | 'invalidate'
+      | 'generate'
+      | 'unsuspend'
+      | 'feature'
+      | 'unfeature'
+      | 'approve'
+      | 'pay'
+      | 'cancel';
+    targetType:
+      | 'user'
+      | 'vendor'
+      | 'admin'
+      | 'campaign'
+      | 'withdrawal'
+      | 'wallet'
+      | 'gift'
+      | 'integration'
+      | 'moderation'
+      | 'subscription';
+    targetId: string;
+    targetName: string;
+  }>({
+    isOpen: false,
+    type: 'warn',
+    targetType: 'user',
+    targetId: '',
+    targetName: '',
+  });
+
+  // Add Admin Modal State
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const [adminToEdit, setAdminToEdit] = useState<any>(null);
+  const [viewDetailsModal, setViewDetailsModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    data: any;
+  }>({
+    isOpen: false,
+    title: '',
+    data: null,
+  });
+  const [newAdmin, setNewAdmin] = useState({
+    name: '',
+    email: '',
+    role: 'Support Admin',
+    permissions: '',
+  });
+
+  const addLog = (action: string) => {
+    const newLog = {
+      id: Date.now(),
+      admin: 'Super Admin',
+      action,
+      date: new Date().toISOString().replace('T', ' ').slice(0, 16),
+    };
+    setLogs([newLog, ...logs]);
+  };
+
+  const toggleUserStatus = (userId: string) => {
+    const user = users.find(u => u.id === userId);
+    if (!user) return;
+    const action = user.status === 'active' ? 'suspend' : 'activate';
+    handleAdvancedAction(action, 'user', user.id, user.name);
+  };
+
+  const toggleCampaignStatus = (campaignId: string) => {
+    const campaign = campaigns.find(c => c.id === campaignId);
+    if (!campaign) return;
+    const action = campaign.status === 'active' ? 'pause' : 'resume';
+    handleAdvancedAction(action, 'campaign', campaign.id, campaign.title);
+  };
+
+  const toggleCampaignFeatured = (campaignId: string) => {
+    const campaign = campaigns.find(c => c.id === campaignId);
+    if (!campaign) return;
+    const action = campaign.featured ? 'unfeature' : 'feature';
+    handleAdvancedAction(action, 'campaign', campaign.id, campaign.title);
+  };
+
+  const toggleWalletRestriction = (userName: string) => {
+    const wallet = wallets.find(w => w.user === userName);
+    if (!wallet) return;
+    const action = wallet.status === 'active' ? 'restrict' : 'unsuspend'; // Using unsuspend as generic 'unrestrict'
+    handleAdvancedAction(action, 'wallet', userName, userName);
+  };
+
+  const updateVendorStatus = (vendorName: string) => {
+    const vendor = vendors.find(v => v.name === vendorName);
+    if (!vendor) return;
+    const action = vendor.status === 'active' ? 'suspend' : 'activate';
+    handleAdvancedAction(action, 'vendor', vendorName, vendorName);
+  };
+
+  const deleteVendor = (vendorName: string) => {
+    handleAdvancedAction('delete', 'vendor', vendorName, vendorName);
+  };
+
+  const updateWithdrawalStatus = (
+    withdrawalId: string,
+    status: 'approved' | 'paid' | 'rejected',
+  ) => {
+    const withdrawal = withdrawals.find(w => w.id === withdrawalId);
+    if (!withdrawal) return;
+    const action =
+      status === 'approved' ? 'approve' : status === 'paid' ? 'pay' : 'reject';
+    handleAdvancedAction(action, 'withdrawal', withdrawalId, withdrawal.user);
+  };
+
+  const flagGift = (giftId: string) => {
+    handleAdvancedAction('flag', 'gift', giftId, giftId);
+  };
+
+  const invalidateCode = (code: string) => {
+    handleAdvancedAction('invalidate', 'gift', code, code);
+  };
+
+  const resolveModeration = (
+    id: string,
+    action: 'dismiss' | 'resolve' | 'suspend',
+  ) => {
+    handleAdvancedAction(action, 'moderation', id, id);
+  };
+
+  const suspendVendor = (vendorName: string) => {
+    updateVendorStatus(vendorName);
+  };
+
+  const generateApiKey = (name: string) => {
+    handleAdvancedAction('generate', 'integration', name, name);
+  };
+
+  const disableIntegration = (name: string) => {
+    const integration = integrations.find(i => i.name === name);
+    if (!integration) return;
+    const action = integration.status === 'active' ? 'disable' : 'activate';
+    handleAdvancedAction(action, 'integration', name, name);
+  };
+
+  const removeAdmin = (name: string) => {
+    handleAdvancedAction('remove', 'admin', name, name);
+  };
+
+  const toggleAdminStatus = (adminName: string) => {
+    const admin = admins.find(a => a.name === adminName);
+    if (!admin) return;
+    const action = admin.status === 'active' ? 'suspend' : 'activate';
+    handleAdvancedAction(action, 'admin', adminName, adminName);
+  };
+
+  const handleAddVendor = () => {
+    if (!newVendor.name || !newVendor.email) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+    const vendorToAdd = {
+      ...newVendor,
+      joined: new Date().toISOString().split('T')[0],
+    };
+    setVendors([vendorToAdd, ...vendors]);
+    setIsVendorModalOpen(false);
+    setNewVendor({
+      name: '',
+      email: '',
+      products: 0,
+      orders: 0,
+      revenue: 0,
+      status: 'active',
+    });
+    toast.success('Vendor added successfully');
+  };
+
+  const handleAddAdmin = () => {
+    if (!newAdmin.name || !newAdmin.email) {
+      toast.error('Please fill in Name and Email');
+      return;
+    }
+
+    if (adminToEdit) {
+      setAdmins(
+        admins.map(a =>
+          a.id === adminToEdit.id
+            ? {
+                ...a,
+                name: newAdmin.name,
+                email: newAdmin.email,
+                role: newAdmin.role,
+                permissions: newAdmin.permissions,
+              }
+            : a,
+        ),
+      );
+      toast.success('Admin account updated');
+      addLog(`Updated admin account for ${newAdmin.name}`);
+      setAdminToEdit(null);
+    } else {
+      const adminToAdd: Admin = {
+        ...newAdmin,
+        id: `ADM${Math.floor(Math.random() * 1000)}`,
+        lastLogin: 'Never',
+        status: 'active',
+      };
+      setAdmins([...admins, adminToAdd]);
+      toast.success('Admin account created');
+      addLog(`Created admin account for ${adminToAdd.name}`);
+    }
+
+    setIsAdminModalOpen(false);
+    setNewAdmin({
+      name: '',
+      email: '',
+      role: 'Support Admin',
+      permissions: '',
+    });
+  };
+
+  const handleAdvancedAction = (
+    type: string,
+    targetType: string,
+    targetId: string,
+    targetName: string,
+  ) => {
+    setAdvancedModal({
+      isOpen: true,
+      type: type as any,
+      targetType: targetType as any,
+      targetId,
+      targetName,
+    });
+  };
+
+  const confirmAdvancedAction = (data: {days?: string; reason: string}) => {
+    let logMessage = '';
+    const {type, targetType, targetName, targetId} = advancedModal;
+    const formattedType = type.charAt(0).toUpperCase() + type.slice(1);
+    logMessage = `${formattedType}ed ${targetType} ${targetName}. Reason: ${data.reason}`;
+    if (data.days) logMessage += ` (${data.days} days)`;
+
+    toast.success(`${formattedType} action confirmed for ${targetName}`);
+
+    // Update state based on targetType and action
+    if (targetType === 'user') {
+      if (type === 'suspend' || type === 'ban') {
+        setUsers(
+          users.map(u => (u.id === targetId ? {...u, status: 'suspended'} : u)),
+        );
+      } else if (type === 'activate') {
+        setUsers(
+          users.map(u => (u.id === targetId ? {...u, status: 'active'} : u)),
+        );
+      }
+    } else if (targetType === 'vendor') {
+      if (type === 'suspend' || type === 'ban') {
+        setVendors(
+          vendors.map(v =>
+            v.name === targetName ? {...v, status: 'suspended'} : v,
+          ),
+        );
+      } else if (type === 'delete') {
+        setVendors(vendors.filter(v => v.name !== targetName));
+      } else if (type === 'activate') {
+        setVendors(
+          vendors.map(v =>
+            v.name === targetName ? {...v, status: 'active'} : v,
+          ),
+        );
+      }
+    } else if (targetType === 'admin') {
+      if (type === 'suspend' || type === 'ban') {
+        setAdmins(
+          admins.map(a =>
+            a.name === targetName ? {...a, status: 'suspended'} : a,
+          ),
+        );
+      } else if (type === 'remove') {
+        setAdmins(admins.filter(a => a.name !== targetName));
+      } else if (type === 'activate') {
+        setAdmins(
+          admins.map(a =>
+            a.name === targetName ? {...a, status: 'active'} : a,
+          ),
+        );
+      }
+    } else if (targetType === 'campaign') {
+      if (type === 'pause') {
+        setCampaigns(
+          campaigns.map(c =>
+            c.id === targetId ? {...c, status: 'paused'} : c,
+          ),
+        );
+      } else if (type === 'resume') {
+        setCampaigns(
+          campaigns.map(c =>
+            c.id === targetId ? {...c, status: 'active'} : c,
+          ),
+        );
+      } else if (type === 'feature' || type === 'unfeature') {
+        setCampaigns(
+          campaigns.map(c =>
+            c.id === targetId ? {...c, featured: type === 'feature'} : c,
+          ),
+        );
+      } else if (type === 'delete') {
+        setCampaigns(campaigns.filter(c => c.id !== targetId));
+      }
+    } else if (targetType === 'integration') {
+      if (type === 'disable') {
+        setIntegrations(
+          integrations.map(i =>
+            i.name === targetName ? {...i, status: 'suspended'} : i,
+          ),
+        );
+      } else if (type === 'activate') {
+        setIntegrations(
+          integrations.map(i =>
+            i.name === targetName ? {...i, status: 'active'} : i,
+          ),
+        );
+      } else if (type === 'generate') {
+        toast.success(`New API Key generated for ${targetName}`);
+      }
+    } else if (targetType === 'gift') {
+      if (type === 'invalidate') {
+        setGiftCodes(
+          giftCodes.map(c =>
+            c.code === targetId ? {...c, status: 'expired'} : c,
+          ),
+        );
+      } else if (type === 'flag') {
+        setGifts(
+          gifts.map(g => (g.id === targetId ? {...g, status: 'flagged'} : g)),
+        );
+      }
+    } else if (targetType === 'withdrawal') {
+      const newStatus =
+        type === 'reject'
+          ? 'rejected'
+          : type === 'approve'
+            ? 'approved'
+            : type === 'pay'
+              ? 'paid'
+              : null;
+      if (newStatus) {
+        setWithdrawals(
+          withdrawals.map(w =>
+            w.id === targetId ? {...w, status: newStatus as any} : w,
+          ),
+        );
+      }
+    } else if (targetType === 'wallet') {
+      if (type === 'restrict') {
+        setWallets(
+          wallets.map(w =>
+            w.user === targetName ? {...w, status: 'restricted'} : w,
+          ),
+        );
+      } else if (type === 'unsuspend') {
+        setWallets(
+          wallets.map(w =>
+            w.user === targetName ? {...w, status: 'active'} : w,
+          ),
+        );
+      }
+    } else if (targetType === 'moderation') {
+      setModerationQueue(moderationQueue.filter(m => m.id === targetId));
+    } else if (targetType === 'subscription') {
+      if (type === 'cancel') {
+        setSubscriptions(
+          subscriptions.map(s =>
+            s.user === targetName ? {...s, status: 'cancelled'} : s,
+          ),
+        );
+      }
+    }
+
+    addLog(logMessage);
+    setAdvancedModal(prev => ({...prev, isOpen: false}));
+  };
+
+  const handleExport = (format: 'csv' | 'excel' | 'pdf', context: string) => {
+    const filename = `${context.toLowerCase()}_export_${new Date().toISOString().split('T')[0]}.${format}`;
+    toast.promise(new Promise(resolve => setTimeout(resolve, 800)), {
+      loading: `Preparing ${format.toUpperCase()} export for ${context}...`,
+      success: `Successfully exported ${filename}`,
+      error: 'Failed to generate export',
+    });
+  };
 
   const renderSidebar = () => (
     <div className="flex flex-col h-full">
@@ -713,11 +1265,19 @@ export default function AdminDashboardPage() {
         ))}
       </nav>
       <div className="p-3 border-t border-border">
-        <Link href="/">
-          <div className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer">
-            <LogOut className="w-4 h-4" /> Exit Admin
-          </div>
-        </Link>
+        <button
+          onClick={() => {
+            setConfirmModal({
+              isOpen: true,
+              title: 'Logout Confirmation',
+              description:
+                'Are you sure you want to logout and return to the main site?',
+              onConfirm: () => (window.location.href = '/'),
+            });
+          }}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer">
+          <LogOut className="w-4 h-4" /> Logout
+        </button>
       </div>
     </div>
   );
@@ -810,25 +1370,101 @@ export default function AdminDashboardPage() {
                 ))}
               </div>
 
-              <div className="grid md:grid-cols-2 gap-6">
-                <Card className="border-border">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <Card className="lg:col-span-2 border-border">
                   <CardHeader>
-                    <CardTitle className="text-base font-body flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-primary" /> Revenue
-                      Chart
+                    <CardTitle className="text-base font-semibold">
+                      Revenue Overview
                     </CardTitle>
+                    <CardDescription>
+                      Monthly revenue growth for the current year
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <div className="h-48 bg-muted rounded-lg flex items-center justify-center text-muted-foreground">
-                      <BarChart3 className="w-12 h-12 text-muted-foreground/30" />
-                    </div>
-                    <div className="flex gap-4 mt-3 text-xs text-muted-foreground">
-                      <span>Daily: $610</span>
-                      <span>Monthly: $18,300</span>
-                      <span>Yearly: $198,000</span>
-                    </div>
+                  <CardContent className="h-[300px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={revenueData}>
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          vertical={false}
+                          stroke="hsl(var(--border))"
+                        />
+                        <XAxis
+                          dataKey="month"
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{
+                            fill: 'hsl(var(--muted-foreground))',
+                            fontSize: 12,
+                          }}
+                        />
+                        <YAxis
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{
+                            fill: 'hsl(var(--muted-foreground))',
+                            fontSize: 12,
+                          }}
+                          tickFormatter={value => `$${value}`}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: 'hsl(var(--card))',
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '8px',
+                          }}
+                          itemStyle={{color: 'hsl(var(--secondary))'}}
+                        />
+                        <Bar
+                          dataKey="revenue"
+                          fill="hsl(var(--secondary))"
+                          radius={[4, 4, 0, 0]}
+                          barSize={30}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
                   </CardContent>
                 </Card>
+
+                <Card className="border-border">
+                  <CardHeader>
+                    <CardTitle className="text-base font-semibold">
+                      Quick Actions
+                    </CardTitle>
+                    <CardDescription>
+                      Common administrative tasks
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => setSection('withdrawals')}>
+                      <DollarSign className="w-4 h-4 mr-2" /> Pending
+                      Withdrawals
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => setSection('moderation')}>
+                      <ShieldAlert className="w-4 h-4 mr-2" /> Moderation Queue
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => setSection('users')}>
+                      <Users className="w-4 h-4 mr-2" /> Manage Users
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => setSection('vendors')}>
+                      <Store className="w-4 h-4 mr-2" /> Vendor Review
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6">
                 <Card className="border-border">
                   <CardHeader>
                     <CardTitle className="text-base font-body flex items-center gap-2">
@@ -837,17 +1473,23 @@ export default function AdminDashboardPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    {recentActivity.map(a => (
-                      <div key={a.id} className="flex items-start gap-3">
-                        <a.icon className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
-                        <div>
-                          <p className="text-sm text-foreground">{a.text}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {a.time}
-                          </p>
+                    {recentActivity
+                      .filter(a =>
+                        a.text
+                          .toLowerCase()
+                          .includes(searchQuery.toLowerCase()),
+                      )
+                      .map(a => (
+                        <div key={a.id} className="flex items-start gap-3">
+                          <a.icon className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
+                          <div>
+                            <p className="text-sm text-foreground">{a.text}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {a.time}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </CardContent>
                 </Card>
               </div>
@@ -858,12 +1500,28 @@ export default function AdminDashboardPage() {
           {section === 'users' && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <p className="text-muted-foreground">
-                  {mockUsers.length} users
-                </p>
-                <Button variant="outline" size="sm">
-                  <Download className="w-4 h-4 mr-1" /> Export CSV
-                </Button>
+                <p className="text-muted-foreground">{users.length} users</p>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Download className="w-4 h-4 mr-1" /> Export
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem
+                      onClick={() => handleExport('csv', 'Users')}>
+                      CSV
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleExport('excel', 'Users')}>
+                      Excel
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleExport('pdf', 'Users')}>
+                      PDF
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -874,56 +1532,134 @@ export default function AdminDashboardPage() {
                       <th className="text-right py-2 font-medium">Balance</th>
                       <th className="text-right py-2 font-medium">Received</th>
                       <th className="text-right py-2 font-medium">Sent</th>
-                      <th className="text-left py-2 font-medium">Status</th>
+                      <th className="text-left py-2 font-medium pl-6">
+                        Status
+                      </th>
                       <th className="text-right py-2 font-medium">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {mockUsers.map(u => (
-                      <tr
-                        key={u.id}
-                        className="border-b border-border last:border-0">
-                        <td className="py-3">
-                          <div>
-                            <p className="font-medium text-foreground">
-                              {u.name}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              @{u.username} · {u.email}
-                            </p>
-                          </div>
-                        </td>
-                        <td className="py-3">
-                          <Badge variant="outline" className="text-xs">
-                            {u.role}
-                          </Badge>
-                        </td>
-                        <td className="py-3 text-right text-foreground">
-                          ${u.balance}
-                        </td>
-                        <td className="py-3 text-right text-secondary">
-                          ${u.received}
-                        </td>
-                        <td className="py-3 text-right text-primary">
-                          ${u.sent}
-                        </td>
-                        <td className="py-3">
-                          <Badge variant={statusBadge(u.status) as any}>
-                            {u.status}
-                          </Badge>
-                        </td>
-                        <td className="py-3 text-right">
-                          <div className="flex justify-end gap-1">
-                            <Button variant="ghost" size="sm">
-                              <Eye className="w-3.5 h-3.5" />
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              <Ban className="w-3.5 h-3.5" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                    {users
+                      .filter(
+                        u =>
+                          u.name
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase()) ||
+                          u.username
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase()) ||
+                          u.email
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase()),
+                      )
+                      .map(u => (
+                        <tr
+                          key={u.id}
+                          className="border-b border-border last:border-0">
+                          <td className="py-3">
+                            <div>
+                              <p className="font-medium text-foreground">
+                                {u.name}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                @{u.username} · {u.email}
+                              </p>
+                            </div>
+                          </td>
+                          <td className="py-3">
+                            <Badge variant="outline" className="text-xs">
+                              {u.role}
+                            </Badge>
+                          </td>
+                          <td className="py-3 text-right text-foreground">
+                            ${u.balance}
+                          </td>
+                          <td className="py-3 text-right text-secondary pr-4">
+                            ${u.received}
+                          </td>
+                          <td className="py-3 text-right text-primary pr-6">
+                            ${u.sent}
+                          </td>
+                          <td className="py-3 pl-6">
+                            <Badge variant={statusBadge(u.status) as any}>
+                              {u.status}
+                            </Badge>
+                          </td>
+                          <td className="py-3 text-right">
+                            <div className="flex justify-end">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm">
+                                    <MoreVertical className="w-4 h-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      setViewDetailsModal({
+                                        isOpen: true,
+                                        title: 'User Details',
+                                        data: u,
+                                      })
+                                    }>
+                                    <Eye className="w-4 h-4 mr-2" /> View
+                                    Details
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      handleAdvancedAction(
+                                        'warn',
+                                        'user',
+                                        u.id,
+                                        u.name,
+                                      )
+                                    }>
+                                    <AlertTriangle className="w-4 h-4 mr-2" />{' '}
+                                    Warn User
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      u.status === 'suspended'
+                                        ? toggleUserStatus(u.id)
+                                        : handleAdvancedAction(
+                                            'suspend',
+                                            'user',
+                                            u.id,
+                                            u.name,
+                                          )
+                                    }>
+                                    {u.status === 'suspended' ? (
+                                      <>
+                                        <CheckCircle className="w-4 h-4 mr-2" />{' '}
+                                        Activate Account
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Pause className="w-4 h-4 mr-2" />{' '}
+                                        Suspend (Timed)
+                                      </>
+                                    )}
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    className="text-destructive focus:text-destructive"
+                                    onClick={() =>
+                                      handleAdvancedAction(
+                                        'ban',
+                                        'user',
+                                        u.id,
+                                        u.name,
+                                      )
+                                    }>
+                                    <Ban className="w-4 h-4 mr-2" /> Ban User
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
               </div>
@@ -935,11 +1671,29 @@ export default function AdminDashboardPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <p className="text-muted-foreground">
-                  {mockCampaigns.length} campaigns
+                  {campaigns.length} campaigns
                 </p>
-                <Button variant="outline" size="sm">
-                  <Download className="w-4 h-4 mr-1" /> Export CSV
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Download className="w-4 h-4 mr-1" /> Export
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem
+                      onClick={() => handleExport('csv', 'Campaigns')}>
+                      CSV
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleExport('excel', 'Campaigns')}>
+                      Excel
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleExport('pdf', 'Campaigns')}>
+                      PDF
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -950,55 +1704,126 @@ export default function AdminDashboardPage() {
                       <th className="text-left py-2 font-medium">Category</th>
                       <th className="text-right py-2 font-medium">Goal</th>
                       <th className="text-right py-2 font-medium">Raised</th>
-                      <th className="text-left py-2 font-medium">Status</th>
+                      <th className="text-left py-2 font-medium pl-6">
+                        Status
+                      </th>
                       <th className="text-right py-2 font-medium">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {mockCampaigns.map(c => (
-                      <tr
-                        key={c.id}
-                        className="border-b border-border last:border-0">
-                        <td className="py-3">
-                          <p className="font-medium text-foreground">
-                            {c.title}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {c.contributors} contributors
-                          </p>
-                        </td>
-                        <td className="py-3 text-foreground">{c.creator}</td>
-                        <td className="py-3">
-                          <Badge variant="outline" className="text-xs">
-                            {c.category}
-                          </Badge>
-                        </td>
-                        <td className="py-3 text-right text-foreground">
-                          ${c.goal}
-                        </td>
-                        <td className="py-3 text-right text-secondary">
-                          ${c.raised}
-                        </td>
-                        <td className="py-3">
-                          <Badge variant={statusBadge(c.status) as any}>
-                            {c.status}
-                          </Badge>
-                        </td>
-                        <td className="py-3 text-right">
-                          <div className="flex justify-end gap-1">
-                            <Button variant="ghost" size="sm">
-                              <Eye className="w-3.5 h-3.5" />
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              <Pause className="w-3.5 h-3.5" />
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              <Star className="w-3.5 h-3.5" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                    {campaigns
+                      .filter(
+                        c =>
+                          c.title
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase()) ||
+                          c.creator
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase()),
+                      )
+                      .map(c => (
+                        <tr
+                          key={c.id}
+                          className="border-b border-border last:border-0">
+                          <td className="py-3">
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium text-foreground">
+                                {c.title}
+                              </p>
+                              {c.featured && (
+                                <Badge
+                                  variant="outline"
+                                  className="bg-amber-500/10 text-amber-500 border-amber-500/20 text-[10px] px-1 py-0 h-4">
+                                  Featured
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              {c.contributors} contributors
+                            </p>
+                          </td>
+                          <td className="py-3 text-foreground">{c.creator}</td>
+                          <td className="py-3">
+                            <Badge variant="outline" className="text-xs">
+                              {c.category}
+                            </Badge>
+                          </td>
+                          <td className="py-3 text-right text-foreground">
+                            ${c.goal}
+                          </td>
+                          <td className="py-3 text-right text-secondary pr-6">
+                            ${c.raised}
+                          </td>
+                          <td className="py-3 pl-6">
+                            <Badge variant={statusBadge(c.status) as any}>
+                              {c.status}
+                            </Badge>
+                          </td>
+                          <td className="py-3 text-right">
+                            <div className="flex justify-end">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm">
+                                    <MoreVertical className="w-4 h-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      setViewDetailsModal({
+                                        isOpen: true,
+                                        title: 'Campaign Details',
+                                        data: c,
+                                      })
+                                    }>
+                                    <Eye className="w-4 h-4 mr-2" /> View
+                                    Details
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      toggleCampaignFeatured(c.id)
+                                    }>
+                                    <Star
+                                      className={`w-4 h-4 mr-2 ${c.featured ? 'fill-amber-500 text-amber-500' : ''}`}
+                                    />{' '}
+                                    {c.featured ? 'Unfeature' : 'Feature'}
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    onClick={() => toggleCampaignStatus(c.id)}>
+                                    {c.status === 'active' ? (
+                                      <>
+                                        <Pause className="w-4 h-4 mr-2" /> Pause
+                                        Campaign
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Play className="w-4 h-4 mr-2" /> Resume
+                                        Campaign
+                                      </>
+                                    )}
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    className="text-destructive focus:text-destructive"
+                                    onClick={() =>
+                                      handleAdvancedAction(
+                                        'delete',
+                                        'campaign',
+                                        c.id,
+                                        c.title,
+                                      )
+                                    }>
+                                    <Trash2 className="w-4 h-4 mr-2" /> Delete
+                                    Campaign
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
               </div>
@@ -1009,9 +1834,7 @@ export default function AdminDashboardPage() {
           {section === 'gifts' && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <p className="text-muted-foreground">
-                  {mockGifts.length} gifts
-                </p>
+                <p className="text-muted-foreground">{gifts.length} gifts</p>
                 <div className="flex gap-2">
                   <Select defaultValue="all">
                     <SelectTrigger className="w-32">
@@ -1024,9 +1847,27 @@ export default function AdminDashboardPage() {
                       <SelectItem value="giftcard">Gift Card</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button variant="outline" size="sm">
-                    <Download className="w-4 h-4 mr-1" /> Export
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <Download className="w-4 h-4 mr-1" /> Export
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem
+                        onClick={() => handleExport('csv', 'Gifts')}>
+                        CSV
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleExport('excel', 'Gifts')}>
+                        Excel
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleExport('pdf', 'Gifts')}>
+                        PDF
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
               <div className="overflow-x-auto">
@@ -1038,49 +1879,85 @@ export default function AdminDashboardPage() {
                       <th className="text-left py-2 font-medium">Recipient</th>
                       <th className="text-left py-2 font-medium">Type</th>
                       <th className="text-right py-2 font-medium">Amount</th>
-                      <th className="text-right py-2 font-medium">Fee</th>
-                      <th className="text-left py-2 font-medium">Status</th>
+                      <th className="text-right py-2 font-medium pr-6">Fee</th>
+                      <th className="text-left py-2 font-medium pl-6">
+                        Status
+                      </th>
                       <th className="text-right py-2 font-medium">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {mockGifts.map(g => (
-                      <tr
-                        key={g.id}
-                        className="border-b border-border last:border-0">
-                        <td className="py-3 font-mono text-xs text-muted-foreground">
-                          {g.id}
-                        </td>
-                        <td className="py-3 text-foreground">{g.sender}</td>
-                        <td className="py-3 text-foreground">{g.recipient}</td>
-                        <td className="py-3">
-                          <Badge variant="outline" className="text-xs">
-                            {g.type}
-                          </Badge>
-                        </td>
-                        <td className="py-3 text-right text-foreground">
-                          ${g.amount}
-                        </td>
-                        <td className="py-3 text-right text-muted-foreground">
-                          ${g.fee}
-                        </td>
-                        <td className="py-3">
-                          <Badge variant={statusBadge(g.status) as any}>
-                            {g.status}
-                          </Badge>
-                        </td>
-                        <td className="py-3 text-right">
-                          <div className="flex justify-end gap-1">
-                            <Button variant="ghost" size="sm">
-                              <Eye className="w-3.5 h-3.5" />
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              <Flag className="w-3.5 h-3.5" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                    {gifts
+                      .filter(
+                        g =>
+                          g.sender
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase()) ||
+                          g.recipient
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase()) ||
+                          g.id
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase()),
+                      )
+                      .map(g => (
+                        <tr
+                          key={g.id}
+                          className="border-b border-border last:border-0">
+                          <td className="py-3 font-mono text-xs text-muted-foreground">
+                            {g.id}
+                          </td>
+                          <td className="py-3 text-foreground">{g.sender}</td>
+                          <td className="py-3 text-foreground">
+                            {g.recipient}
+                          </td>
+                          <td className="py-3">
+                            <Badge variant="outline" className="text-xs">
+                              {g.type}
+                            </Badge>
+                          </td>
+                          <td className="py-3 text-right text-foreground">
+                            ${g.amount}
+                          </td>
+                          <td className="py-3 text-right text-muted-foreground pr-6">
+                            ${g.fee}
+                          </td>
+                          <td className="py-3 pl-6">
+                            <Badge variant={statusBadge(g.status) as any}>
+                              {g.status}
+                            </Badge>
+                          </td>
+                          <td className="py-3 text-right">
+                            <div className="flex justify-end">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm">
+                                    <MoreVertical className="w-4 h-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      setViewDetailsModal({
+                                        isOpen: true,
+                                        title: 'Gift Details',
+                                        data: g,
+                                      })
+                                    }>
+                                    <Eye className="w-4 h-4 mr-2" /> View
+                                    Details
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => flagGift(g.id)}>
+                                    <Flag className="w-4 h-4 mr-2" /> Flag Gift
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
               </div>
@@ -1092,10 +1969,10 @@ export default function AdminDashboardPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <p className="text-muted-foreground">
-                  {mockTransactions.length} transactions
+                  {transactions.length} transactions
                 </p>
                 <div className="flex gap-2">
-                  <Select defaultValue="all">
+                  <Select value={txTypeFilter} onValueChange={setTxTypeFilter}>
                     <SelectTrigger className="w-32">
                       <SelectValue />
                     </SelectTrigger>
@@ -1107,7 +1984,9 @@ export default function AdminDashboardPage() {
                       <SelectItem value="refund">Refund</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Select defaultValue="all">
+                  <Select
+                    value={txProviderFilter}
+                    onValueChange={setTxProviderFilter}>
                     <SelectTrigger className="w-32">
                       <SelectValue />
                     </SelectTrigger>
@@ -1117,9 +1996,27 @@ export default function AdminDashboardPage() {
                       <SelectItem value="paystack">Paystack</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button variant="outline" size="sm">
-                    <Download className="w-4 h-4 mr-1" /> Export CSV
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <Download className="w-4 h-4 mr-1" /> Export
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem
+                        onClick={() => handleExport('csv', 'Transactions')}>
+                        CSV
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleExport('excel', 'Transactions')}>
+                        Excel
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleExport('pdf', 'Transactions')}>
+                        PDF
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
               <div className="overflow-x-auto">
@@ -1131,44 +2028,94 @@ export default function AdminDashboardPage() {
                       <th className="text-left py-2 font-medium">From</th>
                       <th className="text-left py-2 font-medium">To</th>
                       <th className="text-right py-2 font-medium">Amount</th>
-                      <th className="text-right py-2 font-medium">Fee</th>
+                      <th className="text-right py-2 font-medium pr-6">Fee</th>
                       <th className="text-left py-2 font-medium">Provider</th>
-                      <th className="text-left py-2 font-medium">Status</th>
+                      <th className="text-left py-2 font-medium pl-6">
+                        Status
+                      </th>
+                      <th className="text-right py-2 font-medium">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {mockTransactions.map(t => (
-                      <tr
-                        key={t.id}
-                        className="border-b border-border last:border-0">
-                        <td className="py-3 font-mono text-xs text-muted-foreground">
-                          {t.id}
-                        </td>
-                        <td className="py-3">
-                          <Badge variant="outline" className="text-xs">
-                            {t.type}
-                          </Badge>
-                        </td>
-                        <td className="py-3 text-foreground">{t.sender}</td>
-                        <td className="py-3 text-foreground">{t.recipient}</td>
-                        <td className="py-3 text-right text-foreground">
-                          ${t.amount}
-                        </td>
-                        <td className="py-3 text-right text-muted-foreground">
-                          ${t.fee}
-                        </td>
-                        <td className="py-3">
-                          <Badge variant="outline" className="text-xs">
-                            {t.provider}
-                          </Badge>
-                        </td>
-                        <td className="py-3">
-                          <Badge variant={statusBadge(t.status) as any}>
-                            {t.status}
-                          </Badge>
-                        </td>
-                      </tr>
-                    ))}
+                    {transactions
+                      .filter(t => {
+                        const matchesSearch =
+                          t.id
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase()) ||
+                          t.sender
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase()) ||
+                          t.recipient
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase());
+                        const matchesType =
+                          txTypeFilter === 'all' ||
+                          t.type.toLowerCase() === txTypeFilter;
+                        const matchesProvider =
+                          txProviderFilter === 'all' ||
+                          t.provider.toLowerCase() === txProviderFilter;
+                        return matchesSearch && matchesType && matchesProvider;
+                      })
+                      .map(t => (
+                        <tr
+                          key={t.id}
+                          className="border-b border-border last:border-0">
+                          <td className="py-3 font-mono text-xs text-muted-foreground">
+                            {t.id}
+                          </td>
+                          <td className="py-3">
+                            <Badge variant="outline" className="text-xs">
+                              {t.type}
+                            </Badge>
+                          </td>
+                          <td className="py-3 text-foreground">{t.sender}</td>
+                          <td className="py-3 text-foreground">
+                            {t.recipient}
+                          </td>
+                          <td className="py-3 text-right text-foreground">
+                            ${t.amount}
+                          </td>
+                          <td className="py-3 text-right text-muted-foreground pr-6">
+                            ${t.fee}
+                          </td>
+                          <td className="py-3 pl-6">
+                            <Badge variant="outline" className="text-xs">
+                              {t.provider}
+                            </Badge>
+                          </td>
+                          <td className="py-3 pl-6">
+                            <Badge variant={statusBadge(t.status) as any}>
+                              {t.status}
+                            </Badge>
+                          </td>
+                          <td className="py-3 text-right">
+                            <div className="flex justify-end">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm">
+                                    <MoreVertical className="w-4 h-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      setViewDetailsModal({
+                                        isOpen: true,
+                                        title: 'Transaction Details',
+                                        data: t,
+                                      })
+                                    }>
+                                    <Eye className="w-4 h-4 mr-2" /> View
+                                    Details
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
               </div>
@@ -1178,9 +2125,7 @@ export default function AdminDashboardPage() {
           {/* ── WALLETS ── */}
           {section === 'wallets' && (
             <div className="space-y-4">
-              <p className="text-muted-foreground">
-                {mockWallets.length} wallets
-              </p>
+              <p className="text-muted-foreground">{wallets.length} wallets</p>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -1192,41 +2137,79 @@ export default function AdminDashboardPage() {
                         Total Earned
                       </th>
                       <th className="text-right py-2 font-medium">Withdrawn</th>
+                      <th className="text-left py-2 font-medium pl-6">
+                        Status
+                      </th>
                       <th className="text-right py-2 font-medium">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {mockWallets.map(w => (
-                      <tr
-                        key={w.user}
-                        className="border-b border-border last:border-0">
-                        <td className="py-3 font-medium text-foreground">
-                          {w.user}
-                        </td>
-                        <td className="py-3 text-right text-foreground">
-                          ${w.balance}
-                        </td>
-                        <td className="py-3 text-right text-accent">
-                          ${w.pending}
-                        </td>
-                        <td className="py-3 text-right text-secondary">
-                          ${w.earned}
-                        </td>
-                        <td className="py-3 text-right text-muted-foreground">
-                          ${w.withdrawn}
-                        </td>
-                        <td className="py-3 text-right">
-                          <div className="flex justify-end gap-1">
-                            <Button variant="ghost" size="sm">
-                              <Eye className="w-3.5 h-3.5" />
-                            </Button>
-                            <Button variant="ghost" size="sm" title="Freeze">
-                              <Ban className="w-3.5 h-3.5" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                    {wallets
+                      .filter(w =>
+                        w.user
+                          .toLowerCase()
+                          .includes(searchQuery.toLowerCase()),
+                      )
+                      .map(w => (
+                        <tr
+                          key={w.user}
+                          className="border-b border-border last:border-0">
+                          <td className="py-3 font-medium text-foreground">
+                            {w.user}
+                          </td>
+                          <td className="py-3 text-right text-foreground">
+                            ${w.balance}
+                          </td>
+                          <td className="py-3 text-right text-accent">
+                            ${w.pending}
+                          </td>
+                          <td className="py-3 text-right text-secondary">
+                            ${w.earned}
+                          </td>
+                          <td className="py-3 text-right text-muted-foreground">
+                            ${w.withdrawn}
+                          </td>
+                          <td className="py-3 pl-6">
+                            <Badge variant={statusBadge(w.status) as any}>
+                              {w.status}
+                            </Badge>
+                          </td>
+                          <td className="py-3 text-right">
+                            <div className="flex justify-end">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm">
+                                    <MoreVertical className="w-4 h-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      setViewDetailsModal({
+                                        isOpen: true,
+                                        title: 'Wallet Details',
+                                        data: w,
+                                      })
+                                    }>
+                                    <Eye className="w-4 h-4 mr-2" /> View
+                                    Details
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      toggleWalletRestriction(w.user)
+                                    }>
+                                    <Ban className="w-4 h-4 mr-2" />
+                                    {w.status === 'active'
+                                      ? 'Restrict Wallet'
+                                      : 'Unrestrict Wallet'}
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
               </div>
@@ -1237,7 +2220,7 @@ export default function AdminDashboardPage() {
           {section === 'withdrawals' && (
             <div className="space-y-4">
               <p className="text-muted-foreground">
-                {mockWithdrawals.length} withdrawal requests
+                {withdrawals.length} withdrawal requests
               </p>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -1247,57 +2230,107 @@ export default function AdminDashboardPage() {
                       <th className="text-left py-2 font-medium">User</th>
                       <th className="text-right py-2 font-medium">Amount</th>
                       <th className="text-left py-2 font-medium">Bank</th>
-                      <th className="text-left py-2 font-medium">Status</th>
+                      <th className="text-left py-2 font-medium pl-6">
+                        Status
+                      </th>
                       <th className="text-left py-2 font-medium">Date</th>
                       <th className="text-right py-2 font-medium">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {mockWithdrawals.map(w => (
-                      <tr
-                        key={w.id}
-                        className="border-b border-border last:border-0">
-                        <td className="py-3 font-mono text-xs text-muted-foreground">
-                          {w.id}
-                        </td>
-                        <td className="py-3 font-medium text-foreground">
-                          {w.user}
-                        </td>
-                        <td className="py-3 text-right text-foreground">
-                          ${w.amount}
-                        </td>
-                        <td className="py-3 text-muted-foreground">{w.bank}</td>
-                        <td className="py-3">
-                          <Badge variant={statusBadge(w.status) as any}>
-                            {w.status}
-                          </Badge>
-                        </td>
-                        <td className="py-3 text-muted-foreground">{w.date}</td>
-                        <td className="py-3 text-right">
-                          <div className="flex justify-end gap-1">
-                            {w.status === 'pending' && (
-                              <>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="text-secondary">
-                                  <CheckCircle className="w-3.5 h-3.5" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="text-destructive">
-                                  <X className="w-3.5 h-3.5" />
-                                </Button>
-                              </>
-                            )}
-                            <Button variant="ghost" size="sm">
-                              <Eye className="w-3.5 h-3.5" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                    {withdrawals
+                      .filter(
+                        w =>
+                          w.id
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase()) ||
+                          w.user
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase()),
+                      )
+                      .map(w => (
+                        <tr
+                          key={w.id}
+                          className="border-b border-border last:border-0">
+                          <td className="py-3 font-mono text-xs text-muted-foreground">
+                            {w.id}
+                          </td>
+                          <td className="py-3 font-medium text-foreground">
+                            {w.user}
+                          </td>
+                          <td className="py-3 text-right text-foreground">
+                            ${w.amount}
+                          </td>
+                          <td className="py-3 text-muted-foreground">
+                            {w.bank}
+                          </td>
+                          <td className="py-3">
+                            <Badge variant={statusBadge(w.status) as any}>
+                              {w.status}
+                            </Badge>
+                          </td>
+                          <td className="py-3 text-muted-foreground">
+                            {w.date}
+                          </td>
+                          <td className="py-3 text-right">
+                            <div className="flex justify-end">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm">
+                                    <MoreVertical className="w-4 h-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      toast.info(
+                                        `Viewing details for withdrawal ${w.id}`,
+                                      )
+                                    }>
+                                    <Eye className="w-4 h-4 mr-2" /> View
+                                    Details
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+
+                                  {(w.status === 'pending' ||
+                                    w.status === 'rejected') && (
+                                    <DropdownMenuItem
+                                      className="text-secondary focus:text-secondary"
+                                      onClick={() =>
+                                        updateWithdrawalStatus(w.id, 'approved')
+                                      }>
+                                      <CheckCircle className="w-4 h-4 mr-2" />{' '}
+                                      Approve
+                                    </DropdownMenuItem>
+                                  )}
+
+                                  {w.status === 'approved' && (
+                                    <DropdownMenuItem
+                                      className="text-primary focus:text-primary"
+                                      onClick={() =>
+                                        updateWithdrawalStatus(w.id, 'paid')
+                                      }>
+                                      <DollarSign className="w-4 h-4 mr-2" />{' '}
+                                      Mark as Paid
+                                    </DropdownMenuItem>
+                                  )}
+
+                                  {w.status === 'pending' && (
+                                    <DropdownMenuItem
+                                      className="text-destructive focus:text-destructive"
+                                      onClick={() =>
+                                        updateWithdrawalStatus(w.id, 'rejected')
+                                      }>
+                                      <X className="w-4 h-4 mr-2" /> Reject
+                                    </DropdownMenuItem>
+                                  )}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
               </div>
@@ -1307,9 +2340,17 @@ export default function AdminDashboardPage() {
           {/* ── VENDORS ── */}
           {section === 'vendors' && (
             <div className="space-y-4">
-              <p className="text-muted-foreground">
-                {mockVendors.length} vendors
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="text-muted-foreground">
+                  {vendors.length} vendors
+                </p>
+                <Button
+                  variant="hero"
+                  size="sm"
+                  onClick={() => setIsVendorModalOpen(true)}>
+                  <Plus className="w-4 h-4 mr-1" /> Add Vendor
+                </Button>
+              </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -1317,50 +2358,133 @@ export default function AdminDashboardPage() {
                       <th className="text-left py-2 font-medium">Vendor</th>
                       <th className="text-right py-2 font-medium">Products</th>
                       <th className="text-right py-2 font-medium">Orders</th>
-                      <th className="text-right py-2 font-medium">Revenue</th>
-                      <th className="text-left py-2 font-medium">Status</th>
+                      <th className="text-right py-2 font-medium pr-6">
+                        Revenue
+                      </th>
+                      <th className="text-left py-2 font-medium pl-6">
+                        Status
+                      </th>
                       <th className="text-right py-2 font-medium">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {mockVendors.map(v => (
-                      <tr
-                        key={v.name}
-                        className="border-b border-border last:border-0">
-                        <td className="py-3">
-                          <p className="font-medium text-foreground">
-                            {v.name}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {v.email}
-                          </p>
-                        </td>
-                        <td className="py-3 text-right text-foreground">
-                          {v.products}
-                        </td>
-                        <td className="py-3 text-right text-foreground">
-                          {v.orders}
-                        </td>
-                        <td className="py-3 text-right text-secondary">
-                          ${v.revenue.toLocaleString()}
-                        </td>
-                        <td className="py-3">
-                          <Badge variant={statusBadge(v.status) as any}>
-                            {v.status}
-                          </Badge>
-                        </td>
-                        <td className="py-3 text-right">
-                          <div className="flex justify-end gap-1">
-                            <Button variant="ghost" size="sm">
-                              <Eye className="w-3.5 h-3.5" />
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              <Ban className="w-3.5 h-3.5" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                    {vendors
+                      .filter(
+                        v =>
+                          v.name
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase()) ||
+                          v.email
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase()),
+                      )
+                      .map(v => (
+                        <tr
+                          key={v.name}
+                          className="border-b border-border last:border-0">
+                          <td className="py-3">
+                            <p className="font-medium text-foreground">
+                              {v.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {v.email}
+                            </p>
+                          </td>
+                          <td className="py-3 text-right text-foreground">
+                            {v.products}
+                          </td>
+                          <td className="py-3 text-right text-foreground">
+                            {v.orders}
+                          </td>
+                          <td className="py-3 text-right text-secondary pr-6">
+                            ${v.revenue.toLocaleString()}
+                          </td>
+                          <td className="py-3 pl-6">
+                            <Badge variant={statusBadge(v.status) as any}>
+                              {v.status}
+                            </Badge>
+                          </td>
+                          <td className="py-3 text-right">
+                            <div className="flex justify-end">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm">
+                                    <MoreVertical className="w-4 h-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      setViewDetailsModal({
+                                        isOpen: true,
+                                        title: 'Vendor Details',
+                                        data: v,
+                                      })
+                                    }>
+                                    <Eye className="w-4 h-4 mr-2" /> View
+                                    Details
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      handleAdvancedAction(
+                                        'warn',
+                                        'vendor',
+                                        v.name,
+                                        v.name,
+                                      )
+                                    }>
+                                    <AlertTriangle className="w-4 h-4 mr-2" />{' '}
+                                    Warn Vendor
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      v.status === 'suspended'
+                                        ? updateVendorStatus(v.name)
+                                        : handleAdvancedAction(
+                                            'suspend',
+                                            'vendor',
+                                            v.name,
+                                            v.name,
+                                          )
+                                    }>
+                                    {v.status === 'suspended' ? (
+                                      <>
+                                        <CheckCircle className="w-4 h-4 mr-2" />{' '}
+                                        Activate Vendor
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Pause className="w-4 h-4 mr-2" />{' '}
+                                        Suspend (Timed)
+                                      </>
+                                    )}
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      handleAdvancedAction(
+                                        'ban',
+                                        'vendor',
+                                        v.name,
+                                        v.name,
+                                      )
+                                    }>
+                                    <Ban className="w-4 h-4 mr-2" /> Ban Vendor
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    className="text-destructive focus:text-destructive"
+                                    onClick={() => deleteVendor(v.name)}>
+                                    <Trash2 className="w-4 h-4 mr-2" /> Delete
+                                    Vendor
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
               </div>
@@ -1372,7 +2496,7 @@ export default function AdminDashboardPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <p className="text-muted-foreground">
-                  {mockGiftCodes.length} codes
+                  {giftCodes.length} codes
                 </p>
                 <div className="flex gap-2">
                   <Button variant="hero" size="sm">
@@ -1390,7 +2514,9 @@ export default function AdminDashboardPage() {
                       <th className="text-left py-2 font-medium">Code</th>
                       <th className="text-left py-2 font-medium">Vendor</th>
                       <th className="text-left py-2 font-medium">Product</th>
-                      <th className="text-left py-2 font-medium">Status</th>
+                      <th className="text-left py-2 font-medium pl-6">
+                        Status
+                      </th>
                       <th className="text-left py-2 font-medium">
                         Redeemed By
                       </th>
@@ -1398,7 +2524,7 @@ export default function AdminDashboardPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {mockGiftCodes.map(c => (
+                    {giftCodes.map(c => (
                       <tr
                         key={c.code}
                         className="border-b border-border last:border-0">
@@ -1416,7 +2542,10 @@ export default function AdminDashboardPage() {
                           {c.redeemedBy || '—'}
                         </td>
                         <td className="py-3 text-right">
-                          <Button variant="ghost" size="sm">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => invalidateCode(c.code)}>
                             <Ban className="w-3.5 h-3.5" />
                           </Button>
                         </td>
@@ -1432,9 +2561,9 @@ export default function AdminDashboardPage() {
           {section === 'integrations' && (
             <div className="space-y-4">
               <p className="text-muted-foreground">
-                {mockIntegrations.length} platform integrations
+                {integrations.length} platform integrations
               </p>
-              {mockIntegrations.map(i => (
+              {integrations.map(i => (
                 <Card key={i.name} className="border-border">
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between mb-3">
@@ -1493,16 +2622,25 @@ export default function AdminDashboardPage() {
                       </p>
                     </div>
                     <div className="flex gap-2 mt-3">
-                      <Button variant="outline" size="sm">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => generateApiKey(i.name)}>
                         <Key className="w-3.5 h-3.5 mr-1" /> Generate API Key
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                          toast.info(`Viewing activity for ${i.name}`)
+                        }>
                         <Eye className="w-3.5 h-3.5 mr-1" /> View Activity
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="text-destructive">
+                        className="text-destructive"
+                        onClick={() => disableIntegration(i.name)}>
                         <Ban className="w-3.5 h-3.5 mr-1" /> Disable
                       </Button>
                     </div>
@@ -1535,6 +2673,29 @@ export default function AdminDashboardPage() {
                   </Card>
                 ))}
               </div>
+              <div className="flex justify-end gap-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Download className="w-4 h-4 mr-1" /> Export
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem
+                      onClick={() => handleExport('csv', 'Subscriptions')}>
+                      CSV
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleExport('excel', 'Subscriptions')}>
+                      Excel
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleExport('pdf', 'Subscriptions')}>
+                      PDF
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -1543,19 +2704,21 @@ export default function AdminDashboardPage() {
                       <th className="text-left py-2 font-medium">Plan</th>
                       <th className="text-left py-2 font-medium">Price</th>
                       <th className="text-left py-2 font-medium">Started</th>
-                      <th className="text-left py-2 font-medium">Status</th>
+                      <th className="text-left py-2 font-medium pl-6">
+                        Status
+                      </th>
                       <th className="text-right py-2 font-medium">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {mockSubscriptions.map(s => (
+                    {subscriptions.map(s => (
                       <tr
                         key={s.user}
                         className="border-b border-border last:border-0">
                         <td className="py-3 font-medium text-foreground">
                           {s.user}
                         </td>
-                        <td className="py-3">
+                        <td className="py-3 pl-6">
                           <Badge
                             variant={s.plan === 'Pro' ? 'default' : 'outline'}>
                             {s.plan}
@@ -1569,9 +2732,40 @@ export default function AdminDashboardPage() {
                           <Badge variant="secondary">{s.status}</Badge>
                         </td>
                         <td className="py-3 text-right">
-                          <Button variant="ghost" size="sm">
-                            <X className="w-3.5 h-3.5" />
-                          </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm">
+                                <MoreVertical className="w-3.5 h-3.5" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  setViewDetailsModal({
+                                    isOpen: true,
+                                    title: 'Subscription Details',
+                                    data: s,
+                                  })
+                                }>
+                                <Eye className="w-4 h-4 mr-2" /> View Details
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="text-destructive focus:text-destructive"
+                                onClick={() =>
+                                  handleAdvancedAction(
+                                    'cancel',
+                                    'subscription',
+                                    s.user,
+                                    s.user,
+                                  )
+                                }>
+                                <X className="w-4 h-4 mr-2" /> Cancel
+                                Subscription
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </td>
                       </tr>
                     ))}
@@ -1599,15 +2793,27 @@ export default function AdminDashboardPage() {
                   </Select>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
-                    <Download className="w-4 h-4 mr-1" /> CSV
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Download className="w-4 h-4 mr-1" /> PDF
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Download className="w-4 h-4 mr-1" /> Excel
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <Download className="w-4 h-4 mr-1" /> Export Report
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem
+                        onClick={() => handleExport('csv', 'Reports')}>
+                        CSV
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleExport('excel', 'Reports')}>
+                        Excel
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleExport('pdf', 'Reports')}>
+                        PDF
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
               <div className="grid md:grid-cols-2 gap-6">
@@ -1690,9 +2896,9 @@ export default function AdminDashboardPage() {
           {section === 'moderation' && (
             <div className="space-y-4">
               <p className="text-muted-foreground">
-                {mockModerationQueue.length} items in moderation queue
+                {moderationQueue.length} items in moderation queue
               </p>
-              {mockModerationQueue.map(m => (
+              {moderationQueue.map(m => (
                 <Card
                   key={m.id}
                   className="border-border border-l-4 border-l-destructive/50">
@@ -1715,18 +2921,46 @@ export default function AdminDashboardPage() {
                         </p>
                       </div>
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
-                          <Eye className="w-3.5 h-3.5 mr-1" /> Investigate
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-destructive">
-                          <Ban className="w-3.5 h-3.5 mr-1" /> Suspend
-                        </Button>
-                        <Button variant="ghost" size="sm">
-                          <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreVertical className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                toast.info(`Investigating ${m.item}`)
+                              }>
+                              <Eye className="w-4 h-4 mr-2" /> Investigate
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-secondary focus:text-secondary"
+                              onClick={() =>
+                                resolveModeration(m.id, 'resolve')
+                              }>
+                              <CheckCircle className="w-4 h-4 mr-2" /> Resolve
+                              Issue
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-orange-500 focus:text-orange-500"
+                              onClick={() =>
+                                resolveModeration(m.id, 'suspend')
+                              }>
+                              <Pause className="w-4 h-4 mr-2" /> Suspend Entity
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={() =>
+                                resolveModeration(m.id, 'dismiss')
+                              }>
+                              <Trash2 className="w-4 h-4 mr-2" /> Dismiss Report
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </div>
                   </CardContent>
@@ -1938,9 +3172,21 @@ export default function AdminDashboardPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <p className="text-muted-foreground">
-                  {mockAdmins.length} admin accounts
+                  {admins.length} admin accounts
                 </p>
-                <Button variant="hero" size="sm">
+                <Button
+                  variant="hero"
+                  size="sm"
+                  onClick={() => {
+                    setAdminToEdit(null);
+                    setNewAdmin({
+                      name: '',
+                      email: '',
+                      role: 'Support Admin',
+                      permissions: '',
+                    });
+                    setIsAdminModalOpen(true);
+                  }}>
                   <Users className="w-4 h-4 mr-1" /> Add Admin
                 </Button>
               </div>
@@ -1954,38 +3200,146 @@ export default function AdminDashboardPage() {
                         Permissions
                       </th>
                       <th className="text-left py-2 font-medium">Last Login</th>
+                      <th className="text-left py-2 font-medium pl-6">
+                        Status
+                      </th>
                       <th className="text-right py-2 font-medium">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {mockAdmins.map(a => (
-                      <tr
-                        key={a.name}
-                        className="border-b border-border last:border-0">
-                        <td className="py-3 font-medium text-foreground">
-                          {a.name}
-                        </td>
-                        <td className="py-3">
-                          <Badge variant="outline">{a.role}</Badge>
-                        </td>
-                        <td className="py-3 text-sm text-muted-foreground max-w-xs truncate">
-                          {a.permissions}
-                        </td>
-                        <td className="py-3 text-muted-foreground">
-                          {a.lastLogin}
-                        </td>
-                        <td className="py-3 text-right">
-                          <div className="flex justify-end gap-1">
-                            <Button variant="ghost" size="sm">
-                              <Eye className="w-3.5 h-3.5" />
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                    {admins
+                      .filter(
+                        a =>
+                          a.name
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase()) ||
+                          a.email
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase()),
+                      )
+                      .map((a: any) => (
+                        <tr
+                          key={a.name}
+                          className="border-b border-border last:border-0">
+                          <td className="py-3 font-medium text-foreground">
+                            {a.name}
+                          </td>
+                          <td className="py-3">
+                            <Badge variant="outline">{a.role}</Badge>
+                          </td>
+                          <td className="py-3 text-sm text-muted-foreground max-w-xs truncate">
+                            {a.permissions}
+                          </td>
+                          <td className="py-3 text-muted-foreground">
+                            {a.lastLogin}
+                          </td>
+                          <td className="py-3 pl-6">
+                            <Badge variant={statusBadge(a.status) as any}>
+                              {a.status}
+                            </Badge>
+                          </td>
+                          <td className="py-3 text-right">
+                            <div className="flex justify-end">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm">
+                                    <MoreVertical className="w-4 h-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      setViewDetailsModal({
+                                        isOpen: true,
+                                        title: 'Admin Details',
+                                        data: a,
+                                      })
+                                    }>
+                                    <Eye className="w-4 h-4 mr-2" /> View
+                                    Details
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => {
+                                      setAdminToEdit(a);
+                                      setNewAdmin({
+                                        name: a.name,
+                                        email: a.email,
+                                        role: a.role as any,
+                                        permissions: a.permissions,
+                                      });
+                                      setIsAdminModalOpen(true);
+                                    }}>
+                                    <Settings className="w-4 h-4 mr-2" /> Edit
+                                    Admin
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      handleAdvancedAction(
+                                        'warn',
+                                        'admin',
+                                        a.name,
+                                        a.name,
+                                      )
+                                    }>
+                                    <AlertTriangle className="w-4 h-4 mr-2" />{' '}
+                                    Warn Admin
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      a.status === 'suspended'
+                                        ? toggleAdminStatus(a.name)
+                                        : handleAdvancedAction(
+                                            'suspend',
+                                            'admin',
+                                            a.name,
+                                            a.name,
+                                          )
+                                    }>
+                                    {a.status === 'suspended' ? (
+                                      <>
+                                        <CheckCircle className="w-4 h-4 mr-2" />{' '}
+                                        Activate Admin
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Pause className="w-4 h-4 mr-2" />{' '}
+                                        Suspend (Timed)
+                                      </>
+                                    )}
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      handleAdvancedAction(
+                                        'ban',
+                                        'admin',
+                                        a.name,
+                                        a.name,
+                                      )
+                                    }>
+                                    <Ban className="w-4 h-4 mr-2" /> Ban Admin
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    className="text-destructive focus:text-destructive"
+                                    onClick={() =>
+                                      handleAdvancedAction(
+                                        'remove',
+                                        'admin',
+                                        a.id || a.name,
+                                        a.name,
+                                      )
+                                    }>
+                                    <Trash2 className="w-4 h-4 mr-2" /> Remove
+                                    Admin
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
               </div>
@@ -1997,13 +3351,19 @@ export default function AdminDashboardPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <p className="text-muted-foreground">
-                  {mockLogs.length} audit logs
+                  {logs.length} audit logs
                 </p>
-                <Button variant="outline" size="sm">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    toast.success('Logs exported to CSV');
+                    addLog('Exported audit logs');
+                  }}>
                   <Download className="w-4 h-4 mr-1" /> Export Logs
                 </Button>
               </div>
-              {mockLogs.map(l => (
+              {logs.map(l => (
                 <Card key={l.id} className="border-border">
                   <CardContent className="p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -2024,7 +3384,516 @@ export default function AdminDashboardPage() {
             </div>
           )}
         </div>
+
+        <AddVendorModal
+          open={isVendorModalOpen}
+          onOpenChange={setIsVendorModalOpen}
+          onAdd={handleAddVendor}
+          vendor={newVendor}
+          setVendor={setNewVendor}
+        />
       </main>
+
+      <ActionConfirmModal
+        open={confirmModal.isOpen}
+        onOpenChange={open =>
+          setConfirmModal(prev => ({...prev, isOpen: open}))
+        }
+        title={confirmModal.title}
+        description={confirmModal.description}
+        onConfirm={confirmModal.onConfirm}
+      />
+
+      <ActionAdvancedModal
+        isOpen={advancedModal.isOpen}
+        onOpenChange={open =>
+          setAdvancedModal(prev => ({...prev, isOpen: open}))
+        }
+        type={advancedModal.type}
+        targetType={advancedModal.targetType}
+        targetName={advancedModal.targetName}
+        onConfirm={confirmAdvancedAction}
+      />
+
+      <AddAdminModal
+        isOpen={isAdminModalOpen}
+        onOpenChange={setIsAdminModalOpen}
+        onAdd={handleAddAdmin}
+        admin={newAdmin}
+        setAdmin={setNewAdmin}
+        isEditing={!!adminToEdit}
+      />
+      <ViewDetailsModal
+        isOpen={viewDetailsModal.isOpen}
+        onOpenChange={open =>
+          setViewDetailsModal(prev => ({...prev, isOpen: open}))
+        }
+        title={viewDetailsModal.title}
+        data={viewDetailsModal.data}
+      />
     </div>
+  );
+}
+
+function ViewDetailsModal({
+  isOpen,
+  onOpenChange,
+  title,
+  data,
+}: {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  data: any;
+}) {
+  if (!data) return null;
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Eye className="w-5 h-5 text-hero" /> {title}
+          </DialogTitle>
+          <DialogDescription>
+            Detailed view of the selected record.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="py-4">
+          <div className="bg-muted/30 rounded-lg p-4 font-mono text-xs space-y-2 border border-border">
+            {Object.entries(data).map(([key, value]) => (
+              <div
+                key={key}
+                className="grid grid-cols-3 gap-2 py-1 border-b border-border/50 last:border-0">
+                <span className="text-muted-foreground font-semibold">
+                  {key.toUpperCase()}
+                </span>
+                <span className="col-span-2 text-foreground break-all">
+                  {typeof value === 'object'
+                    ? JSON.stringify(value)
+                    : String(value)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex justify-end">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Close
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ActionAdvancedModal({
+  isOpen,
+  onOpenChange,
+  type,
+  targetType,
+  targetName,
+  onConfirm,
+}: {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  type: string;
+  targetType: string;
+  targetName: string;
+  onConfirm: (data: {days?: string; reason: string}) => void;
+}) {
+  const [days, setDays] = useState('3');
+  const [reason, setReason] = useState('');
+
+  const getTitle = () => {
+    switch (type) {
+      case 'warn':
+        return 'Issue Warning';
+      case 'suspend':
+        return 'Temporary Suspension';
+      case 'ban':
+        return 'Permanent Ban';
+      case 'flag':
+        return 'Flag Record';
+      case 'restrict':
+        return 'Restrict Wallet';
+      case 'reject':
+        return 'Reject Request';
+      case 'delete':
+        return `Delete ${targetType.charAt(0).toUpperCase() + targetType.slice(1)}`;
+      case 'remove':
+        return 'Remove Admin';
+      case 'disable':
+        return 'Disable Integration';
+      case 'activate':
+        return 'Activate Item';
+      case 'pause':
+        return 'Pause Campaign';
+      case 'resume':
+        return 'Resume Campaign';
+      case 'invalidate':
+        return 'Invalidate Code';
+      case 'generate':
+        return 'Generate API Key';
+      case 'unsuspend':
+        return 'Unsuspend/Unrestrict Item';
+      case 'feature':
+        return 'Feature Campaign';
+      case 'unfeature':
+        return 'Unfeature Campaign';
+      case 'approve':
+        return 'Approve Withdrawal';
+      case 'pay':
+        return 'Mark as Paid';
+      default:
+        return type.charAt(0).toUpperCase() + type.slice(1);
+    }
+  };
+
+  const getIcon = () => {
+    switch (type) {
+      case 'warn':
+        return <AlertTriangle className="w-6 h-6 text-yellow-500" />;
+      case 'suspend':
+      case 'pause':
+      case 'disable':
+      case 'unfeature':
+        return <Pause className="w-6 h-6 text-orange-500" />;
+      case 'resume':
+      case 'activate':
+      case 'unsuspend':
+      case 'feature':
+      case 'approve':
+        return <Play className="w-6 h-6 text-secondary" />;
+      case 'pay':
+        return <DollarSign className="w-6 h-6 text-hero" />;
+      case 'ban':
+      case 'delete':
+      case 'remove':
+      case 'invalidate':
+        return <Trash2 className="w-6 h-6 text-destructive" />;
+      case 'flag':
+        return <Flag className="w-6 h-6 text-red-500" />;
+      case 'restrict':
+      case 'reject':
+        return <X className="w-6 h-6 text-destructive" />;
+      case 'generate':
+        return <Key className="w-6 h-6 text-hero" />;
+      default:
+        return <Info className="w-6 h-6 text-hero" />;
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <div className="flex items-center gap-3 mb-2">
+            {getIcon()}
+            <DialogTitle>{getTitle()}</DialogTitle>
+          </div>
+          <DialogDescription>
+            Confirm the <strong>{type}</strong> action for{' '}
+            <strong>{targetName}</strong>. This action will be logged.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 py-4">
+          {type === 'suspend' && (
+            <div className="space-y-2">
+              <Label>Suspension Duration</Label>
+              <Select value={days} onValueChange={setDays}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="3">3 Days</SelectItem>
+                  <SelectItem value="14">14 Days</SelectItem>
+                  <SelectItem value="21">21 Days</SelectItem>
+                  <SelectItem value="30">30 Days</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <Label>Reason for {type}</Label>
+            <Textarea
+              placeholder={`Enter the reason for this ${type} action...`}
+              value={reason}
+              onChange={e => setReason(e.target.value)}
+              rows={3}
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-3">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button
+            variant={
+              ['ban', 'delete', 'remove', 'reject'].includes(type)
+                ? 'destructive'
+                : 'hero'
+            }
+            onClick={() => {
+              onConfirm({days, reason});
+              setReason('');
+            }}
+            disabled={!reason}>
+            Confirm {type.charAt(0).toUpperCase() + type.slice(1)}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function AddAdminModal({
+  isOpen,
+  onOpenChange,
+  onAdd,
+  admin,
+  setAdmin,
+  isEditing,
+}: {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  onAdd: () => void;
+  admin: any;
+  setAdmin: any;
+  isEditing: boolean;
+}) {
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>
+            {isEditing ? 'Edit Admin Account' : 'Add New Admin'}
+          </DialogTitle>
+          <DialogDescription>
+            {isEditing
+              ? 'Modify administrative account settings and permissions.'
+              : 'Create a new administrative account and assign roles/permissions.'}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 py-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Full Name</Label>
+              <Input
+                placeholder="Admin Name"
+                value={admin.name}
+                onChange={e => setAdmin({...admin, name: e.target.value})}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Email Address</Label>
+              <Input
+                placeholder="admin@gifthance.com"
+                value={admin.email}
+                onChange={e => setAdmin({...admin, email: e.target.value})}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Role</Label>
+            <Select
+              value={admin.role}
+              onValueChange={v => setAdmin({...admin, role: v})}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Super Admin">Super Admin</SelectItem>
+                <SelectItem value="Finance Admin">Finance Admin</SelectItem>
+                <SelectItem value="Support Admin">Support Admin</SelectItem>
+                <SelectItem value="Moderation Admin">
+                  Moderation Admin
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-3">
+            <Label>Permissions</Label>
+            <div className="grid grid-cols-2 gap-3 p-3 border border-border rounded-lg">
+              {[
+                'Users',
+                'Campaigns',
+                'Vendors',
+                'Finance',
+                'Moderation',
+                'Reports',
+                'Integrations',
+                'Settings',
+              ].map(permission => (
+                <div key={permission} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`perm-${permission}`}
+                    checked={admin.permissions.includes(permission)}
+                    onCheckedChange={(checked: boolean) => {
+                      const currentPerms = admin.permissions
+                        ? admin.permissions.split(', ').filter(Boolean)
+                        : [];
+                      let newPerms: string[];
+                      if (checked) {
+                        newPerms = [...currentPerms, permission];
+                      } else {
+                        newPerms = currentPerms.filter(
+                          (p: string) => p !== permission,
+                        );
+                      }
+                      setAdmin({
+                        ...admin,
+                        permissions: newPerms.join(', '),
+                      });
+                    }}
+                  />
+                  <Label
+                    htmlFor={`perm-${permission}`}
+                    className="text-sm font-normal cursor-pointer">
+                    {permission}
+                  </Label>
+                </div>
+              ))}
+            </div>
+            <p className="text-[10px] text-muted-foreground">
+              Define the areas this admin can access.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-3">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button variant="hero" onClick={onAdd}>
+            {isEditing ? 'Save Changes' : 'Create Admin Account'}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ActionConfirmModal({
+  open,
+  onOpenChange,
+  title,
+  description,
+  onConfirm,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  description: string;
+  onConfirm: () => void;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
+        </DialogHeader>
+        <div className="flex justify-end gap-3 mt-4">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button
+            variant="hero"
+            onClick={() => {
+              onConfirm();
+            }}>
+            Confirm
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function AddVendorModal({
+  open,
+  onOpenChange,
+  onAdd,
+  vendor,
+  setVendor,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onAdd: () => void;
+  vendor: any;
+  setVendor: any;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Add New Vendor</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="vendor-name">Vendor Name</Label>
+            <Input
+              id="vendor-name"
+              placeholder="e.g. Sweet Delights"
+              value={vendor.name}
+              onChange={e => setVendor({...vendor, name: e.target.value})}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="vendor-email">Vendor Email</Label>
+            <Input
+              id="vendor-email"
+              placeholder="vendor@email.com"
+              value={vendor.email}
+              onChange={e => setVendor({...vendor, email: e.target.value})}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="vendor-products">Initial Products</Label>
+              <Input
+                id="vendor-products"
+                type="number"
+                value={vendor.products}
+                onChange={e =>
+                  setVendor({...vendor, products: parseInt(e.target.value)})
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="vendor-status">Status</Label>
+              <Select
+                value={vendor.status}
+                onValueChange={v => setVendor({...vendor, status: v})}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="suspended">Suspended</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+        <div className="flex justify-end gap-3 mt-4">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button variant="hero" onClick={onAdd}>
+            Add Vendor
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
