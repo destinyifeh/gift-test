@@ -76,7 +76,7 @@ export function IntegrationTab() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label>Webhook URL</Label>
-              <Input placeholder="https://your-api.com/webhooks/gatherly" />
+              <Input placeholder="https://your-api.com/webhooks/gifthance" />
             </div>
             <div className="flex gap-2">
               <Button variant="hero" size="sm" className="flex-1">

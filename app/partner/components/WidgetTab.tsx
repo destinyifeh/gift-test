@@ -122,7 +122,7 @@ export function WidgetTab() {
             <div className="pt-4 text-center">
               <p className="text-[10px] text-muted-foreground flex items-center justify-center gap-1 font-body">
                 Powered by{' '}
-                <span className="font-bold text-foreground">Gatherly</span>
+                <span className="font-bold text-foreground">Gifthance</span>
               </p>
             </div>
           </div>

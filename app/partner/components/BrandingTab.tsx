@@ -37,7 +37,9 @@ export function BrandingTab() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label className="cursor-pointer">Remove Gatherly Branding</Label>
+              <Label className="cursor-pointer">
+                Remove Gifthance Branding
+              </Label>
               <Switch defaultChecked />
             </div>
 
