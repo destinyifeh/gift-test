@@ -23,7 +23,7 @@ const vendorsData: Record<
     products: {
       id: string;
       name: string;
-      emoji: string;
+      image: string;
       price: number;
       category: string;
       type: string;
@@ -43,7 +43,8 @@ const vendorsData: Record<
       {
         id: 'AX8H2K',
         name: 'Cake Gift Card - $25',
-        emoji: '🎂',
+        image:
+          'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&auto=format&fit=crop&q=60',
         price: 25,
         category: 'food',
         type: 'digital',
@@ -51,7 +52,8 @@ const vendorsData: Record<
       {
         id: 'CK50DL',
         name: 'Cake Gift Card - $50',
-        emoji: '🎂',
+        image:
+          'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&auto=format&fit=crop&q=60',
         price: 50,
         category: 'food',
         type: 'digital',
@@ -59,7 +61,8 @@ const vendorsData: Record<
       {
         id: 'CK100X',
         name: 'Custom Cake Voucher',
-        emoji: '🎂',
+        image:
+          'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&auto=format&fit=crop&q=60',
         price: 100,
         category: 'food',
         type: 'digital',
@@ -67,7 +70,8 @@ const vendorsData: Record<
       {
         id: 'CKBOX1',
         name: 'Pastry Box Delivery',
-        emoji: '🧁',
+        image:
+          'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&auto=format&fit=crop&q=60',
         price: 35,
         category: 'food',
         type: 'physical',
@@ -87,7 +91,8 @@ const vendorsData: Record<
       {
         id: 'SP3M9N',
         name: 'Spa Voucher - $50',
-        emoji: '💆',
+        image:
+          'https://images.unsplash.com/photo-1544161515-4ae6ce6db87e?w=800&auto=format&fit=crop&q=60',
         price: 50,
         category: 'spa',
         type: 'digital',
@@ -95,7 +100,8 @@ const vendorsData: Record<
       {
         id: 'SP100V',
         name: 'Premium Spa Day',
-        emoji: '💆',
+        image:
+          'https://images.unsplash.com/photo-1544161515-4ae6ce6db87e?w=800&auto=format&fit=crop&q=60',
         price: 150,
         category: 'spa',
         type: 'digital',
@@ -103,7 +109,8 @@ const vendorsData: Record<
       {
         id: 'SPCOPL',
         name: 'Couples Spa Package',
-        emoji: '💆',
+        image:
+          'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=800&auto=format&fit=crop&q=60',
         price: 200,
         category: 'spa',
         type: 'digital',
@@ -123,7 +130,8 @@ const vendorsData: Record<
       {
         id: 'FS7K2L',
         name: 'Fashion Gift Card - $75',
-        emoji: '👕',
+        image:
+          'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&auto=format&fit=crop&q=60',
         price: 75,
         category: 'fashion',
         type: 'digital',
@@ -131,7 +139,8 @@ const vendorsData: Record<
       {
         id: 'FS50GC',
         name: 'Fashion Gift Card - $50',
-        emoji: '👕',
+        image:
+          'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&auto=format&fit=crop&q=60',
         price: 50,
         category: 'fashion',
         type: 'digital',
@@ -139,7 +148,8 @@ const vendorsData: Record<
       {
         id: 'FS25GC',
         name: 'Accessories Voucher',
-        emoji: '👜',
+        image:
+          'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&auto=format&fit=crop&q=60',
         price: 25,
         category: 'fashion',
         type: 'digital',
@@ -220,9 +230,19 @@ export default function VendorPage({
             {vendor.products.map(p => (
               <Card
                 key={p.id}
-                className="border-border hover:shadow-elevated hover:border-primary/30 transition-all">
-                <div className="h-32 bg-muted flex items-center justify-center text-5xl">
-                  {p.emoji}
+                className="border-border hover:shadow-elevated hover:border-primary/30 transition-all overflow-hidden group">
+                <div className="h-40 bg-muted overflow-hidden">
+                  {p.image ? (
+                    <img
+                      src={p.image}
+                      alt={p.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-5xl">
+                      🎁
+                    </div>
+                  )}
                 </div>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-2">

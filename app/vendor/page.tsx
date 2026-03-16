@@ -30,6 +30,7 @@ import {
   ShoppingCart,
   Tag,
   Trash2,
+  Upload,
   Wallet,
 } from 'lucide-react';
 import {useState} from 'react';
@@ -42,6 +43,10 @@ const initialProducts = [
     sold: 142,
     status: 'active',
     description: 'Relaxing spa experience',
+    image:
+      'https://images.unsplash.com/photo-1544161515-4ae6ce6db87e?w=800&auto=format&fit=crop&q=60',
+    category: 'spa',
+    type: 'digital',
   },
   {
     id: 2,
@@ -50,6 +55,10 @@ const initialProducts = [
     sold: 89,
     status: 'active',
     description: 'Full body massage',
+    image:
+      'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=800&auto=format&fit=crop&q=60',
+    category: 'spa',
+    type: 'digital',
   },
   {
     id: 3,
@@ -58,6 +67,10 @@ const initialProducts = [
     sold: 34,
     status: 'draft',
     description: 'Romantic couples spa day',
+    image:
+      'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=800&auto=format&fit=crop&q=60',
+    category: 'spa',
+    type: 'digital',
   },
 ];
 
@@ -184,7 +197,21 @@ export default function VendorDashboardPage() {
     price: '',
     description: '',
     status: 'active',
+    image: '',
+    category: 'all',
+    type: 'digital',
   });
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProductForm(prev => ({...prev, image: reader.result as string}));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleAddBank = () => {
     if (
@@ -242,6 +269,9 @@ export default function VendorDashboardPage() {
                 price: Number(productForm.price),
                 description: productForm.description,
                 status: productForm.status,
+                image: productForm.image,
+                category: productForm.category,
+                type: productForm.type,
               }
             : p,
         ),
@@ -256,10 +286,21 @@ export default function VendorDashboardPage() {
           sold: 0,
           status: productForm.status,
           description: productForm.description,
+          image: productForm.image,
+          category: productForm.category,
+          type: productForm.type,
         },
       ]);
     }
-    setProductForm({name: '', price: '', description: '', status: 'active'});
+    setProductForm({
+      name: '',
+      price: '',
+      description: '',
+      status: 'active',
+      image: '',
+      category: 'all',
+      type: 'digital',
+    });
     setShowAddProduct(false);
     setEditingProduct(null);
   };
@@ -344,6 +385,9 @@ export default function VendorDashboardPage() {
                   price: '',
                   description: '',
                   status: 'active',
+                  image: '',
+                  category: 'all',
+                  type: 'digital',
                 });
               }}>
               <Plus className="w-4 h-4 mr-2" /> Add Product
@@ -422,6 +466,77 @@ export default function VendorDashboardPage() {
                         />
                       </div>
                       <div className="space-y-2 sm:col-span-2">
+                        <Label>Product Image</Label>
+                        <div className="flex items-center gap-4">
+                          <div className="w-20 h-20 rounded-lg border-2 border-dashed border-border flex items-center justify-center overflow-hidden bg-muted">
+                            {productForm.image ? (
+                              <img
+                                src={productForm.image}
+                                alt="Product preview"
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <Package className="w-8 h-8 text-muted-foreground/50" />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <Label
+                              htmlFor="product-image"
+                              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 cursor-pointer transition-colors text-sm font-medium">
+                              <Upload className="w-4 h-4" />
+                              {productForm.image
+                                ? 'Change Image'
+                                : 'Upload Image'}
+                            </Label>
+                            <input
+                              type="file"
+                              id="product-image"
+                              className="hidden"
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                            />
+                            <p className="text-xs text-muted-foreground mt-2">
+                              Recommended size: 800x800px. JPG, PNG or WebP.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Category</Label>
+                        <Select
+                          value={productForm.category}
+                          onValueChange={v =>
+                            setProductForm({...productForm, category: v})
+                          }>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="birthday">Birthday</SelectItem>
+                            <SelectItem value="spa">Spa</SelectItem>
+                            <SelectItem value="fashion">Fashion</SelectItem>
+                            <SelectItem value="food">Food</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Type</Label>
+                        <Select
+                          value={productForm.type}
+                          onValueChange={v =>
+                            setProductForm({...productForm, type: v})
+                          }>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="digital">Digital</SelectItem>
+                            <SelectItem value="physical">Physical</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2 sm:col-span-2">
                         <Label>Description</Label>
                         <Textarea
                           value={productForm.description}
@@ -476,8 +591,16 @@ export default function VendorDashboardPage() {
                 <Card key={p.id} className="border-border">
                   <CardContent className="p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
-                        <Package className="w-5 h-5 text-muted-foreground" />
+                      <div className="w-12 h-12 rounded-lg border border-border overflow-hidden bg-muted shrink-0 flex items-center justify-center">
+                        {p.image ? (
+                          <img
+                            src={p.image}
+                            alt={p.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <Package className="w-6 h-6 text-muted-foreground" />
+                        )}
                       </div>
                       <div>
                         <p className="font-semibold text-foreground">
@@ -505,6 +628,9 @@ export default function VendorDashboardPage() {
                             price: String(p.price),
                             description: p.description,
                             status: p.status,
+                            image: p.image || '',
+                            category: p.category || 'all',
+                            type: p.type || 'digital',
                           });
                           setShowAddProduct(false);
                         }}>

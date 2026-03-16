@@ -263,6 +263,7 @@ export default function CreatorProfilePage({
         open={showGiftModal}
         onOpenChange={setShowGiftModal}
         recipientName={profile.name}
+        hideRecipientFields={true}
       />
     </div>
   );

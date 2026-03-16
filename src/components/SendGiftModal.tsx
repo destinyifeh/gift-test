@@ -30,6 +30,7 @@ interface SendGiftModalProps {
   recipientName?: string;
   preselectedGift?: {name: string; price: number; vendor: string} | null;
   isLoggedIn?: boolean;
+  hideRecipientFields?: boolean;
 }
 
 const presetAmounts = [5, 10, 25, 50, 100];
@@ -102,6 +103,7 @@ const SendGiftModal = ({
   recipientName,
   preselectedGift,
   isLoggedIn = true,
+  hideRecipientFields = false,
 }: SendGiftModalProps) => {
   const [amount, setAmount] = useState<number | null>(
     preselectedGift?.price || null,
@@ -166,8 +168,7 @@ const SendGiftModal = ({
 
   const canProceedToRecipient = isVendorGift || finalAmount > 0;
   const canProceedToPayment =
-    recipientNameInput &&
-    recipientEmail &&
+    (hideRecipientFields || (recipientNameInput && recipientEmail)) &&
     (isLoggedIn || (senderName && senderEmail));
 
   const generateCode = () => {
@@ -222,7 +223,9 @@ const SendGiftModal = ({
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Recipient:</span>
-                <span className="text-foreground">{recipientNameInput}</span>
+                <span className="text-foreground">
+                  {hideRecipientFields ? target : recipientNameInput}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Delivery:</span>
@@ -315,7 +318,10 @@ const SendGiftModal = ({
 
             <div className="text-xs text-muted-foreground space-y-1">
               <p>
-                <strong>To:</strong> {recipientNameInput} ({recipientEmail})
+                <strong>To:</strong>{' '}
+                {hideRecipientFields
+                  ? target
+                  : `${recipientNameInput} (${recipientEmail})`}
               </p>
               {message && (
                 <p>
@@ -371,37 +377,39 @@ const SendGiftModal = ({
               Back
             </button>
             <DialogTitle className="font-display">
-              Recipient & Sender Info
+              {hideRecipientFields ? 'Sender Info' : 'Recipient & Sender Info'}
             </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4 mt-2">
-            <div className="space-y-3">
-              <div className="space-y-2">
-                <Label>Recipient Name *</Label>
-                <Input
-                  value={recipientNameInput}
-                  onChange={e => setRecipientNameInput(e.target.value)}
-                  placeholder="e.g. Sarah"
-                />
+            {!hideRecipientFields && (
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <Label>Recipient Name *</Label>
+                  <Input
+                    value={recipientNameInput}
+                    onChange={e => setRecipientNameInput(e.target.value)}
+                    placeholder="e.g. Sarah"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Recipient Email or Phone *</Label>
+                  <Input
+                    value={recipientEmail}
+                    onChange={e => setRecipientEmail(e.target.value)}
+                    placeholder="sarah@email.com"
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label>Recipient Email or Phone *</Label>
-                <Input
-                  value={recipientEmail}
-                  onChange={e => setRecipientEmail(e.target.value)}
-                  placeholder="sarah@email.com"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Gift Message (optional)</Label>
-                <Textarea
-                  value={message}
-                  onChange={e => setMessage(e.target.value)}
-                  placeholder="Happy birthday 🎂"
-                  rows={2}
-                />
-              </div>
+            )}
+            <div className="space-y-2">
+              <Label>Gift Message (optional)</Label>
+              <Textarea
+                value={message}
+                onChange={e => setMessage(e.target.value)}
+                placeholder="Happy birthday 🎂"
+                rows={2}
+              />
             </div>
 
             {!isLoggedIn && (

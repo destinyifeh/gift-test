@@ -31,7 +31,7 @@ const campaignData = {
   startDate: '2026-03-01',
   endDate: '2026-03-17',
   visibility: 'public' as const,
-  image: '/placeholder.svg',
+  image: '/default-campaign.png',
   contributions: [
     {
       id: 1,
@@ -111,6 +111,10 @@ export default function CampaignPage({
                   src={campaignData.image}
                   alt={campaignData.title}
                   className="w-full h-full object-cover"
+                  onErrorCapture={e => {
+                    (e.target as HTMLImageElement).src =
+                      '/default-campaign.png';
+                  }}
                 />
               </div>
               <div className="flex items-center gap-2 mb-3">
@@ -228,6 +232,7 @@ export default function CampaignPage({
         open={showGiftModal}
         onOpenChange={setShowGiftModal}
         campaignTitle={campaignData.title}
+        hideRecipientFields={true}
       />
     </div>
   );

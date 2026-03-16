@@ -34,7 +34,7 @@ const HeroSection = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-10">
-              <Link href="/dashboard">
+              <Link href="/campaigns">
                 <Button
                   variant="hero"
                   size="lg"
@@ -43,7 +43,7 @@ const HeroSection = () => {
                   Send a Gift
                 </Button>
               </Link>
-              <Link href="/marketplace">
+              <Link href="/create-campaign">
                 <Button
                   variant="hero-outline"
                   size="lg"
