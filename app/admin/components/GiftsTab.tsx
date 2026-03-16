@@ -17,26 +17,24 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {Download, Eye, Flag, MoreVertical} from 'lucide-react';
-import React, {useState} from 'react';
+import {useState} from 'react';
 import {toast} from 'sonner';
 import {ActionAdvancedModal} from './ActionAdvancedModal';
+import {mockGifts} from './mock';
 import {handleExport, statusBadge} from './utils';
 
 interface GiftsTabProps {
-  gifts: any[];
-  setGifts: React.Dispatch<React.SetStateAction<any[]>>;
   searchQuery: string;
   addLog: (action: string) => void;
   setViewDetailsModal: (modal: any) => void;
 }
 
 export function GiftsTab({
-  gifts,
-  setGifts,
   searchQuery,
   addLog,
   setViewDetailsModal,
 }: GiftsTabProps) {
+  const [gifts, setGifts] = useState(mockGifts);
   const [advancedModal, setAdvancedModal] = useState<{
     isOpen: boolean;
     type: 'flag';

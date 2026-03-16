@@ -10,26 +10,24 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {Ban, Download, Eye, MoreVertical} from 'lucide-react';
-import React, {useState} from 'react';
+import {useState} from 'react';
 import {toast} from 'sonner';
 import {ActionAdvancedModal} from './ActionAdvancedModal';
+import {mockWallets} from './mock';
 import {handleExport, statusBadge} from './utils';
 
 interface WalletsTabProps {
-  wallets: any[];
-  setWallets: React.Dispatch<React.SetStateAction<any[]>>;
   searchQuery: string;
   addLog: (action: string) => void;
   setViewDetailsModal: (modal: any) => void;
 }
 
 export function WalletsTab({
-  wallets,
-  setWallets,
   searchQuery,
   addLog,
   setViewDetailsModal,
 }: WalletsTabProps) {
+  const [wallets, setWallets] = useState(mockWallets);
   const [advancedModal, setAdvancedModal] = useState<{
     isOpen: boolean;
     type: 'restrict' | 'unsuspend';

@@ -11,24 +11,24 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {CheckCircle, DollarSign, Eye, MoreVertical, X} from 'lucide-react';
-import React, {useState} from 'react';
+import {useState} from 'react';
 import {toast} from 'sonner';
 import {ActionAdvancedModal} from './ActionAdvancedModal';
+import {mockWithdrawals} from './mock';
 import {statusBadge} from './utils';
 
 interface WithdrawalsTabProps {
-  withdrawals: any[];
-  setWithdrawals: React.Dispatch<React.SetStateAction<any[]>>;
   searchQuery: string;
   addLog: (action: string) => void;
+  setViewDetailsModal: (modal: any) => void;
 }
 
 export function WithdrawalsTab({
-  withdrawals,
-  setWithdrawals,
   searchQuery,
   addLog,
+  setViewDetailsModal,
 }: WithdrawalsTabProps) {
+  const [withdrawals, setWithdrawals] = useState(mockWithdrawals);
   const [advancedModal, setAdvancedModal] = useState<{
     isOpen: boolean;
     type: 'approve' | 'pay' | 'reject';
@@ -102,7 +102,7 @@ export function WithdrawalsTab({
             <tr className="border-b border-border text-muted-foreground">
               <th className="text-left py-2 font-medium">ID</th>
               <th className="text-left py-2 font-medium">User</th>
-              <th className="text-right py-2 font-medium">Amount</th>
+              <th className="text-right py-2 font-medium pr-8">Amount</th>
               <th className="text-left py-2 font-medium">Bank</th>
               <th className="text-left py-2 font-medium pl-6">Status</th>
               <th className="text-left py-2 font-medium">Date</th>
@@ -122,11 +122,11 @@ export function WithdrawalsTab({
                     {w.id}
                   </td>
                   <td className="py-3 font-medium text-foreground">{w.user}</td>
-                  <td className="py-3 text-right text-foreground">
+                  <td className="py-3 text-right text-foreground pr-8">
                     ${w.amount}
                   </td>
                   <td className="py-3 text-muted-foreground">{w.bank}</td>
-                  <td className="py-3">
+                  <td className="py-3 pl-6">
                     <Badge variant={statusBadge(w.status) as any}>
                       {w.status}
                     </Badge>
@@ -144,9 +144,11 @@ export function WithdrawalsTab({
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuItem
                             onClick={() =>
-                              toast.info(
-                                `Viewing details for withdrawal ${w.id}`,
-                              )
+                              setViewDetailsModal({
+                                isOpen: true,
+                                title: 'Withdrawal Details',
+                                data: w,
+                              })
                             }>
                             <Eye className="w-4 h-4 mr-2" /> View Details
                           </DropdownMenuItem>

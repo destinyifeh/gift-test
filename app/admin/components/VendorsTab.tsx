@@ -21,27 +21,25 @@ import {
   Plus,
   Trash2,
 } from 'lucide-react';
-import React, {useState} from 'react';
+import {useState} from 'react';
 import {toast} from 'sonner';
 import {ActionAdvancedModal} from './ActionAdvancedModal';
 import {AddVendorModal} from './AddVendorModal';
+import {mockVendors} from './mock';
 import {handleExport, statusBadge} from './utils';
 
 interface VendorsTabProps {
-  vendors: any[];
-  setVendors: React.Dispatch<React.SetStateAction<any[]>>;
   searchQuery: string;
   addLog: (action: string) => void;
   setViewDetailsModal: (modal: any) => void;
 }
 
 export function VendorsTab({
-  vendors,
-  setVendors,
   searchQuery,
   addLog,
   setViewDetailsModal,
 }: VendorsTabProps) {
+  const [vendors, setVendors] = useState(mockVendors);
   const [isVendorModalOpen, setIsVendorModalOpen] = useState(false);
   const [advancedModal, setAdvancedModal] = useState<{
     isOpen: boolean;

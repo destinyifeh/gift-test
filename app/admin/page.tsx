@@ -5,27 +5,6 @@ import {Input} from '@/components/ui/input';
 import {Menu, Search} from 'lucide-react';
 import {useState} from 'react';
 
-// Mock Data
-import {
-  Admin,
-  metrics,
-  mockAdmins,
-  mockCampaigns,
-  mockGiftCodes,
-  mockGifts,
-  mockIntegrations,
-  mockLogs,
-  mockModerationQueue,
-  mockSubscriptions,
-  mockTransactions,
-  mockUsers,
-  mockVendors,
-  mockWallets,
-  mockWithdrawals,
-  recentActivity,
-  revenueData,
-} from './components/mock';
-
 // Modular Components
 import {AdminsTab} from './components/AdminsTab';
 import {CampaignsTab} from './components/CampaignsTab';
@@ -50,31 +29,12 @@ import {ActionConfirmModal} from './components/ActionConfirmModal';
 import {Section, Sidebar} from './components/Sidebar';
 import {ViewDetailsModal} from './components/ViewDetailsModal';
 
-// ── Mock Data ──────────────────────────────────────────────
-
-// ── Component ──────────────────────────────────────────────
-
 export default function AdminDashboardPage() {
   const [section, setSection] = useState<Section>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [txTypeFilter, setTxTypeFilter] = useState('all');
-  const [txProviderFilter, setTxProviderFilter] = useState('all');
-
-  // Stateful Mock Data
-  const [vendors, setVendors] = useState(mockVendors);
-  const [users, setUsers] = useState(mockUsers);
-  const [campaigns, setCampaigns] = useState(mockCampaigns);
-  const [withdrawals, setWithdrawals] = useState(mockWithdrawals);
-  const [wallets, setWallets] = useState(mockWallets);
-  const [gifts, setGifts] = useState(mockGifts);
-  const [transactions, setTransactions] = useState(mockTransactions);
-  const [giftCodes, setGiftCodes] = useState(mockGiftCodes);
-  const [integrations, setIntegrations] = useState(mockIntegrations);
-  const [subscriptions, setSubscriptions] = useState(mockSubscriptions);
-  const [moderationQueue, setModerationQueue] = useState(mockModerationQueue);
-  const [logs, setLogs] = useState(mockLogs);
-  const [admins, setAdmins] = useState<Admin[]>(mockAdmins);
+  const [txTypeFilter] = useState('all');
+  const [txProviderFilter] = useState('all');
 
   // Action Confirmation State
   const [confirmModal, setConfirmModal] = useState<{
@@ -100,13 +60,7 @@ export default function AdminDashboardPage() {
   });
 
   const addLog = (action: string) => {
-    const newLog = {
-      id: Date.now(),
-      admin: 'Super Admin',
-      action,
-      date: new Date().toISOString().replace('T', ' ').slice(0, 16),
-    };
-    setLogs([newLog, ...logs]);
+    window.dispatchEvent(new CustomEvent('admin-log', {detail: action}));
   };
 
   return (
@@ -148,19 +102,11 @@ export default function AdminDashboardPage() {
 
         <div className="p-4 md:p-6 max-w-7xl">
           {section === 'dashboard' && (
-            <DashboardTab
-              metrics={metrics}
-              revenueData={revenueData}
-              recentActivity={recentActivity}
-              searchQuery={searchQuery}
-              setSection={setSection}
-            />
+            <DashboardTab searchQuery={searchQuery} setSection={setSection} />
           )}
 
           {section === 'users' && (
             <UsersTab
-              users={users}
-              setUsers={setUsers}
               searchQuery={searchQuery}
               addLog={addLog}
               setViewDetailsModal={setViewDetailsModal}
@@ -169,8 +115,6 @@ export default function AdminDashboardPage() {
 
           {section === 'campaigns' && (
             <CampaignsTab
-              campaigns={campaigns}
-              setCampaigns={setCampaigns}
               searchQuery={searchQuery}
               addLog={addLog}
               setViewDetailsModal={setViewDetailsModal}
@@ -179,8 +123,6 @@ export default function AdminDashboardPage() {
 
           {section === 'gifts' && (
             <GiftsTab
-              gifts={gifts}
-              setGifts={setGifts}
               searchQuery={searchQuery}
               addLog={addLog}
               setViewDetailsModal={setViewDetailsModal}
@@ -189,20 +131,13 @@ export default function AdminDashboardPage() {
 
           {section === 'transactions' && (
             <TransactionsTab
-              transactions={transactions}
               searchQuery={searchQuery}
               setViewDetailsModal={setViewDetailsModal}
-              txTypeFilter={txTypeFilter}
-              setTxTypeFilter={setTxTypeFilter}
-              txProviderFilter={txProviderFilter}
-              setTxProviderFilter={setTxProviderFilter}
             />
           )}
 
           {section === 'wallets' && (
             <WalletsTab
-              wallets={wallets}
-              setWallets={setWallets}
               searchQuery={searchQuery}
               addLog={addLog}
               setViewDetailsModal={setViewDetailsModal}
@@ -211,17 +146,14 @@ export default function AdminDashboardPage() {
 
           {section === 'withdrawals' && (
             <WithdrawalsTab
-              withdrawals={withdrawals}
-              setWithdrawals={setWithdrawals}
               searchQuery={searchQuery}
               addLog={addLog}
+              setViewDetailsModal={setViewDetailsModal}
             />
           )}
 
           {section === 'vendors' && (
             <VendorsTab
-              vendors={vendors}
-              setVendors={setVendors}
               searchQuery={searchQuery}
               addLog={addLog}
               setViewDetailsModal={setViewDetailsModal}
@@ -230,8 +162,6 @@ export default function AdminDashboardPage() {
 
           {section === 'gift-codes' && (
             <GiftCodesTab
-              giftCodes={giftCodes}
-              setGiftCodes={setGiftCodes}
               searchQuery={searchQuery}
               addLog={addLog}
               setViewDetailsModal={setViewDetailsModal}
@@ -240,8 +170,6 @@ export default function AdminDashboardPage() {
 
           {section === 'integrations' && (
             <IntegrationsTab
-              integrations={integrations}
-              setIntegrations={setIntegrations}
               addLog={addLog}
               setViewDetailsModal={setViewDetailsModal}
             />
@@ -249,8 +177,6 @@ export default function AdminDashboardPage() {
 
           {section === 'subscriptions' && (
             <SubscriptionsTab
-              subscriptions={subscriptions}
-              setSubscriptions={setSubscriptions}
               searchQuery={searchQuery}
               addLog={addLog}
               setViewDetailsModal={setViewDetailsModal}
@@ -259,13 +185,7 @@ export default function AdminDashboardPage() {
 
           {section === 'reports' && <ReportsTab />}
 
-          {section === 'moderation' && (
-            <ModerationTab
-              moderationQueue={moderationQueue}
-              setModerationQueue={setModerationQueue}
-              addLog={addLog}
-            />
-          )}
+          {section === 'moderation' && <ModerationTab addLog={addLog} />}
 
           {section === 'notifications' && <NotificationsTab />}
 
@@ -273,15 +193,13 @@ export default function AdminDashboardPage() {
 
           {section === 'admins' && (
             <AdminsTab
-              admins={admins}
-              setAdmins={setAdmins}
               searchQuery={searchQuery}
               addLog={addLog}
               setViewDetailsModal={setViewDetailsModal}
             />
           )}
 
-          {section === 'logs' && <LogsTab logs={logs} addLog={addLog} />}
+          {section === 'logs' && <LogsTab />}
         </div>
       </main>
 

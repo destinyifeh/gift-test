@@ -17,27 +17,22 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {Download, Eye, MoreVertical} from 'lucide-react';
+import {useState} from 'react';
+import {mockTransactions} from './mock';
 import {handleExport, statusBadge} from './utils';
 
 interface TransactionsTabProps {
-  transactions: any[];
   searchQuery: string;
-  txTypeFilter: string;
-  setTxTypeFilter: (value: string) => void;
-  txProviderFilter: string;
-  setTxProviderFilter: (value: string) => void;
   setViewDetailsModal: (modal: any) => void;
 }
 
 export function TransactionsTab({
-  transactions,
   searchQuery,
-  txTypeFilter,
-  setTxTypeFilter,
-  txProviderFilter,
-  setTxProviderFilter,
   setViewDetailsModal,
 }: TransactionsTabProps) {
+  const [transactions] = useState(mockTransactions);
+  const [txTypeFilter, setTxTypeFilter] = useState('all');
+  const [txProviderFilter, setTxProviderFilter] = useState('all');
   const filteredTransactions = transactions.filter(t => {
     const matchesSearch =
       t.id.toLowerCase().includes(searchQuery.toLowerCase()) ||

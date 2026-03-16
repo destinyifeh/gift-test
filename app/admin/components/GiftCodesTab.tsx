@@ -3,26 +3,24 @@
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {Ban, Download, Tag} from 'lucide-react';
-import React, {useState} from 'react';
+import {useState} from 'react';
 import {toast} from 'sonner';
 import {ActionAdvancedModal} from './ActionAdvancedModal';
+import {mockGiftCodes} from './mock';
 import {statusBadge} from './utils';
 
 interface GiftCodesTabProps {
-  giftCodes: any[];
-  setGiftCodes: React.Dispatch<React.SetStateAction<any[]>>;
   searchQuery: string;
   addLog: (action: string) => void;
   setViewDetailsModal: (modal: any) => void;
 }
 
 export function GiftCodesTab({
-  giftCodes,
-  setGiftCodes,
   searchQuery,
   addLog,
   setViewDetailsModal,
 }: GiftCodesTabProps) {
+  const [giftCodes, setGiftCodes] = useState(mockGiftCodes);
   const [advancedModal, setAdvancedModal] = useState<{
     isOpen: boolean;
     type: 'invalidate';

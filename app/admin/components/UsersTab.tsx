@@ -19,26 +19,24 @@ import {
   MoreVertical,
   Pause,
 } from 'lucide-react';
-import React, {useState} from 'react';
+import {useState} from 'react';
 import {toast} from 'sonner';
 import {ActionAdvancedModal} from './ActionAdvancedModal';
+import {mockUsers} from './mock';
 import {handleExport, statusBadge} from './utils';
 
 interface UsersTabProps {
-  users: any[];
-  setUsers: React.Dispatch<React.SetStateAction<any[]>>;
   searchQuery: string;
   addLog: (action: string) => void;
   setViewDetailsModal: (modal: any) => void;
 }
 
 export function UsersTab({
-  users,
-  setUsers,
   searchQuery,
   addLog,
   setViewDetailsModal,
 }: UsersTabProps) {
+  const [users, setUsers] = useState(mockUsers);
   const [advancedModal, setAdvancedModal] = useState<{
     isOpen: boolean;
     type: 'warn' | 'suspend' | 'ban' | 'activate';

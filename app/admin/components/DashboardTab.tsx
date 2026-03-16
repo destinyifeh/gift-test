@@ -18,23 +18,15 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import {metrics, recentActivity, revenueData} from './mock';
 import {Section} from './Sidebar';
 
 interface DashboardTabProps {
-  metrics: any[];
-  revenueData: any[];
-  recentActivity: any[];
   searchQuery: string;
   setSection: (section: Section) => void;
 }
 
-export function DashboardTab({
-  metrics,
-  revenueData,
-  recentActivity,
-  searchQuery,
-  setSection,
-}: DashboardTabProps) {
+export function DashboardTab({searchQuery, setSection}: DashboardTabProps) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

@@ -4,24 +4,22 @@ import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
 import {Ban, Eye, Key} from 'lucide-react';
-import React, {useState} from 'react';
+import {useState} from 'react';
 import {toast} from 'sonner';
 import {ActionAdvancedModal} from './ActionAdvancedModal';
+import {mockIntegrations} from './mock';
 import {statusBadge} from './utils';
 
 interface IntegrationsTabProps {
-  integrations: any[];
-  setIntegrations: React.Dispatch<React.SetStateAction<any[]>>;
   addLog: (action: string) => void;
   setViewDetailsModal: (modal: any) => void;
 }
 
 export function IntegrationsTab({
-  integrations,
-  setIntegrations,
   addLog,
   setViewDetailsModal,
 }: IntegrationsTabProps) {
+  const [integrations, setIntegrations] = useState(mockIntegrations);
   const [advancedModal, setAdvancedModal] = useState<{
     isOpen: boolean;
     type: 'generate' | 'disable';

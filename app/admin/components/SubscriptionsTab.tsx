@@ -12,26 +12,24 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {Download, Eye, MoreVertical, X} from 'lucide-react';
-import React, {useState} from 'react';
+import {useState} from 'react';
 import {toast} from 'sonner';
 import {ActionAdvancedModal} from './ActionAdvancedModal';
+import {mockSubscriptions} from './mock';
 import {handleExport} from './utils';
 
 interface SubscriptionsTabProps {
-  subscriptions: any[];
-  setSubscriptions: React.Dispatch<React.SetStateAction<any[]>>;
   searchQuery: string;
   addLog: (action: string) => void;
   setViewDetailsModal: (modal: any) => void;
 }
 
 export function SubscriptionsTab({
-  subscriptions,
-  setSubscriptions,
   searchQuery,
   addLog,
   setViewDetailsModal,
 }: SubscriptionsTabProps) {
+  const [subscriptions, setSubscriptions] = useState(mockSubscriptions);
   const [advancedModal, setAdvancedModal] = useState<{
     isOpen: boolean;
     type: 'cancel';

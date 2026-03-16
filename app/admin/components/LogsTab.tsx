@@ -5,12 +5,31 @@ import {Card, CardContent} from '@/components/ui/card';
 import {Download, FileText} from 'lucide-react';
 import {toast} from 'sonner';
 
+import {useEffect, useState} from 'react';
+import {mockLogs} from './mock';
+
 interface LogsTabProps {
-  logs: any[];
-  addLog: (action: string) => void;
+  // logs is now local
 }
 
-export function LogsTab({logs, addLog}: LogsTabProps) {
+export function LogsTab({}: LogsTabProps) {
+  const [logs, setLogs] = useState(mockLogs);
+
+  useEffect(() => {
+    const handleNewLog = (e: any) => {
+      const action = e.detail;
+      const newLog = {
+        id: Math.floor(Math.random() * 1000000),
+        admin: 'Current Admin',
+        action,
+        date: new Date().toLocaleString(),
+      };
+      setLogs(prev => [newLog, ...prev]);
+    };
+
+    window.addEventListener('admin-log', handleNewLog);
+    return () => window.removeEventListener('admin-log', handleNewLog);
+  }, []);
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -20,7 +39,10 @@ export function LogsTab({logs, addLog}: LogsTabProps) {
           size="sm"
           onClick={() => {
             toast.success('Logs exported to CSV');
-            addLog('Exported audit logs');
+            const event = new CustomEvent('admin-log', {
+              detail: 'Exported audit logs',
+            });
+            window.dispatchEvent(event);
           }}>
           <Download className="w-4 h-4 mr-1" /> Export Logs
         </Button>

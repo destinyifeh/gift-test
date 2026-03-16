@@ -21,28 +21,25 @@ import {
   Trash2,
   Users,
 } from 'lucide-react';
-import React, {useState} from 'react';
+import {useState} from 'react';
 import {toast} from 'sonner';
 import {ActionAdvancedModal} from './ActionAdvancedModal';
 import {AddAdminModal} from './AddAdminModal';
-import {Admin} from './mock';
+import {Admin, mockAdmins} from './mock';
 import {statusBadge} from './utils';
 
 interface AdminsTabProps {
-  admins: Admin[];
-  setAdmins: React.Dispatch<React.SetStateAction<Admin[]>>;
   searchQuery: string;
   addLog: (action: string) => void;
   setViewDetailsModal: (modal: any) => void;
 }
 
 export function AdminsTab({
-  admins,
-  setAdmins,
   searchQuery,
   addLog,
   setViewDetailsModal,
 }: AdminsTabProps) {
+  const [admins, setAdmins] = useState<Admin[]>(mockAdmins);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [advancedModal, setAdvancedModal] = useState<{
     isOpen: boolean;

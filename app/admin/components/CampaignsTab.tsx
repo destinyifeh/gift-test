@@ -19,26 +19,24 @@ import {
   Star,
   Trash2,
 } from 'lucide-react';
-import React, {useState} from 'react';
+import {useState} from 'react';
 import {toast} from 'sonner';
 import {ActionAdvancedModal} from './ActionAdvancedModal';
+import {mockCampaigns} from './mock';
 import {handleExport, statusBadge} from './utils';
 
 interface CampaignsTabProps {
-  campaigns: any[];
-  setCampaigns: React.Dispatch<React.SetStateAction<any[]>>;
   searchQuery: string;
   addLog: (action: string) => void;
   setViewDetailsModal: (modal: any) => void;
 }
 
 export function CampaignsTab({
-  campaigns,
-  setCampaigns,
   searchQuery,
   addLog,
   setViewDetailsModal,
 }: CampaignsTabProps) {
+  const [campaigns, setCampaigns] = useState(mockCampaigns);
   const [advancedModal, setAdvancedModal] = useState<{
     isOpen: boolean;
     type: 'pause' | 'resume' | 'feature' | 'unfeature' | 'delete';

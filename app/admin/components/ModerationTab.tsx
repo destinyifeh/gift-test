@@ -11,22 +11,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {CheckCircle, Eye, MoreVertical, Pause, Trash2} from 'lucide-react';
-import React, {useState} from 'react';
+import {CheckCircle, MoreVertical, Pause, Trash2} from 'lucide-react';
+import {useState} from 'react';
 import {toast} from 'sonner';
 import {ActionAdvancedModal} from './ActionAdvancedModal';
+import {mockModerationQueue} from './mock';
 
 interface ModerationTabProps {
-  moderationQueue: any[];
-  setModerationQueue: React.Dispatch<React.SetStateAction<any[]>>;
   addLog: (action: string) => void;
 }
 
-export function ModerationTab({
-  moderationQueue,
-  setModerationQueue,
-  addLog,
-}: ModerationTabProps) {
+export function ModerationTab({addLog}: ModerationTabProps) {
+  const [moderationQueue, setModerationQueue] = useState(mockModerationQueue);
   const [advancedModal, setAdvancedModal] = useState<{
     isOpen: boolean;
     type: 'resolve' | 'dismiss' | 'suspend';
@@ -101,10 +97,6 @@ export function ModerationTab({
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuItem
-                      onClick={() => toast.info(`Investigating ${m.item}`)}>
-                      <Eye className="w-4 h-4 mr-2" /> Investigate
-                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       className="text-secondary focus:text-secondary"
