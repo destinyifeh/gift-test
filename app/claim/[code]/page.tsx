@@ -2,161 +2,216 @@
 
 import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
-import {Input} from '@/components/ui/input';
-import {Label} from '@/components/ui/label';
-import {CheckCircle, CreditCard, Gift, Mail} from 'lucide-react';
+import {
+  CheckCircle as CheckCircleIcon,
+  Gift as GiftIcon,
+  Lock as LockIcon,
+} from 'lucide-react';
 import Link from 'next/link';
-import {useState} from 'react';
+import {use, useState} from 'react';
 
 const giftData = {
-  code: 'ABX82H',
-  senderName: 'John',
-  giftName: '$50 Spa Gift Card',
-  vendor: 'Relax Spa',
-  amount: 50,
-  message: 'Thank you for everything! Enjoy some relaxation 💆',
+  money: {
+    type: 'money',
+    senderName: 'John D.',
+    amount: 50,
+    message: 'Happy Birthday 🎉',
+  },
+  giftCard: {
+    type: 'gift-card',
+    senderName: 'John D.',
+    giftName: 'Spa Gift Card',
+    amount: 50,
+    vendor: 'Relax Spa',
+    vendorColor: '#6D28D9', // Deep purple for a premium feel
+  },
 };
 
-export default function ClaimGiftPage() {
-  const [step, setStep] = useState<'view' | 'claim' | 'done'>('view');
-  const [email, setEmail] = useState('');
-  const [payoutMethod, setPayoutMethod] = useState('');
+export default function ClaimGiftPage({
+  params,
+}: {
+  params: Promise<{code: string}>;
+}) {
+  const {code} = use(params);
+  const [step, setStep] = useState<'preview' | 'auth' | 'claimed'>('preview');
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Mock auth state
+
+  // For demo: if code includes 'CARD', show gift card, else money
+  const isGiftCard = code.includes('GIFT') || code.includes('CARD');
+  const data = isGiftCard ? giftData.giftCard : giftData.money;
+
+  const handleClaimClick = () => {
+    if (isLoggedIn) {
+      setStep('claimed');
+    } else {
+      setStep('auth');
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+      <Link href="/" className="mb-8 flex items-center gap-2">
+        <GiftIcon className="w-8 h-8 text-primary" />
+        <span className="text-2xl font-bold font-display">Gifthance</span>
+      </Link>
+
       <div className="w-full max-w-lg">
-        <div className="text-center mb-6">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <Gift className="w-8 h-8 text-primary" />
-            <span className="text-2xl font-bold font-display text-foreground">
-              Gifthance
-            </span>
-          </Link>
-        </div>
-
-        {step === 'view' && (
-          <Card className="border-border shadow-elevated">
-            <CardContent className="p-8 text-center">
-              <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                <Gift className="w-10 h-10 text-primary" />
-              </div>
-              <h1 className="text-2xl font-bold font-display text-foreground mb-2">
-                🎉 {giftData.senderName} sent you a gift!
+        {step === 'preview' && (
+          <div className="space-y-6">
+            <div className="text-center space-y-2">
+              <h1 className="text-3xl font-bold font-display text-foreground">
+                {isGiftCard
+                  ? '🎁 You received a gift card!'
+                  : '🎁 You received a gift!'}
               </h1>
-              <div className="bg-muted rounded-xl p-4 my-6 text-left space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Gift</span>
-                  <span className="font-medium text-foreground">
-                    {giftData.giftName}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Vendor</span>
-                  <span className="font-medium text-foreground">
-                    {giftData.vendor}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Value</span>
-                  <span className="font-bold text-primary">
-                    ${giftData.amount}
-                  </span>
-                </div>
-              </div>
-              {giftData.message && (
-                <div className="bg-secondary/5 border border-secondary/20 rounded-xl p-4 mb-6 text-left">
-                  <p className="text-sm text-muted-foreground mb-1">
-                    Personal message:
-                  </p>
-                  <p className="text-foreground italic">"{giftData.message}"</p>
-                </div>
+              {!isGiftCard && (
+                <p className="text-xl text-muted-foreground">
+                  <span className="font-bold text-foreground">
+                    {data.senderName}
+                  </span>{' '}
+                  sent you{' '}
+                  <span className="font-bold text-primary">${data.amount}</span>
+                </p>
               )}
-              <Button
-                variant="hero"
-                className="w-full h-12"
-                onClick={() => setStep('claim')}>
-                Claim This Gift
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+            </div>
 
-        {step === 'claim' && (
-          <Card className="border-border shadow-elevated">
-            <CardContent className="p-6 space-y-5">
-              <h2 className="text-xl font-bold font-display text-foreground">
-                Claim Your Gift
-              </h2>
-              <p className="text-muted-foreground text-sm">
-                Enter your details to receive this gift
-              </p>
-
-              <div className="space-y-2">
-                <Label htmlFor="claim-email">Email Address</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    id="claim-email"
-                    type="email"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    placeholder="you@email.com"
-                    className="pl-10"
+            {isGiftCard ? (
+              /* Gift Card Design */
+              <div className="relative group perspective-1000">
+                <div className="relative w-full aspect-[1.58/1] rounded-3xl overflow-hidden shadow-2xl transition-all duration-500 group-hover:rotate-y-12">
+                  <div
+                    className="absolute inset-0 bg-gradient-to-br from-primary via-primary/80 to-primary/40"
+                    style={{backgroundColor: (data as any).vendorColor}}
                   />
+                  <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" />
+
+                  <div className="relative h-full p-8 flex flex-col justify-between text-white">
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium opacity-80 uppercase tracking-widest leading-none">
+                          Gift Voucher
+                        </p>
+                        <h2 className="text-3xl font-bold font-display">
+                          {(data as any).vendor}
+                        </h2>
+                      </div>
+                      <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/30">
+                        <GiftIcon className="w-6 h-6" />
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-sm opacity-80 mb-1">
+                          Gift Card Type
+                        </p>
+                        <p className="text-xl font-semibold">
+                          {(data as any).giftName}
+                        </p>
+                      </div>
+                      <div className="flex justify-between items-end">
+                        <div>
+                          <p className="text-sm opacity-80 mb-1">From</p>
+                          <p className="text-lg font-medium">
+                            {data.senderName}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm opacity-80 mb-1">Value</p>
+                          <p className="text-3xl font-bold">${data.amount}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
+            ) : (
+              /* Money Gift Design */
+              <Card className="border-border shadow-elevated overflow-hidden">
+                <div className="h-2 bg-primary" />
+                <CardContent className="p-8 text-center bg-muted/20">
+                  <div className="space-y-6">
+                    <div className="bg-background border border-border rounded-2xl p-6 shadow-sm inline-block w-full text-left">
+                      <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-3">
+                        Message from {data.senderName}
+                      </p>
+                      <p className="text-lg text-foreground italic leading-relaxed">
+                        "{(data as any).message}"
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-              <div className="space-y-3">
-                <Label>Payout Method</Label>
-                {['Bank Transfer', 'Stripe', 'Paystack'].map(m => (
-                  <button
-                    key={m}
-                    onClick={() => setPayoutMethod(m)}
-                    className={`w-full p-3 rounded-xl border-2 text-left flex items-center gap-3 transition-all ${
-                      payoutMethod === m
-                        ? 'border-primary bg-primary/5'
-                        : 'border-border hover:border-primary/30'
-                    }`}>
-                    <CreditCard
-                      className={`w-5 h-5 ${
-                        payoutMethod === m
-                          ? 'text-primary'
-                          : 'text-muted-foreground'
-                      }`}
-                    />
-                    <span className="font-medium text-foreground">{m}</span>
-                  </button>
-                ))}
+            <Button
+              variant="hero"
+              className="w-full h-14 text-lg font-bold shadow-lg shadow-primary/20"
+              onClick={handleClaimClick}>
+              {isGiftCard ? 'Claim Gift Card' : 'Claim Your Gift'}
+            </Button>
+          </div>
+        )}
+
+        {step === 'auth' && (
+          <Card className="border-border shadow-elevated overflow-hidden">
+            <CardContent className="p-8 text-center space-y-6">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                <LockIcon className="w-8 h-8 text-primary" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold font-display">
+                  Log in to claim your gift
+                </h2>
+                <p className="text-muted-foreground">
+                  Login or create an account to claim your gift
+                </p>
               </div>
 
-              <Button
-                variant="hero"
-                className="w-full h-12"
-                onClick={() => setStep('done')}
-                disabled={!email || !payoutMethod}>
-                Claim Gift
-              </Button>
+              <div className="grid grid-cols-1 gap-3 pt-4">
+                <Link href={`/login?claim=${code}`} className="w-full">
+                  <Button variant="hero" className="w-full h-12">
+                    Login
+                  </Button>
+                </Link>
+                <Link href={`/signup?claim=${code}`} className="w-full">
+                  <Button variant="outline" className="w-full h-12">
+                    Create Account
+                  </Button>
+                </Link>
+              </div>
+
+              <button
+                onClick={() => setStep('preview')}
+                className="text-sm text-muted-foreground hover:text-primary transition-colors underline">
+                Back to gift
+              </button>
             </CardContent>
           </Card>
         )}
 
-        {step === 'done' && (
-          <Card className="border-border shadow-elevated">
-            <CardContent className="p-8 text-center">
-              <CheckCircle className="w-16 h-16 text-secondary mx-auto mb-4" />
-              <h2 className="text-2xl font-bold font-display text-foreground mb-2">
-                Gift Claimed! 🎉
-              </h2>
-              <p className="text-muted-foreground mb-6">
-                Your {giftData.giftName} has been claimed. You'll receive it at{' '}
-                {email}.
-              </p>
-              <div className="flex gap-3 justify-center">
-                <Link href="/signup">
-                  <Button variant="outline">Create Account</Button>
-                </Link>
-                <Link href="/">
-                  <Button variant="hero">Go Home</Button>
+        {step === 'claimed' && (
+          <Card className="border-border shadow-elevated overflow-hidden">
+            <CardContent className="p-10 text-center space-y-6">
+              <div className="w-20 h-20 bg-secondary/10 rounded-full flex items-center justify-center mx-auto">
+                <CheckCircleIcon className="w-10 h-10 text-secondary" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-3xl font-bold font-display">
+                  Gift Claimed! 🎉
+                </h2>
+                <p className="text-muted-foreground">
+                  The {data.amount}{' '}
+                  {isGiftCard ? (data as any).giftName : 'gift'} from{' '}
+                  {data.senderName} has been added to your wallet.
+                </p>
+              </div>
+
+              <div className="pt-6">
+                <Link href="/dashboard">
+                  <Button variant="hero" className="w-full h-12">
+                    Go to Dashboard
+                  </Button>
                 </Link>
               </div>
             </CardContent>

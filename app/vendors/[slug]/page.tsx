@@ -181,7 +181,7 @@ export default function VendorPage({
               This vendor page doesn't exist.
             </p>
             <Link href="/gift-shop">
-              <Button variant="hero">Browse Marketplace</Button>
+              <Button variant="hero">Browse Gift Shop</Button>
             </Link>
           </div>
         </div>
@@ -197,7 +197,7 @@ export default function VendorPage({
           <Link
             href="/gift-shop"
             className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8">
-            <ArrowLeft className="w-4 h-4" /> Back to Marketplace
+            <ArrowLeft className="w-4 h-4" /> Back to Gift Shop
           </Link>
 
           {/* Vendor header */}

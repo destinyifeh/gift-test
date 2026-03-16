@@ -46,7 +46,7 @@ export const receivedGifts = [
     sender: 'John D.',
     amount: 50,
     code: 'SPA-4821',
-    status: 'unclaimed',
+    status: 'unclaimed' as const,
     date: '2026-03-07',
   },
   {
@@ -55,16 +55,17 @@ export const receivedGifts = [
     sender: 'Sarah M.',
     amount: 25,
     code: 'CAKE-7293',
-    status: 'claimed',
+    status: 'claimed' as const,
     date: '2026-03-01',
   },
   {
     id: 3,
     name: 'Creator Appreciation',
+    campaign: 'Summer Creator Fund',
     sender: 'Multiple fans',
     amount: 120,
     code: null,
-    status: 'withdrawable',
+    status: 'withdrawable' as const,
     date: '2026-03-06',
   },
 ];

@@ -18,10 +18,10 @@ import {
   CheckCircle,
   Crown,
   Eye,
-  Image,
+  Image as ImageIcon,
   MessageSquare,
   Palette,
-  Settings,
+  Share2,
   Sparkles,
   Upload,
 } from 'lucide-react';
@@ -35,12 +35,52 @@ interface GiftPageTabProps {
 }
 
 export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
-  const [proTheme, setProTheme] = useState('default');
-  const [proBanner, setProBanner] = useState('');
+  const [proTheme, setProTheme] = useState('warm');
+  const [proBanner, setProBanner] = useState(
+    'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200&auto=format&fit=crop&q=80',
+  );
   const [proThankYou, setProThankYou] = useState(
     'Thank you so much for your generous gift! 🎉',
   );
   const [proRemoveBranding, setProRemoveBranding] = useState(true);
+  const [primaryColor, setPrimaryColor] = useState('hsl(16 85% 60%)');
+  const [bgColor, setBgColor] = useState('hsl(30 50% 98%)');
+  const [textColor, setTextColor] = useState('hsl(20 25% 12%)');
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleThemeChange = (val: string) => {
+    setProTheme(val);
+    if (val === 'warm') {
+      setPrimaryColor('hsl(16 85% 60%)');
+      setBgColor('hsl(30 50% 98%)');
+      setTextColor('hsl(20 25% 12%)');
+    } else if (val === 'ocean') {
+      setPrimaryColor('hsl(200 85% 60%)');
+      setBgColor('hsl(210 50% 98%)');
+      setTextColor('hsl(220 25% 12%)');
+    } else if (val === 'forest') {
+      setPrimaryColor('hsl(140 65% 45%)');
+      setBgColor('hsl(120 30% 98%)');
+      setTextColor('hsl(150 25% 12%)');
+    } else if (val === 'dark') {
+      setPrimaryColor('hsl(260 85% 65%)');
+      setBgColor('hsl(230 25% 10%)');
+      setTextColor('hsl(0 0% 98%)');
+    } else if (val === 'minimal') {
+      setPrimaryColor('hsl(0 0% 10%)');
+      setBgColor('hsl(0 0% 100%)');
+      setTextColor('hsl(0 0% 5%)');
+    }
+  };
+
+  const handleSave = () => {
+    setIsSaving(true);
+    setTimeout(() => {
+      setIsSaving(false);
+      // In a real app, this would persist the data
+    }, 1000);
+  };
+
   return (
     <div className="space-y-6">
       <Card
@@ -74,11 +114,9 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
                 <Eye className="w-4 h-4 mr-1" /> View
               </Button>
             </Link>
-            <Link href="/profile/settings">
-              <Button variant="outline" size="sm">
-                <Settings className="w-4 h-4 mr-1" /> Edit
-              </Button>
-            </Link>
+            <Button variant="outline" size="sm">
+              <Share2 className="w-4 h-4 mr-1" /> Share
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -227,59 +265,102 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
                 </h4>
                 <div className="space-y-2">
                   <Label>Page Theme</Label>
-                  <Select value={proTheme} onValueChange={setProTheme}>
+                  <Select value={proTheme} onValueChange={handleThemeChange}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="default">Default</SelectItem>
-                      <SelectItem value="dark">Dark</SelectItem>
+                      <SelectItem value="dark">Dark Mode</SelectItem>
                       <SelectItem value="warm">Warm Sunset</SelectItem>
                       <SelectItem value="ocean">Ocean Blue</SelectItem>
                       <SelectItem value="forest">Forest Green</SelectItem>
-                      <SelectItem value="minimal">Minimal</SelectItem>
+                      <SelectItem value="minimal">Minimalist</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {[
-                    {name: 'Primary Color', color: 'hsl(16 85% 60%)'},
-                    {name: 'Background', color: 'hsl(30 50% 98%)'},
-                    {name: 'Text Color', color: 'hsl(20 25% 12%)'},
-                  ].map(c => (
-                    <div key={c.name} className="space-y-1">
-                      <Label className="text-xs">{c.name}</Label>
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="w-8 h-8 rounded-lg border border-border"
-                          style={{background: c.color}}
-                        />
-                        <Input defaultValue={c.color} className="text-xs" />
-                      </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Primary Color</Label>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-8 h-8 rounded-lg border border-border shrink-0"
+                        style={{background: primaryColor}}
+                      />
+                      <Input
+                        value={primaryColor}
+                        onChange={e => setPrimaryColor(e.target.value)}
+                        className="text-xs h-8"
+                      />
                     </div>
-                  ))}
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Background</Label>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-8 h-8 rounded-lg border border-border shrink-0"
+                        style={{background: bgColor}}
+                      />
+                      <Input
+                        value={bgColor}
+                        onChange={e => setBgColor(e.target.value)}
+                        className="text-xs h-8"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Text Color</Label>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-8 h-8 rounded-lg border border-border shrink-0"
+                        style={{background: textColor}}
+                      />
+                      <Input
+                        value={textColor}
+                        onChange={e => setTextColor(e.target.value)}
+                        className="text-xs h-8"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 
               <div className="space-y-4 border-t border-border pt-5">
                 <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <Image className="w-4 h-4" /> Custom Banner{' '}
+                  <ImageIcon className="w-4 h-4" /> Custom Banner{' '}
                   <Badge variant="default" className="text-xs">
                     Pro
                   </Badge>
                 </h4>
-                <div className="border-2 border-dashed border-border rounded-xl p-6 text-center">
+                <div className="border-2 border-dashed border-border rounded-xl p-6 text-center overflow-hidden relative">
                   {proBanner ? (
-                    <div className="space-y-2">
-                      <div className="h-32 bg-muted rounded-lg flex items-center justify-center text-muted-foreground">
-                        Banner Preview
+                    <div className="space-y-3">
+                      <div className="h-32 bg-muted rounded-lg overflow-hidden relative">
+                        <img
+                          src={proBanner}
+                          alt="Banner Preview"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/10" />
                       </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setProBanner('')}>
-                        Remove Banner
-                      </Button>
+                      <div className="flex justify-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setProBanner('')}>
+                          Remove Banner
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            setProBanner(
+                              'https://images.unsplash.com/photo-1557683316-973673baf926?w=1200',
+                            )
+                          }>
+                          Change Image
+                        </Button>
+                      </div>
                     </div>
                   ) : (
                     <>
@@ -291,7 +372,11 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
                         variant="outline"
                         size="sm"
                         className="mt-2"
-                        onClick={() => setProBanner('banner.jpg')}>
+                        onClick={() =>
+                          setProBanner(
+                            'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200&auto=format&fit=crop&q=80',
+                          )
+                        }>
                         Upload Banner
                       </Button>
                     </>
@@ -338,7 +423,19 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
             </>
           )}
 
-          <Button variant="hero">Save Settings</Button>
+          <Button
+            variant="hero"
+            className="w-full sm:w-auto"
+            onClick={handleSave}
+            disabled={isSaving}>
+            {isSaving ? (
+              <span className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 animate-spin" /> Saving...
+              </span>
+            ) : (
+              'Save Settings'
+            )}
+          </Button>
         </CardContent>
       </Card>
     </div>

@@ -21,7 +21,8 @@ const gifts = [
   {
     id: 'AX8H2K',
     name: 'Cake Gift Card',
-    emoji: '🎂',
+    image:
+      'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&auto=format&fit=crop&q=60',
     price: 25,
     vendor: 'Sweet Delights',
     category: 'food',
@@ -31,7 +32,8 @@ const gifts = [
   {
     id: 'SP3M9N',
     name: 'Spa Voucher',
-    emoji: '💆',
+    image:
+      'https://images.unsplash.com/photo-1544161515-4ae6ce6db87e?w=800&auto=format&fit=crop&q=60',
     price: 50,
     vendor: 'Relax Spa',
     category: 'spa',
@@ -41,7 +43,8 @@ const gifts = [
   {
     id: 'FS7K2L',
     name: 'Fashion Store Gift Card',
-    emoji: '👕',
+    image:
+      'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&auto=format&fit=crop&q=60',
     price: 75,
     vendor: 'StyleHub',
     category: 'fashion',
@@ -51,7 +54,8 @@ const gifts = [
   {
     id: 'GM4R8T',
     name: 'Gaming Store Credit',
-    emoji: '🎮',
+    image:
+      'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop&q=60',
     price: 30,
     vendor: 'GameVault',
     category: 'birthday',
@@ -61,7 +65,8 @@ const gifts = [
   {
     id: 'BK2N5P',
     name: 'Book Store Voucher',
-    emoji: '📚',
+    image:
+      'https://images.unsplash.com/photo-1524578271613-d550eebad07b?w=800&auto=format&fit=crop&q=60',
     price: 20,
     vendor: 'PageTurner',
     category: 'birthday',
@@ -71,7 +76,8 @@ const gifts = [
   {
     id: 'FL9W3Q',
     name: 'Flower Bouquet Delivery',
-    emoji: '💐',
+    image:
+      'https://images.unsplash.com/photo-1522673607200-164883eecd0c?w=800&auto=format&fit=crop&q=60',
     price: 45,
     vendor: 'BloomBox',
     category: 'spa',
@@ -81,7 +87,8 @@ const gifts = [
   {
     id: 'MU6Y1R',
     name: 'Music Streaming Gift',
-    emoji: '🎵',
+    image:
+      'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=800&auto=format&fit=crop&q=60',
     price: 15,
     vendor: 'TuneWave',
     category: 'birthday',
@@ -91,7 +98,8 @@ const gifts = [
   {
     id: 'CF8T4S',
     name: 'Coffee Subscription Box',
-    emoji: '☕',
+    image:
+      'https://images.unsplash.com/photo-1559056191-48ad0408546b?w=800&auto=format&fit=crop&q=60',
     price: 35,
     vendor: 'BrewCraft',
     category: 'food',
@@ -102,7 +110,7 @@ const gifts = [
 
 const categories = ['all', 'birthday', 'spa', 'fashion', 'food'];
 
-export default function MarketplacePage() {
+export default function GiftShopPage() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('all');
   const [priceRange, setPriceRange] = useState('all');
@@ -216,8 +224,18 @@ export default function MarketplacePage() {
                     />
                   </button>
                   <Link href={`/gift-shop/${gift.id}`}>
-                    <div className="h-28 sm:h-40 bg-muted flex items-center justify-center text-4xl sm:text-6xl group-hover:scale-110 transition-transform duration-300">
-                      {gift.emoji}
+                    <div className="h-32 sm:h-44 bg-muted overflow-hidden relative group-hover:scale-105 transition-transform duration-500">
+                      {gift.image ? (
+                        <img
+                          src={gift.image}
+                          alt={gift.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-4xl sm:text-6xl text-muted-foreground/20">
+                          🎁
+                        </div>
+                      )}
                     </div>
                     <CardContent className="p-3 sm:p-4">
                       <div className="flex items-center justify-between mb-2">

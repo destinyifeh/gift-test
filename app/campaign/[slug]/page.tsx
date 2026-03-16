@@ -106,16 +106,22 @@ export default function CampaignPage({
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-8">
             <div className="md:col-span-3">
-              <div className="rounded-2xl overflow-hidden bg-muted aspect-video mb-6">
-                <img
-                  src={campaignData.image}
-                  alt={campaignData.title}
-                  className="w-full h-full object-cover"
-                  onErrorCapture={e => {
-                    (e.target as HTMLImageElement).src =
-                      '/default-campaign.png';
-                  }}
-                />
+              <div className="rounded-2xl overflow-hidden bg-muted aspect-video mb-6 flex items-center justify-center relative border border-border">
+                {campaignData.image &&
+                campaignData.image !== '/default-campaign.png' ? (
+                  <img
+                    src={campaignData.image}
+                    alt={campaignData.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-muted-foreground bg-muted/50 w-full h-full">
+                    <Gift className="w-12 h-12 mb-2 opacity-20" />
+                    <p className="text-sm font-medium opacity-50">
+                      Campaign Image
+                    </p>
+                  </div>
+                )}
               </div>
               <div className="flex items-center gap-2 mb-3">
                 <Badge variant="secondary">{campaignData.category}</Badge>

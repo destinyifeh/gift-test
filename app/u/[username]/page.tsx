@@ -18,6 +18,13 @@ const enabledUsers: Record<
     suggestedAmounts: number[];
     showSupporters: boolean;
     plan: 'free' | 'pro';
+    theme?: {
+      primary: string;
+      background: string;
+      text: string;
+    };
+    banner?: string;
+    removeBranding?: boolean;
     supporters: {
       id: number;
       name: string;
@@ -36,7 +43,15 @@ const enabledUsers: Record<
     bio: 'Frontend developer. Appreciate your support! 🚀',
     suggestedAmounts: [5, 10, 25],
     showSupporters: true,
-    plan: 'free',
+    plan: 'pro',
+    theme: {
+      primary: 'hsl(16 85% 60%)',
+      background: 'hsl(30 50% 98%)',
+      text: 'hsl(20 25% 12%)',
+    },
+    banner:
+      'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200&auto=format&fit=crop&q=80',
+    removeBranding: true,
     supporters: [
       {
         id: 1,
@@ -118,27 +133,75 @@ export default function CreatorProfilePage({
     );
   }
 
+  const customStyles =
+    profile.plan === 'pro' && profile.theme
+      ? ({
+          '--creator-primary': profile.theme.primary,
+          '--creator-bg': profile.theme.background,
+          '--creator-text': profile.theme.text,
+        } as React.CSSProperties)
+      : {};
+
   return (
-    <div className="min-h-screen bg-background">
+    <div
+      className="min-h-screen"
+      style={{
+        backgroundColor:
+          profile.plan === 'pro' && profile.theme
+            ? profile.theme.background
+            : 'var(--background)',
+        color:
+          profile.plan === 'pro' && profile.theme
+            ? profile.theme.text
+            : 'var(--foreground)',
+        ...customStyles,
+      }}>
       <Navbar />
-      <div className="pt-20 pb-16">
+
+      {profile.plan === 'pro' && profile.banner && (
+        <div className="h-48 sm:h-64 w-full overflow-hidden relative pt-16">
+          <img
+            src={profile.banner}
+            alt="Banner"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20" />
+        </div>
+      )}
+
+      <div
+        className={
+          profile.banner ? 'pb-16 -mt-12 relative z-10' : 'pt-20 pb-16'
+        }>
         <div className="container mx-auto px-4 max-w-2xl">
           <div className="text-center mb-8">
-            <Avatar className="w-24 h-24 mx-auto mb-4 border-4 border-primary/20">
-              <AvatarFallback className="bg-primary/10 text-primary text-2xl font-bold">
+            <Avatar className="w-24 h-24 mx-auto mb-4 border-4 border-background shadow-lg">
+              <AvatarFallback
+                className="text-2xl font-bold"
+                style={{
+                  backgroundColor:
+                    profile.plan === 'pro' && profile.theme
+                      ? profile.theme.primary
+                      : 'var(--primary)',
+                  color: 'white',
+                }}>
                 {profile.name.charAt(0)}
               </AvatarFallback>
             </Avatar>
-            <h1 className="text-2xl font-bold font-display text-foreground">
-              {profile.name}
-            </h1>
-            <p className="text-muted-foreground mt-1">@{username}</p>
-            <p className="text-foreground mt-3 max-w-md mx-auto">
-              {profile.bio}
-            </p>
-            <div className="flex items-center justify-center gap-4 mt-4 text-sm text-muted-foreground">
+            <h1 className="text-2xl font-bold font-display">{profile.name}</h1>
+            <p className="opacity-70 mt-1">@{username}</p>
+            <p className="mt-3 max-w-md mx-auto">{profile.bio}</p>
+            <div className="flex items-center justify-center gap-4 mt-4 text-sm opacity-70">
               <span className="flex items-center gap-1">
-                <Heart className="w-4 h-4 text-primary" />{' '}
+                <Heart
+                  className="w-4 h-4"
+                  style={{
+                    color:
+                      profile.plan === 'pro' && profile.theme
+                        ? profile.theme.primary
+                        : 'var(--primary)',
+                  }}
+                />{' '}
                 {profile.totalSupporters} supporters
               </span>
               <span className="flex items-center gap-1">
@@ -148,9 +211,17 @@ export default function CreatorProfilePage({
             </div>
           </div>
 
-          <Card className="border-border shadow-elevated mb-6">
+          <Card
+            className="border-border shadow-elevated mb-6"
+            style={{
+              backgroundColor:
+                profile.plan === 'pro' && profile.theme
+                  ? 'white'
+                  : 'var(--card)',
+              color: 'var(--foreground)',
+            }}>
             <CardContent className="p-6">
-              <h2 className="font-semibold text-foreground mb-1 text-center">
+              <h2 className="font-semibold mb-1 text-center text-foreground">
                 Support or send a gift 🎁
               </h2>
               <p className="text-sm text-muted-foreground text-center mb-4">
@@ -161,7 +232,15 @@ export default function CreatorProfilePage({
                   <Button
                     key={a}
                     variant="outline"
-                    className="h-14 text-lg font-bold"
+                    className="h-14 text-lg font-bold border-2 hover:border-creator-primary transition-colors"
+                    style={
+                      {
+                        '--creator-primary':
+                          profile.plan === 'pro' && profile.theme
+                            ? profile.theme.primary
+                            : 'var(--primary)',
+                      } as React.CSSProperties
+                    }
                     onClick={() => setShowGiftModal(true)}>
                     ${a}
                   </Button>
@@ -182,11 +261,18 @@ export default function CreatorProfilePage({
                     <button
                       key={g.id}
                       onClick={() => setShowGiftModal(true)}
-                      className="p-3 rounded-xl border border-border hover:border-primary/30 transition-all text-center">
+                      className="p-3 rounded-xl border border-border hover:border-primary/30 transition-all text-center bg-card">
                       <p className="text-sm font-medium text-foreground">
                         {g.name}
                       </p>
-                      <p className="text-xs text-primary font-semibold mt-1">
+                      <p
+                        className="text-xs font-semibold mt-1"
+                        style={{
+                          color:
+                            profile.plan === 'pro' && profile.theme
+                              ? profile.theme.primary
+                              : 'var(--primary)',
+                        }}>
                         ${g.price}
                       </p>
                     </button>
@@ -196,6 +282,14 @@ export default function CreatorProfilePage({
               <Button
                 variant="hero"
                 className="w-full h-12 mt-4"
+                style={
+                  profile.plan === 'pro' && profile.theme
+                    ? {
+                        backgroundColor: profile.theme.primary,
+                        backgroundImage: 'none',
+                      }
+                    : {}
+                }
                 onClick={() => setShowGiftModal(true)}>
                 <Gift className="w-5 h-5 mr-2" /> Send Gift
               </Button>
@@ -203,10 +297,27 @@ export default function CreatorProfilePage({
           </Card>
 
           {profile.showSupporters && (
-            <Card className="border-border">
+            <Card
+              className="border-border"
+              style={{
+                backgroundColor:
+                  profile.plan === 'pro' && profile.theme
+                    ? 'white'
+                    : 'var(--card)',
+                color: 'var(--foreground)',
+              }}>
               <CardContent className="p-6">
-                <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                  <Heart className="w-4 h-4 text-primary" /> Supporters
+                <h3 className="font-semibold mb-4 flex items-center gap-2">
+                  <Heart
+                    className="w-4 h-4"
+                    style={{
+                      color:
+                        profile.plan === 'pro' && profile.theme
+                          ? profile.theme.primary
+                          : 'var(--primary)',
+                    }}
+                  />{' '}
+                  Supporters
                 </h3>
                 <div className="space-y-4">
                   {profile.supporters.map(s => (
@@ -218,10 +329,15 @@ export default function CreatorProfilePage({
                       </Avatar>
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
-                          <p className="text-sm font-medium text-foreground">
-                            {s.name}
-                          </p>
-                          <span className="text-sm font-semibold text-primary">
+                          <p className="text-sm font-medium">{s.name}</p>
+                          <span
+                            className="text-sm font-semibold"
+                            style={{
+                              color:
+                                profile.plan === 'pro' && profile.theme
+                                  ? profile.theme.primary
+                                  : 'var(--primary)',
+                            }}>
                             ${s.amount}
                           </span>
                         </div>
@@ -244,8 +360,8 @@ export default function CreatorProfilePage({
             </Button>
           </div>
 
-          {/* Powered by branding for free plan */}
-          {profile.plan === 'free' && (
+          {/* Powered by branding - hidden if pro and removeBranding is true */}
+          {(!profile.removeBranding || profile.plan === 'free') && (
             <div className="text-center mt-8 pb-4">
               <p className="text-xs text-muted-foreground">
                 Powered by{' '}

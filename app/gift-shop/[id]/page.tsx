@@ -14,7 +14,7 @@ const giftsData: Record<
   string,
   {
     name: string;
-    emoji: string;
+    image: string;
     price: number;
     vendor: string;
     vendorSlug: string;
@@ -27,7 +27,8 @@ const giftsData: Record<
 > = {
   AX8H2K: {
     name: 'Cake Gift Card',
-    emoji: '🎂',
+    image:
+      'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&auto=format&fit=crop&q=60',
     price: 25,
     vendor: 'Sweet Delights',
     vendorSlug: 'cakeshop',
@@ -40,7 +41,8 @@ const giftsData: Record<
   },
   SP3M9N: {
     name: 'Spa Voucher',
-    emoji: '💆',
+    image:
+      'https://images.unsplash.com/photo-1544161515-4ae6ce6db87e?w=800&auto=format&fit=crop&q=60',
     price: 50,
     vendor: 'Relax Spa',
     vendorSlug: 'relaxspa',
@@ -53,7 +55,8 @@ const giftsData: Record<
   },
   FS7K2L: {
     name: 'Fashion Store Gift Card',
-    emoji: '👕',
+    image:
+      'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&auto=format&fit=crop&q=60',
     price: 75,
     vendor: 'StyleHub',
     vendorSlug: 'stylehub',
@@ -66,7 +69,8 @@ const giftsData: Record<
   },
   GM4R8T: {
     name: 'Gaming Store Credit',
-    emoji: '🎮',
+    image:
+      'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop&q=60',
     price: 30,
     vendor: 'GameVault',
     vendorSlug: 'gamevault',
@@ -79,7 +83,8 @@ const giftsData: Record<
   },
   BK2N5P: {
     name: 'Book Store Voucher',
-    emoji: '📚',
+    image:
+      'https://images.unsplash.com/photo-1524578271613-d550eebad07b?w=800&auto=format&fit=crop&q=60',
     price: 20,
     vendor: 'PageTurner',
     vendorSlug: 'pageturner',
@@ -92,7 +97,8 @@ const giftsData: Record<
   },
   FL9W3Q: {
     name: 'Flower Bouquet Delivery',
-    emoji: '💐',
+    image:
+      'https://images.unsplash.com/photo-1522673607200-164883eecd0c?w=800&auto=format&fit=crop&q=60',
     price: 45,
     vendor: 'BloomBox',
     vendorSlug: 'bloombox',
@@ -105,7 +111,8 @@ const giftsData: Record<
   },
   MU6Y1R: {
     name: 'Music Streaming Gift',
-    emoji: '🎵',
+    image:
+      'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=800&auto=format&fit=crop&q=60',
     price: 15,
     vendor: 'TuneWave',
     vendorSlug: 'tunewave',
@@ -118,7 +125,8 @@ const giftsData: Record<
   },
   CF8T4S: {
     name: 'Coffee Subscription Box',
-    emoji: '☕',
+    image:
+      'https://images.unsplash.com/photo-1559056191-48ad0408546b?w=800&auto=format&fit=crop&q=60',
     price: 35,
     vendor: 'BrewCraft',
     vendorSlug: 'brewcraft',
@@ -165,8 +173,16 @@ export default function GiftDetailPage({
             <ArrowLeft className="w-4 h-4" /> Back to Gift Shop
           </Link>
           <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
-            <div className="bg-muted rounded-2xl flex items-center justify-center text-[80px] sm:text-[120px] min-h-[240px] sm:min-h-[320px]">
-              {gift.emoji}
+            <div className="bg-muted rounded-2xl overflow-hidden flex items-center justify-center min-h-[240px] sm:min-h-[320px]">
+              {gift.image ? (
+                <img
+                  src={gift.image}
+                  alt={gift.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="text-[80px] sm:text-[120px]">🎁</div>
+              )}
             </div>
             <div>
               <div className="flex gap-2 mb-3">

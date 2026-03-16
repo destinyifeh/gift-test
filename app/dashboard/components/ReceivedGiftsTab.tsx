@@ -29,11 +29,16 @@ export function ReceivedGiftsTab({
                 <p className="font-semibold text-foreground truncate">
                   {g.name}
                 </p>
-                <p className="text-sm text-muted-foreground">
+                {'campaign' in g && g.campaign && (
+                  <p className="text-xs font-medium text-accent">
+                    Campaign: {g.campaign}
+                  </p>
+                )}
+                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
                   From: {g.sender} · {g.date}
                 </p>
                 {g.code && (
-                  <p className="text-xs font-mono text-muted-foreground">
+                  <p className="text-xs font-mono font-bold text-primary mt-1 bg-primary/5 px-2 py-0.5 rounded-md inline-block">
                     Code: {g.code}
                   </p>
                 )}

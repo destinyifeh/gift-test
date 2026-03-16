@@ -1,0 +1,58 @@
+export const allVendorGifts = [
+  {
+    id: 1,
+    name: '☕ Coffee Gift Card',
+    price: 10,
+    vendor: 'BrewCraft',
+    category: 'food',
+  },
+  {
+    id: 2,
+    name: '🎂 Cake Gift Card',
+    price: 25,
+    vendor: 'Sweet Delights',
+    category: 'food',
+  },
+  {
+    id: 3,
+    name: '💆 Spa Voucher',
+    price: 50,
+    vendor: 'Relax Spa',
+    category: 'spa',
+  },
+  {
+    id: 4,
+    name: '🎮 Gaming Credit',
+    price: 20,
+    vendor: 'GameVault',
+    category: 'birthday',
+  },
+  {
+    id: 5,
+    name: '📚 Book Store Voucher',
+    price: 20,
+    vendor: 'PageTurner',
+    category: 'birthday',
+  },
+  {
+    id: 6,
+    name: '💐 Flower Bouquet',
+    price: 45,
+    vendor: 'BloomBox',
+    category: 'spa',
+  },
+  {
+    id: 7,
+    name: '🎵 Music Streaming Gift',
+    price: 15,
+    vendor: 'TuneWave',
+    category: 'birthday',
+  },
+  {
+    id: 8,
+    name: '👕 Fashion Gift Card',
+    price: 75,
+    vendor: 'StyleHub',
+    category: 'fashion',
+  },
+];

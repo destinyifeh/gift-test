@@ -1,3 +1,4 @@
+import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {Checkbox} from '@/components/ui/checkbox';
 import {
@@ -10,6 +11,7 @@ import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
 import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs';
 import {Textarea} from '@/components/ui/textarea';
+import {allVendorGifts} from '@/lib/data/gifts';
 import {
   ArrowLeft,
   CheckCircle,
@@ -31,68 +33,10 @@ interface SendGiftModalProps {
   preselectedGift?: {name: string; price: number; vendor: string} | null;
   isLoggedIn?: boolean;
   hideRecipientFields?: boolean;
+  minAmount?: number;
 }
 
 const presetAmounts = [5, 10, 25, 50, 100];
-
-const allVendorGifts = [
-  {
-    id: 1,
-    name: '☕ Coffee Gift Card',
-    price: 10,
-    vendor: 'BrewCraft',
-    category: 'food',
-  },
-  {
-    id: 2,
-    name: '🎂 Cake Gift Card',
-    price: 25,
-    vendor: 'Sweet Delights',
-    category: 'food',
-  },
-  {
-    id: 3,
-    name: '💆 Spa Voucher',
-    price: 50,
-    vendor: 'Relax Spa',
-    category: 'spa',
-  },
-  {
-    id: 4,
-    name: '🎮 Gaming Credit',
-    price: 20,
-    vendor: 'GameVault',
-    category: 'birthday',
-  },
-  {
-    id: 5,
-    name: '📚 Book Store Voucher',
-    price: 20,
-    vendor: 'PageTurner',
-    category: 'birthday',
-  },
-  {
-    id: 6,
-    name: '💐 Flower Bouquet',
-    price: 45,
-    vendor: 'BloomBox',
-    category: 'spa',
-  },
-  {
-    id: 7,
-    name: '🎵 Music Streaming Gift',
-    price: 15,
-    vendor: 'TuneWave',
-    category: 'birthday',
-  },
-  {
-    id: 8,
-    name: '👕 Fashion Gift Card',
-    price: 75,
-    vendor: 'StyleHub',
-    category: 'fashion',
-  },
-];
 
 type Step = 'details' | 'recipient' | 'payment' | 'success';
 
@@ -104,6 +48,7 @@ const SendGiftModal = ({
   preselectedGift,
   isLoggedIn = true,
   hideRecipientFields = false,
+  minAmount = 0,
 }: SendGiftModalProps) => {
   const [amount, setAmount] = useState<number | null>(
     preselectedGift?.price || null,
@@ -115,9 +60,12 @@ const SendGiftModal = ({
   const [selectedGift, setSelectedGift] = useState<number | null>(null);
   const [step, setStep] = useState<Step>('details');
   const [giftSearch, setGiftSearch] = useState('');
-  const [activeTab, setActiveTab] = useState<string>(
-    preselectedGift ? 'vendor' : 'money',
-  );
+
+  // Default to vendor tab if there's a preselected gift,
+  // campaigns always default to money
+  const initialTab = preselectedGift ? 'vendor' : 'money';
+
+  const [activeTab, setActiveTab] = useState<string>(initialTab);
 
   // Recipient info
   const [recipientNameInput, setRecipientNameInput] = useState('');
@@ -166,7 +114,8 @@ const SendGiftModal = ({
       g.vendor.toLowerCase().includes(giftSearch.toLowerCase()),
   );
 
-  const canProceedToRecipient = isVendorGift || finalAmount > 0;
+  const canProceedToRecipient =
+    isVendorGift || (finalAmount > 0 && finalAmount >= minAmount);
   const canProceedToPayment =
     (hideRecipientFields || (recipientNameInput && recipientEmail)) &&
     (isLoggedIn || (senderName && senderEmail));
@@ -489,19 +438,43 @@ const SendGiftModal = ({
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-2">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="money" className="gap-2">
-              <CreditCard className="w-4 h-4" /> Money
-            </TabsTrigger>
-            <TabsTrigger value="vendor" className="gap-2">
-              <Gift className="w-4 h-4" /> Vendor Gift
-            </TabsTrigger>
-          </TabsList>
+          {!campaignTitle && !preselectedGift && (
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="money" className="gap-2">
+                <CreditCard className="w-4 h-4" /> Money
+              </TabsTrigger>
+              <TabsTrigger value="vendor" className="gap-2">
+                <Gift className="w-4 h-4" /> Vendor Gift
+              </TabsTrigger>
+            </TabsList>
+          )}
+
+          {campaignTitle && (
+            <div className="flex items-center gap-2 py-2 text-sm font-medium text-foreground">
+              <CreditCard className="w-4 h-4 text-primary" /> Monetary
+              Contribution
+            </div>
+          )}
+
+          {preselectedGift && (
+            <div className="flex items-center gap-2 py-2 text-sm font-medium text-foreground">
+              <Gift className="w-4 h-4 text-primary" /> Gift Card Selection
+            </div>
+          )}
 
           <TabsContent value="money" className="space-y-4 mt-4">
             <div>
-              <Label>Select Amount</Label>
-              <div className="grid grid-cols-5 gap-2 mt-2">
+              <div className="flex items-center justify-between mb-2">
+                <Label className="mb-0">Select Amount</Label>
+                {minAmount > 0 && (
+                  <Badge
+                    variant="outline"
+                    className="text-[10px] text-accent font-bold">
+                    Start from ${minAmount}
+                  </Badge>
+                )}
+              </div>
+              <div className="grid grid-cols-5 gap-2">
                 {presetAmounts.map(a => (
                   <button
                     key={a}
@@ -509,15 +482,20 @@ const SendGiftModal = ({
                       setAmount(a);
                       setCustomAmount('');
                     }}
-                    className={`p-2 sm:p-3 rounded-xl border-2 text-sm font-semibold transition-all ${amount === a ? 'border-primary bg-primary/5 text-primary' : 'border-border text-foreground hover:border-primary/30'}`}>
+                    disabled={minAmount > a}
+                    className={`p-2 sm:p-3 rounded-xl border-2 text-sm font-semibold transition-all ${amount === a ? 'border-primary bg-primary/5 text-primary' : 'border-border text-foreground hover:border-primary/30'} ${minAmount > a ? 'opacity-30 cursor-not-allowed grayscale' : ''}`}>
                     ${a}
                   </button>
                 ))}
               </div>
-              <div className="mt-3">
+              <div className="mt-3 space-y-2">
                 <Input
                   type="number"
-                  placeholder="Custom amount"
+                  placeholder={
+                    minAmount > 0
+                      ? `Starting from $${minAmount}`
+                      : 'Custom amount'
+                  }
                   value={customAmount}
                   onChange={e => {
                     setCustomAmount(e.target.value);
@@ -525,6 +503,13 @@ const SendGiftModal = ({
                   }}
                   className="text-center"
                 />
+                {minAmount > 0 &&
+                  customAmount &&
+                  Number(customAmount) < minAmount && (
+                    <p className="text-[10px] text-destructive text-center font-medium">
+                      Starting amount is ${minAmount}
+                    </p>
+                  )}
               </div>
             </div>
           </TabsContent>
