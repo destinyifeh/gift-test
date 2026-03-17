@@ -73,6 +73,8 @@ const SendGiftModal = ({
   // Sender info (if not logged in)
   const [senderName, setSenderName] = useState('');
   const [senderEmail, setSenderEmail] = useState('');
+  const [displayName, setDisplayName] = useState(isLoggedIn ? 'John D.' : '');
+  const [hideNameFromRecipient, setHideNameFromRecipient] = useState(false);
 
   const handleClose = () => {
     setStep('details');
@@ -87,6 +89,8 @@ const SendGiftModal = ({
     setRecipientEmail('');
     setSenderName('');
     setSenderEmail('');
+    setDisplayName(isLoggedIn ? 'John D.' : '');
+    setHideNameFromRecipient(false);
     onOpenChange(false);
   };
 
@@ -174,6 +178,20 @@ const SendGiftModal = ({
                 <span className="text-muted-foreground">Recipient:</span>
                 <span className="text-foreground">
                   {hideRecipientFields ? target : recipientNameInput}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">From:</span>
+                <span className="text-foreground font-medium">
+                  {preselectedGift
+                    ? hideNameFromRecipient
+                      ? 'Anonymous'
+                      : displayName || 'Anonymous'
+                    : anonymous
+                      ? 'Anonymous'
+                      : isLoggedIn
+                        ? 'John D.'
+                        : senderName}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -272,13 +290,22 @@ const SendGiftModal = ({
                   ? target
                   : `${recipientNameInput} (${recipientEmail})`}
               </p>
+              <p>
+                <strong>From:</strong>{' '}
+                {preselectedGift
+                  ? hideNameFromRecipient
+                    ? 'Anonymous'
+                    : displayName || 'Anonymous'
+                  : anonymous
+                    ? 'Anonymous'
+                    : isLoggedIn
+                      ? 'John D.'
+                      : senderName}
+              </p>
               {message && (
                 <p>
                   <strong>Message:</strong> {message}
                 </p>
-              )}
-              {anonymous && (
-                <p className="text-primary">✓ Sending anonymously</p>
               )}
             </div>
 
@@ -385,32 +412,68 @@ const SendGiftModal = ({
               </div>
             )}
 
-            <div className="space-y-3 border-t border-border pt-4">
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="anon2"
-                  checked={anonymous}
-                  onCheckedChange={v => setAnonymous(!!v)}
-                />
-                <Label
-                  htmlFor="anon2"
-                  className="text-sm font-normal cursor-pointer">
-                  Send anonymously
-                </Label>
+            {isLoggedIn && preselectedGift && (
+              <div className="space-y-3 border-t border-border pt-4">
+                <div className="space-y-2">
+                  <Label>Display Name</Label>
+                  <Input
+                    value={displayName}
+                    onChange={e => setDisplayName(e.target.value)}
+                    placeholder="Your display name"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="hideName"
+                    checked={hideNameFromRecipient}
+                    onCheckedChange={v => setHideNameFromRecipient(!!v)}
+                  />
+                  <Label
+                    htmlFor="hideName"
+                    className="text-sm font-normal cursor-pointer text-muted-foreground">
+                    Hide my name from recipient
+                  </Label>
+                </div>
+                {hideNameFromRecipient ? (
+                  <p className="text-[10px] text-primary italic">
+                    Recipient sees: From: Anonymous
+                  </p>
+                ) : (
+                  <p className="text-[10px] text-primary italic">
+                    Recipient sees: From: {displayName || 'Anonymous'}
+                  </p>
+                )}
               </div>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="hideamt2"
-                  checked={hideAmount}
-                  onCheckedChange={v => setHideAmount(!!v)}
-                />
-                <Label
-                  htmlFor="hideamt2"
-                  className="text-sm font-normal cursor-pointer">
-                  Hide contribution amount
-                </Label>
+            )}
+
+            {!preselectedGift && (
+              <div className="space-y-3 border-t border-border pt-4">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="anon2"
+                    checked={anonymous}
+                    onCheckedChange={v => setAnonymous(!!v)}
+                  />
+                  <Label
+                    htmlFor="anon2"
+                    className="text-sm font-normal cursor-pointer">
+                    Send anonymously
+                  </Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="hideamt2"
+                    checked={hideAmount}
+                    onCheckedChange={v => setHideAmount(!!v)}
+                  />
+                  <Label
+                    htmlFor="hideamt2"
+                    className="text-sm font-normal cursor-pointer">
+                    Hide contribution amount
+                  </Label>
+                </div>
               </div>
-            </div>
+            )}
 
             <Button
               variant="hero"
@@ -430,125 +493,152 @@ const SendGiftModal = ({
       <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-display flex items-center gap-2">
-            <Gift className="w-5 h-5 text-primary" /> Send a Gift
+            <Gift className="w-5 h-5 text-primary" />{' '}
+            {preselectedGift ? 'Gift Details' : 'Send a Gift'}
           </DialogTitle>
-          <p className="text-sm text-muted-foreground">
-            {campaignTitle
-              ? `Contributing to ${target}`
-              : `Send a Gift Card from ${preselectedGift?.vendor || target}`}
-          </p>
+          {campaignTitle && !preselectedGift && (
+            <p className="text-sm text-muted-foreground">
+              Contributing to {target}
+            </p>
+          )}
         </DialogHeader>
-
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-2">
-          {!campaignTitle && !preselectedGift && (
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="money" className="gap-2">
-                <CreditCard className="w-4 h-4" /> Money
-              </TabsTrigger>
-              <TabsTrigger value="vendor" className="gap-2">
-                <Gift className="w-4 h-4" /> Vendor Gift
-              </TabsTrigger>
-            </TabsList>
-          )}
-
-          {campaignTitle && (
-            <div className="flex items-center gap-2 py-2 text-sm font-medium text-foreground">
-              <CreditCard className="w-4 h-4 text-primary" /> Monetary
-              Contribution
-            </div>
-          )}
-
-          {preselectedGift && (
-            <div className="flex items-center gap-2 py-2 text-sm font-medium text-foreground">
-              <Gift className="w-4 h-4 text-primary" /> Gift Card Selection
-            </div>
-          )}
-
-          <TabsContent value="money" className="space-y-4 mt-4">
+        {preselectedGift ? (
+          <div className="space-y-6 mt-4 py-4 border-t border-border">
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <Label className="mb-0">Select Amount</Label>
-                {minAmount > 0 && (
-                  <Badge
-                    variant="outline"
-                    className="text-[10px] text-accent font-bold">
-                    Start from ${minAmount}
-                  </Badge>
-                )}
+              <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-3">
+                Gift Details
+              </p>
+              <div className="p-4 bg-muted/50 rounded-xl border border-border">
+                <p className="font-bold text-foreground text-lg">
+                  {preselectedGift.name}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  by {preselectedGift.vendor}
+                </p>
               </div>
-              <div className="grid grid-cols-5 gap-2">
-                {presetAmounts.map(a => (
-                  <button
-                    key={a}
-                    onClick={() => {
-                      setAmount(a);
-                      setCustomAmount('');
+            </div>
+
+            <div className="pt-2">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2">
+                Value
+              </p>
+              <div className="text-3xl font-bold text-primary">
+                ${preselectedGift.price}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-2">
+            {!campaignTitle && (
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="money" className="gap-2">
+                  <CreditCard className="w-4 h-4" /> Money
+                </TabsTrigger>
+                <TabsTrigger value="vendor" className="gap-2">
+                  <Gift className="w-4 h-4" /> Vendor Gift
+                </TabsTrigger>
+              </TabsList>
+            )}
+
+            {campaignTitle && (
+              <div className="flex items-center gap-2 py-2 text-sm font-medium text-foreground">
+                <CreditCard className="w-4 h-4 text-primary" /> Monetary
+                Contribution
+              </div>
+            )}
+
+            <TabsContent value="money" className="space-y-4 mt-4">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <Label className="mb-0">Select Amount</Label>
+                  {minAmount > 0 && (
+                    <Badge
+                      variant="outline"
+                      className="text-[10px] text-accent font-bold">
+                      Start from ${minAmount}
+                    </Badge>
+                  )}
+                </div>
+                <div className="grid grid-cols-5 gap-2">
+                  {presetAmounts.map(a => (
+                    <button
+                      key={a}
+                      onClick={() => {
+                        setAmount(a);
+                        setCustomAmount('');
+                      }}
+                      disabled={minAmount > a}
+                      className={`p-2 sm:p-3 rounded-xl border-2 text-sm font-semibold transition-all ${amount === a ? 'border-primary bg-primary/5 text-primary' : 'border-border text-foreground hover:border-primary/30'} ${minAmount > a ? 'opacity-30 cursor-not-allowed grayscale' : ''}`}>
+                      ${a}
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-3 space-y-2">
+                  <Input
+                    type="number"
+                    placeholder={
+                      minAmount > 0
+                        ? `Starting from $${minAmount}`
+                        : 'Custom amount'
+                    }
+                    value={customAmount}
+                    onChange={e => {
+                      setCustomAmount(e.target.value);
+                      setAmount(null);
                     }}
-                    disabled={minAmount > a}
-                    className={`p-2 sm:p-3 rounded-xl border-2 text-sm font-semibold transition-all ${amount === a ? 'border-primary bg-primary/5 text-primary' : 'border-border text-foreground hover:border-primary/30'} ${minAmount > a ? 'opacity-30 cursor-not-allowed grayscale' : ''}`}>
-                    ${a}
+                    className="text-center"
+                  />
+                  {minAmount > 0 &&
+                    customAmount &&
+                    Number(customAmount) < minAmount && (
+                      <p className="text-[10px] text-destructive text-center font-medium">
+                        Starting amount is ${minAmount}
+                      </p>
+                    )}
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="vendor" className="space-y-3 mt-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search gifts..."
+                  value={giftSearch}
+                  onChange={e => setGiftSearch(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <div className="max-h-60 overflow-y-auto space-y-2">
+                {filteredVendorGifts.map(g => (
+                  <button
+                    key={g.id}
+                    onClick={() => setSelectedGift(g.id)}
+                    className={`w-full p-3 rounded-xl border-2 text-left flex items-center justify-between transition-all ${selectedGift === g.id ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/30'}`}>
+                    <div>
+                      <p className="font-semibold text-foreground text-sm">
+                        {g.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {g.vendor}
+                      </p>
+                    </div>
+                    <span className="font-bold text-primary">${g.price}</span>
                   </button>
                 ))}
               </div>
-              <div className="mt-3 space-y-2">
-                <Input
-                  type="number"
-                  placeholder={
-                    minAmount > 0
-                      ? `Starting from $${minAmount}`
-                      : 'Custom amount'
-                  }
-                  value={customAmount}
-                  onChange={e => {
-                    setCustomAmount(e.target.value);
-                    setAmount(null);
-                  }}
-                  className="text-center"
-                />
-                {minAmount > 0 &&
-                  customAmount &&
-                  Number(customAmount) < minAmount && (
-                    <p className="text-[10px] text-destructive text-center font-medium">
-                      Starting amount is ${minAmount}
-                    </p>
-                  )}
-              </div>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="vendor" className="space-y-3 mt-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search gifts..."
-                value={giftSearch}
-                onChange={e => setGiftSearch(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-            <div className="max-h-60 overflow-y-auto space-y-2">
-              {filteredVendorGifts.map(g => (
-                <button
-                  key={g.id}
-                  onClick={() => setSelectedGift(g.id)}
-                  className={`w-full p-3 rounded-xl border-2 text-left flex items-center justify-between transition-all ${selectedGift === g.id ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/30'}`}>
-                  <div>
-                    <p className="font-semibold text-foreground text-sm">
-                      {g.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{g.vendor}</p>
-                  </div>
-                  <span className="font-bold text-primary">${g.price}</span>
-                </button>
-              ))}
-            </div>
-            <Link href="/gift-shop" onClick={handleClose}>
-              <Button variant="ghost" size="sm" className="w-full text-primary">
-                <ShoppingBag className="w-4 h-4 mr-1" /> Browse All in Gift Shop
-              </Button>
-            </Link>
-          </TabsContent>
-        </Tabs>
+              <Link href="/gift-shop" onClick={handleClose}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full text-primary">
+                  <ShoppingBag className="w-4 h-4 mr-1" /> Browse All in Gift
+                  Shop
+                </Button>
+              </Link>
+            </TabsContent>
+          </Tabs>
+        )}
 
         <Button
           variant="hero"
