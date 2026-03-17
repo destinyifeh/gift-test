@@ -28,7 +28,6 @@ const campaignData = {
   goal: 500,
   raised: 340,
   contributors: 12,
-  startDate: '2026-03-01',
   endDate: '2026-03-17',
   visibility: 'public' as const,
   image: '/default-campaign.png',
@@ -148,8 +147,8 @@ export default function CampaignPage({
                   </span>
                 </span>
                 <span className="flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5" /> {campaignData.startDate}{' '}
-                  — {campaignData.endDate}
+                  <Calendar className="w-3.5 h-3.5" /> Ends on{' '}
+                  {campaignData.endDate}
                 </span>
               </div>
             </div>
