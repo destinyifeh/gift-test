@@ -57,50 +57,73 @@ const FeaturedCampaigns = () => {
               Trending <span className="text-gradient">right now</span>
             </h2>
           </motion.div>
-          <Link href="/campaigns">
-            <Button variant="ghost" className="mt-4 md:mt-0 text-primary">
+          <Link href="/campaigns" className="hidden md:block">
+            <Button variant="ghost" className="text-primary">
               View all campaigns <ArrowRight className="w-4 h-4 ml-1" />
             </Button>
           </Link>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {campaigns.map((c, i) => (
-            <motion.div
-              key={c.title}
-              initial={{opacity: 0, y: 30}}
-              whileInView={{opacity: 1, y: 0}}
-              viewport={{once: true}}
-              transition={{delay: i * 0.1}}
-              className="rounded-xl bg-card border border-border overflow-hidden hover:shadow-card transition-all duration-300 group cursor-pointer">
-              <div className="h-36 bg-muted flex items-center justify-center text-5xl group-hover:scale-105 transition-transform duration-300">
-                {c.emoji}
-              </div>
-              <div className="p-5">
-                <span className="text-xs font-semibold text-primary uppercase tracking-wider">
-                  {c.category}
-                </span>
-                <h3 className="font-bold text-foreground mt-1 mb-3 font-body line-clamp-2">
-                  {c.title}
-                </h3>
-                <Progress
-                  value={(c.raised / c.goal) * 100}
-                  className="h-2 mb-3"
-                />
-                <div className="flex justify-between text-sm">
-                  <span className="font-semibold text-foreground">
-                    ${c.raised.toLocaleString()}
-                  </span>
-                  <span className="text-muted-foreground">
-                    of ${c.goal.toLocaleString()}
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  {c.donors} contributors
-                </p>
-              </div>
-            </motion.div>
-          ))}
+          {campaigns.map((c, i) => {
+            const slug = c.title
+              .toLowerCase()
+              .replace(/\s+/g, '-')
+              .replace(/[^\w-]/g, '');
+            return (
+              <motion.div
+                key={c.title}
+                initial={{opacity: 0, y: 30}}
+                whileInView={{opacity: 1, y: 0}}
+                viewport={{once: true}}
+                transition={{delay: i * 0.1}}
+                className="rounded-xl bg-card border border-border overflow-hidden hover:shadow-card transition-all duration-300 group cursor-pointer">
+                <Link href={`/campaign/${slug}`}>
+                  <div className="h-36 bg-muted relative overflow-hidden group-hover:scale-105 transition-transform duration-300">
+                    <img
+                      src={(c as any).image || '/default-campaign.png'}
+                      alt={c.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center text-4xl bg-black/5">
+                      {c.emoji}
+                    </div>
+                  </div>
+                  <div className="p-5">
+                    <span className="text-xs font-semibold text-primary uppercase tracking-wider">
+                      {c.category}
+                    </span>
+                    <h3 className="font-bold text-foreground mt-1 mb-3 font-body line-clamp-2">
+                      {c.title}
+                    </h3>
+                    <Progress
+                      value={(c.raised / c.goal) * 100}
+                      className="h-2 mb-3"
+                    />
+                    <div className="flex justify-between text-sm">
+                      <span className="font-semibold text-foreground">
+                        ${c.raised.toLocaleString()}
+                      </span>
+                      <span className="text-muted-foreground">
+                        of ${c.goal.toLocaleString()}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {c.donors} contributors
+                    </p>
+                  </div>
+                </Link>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        <div className="mt-10 text-center md:hidden">
+          <Link
+            href="/campaigns"
+            className="inline-flex items-center text-primary font-semibold hover:gap-2 transition-all">
+            View all campaigns <ArrowRight className="w-4 h-4 ml-1" />
+          </Link>
         </div>
       </div>
     </section>

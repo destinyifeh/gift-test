@@ -178,7 +178,14 @@ export default function CampaignsPage() {
                 animate={{opacity: 1, y: 0}}
                 transition={{delay: i * 0.05}}>
                 <Link href={`/campaign/${c.slug}`}>
-                  <Card className="border-border hover:shadow-elevated hover:border-primary/30 transition-all cursor-pointer h-full">
+                  <Card className="border-border hover:shadow-elevated hover:border-primary/30 transition-all cursor-pointer h-full overflow-hidden">
+                    <div className="aspect-video bg-muted relative">
+                      <img
+                        src={(c as any).image || '/default-campaign.png'}
+                        alt={c.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                     <CardContent className="p-5">
                       <div className="flex items-center gap-2 mb-3">
                         <Badge variant="secondary">{c.category}</Badge>

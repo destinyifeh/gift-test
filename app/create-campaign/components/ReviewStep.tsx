@@ -133,25 +133,20 @@ export function ReviewStep({
           </span>
         </div>
 
-        {image && (
-          <div className="space-y-2 pt-2">
-            <div className="flex justify-between items-center px-1">
-              <span className="text-muted-foreground text-sm">
-                Campaign Image
-              </span>
-              <Badge variant="outline" className="text-[10px]">
-                Optional
-              </Badge>
-            </div>
-            <div className="relative aspect-video rounded-xl overflow-hidden border border-border bg-muted/50">
-              <img
-                src={image}
-                alt="Campaign Preview"
-                className="w-full h-full object-cover"
-              />
-            </div>
+        <div className="space-y-2 pt-2">
+          <div className="flex justify-between items-center px-1">
+            <span className="text-muted-foreground text-sm">
+              Campaign Image
+            </span>
           </div>
-        )}
+          <div className="relative aspect-video rounded-xl overflow-hidden border border-border bg-muted/50">
+            <img
+              src={image || '/default-campaign.png'}
+              alt="Campaign Preview"
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
 
         {visibility === 'private' && !isClaimable && (
           <div className="flex justify-between py-2 border-b border-border">
