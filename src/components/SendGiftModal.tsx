@@ -433,7 +433,9 @@ const SendGiftModal = ({
             <Gift className="w-5 h-5 text-primary" /> Send a Gift
           </DialogTitle>
           <p className="text-sm text-muted-foreground">
-            Contributing to {target}
+            {campaignTitle
+              ? `Contributing to ${target}`
+              : `Send a Gift Card from ${preselectedGift?.vendor || target}`}
           </p>
         </DialogHeader>
 

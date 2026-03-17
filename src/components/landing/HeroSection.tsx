@@ -20,7 +20,8 @@ const HeroSection = () => {
             transition={{duration: 0.7}}>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
               <Heart className="w-4 h-4" />
-              The joy of giving, simplified
+              {/* The joy of giving, simplified */}
+              Enhancing the joy of giving
             </div>
 
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-foreground mb-6">
