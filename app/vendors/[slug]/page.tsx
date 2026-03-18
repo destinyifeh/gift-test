@@ -2,7 +2,7 @@
 
 import Footer from '@/components/landing/Footer';
 import Navbar from '@/components/landing/Navbar';
-import SendGiftModal from '@/components/SendGiftModal';
+import SendVendorGiftModal from '@/components/SendVendorGiftModal';
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
@@ -270,10 +270,10 @@ export default function VendorPage({
         </div>
       </div>
       <Footer />
-      <SendGiftModal
+      <SendVendorGiftModal
         open={showGiftModal}
         onOpenChange={setShowGiftModal}
-        recipientName={vendor.name}
+        vendorName={vendor.name}
       />
     </div>
   );

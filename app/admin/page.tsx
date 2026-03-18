@@ -9,12 +9,11 @@ import {useState} from 'react';
 import {AdminsTab} from './components/AdminsTab';
 import {CampaignsTab} from './components/CampaignsTab';
 import {DashboardTab} from './components/DashboardTab';
-import {GiftCodesTab} from './components/GiftCodesTab';
 import {GiftsTab} from './components/GiftsTab';
-import {IntegrationsTab} from './components/IntegrationsTab';
 import {LogsTab} from './components/LogsTab';
 import {ModerationTab} from './components/ModerationTab';
 import {NotificationsTab} from './components/NotificationsTab';
+import {PartnersTab} from './components/PartnersTab';
 import {ReportsTab} from './components/ReportsTab';
 import {SettingsTab} from './components/SettingsTab';
 import {SubscriptionsTab} from './components/SubscriptionsTab';
@@ -104,7 +103,6 @@ export default function AdminDashboardPage() {
           {section === 'dashboard' && (
             <DashboardTab searchQuery={searchQuery} setSection={setSection} />
           )}
-
           {section === 'users' && (
             <UsersTab
               searchQuery={searchQuery}
@@ -112,7 +110,6 @@ export default function AdminDashboardPage() {
               setViewDetailsModal={setViewDetailsModal}
             />
           )}
-
           {section === 'campaigns' && (
             <CampaignsTab
               searchQuery={searchQuery}
@@ -120,7 +117,6 @@ export default function AdminDashboardPage() {
               setViewDetailsModal={setViewDetailsModal}
             />
           )}
-
           {section === 'gifts' && (
             <GiftsTab
               searchQuery={searchQuery}
@@ -128,14 +124,12 @@ export default function AdminDashboardPage() {
               setViewDetailsModal={setViewDetailsModal}
             />
           )}
-
           {section === 'transactions' && (
             <TransactionsTab
               searchQuery={searchQuery}
               setViewDetailsModal={setViewDetailsModal}
             />
           )}
-
           {section === 'wallets' && (
             <WalletsTab
               searchQuery={searchQuery}
@@ -143,7 +137,6 @@ export default function AdminDashboardPage() {
               setViewDetailsModal={setViewDetailsModal}
             />
           )}
-
           {section === 'withdrawals' && (
             <WithdrawalsTab
               searchQuery={searchQuery}
@@ -151,7 +144,6 @@ export default function AdminDashboardPage() {
               setViewDetailsModal={setViewDetailsModal}
             />
           )}
-
           {section === 'vendors' && (
             <VendorsTab
               searchQuery={searchQuery}
@@ -159,22 +151,13 @@ export default function AdminDashboardPage() {
               setViewDetailsModal={setViewDetailsModal}
             />
           )}
-
-          {section === 'gift-codes' && (
-            <GiftCodesTab
+          {section === 'partners' && (
+            <PartnersTab
               searchQuery={searchQuery}
               addLog={addLog}
               setViewDetailsModal={setViewDetailsModal}
             />
           )}
-
-          {section === 'integrations' && (
-            <IntegrationsTab
-              addLog={addLog}
-              setViewDetailsModal={setViewDetailsModal}
-            />
-          )}
-
           {section === 'subscriptions' && (
             <SubscriptionsTab
               searchQuery={searchQuery}
@@ -182,15 +165,10 @@ export default function AdminDashboardPage() {
               setViewDetailsModal={setViewDetailsModal}
             />
           )}
-
           {section === 'reports' && <ReportsTab />}
-
           {section === 'moderation' && <ModerationTab addLog={addLog} />}
-
           {section === 'notifications' && <NotificationsTab />}
-
           {section === 'settings' && <SettingsTab />}
-
           {section === 'admins' && (
             <AdminsTab
               searchQuery={searchQuery}
@@ -198,7 +176,6 @@ export default function AdminDashboardPage() {
               setViewDetailsModal={setViewDetailsModal}
             />
           )}
-
           {section === 'logs' && <LogsTab />}
         </div>
       </main>

@@ -32,7 +32,7 @@ export type Section =
   | 'withdrawals'
   | 'vendors'
   | 'gift-codes'
-  | 'integrations'
+  | 'partners'
   | 'subscriptions'
   | 'reports'
   | 'moderation'
@@ -52,7 +52,7 @@ export const navItems: {id: Section; label: string; icon: React.ElementType}[] =
     {id: 'withdrawals', label: 'Withdrawals', icon: ArrowUpRight},
     {id: 'vendors', label: 'Vendors', icon: ShoppingCart},
     {id: 'gift-codes', label: 'Gift Codes', icon: Tag},
-    {id: 'integrations', label: 'Integrations', icon: Globe},
+    {id: 'partners', label: 'Partners', icon: Globe},
     {id: 'subscriptions', label: 'Subscriptions', icon: Crown},
     {id: 'reports', label: 'Reports', icon: BarChart3},
     {id: 'moderation', label: 'Moderation', icon: Shield},

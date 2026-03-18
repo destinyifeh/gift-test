@@ -1,7 +1,7 @@
 'use client';
 
 import Navbar from '@/components/landing/Navbar';
-import SendGiftModal from '@/components/SendGiftModal';
+import SendCampaignGiftModal from '@/components/SendCampaignGiftModal';
 import {Avatar, AvatarFallback} from '@/components/ui/avatar';
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
@@ -223,11 +223,11 @@ export default function CampaignPage({
         </div>
       </div>
 
-      <SendGiftModal
+      <SendCampaignGiftModal
         open={showGiftModal}
         onOpenChange={setShowGiftModal}
         campaignTitle={campaignData.title}
-        hideRecipientFields={true}
+        creatorName={campaignData.creator}
       />
     </div>
   );

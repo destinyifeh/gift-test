@@ -3,7 +3,8 @@
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
-import {ArrowUpRight, Gift} from 'lucide-react';
+import {ArrowUpRight, CheckCircle2, Gift, Star} from 'lucide-react';
+import {useState} from 'react';
 import {receivedGifts, SelectedSection} from './mock';
 import {statusColor} from './utils';
 
@@ -16,6 +17,12 @@ export function ReceivedGiftsTab({
   setSection,
   setWalletView,
 }: ReceivedGiftsTabProps) {
+  const [ratings, setRatings] = useState<Record<number, number>>({});
+  const [hoverRating, setHoverRating] = useState<Record<number, number>>({});
+
+  const handleRate = (giftId: number, rating: number) => {
+    setRatings(prev => ({...prev, [giftId]: rating}));
+  };
   return (
     <div className="space-y-4">
       {receivedGifts.map(g => (
@@ -58,6 +65,40 @@ export function ReceivedGiftsTab({
                   <ArrowUpRight className="w-3 h-3 mr-1" />
                   Withdraw
                 </Button>
+              )}
+              {g.status === 'claimed' && (
+                <div className="flex flex-col items-end gap-1">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mr-1">
+                    Rate Vendor
+                  </p>
+                  <div className="flex items-center gap-0.5 bg-secondary/5 p-1 rounded-lg border border-secondary/10">
+                    {[1, 2, 3, 4, 5].map(star => (
+                      <button
+                        key={star}
+                        onMouseEnter={() =>
+                          setHoverRating(prev => ({...prev, [g.id]: star}))
+                        }
+                        onMouseLeave={() =>
+                          setHoverRating(prev => ({...prev, [g.id]: 0}))
+                        }
+                        onClick={() => handleRate(g.id, star)}
+                        className="transition-transform active:scale-90">
+                        <Star
+                          className={`w-4 h-4 transition-colors ${
+                            star <= (hoverRating[g.id] || ratings[g.id] || 0)
+                              ? 'fill-yellow-400 text-yellow-400'
+                              : 'text-muted-foreground/30'
+                          }`}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                  {ratings[g.id] > 0 && (
+                    <p className="text-[10px] font-bold text-green-500 flex items-center gap-1 mt-0.5">
+                      <CheckCircle2 className="w-3 h-3" /> Rated!
+                    </p>
+                  )}
+                </div>
               )}
             </div>
           </CardContent>

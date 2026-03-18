@@ -50,7 +50,12 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
 
   const handleThemeChange = (val: string) => {
     setProTheme(val);
-    if (val === 'warm') {
+
+    if (val === 'default') {
+      setPrimaryColor('hsl(16 85% 60%)');
+      setBgColor('hsl(30 50% 98%)');
+      setTextColor('hsl(20 25% 12%)');
+    } else if (val === 'warm') {
       setPrimaryColor('hsl(16 85% 60%)');
       setBgColor('hsl(30 50% 98%)');
       setTextColor('hsl(20 25% 12%)');
@@ -70,6 +75,17 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
       setPrimaryColor('hsl(0 0% 10%)');
       setBgColor('hsl(0 0% 100%)');
       setTextColor('hsl(0 0% 5%)');
+    }
+  };
+
+  const handleBannerUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProBanner(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -283,10 +299,21 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
                   <div className="space-y-1">
                     <Label className="text-xs">Primary Color</Label>
                     <div className="flex items-center gap-2">
-                      <div
-                        className="w-8 h-8 rounded-lg border border-border shrink-0"
+                      <label
+                        className="w-8 h-8 rounded-lg border border-border shrink-0 cursor-pointer transition-transform hover:scale-110 active:scale-95 shadow-sm"
                         style={{background: primaryColor}}
-                      />
+                        title="Pick color">
+                        <input
+                          type="color"
+                          className="sr-only"
+                          value={
+                            primaryColor.startsWith('hsl')
+                              ? '#7C3AED'
+                              : primaryColor
+                          } // Fallback for HSL display
+                          onChange={e => setPrimaryColor(e.target.value)}
+                        />
+                      </label>
                       <Input
                         value={primaryColor}
                         onChange={e => setPrimaryColor(e.target.value)}
@@ -297,10 +324,19 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
                   <div className="space-y-1">
                     <Label className="text-xs">Background</Label>
                     <div className="flex items-center gap-2">
-                      <div
-                        className="w-8 h-8 rounded-lg border border-border shrink-0"
+                      <label
+                        className="w-8 h-8 rounded-lg border border-border shrink-0 cursor-pointer transition-transform hover:scale-110 active:scale-95 shadow-sm"
                         style={{background: bgColor}}
-                      />
+                        title="Pick color">
+                        <input
+                          type="color"
+                          className="sr-only"
+                          value={
+                            bgColor.startsWith('hsl') ? '#FDFCFB' : bgColor
+                          }
+                          onChange={e => setBgColor(e.target.value)}
+                        />
+                      </label>
                       <Input
                         value={bgColor}
                         onChange={e => setBgColor(e.target.value)}
@@ -311,10 +347,19 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
                   <div className="space-y-1">
                     <Label className="text-xs">Text Color</Label>
                     <div className="flex items-center gap-2">
-                      <div
-                        className="w-8 h-8 rounded-lg border border-border shrink-0"
+                      <label
+                        className="w-8 h-8 rounded-lg border border-border shrink-0 cursor-pointer transition-transform hover:scale-110 active:scale-95 shadow-sm"
                         style={{background: textColor}}
-                      />
+                        title="Pick color">
+                        <input
+                          type="color"
+                          className="sr-only"
+                          value={
+                            textColor.startsWith('hsl') ? '#1A1412' : textColor
+                          }
+                          onChange={e => setTextColor(e.target.value)}
+                        />
+                      </label>
                       <Input
                         value={textColor}
                         onChange={e => setTextColor(e.target.value)}
@@ -333,6 +378,13 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
                   </Badge>
                 </h4>
                 <div className="border-2 border-dashed border-border rounded-xl p-6 text-center overflow-hidden relative">
+                  <input
+                    type="file"
+                    id="banner-upload"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleBannerUpload}
+                  />
                   {proBanner ? (
                     <div className="space-y-3">
                       <div className="h-32 bg-muted rounded-lg overflow-hidden relative">
@@ -350,15 +402,12 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
                           onClick={() => setProBanner('')}>
                           Remove Banner
                         </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            setProBanner(
-                              'https://images.unsplash.com/photo-1557683316-973673baf926?w=1200',
-                            )
-                          }>
-                          Change Image
+                        <Button variant="outline" size="sm" asChild>
+                          <label
+                            htmlFor="banner-upload"
+                            className="cursor-pointer">
+                            Change Image
+                          </label>
                         </Button>
                       </div>
                     </div>
@@ -372,12 +421,12 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
                         variant="outline"
                         size="sm"
                         className="mt-2"
-                        onClick={() =>
-                          setProBanner(
-                            'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200&auto=format&fit=crop&q=80',
-                          )
-                        }>
-                        Upload Banner
+                        asChild>
+                        <label
+                          htmlFor="banner-upload"
+                          className="cursor-pointer">
+                          Upload Banner
+                        </label>
                       </Button>
                     </>
                   )}

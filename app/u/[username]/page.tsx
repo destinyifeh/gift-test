@@ -1,12 +1,13 @@
 'use client';
 
+import GiftSelection from '@/components/GiftSelection';
 import Navbar from '@/components/landing/Navbar';
-import SendGiftModal from '@/components/SendGiftModal';
+import SendCreatorGiftModal from '@/components/SendCreatorGiftModal';
 import {Avatar, AvatarFallback} from '@/components/ui/avatar';
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
-import {Gift, Heart, Share2} from 'lucide-react';
+import {Gift, Heart, Share2, Sparkles} from 'lucide-react';
 import Link from 'next/link';
 import {use, useState} from 'react';
 
@@ -103,6 +104,16 @@ export default function CreatorProfilePage({
 }) {
   const {username} = use(params);
   const [showGiftModal, setShowGiftModal] = useState(false);
+  const [selectedMethod, setSelectedMethod] = useState<
+    'money' | 'vendor' | null
+  >(null);
+  const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
+  const [customAmount, setCustomAmount] = useState('');
+  const [selectedVendorGift, setSelectedVendorGift] = useState<number | null>(
+    null,
+  );
+  const [showAllSupporters, setShowAllSupporters] = useState(false);
+
   const profile = username ? enabledUsers[username] : null;
 
   if (!profile) {
@@ -212,7 +223,7 @@ export default function CreatorProfilePage({
           </div>
 
           <Card
-            className="border-border shadow-elevated mb-6"
+            className="border-border shadow-elevated mb-6 overflow-hidden"
             style={{
               backgroundColor:
                 profile.plan === 'pro' && profile.theme
@@ -221,67 +232,28 @@ export default function CreatorProfilePage({
               color: 'var(--foreground)',
             }}>
             <CardContent className="p-6">
-              <h2 className="font-semibold mb-1 text-center text-foreground">
+              <h2 className="font-bold text-lg mb-1 text-center text-foreground">
                 Support or send a gift 🎁
               </h2>
-              <p className="text-sm text-muted-foreground text-center mb-4">
-                Choose an amount or send a vendor gift
+              <p className="text-sm text-muted-foreground text-center mb-6">
+                Choose an amount or send a vendor gift.
               </p>
-              <div className="grid grid-cols-3 gap-3 mb-4">
-                {profile.suggestedAmounts.map(a => (
-                  <Button
-                    key={a}
-                    variant="outline"
-                    className="h-14 text-lg font-bold border-2 hover:border-creator-primary transition-colors"
-                    style={
-                      {
-                        '--creator-primary':
-                          profile.plan === 'pro' && profile.theme
-                            ? profile.theme.primary
-                            : 'var(--primary)',
-                      } as React.CSSProperties
-                    }
-                    onClick={() => setShowGiftModal(true)}>
-                    ${a}
-                  </Button>
-                ))}
-              </div>
-              <Button
-                variant="outline"
-                className="w-full mb-4"
-                onClick={() => setShowGiftModal(true)}>
-                Custom amount
-              </Button>
-              <div className="border-t border-border pt-4">
-                <p className="text-sm font-medium text-foreground mb-3">
-                  Or send a gift
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  {profile.vendorGifts.map(g => (
-                    <button
-                      key={g.id}
-                      onClick={() => setShowGiftModal(true)}
-                      className="p-3 rounded-xl border border-border hover:border-primary/30 transition-all text-center bg-card">
-                      <p className="text-sm font-medium text-foreground">
-                        {g.name}
-                      </p>
-                      <p
-                        className="text-xs font-semibold mt-1"
-                        style={{
-                          color:
-                            profile.plan === 'pro' && profile.theme
-                              ? profile.theme.primary
-                              : 'var(--primary)',
-                        }}>
-                        ${g.price}
-                      </p>
-                    </button>
-                  ))}
-                </div>
-              </div>
+
+              <GiftSelection
+                activeTab={selectedMethod === 'vendor' ? 'vendor' : 'money'}
+                onTabChange={t => setSelectedMethod(t as 'money' | 'vendor')}
+                amount={selectedAmount}
+                setAmount={setSelectedAmount}
+                customAmount={customAmount}
+                setCustomAmount={setCustomAmount}
+                selectedGift={selectedVendorGift}
+                setSelectedGift={setSelectedVendorGift}
+                profileTheme={profile.theme}
+              />
+
               <Button
                 variant="hero"
-                className="w-full h-12 mt-4"
+                className="w-full h-14 text-base font-bold shadow-lg shadow-primary/20 mt-6"
                 style={
                   profile.plan === 'pro' && profile.theme
                     ? {
@@ -291,72 +263,135 @@ export default function CreatorProfilePage({
                     : {}
                 }
                 onClick={() => setShowGiftModal(true)}>
-                <Gift className="w-5 h-5 mr-2" /> Send Gift
+                <Gift className="w-5 h-5 mr-2" />
+                {selectedMethod === 'vendor'
+                  ? 'Send Gift Card'
+                  : 'Send Support'}
               </Button>
             </CardContent>
           </Card>
 
-          {profile.showSupporters && (
-            <Card
-              className="border-border"
-              style={{
-                backgroundColor:
-                  profile.plan === 'pro' && profile.theme
-                    ? 'white'
-                    : 'var(--card)',
-                color: 'var(--foreground)',
-              }}>
-              <CardContent className="p-6">
-                <h3 className="font-semibold mb-4 flex items-center gap-2">
-                  <Heart
-                    className="w-4 h-4"
-                    style={{
-                      color:
-                        profile.plan === 'pro' && profile.theme
-                          ? profile.theme.primary
-                          : 'var(--primary)',
-                    }}
-                  />{' '}
-                  Supporters
-                </h3>
-                <div className="space-y-4">
-                  {profile.supporters.map(s => (
-                    <div key={s.id} className="flex items-start gap-3">
-                      <Avatar className="w-8 h-8">
-                        <AvatarFallback className="bg-muted text-xs">
-                          {s.anonymous ? '?' : s.name.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm font-medium">{s.name}</p>
-                          <span
-                            className="text-sm font-semibold"
-                            style={{
-                              color:
-                                profile.plan === 'pro' && profile.theme
-                                  ? profile.theme.primary
-                                  : 'var(--primary)',
-                            }}>
-                            ${s.amount}
-                          </span>
-                        </div>
-                        {s.message && (
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            "{s.message}"
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+          <div className="space-y-6">
+            <div className="px-1">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2 mb-4">
+                <Sparkles className="w-3.5 h-3.5 text-accent" /> Gifts sent
+                recently
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl border border-border/50">
+                  <div className="w-8 h-8 rounded-full bg-background flex items-center justify-center text-sm shadow-sm">
+                    👤
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">
+                      John sent a{' '}
+                      <span className="text-primary font-bold">
+                        Coffee Gift
+                      </span>{' '}
+                      ☕
+                    </p>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground italic text-right">
+                    2h ago
+                  </span>
                 </div>
-              </CardContent>
-            </Card>
-          )}
+                <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl border border-border/50">
+                  <div className="w-8 h-8 rounded-full bg-background flex items-center justify-center text-sm shadow-sm">
+                    👤
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">
+                      Mary sent a{' '}
+                      <span className="text-secondary font-bold">
+                        Spa Voucher
+                      </span>{' '}
+                      💆
+                    </p>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground italic text-right">
+                    5h ago
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {profile.showSupporters && (
+              <Card
+                className="border-border shadow-sm"
+                style={{
+                  backgroundColor:
+                    profile.plan === 'pro' && profile.theme
+                      ? 'white'
+                      : 'var(--card)',
+                  color: 'var(--foreground)',
+                }}>
+                <CardContent className="p-6">
+                  <h3 className="font-bold mb-4 flex items-center gap-2">
+                    <Heart
+                      className="w-4 h-4"
+                      style={{
+                        color:
+                          profile.plan === 'pro' && profile.theme
+                            ? profile.theme.primary
+                            : 'var(--primary)',
+                      }}
+                    />{' '}
+                    Supporters
+                  </h3>
+                  <div className="space-y-4">
+                    {(showAllSupporters
+                      ? profile.supporters
+                      : profile.supporters.slice(0, 3)
+                    ).map(s => (
+                      <div key={s.id} className="flex items-start gap-3 group">
+                        <Avatar className="w-9 h-9 border border-border group-hover:scale-105 transition-transform">
+                          <AvatarFallback className="bg-muted text-xs font-bold">
+                            {s.anonymous ? '?' : s.name.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm font-bold">{s.name}</p>
+                            <span
+                              className="text-sm font-bold"
+                              style={{
+                                color:
+                                  profile.plan === 'pro' && profile.theme
+                                    ? profile.theme.primary
+                                    : 'var(--primary)',
+                              }}>
+                              ${s.amount}
+                            </span>
+                          </div>
+                          {s.message && (
+                            <p className="text-xs text-muted-foreground mt-0.5 italic">
+                              "{s.message}"
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {profile.supporters.length > 3 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full mt-4 text-xs font-semibold text-muted-foreground hover:text-primary transition-colors"
+                      onClick={() => setShowAllSupporters(!showAllSupporters)}>
+                      {showAllSupporters
+                        ? 'Show less'
+                        : `Show all ${profile.supporters.length} supporters`}
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </div>
 
           <div className="text-center mt-6">
-            <Button variant="outline" className="gap-2">
-              <Share2 className="w-4 h-4" /> Share this page
+            <Button variant="outline" className="gap-2 font-semibold">
+              <Share2 className="w-4 h-4" /> Share {profile.name}'s page
             </Button>
           </div>
 
@@ -375,11 +410,16 @@ export default function CreatorProfilePage({
           )}
         </div>
       </div>
-      <SendGiftModal
+      <SendCreatorGiftModal
         open={showGiftModal}
         onOpenChange={setShowGiftModal}
-        recipientName={profile.name}
-        hideRecipientFields={true}
+        creatorName={profile.name}
+        minAmount={5}
+        initialTab={selectedMethod === 'vendor' ? 'vendor' : 'money'}
+        initialAmount={selectedAmount}
+        initialGiftId={selectedVendorGift}
+        initialCustomAmount={customAmount}
+        initialStep="recipient"
       />
     </div>
   );

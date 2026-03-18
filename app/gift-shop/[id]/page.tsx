@@ -2,7 +2,7 @@
 
 import Footer from '@/components/landing/Footer';
 import Navbar from '@/components/landing/Navbar';
-import SendGiftModal from '@/components/SendGiftModal';
+import SendShopGiftModal from '@/components/SendShopGiftModal';
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
@@ -256,14 +256,14 @@ export default function GiftDetailPage({
         </div>
       </div>
       <Footer />
-      <SendGiftModal
+      <SendShopGiftModal
         open={showGiftModal}
         onOpenChange={setShowGiftModal}
-        recipientName={gift.name}
-        preselectedGift={{
+        gift={{
           name: gift.name,
           price: gift.price,
           vendor: gift.vendor,
+          image: gift.image,
         }}
       />
     </div>
