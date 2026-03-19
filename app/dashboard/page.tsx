@@ -1,8 +1,10 @@
 'use client';
 
 import {Button} from '@/components/ui/button';
+import {useProfile} from '@/hooks/use-profile';
 import {signOut} from '@/lib/server/actions/auth';
 import {useUserStore} from '@/lib/store/useUserStore';
+import {useQueryClient} from '@tanstack/react-query';
 import {Menu, Plus} from 'lucide-react';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
@@ -26,6 +28,8 @@ import {getTitle} from './components/utils';
 import {WalletTab} from './components/WalletTab';
 
 export default function DashboardPage() {
+  const queryClient = useQueryClient();
+  const {data: profile} = useProfile();
   const [section, setSection] = useState<SelectedSection>('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [creatorEnabled, setCreatorEnabled] = useState(false);
@@ -34,10 +38,11 @@ export default function DashboardPage() {
   const user = useUserStore(state => state.user);
 
   useEffect(() => {
-    if (user?.is_creator) {
-      setCreatorEnabled(true);
+    if (profile) {
+      setCreatorEnabled(profile.is_creator);
+      setCreatorPlan(profile.theme_settings?.plan || 'free');
     }
-  }, [user?.is_creator]);
+  }, [profile]);
 
   const router = useRouter();
   const clearUser = useUserStore(state => state.clearUser);
@@ -45,6 +50,7 @@ export default function DashboardPage() {
   const handleSignOut = async () => {
     const result = await signOut();
     if (result.success) {
+      queryClient.clear();
       clearUser();
       toast.success('Signed out successfully');
       router.push('/login');

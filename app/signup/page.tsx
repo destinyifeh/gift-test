@@ -9,6 +9,7 @@ import {Separator} from '@/components/ui/separator';
 import {signup} from '@/lib/server/actions/auth';
 import {signupSchema, type SignupInput} from '@/lib/validations/auth';
 import {zodResolver} from '@hookform/resolvers/zod';
+import {useQueryClient} from '@tanstack/react-query';
 import {AlertCircle, Eye, EyeOff, Gift, Lock, Mail, User} from 'lucide-react';
 import Link from 'next/link';
 import {useRouter, useSearchParams} from 'next/navigation';
@@ -24,6 +25,7 @@ export default function SignupPage() {
 
   const searchParams = useSearchParams();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const {
     register,
@@ -55,6 +57,7 @@ export default function SignupPage() {
       setErrorMsg(result.error || 'An error occurred during signup');
       setIsLoading(false);
     } else {
+      queryClient.clear();
       setIsEmailSent(true);
       setIsLoading(false);
       toast.success('Account created! Please verify your email.');

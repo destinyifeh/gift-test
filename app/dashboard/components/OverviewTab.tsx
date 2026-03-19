@@ -5,15 +5,7 @@ import {Button} from '@/components/ui/button';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {updateCreatorStatus} from '@/lib/server/actions/auth';
 import {useUserStore} from '@/lib/store/useUserStore';
-import {
-  CheckCircle,
-  Crown,
-  DollarSign,
-  Gift,
-  Send,
-  Sparkles,
-  Users,
-} from 'lucide-react';
+import {DollarSign, Gift, Send, Sparkles, Users} from 'lucide-react';
 import {toast} from 'sonner';
 import {receivedGifts, SelectedSection, sentGifts} from './mock';
 import {statusColor} from './utils';
@@ -143,43 +135,6 @@ export function OverviewTab({
             <Button variant="hero" size="sm" onClick={handleEnableCreator}>
               Enable
             </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {creatorEnabled && creatorPlan === 'free' && (
-        <Card className="border-accent/30 bg-gradient-to-r from-accent/5 to-primary/5">
-          <CardContent className="p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
-              <div>
-                <h3 className="font-semibold text-foreground flex items-center gap-2">
-                  <Crown className="w-5 h-5 text-accent" /> Upgrade to Pro
-                </h3>
-                <p className="text-sm text-muted-foreground mt-1 max-w-md">
-                  Remove branding and unlock powerful tools for your gift page.
-                </p>
-                <ul className="mt-3 space-y-1.5 text-sm text-muted-foreground">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-3.5 h-3.5 text-secondary" />{' '}
-                    Remove "Powered by" branding
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-3.5 h-3.5 text-secondary" />{' '}
-                    Custom themes and layout
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-3.5 h-3.5 text-secondary" />{' '}
-                    Advanced supporter insights
-                  </li>
-                </ul>
-              </div>
-              <Button
-                variant="hero"
-                size="sm"
-                onClick={() => setCreatorPlan('pro')}>
-                <Crown className="w-4 h-4 mr-1" /> Upgrade — $8/mo
-              </Button>
-            </div>
           </CardContent>
         </Card>
       )}

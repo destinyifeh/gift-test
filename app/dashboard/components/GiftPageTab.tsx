@@ -16,7 +16,9 @@ import {Switch} from '@/components/ui/switch';
 import {Textarea} from '@/components/ui/textarea';
 import {useProfile} from '@/hooks/use-profile';
 import {updateProfile} from '@/lib/server/actions/auth';
+import {verifyPaymentAndUpgrade} from '@/lib/server/actions/transactions';
 import {useUserStore} from '@/lib/store/useUserStore';
+import PaystackPop from '@paystack/inline-js';
 import {useQueryClient} from '@tanstack/react-query';
 import {
   CheckCircle,
@@ -138,20 +140,17 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
         bio,
         suggested_amounts: amounts,
         theme_settings: {
-          plan: creatorPlan,
           acceptMoney,
           acceptVendor,
           showSupporters,
           showAmounts,
-          ...(creatorPlan === 'pro' && {
-            proTheme,
-            proBanner,
-            proThankYou,
-            proRemoveBranding,
-            primaryColor,
-            bgColor,
-            textColor,
-          }),
+          proTheme,
+          proBanner,
+          proThankYou,
+          proRemoveBranding,
+          primaryColor,
+          bgColor,
+          textColor,
         },
       });
 
@@ -169,6 +168,49 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
     }
   };
 
+  const handleUpgrade = () => {
+    if (!user?.email) {
+      toast.error('User email not found. Please log in again.');
+      return;
+    }
+
+    const paystack = new (PaystackPop as any)();
+    paystack.newTransaction({
+      key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
+      email: user.email,
+      amount: 10000 * 100, // 10,000 NGN in kobo (Test amount for now)
+      onSuccess: async (transaction: any) => {
+        console.log('Paystack Success:', transaction);
+        setIsSaving(true);
+        try {
+          console.log('Verifying reference:', transaction.reference);
+          const result = await verifyPaymentAndUpgrade(transaction.reference);
+          console.log('Verification result:', result);
+          if (result.success) {
+            toast.success('Successfully upgraded to Pro! 🚀');
+            await queryClient.invalidateQueries({queryKey: ['profile']});
+          } else {
+            toast.error(
+              result.error ||
+                'Upgrade failed after payment. Please contact support.',
+            );
+          }
+        } catch (error: any) {
+          console.error('Upgrade error:', error);
+          toast.error(
+            error.message ||
+              'An unexpected error occurred during upgrade validation.',
+          );
+        } finally {
+          setIsSaving(false);
+        }
+      },
+      onCancel: () => {
+        toast.info('Payment process cancelled.');
+      },
+    });
+  };
+
   return (
     <div className="space-y-6">
       <Card
@@ -179,7 +221,7 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
         }>
         <CardContent className="p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div>
-            <p className="font-semibold text-foreground flex items-center gap-2 flex-wrap">
+            <div className="font-semibold text-foreground flex items-center gap-2 flex-wrap">
               {creatorPlan === 'pro' ? (
                 <Crown className="w-4 h-4 text-accent" />
               ) : (
@@ -191,7 +233,7 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
                 className="ml-2">
                 {creatorPlan === 'pro' ? 'Pro' : 'Free'}
               </Badge>
-            </p>
+            </div>
             <p className="text-sm text-muted-foreground">
               gifttogether.com/{user?.username || 'username'}
             </p>
@@ -258,9 +300,15 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
               <div className="text-center space-y-2">
                 <Button
                   variant="hero"
-                  onClick={() => setCreatorPlan('pro')}
+                  onClick={handleUpgrade}
+                  disabled={isSaving}
                   className="gap-2">
-                  <Crown className="w-4 h-4" /> Upgrade to Pro
+                  {isSaving ? (
+                    <Sparkles className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Crown className="w-4 h-4" />
+                  )}
+                  Upgrade to Pro
                 </Button>
                 <p className="text-xs text-muted-foreground">
                   $8/month or $79/year
@@ -556,19 +604,47 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
             </>
           )}
 
-          <Button
-            variant="hero"
-            className="w-full sm:w-auto"
-            onClick={handleSave}
-            disabled={isSaving}>
-            {isSaving ? (
-              <span className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 animate-spin" /> Saving...
-              </span>
-            ) : (
-              'Save Settings'
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <Button
+              variant="hero"
+              className="w-full sm:w-auto"
+              onClick={handleSave}
+              disabled={isSaving}>
+              {isSaving ? (
+                <span className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 animate-spin" /> Saving...
+                </span>
+              ) : (
+                'Save Settings'
+              )}
+            </Button>
+
+            {creatorPlan === 'pro' && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs text-muted-foreground hover:text-destructive"
+                onClick={async () => {
+                  if (
+                    confirm(
+                      "This will reset your plan to Free. You won't lose your settings, but Pro features will be hidden. Continue?",
+                    )
+                  ) {
+                    const {resetPlan} =
+                      await import('@/lib/server/actions/transactions');
+                    const result = await resetPlan();
+                    if (result.success) {
+                      toast.success('Plan reset to Free');
+                      await queryClient.invalidateQueries({
+                        queryKey: ['profile'],
+                      });
+                    }
+                  }
+                }}>
+                Reset to Free Plan
+              </Button>
             )}
-          </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

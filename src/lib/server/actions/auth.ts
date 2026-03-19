@@ -175,6 +175,24 @@ export async function updateProfile(updates: {
     updates.username = updates.username.toLowerCase();
   }
 
+  // PROTECT THE PLAN FIELD: Ensure theme_settings doesn't overwrite the user's plan
+  if (updates.theme_settings) {
+    const {data: currentProfile} = await supabase
+      .from('profiles')
+      .select('theme_settings')
+      .eq('id', user.id)
+      .single();
+
+    const existingTheme = currentProfile?.theme_settings || {};
+    const existingPlan = existingTheme.plan || 'free';
+
+    // Merge new settings with existing plan
+    updates.theme_settings = {
+      ...updates.theme_settings,
+      plan: existingPlan, // Force existing plan
+    };
+  }
+
   const {error} = await supabase
     .from('profiles')
     .update(updates)

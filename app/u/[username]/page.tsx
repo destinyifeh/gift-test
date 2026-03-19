@@ -187,7 +187,7 @@ export default function CreatorProfilePage({
     acceptMoney: dbProfile?.theme_settings?.acceptMoney ?? true,
     acceptVendor: dbProfile?.theme_settings?.acceptVendor ?? true,
     plan,
-    theme: plan === 'pro' ? dbProfile?.theme_settings : undefined,
+    theme_settings: dbProfile?.theme_settings || {},
     banner:
       plan === 'pro' && dbProfile?.theme_settings?.proBanner
         ? dbProfile?.theme_settings?.proBanner
@@ -210,25 +210,29 @@ export default function CreatorProfilePage({
   };
 
   const customStyles =
-    profile.plan === 'pro' && profile.theme
+    profile.plan === 'pro' && profile.theme_settings
       ? ({
-          '--creator-primary': profile.theme.primary,
-          '--creator-bg': profile.theme.background,
-          '--creator-text': profile.theme.text,
+          '--creator-primary': profile.theme_settings.primaryColor,
+          '--creator-bg': profile.theme_settings.bgColor,
+          '--creator-text': profile.theme_settings.textColor,
         } as React.CSSProperties)
       : {};
 
   return (
     <div
-      className="min-h-screen"
+      className={`min-h-screen ${
+        profile.plan === 'pro' && profile.theme_settings?.proTheme
+          ? `${profile.theme_settings.proTheme}-theme`
+          : ''
+      }`}
       style={{
         backgroundColor:
-          profile.plan === 'pro' && profile.theme
-            ? profile.theme.background
+          profile.plan === 'pro' && profile.theme_settings?.bgColor
+            ? profile.theme_settings.bgColor
             : 'var(--background)',
         color:
-          profile.plan === 'pro' && profile.theme
-            ? profile.theme.text
+          profile.plan === 'pro' && profile.theme_settings?.textColor
+            ? profile.theme_settings.textColor
             : 'var(--foreground)',
         ...customStyles,
       }}>
@@ -271,9 +275,9 @@ export default function CreatorProfilePage({
               <AvatarFallback
                 className="text-2xl font-bold capitalize bg-primary text-primary-foreground"
                 style={
-                  profile.plan === 'pro' && profile.theme
+                  profile.plan === 'pro' && profile.theme_settings?.primaryColor
                     ? {
-                        backgroundColor: profile.theme.primary,
+                        backgroundColor: profile.theme_settings.primaryColor,
                         color: 'white',
                       }
                     : {}
@@ -336,8 +340,9 @@ export default function CreatorProfilePage({
                   className="w-4 h-4"
                   style={{
                     color:
-                      profile.plan === 'pro' && profile.theme
-                        ? profile.theme.primary
+                      profile.plan === 'pro' &&
+                      profile.theme_settings?.primaryColor
+                        ? profile.theme_settings.primaryColor
                         : 'var(--primary)',
                   }}
                 />{' '}
@@ -507,8 +512,9 @@ export default function CreatorProfilePage({
                               className="text-sm font-bold"
                               style={{
                                 color:
-                                  profile.plan === 'pro' && profile.theme
-                                    ? profile.theme.primary
+                                  profile.plan === 'pro' &&
+                                  profile.theme_settings?.primaryColor
+                                    ? profile.theme_settings.primaryColor
                                     : 'var(--primary)',
                               }}>
                               {profile.showAmounts && `$${s.amount}`}

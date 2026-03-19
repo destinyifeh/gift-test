@@ -10,6 +10,7 @@ import {login} from '@/lib/server/actions/auth';
 import {useUserStore} from '@/lib/store/useUserStore';
 import {loginSchema, type LoginInput} from '@/lib/validations/auth';
 import {zodResolver} from '@hookform/resolvers/zod';
+import {useQueryClient} from '@tanstack/react-query';
 import {AlertCircle, Eye, EyeOff, Gift, Lock, Mail} from 'lucide-react';
 import Link from 'next/link';
 import {useRouter, useSearchParams} from 'next/navigation';
@@ -25,6 +26,7 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const setUser = useUserStore(state => state.setUser);
+  const queryClient = useQueryClient();
 
   const {
     register,
@@ -48,6 +50,8 @@ export default function LoginPage() {
       setErrorMsg(result.error || 'An error occurred during login');
       setIsLoading(false);
     } else {
+      queryClient.clear();
+
       if (result.data?.user) {
         setUser({
           id: result.data.user.id,
