@@ -1,31 +1,64 @@
 'use client';
 
+import {Alert, AlertDescription} from '@/components/ui/alert';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
 import {Separator} from '@/components/ui/separator';
-import {Eye, EyeOff, Gift, Lock, Mail} from 'lucide-react';
+import {login} from '@/lib/server/actions/auth';
+import {useUserStore} from '@/lib/store/useUserStore';
+import {loginSchema, type LoginInput} from '@/lib/validations/auth';
+import {zodResolver} from '@hookform/resolvers/zod';
+import {AlertCircle, Eye, EyeOff, Gift, Lock, Mail} from 'lucide-react';
 import Link from 'next/link';
-import {useRouter} from 'next/navigation';
+import {useRouter, useSearchParams} from 'next/navigation';
 import {useState} from 'react';
+import {useForm} from 'react-hook-form';
+import {toast} from 'sonner';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !password) return;
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const setUser = useUserStore(state => state.setUser);
+
+  const {
+    register,
+    handleSubmit,
+    formState: {errors},
+  } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  const onSubmit = async (data: LoginInput) => {
     setIsLoading(true);
-    // Mock API call
-    setTimeout(() => {
+    setErrorMsg(null);
+
+    const formData = new FormData();
+    formData.append('email', data.email);
+    formData.append('password', data.password);
+
+    const result = await login(formData);
+
+    if (!result.success) {
+      setErrorMsg(result.error || 'An error occurred during login');
       setIsLoading(false);
+    } else {
+      if (result.data?.user) {
+        setUser({
+          id: result.data.user.id,
+          email: result.data.user.email || '',
+          username: result.data.user.user_metadata?.username,
+          display_name: result.data.user.user_metadata?.display_name,
+        });
+      }
+      toast.success('Logged in successfully');
       router.push('/dashboard');
-    }, 1500);
+    }
   };
 
   return (
@@ -50,8 +83,19 @@ export default function LoginPage() {
 
         <Card className="border-border shadow-elevated overflow-hidden">
           <CardContent className="p-6 space-y-4">
-            <form onSubmit={handleLogin} className="space-y-4">
-              <Button variant="outline" className="w-full gap-3 h-11">
+            {errorMsg && (
+              <Alert
+                variant="destructive"
+                className="bg-destructive/10 text-destructive border-destructive/20">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{errorMsg}</AlertDescription>
+              </Alert>
+            )}
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <Button
+                variant="outline"
+                className="w-full gap-3 h-11"
+                type="button">
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
@@ -72,7 +116,10 @@ export default function LoginPage() {
                 </svg>
                 Continue with Google
               </Button>
-              <Button variant="outline" className="w-full gap-3 h-11">
+              <Button
+                variant="outline"
+                className="w-full gap-3 h-11"
+                type="button">
                 <svg
                   className="w-5 h-5"
                   viewBox="0 0 24 24"
@@ -96,12 +143,16 @@ export default function LoginPage() {
                   <Input
                     id="email"
                     type="email"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
                     placeholder="you@example.com"
                     className="pl-10"
+                    {...register('email')}
                   />
                 </div>
+                {errors.email && (
+                  <p className="text-xs text-destructive">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between">
@@ -117,10 +168,9 @@ export default function LoginPage() {
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
                     placeholder="••••••••"
                     className="pl-10 pr-10"
+                    {...register('password')}
                   />
                   <button
                     type="button"
@@ -133,6 +183,11 @@ export default function LoginPage() {
                     )}
                   </button>
                 </div>
+                {errors.password && (
+                  <p className="text-xs text-destructive">
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
 
               <Button

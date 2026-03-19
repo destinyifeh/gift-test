@@ -1,10 +1,13 @@
 'use client';
 
 import {Button} from '@/components/ui/button';
+import {signOut} from '@/lib/server/actions/auth';
+import {useUserStore} from '@/lib/store/useUserStore';
 import {Menu, Plus} from 'lucide-react';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
+import {toast} from 'sonner';
 import {AnalyticsTab} from './components/AnalyticsTab';
 import {ContributionsTab} from './components/ContributionsTab';
 import {DesktopSidebar} from './components/DesktopSidebar';
@@ -28,7 +31,27 @@ export default function DashboardPage() {
   const [creatorEnabled, setCreatorEnabled] = useState(false);
   const [creatorPlan, setCreatorPlan] = useState<'free' | 'pro'>('free');
 
+  const user = useUserStore(state => state.user);
+
+  useEffect(() => {
+    if (user?.is_creator) {
+      setCreatorEnabled(true);
+    }
+  }, [user?.is_creator]);
+
   const router = useRouter();
+  const clearUser = useUserStore(state => state.clearUser);
+
+  const handleSignOut = async () => {
+    const result = await signOut();
+    if (result.success) {
+      clearUser();
+      toast.success('Signed out successfully');
+      router.push('/login');
+    } else {
+      toast.error(result.error || 'Failed to sign out');
+    }
+  };
 
   const commonProps = {
     setSection,
@@ -43,7 +66,7 @@ export default function DashboardPage() {
       <DesktopSidebar
         section={section}
         commonProps={commonProps}
-        onSignOut={() => router.push('/')}
+        onSignOut={handleSignOut}
       />
 
       <MobileSidebar
@@ -51,7 +74,7 @@ export default function DashboardPage() {
         onClose={() => setSidebarOpen(false)}
         section={section}
         commonProps={commonProps}
-        onSignOut={() => router.push('/')}
+        onSignOut={handleSignOut}
       />
 
       <main className="flex-1 min-w-0">

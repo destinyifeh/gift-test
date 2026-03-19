@@ -1,0 +1,143 @@
+'use server';
+
+import {revalidatePath} from 'next/cache';
+import {createClient} from '../supabase/server';
+
+export async function login(formData: FormData) {
+  const supabase = await createClient();
+
+  const email = formData.get('email') as string;
+  const password = formData.get('password') as string;
+
+  const {data, error} = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) {
+    return {success: false, error: error.message};
+  }
+
+  revalidatePath('/', 'layout');
+  return {success: true, data};
+}
+
+export async function signup(formData: FormData) {
+  const supabase = await createClient();
+
+  const email = formData.get('email') as string;
+  const password = formData.get('password') as string;
+  const username = formData.get('username') as string;
+  const display_name = formData.get('display_name') as string;
+
+  // 1. Check if username is already taken
+  const {data: existingProfile} = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('username', username)
+    .maybeSingle();
+
+  if (existingProfile) {
+    return {success: false, error: 'Username is already taken'};
+  }
+
+  // Check if email already exists
+  const {data: existingEmail} = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('email', email)
+    .maybeSingle();
+
+  if (existingEmail) {
+    return {success: false, error: 'Email already registered'};
+  }
+
+  const {error} = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        username,
+        display_name,
+      },
+    },
+  });
+
+  if (error) {
+    return {success: false, error: error.message};
+  }
+  revalidatePath('/', 'layout');
+  return {
+    success: true,
+    message: 'Please check your email to verify your account.',
+  };
+}
+
+export async function signOut() {
+  const supabase = await createClient();
+  const {error} = await supabase.auth.signOut();
+
+  if (error) {
+    return {success: false, error: error.message};
+  }
+
+  revalidatePath('/', 'layout');
+  return {success: true};
+}
+
+export async function forgotPassword(formData: FormData) {
+  const supabase = await createClient();
+  const email = formData.get('email') as string;
+
+  const {error} = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/reset-password`,
+  });
+
+  if (error) {
+    return {success: false, error: error.message};
+  }
+
+  return {success: true, message: 'Password reset link sent to your email.'};
+}
+
+export async function updatePassword(formData: FormData) {
+  const supabase = await createClient();
+  const password = formData.get('password') as string;
+
+  const {error} = await supabase.auth.updateUser({
+    password,
+  });
+
+  if (error) {
+    return {success: false, error: error.message};
+  }
+
+  // Sign out after password update so the user can log in with new credentials
+  // and the middleware doesn't immediately redirect them to /dashboard
+  await supabase.auth.signOut();
+
+  return {success: true, message: 'Password updated successfully.'};
+}
+
+export async function updateCreatorStatus(enabled: boolean) {
+  const supabase = await createClient();
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {success: false, error: 'Not authenticated'};
+  }
+
+  const {error} = await supabase
+    .from('profiles')
+    .update({is_creator: enabled})
+    .eq('id', user.id);
+
+  if (error) {
+    return {success: false, error: error.message};
+  }
+
+  revalidatePath('/dashboard');
+  return {success: true};
+}

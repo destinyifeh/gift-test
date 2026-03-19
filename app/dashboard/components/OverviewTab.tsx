@@ -3,6 +3,8 @@
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
+import {updateCreatorStatus} from '@/lib/server/actions/auth';
+import {useUserStore} from '@/lib/store/useUserStore';
 import {
   CheckCircle,
   Crown,
@@ -12,12 +14,8 @@ import {
   Sparkles,
   Users,
 } from 'lucide-react';
-import {
-  receivedGifts,
-  SelectedSection,
-  sentGifts,
-  mockUser as user,
-} from './mock';
+import {toast} from 'sonner';
+import {receivedGifts, SelectedSection, sentGifts} from './mock';
 import {statusColor} from './utils';
 
 interface OverviewTabProps {
@@ -35,6 +33,18 @@ export function OverviewTab({
   setCreatorPlan,
   setSection,
 }: OverviewTabProps) {
+  const user = useUserStore(state => state.user);
+
+  const handleEnableCreator = async () => {
+    const result = await updateCreatorStatus(true);
+    if (result.success) {
+      setCreatorEnabled(true);
+      setSection('gift-page');
+      toast.success('Gift page enabled!');
+    } else {
+      toast.error(result.error || 'Failed to enable gift page');
+    }
+  };
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
@@ -126,16 +136,11 @@ export function OverviewTab({
                 Page
               </h3>
               <p className="text-sm text-muted-foreground mt-1">
-                Let people send you gifts at gifthance.com/{user.username}
+                Let people send you gifts at gifthance.com/
+                {user?.username || 'username'}
               </p>
             </div>
-            <Button
-              variant="hero"
-              size="sm"
-              onClick={() => {
-                setCreatorEnabled(true);
-                setSection('gift-page');
-              }}>
+            <Button variant="hero" size="sm" onClick={handleEnableCreator}>
               Enable
             </Button>
           </CardContent>

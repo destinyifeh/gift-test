@@ -1,27 +1,41 @@
 'use client';
 
+import {Alert, AlertDescription} from '@/components/ui/alert';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
-import {ArrowLeft, Gift, Mail} from 'lucide-react';
+import {forgotPassword} from '@/lib/server/actions/auth';
+import {AlertCircle, ArrowLeft, Gift, Mail} from 'lucide-react';
 import Link from 'next/link';
+import {useSearchParams} from 'next/navigation';
 import {useState} from 'react';
+import {toast} from 'sonner';
 
 export default function ForgotPasswordPage() {
-  const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isSent, setIsSent] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const searchParams = useSearchParams();
+  const error = searchParams.get('error');
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!email) return;
     setIsLoading(true);
-    // Mock API call
-    setTimeout(() => {
+    setErrorMsg(null);
+
+    const formData = new FormData(e.currentTarget);
+    const result = await forgotPassword(formData);
+
+    if (!result.success) {
+      setErrorMsg(result.error || 'An error occurred');
       setIsLoading(false);
-      setIsSent(true);
-    }, 1500);
+    } else {
+      setIsSuccess(true);
+      setIsLoading(false);
+      toast.success(result.message || 'Check your email');
+    }
   };
 
   return (
@@ -38,7 +52,7 @@ export default function ForgotPasswordPage() {
 
         <Card className="border-border shadow-elevated overflow-hidden">
           <CardContent className="p-6">
-            {!isSent ? (
+            {!isSuccess ? (
               <div className="space-y-6">
                 <div className="text-center">
                   <h1 className="text-2xl font-bold font-display text-foreground">
@@ -49,6 +63,15 @@ export default function ForgotPasswordPage() {
                   </p>
                 </div>
 
+                {errorMsg && (
+                  <Alert
+                    variant="destructive"
+                    className="bg-destructive/10 text-destructive border-destructive/20">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{errorMsg}</AlertDescription>
+                  </Alert>
+                )}
+
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
@@ -56,9 +79,8 @@ export default function ForgotPasswordPage() {
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input
                         id="email"
+                        name="email"
                         type="email"
-                        value={email}
-                        onChange={e => setEmail(e.target.value)}
                         placeholder="you@example.com"
                         className="pl-10"
                         required
@@ -92,37 +114,21 @@ export default function ForgotPasswordPage() {
               </div>
             ) : (
               <div className="text-center space-y-6 py-4">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Mail className="w-8 h-8 text-primary" />
-                </div>
                 <div className="space-y-2">
                   <h2 className="text-2xl font-bold font-display text-foreground">
                     Check your email
                   </h2>
                   <p className="text-muted-foreground">
-                    We've sent a password reset link to <br />
-                    <strong className="text-foreground">{email}</strong>
+                    We've sent a password reset link to your email address.
                   </p>
                 </div>
-                <div className="p-4 bg-muted rounded-lg text-sm text-left">
-                  <p className="text-muted-foreground mb-2">
-                    In a real app, you would click the link in your email. For
-                    this mock, you can use the button below:
-                  </p>
-                  <Link href="/reset-password">
+                <div className="pt-4">
+                  <Link href="/login">
                     <Button variant="outline" className="w-full">
-                      Go to Reset Password page (Mock)
+                      Back to Login
                     </Button>
                   </Link>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  Didn't receive the email?{' '}
-                  <button
-                    onClick={() => setIsSent(false)}
-                    className="text-primary font-medium hover:underline">
-                    Try again
-                  </button>
-                </p>
               </div>
             )}
           </CardContent>

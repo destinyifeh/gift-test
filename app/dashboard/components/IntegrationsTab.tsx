@@ -2,12 +2,14 @@
 
 import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
+import {useUserStore} from '@/lib/store/useUserStore';
 import {CheckCircle, ChevronRight, Copy, Key} from 'lucide-react';
 import Link from 'next/link';
 import {useState} from 'react';
-import {mockApiKey, mockUser as user} from './mock';
+import {mockApiKey} from './mock';
 
 export function IntegrationsTab() {
+  const user = useUserStore(state => state.user);
   const [apiKeyRevealed, setApiKeyRevealed] = useState(false);
   const [apiKeyCopied, setApiKeyCopied] = useState(false);
 
@@ -70,7 +72,7 @@ export function IntegrationsTab() {
             Add a gifting widget to your website
           </p>
           <pre className="bg-muted rounded-lg p-3 sm:p-4 text-xs sm:text-sm font-mono text-foreground overflow-x-auto">
-            {`<script src="https://cdn.gifttogether.com/widget.js"></script>\n<div id="gift-widget" data-user="${user.username}"></div>`}
+            {`<script src="https://cdn.gifttogether.com/widget.js"></script>\n<div id="gift-widget" data-user="${user?.username || 'username'}"></div>`}
           </pre>
           <Button variant="outline" size="sm">
             Copy Code

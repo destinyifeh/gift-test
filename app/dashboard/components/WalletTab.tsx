@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {useUserStore} from '@/lib/store/useUserStore';
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -24,10 +25,11 @@ import {
   Wallet,
 } from 'lucide-react';
 import {useState} from 'react';
-import {mockUser as user, walletData} from './mock';
+import {walletData} from './mock';
 import {VerifyModal} from './VerifyModal';
 
 export function WalletTab() {
+  const user = useUserStore(state => state.user);
   const [walletView, setWalletView] = useState<
     'overview' | 'transactions' | 'bank' | 'withdraw'
   >('overview');
@@ -95,7 +97,7 @@ export function WalletTab() {
         onConfirm={confirmVerifiedAction}
         password={verifyPassword}
         setPassword={setVerifyPassword}
-        user={user}
+        user={user || {id: '', email: '', display_name: 'User', username: ''}}
       />
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         <Card className="border-border">

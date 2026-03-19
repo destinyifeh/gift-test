@@ -294,9 +294,3 @@ export const creatorNavItems: {
 ];
 
 export const mockApiKey = 'gh_live_sk_9f8a7b6c5d4e3f2a1b0c';
-
-export const mockUser = {
-  name: 'Destiny O.',
-  username: 'destiny',
-  email: 'destiny@email.com',
-};

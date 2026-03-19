@@ -5,10 +5,11 @@ import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
+import {useUserStore} from '@/lib/store/useUserStore';
 import {Camera, Link as LinkIcon} from 'lucide-react';
-import {mockUser as user} from './mock';
 
 export function SettingsTab() {
+  const user = useUserStore(state => state.user);
   return (
     <div className="space-y-6">
       <Card className="border-border">
@@ -17,7 +18,7 @@ export function SettingsTab() {
           <div className="flex items-center gap-4">
             <Avatar className="w-14 sm:w-16 h-14 sm:h-16 border-2 border-border">
               <AvatarFallback className="bg-primary/10 text-primary text-xl font-bold">
-                {user.name.charAt(0)}
+                {user?.display_name?.charAt(0) || user?.email?.charAt(0) || '?'}
               </AvatarFallback>
             </Avatar>
             <Button variant="outline" size="sm" className="gap-2">
@@ -27,15 +28,15 @@ export function SettingsTab() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label className="text-xs">Full Name</Label>
-              <Input defaultValue={user.name} />
+              <Input defaultValue={user?.display_name || ''} />
             </div>
             <div className="space-y-1">
               <Label className="text-xs">Username</Label>
-              <Input defaultValue={user.username} />
+              <Input defaultValue={user?.username || ''} />
             </div>
             <div className="space-y-1 sm:col-span-2">
               <Label className="text-xs">Email</Label>
-              <Input defaultValue={user.email} type="email" />
+              <Input defaultValue={user?.email || ''} type="email" />
             </div>
           </div>
           <div className="border-t border-border pt-4 space-y-4">

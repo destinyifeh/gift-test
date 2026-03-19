@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/select';
 import {Switch} from '@/components/ui/switch';
 import {Textarea} from '@/components/ui/textarea';
+import {useUserStore} from '@/lib/store/useUserStore';
 import {
   CheckCircle,
   Crown,
@@ -27,7 +28,6 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import {useState} from 'react';
-import {mockUser as user} from './mock';
 
 interface GiftPageTabProps {
   creatorPlan: 'free' | 'pro';
@@ -35,6 +35,7 @@ interface GiftPageTabProps {
 }
 
 export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
+  const user = useUserStore(state => state.user);
   const [proTheme, setProTheme] = useState('warm');
   const [proBanner, setProBanner] = useState(
     'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200&auto=format&fit=crop&q=80',
@@ -121,11 +122,11 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
               </Badge>
             </p>
             <p className="text-sm text-muted-foreground">
-              gifttogether.com/{user.username}
+              gifttogether.com/{user?.username || 'username'}
             </p>
           </div>
           <div className="flex gap-2">
-            <Link href={`/u/${user.username}`}>
+            <Link href={`/u/${user?.username || 'username'}`}>
               <Button variant="outline" size="sm">
                 <Eye className="w-4 h-4 mr-1" /> View
               </Button>

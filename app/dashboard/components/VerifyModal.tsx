@@ -6,16 +6,15 @@ import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
 import {Shield} from 'lucide-react';
 
+import {UserProfile} from '@/lib/store/useUserStore';
+
 interface VerifyModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
   password: string;
   setPassword: (password: string) => void;
-  user: {
-    name: string;
-    email: string;
-  };
+  user: UserProfile;
 }
 
 export function VerifyModal({
@@ -36,7 +35,8 @@ export function VerifyModal({
           <div className="text-center">
             <Shield className="w-10 h-10 text-primary mx-auto mb-2" />
             <h3 className="font-semibold text-foreground">
-              Welcome back, {user.name}! 🎁
+              Welcome back,{' '}
+              {user?.display_name || user?.email?.split('@')[0] || 'User'}! 🎁
             </h3>
             <p className="text-muted-foreground text-sm">
               Please enter your password to confirm this action.
@@ -52,7 +52,7 @@ export function VerifyModal({
             />
           </div>
           <p className="text-xs text-muted-foreground text-center">
-            Or we can send a verification code to {user.email}
+            Or we can send a verification code to {user?.email}
           </p>
           <div className="flex gap-3">
             <Button
