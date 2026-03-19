@@ -18,7 +18,7 @@ import {useProfile} from '@/hooks/use-profile';
 import {updateProfile} from '@/lib/server/actions/auth';
 import {verifyPaymentAndUpgrade} from '@/lib/server/actions/transactions';
 import {useUserStore} from '@/lib/store/useUserStore';
-import PaystackPop from '@paystack/inline-js';
+// import PaystackPop from '@paystack/inline-js';
 import {useQueryClient} from '@tanstack/react-query';
 import {
   CheckCircle,
@@ -168,12 +168,13 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
     }
   };
 
-  const handleUpgrade = () => {
+  const handleUpgrade = async () => {
     if (!user?.email) {
       toast.error('User email not found. Please log in again.');
       return;
     }
 
+    const {default: PaystackPop} = await import('@paystack/inline-js');
     const paystack = new (PaystackPop as any)();
     paystack.newTransaction({
       key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
