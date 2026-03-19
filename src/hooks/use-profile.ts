@@ -13,7 +13,7 @@ export function useProfile() {
       if (!userId) return null;
       const {data: profile, error} = await supabase
         .from('profiles')
-        .select('*')
+        .select('*, bank_accounts(id, currency, is_primary)')
         .eq('id', userId)
         .single();
 
@@ -30,6 +30,7 @@ export function useProfile() {
         suggested_amounts: profile.suggested_amounts || [5, 10, 25],
         social_links: profile.social_links || {},
         theme_settings: profile.theme_settings || {},
+        bank_accounts: profile.bank_accounts || [],
       };
     },
     enabled: !!userId,
@@ -46,7 +47,7 @@ export function useProfileByUsername(username: string | null) {
 
       const {data: profile, error} = await supabase
         .from('profiles')
-        .select('*')
+        .select('*, bank_accounts(id, currency, is_primary)')
         .eq('username', username)
         .single();
 
@@ -66,6 +67,7 @@ export function useProfileByUsername(username: string | null) {
         suggested_amounts: profile.suggested_amounts || [5, 10, 25],
         social_links: profile.social_links || {},
         theme_settings: profile.theme_settings || {},
+        bank_accounts: profile.bank_accounts || [],
       };
     },
     enabled: !!username,

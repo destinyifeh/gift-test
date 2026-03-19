@@ -100,3 +100,259 @@ export async function resetPlan() {
   revalidatePath('/dashboard');
   return {success: true};
 }
+export async function getPaystackBanks(country = 'nigeria') {
+  const secretKey = process.env.NEXT_PUBLIC_PAYSTACK_SECRET_KEY;
+  try {
+    const response = await fetch(
+      `https://api.paystack.co/bank?country=${country.toLowerCase()}`,
+      {
+        headers: {
+          Authorization: `Bearer ${secretKey}`,
+        },
+      },
+    );
+
+    const body = await response.json();
+    if (!body.status) {
+      return {success: false, error: body.message || 'Failed to fetch banks'};
+    }
+
+    return {success: true, data: body.data};
+  } catch (err: any) {
+    return {success: false, error: err.message || 'Fetch error'};
+  }
+}
+
+export async function resolvePaystackAccount(
+  accountNumber: string,
+  bankCode: string,
+) {
+  const secretKey = process.env.NEXT_PUBLIC_PAYSTACK_SECRET_KEY;
+  try {
+    const response = await fetch(
+      `https://api.paystack.co/bank/resolve?account_number=${accountNumber}&bank_code=${bankCode}`,
+      {
+        headers: {
+          Authorization: `Bearer ${secretKey}`,
+        },
+      },
+    );
+
+    const body = await response.json();
+    if (!body.status) {
+      return {
+        success: false,
+        error: body.message || 'Account resolution failed',
+      };
+    }
+
+    return {success: true, data: body.data};
+  } catch (err: any) {
+    return {success: false, error: err.message || 'Resolution error'};
+  }
+}
+
+export async function addPaystackBankAccount(
+  bankName: string,
+  bankCode: string,
+  accountNumber: string,
+  accountName: string,
+  country = 'Nigeria',
+  currency = 'NGN',
+) {
+  const supabase = await createClient();
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {success: false, error: 'Not authenticated'};
+  }
+
+  const secretKey = process.env.NEXT_PUBLIC_PAYSTACK_SECRET_KEY;
+  try {
+    // 1. Create Transfer Recipient
+    const recipientResponse = await fetch(
+      'https://api.paystack.co/transferrecipient',
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${secretKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'nuban',
+          name: accountName,
+          account_number: accountNumber,
+          bank_code: bankCode,
+          currency: currency,
+        }),
+      },
+    );
+
+    const recipientBody = await recipientResponse.json();
+    if (!recipientBody.status) {
+      return {
+        success: false,
+        error: recipientBody.message || 'Failed to create recipient',
+      };
+    }
+
+    const recipientCode = recipientBody.data.recipient_code;
+
+    // 2. Save to database
+    const {error} = await supabase.from('bank_accounts').insert({
+      user_id: user.id,
+      bank_name: bankName,
+      bank_code: bankCode,
+      account_number: accountNumber,
+      account_name: accountName,
+      recipient_code: recipientCode,
+      country,
+      currency,
+      is_primary: true, // For now, make new one primary
+    });
+
+    if (error) {
+      return {success: false, error: error.message};
+    }
+
+    revalidatePath('/dashboard');
+    return {success: true};
+  } catch (err: any) {
+    return {success: false, error: err.message || 'Account addition error'};
+  }
+}
+
+export async function fetchWalletProfile() {
+  const supabase = await createClient();
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {success: false, error: 'Not authenticated'};
+  }
+
+  // Fetch accounts and transactions
+  const [{data: accounts}, {data: txs}] = await Promise.all([
+    supabase.from('bank_accounts').select('*').eq('user_id', user.id),
+    supabase
+      .from('transactions')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', {ascending: false}),
+  ]);
+
+  // Calculate balance (crude version: inflows - outflows)
+  const balance = (txs || []).reduce((acc, t) => {
+    if (t.status !== 'success') return acc;
+    if (t.type === 'receipt') return acc + Number(t.amount);
+    if (t.type === 'withdrawal' || t.type === 'fee')
+      return acc - Number(t.amount);
+    return acc;
+  }, 0);
+
+  return {
+    success: true,
+    data: {
+      balance: balance / 100, // Convert to major currency unit
+      accounts: accounts || [],
+      transactions: txs || [],
+    },
+  };
+}
+
+export async function initiateWithdrawal(
+  amount: number,
+  bankAccountId: string,
+) {
+  const supabase = await createClient();
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {success: false, error: 'Not authenticated'};
+  }
+
+  const secretKey = process.env.NEXT_PUBLIC_PAYSTACK_SECRET_KEY;
+  try {
+    // 1. Get bank account recipient_code
+    const {data: account} = await supabase
+      .from('bank_accounts')
+      .select('recipient_code, bank_name')
+      .eq('id', bankAccountId)
+      .single();
+
+    if (!account) {
+      return {success: false, error: 'Bank account not found'};
+    }
+
+    // 2. Initiate Transfer in Paystack
+    const transferResponse = await fetch('https://api.paystack.co/transfer', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${secretKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        source: 'balance',
+        amount: Math.round(amount * 100), // Convert to kobo
+        recipient: account.recipient_code,
+        reason: 'Wallet withdrawal',
+      }),
+    });
+
+    const transferBody = await transferResponse.json();
+    if (!transferBody.status) {
+      return {
+        success: false,
+        error: transferBody.message || 'Transfer initiation failed',
+      };
+    }
+
+    // 3. Record transaction in database
+    const {error} = await supabase.from('transactions').insert({
+      user_id: user.id,
+      amount: Math.round(amount * 100),
+      type: 'withdrawal',
+      status: 'pending', // Paystack transfers are usually async
+      reference: transferBody.data.reference,
+      description: `Withdrawal to ${account.bank_name}`,
+    });
+
+    if (error) {
+      return {success: false, error: error.message};
+    }
+
+    revalidatePath('/dashboard');
+    return {success: true};
+  } catch (err: any) {
+    return {success: false, error: err.message || 'Withdrawal error'};
+  }
+}
+
+export async function deleteBankAccount(id: string) {
+  const supabase = await createClient();
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {success: false, error: 'Not authenticated'};
+  }
+
+  const {error} = await supabase
+    .from('bank_accounts')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id);
+
+  if (error) {
+    return {success: false, error: error.message};
+  }
+
+  revalidatePath('/dashboard');
+  return {success: true};
+}

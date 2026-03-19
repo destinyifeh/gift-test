@@ -12,7 +12,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  CURRENCY_SYMBOLS,
+  getCurrencyByCountry,
+  PAYSTACK_COUNTRIES,
+} from '@/lib/currencies';
+import {
+  addPaystackBankAccount,
+  fetchWalletProfile,
+  getPaystackBanks,
+  initiateWithdrawal,
+  resolvePaystackAccount,
+} from '@/lib/server/actions/transactions';
 import {useUserStore} from '@/lib/store/useUserStore';
+import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -20,72 +33,161 @@ import {
   CheckCircle,
   Clock,
   DollarSign,
+  Loader2,
   Shield,
   Trash2,
   Wallet,
 } from 'lucide-react';
 import {useState} from 'react';
-import {walletData} from './mock';
+import {toast} from 'sonner';
 import {VerifyModal} from './VerifyModal';
 
 export function WalletTab() {
   const user = useUserStore(state => state.user);
+  const queryClient = useQueryClient();
   const [walletView, setWalletView] = useState<
     'overview' | 'transactions' | 'bank' | 'withdraw'
   >('overview');
   const [withdrawAmount, setWithdrawAmount] = useState('');
-  const [bankAccounts, setBankAccounts] = useState([
-    {
-      id: 1,
-      bankName: 'First Bank',
-      accountNumber: '••••••••1234',
-      holderName: 'Destiny O.',
-      country: 'Nigeria',
-      isPrimary: true,
-    },
-  ]);
+  const [selectedCountry, setSelectedCountry] = useState('Nigeria');
+
+  const {data: walletProfile, isLoading: isWalletLoading} = useQuery({
+    queryKey: ['wallet-profile'],
+    queryFn: () => fetchWalletProfile(),
+  });
+
+  const {data: banksData} = useQuery({
+    queryKey: ['paystack-banks', selectedCountry],
+    queryFn: () => getPaystackBanks(selectedCountry),
+  });
+
   const [bankForm, setBankForm] = useState({
-    country: '',
+    bankCode: '',
     bankName: '',
     accountNumber: '',
     holderName: '',
   });
+  const [isResolving, setIsResolving] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
+  const [isWithdrawing, setIsWithdrawing] = useState(false);
   const [verifyAction, setVerifyAction] = useState<null | string>(null);
   const [verifyPassword, setVerifyPassword] = useState('');
   const [withdrawBank, setWithdrawBank] = useState('');
 
-  const confirmVerifiedAction = () => {
+  const banks = banksData?.data || [];
+  const wallet = walletProfile?.data || {
+    balance: 0,
+    accounts: [],
+    transactions: [],
+  };
+
+  const primaryBank =
+    wallet.accounts.find((a: any) => a.is_primary) || wallet.accounts[0];
+  const currencySymbol = CURRENCY_SYMBOLS[primaryBank?.currency] || '$';
+
+  const handleResolveAccount = async () => {
+    if (bankForm.accountNumber.length !== 10 || !bankForm.bankCode) return;
+    setIsResolving(true);
+    try {
+      const result = await resolvePaystackAccount(
+        bankForm.accountNumber,
+        bankForm.bankCode,
+      );
+      if (result.success) {
+        setBankForm({
+          ...bankForm,
+          holderName: result.data.account_name,
+        });
+        toast.success('Account verified!');
+      } else {
+        toast.error(result.error || 'Could not verify account');
+      }
+    } catch (error) {
+      toast.error('Verification failed');
+    } finally {
+      setIsResolving(false);
+    }
+  };
+
+  const confirmVerifiedAction = async () => {
     if (!verifyPassword) return;
+
     if (verifyAction?.startsWith('remove-bank-')) {
-      const id = Number(verifyAction.split('-')[2]);
-      setBankAccounts(bankAccounts.filter(b => b.id !== id));
+      const bankId = verifyAction.split('-')[2];
+      const {deleteBankAccount} =
+        await import('@/lib/server/actions/transactions');
+      const result = await deleteBankAccount(bankId);
+      if (result.success) {
+        toast.success('Bank account removed');
+        await queryClient.invalidateQueries({queryKey: ['wallet-profile']});
+      } else {
+        toast.error(result.error);
+      }
     }
+
     if (verifyAction === 'withdraw') {
-      setWalletView('overview');
-      setWithdrawAmount('');
+      setIsWithdrawing(true);
+      try {
+        const result = await initiateWithdrawal(
+          Number(withdrawAmount),
+          withdrawBank,
+        );
+        if (result.success) {
+          toast.success('Withdrawal initiated!');
+          setWalletView('overview');
+          setWithdrawAmount('');
+          await queryClient.invalidateQueries({queryKey: ['wallet-profile']});
+        } else {
+          toast.error(result.error);
+        }
+      } catch (error) {
+        toast.error('Withdrawal failed');
+      } finally {
+        setIsWithdrawing(false);
+      }
     }
+
     if (verifyAction === 'add-bank') {
-      setBankAccounts([
-        ...bankAccounts,
-        {
-          id: Date.now(),
-          bankName: bankForm.bankName,
-          accountNumber: '••••••••' + bankForm.accountNumber.slice(-4),
-          holderName: bankForm.holderName,
-          country: bankForm.country,
-          isPrimary: bankAccounts.length === 0,
-        },
-      ]);
-      setBankForm({
-        country: '',
-        bankName: '',
-        accountNumber: '',
-        holderName: '',
-      });
+      setIsAdding(true);
+      try {
+        const result = await addPaystackBankAccount(
+          bankForm.bankName,
+          bankForm.bankCode,
+          bankForm.accountNumber,
+          bankForm.holderName,
+          selectedCountry,
+          getCurrencyByCountry(selectedCountry),
+        );
+        if (result.success) {
+          toast.success('Bank account added!');
+          setBankForm({
+            bankCode: '',
+            bankName: '',
+            accountNumber: '',
+            holderName: '',
+          });
+          setWalletView('overview');
+          await queryClient.invalidateQueries({queryKey: ['wallet-profile']});
+        } else {
+          toast.error(result.error);
+        }
+      } catch (error) {
+        toast.error('Failed to add bank account');
+      } finally {
+        setIsAdding(false);
+      }
     }
     setVerifyAction(null);
     setVerifyPassword('');
   };
+  if (isWalletLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <VerifyModal
@@ -104,7 +206,8 @@ export function WalletTab() {
           <CardContent className="p-4 sm:p-5 text-center">
             <Wallet className="w-6 h-6 text-primary mx-auto mb-2" />
             <p className="text-2xl sm:text-3xl font-bold text-foreground">
-              ${walletData.availableBalance}.00
+              {currencySymbol}
+              {wallet.balance.toFixed(2)}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
               Available Balance
@@ -115,20 +218,21 @@ export function WalletTab() {
           <CardContent className="p-4 sm:p-5 text-center">
             <ArrowDownLeft className="w-6 h-6 text-secondary mx-auto mb-2" />
             <p className="text-2xl sm:text-3xl font-bold text-foreground">
-              ${walletData.totalReceived}.00
+              {currencySymbol}
+              {wallet.balance.toFixed(2)}
             </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Total Gifts Received
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">Total Inflow</p>
           </CardContent>
         </Card>
         <Card className="border-border">
           <CardContent className="p-4 sm:p-5 text-center">
             <DollarSign className="w-6 h-6 text-destructive mx-auto mb-2" />
             <p className="text-2xl sm:text-3xl font-bold text-foreground">
-              ${walletData.platformFees}.00
+              {currencySymbol}0.00
             </p>
-            <p className="text-xs text-muted-foreground mt-1">Platform Fees</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Pending Payouts
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -156,7 +260,7 @@ export function WalletTab() {
             setWalletView(walletView === 'bank' ? 'overview' : 'bank')
           }>
           <Building className="w-4 h-4 mr-2" />{' '}
-          {bankAccounts.length > 0 ? 'Manage Bank' : 'Connect Bank'}
+          {wallet.accounts.length > 0 ? 'Manage Bank' : 'Connect Bank'}
         </Button>
       </div>
 
@@ -164,39 +268,24 @@ export function WalletTab() {
         <Card className="border-border">
           <CardContent className="p-4 sm:p-6 space-y-4">
             <h3 className="font-semibold text-foreground">Bank Accounts</h3>
-            {bankAccounts.map(b => (
+            {wallet.accounts.map(b => (
               <div
                 key={b.id}
                 className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 bg-muted rounded-lg gap-2">
                 <div>
                   <p className="text-sm font-medium text-foreground">
-                    {b.bankName}{' '}
-                    {b.isPrimary && (
+                    {b.bank_name}{' '}
+                    {b.is_primary && (
                       <Badge variant="secondary" className="ml-2 text-xs">
                         Primary
                       </Badge>
                     )}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {b.holderName} · {b.accountNumber} · {b.country}
+                    {b.account_name} · ••••{b.account_number.slice(-4)}
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  {!b.isPrimary && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() =>
-                        setBankAccounts(
-                          bankAccounts.map(ba => ({
-                            ...ba,
-                            isPrimary: ba.id === b.id,
-                          })),
-                        )
-                      }>
-                      Set Primary
-                    </Button>
-                  )}
                   <Button
                     variant="ghost"
                     size="sm"
@@ -215,60 +304,104 @@ export function WalletTab() {
                 <div className="space-y-1">
                   <Label className="text-xs">Country</Label>
                   <Select
-                    value={bankForm.country}
-                    onValueChange={v => setBankForm({...bankForm, country: v})}>
+                    value={selectedCountry}
+                    onValueChange={v => {
+                      setSelectedCountry(v);
+                      setBankForm({
+                        ...bankForm,
+                        bankCode: '',
+                        bankName: '',
+                        holderName: '',
+                      });
+                    }}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select country" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Nigeria">Nigeria</SelectItem>
-                      <SelectItem value="United States">
-                        United States
-                      </SelectItem>
-                      <SelectItem value="United Kingdom">
-                        United Kingdom
-                      </SelectItem>
-                      <SelectItem value="Ghana">Ghana</SelectItem>
-                      <SelectItem value="Kenya">Kenya</SelectItem>
+                      {PAYSTACK_COUNTRIES.map(c => (
+                        <SelectItem key={c.code} value={c.name}>
+                          {c.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs">Bank Name</Label>
-                  <Input
-                    value={bankForm.bankName}
-                    onChange={e =>
-                      setBankForm({...bankForm, bankName: e.target.value})
-                    }
-                    placeholder="e.g. First Bank"
-                  />
+                  <Label className="text-xs">Select Bank</Label>
+                  <Select
+                    value={bankForm.bankCode}
+                    onValueChange={v => {
+                      const bank = banks.find((b: any) => b.code === v);
+                      setBankForm({
+                        ...bankForm,
+                        bankCode: v,
+                        bankName: bank?.name || '',
+                      });
+                    }}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Search bank..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {banks.map((b: any) => (
+                        <SelectItem key={b.id} value={b.code}>
+                          {b.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-                <div className="space-y-1">
+                <div className="sm:col-span-2 space-y-1">
                   <Label className="text-xs">Account Number</Label>
-                  <Input
-                    value={bankForm.accountNumber}
-                    onChange={e =>
-                      setBankForm({...bankForm, accountNumber: e.target.value})
-                    }
-                    placeholder="e.g. 0123456789"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      value={bankForm.accountNumber}
+                      onChange={e =>
+                        setBankForm({
+                          ...bankForm,
+                          accountNumber: e.target.value,
+                        })
+                      }
+                      placeholder="e.g. 0123456789"
+                      maxLength={10}
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleResolveAccount}
+                      disabled={
+                        isResolving ||
+                        bankForm.accountNumber.length !== 10 ||
+                        !bankForm.bankCode
+                      }>
+                      {isResolving ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        'Verify'
+                      )}
+                    </Button>
+                  </div>
                 </div>
-                <div className="space-y-1">
+                <div className="sm:col-span-2 space-y-1">
                   <Label className="text-xs">Account Holder Name</Label>
                   <Input
                     value={bankForm.holderName}
-                    onChange={e =>
-                      setBankForm({...bankForm, holderName: e.target.value})
-                    }
-                    placeholder="Full name"
+                    readOnly
+                    placeholder="Verified name will appear here"
+                    className="bg-muted"
                   />
                 </div>
               </div>
               <Button
                 variant="hero"
                 size="sm"
-                onClick={() => setVerifyAction('add-bank')}>
-                <CheckCircle className="w-4 h-4 mr-1" /> Verify & Add Account
+                onClick={() => setVerifyAction('add-bank')}
+                disabled={!bankForm.holderName || isAdding}>
+                {isAdding ? (
+                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                ) : (
+                  <CheckCircle className="w-4 h-4 mr-1" />
+                )}
+                Add Verified Account
               </Button>
             </div>
           </CardContent>
@@ -287,9 +420,9 @@ export function WalletTab() {
                     <SelectValue placeholder="Choose bank" />
                   </SelectTrigger>
                   <SelectContent>
-                    {bankAccounts.map(b => (
-                      <SelectItem key={b.id} value={String(b.id)}>
-                        {b.bankName} — {b.accountNumber}
+                    {wallet.accounts.map(b => (
+                      <SelectItem key={b.id} value={b.id}>
+                        {b.bank_name} — ••••{b.account_number.slice(-4)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -297,15 +430,22 @@ export function WalletTab() {
               </div>
               <div className="space-y-2">
                 <Label>Amount</Label>
-                <Input
-                  type="number"
-                  placeholder="$0.00"
-                  value={withdrawAmount}
-                  onChange={e => setWithdrawAmount(e.target.value)}
-                  max={walletData.availableBalance}
-                />
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    {currencySymbol}
+                  </span>
+                  <Input
+                    type="number"
+                    placeholder="0.00"
+                    className="pl-8"
+                    value={withdrawAmount}
+                    onChange={e => setWithdrawAmount(e.target.value)}
+                    max={wallet.balance}
+                  />
+                </div>
                 <p className="text-xs text-muted-foreground text-right mt-1">
-                  Max: ${walletData.availableBalance}.00
+                  Max: {currencySymbol}
+                  {wallet.balance.toFixed(2)}
                 </p>
               </div>
             </div>
@@ -313,8 +453,13 @@ export function WalletTab() {
               <Button
                 variant="hero"
                 onClick={() => setVerifyAction('withdraw')}
-                disabled={!withdrawBank || !withdrawAmount}>
-                <Shield className="w-4 h-4 mr-1" /> Verify & Withdraw
+                disabled={!withdrawBank || !withdrawAmount || isWithdrawing}>
+                {isWithdrawing ? (
+                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                ) : (
+                  <Shield className="w-4 h-4 mr-1" />
+                )}
+                Confirm & Withdraw
               </Button>
               <Button
                 variant="outline"
@@ -345,16 +490,22 @@ export function WalletTab() {
                   </tr>
                 </thead>
                 <tbody>
-                  {walletData.transactions.map((t: any) => (
+                  {wallet.transactions.map((t: any) => (
                     <tr
                       key={t.id}
                       className="border-b border-border last:border-0">
-                      <td className="py-3 text-foreground">{t.date}</td>
-                      <td className="py-3 text-foreground">{t.from}</td>
-                      <td className="py-3 text-muted-foreground">{t.desc}</td>
+                      <td className="py-3 text-foreground">
+                        {new Date(t.created_at).toLocaleDateString()}
+                      </td>
+                      <td className="py-3 text-foreground">{t.description}</td>
+                      <td className="py-3 text-muted-foreground capitalize">
+                        {t.type}
+                      </td>
                       <td
-                        className={`py-3 text-right font-semibold ${t.amount > 0 ? 'text-secondary' : 'text-destructive'}`}>
-                        {t.amount > 0 ? '+' : ''}${Math.abs(t.amount)}
+                        className={`py-3 text-right font-semibold ${t.type === 'receipt' ? 'text-secondary' : 'text-destructive'}`}>
+                        {t.type === 'receipt' ? '+' : '-'}
+                        {currencySymbol}
+                        {Math.abs(t.amount / 100).toFixed(2)}
                       </td>
                     </tr>
                   ))}

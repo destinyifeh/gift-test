@@ -8,6 +8,7 @@ import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
 import {useProfileByUsername} from '@/hooks/use-profile';
+import {CURRENCY_SYMBOLS} from '@/lib/currencies';
 import {useUserStore} from '@/lib/store/useUserStore';
 import {
   ArrowLeft,
@@ -174,6 +175,21 @@ export default function CreatorProfilePage({
   const plan =
     (dbProfile ? dbProfile.theme_settings?.plan : mockData?.plan) || 'free';
 
+  const theme = {
+    primary:
+      dbProfile?.theme_settings?.primaryColor ||
+      mockData?.theme?.primary ||
+      'hsl(16 85% 60%)',
+    background:
+      dbProfile?.theme_settings?.bgColor ||
+      mockData?.theme?.background ||
+      'var(--background)',
+    text:
+      dbProfile?.theme_settings?.textColor ||
+      mockData?.theme?.text ||
+      'var(--foreground)',
+  };
+
   const profile = {
     name: dbProfile?.display_name || mockData?.name || username || 'User',
     bio: dbProfile?.bio || mockData?.bio || 'No bio yet.',
@@ -188,6 +204,13 @@ export default function CreatorProfilePage({
     acceptVendor: dbProfile?.theme_settings?.acceptVendor ?? true,
     plan,
     theme_settings: dbProfile?.theme_settings || {},
+    theme,
+    currencySymbol:
+      CURRENCY_SYMBOLS[
+        dbProfile?.bank_accounts?.find((a: any) => a.is_primary)?.currency ||
+          dbProfile?.bank_accounts?.[0]?.currency ||
+          'NGN'
+      ] || '$',
     banner:
       plan === 'pro' && dbProfile?.theme_settings?.proBanner
         ? dbProfile?.theme_settings?.proBanner
@@ -210,11 +233,11 @@ export default function CreatorProfilePage({
   };
 
   const customStyles =
-    profile.plan === 'pro' && profile.theme_settings
+    profile.plan === 'pro'
       ? ({
-          '--creator-primary': profile.theme_settings.primaryColor,
-          '--creator-bg': profile.theme_settings.bgColor,
-          '--creator-text': profile.theme_settings.textColor,
+          '--creator-primary': profile.theme.primary,
+          '--creator-bg': profile.theme.background,
+          '--creator-text': profile.theme.text,
         } as React.CSSProperties)
       : {};
 
@@ -227,13 +250,11 @@ export default function CreatorProfilePage({
       }`}
       style={{
         backgroundColor:
-          profile.plan === 'pro' && profile.theme_settings?.bgColor
-            ? profile.theme_settings.bgColor
+          profile.plan === 'pro'
+            ? profile.theme.background
             : 'var(--background)',
         color:
-          profile.plan === 'pro' && profile.theme_settings?.textColor
-            ? profile.theme_settings.textColor
-            : 'var(--foreground)',
+          profile.plan === 'pro' ? profile.theme.text : 'var(--foreground)',
         ...customStyles,
       }}>
       <Navbar />
@@ -275,9 +296,9 @@ export default function CreatorProfilePage({
               <AvatarFallback
                 className="text-2xl font-bold capitalize bg-primary text-primary-foreground"
                 style={
-                  profile.plan === 'pro' && profile.theme_settings?.primaryColor
+                  profile.plan === 'pro'
                     ? {
-                        backgroundColor: profile.theme_settings.primaryColor,
+                        backgroundColor: profile.theme.primary,
                         color: 'white',
                       }
                     : {}
@@ -340,9 +361,8 @@ export default function CreatorProfilePage({
                   className="w-4 h-4"
                   style={{
                     color:
-                      profile.plan === 'pro' &&
-                      profile.theme_settings?.primaryColor
-                        ? profile.theme_settings.primaryColor
+                      profile.plan === 'pro'
+                        ? profile.theme.primary
                         : 'var(--primary)',
                   }}
                 />{' '}
@@ -394,6 +414,8 @@ export default function CreatorProfilePage({
                     profileTheme={profile.theme}
                     acceptMoney={profile.acceptMoney}
                     acceptVendor={profile.acceptVendor}
+                    currencySymbol={profile.currencySymbol}
+                    vendorGifts={profile.vendorGifts}
                   />
 
                   <Button
@@ -512,9 +534,8 @@ export default function CreatorProfilePage({
                               className="text-sm font-bold"
                               style={{
                                 color:
-                                  profile.plan === 'pro' &&
-                                  profile.theme_settings?.primaryColor
-                                    ? profile.theme_settings.primaryColor
+                                  profile.plan === 'pro'
+                                    ? profile.theme.primary
                                     : 'var(--primary)',
                               }}>
                               {profile.showAmounts && `$${s.amount}`}

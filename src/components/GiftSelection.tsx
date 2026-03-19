@@ -28,6 +28,8 @@ interface GiftSelectionProps {
   onGiftShopClick?: () => void;
   acceptMoney?: boolean;
   acceptVendor?: boolean;
+  currencySymbol?: string;
+  vendorGifts?: {id: number; name: string; price: number}[];
 }
 
 const GiftSelection = ({
@@ -46,14 +48,18 @@ const GiftSelection = ({
   onGiftShopClick,
   acceptMoney = true,
   acceptVendor = true,
+  currencySymbol = '$',
+  vendorGifts,
 }: GiftSelectionProps) => {
   const [giftSearch, setGiftSearch] = useState('');
 
-  const filteredVendorGifts = allVendorGifts.filter(
+  const displayVendorGifts = vendorGifts || allVendorGifts;
+
+  const filteredVendorGifts = displayVendorGifts.filter(
     g =>
       !giftSearch ||
       g.name.toLowerCase().includes(giftSearch.toLowerCase()) ||
-      g.vendor.toLowerCase().includes(giftSearch.toLowerCase()),
+      (g as any).vendor?.toLowerCase().includes(giftSearch.toLowerCase()),
   );
 
   return (
@@ -89,7 +95,8 @@ const GiftSelection = ({
               </Label>
               {minAmount > 0 && (
                 <Badge variant="default" className="text-[10px] h-5 font-bold">
-                  Min. ${minAmount}
+                  Min. {currencySymbol}
+                  {minAmount}
                 </Badge>
               )}
             </div>
@@ -106,15 +113,25 @@ const GiftSelection = ({
                     amount === a
                       ? 'border-primary bg-primary/5 text-primary shadow-sm'
                       : 'border-border text-foreground hover:border-primary/40'
-                  } ${minAmount > a ? 'opacity-30 cursor-not-allowed grayscale' : ''}`}>
-                  ${a}
+                  } ${minAmount > a ? 'opacity-30 cursor-not-allowed grayscale' : ''}`}
+                  style={
+                    amount === a && profileTheme
+                      ? {
+                          borderColor: profileTheme.primary,
+                          color: profileTheme.primary,
+                          backgroundColor: `${profileTheme.primary}10`,
+                        }
+                      : {}
+                  }>
+                  {currencySymbol}
+                  {a}
                 </button>
               ))}
             </div>
             <div className="mt-4 space-y-3">
               <div className="relative group">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-muted-foreground text-lg transition-colors group-focus-within:text-primary">
-                  $
+                  {currencySymbol}
                 </span>
                 <Input
                   type="number"
@@ -131,7 +148,8 @@ const GiftSelection = ({
                 customAmount &&
                 Number(customAmount) < minAmount && (
                   <p className="text-[10px] text-destructive text-center font-bold animate-pulse">
-                    Minimum amount required is ${minAmount}
+                    Minimum amount required is {currencySymbol}
+                    {minAmount}
                   </p>
                 )}
             </div>
@@ -183,7 +201,8 @@ const GiftSelection = ({
                   </div>
                 </div>
                 <span className="font-bold text-primary text-base">
-                  ${g.price}
+                  {currencySymbol}
+                  {g.price}
                 </span>
               </button>
             ))}
