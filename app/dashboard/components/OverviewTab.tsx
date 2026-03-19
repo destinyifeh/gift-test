@@ -119,7 +119,8 @@ export function OverviewTab({
         </CardContent>
       </Card>
 
-      {!creatorEnabled && (
+      {/* Explicitly hide if Pro OR enabled */}
+      {creatorEnabled || creatorPlan === 'pro' ? null : (
         <Card className="border-primary/20 bg-primary/5">
           <CardContent className="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>

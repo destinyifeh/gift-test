@@ -32,17 +32,19 @@ export default function DashboardPage() {
   const {data: profile} = useProfile();
   const [section, setSection] = useState<SelectedSection>('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [creatorEnabled, setCreatorEnabled] = useState(false);
-  const [creatorPlan, setCreatorPlan] = useState<'free' | 'pro'>('free');
+  const [dbIsCreator, setDbIsCreator] = useState(false);
+  const [dbPlan, setDbPlan] = useState<'free' | 'pro'>('free');
 
   const user = useUserStore(state => state.user);
 
   useEffect(() => {
     if (profile) {
-      setCreatorEnabled(profile.is_creator);
-      setCreatorPlan(profile.theme_settings?.plan || 'free');
+      setDbIsCreator(profile.is_creator);
+      setDbPlan(profile.theme_settings?.plan || 'free');
     }
   }, [profile]);
+
+  const isEffectivelyCreator = dbIsCreator || dbPlan === 'pro';
 
   const router = useRouter();
   const clearUser = useUserStore(state => state.clearUser);
@@ -63,8 +65,9 @@ export default function DashboardPage() {
     setSection,
     sidebarOpen,
     setSidebarOpen,
-    creatorEnabled,
-    setCreatorEnabled,
+    creatorEnabled: isEffectivelyCreator,
+    setCreatorEnabled: setDbIsCreator,
+    creatorPlan: dbPlan,
   };
 
   return (
@@ -107,8 +110,7 @@ export default function DashboardPage() {
           {section === 'overview' && (
             <OverviewTab
               {...commonProps}
-              creatorPlan={creatorPlan}
-              setCreatorPlan={setCreatorPlan}
+              setCreatorPlan={setDbPlan}
               setSection={setSection}
             />
           )}
@@ -132,18 +134,19 @@ export default function DashboardPage() {
 
           {section === 'settings' && <SettingsTab />}
 
-          {section === 'gift-page' && creatorEnabled && (
-            <GiftPageTab
-              creatorPlan={creatorPlan}
-              setCreatorPlan={setCreatorPlan}
-            />
+          {section === 'gift-page' && isEffectivelyCreator && (
+            <GiftPageTab creatorPlan={dbPlan} setCreatorPlan={setDbPlan} />
           )}
 
-          {section === 'supporters' && creatorEnabled && <SupportersTab />}
+          {section === 'supporters' && isEffectivelyCreator && (
+            <SupportersTab />
+          )}
 
-          {section === 'analytics' && creatorEnabled && <AnalyticsTab />}
+          {section === 'analytics' && isEffectivelyCreator && <AnalyticsTab />}
 
-          {section === 'integrations' && creatorEnabled && <IntegrationsTab />}
+          {section === 'integrations' && isEffectivelyCreator && (
+            <IntegrationsTab />
+          )}
         </div>
       </main>
     </div>

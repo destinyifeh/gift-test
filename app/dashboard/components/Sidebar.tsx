@@ -16,6 +16,7 @@ interface SidebarProps {
   setSidebarOpen: (open: boolean) => void;
   creatorEnabled: boolean;
   setCreatorEnabled: (enabled: boolean) => void;
+  creatorPlan?: 'free' | 'pro';
   onSignOut: () => void;
 }
 
@@ -25,6 +26,7 @@ export function Sidebar({
   setSidebarOpen,
   creatorEnabled,
   setCreatorEnabled,
+  creatorPlan = 'free',
   onSignOut,
 }: SidebarProps) {
   const {user: storeUser, setUser: setStoreUser} = useUserStore();
@@ -129,7 +131,7 @@ export function Sidebar({
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-2">
             Creator
           </p>
-          {!creatorEnabled ? (
+          {!creatorEnabled && creatorPlan !== 'pro' ? (
             <button
               onClick={handleEnableCreator}
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">

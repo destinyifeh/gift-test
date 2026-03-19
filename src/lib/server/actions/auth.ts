@@ -150,6 +150,7 @@ export async function updateProfile(updates: {
   social_links?: any;
   theme_settings?: any;
   avatar_url?: string;
+  is_creator?: boolean;
 }) {
   const supabase = await createClient();
   const {
@@ -186,10 +187,15 @@ export async function updateProfile(updates: {
     const existingTheme = currentProfile?.theme_settings || {};
     const existingPlan = existingTheme.plan || 'free';
 
-    // Merge new settings with existing plan
+    // If the plan is being forced to 'pro', ensure is_creator is also true
+    if (existingPlan === 'pro') {
+      updates.is_creator = true;
+    }
+
+    // Merge new settings but ABSOLUTELY prevent plan downgrade in theme_settings
     updates.theme_settings = {
       ...updates.theme_settings,
-      plan: existingPlan, // Force existing plan
+      plan: existingPlan,
     };
   }
 

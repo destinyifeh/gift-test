@@ -8,16 +8,23 @@ export function useProfile() {
   const userId = user?.id;
 
   return useQuery({
-    queryKey: ['profile', userId],
+    queryKey: ['profile'],
     queryFn: async () => {
+      const {
+        data: {user},
+      } = await supabase.auth.getUser();
+      const userId = user?.id;
       if (!userId) return null;
-      const {data: profile, error} = await supabase
-        .from('profiles')
-        .select('*, bank_accounts(id, currency, is_primary)')
-        .eq('id', userId)
-        .single();
+      const [{data: profile, error: pError}, {data: accounts}] =
+        await Promise.all([
+          supabase.from('profiles').select('*').eq('id', userId).single(),
+          supabase
+            .from('bank_accounts')
+            .select('id, currency, is_primary')
+            .eq('user_id', userId),
+        ]);
 
-      if (error) throw error;
+      if (pError) throw pError;
 
       return {
         id: userId,
@@ -30,11 +37,11 @@ export function useProfile() {
         suggested_amounts: profile.suggested_amounts || [5, 10, 25],
         social_links: profile.social_links || {},
         theme_settings: profile.theme_settings || {},
-        bank_accounts: profile.bank_accounts || [],
+        bank_accounts: accounts || [],
       };
     },
     enabled: !!userId,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 30, // 30 seconds
   });
 }
 export function useProfileByUsername(username: string | null) {
@@ -45,16 +52,21 @@ export function useProfileByUsername(username: string | null) {
     queryFn: async () => {
       if (!username) return null;
 
-      const {data: profile, error} = await supabase
+      const {data: profile, error: pError} = await supabase
         .from('profiles')
-        .select('*, bank_accounts(id, currency, is_primary)')
+        .select('*')
         .eq('username', username)
         .single();
 
-      if (error) {
-        if (error.code === 'PGRST116') return null; // Not found
-        throw error;
+      if (pError) {
+        if (pError.code === 'PGRST116') return null; // Not found
+        throw pError;
       }
+
+      const {data: accounts} = await supabase
+        .from('bank_accounts')
+        .select('id, currency, is_primary')
+        .eq('user_id', profile.id);
 
       return {
         id: profile.id,
@@ -67,7 +79,7 @@ export function useProfileByUsername(username: string | null) {
         suggested_amounts: profile.suggested_amounts || [5, 10, 25],
         social_links: profile.social_links || {},
         theme_settings: profile.theme_settings || {},
-        bank_accounts: profile.bank_accounts || [],
+        bank_accounts: accounts || [],
       };
     },
     enabled: !!username,
