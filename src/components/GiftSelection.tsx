@@ -26,6 +26,8 @@ interface GiftSelectionProps {
     text: string;
   };
   onGiftShopClick?: () => void;
+  acceptMoney?: boolean;
+  acceptVendor?: boolean;
 }
 
 const GiftSelection = ({
@@ -42,6 +44,8 @@ const GiftSelection = ({
   target,
   profileTheme,
   onGiftShopClick,
+  acceptMoney = true,
+  acceptVendor = true,
 }: GiftSelectionProps) => {
   const [giftSearch, setGiftSearch] = useState('');
 
@@ -55,7 +59,7 @@ const GiftSelection = ({
   return (
     <div className="w-full">
       <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-        {!campaignTitle && (
+        {!campaignTitle && acceptMoney && acceptVendor && (
           <TabsList className="grid w-full grid-cols-2 h-12 p-1 bg-muted/50 rounded-xl">
             <TabsTrigger
               value="money"

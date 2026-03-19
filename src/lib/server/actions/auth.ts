@@ -141,3 +141,64 @@ export async function updateCreatorStatus(enabled: boolean) {
   revalidatePath('/dashboard');
   return {success: true};
 }
+
+export async function updateProfile(updates: {
+  display_name?: string;
+  username?: string;
+  bio?: string;
+  suggested_amounts?: number[];
+  social_links?: any;
+  theme_settings?: any;
+  avatar_url?: string;
+}) {
+  const supabase = await createClient();
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {success: false, error: 'Not authenticated'};
+  }
+
+  // If username is being updated, check if it's already taken
+  if (updates.username) {
+    const {data: existingProfile} = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('username', updates.username.toLowerCase())
+      .neq('id', user.id)
+      .maybeSingle();
+
+    if (existingProfile) {
+      return {success: false, error: 'Username is already taken'};
+    }
+    updates.username = updates.username.toLowerCase();
+  }
+
+  const {error} = await supabase
+    .from('profiles')
+    .update(updates)
+    .eq('id', user.id);
+
+  if (error) {
+    return {success: false, error: error.message};
+  }
+
+  // Fetch current username for revalidation if it wasn't updated
+  let currentUsername = updates.username;
+  if (!currentUsername) {
+    const {data: profile} = await supabase
+      .from('profiles')
+      .select('username')
+      .eq('id', user.id)
+      .single();
+    currentUsername = profile?.username;
+  }
+
+  revalidatePath('/dashboard');
+  if (currentUsername) {
+    revalidatePath(`/u/${currentUsername}`);
+  }
+
+  return {success: true};
+}

@@ -7,7 +7,18 @@ import {Avatar, AvatarFallback} from '@/components/ui/avatar';
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
-import {Gift, Heart, Share2, Sparkles} from 'lucide-react';
+import {useProfileByUsername} from '@/hooks/use-profile';
+import {useUserStore} from '@/lib/store/useUserStore';
+import {
+  ArrowLeft,
+  Gift,
+  Globe,
+  Heart,
+  Instagram,
+  Share2,
+  Sparkles,
+  Twitter,
+} from 'lucide-react';
 import Link from 'next/link';
 import {use, useState} from 'react';
 
@@ -50,8 +61,6 @@ const enabledUsers: Record<
       background: 'hsl(30 50% 98%)',
       text: 'hsl(20 25% 12%)',
     },
-    banner:
-      'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200&auto=format&fit=crop&q=80',
     removeBranding: true,
     supporters: [
       {
@@ -114,9 +123,27 @@ export default function CreatorProfilePage({
   );
   const [showAllSupporters, setShowAllSupporters] = useState(false);
 
-  const profile = username ? enabledUsers[username] : null;
+  const loggedInUser = useUserStore(state => state.user);
+  const {data: dbProfile, isLoading} = useProfileByUsername(username);
 
-  if (!profile) {
+  // Merge DB data with mock data if it exists for backward compatibility during dev
+  const mockData = username ? enabledUsers[username] : null;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  const isOwner =
+    loggedInUser?.username?.toLowerCase() === username?.toLowerCase();
+
+  // Profile is valid if it exists in DB and is_creator is true
+  const isCreatorEnabled = dbProfile?.is_creator || mockData !== null;
+
+  if (!dbProfile || !isCreatorEnabled) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -144,6 +171,44 @@ export default function CreatorProfilePage({
     );
   }
 
+  const plan =
+    (dbProfile ? dbProfile.theme_settings?.plan : mockData?.plan) || 'free';
+
+  const profile = {
+    name: dbProfile?.display_name || mockData?.name || username || 'User',
+    bio: dbProfile?.bio || mockData?.bio || 'No bio yet.',
+    suggestedAmounts: dbProfile?.suggested_amounts ||
+      mockData?.suggestedAmounts || [5, 10, 25],
+    showSupporters:
+      dbProfile?.theme_settings?.showSupporters ??
+      mockData?.showSupporters ??
+      true,
+    showAmounts: dbProfile?.theme_settings?.showAmounts ?? true,
+    acceptMoney: dbProfile?.theme_settings?.acceptMoney ?? true,
+    acceptVendor: dbProfile?.theme_settings?.acceptVendor ?? true,
+    plan,
+    theme: plan === 'pro' ? dbProfile?.theme_settings : undefined,
+    banner:
+      plan === 'pro' && dbProfile?.theme_settings?.proBanner
+        ? dbProfile?.theme_settings?.proBanner
+        : undefined,
+    removeBranding:
+      plan === 'pro'
+        ? (dbProfile?.theme_settings?.proRemoveBranding ?? false)
+        : false,
+    supporters: mockData?.supporters || enabledUsers.destiny.supporters,
+    totalReceived:
+      mockData?.totalReceived || enabledUsers.destiny.totalReceived,
+    totalSupporters:
+      mockData?.totalSupporters || enabledUsers.destiny.totalSupporters,
+    socialLinks: dbProfile?.social_links || {},
+    vendorGifts: mockData?.vendorGifts || [
+      {id: 1, name: '☕ Coffee Gift Card', price: 10},
+      {id: 2, name: '🎂 Cake Gift Card', price: 25},
+      {id: 3, name: '💆 Spa Voucher', price: 50},
+    ],
+  };
+
   const customStyles =
     profile.plan === 'pro' && profile.theme
       ? ({
@@ -169,6 +234,22 @@ export default function CreatorProfilePage({
       }}>
       <Navbar />
 
+      {isOwner && (
+        <div className="fixed top-20 left-4 z-50">
+          <Link href="/dashboard">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground hover:text-foreground sm:gap-2 gap-0 bg-background/50 backdrop-blur-sm border border-border/50 rounded-full sm:px-4 px-2.5 h-10 w-10 sm:w-auto">
+              <ArrowLeft className="w-4 h-4" />
+              <span className="hidden sm:inline text-xs font-semibold">
+                Back to Dashboard
+              </span>
+            </Button>
+          </Link>
+        </div>
+      )}
+
       {profile.plan === 'pro' && profile.banner && (
         <div className="h-48 sm:h-64 w-full overflow-hidden relative pt-16">
           <img
@@ -188,20 +269,67 @@ export default function CreatorProfilePage({
           <div className="text-center mb-8">
             <Avatar className="w-24 h-24 mx-auto mb-4 border-4 border-background shadow-lg">
               <AvatarFallback
-                className="text-2xl font-bold"
-                style={{
-                  backgroundColor:
-                    profile.plan === 'pro' && profile.theme
-                      ? profile.theme.primary
-                      : 'var(--primary)',
-                  color: 'white',
-                }}>
-                {profile.name.charAt(0)}
+                className="text-2xl font-bold capitalize bg-primary text-primary-foreground"
+                style={
+                  profile.plan === 'pro' && profile.theme
+                    ? {
+                        backgroundColor: profile.theme.primary,
+                        color: 'white',
+                      }
+                    : {}
+                }>
+                {profile.name?.charAt(0) || '?'}
               </AvatarFallback>
             </Avatar>
             <h1 className="text-2xl font-bold font-display">{profile.name}</h1>
             <p className="opacity-70 mt-1">@{username}</p>
             <p className="mt-3 max-w-md mx-auto">{profile.bio}</p>
+
+            <div className="flex items-center justify-center gap-3 mt-4">
+              {profile.socialLinks.twitter && (
+                <a
+                  href={`https://x.com/${profile.socialLinks.twitter}`}
+                  target="_blank"
+                  rel="noopener noreferrer">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="w-8 h-8 rounded-full bg-muted/50 hover:bg-muted">
+                    <Twitter className="w-4 h-4" />
+                  </Button>
+                </a>
+              )}
+              {profile.socialLinks.instagram && (
+                <a
+                  href={`https://instagram.com/${profile.socialLinks.instagram}`}
+                  target="_blank"
+                  rel="noopener noreferrer">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="w-8 h-8 rounded-full bg-muted/50 hover:bg-muted">
+                    <Instagram className="w-4 h-4" />
+                  </Button>
+                </a>
+              )}
+              {profile.socialLinks.website && (
+                <a
+                  href={
+                    profile.socialLinks.website.startsWith('http')
+                      ? profile.socialLinks.website
+                      : `https://${profile.socialLinks.website}`
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="w-8 h-8 rounded-full bg-muted/50 hover:bg-muted">
+                    <Globe className="w-4 h-4" />
+                  </Button>
+                </a>
+              )}
+            </div>
             <div className="flex items-center justify-center gap-4 mt-4 text-sm opacity-70">
               <span className="flex items-center gap-1">
                 <Heart
@@ -239,35 +367,58 @@ export default function CreatorProfilePage({
                 Choose an amount or send a vendor gift.
               </p>
 
-              <GiftSelection
-                activeTab={selectedMethod === 'vendor' ? 'vendor' : 'money'}
-                onTabChange={t => setSelectedMethod(t as 'money' | 'vendor')}
-                amount={selectedAmount}
-                setAmount={setSelectedAmount}
-                customAmount={customAmount}
-                setCustomAmount={setCustomAmount}
-                selectedGift={selectedVendorGift}
-                setSelectedGift={setSelectedVendorGift}
-                profileTheme={profile.theme}
-              />
+              {profile.acceptMoney || profile.acceptVendor ? (
+                <>
+                  <GiftSelection
+                    activeTab={
+                      selectedMethod === 'vendor' && profile.acceptVendor
+                        ? 'vendor'
+                        : profile.acceptMoney
+                          ? 'money'
+                          : 'vendor'
+                    }
+                    onTabChange={t =>
+                      setSelectedMethod(t as 'money' | 'vendor')
+                    }
+                    amount={selectedAmount}
+                    setAmount={setSelectedAmount}
+                    customAmount={customAmount}
+                    setCustomAmount={setCustomAmount}
+                    selectedGift={selectedVendorGift}
+                    setSelectedGift={setSelectedVendorGift}
+                    profileTheme={profile.theme}
+                    acceptMoney={profile.acceptMoney}
+                    acceptVendor={profile.acceptVendor}
+                  />
 
-              <Button
-                variant="hero"
-                className="w-full h-14 text-base font-bold shadow-lg shadow-primary/20 mt-6"
-                style={
-                  profile.plan === 'pro' && profile.theme
-                    ? {
-                        backgroundColor: profile.theme.primary,
-                        backgroundImage: 'none',
-                      }
-                    : {}
-                }
-                onClick={() => setShowGiftModal(true)}>
-                <Gift className="w-5 h-5 mr-2" />
-                {selectedMethod === 'vendor'
-                  ? 'Send Gift Card'
-                  : 'Send Support'}
-              </Button>
+                  <Button
+                    variant="hero"
+                    className="w-full h-14 text-base font-bold shadow-lg shadow-primary/20 mt-6"
+                    style={
+                      profile.plan === 'pro' && profile.theme
+                        ? {
+                            backgroundColor: profile.theme.primary,
+                            backgroundImage: 'none',
+                          }
+                        : {}
+                    }
+                    onClick={() => setShowGiftModal(true)}>
+                    <Gift className="w-5 h-5 mr-2" />
+                    {selectedMethod === 'vendor'
+                      ? 'Send Gift Card'
+                      : 'Send Support'}
+                  </Button>
+                </>
+              ) : (
+                <div className="py-8 text-center space-y-4">
+                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto opacity-50">
+                    <Gift className="w-8 h-8" />
+                  </div>
+                  <p className="text-muted-foreground italic">
+                    This user isn't accepting gifts right now.
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -360,7 +511,7 @@ export default function CreatorProfilePage({
                                     ? profile.theme.primary
                                     : 'var(--primary)',
                               }}>
-                              ${s.amount}
+                              {profile.showAmounts && `$${s.amount}`}
                             </span>
                           </div>
                           {s.message && (

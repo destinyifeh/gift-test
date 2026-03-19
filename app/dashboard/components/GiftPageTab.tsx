@@ -14,7 +14,10 @@ import {
 } from '@/components/ui/select';
 import {Switch} from '@/components/ui/switch';
 import {Textarea} from '@/components/ui/textarea';
+import {useProfile} from '@/hooks/use-profile';
+import {updateProfile} from '@/lib/server/actions/auth';
 import {useUserStore} from '@/lib/store/useUserStore';
+import {useQueryClient} from '@tanstack/react-query';
 import {
   CheckCircle,
   Crown,
@@ -27,7 +30,8 @@ import {
   Upload,
 } from 'lucide-react';
 import Link from 'next/link';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
+import {toast} from 'sonner';
 
 interface GiftPageTabProps {
   creatorPlan: 'free' | 'pro';
@@ -36,10 +40,18 @@ interface GiftPageTabProps {
 
 export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
   const user = useUserStore(state => state.user);
+  const {data: profile, isLoading: isProfileLoading} = useProfile();
+  const queryClient = useQueryClient();
+
+  const [bio, setBio] = useState('');
+  const [suggestedAmounts, setSuggestedAmounts] = useState('5, 10, 20');
+  const [acceptMoney, setAcceptMoney] = useState(true);
+  const [acceptVendor, setAcceptVendor] = useState(true);
+  const [showSupporters, setShowSupporters] = useState(true);
+  const [showAmounts, setShowAmounts] = useState(true);
+
   const [proTheme, setProTheme] = useState('warm');
-  const [proBanner, setProBanner] = useState(
-    'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200&auto=format&fit=crop&q=80',
-  );
+  const [proBanner, setProBanner] = useState('');
   const [proThankYou, setProThankYou] = useState(
     'Thank you so much for your generous gift! 🎉',
   );
@@ -48,6 +60,30 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
   const [bgColor, setBgColor] = useState('hsl(30 50% 98%)');
   const [textColor, setTextColor] = useState('hsl(20 25% 12%)');
   const [isSaving, setIsSaving] = useState(false);
+
+  // Initialize state from profile
+  useEffect(() => {
+    if (profile) {
+      setBio(profile.bio || '');
+      setSuggestedAmounts(profile.suggested_amounts?.join(', ') || '5, 10, 25');
+
+      const theme = profile.theme_settings || {};
+      setAcceptMoney(theme.acceptMoney ?? true);
+      setAcceptVendor(theme.acceptVendor ?? true);
+      setShowSupporters(theme.showSupporters ?? true);
+      setShowAmounts(theme.showAmounts ?? true);
+
+      setProTheme(theme.proTheme || 'warm');
+      setProBanner(theme.proBanner || '');
+      setProThankYou(
+        theme.proThankYou || 'Thank you so much for your generous gift! 🎉',
+      );
+      setProRemoveBranding(theme.proRemoveBranding ?? true);
+      setPrimaryColor(theme.primaryColor || 'hsl(16 85% 60%)');
+      setBgColor(theme.bgColor || 'hsl(30 50% 98%)');
+      setTextColor(theme.textColor || 'hsl(20 25% 12%)');
+    }
+  }, [profile]);
 
   const handleThemeChange = (val: string) => {
     setProTheme(val);
@@ -90,12 +126,47 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setIsSaving(true);
-    setTimeout(() => {
+    try {
+      const amounts = suggestedAmounts
+        .split(',')
+        .map(s => parseInt(s.trim()))
+        .filter(n => !isNaN(n));
+
+      const result = await updateProfile({
+        bio,
+        suggested_amounts: amounts,
+        theme_settings: {
+          plan: creatorPlan,
+          acceptMoney,
+          acceptVendor,
+          showSupporters,
+          showAmounts,
+          ...(creatorPlan === 'pro' && {
+            proTheme,
+            proBanner,
+            proThankYou,
+            proRemoveBranding,
+            primaryColor,
+            bgColor,
+            textColor,
+          }),
+        },
+      });
+
+      if (result.success) {
+        toast.success('Settings saved!');
+        // Invalidate queries to ensure real-time updates on the profile page
+        queryClient.invalidateQueries({queryKey: ['profile']});
+      } else {
+        toast.error(result.error || 'Failed to save settings');
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred');
+    } finally {
       setIsSaving(false);
-      // In a real app, this would persist the data
-    }, 1000);
+    }
   };
 
   return (
@@ -126,8 +197,8 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
             </p>
           </div>
           <div className="flex gap-2">
-            <Link href={`/u/${user?.username || 'username'}`}>
-              <Button variant="outline" size="sm">
+            <Link href={`/u/${profile?.username || 'username'}`}>
+              <Button variant="outline" size="sm" disabled={isProfileLoading}>
                 <Eye className="w-4 h-4 mr-1" /> View
               </Button>
             </Link>
@@ -206,13 +277,19 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
           <div className="space-y-2">
             <Label>Bio</Label>
             <Textarea
-              defaultValue="Frontend developer. Appreciate your support! 🚀"
+              placeholder="Tell your supporters about yourself..."
+              value={bio}
+              onChange={e => setBio(e.target.value)}
               rows={3}
             />
           </div>
           <div className="space-y-2">
             <Label>Suggested Amounts</Label>
-            <Input defaultValue="5, 10, 20" />
+            <Input
+              placeholder="e.g. 5, 10, 25"
+              value={suggestedAmounts}
+              onChange={e => setSuggestedAmounts(e.target.value)}
+            />
             <p className="text-xs text-muted-foreground text-right mt-1">
               Comma-separated values shown on your gift page
             </p>
@@ -231,7 +308,7 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
                   People can send you money directly
                 </p>
               </div>
-              <Switch defaultChecked />
+              <Switch checked={acceptMoney} onCheckedChange={setAcceptMoney} />
             </div>
             <div className="flex items-center justify-between gap-4">
               <div className="min-w-0">
@@ -242,7 +319,10 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
                   Gift cards and vouchers from vendors
                 </p>
               </div>
-              <Switch defaultChecked />
+              <Switch
+                checked={acceptVendor}
+                onCheckedChange={setAcceptVendor}
+              />
             </div>
           </div>
 
@@ -257,7 +337,10 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
                   Display supporter names on your page
                 </p>
               </div>
-              <Switch defaultChecked />
+              <Switch
+                checked={showSupporters}
+                onCheckedChange={setShowSupporters}
+              />
             </div>
             <div className="flex items-center justify-between gap-4">
               <div className="min-w-0">
@@ -266,7 +349,7 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
                   Display gift amounts publicly
                 </p>
               </div>
-              <Switch defaultChecked />
+              <Switch checked={showAmounts} onCheckedChange={setShowAmounts} />
             </div>
           </div>
 

@@ -1,15 +1,76 @@
-'use client';
-
 import {Avatar, AvatarFallback} from '@/components/ui/avatar';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
-import {useUserStore} from '@/lib/store/useUserStore';
-import {Camera, Link as LinkIcon} from 'lucide-react';
+import {useProfile} from '@/hooks/use-profile';
+import {updateProfile} from '@/lib/server/actions/auth';
+import {useQueryClient} from '@tanstack/react-query';
+import {Camera, Link as LinkIcon, Loader2} from 'lucide-react';
+import {useEffect, useState} from 'react';
+import {toast} from 'sonner';
 
 export function SettingsTab() {
-  const user = useUserStore(state => state.user);
+  const {data: profile, isLoading: isProfileLoading} = useProfile();
+  const queryClient = useQueryClient();
+
+  const [displayName, setDisplayName] = useState('');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [twitter, setTwitter] = useState('');
+  const [instagram, setInstagram] = useState('');
+  const [website, setWebsite] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Initialize state from profile
+  useEffect(() => {
+    if (profile) {
+      setDisplayName(profile.display_name || '');
+      setUsername(profile.username || '');
+      setEmail(profile.email || '');
+
+      const social = profile.social_links || {};
+      setTwitter(social.twitter || '');
+      setInstagram(social.instagram || '');
+      setWebsite(social.website || '');
+    }
+  }, [profile]);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const result = await updateProfile({
+        display_name: displayName,
+        username: username.toLowerCase(),
+        social_links: {
+          twitter,
+          instagram,
+          website,
+        },
+      });
+
+      if (result.success) {
+        toast.success('Account updated successfully!');
+        // Invalidate queries to ensure real-time updates
+        queryClient.invalidateQueries({queryKey: ['profile']});
+      } else {
+        toast.error(result.error || 'Failed to update account');
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (isProfileLoading) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <Card className="border-border">
@@ -17,8 +78,8 @@ export function SettingsTab() {
           <h3 className="font-semibold text-foreground">Account Settings</h3>
           <div className="flex items-center gap-4">
             <Avatar className="w-14 sm:w-16 h-14 sm:h-16 border-2 border-border">
-              <AvatarFallback className="bg-primary/10 text-primary text-xl font-bold">
-                {user?.display_name?.charAt(0) || user?.email?.charAt(0) || '?'}
+              <AvatarFallback className="bg-primary/10 text-primary text-xl font-bold uppercase">
+                {displayName?.charAt(0) || email?.charAt(0) || '?'}
               </AvatarFallback>
             </Avatar>
             <Button variant="outline" size="sm" className="gap-2">
@@ -27,16 +88,35 @@ export function SettingsTab() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <Label className="text-xs">Full Name</Label>
-              <Input defaultValue={user?.display_name || ''} />
+              <Label className="text-xs">Display Name</Label>
+              <Input
+                value={displayName}
+                onChange={e => setDisplayName(e.target.value)}
+                placeholder="Your name"
+              />
             </div>
             <div className="space-y-1">
               <Label className="text-xs">Username</Label>
-              <Input defaultValue={user?.username || ''} />
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+                  @
+                </span>
+                <Input
+                  value={username}
+                  onChange={e => setUsername(e.target.value)}
+                  className="pl-7"
+                  placeholder="username"
+                />
+              </div>
             </div>
             <div className="space-y-1 sm:col-span-2">
-              <Label className="text-xs">Email</Label>
-              <Input defaultValue={user?.email || ''} type="email" />
+              <Label className="text-xs">Email (Cannot be changed here)</Label>
+              <Input
+                value={email}
+                type="email"
+                disabled
+                className="bg-muted/50"
+              />
             </div>
           </div>
           <div className="border-t border-border pt-4 space-y-4">
@@ -46,19 +126,59 @@ export function SettingsTab() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <Label className="text-xs">Twitter / X</Label>
-                <Input defaultValue="@destiny_dev" />
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+                    x.com/
+                  </span>
+                  <Input
+                    value={twitter
+                      .replace('https://x.com/', '')
+                      .replace('https://twitter.com/', '')}
+                    onChange={e => setTwitter(e.target.value)}
+                    className="pl-14"
+                    placeholder="username"
+                  />
+                </div>
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">Instagram</Label>
-                <Input defaultValue="@destiny.dev" />
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+                    ig.com/
+                  </span>
+                  <Input
+                    value={instagram
+                      .replace('https://instagram.com/', '')
+                      .replace('https://www.instagram.com/', '')}
+                    onChange={e => setInstagram(e.target.value)}
+                    className="pl-14"
+                    placeholder="username"
+                  />
+                </div>
               </div>
               <div className="space-y-1 sm:col-span-2">
                 <Label className="text-xs">Website</Label>
-                <Input defaultValue="https://destiny.dev" />
+                <Input
+                  value={website}
+                  onChange={e => setWebsite(e.target.value)}
+                  placeholder="https://yourwebsite.com"
+                />
               </div>
             </div>
           </div>
-          <Button variant="hero">Save Changes</Button>
+          <Button
+            variant="hero"
+            onClick={handleSave}
+            disabled={isSaving}
+            className="w-full sm:w-auto">
+            {isSaving ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" /> Saving...
+              </span>
+            ) : (
+              'Save Changes'
+            )}
+          </Button>
         </CardContent>
       </Card>
     </div>

@@ -13,6 +13,9 @@ create table profiles (
   avatar_url text,
   bio text,
   is_creator boolean default false,
+  suggested_amounts int[] default '{5, 10, 25}',
+  social_links jsonb default '{}',
+  theme_settings jsonb default '{}',
 
   constraint username_length check (char_length(username) >= 3)
 );
