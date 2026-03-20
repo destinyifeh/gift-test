@@ -14,23 +14,29 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 
 interface SuccessScreenProps {
   category: string;
   title: string;
   claimableGiftCode: string;
+  slug: string;
 }
 
 export function SuccessScreen({
   category,
   title,
   claimableGiftCode,
+  slug,
 }: SuccessScreenProps) {
   const [copied, setCopied] = useState(false);
   const isClaimable = category === 'claimable';
-  const slug = title.toLowerCase().replace(/\s+/g, '-') || 'my-campaign';
-  const campaignLink = `https://gifthance.com/c/${slug}`;
+  const [origin, setOrigin] = useState('');
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
+
+  const campaignLink = `${origin}/campaign/${slug}`;
 
   const handleShare = async () => {
     const shareText = `Check out my gift campaign: ${title}`;
@@ -83,8 +89,9 @@ export function SuccessScreen({
                     <p className="text-xs text-muted-foreground mb-1 uppercase tracking-tighter">
                       Unique Claim Link
                     </p>
-                    <p className="font-mono font-bold text-lg text-primary mb-3">
-                      gifthance.com/claim/{claimableGiftCode}
+                    <p className="font-mono font-bold text-lg text-primary mb-3 text-wrap break-all">
+                      {origin.replace(/^https?:\/\//, '')}/claim/
+                      {claimableGiftCode}
                     </p>
                     <div className="flex gap-2">
                       <Button
@@ -93,7 +100,7 @@ export function SuccessScreen({
                         className="flex-1"
                         onClick={() => {
                           navigator.clipboard.writeText(
-                            `https://gifthance.com/claim/${claimableGiftCode}`,
+                            `${origin}/claim/${claimableGiftCode}`,
                           );
                           setCopied(true);
                           setTimeout(() => setCopied(false), 2000);
@@ -114,7 +121,7 @@ export function SuccessScreen({
                             navigator.share({
                               title: 'Claim your gift!',
                               text: `Here is your gift claim link: `,
-                              url: `https://gifthance.com/claim/${claimableGiftCode}`,
+                              url: `${origin}/claim/${claimableGiftCode}`,
                             });
                           }
                         }}>

@@ -4,10 +4,16 @@ import Navbar from '@/components/landing/Navbar';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
 import {allVendorGifts} from '@/lib/data/gifts';
+import {
+  createCampaign,
+  uploadCampaignImage,
+} from '@/lib/server/actions/campaigns';
 import {ArrowLeft, ArrowRight, Loader2} from 'lucide-react';
 import {useRef, useState} from 'react';
+import {toast} from 'sonner';
 
 // Modular Components
+import {generateGiftCode} from '@/lib/utils/gift-codes';
 import {CategoryStep} from './components/CategoryStep';
 import {DetailsStep} from './components/DetailsStep';
 import {ReviewStep} from './components/ReviewStep';
@@ -29,6 +35,7 @@ export default function CreateCampaignPage() {
   const [submitted, setSubmitted] = useState(false);
   const [minAmount, setMinAmount] = useState('');
   const [image, setImage] = useState<string | null>(null);
+  const [currency, setCurrency] = useState('NGN');
   const [isLaunching, setIsLaunching] = useState(false);
 
   // Claimable-specific state
@@ -41,6 +48,7 @@ export default function CreateCampaignPage() {
     'self' | 'other'
   >('self');
   const [claimableGiftCode, setClaimableGiftCode] = useState('');
+  const [createdSlug, setCreatedSlug] = useState('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -52,6 +60,19 @@ export default function CreateCampaignPage() {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validation: Size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error('Image size must be less than 2MB');
+        return;
+      }
+
+      // Validation: Format
+      const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error('Only PNG, JPG, and JPEG formats are allowed');
+        return;
+      }
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setImage(reader.result as string);
@@ -60,19 +81,72 @@ export default function CreateCampaignPage() {
     }
   };
 
-  const handleLaunch = () => {
+  const handleLaunch = async () => {
     setIsLaunching(true);
-    setTimeout(() => {
-      if (category === 'claimable') {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let code = 'GFT-';
-        for (let i = 0; i < 5; i++)
-          code += chars[Math.floor(Math.random() * chars.length)];
-        setClaimableGiftCode(code);
+    try {
+      let finalImageUrl = image;
+
+      // Handle Image Upload to Supabase if it's a local data URL
+      if (image && image.startsWith('data:')) {
+        const response = await fetch(image);
+        const blob = await response.blob();
+        const file = new File([blob], 'campaign-image.png', {
+          type: 'image/png',
+        });
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const uploadResult = await uploadCampaignImage(formData);
+        if (uploadResult.success && uploadResult.url) {
+          finalImageUrl = uploadResult.url;
+        } else {
+          toast.error('Image upload failed, using default.');
+          finalImageUrl = null;
+        }
       }
+
+      let giftCode = '';
+      if (category === 'claimable') {
+        giftCode = generateGiftCode();
+        setClaimableGiftCode(giftCode);
+      }
+
+      const campaignData = {
+        category,
+        title,
+        description,
+        goal_amount: goal ? parseFloat(goal) : undefined,
+        min_amount: minAmount ? parseFloat(minAmount) : undefined,
+        currency,
+        end_date: endDate || undefined,
+        visibility,
+        contributors_see_each_other: contributorsSeeEachOther,
+        claimable_type: claimableGiftType,
+        claimable_gift_id: claimableGiftId || undefined,
+        claimable_recipient_type: claimableRecipientType,
+        status: 'active',
+        image_url: finalImageUrl || undefined,
+        recipient_email: recipientEmail || undefined,
+        gift_code: giftCode || undefined,
+      };
+
+      const result = await createCampaign(campaignData);
+
+      if (result.success) {
+        if (result.data?.slug) {
+          setCreatedSlug(result.data.slug);
+        }
+        setSubmitted(true);
+        toast.success('Campaign launched successfully! 🚀');
+      } else {
+        toast.error(result.error || 'Failed to launch campaign');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'An unexpected error occurred');
+    } finally {
       setIsLaunching(false);
-      setSubmitted(true);
-    }, 2000);
+    }
   };
 
   const next = () => setStep(s => Math.min(s + 1, steps.length - 1));
@@ -84,6 +158,7 @@ export default function CreateCampaignPage() {
         category={category}
         title={title}
         claimableGiftCode={claimableGiftCode}
+        slug={createdSlug}
       />
     );
   }
@@ -117,6 +192,7 @@ export default function CreateCampaignPage() {
                   setDescription={setDescription}
                   image={image}
                   handleImageUpload={handleImageUpload}
+                  onRemoveImage={() => setImage(null)}
                   fileInputRef={fileInputRef}
                   claimable={{
                     giftType: claimableGiftType,
@@ -139,6 +215,8 @@ export default function CreateCampaignPage() {
                     setMinAmount,
                     endDate,
                     setEndDate,
+                    currency,
+                    setCurrency,
                   }}
                 />
               )}

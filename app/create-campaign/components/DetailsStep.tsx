@@ -2,9 +2,19 @@
 
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {Textarea} from '@/components/ui/textarea';
-import {CheckCircle, CreditCard, Gift, Search, Upload} from 'lucide-react';
-
+import {
+  SUPPORTED_CURRENCIES,
+  getCurrencySymbol,
+} from '@/lib/constants/currencies';
+import {CreditCard, Gift, Search, Upload, X} from 'lucide-react';
 import {useState} from 'react';
 
 interface DetailsStepProps {
@@ -30,11 +40,14 @@ interface DetailsStepProps {
     setMinAmount: (v: string) => void;
     endDate: string;
     setEndDate: (v: string) => void;
+    currency: string;
+    setCurrency: (v: string) => void;
   };
   description: string;
   setDescription: (v: string) => void;
   image: string | null;
   handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onRemoveImage: () => void;
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   allVendorGifts: any[];
 }
@@ -47,6 +60,7 @@ export function DetailsStep({
   setDescription,
   image,
   handleImageUpload,
+  onRemoveImage,
   fileInputRef,
   allVendorGifts,
 }: DetailsStepProps) {
@@ -94,12 +108,18 @@ export function DetailsStep({
           {claimable.giftType === 'money' ? (
             <div className="space-y-3">
               <Label>Amount</Label>
-              <Input
-                type="number"
-                placeholder="$0.00"
-                value={claimable.amount}
-                onChange={e => claimable.setAmount(e.target.value)}
-              />
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">
+                  {getCurrencySymbol(standard.currency)}
+                </span>
+                <Input
+                  type="number"
+                  placeholder="0.00"
+                  value={claimable.amount}
+                  onChange={e => claimable.setAmount(e.target.value)}
+                  className="pl-8"
+                />
+              </div>
             </div>
           ) : (
             <div className="space-y-3">
@@ -212,26 +232,65 @@ export function DetailsStep({
               placeholder="Tell people about this gift campaign..."
             />
           </div>
+
+          <div>
+            <Label htmlFor="currency">Campaign Currency</Label>
+            <p className="text-xs text-muted-foreground mb-2">
+              Select the currency for your campaign goal and contributions.
+            </p>
+            <Select
+              value={standard.currency}
+              onValueChange={standard.setCurrency}>
+              <SelectTrigger id="currency" className="w-full">
+                <SelectValue placeholder="Select Currency" />
+              </SelectTrigger>
+              <SelectContent>
+                {SUPPORTED_CURRENCIES.filter(c => c.canCreate).map(c => (
+                  <SelectItem key={c.code} value={c.code}>
+                    <span className="flex items-center gap-2">
+                      <span>{c.flag}</span>
+                      <span>
+                        {c.label} ({c.symbol})
+                      </span>
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="goal">Goal Amount (optional)</Label>
-              <Input
-                id="goal"
-                type="number"
-                value={standard.goal}
-                onChange={e => standard.setGoal(e.target.value)}
-                placeholder="$0"
-              />
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">
+                  {getCurrencySymbol(standard.currency)}
+                </span>
+                <Input
+                  id="goal"
+                  type="number"
+                  value={standard.goal}
+                  onChange={e => standard.setGoal(e.target.value)}
+                  placeholder="0.00"
+                  className="pl-8"
+                />
+              </div>
             </div>
             <div>
               <Label htmlFor="min-amount">Starting From (optional)</Label>
-              <Input
-                id="min-amount"
-                type="number"
-                value={standard.minAmount}
-                onChange={e => standard.setMinAmount(e.target.value)}
-                placeholder="$0"
-              />
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">
+                  {getCurrencySymbol(standard.currency)}
+                </span>
+                <Input
+                  id="min-amount"
+                  type="number"
+                  value={standard.minAmount}
+                  onChange={e => standard.setMinAmount(e.target.value)}
+                  placeholder="0.00"
+                  className="pl-8"
+                />
+              </div>
             </div>
           </div>
 
@@ -260,30 +319,39 @@ export function DetailsStep({
               onChange={handleImageUpload}
             />
             <div
-              onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-border rounded-xl p-4 text-center hover:border-primary/30 transition-colors cursor-pointer min-h-[160px] flex flex-col items-center justify-center relative overflow-hidden">
+              className={`border-2 border-dashed border-border rounded-xl p-2 text-center hover:border-primary/30 transition-colors cursor-pointer min-h-[180px] flex flex-col items-center justify-center relative overflow-hidden group ${image ? 'bg-muted/30' : ''}`}>
               {image ? (
                 <>
-                  <img
-                    src={image}
-                    alt="Campaign Preview"
-                    className="absolute inset-0 w-full h-full object-cover opacity-40"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <div className="relative z-10 flex flex-col items-center">
-                    <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center mb-2">
-                      <CheckCircle className="w-5 h-5 text-white" />
-                    </div>
-                    <p className="text-sm font-bold text-white">
-                      Custom Image Uploaded
-                    </p>
-                    <p className="text-xs text-white/80 mt-1">
-                      Click to change or upload another
+                  <div className="w-full h-full flex items-center justify-center p-2 rounded-lg bg-black/5">
+                    <img
+                      src={image}
+                      alt="Campaign Preview"
+                      className="max-h-[220px] w-auto h-auto object-contain rounded-md shadow-sm transition-transform group-hover:scale-[1.02]"
+                      onClick={() => fileInputRef.current?.click()}
+                    />
+                  </div>
+
+                  {/* Remove Button - More visible */}
+                  <button
+                    onClick={e => {
+                      e.stopPropagation();
+                      onRemoveImage();
+                    }}
+                    className="absolute top-2 right-2 z-30 w-7 h-7 rounded-full bg-destructive/90 text-destructive-foreground shadow-lg flex items-center justify-center hover:bg-destructive hover:scale-110 transition-all border border-background/20"
+                    title="Remove Image">
+                    <X className="w-4 h-4" />
+                  </button>
+
+                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
+                    <p className="text-[10px] font-bold text-white whitespace-nowrap">
+                      Click image to change
                     </p>
                   </div>
                 </>
               ) : (
-                <>
+                <div
+                  className="w-full h-full flex flex-col items-center justify-center"
+                  onClick={() => fileInputRef.current?.click()}>
                   <Upload className="w-8 h-8 text-muted-foreground mb-2" />
                   <p className="text-sm text-black font-semibold">
                     Drag & drop or{' '}
@@ -293,9 +361,9 @@ export function DetailsStep({
                     Recommended size: 1200x630
                   </p>
                   <p className="text-xs text-muted-foreground/60 mt-1">
-                    PNG, JPG, or GIF (max. 5MB)
+                    PNG, JPG, or JPEG (max. 2MB)
                   </p>
-                </>
+                </div>
               )}
             </div>
           </div>

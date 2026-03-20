@@ -5,6 +5,8 @@ import {Checkbox} from '@/components/ui/checkbox';
 import {Dialog, DialogContent} from '@/components/ui/dialog';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
+import {getCurrencySymbol} from '@/lib/constants/currencies';
+import {formatCurrency} from '@/lib/utils/currency';
 import {ArrowRight, CreditCard, Heart} from 'lucide-react';
 import {useEffect, useState} from 'react';
 import GiftSelection from './GiftSelection';
@@ -15,6 +17,7 @@ interface SendCampaignGiftModalProps {
   campaignTitle: string;
   creatorName: string;
   minAmount?: number;
+  currency?: string;
 }
 
 const SendCampaignGiftModal = ({
@@ -23,6 +26,7 @@ const SendCampaignGiftModal = ({
   campaignTitle,
   creatorName,
   minAmount = 0,
+  currency = 'NGN',
 }: SendCampaignGiftModalProps) => {
   const [step, setStep] = useState<
     'details' | 'recipient' | 'payment' | 'success'
@@ -100,6 +104,7 @@ const SendCampaignGiftModal = ({
                   setSelectedGift={() => {}}
                   minAmount={minAmount}
                   campaignTitle={campaignTitle}
+                  currencySymbol={getCurrencySymbol(currency)}
                 />
                 <Button
                   className="w-full h-14 text-lg font-bold shadow-lg shadow-primary/20 rounded-2xl"
@@ -177,7 +182,7 @@ const SendCampaignGiftModal = ({
                     <p className="font-bold text-lg">Campaign Contribution</p>
                   </div>
                   <p className="text-2xl font-bold text-primary">
-                    ${amount || customAmount}
+                    {formatCurrency(amount || customAmount, currency)}
                   </p>
                 </div>
                 <div className="space-y-4">
@@ -240,7 +245,7 @@ const SendCampaignGiftModal = ({
                 <p className="text-muted-foreground mb-8 text-balance">
                   Your contribution of{' '}
                   <span className="text-foreground font-bold">
-                    ${amount || customAmount}
+                    {formatCurrency(amount || customAmount, currency)}
                   </span>{' '}
                   has been added to the campaign.
                 </p>

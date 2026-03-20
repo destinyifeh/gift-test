@@ -1,7 +1,7 @@
 -- Table for verified bank accounts
 create table if not exists bank_accounts (
   id uuid default gen_random_uuid() primary key,
-  user_id uuid references auth.users on delete cascade not null,
+  user_id uuid references profiles(id) on delete cascade not null,
   bank_name text not null,
   bank_code text not null,
   account_number text not null,
@@ -16,7 +16,7 @@ create table if not exists bank_accounts (
 -- Table for tracking wallet inflows and outflows
 create table if not exists transactions (
   id uuid default gen_random_uuid() primary key,
-  user_id uuid references auth.users on delete cascade not null,
+  user_id uuid references profiles(id) on delete cascade not null,
   amount bigint not null, -- Amount in kobo (NGN) or cents (USD)
   type text check (type in ('receipt', 'withdrawal', 'fee')),
   status text check (status in ('pending', 'success', 'failed')),
