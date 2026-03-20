@@ -546,22 +546,68 @@ export async function recordCreatorGift({
   try {
     // Message-only gift (no payment) — skip Paystack verification
     if (expectedAmount <= 0) {
-      const {error: txError} = await supabase.from('transactions').insert({
-        user_id: creator.id,
-        amount: 0,
-        currency: currency,
-        type: 'receipt',
-        status: 'success',
-        reference,
-        description: `Message from ${isAnonymous ? 'Anonymous' : donorName}`,
-        metadata,
-      });
+      const {data: tx, error: txError} = await supabase
+        .from('transactions')
+        .insert({
+          user_id: creator.id,
+          amount: 0,
+          currency: currency,
+          type: 'creator_support',
+          status: 'success',
+          reference,
+          description: `Message from ${isAnonymous ? 'Anonymous' : donorName}`,
+          metadata,
+        })
+        .select()
+        .single();
 
       if (txError) {
         if (txError.code === '23505') {
           return {success: false, error: 'Already processed'};
         }
         throw txError;
+      }
+
+      // Insert into creator_support metadata table
+      const {error: supportError} = await supabase
+        .from('creator_support')
+        .insert({
+          user_id: creator.id,
+          transaction_id: tx.id,
+          amount: 0,
+          currency: currency,
+          donor_name: donorName,
+          donor_email: donorEmail,
+          message,
+          is_anonymous: isAnonymous,
+          hide_amount: hideAmount,
+          gift_id: giftId || null,
+          gift_name: giftName || null,
+        });
+
+      if (supportError) {
+        console.error('Error recording creator support message:', supportError);
+        return {
+          success: true,
+          warning: 'Gift card processed but message could not be saved.',
+        };
+      }
+
+      // If donor is logged in, record the outbound transaction too
+      const {
+        data: {user: donor},
+      } = await supabase.auth.getUser();
+      if (donor) {
+        await supabase.from('transactions').insert({
+          user_id: donor.id,
+          amount: 0,
+          currency: currency,
+          type: 'creator_support',
+          status: 'success',
+          reference: `${reference}-out`,
+          description: `Gift to ${creatorUsername}`,
+          metadata: {...metadata, is_outbound: true},
+        });
       }
 
       revalidatePath(`/u/${creatorUsername}`);
@@ -589,23 +635,69 @@ export async function recordCreatorGift({
       return {success: false, error: 'Incomplete payment amount'};
     }
 
-    // 3. Try inserting transaction
-    const {error: txError} = await supabase.from('transactions').insert({
-      user_id: creator.id, // The recipient owns the transaction of type 'receipt'
-      amount: body.data.amount,
-      currency: body.data.currency || currency,
-      type: 'receipt',
-      status: 'success',
-      reference,
-      description: `Direct gift from ${isAnonymous ? 'Anonymous' : donorName}`,
-      metadata,
-    });
+    // 3. Try inserting transaction and creator support record
+    const {data: tx, error: txError} = await supabase
+      .from('transactions')
+      .insert({
+        user_id: creator.id, // The recipient owns the transaction
+        amount: body.data.amount,
+        currency: body.data.currency || currency,
+        type: 'creator_support',
+        status: 'success',
+        reference,
+        description: `Direct support from ${isAnonymous ? 'Anonymous' : donorName}`,
+        metadata,
+      })
+      .select()
+      .single();
 
     if (txError) {
       if (txError.code === '23505') {
         return {success: false, error: 'Payment already processed'};
       }
       throw txError;
+    }
+
+    // 4. Insert into creator_support metadata table
+    const {error: supportError} = await supabase
+      .from('creator_support')
+      .insert({
+        user_id: creator.id,
+        transaction_id: tx.id,
+        amount: paidAmount,
+        currency: body.data.currency || currency,
+        donor_name: donorName,
+        donor_email: donorEmail,
+        message,
+        is_anonymous: isAnonymous,
+        hide_amount: hideAmount,
+        gift_id: giftId || null,
+        gift_name: giftName || null,
+      });
+
+    if (supportError) {
+      console.error('Error recording creator support:', supportError);
+      return {
+        success: true,
+        warning: 'Payment successful but donor details could not be saved.',
+      };
+    }
+
+    // 5. If donor is logged in, record the outbound transaction too
+    const {
+      data: {user: donor},
+    } = await supabase.auth.getUser();
+    if (donor) {
+      await supabase.from('transactions').insert({
+        user_id: donor.id,
+        amount: body.data.amount,
+        currency: body.data.currency || currency,
+        type: 'creator_support',
+        status: 'success',
+        reference: `${reference}-out`,
+        description: `Gift to ${creatorUsername}`,
+        metadata: {...metadata, is_outbound: true},
+      });
     }
 
     revalidatePath(`/u/${creatorUsername}`);

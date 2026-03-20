@@ -3,13 +3,15 @@
 import Navbar from '@/components/landing/Navbar';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
+import {useProfile} from '@/hooks/use-profile';
+import {SUPPORTED_CURRENCIES} from '@/lib/constants/currencies';
 import {allVendorGifts} from '@/lib/data/gifts';
 import {
   createCampaign,
   uploadCampaignImage,
 } from '@/lib/server/actions/campaigns';
 import {ArrowLeft, ArrowRight, Loader2} from 'lucide-react';
-import {useRef, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {toast} from 'sonner';
 
 // Modular Components
@@ -35,7 +37,22 @@ export default function CreateCampaignPage() {
   const [submitted, setSubmitted] = useState(false);
   const [minAmount, setMinAmount] = useState('');
   const [image, setImage] = useState<string | null>(null);
+  const {data: profile} = useProfile();
   const [currency, setCurrency] = useState('NGN');
+  const [hasSetDefaultCurrency, setHasSetDefaultCurrency] = useState(false);
+
+  useEffect(() => {
+    if (profile?.country && !hasSetDefaultCurrency) {
+      const userCurrency = SUPPORTED_CURRENCIES.find(
+        c => c.country === profile.country && c.canCreate,
+      );
+      if (userCurrency) {
+        setCurrency(userCurrency.code);
+      }
+      setHasSetDefaultCurrency(true);
+    }
+  }, [profile, hasSetDefaultCurrency]);
+
   const [isLaunching, setIsLaunching] = useState(false);
 
   // Claimable-specific state
@@ -218,6 +235,7 @@ export default function CreateCampaignPage() {
                     currency,
                     setCurrency,
                   }}
+                  userCountry={profile?.country}
                 />
               )}
 

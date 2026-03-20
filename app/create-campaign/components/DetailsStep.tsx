@@ -14,7 +14,7 @@ import {
   SUPPORTED_CURRENCIES,
   getCurrencySymbol,
 } from '@/lib/constants/currencies';
-import {CreditCard, Gift, Search, Upload, X} from 'lucide-react';
+import {AlertCircle, CreditCard, Gift, Search, Upload, X} from 'lucide-react';
 import {useState} from 'react';
 
 interface DetailsStepProps {
@@ -50,6 +50,7 @@ interface DetailsStepProps {
   onRemoveImage: () => void;
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   allVendorGifts: any[];
+  userCountry?: string;
 }
 
 export function DetailsStep({
@@ -63,6 +64,7 @@ export function DetailsStep({
   onRemoveImage,
   fileInputRef,
   allVendorGifts,
+  userCountry,
 }: DetailsStepProps) {
   const [giftSearch, setGiftSearch] = useState('');
   const isClaimable = category === 'claimable';
@@ -257,6 +259,22 @@ export function DetailsStep({
                 ))}
               </SelectContent>
             </Select>
+            {userCountry &&
+              SUPPORTED_CURRENCIES.find(c => c.code === standard.currency)
+                ?.country !== userCountry && (
+                <div className="flex items-start gap-2 mt-2 p-2 rounded-lg bg-orange-50 border border-orange-100 text-orange-800 text-[10px] sm:text-xs">
+                  <AlertCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                  <p>
+                    You will only be able to withdraw to a{' '}
+                    {
+                      SUPPORTED_CURRENCIES.find(
+                        c => c.code === standard.currency,
+                      )?.label
+                    }{' '}
+                    bank account.
+                  </p>
+                </div>
+              )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -7,12 +7,13 @@ import {Avatar, AvatarFallback} from '@/components/ui/avatar';
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
+import {InfiniteScroll} from '@/components/ui/infinite-scroll';
 import {useProfileByUsername} from '@/hooks/use-profile';
-import {CURRENCY_SYMBOLS} from '@/lib/currencies';
+import {CURRENCY_SYMBOLS, getCurrencyByCountry} from '@/lib/currencies';
 import {fetchCreatorSupporters} from '@/lib/server/actions/analytics';
 import {useUserStore} from '@/lib/store/useUserStore';
 import {formatCurrency} from '@/lib/utils/currency';
-import {useQuery} from '@tanstack/react-query';
+import {useInfiniteQuery} from '@tanstack/react-query';
 import {
   ArrowLeft,
   Gift,
@@ -127,15 +128,26 @@ export default function CreatorProfilePage({
   );
   const [showAllSupporters, setShowAllSupporters] = useState(false);
 
-  const loggedInUser = useUserStore(state => state.user);
+  const loggedInUser = useUserStore((state: any) => state.user);
   const {data: dbProfile, isLoading} = useProfileByUsername(username);
 
-  // Fetch real supporters data
-  const {data: supportersData} = useQuery({
+  // Fetch real supporters data with infinite scroll
+  const {
+    data: supportersData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: ['creator-supporters', username],
-    queryFn: () => fetchCreatorSupporters({username}),
+    initialPageParam: 0,
+    queryFn: ({pageParam = 0}) => fetchCreatorSupporters({username, pageParam}),
+    getNextPageParam: lastPage => lastPage.nextPage,
     enabled: !!username,
   });
+
+  const allSupporters = supportersData?.pages.flatMap(p => p.data || []) || [];
+  const totalSupporters = supportersData?.pages[0]?.totalSupporters || 0;
+  const totalReceived = supportersData?.pages[0]?.totalReceived || 0;
 
   // Merge DB data with mock data if it exists for backward compatibility during dev
   const mockData = username ? enabledUsers[username] : null;
@@ -229,9 +241,9 @@ export default function CreatorProfilePage({
       plan === 'pro'
         ? (dbProfile?.theme_settings?.proRemoveBranding ?? false)
         : false,
-    supporters: supportersData?.data || [],
-    totalReceived: supportersData?.totalReceived || 0,
-    totalSupporters: supportersData?.totalSupporters || 0,
+    supporters: allSupporters,
+    totalReceived,
+    totalSupporters,
     socialLinks: dbProfile?.social_links || {},
     vendorGifts: mockData?.vendorGifts || [
       {id: 1, name: '☕ Coffee Gift Card', price: 10},
@@ -239,6 +251,12 @@ export default function CreatorProfilePage({
       {id: 3, name: '💆 Spa Voucher', price: 50},
     ],
   };
+
+  const isDetailsValid =
+    selectedMethod === 'vendor'
+      ? selectedVendorGift !== null
+      : (selectedAmount !== null && selectedAmount > 0) ||
+        (customAmount !== '' && Number(customAmount) > 0);
 
   const customStyles =
     profile.plan === 'pro'
@@ -380,7 +398,7 @@ export default function CreatorProfilePage({
                 <Gift className="w-4 h-4 text-secondary" />
                 {formatCurrency(
                   profile.totalReceived,
-                  dbProfile?.theme_settings?.giftPageCurrency || 'NGN',
+                  getCurrencyByCountry(dbProfile?.country || 'Nigeria'),
                 )}{' '}
                 received
               </span>
@@ -441,6 +459,7 @@ export default function CreatorProfilePage({
                           }
                         : {}
                     }
+                    disabled={!isDetailsValid}
                     onClick={() => setShowGiftModal(true)}>
                     <Gift className="w-5 h-5 mr-2" />
                     {selectedMethod === 'vendor'
@@ -473,12 +492,16 @@ export default function CreatorProfilePage({
                     <div
                       key={s.id}
                       className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl border border-border/50">
-                      <div className="w-8 h-8 rounded-full bg-background flex items-center justify-center text-sm shadow-sm">
+                      <div className="w-8 h-8 rounded-full bg-background flex items-center justify-center text-sm shadow-sm shrink-0">
                         {s.anonymous ? '🙈' : '👤'}
                       </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">
-                          {s.name} sent{' '}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-sm font-bold text-foreground truncate">
+                            {s.name}
+                          </p>
+                        </div>{' '}
+                        <p className="text-[10px] text-muted-foreground leading-tight">
                           {s.giftName ? (
                             <span className="text-primary font-bold">
                               {s.giftName}
@@ -491,10 +514,12 @@ export default function CreatorProfilePage({
                             </span>
                           )}
                         </p>
+                        {s.message && (
+                          <p className="text-[10px] text-muted-foreground mt-1 line-clamp-1 italic">
+                            "{s.message}"
+                          </p>
+                        )}
                       </div>
-                      <span className="text-[10px] text-muted-foreground italic text-right">
-                        {s.date}
-                      </span>
                     </div>
                   ))
                 ) : (
@@ -530,42 +555,56 @@ export default function CreatorProfilePage({
                   </h3>
                   <div className="space-y-4">
                     {profile.supporters.length > 0 ? (
-                      (showAllSupporters
-                        ? profile.supporters
-                        : profile.supporters.slice(0, 5)
-                      ).map((s: any) => (
-                        <div
-                          key={s.id}
-                          className="flex items-start gap-3 group">
-                          <Avatar className="w-9 h-9 border border-border group-hover:scale-105 transition-transform">
-                            <AvatarFallback className="bg-muted text-xs font-bold">
-                              {s.anonymous ? '?' : s.name.charAt(0)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between">
-                              <p className="text-sm font-bold">{s.name}</p>
-                              <span
-                                className="text-sm font-bold"
-                                style={{
-                                  color:
-                                    profile.plan === 'pro'
-                                      ? profile.theme.primary
-                                      : 'var(--primary)',
-                                }}>
-                                {profile.showAmounts && !s.hideAmount
-                                  ? formatCurrency(s.amount, s.currency)
-                                  : ''}
-                              </span>
+                      <>
+                        {(showAllSupporters
+                          ? profile.supporters
+                          : profile.supporters.slice(0, 5)
+                        ).map((s: any) => (
+                          <div
+                            key={s.id}
+                            className="flex items-start gap-3 group">
+                            <Avatar className="w-9 h-9 border border-border group-hover:scale-105 transition-transform">
+                              <AvatarFallback className="bg-muted text-xs font-bold">
+                                {s.anonymous ? '?' : s.name.charAt(0)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between">
+                                <p className="text-sm font-bold">{s.name}</p>
+                                {profile.showAmounts && !s.hideAmount && (
+                                  <span
+                                    className="text-sm font-bold"
+                                    style={{
+                                      color:
+                                        profile.plan === 'pro'
+                                          ? profile.theme.primary
+                                          : 'var(--primary)',
+                                    }}>
+                                    {formatCurrency(s.amount, s.currency)}
+                                  </span>
+                                )}
+                                {s.hideAmount && (
+                                  <span className="text-xs text-muted-foreground italic">
+                                    hidden
+                                  </span>
+                                )}
+                              </div>
+                              {s.message && (
+                                <p className="text-xs text-muted-foreground mt-0.5 italic">
+                                  "{s.message}"
+                                </p>
+                              )}
                             </div>
-                            {s.message && (
-                              <p className="text-xs text-muted-foreground mt-0.5 italic">
-                                "{s.message}"
-                              </p>
-                            )}
                           </div>
-                        </div>
-                      ))
+                        ))}
+                        {showAllSupporters && (
+                          <InfiniteScroll
+                            hasMore={!!hasNextPage}
+                            isLoading={isFetchingNextPage}
+                            onLoadMore={fetchNextPage}
+                          />
+                        )}
+                      </>
                     ) : (
                       <p className="text-sm text-muted-foreground text-center py-4">
                         No supporters yet.
@@ -581,7 +620,7 @@ export default function CreatorProfilePage({
                       onClick={() => setShowAllSupporters(!showAllSupporters)}>
                       {showAllSupporters
                         ? 'Show less'
-                        : `Show all ${profile.supporters.length} supporters`}
+                        : `Show all ${profile.totalSupporters} supporters`}
                     </Button>
                   )}
                 </CardContent>
@@ -621,6 +660,7 @@ export default function CreatorProfilePage({
         initialGiftId={selectedVendorGift}
         initialCustomAmount={customAmount}
         initialStep="recipient"
+        currency={getCurrencyByCountry(dbProfile?.country || 'Nigeria')}
       />
     </div>
   );

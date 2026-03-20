@@ -15,7 +15,6 @@ import {
 import {Switch} from '@/components/ui/switch';
 import {Textarea} from '@/components/ui/textarea';
 import {useProfile} from '@/hooks/use-profile';
-import {PAYSTACK_COUNTRIES} from '@/lib/currencies';
 import {updateProfile} from '@/lib/server/actions/auth';
 import {verifyPaymentAndUpgrade} from '@/lib/server/actions/transactions';
 import {useUserStore} from '@/lib/store/useUserStore';
@@ -63,7 +62,6 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
   const [bgColor, setBgColor] = useState('hsl(30 50% 98%)');
   const [textColor, setTextColor] = useState('hsl(20 25% 12%)');
   const [isSaving, setIsSaving] = useState(false);
-  const [giftPageCurrency, setGiftPageCurrency] = useState('NGN');
 
   // Initialize state from profile
   useEffect(() => {
@@ -86,7 +84,6 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
       setPrimaryColor(theme.primaryColor || 'hsl(16 85% 60%)');
       setBgColor(theme.bgColor || 'hsl(30 50% 98%)');
       setTextColor(theme.textColor || 'hsl(20 25% 12%)');
-      setGiftPageCurrency(theme.giftPageCurrency || 'NGN');
     }
   }, [profile]);
 
@@ -154,7 +151,6 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
           primaryColor,
           bgColor,
           textColor,
-          giftPageCurrency,
         },
       });
 
@@ -345,26 +341,6 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
             />
             <p className="text-xs text-muted-foreground text-right mt-1">
               Comma-separated values shown on your gift page
-            </p>
-          </div>
-          <div className="space-y-2">
-            <Label>Display Currency</Label>
-            <Select
-              value={giftPageCurrency}
-              onValueChange={setGiftPageCurrency}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {PAYSTACK_COUNTRIES.map(c => (
-                  <SelectItem key={c.currency} value={c.currency}>
-                    {c.symbol} {c.currency} — {c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground text-right mt-1">
-              Currency shown on your public gift page
             </p>
           </div>
 

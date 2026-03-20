@@ -3,18 +3,17 @@
 import {Avatar, AvatarFallback} from '@/components/ui/avatar';
 import {Button} from '@/components/ui/button';
 import {Checkbox} from '@/components/ui/checkbox';
-import {Dialog, DialogContent} from '@/components/ui/dialog';
+import {Dialog, DialogContent, DialogTitle} from '@/components/ui/dialog';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
+import {VisuallyHidden} from '@/components/ui/visually-hidden';
 import {allVendorGifts} from '@/lib/data/gifts';
 import {recordCreatorGift} from '@/lib/server/actions/transactions';
 import {formatCurrency} from '@/lib/utils/currency';
-import PaystackPop from '@paystack/inline-js';
 import {useQueryClient} from '@tanstack/react-query';
 import {ArrowRight, Heart, Loader2} from 'lucide-react';
 import {useEffect, useState} from 'react';
 import {toast} from 'sonner';
-import GiftSelection from './GiftSelection';
 
 interface SendCreatorGiftModalProps {
   open: boolean;
@@ -27,6 +26,7 @@ interface SendCreatorGiftModalProps {
   initialGiftId?: number | null;
   initialCustomAmount?: string;
   initialStep?: 'details' | 'recipient';
+  currency?: string;
 }
 
 const SendCreatorGiftModal = ({
@@ -40,6 +40,7 @@ const SendCreatorGiftModal = ({
   initialGiftId = null,
   initialCustomAmount = '',
   initialStep = 'details',
+  currency = 'NGN',
 }: SendCreatorGiftModalProps) => {
   const [step, setStep] = useState<
     'details' | 'recipient' | 'payment' | 'success'
@@ -92,14 +93,16 @@ const SendCreatorGiftModal = ({
   };
 
   const handleBack = () => {
-    if (step === 'recipient') setStep('details');
+    if (step === 'recipient') onOpenChange(false);
     else if (step === 'payment') setStep('recipient');
   };
 
   const isDetailsValid =
     activeTab === 'money'
-      ? amount !== null ||
-        (customAmount !== '' && Number(customAmount) >= minAmount)
+      ? (amount !== null && amount > 0 && amount >= minAmount) ||
+        (customAmount !== '' &&
+          Number(customAmount) > 0 &&
+          Number(customAmount) >= minAmount)
       : selectedGift !== null;
 
   const isRecipientValid =
@@ -117,39 +120,6 @@ const SendCreatorGiftModal = ({
   const handlePaystackPayment = async () => {
     if (!donorEmail) return;
 
-    // If amount is 0 or not set, skip Paystack and record a message-only gift
-    if (!finalAmount || finalAmount <= 0) {
-      setIsProcessing(true);
-      try {
-        const res = await recordCreatorGift({
-          reference: `msg-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-          creatorUsername,
-          donorName,
-          donorEmail,
-          message,
-          isAnonymous,
-          hideAmount: true,
-          expectedAmount: 0,
-          currency: 'NGN',
-          giftId: selectedGift,
-          giftName: selectedGiftData?.name,
-        });
-
-        if (res.success) {
-          queryClient.invalidateQueries({queryKey: ['profile']});
-          queryClient.invalidateQueries({queryKey: ['creator-supporters']});
-          toast.success('Thank you! Your message has been sent.');
-        } else {
-          toast.error(res.error || 'Failed to send message');
-        }
-      } catch (err: any) {
-        toast.error('Could not send message: ' + err.message);
-      }
-      setIsProcessing(false);
-      onOpenChange(false);
-      return;
-    }
-
     if (!process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY) {
       toast.error(
         'Payment gateway not configured. Please check your config and restart the server.',
@@ -159,13 +129,15 @@ const SendCreatorGiftModal = ({
 
     setIsProcessing(true);
     try {
+      // Dynamic import to avoid 'window is not defined' during SSR
+      const PaystackPop = (await import('@paystack/inline-js')).default;
       const paystack = new (PaystackPop as any)();
 
       paystack.newTransaction({
         key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY as string,
         email: donorEmail,
         amount: Math.round(finalAmount * 100),
-        currency: 'NGN',
+        currency,
         onSuccess: async (response: any) => {
           const res = await recordCreatorGift({
             reference: response.reference,
@@ -176,19 +148,20 @@ const SendCreatorGiftModal = ({
             isAnonymous,
             hideAmount,
             expectedAmount: finalAmount,
-            currency: 'NGN',
+            currency,
             giftId: selectedGift,
             giftName: selectedGiftData?.name,
           });
 
           if (res.success) {
-            queryClient.invalidateQueries({
-              queryKey: ['profile'],
-            });
-            queryClient.invalidateQueries({
-              queryKey: ['creator-supporters'],
-            });
+            queryClient.invalidateQueries({queryKey: ['profile']});
+            queryClient.invalidateQueries({queryKey: ['creator-supporters']});
+            queryClient.invalidateQueries({queryKey: ['dashboard-analytics']});
+            queryClient.invalidateQueries({queryKey: ['received-gifts']});
+            queryClient.invalidateQueries({queryKey: ['sent-gifts']});
+            queryClient.invalidateQueries({queryKey: ['transactions']});
             toast.success('Thank you! Your gift has been sent.');
+            if ((res as any).warning) toast.warning((res as any).warning);
           } else {
             toast.error(res.error || 'Failed to record gift');
           }
@@ -211,6 +184,9 @@ const SendCreatorGiftModal = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[480px] p-0 overflow-hidden border-none shadow-2xl rounded-3xl">
+        <VisuallyHidden>
+          <DialogTitle>Send a Gift to {creatorName}</DialogTitle>
+        </VisuallyHidden>
         <div className="relative">
           <div className="bg-primary/5 px-6 pt-8 pb-6 border-b border-primary/10">
             <div className="flex items-center gap-4 mb-4">
@@ -228,17 +204,17 @@ const SendCreatorGiftModal = ({
                 <p className="text-sm text-muted-foreground mt-0.5">
                   {step === 'success'
                     ? 'Thank you for your support'
-                    : 'Choose something special'}
+                    : 'Personalize your gift'}
                 </p>
               </div>
             </div>
 
             {step !== 'success' && (
               <div className="flex items-center gap-2 mt-6">
-                {[1, 2, 3].map(s => (
+                {[1, 2].map(s => (
                   <div
                     key={s}
-                    className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${(s === 1 && (step === 'details' || step === 'recipient' || step === 'payment')) || (s === 2 && (step === 'recipient' || step === 'payment')) || (s === 3 && step === 'payment') ? 'bg-primary shadow-[0_0_10px_rgba(var(--primary),0.3)]' : 'bg-muted'}`}
+                    className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${(s === 1 && (step === 'recipient' || step === 'payment')) || (s === 2 && step === 'payment') ? 'bg-primary shadow-[0_0_10px_rgba(var(--primary),0.3)]' : 'bg-muted'}`}
                   />
                 ))}
               </div>
@@ -246,29 +222,6 @@ const SendCreatorGiftModal = ({
           </div>
 
           <div className="p-6">
-            {step === 'details' && (
-              <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-                <GiftSelection
-                  activeTab={activeTab}
-                  onTabChange={t => setActiveTab(t as 'money' | 'vendor')}
-                  amount={amount}
-                  setAmount={setAmount}
-                  customAmount={customAmount}
-                  setCustomAmount={setCustomAmount}
-                  selectedGift={selectedGift}
-                  setSelectedGift={setSelectedGift}
-                  minAmount={minAmount}
-                />
-                <Button
-                  className="w-full h-14 text-lg font-bold shadow-lg shadow-primary/20 rounded-2xl"
-                  disabled={!isDetailsValid}
-                  onClick={handleNext}>
-                  {activeTab === 'money' ? 'Send Support' : 'Send Gift Card'}{' '}
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
-              </div>
-            )}
-
             {step === 'recipient' && (
               <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
                 <div className="space-y-4">
@@ -368,7 +321,7 @@ const SendCreatorGiftModal = ({
                     </p>
                   </div>
                   <p className="text-2xl font-bold text-primary">
-                    {formatCurrency(finalAmount, 'NGN')}
+                    {formatCurrency(finalAmount, currency)}
                   </p>
                 </div>
 

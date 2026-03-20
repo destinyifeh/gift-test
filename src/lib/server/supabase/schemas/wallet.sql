@@ -20,7 +20,7 @@ create table if not exists transactions (
   campaign_id uuid references campaigns(id) on delete cascade, -- Link to campaign
   amount bigint not null, -- Amount in kobo (NGN) or cents (USD)
   currency text not null default 'NGN', -- Track currency
-  type text check (type in ('receipt', 'withdrawal', 'fee', 'campaign_contribution')),
+  type text check (type in ('receipt', 'withdrawal', 'fee', 'campaign_contribution', 'creator_support')),
   status text check (status in ('pending', 'success', 'failed')),
   reference text unique,
   description text,
@@ -44,6 +44,7 @@ create policy "Users can delete their own bank accounts." on bank_accounts
 
 -- Policies for transactions
 create policy "Users can view their own transactions." on transactions
-  for select using (auth.uid() = user_id);
+  for select using (auth.uid() = user_id OR type IN ('creator_support', 'campaign_contribution', 'receipt'));
 
--- No public insert/update for transactions (should be server-side only in a real app, but for this demo the action uses Service Role or Auth session)
+create policy "Enable insert for transactions" on transactions
+  for insert with check (true);

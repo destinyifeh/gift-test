@@ -15,7 +15,7 @@ export function SupportersTab() {
 
   const {data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage} =
     useInfiniteQuery({
-      queryKey: ['my-supporters', username],
+      queryKey: ['creator-supporters', username],
       initialPageParam: 0,
       queryFn: ({pageParam = 0}) =>
         fetchCreatorSupporters({username, pageParam}),
@@ -57,18 +57,20 @@ export function SupportersTab() {
                 </AvatarFallback>
               </Avatar>
               <div>
-                <p className="text-sm font-medium text-foreground">{s.name}</p>
+                <p className="text-sm font-bold text-foreground">{s.name}</p>
                 {s.message && (
-                  <p className="text-xs text-muted-foreground">"{s.message}"</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 italic">
+                    "{s.message}"
+                  </p>
                 )}
               </div>
             </div>
             <div className="text-right">
-              {!s.hideAmount && (
-                <p className="font-semibold text-primary">
-                  {formatCurrency(s.amount, s.currency)}
-                </p>
-              )}
+              <p className="font-semibold text-primary">
+                {!s.hideAmount
+                  ? formatCurrency(s.amount, s.currency)
+                  : 'Hidden'}
+              </p>
               <p className="text-xs text-muted-foreground">{s.date}</p>
             </div>
           </CardContent>

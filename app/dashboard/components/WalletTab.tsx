@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {useProfile} from '@/hooks/use-profile';
 import {
   CURRENCY_SYMBOLS,
   getCurrencyByCountry,
@@ -38,7 +39,7 @@ import {
   Trash2,
   Wallet,
 } from 'lucide-react';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {toast} from 'sonner';
 import {VerifyModal} from './VerifyModal';
 
@@ -73,6 +74,16 @@ export function WalletTab() {
   const [verifyAction, setVerifyAction] = useState<null | string>(null);
   const [verifyPassword, setVerifyPassword] = useState('');
   const [withdrawBank, setWithdrawBank] = useState('');
+
+  const {data: profile} = useProfile();
+  const [hasSetDefaultCountry, setHasSetDefaultCountry] = useState(false);
+
+  useEffect(() => {
+    if (profile?.country && !hasSetDefaultCountry) {
+      setSelectedCountry(profile.country);
+      setHasSetDefaultCountry(true);
+    }
+  }, [profile, hasSetDefaultCountry]);
 
   const banks = banksData?.data || [];
   const wallet = walletProfile?.data || {
@@ -501,12 +512,22 @@ export function WalletTab() {
                         {new Date(t.created_at).toLocaleDateString()}
                       </td>
                       <td className="py-3 text-foreground">{t.description}</td>
-                      <td className="py-3 text-muted-foreground capitalize">
-                        {t.type}
+                      <td className="py-3 text-muted-foreground">
+                        {t.type === 'creator_support'
+                          ? 'Personal Gift'
+                          : t.type === 'campaign_contribution'
+                            ? 'Contribution'
+                            : t.type}
                       </td>
                       <td
-                        className={`py-3 text-right font-semibold ${t.type === 'receipt' ? 'text-secondary' : 'text-destructive'}`}>
-                        {t.type === 'receipt' ? '+' : '-'}
+                        className={`py-3 text-right font-semibold ${['receipt', 'creator_support', 'campaign_contribution'].includes(t.type) ? 'text-secondary' : 'text-destructive'}`}>
+                        {[
+                          'receipt',
+                          'creator_support',
+                          'campaign_contribution',
+                        ].includes(t.type)
+                          ? '+'
+                          : '-'}
                         {currencySymbol}
                         {Math.abs(t.amount / 100).toFixed(2)}
                       </td>

@@ -16,6 +16,7 @@ create table profiles (
   suggested_amounts int[] default '{5, 10, 25}',
   social_links jsonb default '{}',
   theme_settings jsonb default '{}',
+  country text,
 
   constraint username_length check (char_length(username) >= 3)
 );
@@ -37,8 +38,8 @@ create policy "Users can update own profile." on profiles
 create function public.handle_new_user()
 returns trigger as $$
 begin
-  insert into public.profiles (id, username, display_name, email, avatar_url)
-  values (new.id, new.raw_user_meta_data->>'username', new.raw_user_meta_data->>'display_name', new.email, new.raw_user_meta_data->>'avatar_url');
+  insert into public.profiles (id, username, display_name, email, avatar_url, country)
+  values (new.id, new.raw_user_meta_data->>'username', new.raw_user_meta_data->>'display_name', new.email, new.raw_user_meta_data->>'avatar_url', new.raw_user_meta_data->>'country');
   return new;
 end;
 $$ language plpgsql security definer;

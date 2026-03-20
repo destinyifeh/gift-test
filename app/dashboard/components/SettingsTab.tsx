@@ -3,10 +3,18 @@ import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {useProfile} from '@/hooks/use-profile';
+import {PAYSTACK_COUNTRIES} from '@/lib/currencies';
 import {updateProfile} from '@/lib/server/actions/auth';
 import {useQueryClient} from '@tanstack/react-query';
-import {Camera, Link as LinkIcon, Loader2} from 'lucide-react';
+import {Camera, Globe, Link as LinkIcon, Loader2} from 'lucide-react';
 import {useEffect, useState} from 'react';
 import {toast} from 'sonner';
 
@@ -20,6 +28,7 @@ export function SettingsTab() {
   const [twitter, setTwitter] = useState('');
   const [instagram, setInstagram] = useState('');
   const [website, setWebsite] = useState('');
+  const [country, setCountry] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
   // Initialize state from profile
@@ -33,6 +42,7 @@ export function SettingsTab() {
       setTwitter(social.twitter || '');
       setInstagram(social.instagram || '');
       setWebsite(social.website || '');
+      setCountry(profile.country || '');
     }
   }, [profile]);
 
@@ -42,6 +52,7 @@ export function SettingsTab() {
       const result = await updateProfile({
         display_name: displayName,
         username: username.toLowerCase(),
+        country,
         social_links: {
           twitter,
           instagram,
@@ -108,6 +119,28 @@ export function SettingsTab() {
                   placeholder="username"
                 />
               </div>
+            </div>
+            <div className="space-y-1 sm:col-span-2">
+              <Label className="text-xs">Country of Residence</Label>
+              <Select value={country} onValueChange={setCountry}>
+                <SelectTrigger className="w-full">
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-muted-foreground" />
+                    <SelectValue placeholder="Select your country" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  {PAYSTACK_COUNTRIES.map(c => (
+                    <SelectItem key={c.code} value={c.name}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-[10px] text-muted-foreground mt-1">
+                Changing your country of residence will affect your currency and
+                payout options.
+              </p>
             </div>
             <div className="space-y-1 sm:col-span-2">
               <Label className="text-xs">Email (Cannot be changed here)</Label>

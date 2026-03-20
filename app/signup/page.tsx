@@ -5,16 +5,33 @@ import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {Separator} from '@/components/ui/separator';
+import {PAYSTACK_COUNTRIES} from '@/lib/currencies';
 import {signup} from '@/lib/server/actions/auth';
 import {signupSchema, type SignupInput} from '@/lib/validations/auth';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {useQueryClient} from '@tanstack/react-query';
-import {AlertCircle, Eye, EyeOff, Gift, Lock, Mail, User} from 'lucide-react';
+import {
+  AlertCircle,
+  Eye,
+  EyeOff,
+  Gift,
+  Globe,
+  Lock,
+  Mail,
+  User,
+} from 'lucide-react';
 import Link from 'next/link';
 import {useRouter, useSearchParams} from 'next/navigation';
 import {useState} from 'react';
-import {useForm} from 'react-hook-form';
+import {Controller, useForm} from 'react-hook-form';
 import {toast} from 'sonner';
 
 export default function SignupPage() {
@@ -31,6 +48,7 @@ export default function SignupPage() {
     register,
     handleSubmit,
     watch,
+    control,
     formState: {errors},
   } = useForm<SignupInput>({
     resolver: zodResolver(signupSchema),
@@ -50,6 +68,7 @@ export default function SignupPage() {
     formData.append('username', data.username);
     formData.append('email', data.email);
     formData.append('password', data.password);
+    formData.append('country', data.country);
 
     const result = await signup(formData);
 
@@ -175,6 +194,41 @@ export default function SignupPage() {
                       </p>
                     )}
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="country">Country of Residence</Label>
+                    <Controller
+                      name="country"
+                      control={control}
+                      render={({field}) => (
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}>
+                          <SelectTrigger className="w-full h-11">
+                            <div className="flex items-center gap-2">
+                              <Globe className="w-4 h-4 text-muted-foreground" />
+                              <SelectValue placeholder="Select your country" />
+                            </div>
+                          </SelectTrigger>
+                          <SelectContent>
+                            {PAYSTACK_COUNTRIES.map(c => (
+                              <SelectItem key={c.code} value={c.name}>
+                                {c.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      This helps us personalize your experience.
+                    </p>
+                    {errors.country && (
+                      <p className="text-xs text-destructive">
+                        {errors.country.message}
+                      </p>
+                    )}
+                  </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="username">Username</Label>
                     <div className="relative">

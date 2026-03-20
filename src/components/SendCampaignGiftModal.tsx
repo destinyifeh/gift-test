@@ -2,13 +2,13 @@
 
 import {Button} from '@/components/ui/button';
 import {Checkbox} from '@/components/ui/checkbox';
-import {Dialog, DialogContent} from '@/components/ui/dialog';
+import {Dialog, DialogContent, DialogTitle} from '@/components/ui/dialog';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
+import {VisuallyHidden} from '@/components/ui/visually-hidden';
 import {getCurrencySymbol} from '@/lib/constants/currencies';
 import {recordCampaignContribution} from '@/lib/server/actions/transactions';
 import {formatCurrency} from '@/lib/utils/currency';
-import PaystackPop from '@paystack/inline-js';
 import {useQueryClient} from '@tanstack/react-query';
 import {ArrowRight, Heart, Loader2} from 'lucide-react';
 import {useEffect, useState} from 'react';
@@ -85,7 +85,7 @@ const SendCampaignGiftModal = ({
 
   const finalAmount = amount !== null ? amount : Number(customAmount);
 
-  const handlePaystackPayment = () => {
+  const handlePaystackPayment = async () => {
     if (!finalAmount || !donorEmail) return;
 
     if (!process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY) {
@@ -97,6 +97,8 @@ const SendCampaignGiftModal = ({
 
     setIsProcessing(true);
     try {
+      // Dynamic import to avoid 'window is not defined' during SSR
+      const PaystackPop = (await import('@paystack/inline-js')).default;
       const paystack = new (PaystackPop as any)();
 
       paystack.newTransaction({
@@ -121,6 +123,11 @@ const SendCampaignGiftModal = ({
             queryClient.invalidateQueries({
               queryKey: ['campaign', campaignSlug],
             });
+            queryClient.invalidateQueries({
+              queryKey: ['campaign-contributions', campaignSlug],
+            });
+            queryClient.invalidateQueries({queryKey: ['dashboard-analytics']});
+            queryClient.invalidateQueries({queryKey: ['my-contributions']});
             toast.success('Thank you! Your contribution has been added.');
           } else {
             toast.error(res.error || 'Failed to record contribution');
@@ -145,6 +152,9 @@ const SendCampaignGiftModal = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[480px] p-0 overflow-hidden border-none shadow-2xl rounded-3xl">
+        <VisuallyHidden>
+          <DialogTitle>Support {campaignTitle}</DialogTitle>
+        </VisuallyHidden>
         <div className="relative">
           <div className="bg-primary/5 px-6 pt-8 pb-6 border-b border-primary/10">
             <div className="flex items-center gap-4 mb-4">

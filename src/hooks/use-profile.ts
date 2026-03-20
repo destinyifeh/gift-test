@@ -37,6 +37,7 @@ export function useProfile() {
         suggested_amounts: profile.suggested_amounts || [5, 10, 25],
         social_links: profile.social_links || {},
         theme_settings: profile.theme_settings || {},
+        country: profile.country,
         bank_accounts: accounts || [],
       };
     },
@@ -79,6 +80,7 @@ export function useProfileByUsername(username: string | null) {
         suggested_amounts: profile.suggested_amounts || [5, 10, 25],
         social_links: profile.social_links || {},
         theme_settings: profile.theme_settings || {},
+        country: profile.country,
         bank_accounts: accounts || [],
       };
     },

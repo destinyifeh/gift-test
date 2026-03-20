@@ -3,9 +3,10 @@
 import {Avatar, AvatarFallback} from '@/components/ui/avatar';
 import {Button} from '@/components/ui/button';
 import {Checkbox} from '@/components/ui/checkbox';
-import {Dialog, DialogContent} from '@/components/ui/dialog';
+import {Dialog, DialogContent, DialogTitle} from '@/components/ui/dialog';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
+import {VisuallyHidden} from '@/components/ui/visually-hidden';
 import {allVendorGifts} from '@/lib/data/gifts';
 import {ArrowRight, CreditCard, Heart} from 'lucide-react';
 import {useEffect, useState} from 'react';
@@ -50,6 +51,9 @@ const SendVendorGiftModal = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[480px] p-0 overflow-hidden border-none shadow-2xl rounded-3xl">
+        <VisuallyHidden>
+          <DialogTitle>Gift from {vendorName}</DialogTitle>
+        </VisuallyHidden>
         <div className="relative">
           <div className="bg-primary/5 px-6 pt-8 pb-6 border-b border-primary/10">
             <div className="flex items-center gap-4 mb-4">

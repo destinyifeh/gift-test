@@ -29,6 +29,7 @@ export async function signup(formData: FormData) {
   const password = formData.get('password') as string;
   const username = formData.get('username') as string;
   const display_name = formData.get('display_name') as string;
+  const country = formData.get('country') as string;
 
   // 1. Check if username is already taken
   const {data: existingProfile} = await supabase
@@ -59,6 +60,7 @@ export async function signup(formData: FormData) {
       data: {
         username,
         display_name,
+        country,
       },
     },
   });
@@ -151,6 +153,7 @@ export async function updateProfile(updates: {
   theme_settings?: any;
   avatar_url?: string;
   is_creator?: boolean;
+  country?: string;
 }) {
   const supabase = await createClient();
   const {
