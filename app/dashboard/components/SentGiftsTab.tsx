@@ -2,19 +2,28 @@
 
 import {Badge} from '@/components/ui/badge';
 import {Card, CardContent} from '@/components/ui/card';
+import {InfiniteScroll} from '@/components/ui/infinite-scroll';
 import {fetchSentGiftsList} from '@/lib/server/actions/analytics';
 import {formatCurrency} from '@/lib/utils/currency';
-import {useQuery} from '@tanstack/react-query';
+import {useInfiniteQuery} from '@tanstack/react-query';
 import {Loader2, Send} from 'lucide-react';
 import {statusColor} from './utils';
 
 export function SentGiftsTab() {
-  const {data: sentRes, isLoading} = useQuery({
+  const {
+    data: sentRes,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: ['sent-gifts'],
-    queryFn: () => fetchSentGiftsList(),
+    initialPageParam: 0,
+    queryFn: ({pageParam = 0}) => fetchSentGiftsList({pageParam}),
+    getNextPageParam: lastPage => lastPage.nextPage,
   });
 
-  const sentGiftsList = sentRes?.data || [];
+  const sentGiftsList = sentRes?.pages.flatMap(p => p.data || []) || [];
 
   if (isLoading) {
     return (
@@ -59,6 +68,14 @@ export function SentGiftsTab() {
           </CardContent>
         </Card>
       ))}
+
+      {!isLoading && sentGiftsList.length > 0 && (
+        <InfiniteScroll
+          hasMore={!!hasNextPage}
+          isLoading={isFetchingNextPage}
+          onLoadMore={fetchNextPage}
+        />
+      )}
     </div>
   );
 }

@@ -53,7 +53,12 @@ export async function createCampaign(data: {
   return {success: true, data: campaign};
 }
 
-export async function getMyCampaigns() {
+export async function getMyCampaigns({
+  pageParam = 0,
+}: {pageParam?: number} = {}) {
+  const limit = 10;
+  const from = pageParam * limit;
+  const to = from + limit - 1;
   const supabase = await createClient();
   const {
     data: {user},
@@ -67,13 +72,18 @@ export async function getMyCampaigns() {
     .from('campaigns')
     .select('*, contributions(id)')
     .eq('user_id', user.id)
-    .order('created_at', {ascending: false});
+    .order('created_at', {ascending: false})
+    .range(from, to);
 
   if (error) {
     return {success: false, error: error.message};
   }
 
-  return {success: true, data};
+  return {
+    success: true,
+    data,
+    nextPage: data?.length === limit ? pageParam + 1 : undefined,
+  };
 }
 
 export async function getCampaignBySlug(slug: string) {
@@ -152,7 +162,12 @@ export async function uploadCampaignImage(formData: FormData) {
 
   return {success: true, url: publicUrl};
 }
-export async function getAllPublicCampaigns() {
+export async function getAllPublicCampaigns({
+  pageParam = 0,
+}: {pageParam?: number} = {}) {
+  const limit = 12;
+  const from = pageParam * limit;
+  const to = from + limit - 1;
   const supabase = await createClient();
 
   const {data, error} = await supabase
@@ -162,11 +177,16 @@ export async function getAllPublicCampaigns() {
     )
     .eq('visibility', 'public')
     .eq('status', 'active')
-    .order('created_at', {ascending: false});
+    .order('created_at', {ascending: false})
+    .range(from, to);
 
   if (error) {
     return {success: false, error: error.message};
   }
 
-  return {success: true, data};
+  return {
+    success: true,
+    data,
+    nextPage: data?.length === limit ? pageParam + 1 : undefined,
+  };
 }

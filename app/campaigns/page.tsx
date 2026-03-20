@@ -5,6 +5,7 @@ import Navbar from '@/components/landing/Navbar';
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
+import {InfiniteScroll} from '@/components/ui/infinite-scroll';
 import {Input} from '@/components/ui/input';
 import {Progress} from '@/components/ui/progress';
 import {
@@ -24,7 +25,10 @@ import Link from 'next/link';
 import {useState} from 'react';
 
 export default function CampaignsPage() {
-  const {data: campaigns, isLoading} = usePublicCampaigns();
+  const {data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage} =
+    usePublicCampaigns();
+
+  const campaigns = data?.pages.flatMap(page => page.data || []) || [];
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('all');
 
@@ -174,6 +178,14 @@ export default function CampaignsPage() {
                 </motion.div>
               ))}
             </div>
+          )}
+
+          {!isLoading && campaigns.length > 0 && (
+            <InfiniteScroll
+              hasMore={!!hasNextPage}
+              isLoading={isFetchingNextPage}
+              onLoadMore={fetchNextPage}
+            />
           )}
 
           {!isLoading && filtered.length === 0 && (

@@ -3,31 +3,35 @@ import {
   getCampaignBySlug,
   getMyCampaigns,
 } from '@/lib/server/actions/campaigns';
-import {useQuery} from '@tanstack/react-query';
+import {useInfiniteQuery, useQuery} from '@tanstack/react-query';
 
 export function useMyCampaigns() {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ['my-campaigns'],
-    queryFn: async () => {
-      const result = await getMyCampaigns();
+    initialPageParam: 0,
+    queryFn: async ({pageParam = 0}) => {
+      const result = await getMyCampaigns({pageParam});
       if (!result.success) {
         throw new Error(result.error);
       }
-      return result.data;
+      return result;
     },
+    getNextPageParam: lastPage => lastPage.nextPage,
   });
 }
 
 export function usePublicCampaigns() {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ['public-campaigns'],
-    queryFn: async () => {
-      const result = await getAllPublicCampaigns();
+    initialPageParam: 0,
+    queryFn: async ({pageParam = 0}) => {
+      const result = await getAllPublicCampaigns({pageParam});
       if (!result.success) {
         throw new Error(result.error);
       }
-      return result.data;
+      return result;
     },
+    getNextPageParam: lastPage => lastPage.nextPage,
   });
 }
 

@@ -1,19 +1,28 @@
 'use client';
 
 import {Card, CardContent} from '@/components/ui/card';
+import {InfiniteScroll} from '@/components/ui/infinite-scroll';
 import {Progress} from '@/components/ui/progress';
 import {fetchMyContributions} from '@/lib/server/actions/analytics';
 import {formatCurrency} from '@/lib/utils/currency';
-import {useQuery} from '@tanstack/react-query';
+import {useInfiniteQuery} from '@tanstack/react-query';
 import {Loader2} from 'lucide-react';
 
 export function ContributionsTab() {
-  const {data: contribRes, isLoading} = useQuery({
+  const {
+    data: contribRes,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: ['my-contributions'],
-    queryFn: () => fetchMyContributions(),
+    initialPageParam: 0,
+    queryFn: ({pageParam = 0}) => fetchMyContributions({pageParam}),
+    getNextPageParam: lastPage => lastPage.nextPage,
   });
 
-  const contributionsData = contribRes?.data || [];
+  const contributionsData = contribRes?.pages.flatMap(p => p.data || []) || [];
 
   if (isLoading) {
     return (
@@ -65,6 +74,14 @@ export function ContributionsTab() {
           </CardContent>
         </Card>
       ))}
+
+      {!isLoading && contributionsData.length > 0 && (
+        <InfiniteScroll
+          hasMore={!!hasNextPage}
+          isLoading={isFetchingNextPage}
+          onLoadMore={fetchNextPage}
+        />
+      )}
     </div>
   );
 }

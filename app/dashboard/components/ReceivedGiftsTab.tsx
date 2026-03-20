@@ -3,9 +3,10 @@
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
+import {InfiniteScroll} from '@/components/ui/infinite-scroll';
 import {fetchReceivedGiftsList} from '@/lib/server/actions/analytics';
 import {formatCurrency} from '@/lib/utils/currency';
-import {useQuery} from '@tanstack/react-query';
+import {useInfiniteQuery} from '@tanstack/react-query';
 import {ArrowUpRight, CheckCircle2, Gift, Loader2, Star} from 'lucide-react';
 import {useState} from 'react';
 import {SelectedSection} from './mock';
@@ -27,12 +28,20 @@ export function ReceivedGiftsTab({
     setRatings(prev => ({...prev, [giftId]: rating}));
   };
 
-  const {data: receivedRes, isLoading} = useQuery({
+  const {
+    data: receivedRes,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: ['received-gifts'],
-    queryFn: () => fetchReceivedGiftsList(),
+    initialPageParam: 0,
+    queryFn: ({pageParam = 0}) => fetchReceivedGiftsList({pageParam}),
+    getNextPageParam: lastPage => lastPage.nextPage,
   });
 
-  const receivedGiftsList = receivedRes?.data || [];
+  const receivedGiftsList = receivedRes?.pages.flatMap(p => p.data || []) || [];
 
   if (isLoading) {
     return (
@@ -134,6 +143,14 @@ export function ReceivedGiftsTab({
           </CardContent>
         </Card>
       ))}
+
+      {!isLoading && receivedGiftsList.length > 0 && (
+        <InfiniteScroll
+          hasMore={!!hasNextPage}
+          isLoading={isFetchingNextPage}
+          onLoadMore={fetchNextPage}
+        />
+      )}
     </div>
   );
 }

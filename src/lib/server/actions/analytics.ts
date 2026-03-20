@@ -93,7 +93,10 @@ export async function fetchDashboardAnalytics() {
   }
 }
 
-export async function fetchMyContributions() {
+export async function fetchMyContributions({
+  pageParam = 0,
+}: {pageParam?: number} = {}) {
+  const limit = 10;
   const supabase = await createClient();
   const {
     data: {user},
@@ -167,14 +170,27 @@ export async function fetchMyContributions() {
       grouped[campId].contributed += Number(t.amount) / 100;
     });
 
-    return {success: true, data: Object.values(grouped)};
+    const groupedArray = Object.values(grouped);
+    const start = pageParam * limit;
+    const paginated = groupedArray.slice(start, start + limit);
+
+    return {
+      success: true,
+      data: paginated,
+      nextPage: start + limit < groupedArray.length ? pageParam + 1 : undefined,
+    };
   } catch (err: any) {
     console.error('fetchMyContributions Error:', err);
     return {success: false, error: err.message, data: []};
   }
 }
 
-export async function fetchSentGiftsList() {
+export async function fetchSentGiftsList({
+  pageParam = 0,
+}: {pageParam?: number} = {}) {
+  const limit = 10;
+  const from = pageParam * limit;
+  const to = from + limit - 1;
   const supabase = await createClient();
   const {
     data: {user},
@@ -193,7 +209,8 @@ export async function fetchSentGiftsList() {
       )
       .eq('user_id', user.id)
       .eq('type', 'campaign_contribution')
-      .order('created_at', {ascending: false});
+      .order('created_at', {ascending: false})
+      .range(from, to);
 
     if (!txs) return {success: true, data: []};
 
@@ -207,14 +224,23 @@ export async function fetchSentGiftsList() {
       status: t.status,
     }));
 
-    return {success: true, data: formatted};
+    return {
+      success: true,
+      data: formatted,
+      nextPage: formatted.length === limit ? pageParam + 1 : undefined,
+    };
   } catch (err: any) {
     console.error('fetchSentGiftsList Error:', err);
     return {success: false, error: err.message, data: []};
   }
 }
 
-export async function fetchReceivedGiftsList() {
+export async function fetchReceivedGiftsList({
+  pageParam = 0,
+}: {pageParam?: number} = {}) {
+  const limit = 10;
+  const from = pageParam * limit;
+  const to = from + limit - 1;
   const supabase = await createClient();
   const {
     data: {user},
@@ -242,7 +268,8 @@ export async function fetchReceivedGiftsList() {
       `,
       )
       .in('campaign_id', campaignIds)
-      .order('created_at', {ascending: false});
+      .order('created_at', {ascending: false})
+      .range(from, to);
 
     if (!contribs) return {success: true, data: []};
 
@@ -257,7 +284,11 @@ export async function fetchReceivedGiftsList() {
       status: c.transactions?.status || 'success',
     }));
 
-    return {success: true, data: formatted};
+    return {
+      success: true,
+      data: formatted,
+      nextPage: formatted.length === limit ? pageParam + 1 : undefined,
+    };
   } catch (err: any) {
     console.error('fetchReceivedGiftsList Error:', err);
     return {success: false, error: err.message, data: []};

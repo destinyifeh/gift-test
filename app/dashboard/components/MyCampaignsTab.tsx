@@ -3,6 +3,7 @@
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
+import {InfiniteScroll} from '@/components/ui/infinite-scroll';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
 import {Progress} from '@/components/ui/progress';
@@ -17,7 +18,11 @@ import {toast} from 'sonner';
 import {getDaysLeft, statusColor} from './utils';
 
 export function MyCampaignsTab() {
-  const {data: campaigns, isLoading} = useMyCampaigns();
+  const {data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage} =
+    useMyCampaigns();
+
+  const campaigns = data?.pages.flatMap(page => page.data || []) || [];
+
   const [editingCampaign, setEditingCampaign] = useState<string | null>(null);
   const [editCampaignTitle, setEditCampaignTitle] = useState('');
   const [editCampaignEndDate, setEditCampaignEndDate] = useState('');
@@ -196,6 +201,15 @@ export function MyCampaignsTab() {
           </CardContent>
         </Card>
       ))}
+
+      {!isLoading && campaigns.length > 0 && (
+        <InfiniteScroll
+          hasMore={!!hasNextPage}
+          isLoading={isFetchingNextPage}
+          onLoadMore={fetchNextPage}
+        />
+      )}
+
       <Link href="/campaigns">
         <Button variant="outline" className="w-full mt-2">
           Browse All Public Campaigns <ChevronRight className="w-4 h-4 ml-1" />
