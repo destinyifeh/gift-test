@@ -3,9 +3,12 @@
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
-import {ArrowUpRight, CheckCircle2, Gift, Star} from 'lucide-react';
+import {fetchReceivedGiftsList} from '@/lib/server/actions/analytics';
+import {formatCurrency} from '@/lib/utils/currency';
+import {useQuery} from '@tanstack/react-query';
+import {ArrowUpRight, CheckCircle2, Gift, Loader2, Star} from 'lucide-react';
 import {useState} from 'react';
-import {receivedGifts, SelectedSection} from './mock';
+import {SelectedSection} from './mock';
 import {statusColor} from './utils';
 
 interface ReceivedGiftsTabProps {
@@ -23,9 +26,34 @@ export function ReceivedGiftsTab({
   const handleRate = (giftId: number, rating: number) => {
     setRatings(prev => ({...prev, [giftId]: rating}));
   };
+
+  const {data: receivedRes, isLoading} = useQuery({
+    queryKey: ['received-gifts'],
+    queryFn: () => fetchReceivedGiftsList(),
+  });
+
+  const receivedGiftsList = receivedRes?.data || [];
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-[200px] opacity-50">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (receivedGiftsList.length === 0) {
+    return (
+      <div className="text-center py-10 text-muted-foreground border border-border rounded-lg bg-card">
+        No gifts or contributions received yet. Share your campaigns to get
+        started!
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
-      {receivedGifts.map(g => (
+      {receivedGiftsList.map((g: any) => (
         <Card key={g.id} className="border-border">
           <CardContent className="p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div className="flex items-center gap-3 sm:gap-4 min-w-0">
@@ -52,7 +80,9 @@ export function ReceivedGiftsTab({
               </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-3 self-end sm:self-auto flex-wrap">
-              <span className="font-bold text-foreground">${g.amount}</span>
+              <span className="font-bold text-foreground">
+                {formatCurrency(g.amount, g.currency)}
+              </span>
               <Badge variant={statusColor(g.status) as any}>{g.status}</Badge>
               {g.status === 'withdrawable' && (
                 <Button

@@ -77,6 +77,8 @@ export function WalletTab() {
   const banks = banksData?.data || [];
   const wallet = walletProfile?.data || {
     balance: 0,
+    totalInflow: 0,
+    pendingPayouts: 0,
     accounts: [],
     transactions: [],
   };
@@ -219,7 +221,7 @@ export function WalletTab() {
             <ArrowDownLeft className="w-6 h-6 text-secondary mx-auto mb-2" />
             <p className="text-2xl sm:text-3xl font-bold text-foreground">
               {currencySymbol}
-              {wallet.balance.toFixed(2)}
+              {wallet.totalInflow.toFixed(2)}
             </p>
             <p className="text-xs text-muted-foreground mt-1">Total Inflow</p>
           </CardContent>
@@ -228,7 +230,8 @@ export function WalletTab() {
           <CardContent className="p-4 sm:p-5 text-center">
             <DollarSign className="w-6 h-6 text-destructive mx-auto mb-2" />
             <p className="text-2xl sm:text-3xl font-bold text-foreground">
-              {currencySymbol}0.00
+              {currencySymbol}
+              {wallet.pendingPayouts.toFixed(2)}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
               Pending Payouts

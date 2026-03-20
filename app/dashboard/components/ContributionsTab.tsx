@@ -2,13 +2,38 @@
 
 import {Card, CardContent} from '@/components/ui/card';
 import {Progress} from '@/components/ui/progress';
-
-import {contributions} from './mock';
+import {fetchMyContributions} from '@/lib/server/actions/analytics';
+import {formatCurrency} from '@/lib/utils/currency';
+import {useQuery} from '@tanstack/react-query';
+import {Loader2} from 'lucide-react';
 
 export function ContributionsTab() {
+  const {data: contribRes, isLoading} = useQuery({
+    queryKey: ['my-contributions'],
+    queryFn: () => fetchMyContributions(),
+  });
+
+  const contributionsData = contribRes?.data || [];
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-[200px] opacity-50">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (contributionsData.length === 0) {
+    return (
+      <div className="text-center py-10 text-muted-foreground border border-border rounded-lg bg-card">
+        You haven't made any contributions yet.
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
-      {contributions.map(c => (
+      {contributionsData.map((c: any) => (
         <Card key={c.id} className="border-border">
           <CardContent className="p-3 sm:p-4">
             <div className="flex items-center justify-between mb-3">
@@ -17,16 +42,24 @@ export function ContributionsTab() {
                 {c.contributors} contributors
               </span>
             </div>
-            <Progress value={c.progress} className="h-2 mb-2" />
+
+            {c.goal > 0 ? (
+              <Progress value={c.progress} className="h-2 mb-2" />
+            ) : (
+              <div className="h-2 mb-2" /> /*Spacer*/
+            )}
+
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">
                 You contributed:{' '}
                 <span className="text-primary font-semibold">
-                  ${c.contributed}
+                  {formatCurrency(c.contributed, c.currency)}
                 </span>
               </span>
               <span className="text-muted-foreground">
-                {c.progress}% of ${c.goal}
+                {c.goal > 0
+                  ? `${Math.round(c.progress)}% of ${formatCurrency(c.goal, c.currency)}`
+                  : `${formatCurrency(c.current_amount, c.currency)} raised so far`}
               </span>
             </div>
           </CardContent>

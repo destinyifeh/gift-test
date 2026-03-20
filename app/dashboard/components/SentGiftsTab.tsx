@@ -2,14 +2,39 @@
 
 import {Badge} from '@/components/ui/badge';
 import {Card, CardContent} from '@/components/ui/card';
-import {Send} from 'lucide-react';
-import {sentGifts} from './mock';
+import {fetchSentGiftsList} from '@/lib/server/actions/analytics';
+import {formatCurrency} from '@/lib/utils/currency';
+import {useQuery} from '@tanstack/react-query';
+import {Loader2, Send} from 'lucide-react';
 import {statusColor} from './utils';
 
 export function SentGiftsTab() {
+  const {data: sentRes, isLoading} = useQuery({
+    queryKey: ['sent-gifts'],
+    queryFn: () => fetchSentGiftsList(),
+  });
+
+  const sentGiftsList = sentRes?.data || [];
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-[200px] opacity-50">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (sentGiftsList.length === 0) {
+    return (
+      <div className="text-center py-10 text-muted-foreground border border-border rounded-lg bg-card">
+        You haven't sent any gifts or contributions yet.
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
-      {sentGifts.map(g => (
+      {sentGiftsList.map((g: any) => (
         <Card key={g.id} className="border-border">
           <CardContent className="p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div className="flex items-center gap-3 sm:gap-4 min-w-0">
@@ -26,7 +51,9 @@ export function SentGiftsTab() {
               </div>
             </div>
             <div className="flex items-center gap-3 self-end sm:self-auto">
-              <span className="font-bold text-foreground">${g.amount}</span>
+              <span className="font-bold text-foreground">
+                {formatCurrency(g.amount, g.currency)}
+              </span>
               <Badge variant={statusColor(g.status) as any}>{g.status}</Badge>
             </div>
           </CardContent>

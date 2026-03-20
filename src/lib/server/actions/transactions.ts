@@ -234,29 +234,54 @@ export async function fetchWalletProfile() {
     return {success: false, error: 'Not authenticated'};
   }
 
-  // Fetch accounts and transactions
-  const [{data: accounts}, {data: txs}] = await Promise.all([
-    supabase.from('bank_accounts').select('*').eq('user_id', user.id),
-    supabase
-      .from('transactions')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', {ascending: false}),
-  ]);
+  // Fetch accounts, transactions, and user's campaigns
+  const [{data: accounts}, {data: txs}, {data: userCampaigns}] =
+    await Promise.all([
+      supabase.from('bank_accounts').select('*').eq('user_id', user.id),
+      supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', {ascending: false}),
+      supabase
+        .from('campaigns')
+        .select('current_amount')
+        .eq('user_id', user.id),
+    ]);
 
-  // Calculate balance (crude version: inflows - outflows)
-  const balance = (txs || []).reduce((acc, t) => {
-    if (t.status !== 'success') return acc;
-    if (t.type === 'receipt') return acc + Number(t.amount);
-    if (t.type === 'withdrawal' || t.type === 'fee')
-      return acc - Number(t.amount);
+  // Total Inflow: Sum of all current_amount from user's campaigns
+  const totalInflowKobo = (userCampaigns || []).reduce(
+    (acc, c) => acc + (Number(c.current_amount) || 0) * 100,
+    0,
+  );
+
+  // Total Withdrawn (settled)
+  const totalWithdrawnKobo = (txs || []).reduce((acc, t) => {
+    if (t.type === 'withdrawal' && t.status === 'success') {
+      return acc + Number(t.amount);
+    }
+    if (t.type === 'fee' && t.status === 'success') {
+      return acc + Number(t.amount);
+    }
     return acc;
   }, 0);
+
+  // Pending Payouts
+  const pendingPayoutsKobo = (txs || []).reduce((acc, t) => {
+    if (t.type === 'withdrawal' && t.status === 'pending') {
+      return acc + Number(t.amount);
+    }
+    return acc;
+  }, 0);
+
+  const balanceKobo = totalInflowKobo - totalWithdrawnKobo - pendingPayoutsKobo;
 
   return {
     success: true,
     data: {
-      balance: balance / 100, // Convert to major currency unit
+      balance: balanceKobo / 100, // Convert to major currency unit
+      totalInflow: totalInflowKobo / 100,
+      pendingPayouts: pendingPayoutsKobo / 100,
       accounts: accounts || [],
       transactions: txs || [],
     },
