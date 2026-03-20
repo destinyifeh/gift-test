@@ -486,10 +486,105 @@ export async function recordCampaignContribution({
     // 5. Update campaign total
     await supabase
       .from('campaigns')
-      .update({current_amount: Number(campaign.current_amount) + paidAmount})
-      .eq('id', campaign.id);
-
+      .update({current_amount: Number(campaign.current_amount) + paidAmount});
     revalidatePath(`/campaign/${campaignSlug}`);
+    return {success: true};
+  } catch (err: any) {
+    return {success: false, error: err.message || 'Processing error'};
+  }
+}
+
+export async function recordCreatorGift({
+  reference,
+  creatorUsername,
+  donorName,
+  donorEmail,
+  message,
+  isAnonymous,
+  hideAmount,
+  expectedAmount,
+  currency,
+  giftId,
+  giftName,
+}: {
+  reference: string;
+  creatorUsername: string;
+  donorName: string;
+  donorEmail: string;
+  message?: string;
+  isAnonymous: boolean;
+  hideAmount: boolean;
+  expectedAmount: number;
+  currency: string;
+  giftId?: number | null;
+  giftName?: string | null;
+}) {
+  const supabase = await createClient();
+
+  // 1. Get creator profile ID
+  const {data: creator} = await supabase
+    .from('profiles')
+    .select('id')
+    .ilike('username', creatorUsername)
+    .single();
+
+  if (!creator) {
+    return {success: false, error: 'Creator not found'};
+  }
+
+  // 2. Verify with Paystack
+  const secretKey = process.env.NEXT_PUBLIC_PAYSTACK_SECRET_KEY;
+  try {
+    const response = await fetch(
+      `https://api.paystack.co/transaction/verify/${reference}`,
+      {
+        headers: {Authorization: `Bearer ${secretKey}`},
+      },
+    );
+
+    const body = await response.json();
+    if (!body.status || body.data.status !== 'success') {
+      return {success: false, error: 'Payment verification failed'};
+    }
+
+    // Verify amount
+    const paidAmount = body.data.amount / 100;
+    if (paidAmount < expectedAmount) {
+      return {success: false, error: 'Incomplete payment amount'};
+    }
+
+    // 3. Try inserting transaction
+    const metadata = {
+      is_direct_gift: true,
+      donor_name: donorName,
+      donor_email: donorEmail,
+      message,
+      is_anonymous: isAnonymous,
+      hide_amount: hideAmount,
+      gift_id: giftId || null,
+      gift_name: giftName || null,
+    };
+
+    const {error: txError} = await supabase.from('transactions').insert({
+      user_id: creator.id, // The recipient owns the transaction of type 'receipt'
+      amount: body.data.amount,
+      currency: body.data.currency || currency,
+      type: 'receipt',
+      status: 'success',
+      reference,
+      description: `Direct gift from ${isAnonymous ? 'Anonymous' : donorName}`,
+      metadata,
+    });
+
+    if (txError) {
+      if (txError.code === '23505') {
+        return {success: false, error: 'Payment already processed'};
+      }
+      throw txError;
+    }
+
+    revalidatePath(`/u/${creatorUsername}`);
+    revalidatePath(`/dashboard`);
     return {success: true};
   } catch (err: any) {
     return {success: false, error: err.message || 'Processing error'};

@@ -7,8 +7,13 @@ import {Dialog, DialogContent} from '@/components/ui/dialog';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
 import {allVendorGifts} from '@/lib/data/gifts';
-import {ArrowRight, CreditCard, Heart} from 'lucide-react';
+import {recordCreatorGift} from '@/lib/server/actions/transactions';
+import {formatCurrency} from '@/lib/utils/currency';
+import PaystackPop from '@paystack/inline-js';
+import {useQueryClient} from '@tanstack/react-query';
+import {ArrowRight, Heart, Loader2} from 'lucide-react';
 import {useEffect, useState} from 'react';
+import {toast} from 'sonner';
 import GiftSelection from './GiftSelection';
 
 interface SendCreatorGiftModalProps {
@@ -44,20 +49,37 @@ const SendCreatorGiftModal = ({
     initialGiftId,
   );
 
+  const [donorName, setDonorName] = useState('');
+  const [donorEmail, setDonorEmail] = useState('');
+  const [message, setMessage] = useState('');
+  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [hideAmount, setHideAmount] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const queryClient = useQueryClient();
+
   useEffect(() => {
     setActiveTab(initialTab);
     setAmount(initialAmount);
     setCustomAmount(initialCustomAmount);
     setSelectedGift(initialGiftId);
     setStep(initialStep as any);
-  }, [
-    open,
-    initialTab,
-    initialAmount,
-    initialGiftId,
-    initialCustomAmount,
-    initialStep,
-  ]);
+  }, [open, initialTab, initialAmount, initialGiftId, initialStep]);
+
+  useEffect(() => {
+    if (open) {
+      setStep(initialStep as any);
+      setAmount(initialAmount);
+      setCustomAmount(initialCustomAmount);
+      setSelectedGift(initialGiftId);
+      setDonorName('');
+      setDonorEmail('');
+      setMessage('');
+      setIsAnonymous(false);
+      setHideAmount(false);
+      setIsProcessing(false);
+    }
+  }, [open, initialStep, initialAmount, initialCustomAmount, initialGiftId]);
 
   const selectedGiftData = allVendorGifts.find(g => g.id === selectedGift);
 
@@ -77,6 +99,76 @@ const SendCreatorGiftModal = ({
       ? amount !== null ||
         (customAmount !== '' && Number(customAmount) >= minAmount)
       : selectedGift !== null;
+
+  const isRecipientValid =
+    donorName.trim() !== '' &&
+    donorEmail.trim() !== '' &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(donorEmail);
+
+  const finalAmount =
+    activeTab === 'money'
+      ? amount !== null
+        ? amount
+        : Number(customAmount)
+      : selectedGiftData?.price || 0;
+
+  const handlePaystackPayment = () => {
+    if (!finalAmount || !donorEmail) return;
+
+    if (!process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY) {
+      toast.error(
+        'Payment gateway not configured. Please check your config and restart the server.',
+      );
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      const paystack = new (PaystackPop as any)();
+
+      paystack.newTransaction({
+        key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY as string,
+        email: donorEmail,
+        amount: Math.round(finalAmount * 100),
+        currency: 'NGN', // Assuming NGN default, can be dynamically passed via props
+        onSuccess: async (response: any) => {
+          const res = await recordCreatorGift({
+            reference: response.reference,
+            creatorUsername: creatorName.toLowerCase().replace(/[\s\.]+/g, ''), // we need actual username here usually, but since the prop is `creatorName` we'd be matching by ilike logic
+            donorName,
+            donorEmail,
+            message,
+            isAnonymous,
+            hideAmount,
+            expectedAmount: finalAmount,
+            currency: 'NGN',
+            giftId: selectedGift,
+            giftName: selectedGiftData?.name,
+          });
+
+          if (res.success) {
+            queryClient.invalidateQueries({
+              queryKey: ['profile'],
+            });
+            toast.success('Thank you! Your gift has been sent.');
+          } else {
+            toast.error(res.error || 'Failed to record gift');
+          }
+          setIsProcessing(false);
+        },
+        onCancel: () => {
+          setIsProcessing(false);
+          toast.info('Payment window closed');
+        },
+      });
+
+      onOpenChange(false);
+    } catch (err: any) {
+      console.error('Paystack init error:', err);
+      toast.error('Could not initialize payment: ' + err.message);
+      setIsProcessing(false);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -144,11 +236,24 @@ const SendCreatorGiftModal = ({
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">
-                      Your Name
+                      Your Name <span className="text-destructive">*</span>
                     </Label>
                     <Input
                       placeholder="E.g. John Doe"
-                      defaultValue="Destiny I."
+                      value={donorName}
+                      onChange={e => setDonorName(e.target.value)}
+                      className="h-12 rounded-xl bg-muted/20 border-2 font-medium"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">
+                      Email Address <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      type="email"
+                      placeholder="john@example.com"
+                      value={donorEmail}
+                      onChange={e => setDonorEmail(e.target.value)}
                       className="h-12 rounded-xl bg-muted/20 border-2 font-medium"
                     />
                   </div>
@@ -157,17 +262,41 @@ const SendCreatorGiftModal = ({
                       Message (Optional)
                     </Label>
                     <textarea
+                      value={message}
+                      onChange={e => setMessage(e.target.value)}
                       className="w-full min-h-[100px] p-3 rounded-xl bg-muted/20 border-2 font-medium focus:outline-none focus:border-primary transition-all resize-none text-sm"
                       placeholder="Write a sweet note..."
                     />
                   </div>
-                  <div className="flex items-center space-x-2 p-3 rounded-xl bg-muted/10 border border-transparent hover:border-primary/20 transition-all cursor-pointer">
-                    <Checkbox id="anonymous" />
-                    <label
-                      htmlFor="anonymous"
-                      className="text-sm font-medium leading-none cursor-pointer">
-                      Hide my name from recipient
-                    </label>
+                  <div className="flex flex-col gap-3 p-3 rounded-xl bg-muted/10 border border-transparent hover:border-primary/20 transition-all">
+                    <div className="flex items-center space-x-2 cursor-pointer">
+                      <Checkbox
+                        id="anonymous"
+                        checked={isAnonymous}
+                        onCheckedChange={checked =>
+                          setIsAnonymous(checked as boolean)
+                        }
+                      />
+                      <label
+                        htmlFor="anonymous"
+                        className="text-sm font-medium leading-none cursor-pointer">
+                        Hide my name from recipient
+                      </label>
+                    </div>
+                    <div className="flex items-center space-x-2 cursor-pointer border-t border-muted pt-2">
+                      <Checkbox
+                        id="hideAmount"
+                        checked={hideAmount}
+                        onCheckedChange={checked =>
+                          setHideAmount(checked as boolean)
+                        }
+                      />
+                      <label
+                        htmlFor="hideAmount"
+                        className="text-sm font-medium leading-none cursor-pointer">
+                        Hide my contribution amount
+                      </label>
+                    </div>
                   </div>
                 </div>
                 <div className="flex gap-3 pt-2">
@@ -179,6 +308,7 @@ const SendCreatorGiftModal = ({
                   </Button>
                   <Button
                     className="flex-1 h-14 text-lg font-bold shadow-lg shadow-primary/20 rounded-2xl"
+                    disabled={!isRecipientValid}
                     onClick={handleNext}>
                     Continue <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
@@ -200,57 +330,30 @@ const SendCreatorGiftModal = ({
                     </p>
                   </div>
                   <p className="text-2xl font-bold text-primary">
-                    $
-                    {activeTab === 'money'
-                      ? amount || customAmount
-                      : selectedGiftData?.price}
+                    {formatCurrency(finalAmount, 'NGN')}
                   </p>
                 </div>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">
-                      Card Details
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        placeholder="0000 0000 0000 0000"
-                        className="h-12 rounded-xl bg-muted/20 border-2 font-medium pl-10"
-                      />
-                      <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">
-                        Expiry
-                      </Label>
-                      <Input
-                        placeholder="MM / YY"
-                        className="h-12 rounded-xl bg-muted/20 border-2 font-medium"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">
-                        CVC
-                      </Label>
-                      <Input
-                        placeholder="123"
-                        className="h-12 rounded-xl bg-muted/20 border-2 font-medium"
-                      />
-                    </div>
-                  </div>
-                </div>
+
                 <div className="flex gap-3 pt-2">
                   <Button
                     variant="outline"
                     className="h-14 px-6 rounded-2xl font-bold border-2"
+                    disabled={isProcessing}
                     onClick={handleBack}>
                     Back
                   </Button>
                   <Button
                     className="flex-1 h-14 text-lg font-bold shadow-lg shadow-primary/20 rounded-2xl"
-                    onClick={handleNext}>
-                    Pay Now
+                    onClick={handlePaystackPayment}
+                    disabled={isProcessing}>
+                    {isProcessing ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />{' '}
+                        Processing...
+                      </>
+                    ) : (
+                      'Pay Now'
+                    )}
                   </Button>
                 </div>
               </div>
