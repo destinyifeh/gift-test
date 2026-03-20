@@ -9,6 +9,7 @@ import {Progress} from '@/components/ui/progress';
 import {Textarea} from '@/components/ui/textarea';
 import {useMyCampaigns} from '@/hooks/use-campaigns';
 import {updateCampaign} from '@/lib/server/actions/campaigns';
+import {formatCurrency} from '@/lib/utils/currency';
 import {ChevronRight, Clock, Edit, Loader2, Plus} from 'lucide-react';
 import Link from 'next/link';
 import {useState} from 'react';
@@ -153,18 +154,39 @@ export function MyCampaignsTab() {
                         </Button>
                       </div>
                     </div>
-                    {c.goal_amount > 0 && (
+                    {Number(c.goal_amount) > 0 ? (
                       <Progress
-                        value={(c.current_amount / c.goal_amount) * 100}
+                        value={
+                          (Number(c.current_amount) / Number(c.goal_amount)) *
+                          100
+                        }
                         className="h-2 mb-2"
                       />
+                    ) : (
+                      <div className="h-2 mb-2" /> // spacer
                     )}
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        ${c.current_amount || 0} raised of ${c.goal_amount || 0}
+                      <span className="text-muted-foreground font-medium">
+                        {Number(c.goal_amount) > 0 ? (
+                          <>
+                            {formatCurrency(
+                              c.current_amount || 0,
+                              c.currency || 'NGN',
+                            )}{' '}
+                            <span className="font-normal">
+                              raised of{' '}
+                              {formatCurrency(
+                                c.goal_amount || 0,
+                                c.currency || 'NGN',
+                              )}
+                            </span>
+                          </>
+                        ) : (
+                          `${formatCurrency(c.current_amount || 0, c.currency || 'NGN')} raised`
+                        )}
                       </span>
                       <span className="text-muted-foreground">
-                        0 contributors
+                        {c.contributions?.length || 0} contributors
                       </span>
                     </div>
                   </div>

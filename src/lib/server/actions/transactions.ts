@@ -356,3 +356,117 @@ export async function deleteBankAccount(id: string) {
   revalidatePath('/dashboard');
   return {success: true};
 }
+
+export async function recordCampaignContribution({
+  reference,
+  campaignSlug,
+  donorName,
+  donorEmail,
+  message,
+  isAnonymous,
+  hideAmount,
+  expectedAmount,
+  currency,
+}: {
+  reference: string;
+  campaignSlug: string;
+  donorName: string;
+  donorEmail: string;
+  message?: string;
+  isAnonymous: boolean;
+  hideAmount: boolean;
+  expectedAmount: number;
+  currency: string;
+}) {
+  const supabase = await createClient();
+
+  // 1. Get campaign ID
+  const {data: campaign} = await supabase
+    .from('campaigns')
+    .select('id, current_amount')
+    .eq('slug', campaignSlug)
+    .single();
+
+  if (!campaign) {
+    return {success: false, error: 'Campaign not found'};
+  }
+
+  // 2. Verify with Paystack
+  const secretKey = process.env.NEXT_PUBLIC_PAYSTACK_SECRET_KEY;
+  try {
+    const response = await fetch(
+      `https://api.paystack.co/transaction/verify/${reference}`,
+      {
+        headers: {Authorization: `Bearer ${secretKey}`},
+      },
+    );
+
+    const body = await response.json();
+    if (!body.status || body.data.status !== 'success') {
+      return {success: false, error: 'Payment verification failed'};
+    }
+
+    // Verify amount (Paystack returns in smallest currency unit, e.g., kobo/cents)
+    const paidAmount = body.data.amount / 100;
+    if (paidAmount < expectedAmount) {
+      return {success: false, error: 'Incomplete payment amount'};
+    }
+
+    // 3. Try inserting transaction (fails if reference already exists due to unique constraint)
+    const {
+      data: {user},
+    } = await supabase.auth.getUser();
+    const userId = user?.id || null; // Null for guests
+
+    const {data: tx, error: txError} = await supabase
+      .from('transactions')
+      .insert({
+        user_id: userId,
+        campaign_id: campaign.id,
+        amount: body.data.amount, // Store in smallest unit
+        currency: body.data.currency || currency,
+        type: 'campaign_contribution',
+        status: 'success',
+        reference,
+        description: `Contribution to campaign: ${campaignSlug}`,
+      })
+      .select()
+      .single();
+
+    if (txError) {
+      if (txError.code === '23505') {
+        return {success: false, error: 'Payment already processed'};
+      }
+      throw txError;
+    }
+
+    // 4. Record contribution metadata
+    const {error: contribError} = await supabase.from('contributions').insert({
+      campaign_id: campaign.id,
+      transaction_id: tx.id,
+      amount: paidAmount, // Store in main unit for display ease
+      currency: body.data.currency || currency,
+      donor_name: donorName,
+      donor_email: donorEmail,
+      message,
+      is_anonymous: isAnonymous,
+      hide_amount: hideAmount,
+    });
+
+    if (contribError) {
+      console.error('Failed to log contribution metadata:', contribError);
+      // Don't fail the whole process if just metadata insert fails, payment is secured
+    }
+
+    // 5. Update campaign total
+    await supabase
+      .from('campaigns')
+      .update({current_amount: Number(campaign.current_amount) + paidAmount})
+      .eq('id', campaign.id);
+
+    revalidatePath(`/campaign/${campaignSlug}`);
+    return {success: true};
+  } catch (err: any) {
+    return {success: false, error: err.message || 'Processing error'};
+  }
+}

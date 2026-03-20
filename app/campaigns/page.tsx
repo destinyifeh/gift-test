@@ -115,33 +115,47 @@ export default function CampaignsPage() {
                         <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
                           {c.description || 'No description provided.'}
                         </p>
-                        <Progress
-                          value={
-                            c.goal_amount > 0
-                              ? (c.current_amount / c.goal_amount) * 100
-                              : 0
-                          }
-                          className="h-2 mb-3"
-                        />
-                        <div className="flex justify-between text-sm mb-2">
-                          <span className="font-bold text-foreground">
-                            {formatCurrency(c.current_amount, c.currency)}{' '}
-                            <span className="font-normal text-muted-foreground">
-                              of {formatCurrency(c.goal_amount, c.currency)}
+                        {Number(c.goal_amount) > 0 ? (
+                          <>
+                            <Progress
+                              value={
+                                (Number(c.current_amount) /
+                                  Number(c.goal_amount)) *
+                                100
+                              }
+                              className="h-2 mb-3"
+                            />
+                            <div className="flex justify-between text-sm mb-2">
+                              <span className="font-bold text-foreground">
+                                {formatCurrency(c.current_amount, c.currency)}{' '}
+                                <span className="font-normal text-muted-foreground">
+                                  of {formatCurrency(c.goal_amount, c.currency)}
+                                </span>
+                              </span>
+                              <span className="text-muted-foreground">
+                                {Math.round(
+                                  (Number(c.current_amount) /
+                                    Number(c.goal_amount)) *
+                                    100,
+                                )}
+                                %
+                              </span>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="flex justify-between items-center text-sm mb-5">
+                            <span className="font-bold text-foreground text-base">
+                              {formatCurrency(c.current_amount, c.currency)}{' '}
+                              <span className="font-normal text-sm text-muted-foreground">
+                                raised
+                              </span>
                             </span>
-                          </span>
-                          <span className="text-muted-foreground">
-                            {c.goal_amount > 0
-                              ? Math.round(
-                                  (c.current_amount / c.goal_amount) * 100,
-                                )
-                              : 0}
-                            %
-                          </span>
-                        </div>
+                          </div>
+                        )}
                         <div className="flex justify-between text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
-                            <Users className="w-3 h-3" /> 0 contributors
+                            <Users className="w-3 h-3" />{' '}
+                            {c.contributions?.length || 0} contributors
                           </span>
                           <span className="flex items-center gap-1">
                             <Clock className="w-3 h-3" />{' '}

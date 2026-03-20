@@ -24,54 +24,7 @@ import {
 import Link from 'next/link';
 import {use, useState} from 'react';
 
-// Mock data for contributions since there's no real data yet
-const mockContributions = [
-  {
-    id: 1,
-    name: 'Mary K.',
-    amount: 50,
-    message: 'Happy birthday Sarah! 🎉',
-    anonymous: false,
-    hideAmount: false,
-    date: '2026-03-08',
-  },
-  {
-    id: 2,
-    name: 'Anonymous',
-    amount: 25,
-    message: 'Wishing you the best!',
-    anonymous: true,
-    hideAmount: false,
-    date: '2026-03-07',
-  },
-  {
-    id: 3,
-    name: 'Tom R.',
-    amount: null,
-    message: "Can't wait for the party!",
-    anonymous: false,
-    hideAmount: true,
-    date: '2026-03-07',
-  },
-  {
-    id: 4,
-    name: 'Lisa M.',
-    amount: 100,
-    message: '',
-    anonymous: false,
-    hideAmount: false,
-    date: '2026-03-06',
-  },
-  {
-    id: 5,
-    name: 'Anonymous',
-    amount: null,
-    message: 'Love you Sarah!',
-    anonymous: true,
-    hideAmount: true,
-    date: '2026-03-05',
-  },
-];
+// Removed mockContributions as we now use real data
 
 export default function CampaignPage({
   params,
@@ -108,7 +61,9 @@ export default function CampaignPage({
   }
 
   const progress =
-    c.goal_amount > 0 ? (c.current_amount / c.goal_amount) * 100 : 0;
+    Number(c.goal_amount) > 0
+      ? (Number(c.current_amount) / Number(c.goal_amount)) * 100
+      : 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -169,13 +124,23 @@ export default function CampaignPage({
                       {formatCurrency(c.current_amount, c.currency)}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      raised of {formatCurrency(c.goal_amount, c.currency)} goal
+                      {Number(c.goal_amount) > 0
+                        ? `raised of ${formatCurrency(c.goal_amount, c.currency)} goal`
+                        : 'raised so far'}
                     </p>
                   </div>
-                  <Progress value={progress} className="h-3 mb-4" />
+                  {Number(c.goal_amount) > 0 && (
+                    <Progress value={progress} className="h-3 mb-4" />
+                  )}
+                  {
+                    Number(c.goal_amount) === 0 && (
+                      <div className="h-3 mb-4" />
+                    ) /* Spacer if no progress */
+                  }
                   <div className="flex justify-between text-sm text-muted-foreground mb-6">
                     <span className="flex items-center gap-1">
-                      <Users className="w-4 h-4" /> 0 contributors
+                      <Users className="w-4 h-4" />{' '}
+                      {c.contributions?.length || 0} contributors
                     </span>
                     <span className="flex items-center gap-1">
                       <Clock className="w-4 h-4" /> {getDaysLeft(c.end_date)}{' '}
@@ -201,37 +166,55 @@ export default function CampaignPage({
                     Contributions
                   </h3>
                   <div className="space-y-3">
-                    {mockContributions.map(contrib => (
-                      <div key={contrib.id} className="flex items-start gap-3">
-                        <Avatar className="w-8 h-8">
-                          <AvatarFallback className="bg-muted text-xs">
-                            {contrib.anonymous ? '?' : contrib.name.charAt(0)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <p className="text-sm font-medium text-foreground">
-                              {contrib.name}
-                            </p>
-                            {!contrib.hideAmount && contrib.amount && (
-                              <span className="text-sm font-semibold text-primary">
-                                {formatCurrency(contrib.amount, c.currency)}
-                              </span>
-                            )}
-                            {contrib.hideAmount && (
-                              <span className="text-xs text-muted-foreground italic">
-                                hidden
-                              </span>
+                    {c.contributions?.length > 0 ? (
+                      c.contributions.map((contrib: any) => (
+                        <div
+                          key={contrib.id}
+                          className="flex items-start gap-3">
+                          <Avatar className="w-8 h-8">
+                            <AvatarFallback className="bg-muted text-xs">
+                              {contrib.is_anonymous
+                                ? '?'
+                                : contrib.donor_name.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm font-medium text-foreground">
+                                {contrib.is_anonymous
+                                  ? 'Anonymous'
+                                  : contrib.donor_name}
+                              </p>
+                              {!contrib.hide_amount && contrib.amount && (
+                                <span className="text-sm font-semibold text-primary">
+                                  {formatCurrency(
+                                    contrib.amount,
+                                    contrib.currency || c.currency,
+                                  )}
+                                </span>
+                              )}
+                              {contrib.hide_amount && (
+                                <span className="text-xs text-muted-foreground italic">
+                                  hidden
+                                </span>
+                              )}
+                            </div>
+                            {contrib.message && (
+                              <p className="text-xs text-muted-foreground mt-0.5 break-words">
+                                "{contrib.message}"
+                              </p>
                             )}
                           </div>
-                          {contrib.message && (
-                            <p className="text-xs text-muted-foreground mt-0.5 truncate">
-                              "{contrib.message}"
-                            </p>
-                          )}
                         </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-6">
+                        <p className="text-sm text-muted-foreground">
+                          No contributions yet. Be the first to support this
+                          campaign!
+                        </p>
                       </div>
-                    ))}
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -243,6 +226,7 @@ export default function CampaignPage({
       <SendCampaignGiftModal
         open={showGiftModal}
         onOpenChange={setShowGiftModal}
+        campaignSlug={slug}
         campaignTitle={c.title}
         creatorName={c.profiles?.display_name || 'Organizer'}
         minAmount={c.min_amount}

@@ -16,9 +16,11 @@ create table if not exists bank_accounts (
 -- Table for tracking wallet inflows and outflows
 create table if not exists transactions (
   id uuid default gen_random_uuid() primary key,
-  user_id uuid references profiles(id) on delete cascade not null,
+  user_id uuid references profiles(id) on delete cascade, -- Nullable for guest donations
+  campaign_id uuid references campaigns(id) on delete cascade, -- Link to campaign
   amount bigint not null, -- Amount in kobo (NGN) or cents (USD)
-  type text check (type in ('receipt', 'withdrawal', 'fee')),
+  currency text not null default 'NGN', -- Track currency
+  type text check (type in ('receipt', 'withdrawal', 'fee', 'campaign_contribution')),
   status text check (status in ('pending', 'success', 'failed')),
   reference text unique,
   description text,
