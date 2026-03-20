@@ -8,6 +8,7 @@ export const SUPPORTED_CURRENCIES = [
     flag: '🇳🇬',
     canCreate: true,
     canWithdraw: true,
+    suggestedAmounts: [1000, 1500, 2000, 2500, 5000],
   },
   {
     code: 'GHS',
@@ -17,6 +18,7 @@ export const SUPPORTED_CURRENCIES = [
     flag: '🇬🇭',
     canCreate: true,
     canWithdraw: true,
+    suggestedAmounts: [10, 20, 50, 100, 200],
   },
   {
     code: 'KES',
@@ -26,6 +28,7 @@ export const SUPPORTED_CURRENCIES = [
     flag: '🇰🇪',
     canCreate: true,
     canWithdraw: true,
+    suggestedAmounts: [100, 200, 300, 500, 1000],
   },
   {
     code: 'ZAR',
@@ -35,6 +38,7 @@ export const SUPPORTED_CURRENCIES = [
     flag: '🇿🇦',
     canCreate: true,
     canWithdraw: true,
+    suggestedAmounts: [10, 20, 50, 100, 200],
   },
   {
     code: 'XOF',
@@ -44,6 +48,7 @@ export const SUPPORTED_CURRENCIES = [
     flag: '🇨🇮',
     canCreate: true,
     canWithdraw: true,
+    suggestedAmounts: [500, 1000, 2000, 2500, 5000],
   },
   // Gift Only - African
   {
@@ -54,6 +59,7 @@ export const SUPPORTED_CURRENCIES = [
     flag: '🇪🇬',
     canCreate: false,
     canWithdraw: false,
+    suggestedAmounts: [50, 100, 200, 500, 1000],
   },
   {
     code: 'MAD',
@@ -63,6 +69,7 @@ export const SUPPORTED_CURRENCIES = [
     flag: '🇲🇦',
     canCreate: false,
     canWithdraw: false,
+    suggestedAmounts: [50, 100, 200, 500, 1000],
   },
   {
     code: 'RWF',
@@ -72,6 +79,7 @@ export const SUPPORTED_CURRENCIES = [
     flag: '🇷🇼',
     canCreate: false,
     canWithdraw: false,
+    suggestedAmounts: [1000, 2000, 5000, 10000, 20000],
   },
   // Gift Only - Asian
   {
@@ -82,6 +90,7 @@ export const SUPPORTED_CURRENCIES = [
     flag: '🇮🇳',
     canCreate: false,
     canWithdraw: false,
+    suggestedAmounts: [50, 100, 200, 300, 500],
   },
   {
     code: 'CNY',
@@ -91,6 +100,7 @@ export const SUPPORTED_CURRENCIES = [
     flag: '🇨🇳',
     canCreate: false,
     canWithdraw: false,
+    suggestedAmounts: [10, 20, 50, 100, 200],
   },
   {
     code: 'JPY',
@@ -100,6 +110,7 @@ export const SUPPORTED_CURRENCIES = [
     flag: '🇯🇵',
     canCreate: false,
     canWithdraw: false,
+    suggestedAmounts: [500, 1000, 2000, 5000, 10000],
   },
   {
     code: 'SGD',
@@ -109,6 +120,7 @@ export const SUPPORTED_CURRENCIES = [
     flag: '🇸🇬',
     canCreate: false,
     canWithdraw: false,
+    suggestedAmounts: [2, 5, 10, 20, 50],
   },
   // Gift Only - Global
   {
@@ -119,6 +131,7 @@ export const SUPPORTED_CURRENCIES = [
     flag: '🇺🇸',
     canCreate: false,
     canWithdraw: false,
+    suggestedAmounts: [2, 5, 10, 20, 50],
   },
   {
     code: 'GBP',
@@ -128,6 +141,7 @@ export const SUPPORTED_CURRENCIES = [
     flag: '🇬🇧',
     canCreate: false,
     canWithdraw: false,
+    suggestedAmounts: [2, 5, 10, 20, 50],
   },
   {
     code: 'EUR',
@@ -137,6 +151,7 @@ export const SUPPORTED_CURRENCIES = [
     flag: '🇪🇺',
     canCreate: false,
     canWithdraw: false,
+    suggestedAmounts: [2, 5, 10, 20, 50],
   },
 ] as const;
 

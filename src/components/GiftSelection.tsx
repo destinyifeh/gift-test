@@ -4,6 +4,7 @@ import {Badge} from '@/components/ui/badge';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
 import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs';
+import {getCurrencyMetadata} from '@/lib/constants/currencies';
 import {allVendorGifts} from '@/lib/data/gifts';
 import {CreditCard, Gift, Search} from 'lucide-react';
 import {useState} from 'react';
@@ -29,6 +30,7 @@ interface GiftSelectionProps {
   acceptMoney?: boolean;
   acceptVendor?: boolean;
   currencySymbol?: string;
+  currencyCode?: string;
   vendorGifts?: {id: number; name: string; price: number}[];
 }
 
@@ -49,11 +51,16 @@ const GiftSelection = ({
   acceptMoney = true,
   acceptVendor = true,
   currencySymbol = '$',
+  currencyCode = 'NGN',
   vendorGifts,
 }: GiftSelectionProps) => {
   const [giftSearch, setGiftSearch] = useState('');
 
   const displayVendorGifts = vendorGifts || allVendorGifts;
+  const currencyMetadata = getCurrencyMetadata(currencyCode);
+  const suggestedAmounts = currencyMetadata?.suggestedAmounts || [
+    10, 20, 50, 100, 200,
+  ];
 
   const filteredVendorGifts = displayVendorGifts.filter(
     g =>
@@ -101,7 +108,7 @@ const GiftSelection = ({
               )}
             </div>
             <div className="grid grid-cols-5 gap-2 pb-1">
-              {[5, 10, 25, 50, 100].map(a => (
+              {suggestedAmounts.map(a => (
                 <button
                   key={a}
                   onClick={() => {

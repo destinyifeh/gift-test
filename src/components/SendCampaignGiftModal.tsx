@@ -105,6 +105,7 @@ const SendCampaignGiftModal = ({
                   minAmount={minAmount}
                   campaignTitle={campaignTitle}
                   currencySymbol={getCurrencySymbol(currency)}
+                  currencyCode={currency}
                 />
                 <Button
                   className="w-full h-14 text-lg font-bold shadow-lg shadow-primary/20 rounded-2xl"
