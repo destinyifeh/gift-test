@@ -20,6 +20,7 @@ interface SendCreatorGiftModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   creatorName: string;
+  creatorUsername: string;
   minAmount?: number;
   initialTab?: 'money' | 'vendor';
   initialAmount?: number | null;
@@ -32,6 +33,7 @@ const SendCreatorGiftModal = ({
   open,
   onOpenChange,
   creatorName,
+  creatorUsername,
   minAmount = 0,
   initialTab = 'money',
   initialAmount = null,
@@ -112,8 +114,41 @@ const SendCreatorGiftModal = ({
         : Number(customAmount)
       : selectedGiftData?.price || 0;
 
-  const handlePaystackPayment = () => {
-    if (!finalAmount || !donorEmail) return;
+  const handlePaystackPayment = async () => {
+    if (!donorEmail) return;
+
+    // If amount is 0 or not set, skip Paystack and record a message-only gift
+    if (!finalAmount || finalAmount <= 0) {
+      setIsProcessing(true);
+      try {
+        const res = await recordCreatorGift({
+          reference: `msg-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+          creatorUsername,
+          donorName,
+          donorEmail,
+          message,
+          isAnonymous,
+          hideAmount: true,
+          expectedAmount: 0,
+          currency: 'NGN',
+          giftId: selectedGift,
+          giftName: selectedGiftData?.name,
+        });
+
+        if (res.success) {
+          queryClient.invalidateQueries({queryKey: ['profile']});
+          queryClient.invalidateQueries({queryKey: ['creator-supporters']});
+          toast.success('Thank you! Your message has been sent.');
+        } else {
+          toast.error(res.error || 'Failed to send message');
+        }
+      } catch (err: any) {
+        toast.error('Could not send message: ' + err.message);
+      }
+      setIsProcessing(false);
+      onOpenChange(false);
+      return;
+    }
 
     if (!process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY) {
       toast.error(
@@ -130,11 +165,11 @@ const SendCreatorGiftModal = ({
         key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY as string,
         email: donorEmail,
         amount: Math.round(finalAmount * 100),
-        currency: 'NGN', // Assuming NGN default, can be dynamically passed via props
+        currency: 'NGN',
         onSuccess: async (response: any) => {
           const res = await recordCreatorGift({
             reference: response.reference,
-            creatorUsername: creatorName.toLowerCase().replace(/[\s\.]+/g, ''), // we need actual username here usually, but since the prop is `creatorName` we'd be matching by ilike logic
+            creatorUsername,
             donorName,
             donorEmail,
             message,
@@ -149,6 +184,9 @@ const SendCreatorGiftModal = ({
           if (res.success) {
             queryClient.invalidateQueries({
               queryKey: ['profile'],
+            });
+            queryClient.invalidateQueries({
+              queryKey: ['creator-supporters'],
             });
             toast.success('Thank you! Your gift has been sent.');
           } else {

@@ -6,10 +6,13 @@ import {Avatar, AvatarFallback} from '@/components/ui/avatar';
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
+import {InfiniteScroll} from '@/components/ui/infinite-scroll';
 import {Progress} from '@/components/ui/progress';
 import {useCampaign} from '@/hooks/use-campaigns';
+import {fetchCampaignContributions} from '@/lib/server/actions/analytics';
 import {formatCurrency} from '@/lib/utils/currency';
 import {getDaysLeft} from '@/lib/utils/date';
+import {useInfiniteQuery} from '@tanstack/react-query';
 import {
   Calendar,
   Clock,
@@ -34,6 +37,23 @@ export default function CampaignPage({
   const {slug} = use(params);
   const {data: c, isLoading, error} = useCampaign(slug);
   const [showGiftModal, setShowGiftModal] = useState(false);
+
+  // Paginated contributions for this campaign
+  const {
+    data: contribPages,
+    fetchNextPage: fetchMoreContribs,
+    hasNextPage: hasMoreContribs,
+    isFetchingNextPage: isFetchingContribs,
+  } = useInfiniteQuery({
+    queryKey: ['campaign-contributions', slug],
+    initialPageParam: 0,
+    queryFn: ({pageParam = 0}) => fetchCampaignContributions({slug, pageParam}),
+    getNextPageParam: lastPage => lastPage.nextPage,
+    enabled: !!slug,
+  });
+
+  const paginatedContribs =
+    contribPages?.pages.flatMap(p => p.data || []) || [];
 
   if (isLoading) {
     return (
@@ -166,47 +186,54 @@ export default function CampaignPage({
                     Contributions
                   </h3>
                   <div className="space-y-3">
-                    {c.contributions?.length > 0 ? (
-                      c.contributions.map((contrib: any) => (
-                        <div
-                          key={contrib.id}
-                          className="flex items-start gap-3">
-                          <Avatar className="w-8 h-8">
-                            <AvatarFallback className="bg-muted text-xs">
-                              {contrib.is_anonymous
-                                ? '?'
-                                : contrib.donor_name.charAt(0)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <p className="text-sm font-medium text-foreground">
+                    {paginatedContribs.length > 0 ? (
+                      <>
+                        {paginatedContribs.map((contrib: any) => (
+                          <div
+                            key={contrib.id}
+                            className="flex items-start gap-3">
+                            <Avatar className="w-8 h-8">
+                              <AvatarFallback className="bg-muted text-xs">
                                 {contrib.is_anonymous
-                                  ? 'Anonymous'
-                                  : contrib.donor_name}
-                              </p>
-                              {!contrib.hide_amount && contrib.amount && (
-                                <span className="text-sm font-semibold text-primary">
-                                  {formatCurrency(
-                                    contrib.amount,
-                                    contrib.currency || c.currency,
-                                  )}
-                                </span>
-                              )}
-                              {contrib.hide_amount && (
-                                <span className="text-xs text-muted-foreground italic">
-                                  hidden
-                                </span>
+                                  ? '?'
+                                  : contrib.donor_name.charAt(0)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between">
+                                <p className="text-sm font-medium text-foreground">
+                                  {contrib.is_anonymous
+                                    ? 'Anonymous'
+                                    : contrib.donor_name}
+                                </p>
+                                {!contrib.hide_amount && contrib.amount && (
+                                  <span className="text-sm font-semibold text-primary">
+                                    {formatCurrency(
+                                      contrib.amount,
+                                      contrib.currency || c.currency,
+                                    )}
+                                  </span>
+                                )}
+                                {contrib.hide_amount && (
+                                  <span className="text-xs text-muted-foreground italic">
+                                    hidden
+                                  </span>
+                                )}
+                              </div>
+                              {contrib.message && (
+                                <p className="text-xs text-muted-foreground mt-0.5 break-words">
+                                  "{contrib.message}"
+                                </p>
                               )}
                             </div>
-                            {contrib.message && (
-                              <p className="text-xs text-muted-foreground mt-0.5 break-words">
-                                "{contrib.message}"
-                              </p>
-                            )}
                           </div>
-                        </div>
-                      ))
+                        ))}
+                        <InfiniteScroll
+                          hasMore={!!hasMoreContribs}
+                          isLoading={isFetchingContribs}
+                          onLoadMore={fetchMoreContribs}
+                        />
+                      </>
                     ) : (
                       <div className="text-center py-6">
                         <p className="text-sm text-muted-foreground">

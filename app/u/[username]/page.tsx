@@ -9,7 +9,10 @@ import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
 import {useProfileByUsername} from '@/hooks/use-profile';
 import {CURRENCY_SYMBOLS} from '@/lib/currencies';
+import {fetchCreatorSupporters} from '@/lib/server/actions/analytics';
 import {useUserStore} from '@/lib/store/useUserStore';
+import {formatCurrency} from '@/lib/utils/currency';
+import {useQuery} from '@tanstack/react-query';
 import {
   ArrowLeft,
   Gift,
@@ -127,6 +130,13 @@ export default function CreatorProfilePage({
   const loggedInUser = useUserStore(state => state.user);
   const {data: dbProfile, isLoading} = useProfileByUsername(username);
 
+  // Fetch real supporters data
+  const {data: supportersData} = useQuery({
+    queryKey: ['creator-supporters', username],
+    queryFn: () => fetchCreatorSupporters({username}),
+    enabled: !!username,
+  });
+
   // Merge DB data with mock data if it exists for backward compatibility during dev
   const mockData = username ? enabledUsers[username] : null;
 
@@ -219,11 +229,9 @@ export default function CreatorProfilePage({
       plan === 'pro'
         ? (dbProfile?.theme_settings?.proRemoveBranding ?? false)
         : false,
-    supporters: mockData?.supporters || enabledUsers.destiny.supporters,
-    totalReceived:
-      mockData?.totalReceived || enabledUsers.destiny.totalReceived,
-    totalSupporters:
-      mockData?.totalSupporters || enabledUsers.destiny.totalSupporters,
+    supporters: supportersData?.data || [],
+    totalReceived: supportersData?.totalReceived || 0,
+    totalSupporters: supportersData?.totalSupporters || 0,
     socialLinks: dbProfile?.social_links || {},
     vendorGifts: mockData?.vendorGifts || [
       {id: 1, name: '☕ Coffee Gift Card', price: 10},
@@ -369,8 +377,12 @@ export default function CreatorProfilePage({
                 {profile.totalSupporters} supporters
               </span>
               <span className="flex items-center gap-1">
-                <Gift className="w-4 h-4 text-secondary" /> $
-                {profile.totalReceived} received
+                <Gift className="w-4 h-4 text-secondary" />
+                {formatCurrency(
+                  profile.totalReceived,
+                  dbProfile?.theme_settings?.giftPageCurrency || 'NGN',
+                )}{' '}
+                received
               </span>
             </div>
           </div>
@@ -456,40 +468,40 @@ export default function CreatorProfilePage({
                 recently
               </h3>
               <div className="space-y-3">
-                <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl border border-border/50">
-                  <div className="w-8 h-8 rounded-full bg-background flex items-center justify-center text-sm shadow-sm">
-                    👤
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">
-                      John sent a{' '}
-                      <span className="text-primary font-bold">
-                        Coffee Gift
-                      </span>{' '}
-                      ☕
-                    </p>
-                  </div>
-                  <span className="text-[10px] text-muted-foreground italic text-right">
-                    2h ago
-                  </span>
-                </div>
-                <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl border border-border/50">
-                  <div className="w-8 h-8 rounded-full bg-background flex items-center justify-center text-sm shadow-sm">
-                    👤
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">
-                      Mary sent a{' '}
-                      <span className="text-secondary font-bold">
-                        Spa Voucher
-                      </span>{' '}
-                      💆
-                    </p>
-                  </div>
-                  <span className="text-[10px] text-muted-foreground italic text-right">
-                    5h ago
-                  </span>
-                </div>
+                {profile.supporters.length > 0 ? (
+                  profile.supporters.slice(0, 3).map((s: any) => (
+                    <div
+                      key={s.id}
+                      className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl border border-border/50">
+                      <div className="w-8 h-8 rounded-full bg-background flex items-center justify-center text-sm shadow-sm">
+                        {s.anonymous ? '🙈' : '👤'}
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">
+                          {s.name} sent{' '}
+                          {s.giftName ? (
+                            <span className="text-primary font-bold">
+                              {s.giftName}
+                            </span>
+                          ) : (
+                            <span className="text-primary font-bold">
+                              {!s.hideAmount
+                                ? formatCurrency(s.amount, s.currency)
+                                : 'a gift'}
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                      <span className="text-[10px] text-muted-foreground italic text-right">
+                        {s.date}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    No gifts received yet. Be the first to support!
+                  </p>
+                )}
               </div>
             </div>
 
@@ -514,44 +526,54 @@ export default function CreatorProfilePage({
                             : 'var(--primary)',
                       }}
                     />{' '}
-                    Supporters
+                    Supporters ({profile.totalSupporters})
                   </h3>
                   <div className="space-y-4">
-                    {(showAllSupporters
-                      ? profile.supporters
-                      : profile.supporters.slice(0, 3)
-                    ).map(s => (
-                      <div key={s.id} className="flex items-start gap-3 group">
-                        <Avatar className="w-9 h-9 border border-border group-hover:scale-105 transition-transform">
-                          <AvatarFallback className="bg-muted text-xs font-bold">
-                            {s.anonymous ? '?' : s.name.charAt(0)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between">
-                            <p className="text-sm font-bold">{s.name}</p>
-                            <span
-                              className="text-sm font-bold"
-                              style={{
-                                color:
-                                  profile.plan === 'pro'
-                                    ? profile.theme.primary
-                                    : 'var(--primary)',
-                              }}>
-                              {profile.showAmounts && `$${s.amount}`}
-                            </span>
+                    {profile.supporters.length > 0 ? (
+                      (showAllSupporters
+                        ? profile.supporters
+                        : profile.supporters.slice(0, 5)
+                      ).map((s: any) => (
+                        <div
+                          key={s.id}
+                          className="flex items-start gap-3 group">
+                          <Avatar className="w-9 h-9 border border-border group-hover:scale-105 transition-transform">
+                            <AvatarFallback className="bg-muted text-xs font-bold">
+                              {s.anonymous ? '?' : s.name.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm font-bold">{s.name}</p>
+                              <span
+                                className="text-sm font-bold"
+                                style={{
+                                  color:
+                                    profile.plan === 'pro'
+                                      ? profile.theme.primary
+                                      : 'var(--primary)',
+                                }}>
+                                {profile.showAmounts && !s.hideAmount
+                                  ? formatCurrency(s.amount, s.currency)
+                                  : ''}
+                              </span>
+                            </div>
+                            {s.message && (
+                              <p className="text-xs text-muted-foreground mt-0.5 italic">
+                                "{s.message}"
+                              </p>
+                            )}
                           </div>
-                          {s.message && (
-                            <p className="text-xs text-muted-foreground mt-0.5 italic">
-                              "{s.message}"
-                            </p>
-                          )}
                         </div>
-                      </div>
-                    ))}
+                      ))
+                    ) : (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        No supporters yet.
+                      </p>
+                    )}
                   </div>
 
-                  {profile.supporters.length > 3 && (
+                  {profile.supporters.length > 5 && (
                     <Button
                       variant="ghost"
                       size="sm"
@@ -592,6 +614,7 @@ export default function CreatorProfilePage({
         open={showGiftModal}
         onOpenChange={setShowGiftModal}
         creatorName={profile.name}
+        creatorUsername={username}
         minAmount={5}
         initialTab={selectedMethod === 'vendor' ? 'vendor' : 'money'}
         initialAmount={selectedAmount}

@@ -532,9 +532,45 @@ export async function recordCreatorGift({
     return {success: false, error: 'Creator not found'};
   }
 
-  // 2. Verify with Paystack
-  const secretKey = process.env.NEXT_PUBLIC_PAYSTACK_SECRET_KEY;
+  const metadata = {
+    is_direct_gift: true,
+    donor_name: donorName,
+    donor_email: donorEmail,
+    message,
+    is_anonymous: isAnonymous,
+    hide_amount: hideAmount,
+    gift_id: giftId || null,
+    gift_name: giftName || null,
+  };
+
   try {
+    // Message-only gift (no payment) — skip Paystack verification
+    if (expectedAmount <= 0) {
+      const {error: txError} = await supabase.from('transactions').insert({
+        user_id: creator.id,
+        amount: 0,
+        currency: currency,
+        type: 'receipt',
+        status: 'success',
+        reference,
+        description: `Message from ${isAnonymous ? 'Anonymous' : donorName}`,
+        metadata,
+      });
+
+      if (txError) {
+        if (txError.code === '23505') {
+          return {success: false, error: 'Already processed'};
+        }
+        throw txError;
+      }
+
+      revalidatePath(`/u/${creatorUsername}`);
+      revalidatePath(`/dashboard`);
+      return {success: true};
+    }
+
+    // 2. Verify with Paystack for paid gifts
+    const secretKey = process.env.NEXT_PUBLIC_PAYSTACK_SECRET_KEY;
     const response = await fetch(
       `https://api.paystack.co/transaction/verify/${reference}`,
       {
@@ -554,17 +590,6 @@ export async function recordCreatorGift({
     }
 
     // 3. Try inserting transaction
-    const metadata = {
-      is_direct_gift: true,
-      donor_name: donorName,
-      donor_email: donorEmail,
-      message,
-      is_anonymous: isAnonymous,
-      hide_amount: hideAmount,
-      gift_id: giftId || null,
-      gift_name: giftName || null,
-    };
-
     const {error: txError} = await supabase.from('transactions').insert({
       user_id: creator.id, // The recipient owns the transaction of type 'receipt'
       amount: body.data.amount,
