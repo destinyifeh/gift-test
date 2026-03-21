@@ -8,6 +8,7 @@ export interface UserProfile {
   display_name?: string;
   avatar_url?: string;
   is_creator?: boolean;
+  country?: string;
 }
 
 interface UserState {

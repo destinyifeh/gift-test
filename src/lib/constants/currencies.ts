@@ -158,9 +158,19 @@ export const SUPPORTED_CURRENCIES = [
 export type CurrencyCode = (typeof SUPPORTED_CURRENCIES)[number]['code'];
 
 export const getCurrencySymbol = (code: string) => {
-  return SUPPORTED_CURRENCIES.find(c => c.code === code)?.symbol || '$';
+  return (
+    SUPPORTED_CURRENCIES.find(c => c.code === code.toUpperCase())?.symbol || '$'
+  );
 };
 
 export const getCurrencyMetadata = (code: string) => {
   return SUPPORTED_CURRENCIES.find(c => c.code === code);
+};
+
+export const getCurrencyByCountry = (countryName?: string | null): string => {
+  if (!countryName || !countryName.trim()) return 'NGN';
+  const match = SUPPORTED_CURRENCIES.find(
+    c => c.country.toLowerCase() === countryName.trim().toLowerCase(),
+  );
+  return match?.code || 'NGN';
 };

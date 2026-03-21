@@ -14,8 +14,8 @@ import {
 } from '@/components/ui/select';
 import {useProfile} from '@/hooks/use-profile';
 import {
-  CURRENCY_SYMBOLS,
   getCurrencyByCountry,
+  getCurrencySymbol,
   PAYSTACK_COUNTRIES,
 } from '@/lib/currencies';
 import {
@@ -26,8 +26,10 @@ import {
   resolvePaystackAccount,
 } from '@/lib/server/actions/transactions';
 import {useUserStore} from '@/lib/store/useUserStore';
+import {formatCurrency} from '@/lib/utils/currency';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {
+  AlertCircle,
   ArrowDownLeft,
   ArrowUpRight,
   Building,
@@ -96,7 +98,23 @@ export function WalletTab() {
 
   const primaryBank =
     wallet.accounts.find((a: any) => a.is_primary) || wallet.accounts[0];
-  const currencySymbol = CURRENCY_SYMBOLS[primaryBank?.currency] || '$';
+  const userCurrency = getCurrencyByCountry(profile?.country);
+  const currencySymbol = getCurrencySymbol(userCurrency);
+
+  const selectedWithdrawAccount = wallet.accounts.find(
+    (a: any) => a.id === withdrawBank,
+  );
+  const isCurrencyMismatch =
+    selectedWithdrawAccount &&
+    selectedWithdrawAccount.currency !== userCurrency;
+
+  const selectedCountryCurrency = PAYSTACK_COUNTRIES.find(
+    c => c.name === selectedCountry,
+  )?.currency;
+  const isAddingMismatch =
+    selectedCountry &&
+    selectedCountryCurrency &&
+    selectedCountryCurrency !== userCurrency;
 
   const handleResolveAccount = async () => {
     if (bankForm.accountNumber.length !== 10 || !bankForm.bankCode) return;
@@ -219,8 +237,7 @@ export function WalletTab() {
           <CardContent className="p-4 sm:p-5 text-center">
             <Wallet className="w-6 h-6 text-primary mx-auto mb-2" />
             <p className="text-2xl sm:text-3xl font-bold text-foreground">
-              {currencySymbol}
-              {wallet.balance.toFixed(2)}
+              {formatCurrency(wallet.balance, userCurrency)}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
               Available Balance
@@ -231,8 +248,7 @@ export function WalletTab() {
           <CardContent className="p-4 sm:p-5 text-center">
             <ArrowDownLeft className="w-6 h-6 text-secondary mx-auto mb-2" />
             <p className="text-2xl sm:text-3xl font-bold text-foreground">
-              {currencySymbol}
-              {wallet.totalInflow.toFixed(2)}
+              {formatCurrency(wallet.totalInflow, userCurrency)}
             </p>
             <p className="text-xs text-muted-foreground mt-1">Total Inflow</p>
           </CardContent>
@@ -241,8 +257,7 @@ export function WalletTab() {
           <CardContent className="p-4 sm:p-5 text-center">
             <DollarSign className="w-6 h-6 text-destructive mx-auto mb-2" />
             <p className="text-2xl sm:text-3xl font-bold text-foreground">
-              {currencySymbol}
-              {wallet.pendingPayouts.toFixed(2)}
+              {formatCurrency(wallet.pendingPayouts, userCurrency)}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
               Pending Payouts
@@ -364,6 +379,16 @@ export function WalletTab() {
                     </SelectContent>
                   </Select>
                 </div>
+                {isAddingMismatch && (
+                  <div className="sm:col-span-2 p-3 bg-orange-50 border border-orange-100 rounded-xl flex items-start gap-2 animate-in fade-in slide-in-from-top-2">
+                    <AlertCircle className="w-4 h-4 text-orange-600 mt-0.5 flex-shrink-0" />
+                    <p className="text-xs font-medium text-orange-800 leading-normal">
+                      Warning: You are adding a {selectedCountryCurrency}{' '}
+                      account, but your wallet uses {userCurrency}. You won't be
+                      able to withdraw to this account.
+                    </p>
+                  </div>
+                )}
                 <div className="sm:col-span-2 space-y-1">
                   <Label className="text-xs">Account Number</Label>
                   <div className="flex gap-2">
@@ -458,16 +483,31 @@ export function WalletTab() {
                   />
                 </div>
                 <p className="text-xs text-muted-foreground text-right mt-1">
-                  Max: {currencySymbol}
-                  {wallet.balance.toFixed(2)}
+                  Max: {formatCurrency(wallet.balance, userCurrency)}
                 </p>
               </div>
             </div>
+
+            {isCurrencyMismatch && (
+              <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-xl flex items-start gap-2 animate-in fade-in slide-in-from-top-2">
+                <AlertCircle className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
+                <p className="text-xs font-bold text-destructive leading-normal">
+                  Payout not supported. Please select a supported payout
+                  currency/account.
+                </p>
+              </div>
+            )}
+
             <div className="flex gap-3">
               <Button
                 variant="hero"
                 onClick={() => setVerifyAction('withdraw')}
-                disabled={!withdrawBank || !withdrawAmount || isWithdrawing}>
+                disabled={
+                  !withdrawBank ||
+                  !withdrawAmount ||
+                  isWithdrawing ||
+                  isCurrencyMismatch
+                }>
                 {isWithdrawing ? (
                   <Loader2 className="w-4 h-4 mr-1 animate-spin" />
                 ) : (
@@ -528,8 +568,7 @@ export function WalletTab() {
                         ].includes(t.type)
                           ? '+'
                           : '-'}
-                        {currencySymbol}
-                        {Math.abs(t.amount / 100).toFixed(2)}
+                        {formatCurrency(Math.abs(t.amount / 100), userCurrency)}
                       </td>
                     </tr>
                   ))}

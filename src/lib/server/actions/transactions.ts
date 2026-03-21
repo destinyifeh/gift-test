@@ -1,5 +1,6 @@
 'use server';
 
+import {getCurrencyByCountry} from '@/lib/constants/currencies';
 import {revalidatePath} from 'next/cache';
 import {createClient} from '../supabase/server';
 
@@ -242,6 +243,11 @@ export async function fetchWalletProfile() {
         .from('transactions')
         .select('*')
         .eq('user_id', user.id)
+        .in('type', [
+          'campaign_contribution',
+          'creator_support',
+          'creator_support_sent',
+        ])
         .order('created_at', {ascending: false}),
       supabase
         .from('campaigns')
@@ -249,11 +255,20 @@ export async function fetchWalletProfile() {
         .eq('user_id', user.id),
     ]);
 
-  // Total Inflow: Sum of all current_amount from user's campaigns
-  const totalInflowKobo = (userCampaigns || []).reduce(
+  // Total Inflow: Campaigns + Direct Gifts
+  const totalCampaignInflowKobo = (userCampaigns || []).reduce(
     (acc, c) => acc + (Number(c.current_amount) || 0) * 100,
     0,
   );
+
+  const totalDirectInflowKobo = (txs || []).reduce((acc, t) => {
+    if (t.type === 'creator_support' && t.status === 'success') {
+      return acc + Number(t.amount);
+    }
+    return acc;
+  }, 0);
+
+  const totalInflowKobo = totalCampaignInflowKobo + totalDirectInflowKobo;
 
   // Total Withdrawn (settled)
   const totalWithdrawnKobo = (txs || []).reduce((acc, t) => {
@@ -303,15 +318,29 @@ export async function initiateWithdrawal(
 
   const secretKey = process.env.NEXT_PUBLIC_PAYSTACK_SECRET_KEY;
   try {
-    // 1. Get bank account recipient_code
-    const {data: account} = await supabase
-      .from('bank_accounts')
-      .select('recipient_code, bank_name')
-      .eq('id', bankAccountId)
-      .single();
+    // 1. Get bank account recipient_code, currency and user's expected currency
+    const [{data: account}, {data: profile}] = await Promise.all([
+      supabase
+        .from('bank_accounts')
+        .select('recipient_code, bank_name, currency')
+        .eq('id', bankAccountId)
+        .single(),
+      supabase.from('profiles').select('country').eq('id', user.id).single(),
+    ]);
 
     if (!account) {
       return {success: false, error: 'Bank account not found'};
+    }
+
+    const userCurrency = getCurrencyByCountry(profile?.country);
+
+    // Cross-Border Check: Block if bank account currency doesn't match wallet currency
+    if (account.currency !== userCurrency) {
+      return {
+        success: false,
+        error:
+          'Payout not supported. Please select a supported payout account.',
+      };
     }
 
     // 2. Initiate Transfer in Paystack
@@ -602,7 +631,7 @@ export async function recordCreatorGift({
           user_id: donor.id,
           amount: 0,
           currency: currency,
-          type: 'creator_support',
+          type: 'creator_support_sent',
           status: 'success',
           reference: `${reference}-out`,
           description: `Gift to ${creatorUsername}`,
@@ -692,7 +721,7 @@ export async function recordCreatorGift({
         user_id: donor.id,
         amount: body.data.amount,
         currency: body.data.currency || currency,
-        type: 'creator_support',
+        type: 'creator_support_sent',
         status: 'success',
         reference: `${reference}-out`,
         description: `Gift to ${creatorUsername}`,

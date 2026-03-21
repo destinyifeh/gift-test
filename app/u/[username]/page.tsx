@@ -9,7 +9,7 @@ import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
 import {InfiniteScroll} from '@/components/ui/infinite-scroll';
 import {useProfileByUsername} from '@/hooks/use-profile';
-import {CURRENCY_SYMBOLS, getCurrencyByCountry} from '@/lib/currencies';
+import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
 import {fetchCreatorSupporters} from '@/lib/server/actions/analytics';
 import {useUserStore} from '@/lib/store/useUserStore';
 import {formatCurrency} from '@/lib/utils/currency';
@@ -227,12 +227,11 @@ export default function CreatorProfilePage({
     plan,
     theme_settings: dbProfile?.theme_settings || {},
     theme,
-    currencySymbol:
-      CURRENCY_SYMBOLS[
-        dbProfile?.bank_accounts?.find((a: any) => a.is_primary)?.currency ||
-          dbProfile?.bank_accounts?.[0]?.currency ||
-          'NGN'
-      ] || '$',
+    currencySymbol: getCurrencySymbol(
+      dbProfile?.bank_accounts?.find((a: any) => a.is_primary)?.currency ||
+        dbProfile?.bank_accounts?.[0]?.currency ||
+        getCurrencyByCountry(dbProfile?.country || 'Nigeria'),
+    ),
     banner:
       plan === 'pro' && dbProfile?.theme_settings?.proBanner
         ? dbProfile?.theme_settings?.proBanner
@@ -445,6 +444,12 @@ export default function CreatorProfilePage({
                     acceptMoney={profile.acceptMoney}
                     acceptVendor={profile.acceptVendor}
                     currencySymbol={profile.currencySymbol}
+                    currencyCode={
+                      dbProfile?.bank_accounts?.find((a: any) => a.is_primary)
+                        ?.currency ||
+                      dbProfile?.bank_accounts?.[0]?.currency ||
+                      getCurrencyByCountry(dbProfile?.country || 'Nigeria')
+                    }
                     vendorGifts={profile.vendorGifts}
                   />
 

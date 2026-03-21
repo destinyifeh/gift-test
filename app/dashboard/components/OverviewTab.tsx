@@ -3,6 +3,8 @@
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
+import {useProfile} from '@/hooks/use-profile';
+import {getCurrencyByCountry} from '@/lib/constants/currencies';
 import {fetchDashboardAnalytics} from '@/lib/server/actions/analytics';
 import {updateCreatorStatus} from '@/lib/server/actions/auth';
 import {useUserStore} from '@/lib/store/useUserStore';
@@ -45,6 +47,8 @@ export function OverviewTab({
     queryKey: ['dashboard-analytics'],
     queryFn: () => fetchDashboardAnalytics(),
   });
+  const {data: profile} = useProfile();
+  const userCurrency = getCurrencyByCountry(profile?.country);
 
   const analytics = analyticsRes?.data || {
     giftsSent: 0,
@@ -81,7 +85,7 @@ export function OverviewTab({
           },
           {
             label: 'Total Given',
-            value: formatCurrency(analytics.totalGiven, 'NGN'),
+            value: formatCurrency(analytics.totalGiven, userCurrency),
             icon: DollarSign,
             color: 'text-accent',
           },

@@ -175,8 +175,11 @@ const SendCreatorGiftModal = ({
 
       onOpenChange(false);
     } catch (err: any) {
-      console.error('Paystack init error:', err);
-      toast.error('Could not initialize payment: ' + err.message);
+      console.error('Paystack transaction failed to start:', err);
+      toast.error(
+        err?.message ||
+          'Could not start transaction. Please try again or contact support.',
+      );
       setIsProcessing(false);
     }
   };
@@ -362,7 +365,10 @@ const SendCreatorGiftModal = ({
                     <>
                       Your contribution of{' '}
                       <span className="text-foreground font-bold">
-                        ${amount || customAmount}
+                        {formatCurrency(
+                          Number(amount || customAmount),
+                          currency,
+                        )}
                       </span>{' '}
                       has been sent to {creatorName}.
                     </>
@@ -374,7 +380,7 @@ const SendCreatorGiftModal = ({
                       </span>{' '}
                       worth{' '}
                       <span className="text-foreground font-bold">
-                        ${selectedGiftData?.price}
+                        {formatCurrency(selectedGiftData?.price || 0, currency)}
                       </span>{' '}
                       has been successfully sent to {creatorName}.
                     </>

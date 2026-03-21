@@ -1,16 +1,35 @@
 'use client';
 
 import {Button} from '@/components/ui/button';
+import {signOut} from '@/lib/server/actions/auth';
+import {useUserStore} from '@/lib/store/useUserStore';
+import {useQueryClient} from '@tanstack/react-query';
 import {AnimatePresence, motion} from 'framer-motion';
 import {Gift, Menu, X} from 'lucide-react';
 import Link from 'next/link';
-import {usePathname} from 'next/navigation';
+import {usePathname, useRouter} from 'next/navigation';
 import {useState} from 'react';
+import {toast} from 'sonner';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const isHome = pathname === '/';
+  const {user, clearUser} = useUserStore();
+
+  const handleLogout = async () => {
+    const result = await signOut();
+    if (result.success) {
+      queryClient.clear();
+      clearUser();
+      toast.success('Signed out successfully');
+      router.push('/login');
+    } else {
+      toast.error(result.error || 'Failed to sign out');
+    }
+  };
 
   const mainLinks = [
     {label: 'Gift Shop', href: '/gift-shop'},
@@ -61,16 +80,31 @@ const Navbar = () => {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
-          <Link href="/login">
-            <Button variant="ghost" size="sm">
-              Log In
-            </Button>
-          </Link>
-          <Link href="/signup">
-            <Button variant="hero" size="sm">
-              Get Started
-            </Button>
-          </Link>
+          {user ? (
+            <>
+              <Link href="/dashboard">
+                <Button variant="ghost" size="sm">
+                  Dashboard
+                </Button>
+              </Link>
+              <Button variant="hero" size="sm" onClick={handleLogout}>
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link href="/login">
+                <Button variant="ghost" size="sm">
+                  Log In
+                </Button>
+              </Link>
+              <Link href="/signup">
+                <Button variant="hero" size="sm">
+                  Get Started
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
 
         <button
@@ -108,22 +142,49 @@ const Navbar = () => {
                   </a>
                 ))}
               <div className="flex gap-3 pt-2">
-                <Link
-                  href="/login"
-                  className="flex-1"
-                  onClick={() => setIsOpen(false)}>
-                  <Button variant="ghost" size="sm" className="w-full">
-                    Log In
-                  </Button>
-                </Link>
-                <Link
-                  href="/signup"
-                  className="flex-1"
-                  onClick={() => setIsOpen(false)}>
-                  <Button variant="hero" size="sm" className="w-full">
-                    Get Started
-                  </Button>
-                </Link>
+                {user ? (
+                  <>
+                    <Link
+                      href="/dashboard"
+                      className="flex-1"
+                      onClick={() => setIsOpen(false)}>
+                      <Button variant="ghost" size="sm" className="w-full">
+                        Dashboard
+                      </Button>
+                    </Link>
+                    <div className="flex-1">
+                      <Button
+                        variant="hero"
+                        size="sm"
+                        className="w-full"
+                        onClick={() => {
+                          setIsOpen(false);
+                          handleLogout();
+                        }}>
+                        Logout
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/login"
+                      className="flex-1"
+                      onClick={() => setIsOpen(false)}>
+                      <Button variant="ghost" size="sm" className="w-full">
+                        Log In
+                      </Button>
+                    </Link>
+                    <Link
+                      href="/signup"
+                      className="flex-1"
+                      onClick={() => setIsOpen(false)}>
+                      <Button variant="hero" size="sm" className="w-full">
+                        Get Started
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>

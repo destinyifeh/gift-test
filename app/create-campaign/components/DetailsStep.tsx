@@ -247,16 +247,22 @@ export function DetailsStep({
                 <SelectValue placeholder="Select Currency" />
               </SelectTrigger>
               <SelectContent>
-                {SUPPORTED_CURRENCIES.filter(c => c.canCreate).map(c => (
-                  <SelectItem key={c.code} value={c.code}>
-                    <span className="flex items-center gap-2">
-                      <span>{c.flag}</span>
-                      <span>
-                        {c.label} ({c.symbol})
+                {SUPPORTED_CURRENCIES.filter(c => c.canCreate)
+                  .sort((a, b) => {
+                    if (userCountry && a.country === userCountry) return -1;
+                    if (userCountry && b.country === userCountry) return 1;
+                    return 0;
+                  })
+                  .map(c => (
+                    <SelectItem key={c.code} value={c.code}>
+                      <span className="flex items-center gap-2">
+                        <span>{c.flag}</span>
+                        <span>
+                          {c.label} ({c.symbol})
+                        </span>
                       </span>
-                    </span>
-                  </SelectItem>
-                ))}
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
             {userCountry &&

@@ -58,6 +58,7 @@ export default function LoginPage() {
           email: result.data.user.email || '',
           username: result.data.user.user_metadata?.username,
           display_name: result.data.user.user_metadata?.display_name,
+          country: result.data.user.user_metadata?.country,
         });
       }
       toast.success('Logged in successfully');

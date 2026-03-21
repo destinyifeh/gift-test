@@ -6,6 +6,7 @@ import {Toaster as DefaultToaster} from '@/components/ui/toaster';
 import {TooltipProvider} from '@/components/ui/tooltip';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {useState} from 'react';
+import {AuthSync} from './auth-sync';
 
 export default function Providers({children}: {children: React.ReactNode}) {
   const [queryClient] = useState(() => new QueryClient());
@@ -18,7 +19,7 @@ export default function Providers({children}: {children: React.ReactNode}) {
         enableSystem
         disableTransitionOnChange>
         <TooltipProvider>
-          {children}
+          <AuthSync>{children}</AuthSync>
           <Toaster />
           <DefaultToaster />
         </TooltipProvider>

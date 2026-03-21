@@ -1,5 +1,6 @@
 'use server';
 
+import {getCurrencyByCountry} from '@/lib/constants/currencies';
 import {createClient} from '../supabase/server';
 
 export async function fetchDashboardAnalytics() {
@@ -22,7 +23,7 @@ export async function fetchDashboardAnalytics() {
       .from('transactions')
       .select('id, amount, status, created_at, description, type')
       .eq('user_id', user.id)
-      .in('type', ['campaign_contribution', 'creator_support'])
+      .in('type', ['campaign_contribution', 'creator_support_sent'])
       .order('created_at', {ascending: false});
 
     const giftsSentCount = (outTxs || []).filter(
@@ -550,5 +551,96 @@ export async function fetchCampaignContributions({
   } catch (err: any) {
     console.error('fetchCampaignContributions Error:', err);
     return {success: false, error: err.message, data: []};
+  }
+}
+export async function fetchCreatorAnalytics({username}: {username: string}) {
+  const supabase = await createClient();
+
+  try {
+    // 1. Get creator profile
+    const {data: creator} = await supabase
+      .from('profiles')
+      .select('id, country')
+      .ilike('username', username)
+      .single();
+
+    if (!creator) {
+      return {success: false, error: 'Creator not found'};
+    }
+
+    // 2. Get total received and supporters (Reuse logic or call)
+    const supportersRes = await fetchCreatorSupporters({username});
+    if (!supportersRes.success) return supportersRes;
+
+    // 3. Fetch last 7 days of successful inbound transactions
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    // Get campaigns first to find inbound contributions
+    const {data: userCampaigns} = await supabase
+      .from('campaigns')
+      .select('id')
+      .eq('user_id', creator.id);
+
+    const campaignIds = (userCampaigns || []).map(c => c.id);
+
+    const [{data: directTxs}, {data: campaignContribs}] = await Promise.all([
+      // Direct gifts
+      supabase
+        .from('transactions')
+        .select('amount, created_at')
+        .eq('user_id', creator.id)
+        .eq('type', 'creator_support')
+        .eq('status', 'success')
+        .gte('created_at', sevenDaysAgo.toISOString()),
+      // Campaign contributions
+      campaignIds.length > 0
+        ? supabase
+            .from('contributions')
+            .select('amount, created_at')
+            .in('campaign_id', campaignIds)
+            .gte('created_at', sevenDaysAgo.toISOString())
+        : Promise.resolve({data: []}),
+    ]);
+
+    // 4. Group by date for the chart
+    const dailyData: Record<string, {date: string; gifts: number}> = {};
+
+    // Initialize last 7 days
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      dailyData[dateStr] = {date: dateStr, gifts: 0};
+    }
+
+    // Sum direct gifts
+    (directTxs || []).forEach(tx => {
+      const dateStr = new Date(tx.created_at).toISOString().split('T')[0];
+      if (dailyData[dateStr]) {
+        dailyData[dateStr].gifts += 1;
+      }
+    });
+
+    // Sum campaign contributions
+    (campaignContribs || []).forEach(c => {
+      const dateStr = new Date(c.created_at).toISOString().split('T')[0];
+      if (dailyData[dateStr]) {
+        dailyData[dateStr].gifts += 1;
+      }
+    });
+
+    return {
+      success: true,
+      data: {
+        totalReceived: supportersRes.totalReceived,
+        totalSupporters: supportersRes.totalSupporters,
+        chartData: Object.values(dailyData),
+        currency: getCurrencyByCountry(creator.country),
+      },
+    };
+  } catch (err: any) {
+    console.error('Analytics Error:', err);
+    return {success: false, error: err.message};
   }
 }
