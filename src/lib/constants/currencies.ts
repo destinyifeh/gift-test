@@ -157,7 +157,8 @@ export const SUPPORTED_CURRENCIES = [
 
 export type CurrencyCode = (typeof SUPPORTED_CURRENCIES)[number]['code'];
 
-export const getCurrencySymbol = (code: string) => {
+export const getCurrencySymbol = (code?: string | null) => {
+  if (!code) return '$';
   return (
     SUPPORTED_CURRENCIES.find(c => c.code === code.toUpperCase())?.symbol || '$'
   );

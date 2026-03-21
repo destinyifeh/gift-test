@@ -17,6 +17,8 @@ create table profiles (
   social_links jsonb default '{}',
   theme_settings jsonb default '{}',
   country text,
+  roles text[] default '{user}',
+  admin_role text,
 
   constraint username_length check (char_length(username) >= 3)
 );

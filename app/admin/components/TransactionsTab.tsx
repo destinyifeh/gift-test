@@ -16,9 +16,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {fetchAdminTransactions} from '@/lib/server/actions/admin';
+import {useQuery} from '@tanstack/react-query';
 import {Download, Eye, MoreVertical} from 'lucide-react';
 import {useState} from 'react';
-import {mockTransactions} from './mock';
 import {handleExport, statusBadge} from './utils';
 
 interface TransactionsTabProps {
@@ -30,21 +31,33 @@ export function TransactionsTab({
   searchQuery,
   setViewDetailsModal,
 }: TransactionsTabProps) {
-  const [transactions] = useState(mockTransactions);
-  const [txTypeFilter, setTxTypeFilter] = useState('all');
-  const [txProviderFilter, setTxProviderFilter] = useState('all');
-  const filteredTransactions = transactions.filter(t => {
-    const matchesSearch =
-      t.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.sender.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.recipient.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesType =
-      txTypeFilter === 'all' || t.type.toLowerCase() === txTypeFilter;
-    const matchesProvider =
-      txProviderFilter === 'all' ||
-      t.provider.toLowerCase() === txProviderFilter;
-    return matchesSearch && matchesType && matchesProvider;
+  const {data, isLoading} = useQuery({
+    queryKey: ['admin-transactions', searchQuery],
+    queryFn: () => fetchAdminTransactions(searchQuery),
   });
+
+  const transactions = data?.data || [];
+  const [txTypeFilter, setTxTypeFilter] = useState('all');
+
+  const filteredTransactions = transactions.filter((t: any) => {
+    const id = t.id || '';
+    const senderStr = t.sender_profile?.username || '';
+    const recipientStr = t.recipient_profile?.username || '';
+
+    const matchesSearch =
+      id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      senderStr.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      recipientStr.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesType =
+      txTypeFilter === 'all' || t.type?.toLowerCase() === txTypeFilter;
+
+    return matchesSearch && matchesType;
+  });
+
+  if (isLoading) {
+    return <div className="text-muted-foreground p-4">Loading ledger...</div>;
+  }
 
   return (
     <div className="space-y-4">
@@ -54,25 +67,16 @@ export function TransactionsTab({
         </p>
         <div className="flex gap-2">
           <Select value={txTypeFilter} onValueChange={setTxTypeFilter}>
-            <SelectTrigger className="w-32">
+            <SelectTrigger className="w-40">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="gift">Gift</SelectItem>
-              <SelectItem value="campaign">Campaign</SelectItem>
+              <SelectItem value="creator_support">Creator Support</SelectItem>
+              <SelectItem value="campaign_contribution">
+                Campaign Contribution
+              </SelectItem>
               <SelectItem value="withdrawal">Withdrawal</SelectItem>
-              <SelectItem value="refund">Refund</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={txProviderFilter} onValueChange={setTxProviderFilter}>
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Providers</SelectItem>
-              <SelectItem value="stripe">Stripe</SelectItem>
-              <SelectItem value="paystack">Paystack</SelectItem>
             </SelectContent>
           </Select>
           <DropdownMenu>
@@ -86,14 +90,6 @@ export function TransactionsTab({
                 onClick={() => handleExport('csv', 'Transactions')}>
                 CSV
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => handleExport('excel', 'Transactions')}>
-                Excel
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => handleExport('pdf', 'Transactions')}>
-                PDF
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -102,41 +98,49 @@ export function TransactionsTab({
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-muted-foreground">
-              <th className="text-left py-2 font-medium">ID</th>
+              <th className="text-left py-2 font-medium">ID (Short)</th>
               <th className="text-left py-2 font-medium">Type</th>
-              <th className="text-left py-2 font-medium">From</th>
-              <th className="text-left py-2 font-medium">To</th>
+              <th className="text-left py-2 font-medium">From User/Card</th>
+              <th className="text-left py-2 font-medium">To User/Bank</th>
               <th className="text-right py-2 font-medium">Amount</th>
-              <th className="text-right py-2 font-medium pr-6">Fee</th>
-              <th className="text-left py-2 font-medium">Provider</th>
+              <th className="text-right py-2 font-medium pr-6">Currency</th>
               <th className="text-left py-2 font-medium pl-6">Status</th>
               <th className="text-right py-2 font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {filteredTransactions.map(t => (
-              <tr key={t.id} className="border-b border-border last:border-0">
-                <td className="py-3 font-mono text-xs text-muted-foreground">
-                  {t.id}
+            {filteredTransactions.map((t: any) => (
+              <tr
+                key={t.id}
+                className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+                <td
+                  className="py-3 font-mono text-xs text-muted-foreground"
+                  title={t.id}>
+                  {t.id.split('-')[0]}...
                 </td>
                 <td className="py-3">
-                  <Badge variant="outline" className="text-xs">
+                  <Badge
+                    variant="outline"
+                    className="text-[10px] uppercase truncate max-w-[120px]">
                     {t.type}
                   </Badge>
                 </td>
-                <td className="py-3 text-foreground">{t.sender}</td>
-                <td className="py-3 text-foreground">{t.recipient}</td>
-                <td className="py-3 text-right text-foreground">${t.amount}</td>
-                <td className="py-3 text-right text-muted-foreground pr-6">
-                  ${t.fee}
+                <td className="py-3 text-foreground">
+                  {t.sender_profile?.username || 'Guest'}
+                </td>
+                <td className="py-3 text-foreground">
+                  {t.recipient_profile?.username || 'Platform/Bank'}
+                </td>
+                <td className="py-3 text-right text-foreground font-mono font-medium">
+                  {t.amount}
+                </td>
+                <td className="py-3 text-right text-muted-foreground pr-6 font-mono">
+                  {t.currency || 'USD'}
                 </td>
                 <td className="py-3 pl-6">
-                  <Badge variant="outline" className="text-xs">
-                    {t.provider}
-                  </Badge>
-                </td>
-                <td className="py-3 pl-6">
-                  <Badge variant={statusBadge(t.status) as any}>
+                  <Badge
+                    variant={statusBadge(t.status) as any}
+                    className="capitalize">
                     {t.status}
                   </Badge>
                 </td>

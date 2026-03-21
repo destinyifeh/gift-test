@@ -9,11 +9,16 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {Ban, Download, Eye, MoreVertical} from 'lucide-react';
+import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
+import {
+  fetchAdminWallets,
+  updateWalletStatus,
+} from '@/lib/server/actions/admin';
+import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
+import {Ban, Download, Eye, MoreVertical, ShieldCheck} from 'lucide-react';
 import {useState} from 'react';
 import {toast} from 'sonner';
 import {ActionAdvancedModal} from './ActionAdvancedModal';
-import {mockWallets} from './mock';
 import {handleExport, statusBadge} from './utils';
 
 interface WalletsTabProps {
@@ -27,15 +32,40 @@ export function WalletsTab({
   addLog,
   setViewDetailsModal,
 }: WalletsTabProps) {
-  const [wallets, setWallets] = useState(mockWallets);
+  const queryClient = useQueryClient();
+
+  const {data, isLoading} = useQuery({
+    queryKey: ['admin-wallets', searchQuery],
+    queryFn: () => fetchAdminWallets(searchQuery),
+  });
+
+  const wallets = data?.data || [];
+
   const [advancedModal, setAdvancedModal] = useState<{
     isOpen: boolean;
     type: 'restrict' | 'unsuspend';
+    targetId: string;
     targetName: string;
   }>({
     isOpen: false,
     type: 'restrict',
+    targetId: '',
     targetName: '',
+  });
+
+  const mutation = useMutation({
+    mutationFn: ({id, status}: {id: string; status: string}) =>
+      updateWalletStatus(id, status),
+    onSuccess: (res, vars) => {
+      if (!res.success) {
+        toast.error(res.error || 'Failed to update wallet state');
+        return;
+      }
+      queryClient.invalidateQueries({queryKey: ['admin-wallets']});
+      toast.success('Wallet operations updated successfully.');
+      addLog(`Wallet restriction applied to ID: ${vars.id}`);
+    },
+    onError: () => toast.error('System error enforcing wallet lock'),
   });
 
   const handleAdvancedAction = (
@@ -47,41 +77,39 @@ export function WalletsTab({
     setAdvancedModal({
       isOpen: true,
       type,
+      targetId,
       targetName,
     });
   };
 
   const onConfirmAdvancedAction = (data: {days?: string; reason: string}) => {
-    const {type, targetName} = advancedModal;
-    const formattedType = type.charAt(0).toUpperCase() + type.slice(1);
-    const logMessage = `${formattedType}ed wallet for ${targetName}. Reason: ${data.reason}`;
-
+    const {type, targetId} = advancedModal;
     if (type === 'restrict') {
-      setWallets(prev =>
-        prev.map(w =>
-          w.user === targetName ? {...w, status: 'restricted'} : w,
-        ),
-      );
+      mutation.mutate({id: targetId, status: 'restricted'});
     } else if (type === 'unsuspend') {
-      setWallets(prev =>
-        prev.map(w => (w.user === targetName ? {...w, status: 'active'} : w)),
-      );
+      mutation.mutate({id: targetId, status: 'active'});
     }
-
-    toast.success(`${formattedType} action confirmed for ${targetName}`);
-    addLog(logMessage);
     setAdvancedModal(prev => ({...prev, isOpen: false}));
   };
 
-  const onToggleRestriction = (userName: string, status: string) => {
-    const action = status === 'active' ? 'restrict' : 'unsuspend';
-    handleAdvancedAction(action, 'wallet', userName, userName);
-  };
+  if (isLoading) {
+    return (
+      <div className="text-muted-foreground p-4">
+        Computing user balances...
+      </div>
+    );
+  }
+
+  const filteredWallets = wallets.filter((w: any) =>
+    (w.user || '').toLowerCase().includes(searchQuery.toLowerCase()),
+  );
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-muted-foreground">{wallets.length} wallets</p>
+        <p className="text-muted-foreground">
+          {filteredWallets.length} active wallets
+        </p>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm">
@@ -92,12 +120,6 @@ export function WalletsTab({
             <DropdownMenuItem onClick={() => handleExport('csv', 'Wallets')}>
               CSV
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleExport('excel', 'Wallets')}>
-              Excel
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleExport('pdf', 'Wallets')}>
-              PDF
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -107,73 +129,98 @@ export function WalletsTab({
             <tr className="border-b border-border text-muted-foreground">
               <th className="text-left py-2 font-medium">User</th>
               <th className="text-right py-2 font-medium">Balance</th>
-              <th className="text-right py-2 font-medium">Pending</th>
+              <th className="text-right py-2 font-medium">Pending Output</th>
               <th className="text-right py-2 font-medium">Total Earned</th>
-              <th className="text-right py-2 font-medium">Withdrawn</th>
+              <th className="text-right py-2 font-medium">Total Withdrawn</th>
               <th className="text-left py-2 font-medium pl-6">Status</th>
               <th className="text-right py-2 font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {wallets
-              .filter(w =>
-                w.user.toLowerCase().includes(searchQuery.toLowerCase()),
-              )
-              .map(w => (
-                <tr
-                  key={w.user}
-                  className="border-b border-border last:border-0">
-                  <td className="py-3 font-medium text-foreground">{w.user}</td>
-                  <td className="py-3 text-right text-foreground">
-                    ${w.balance}
-                  </td>
-                  <td className="py-3 text-right text-accent">${w.pending}</td>
-                  <td className="py-3 text-right text-secondary">
-                    ${w.earned}
-                  </td>
-                  <td className="py-3 text-right text-muted-foreground">
-                    ${w.withdrawn}
-                  </td>
-                  <td className="py-3 pl-6">
-                    <Badge variant={statusBadge(w.status) as any}>
-                      {w.status}
-                    </Badge>
-                  </td>
-                  <td className="py-3 text-right">
-                    <div className="flex justify-end">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreVertical className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            {filteredWallets.map((w: any) => (
+              <tr
+                key={w.id}
+                className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+                <td className="py-3 font-medium text-foreground">@{w.user}</td>
+                <td className="py-3 text-right text-foreground font-mono font-medium">
+                  {getCurrencySymbol(getCurrencyByCountry(w.country))}
+                  {w.balance}
+                </td>
+                <td className="py-3 text-right text-accent font-mono">
+                  {getCurrencySymbol(getCurrencyByCountry(w.country))}
+                  {w.pending}
+                </td>
+                <td className="py-3 text-right text-secondary font-mono">
+                  {getCurrencySymbol(getCurrencyByCountry(w.country))}
+                  {w.earned}
+                </td>
+                <td className="py-3 text-right text-muted-foreground font-mono">
+                  {getCurrencySymbol(getCurrencyByCountry(w.country))}
+                  {w.withdrawn}
+                </td>
+                <td className="py-3 pl-6">
+                  <Badge
+                    variant={statusBadge(w.status) as any}
+                    className="capitalize">
+                    {w.status}
+                  </Badge>
+                </td>
+                <td className="py-3 text-right">
+                  <div className="flex justify-end">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            setViewDetailsModal({
+                              isOpen: true,
+                              title: 'Wallet Profile',
+                              data: w,
+                            })
+                          }>
+                          <Eye className="w-4 h-4 mr-2" /> View Details
+                        </DropdownMenuItem>
+
+                        {w.status === 'restricted' ? (
                           <DropdownMenuItem
+                            className="text-emerald-500 focus:text-emerald-500"
                             onClick={() =>
-                              setViewDetailsModal({
-                                isOpen: true,
-                                title: 'Wallet Details',
-                                data: w,
-                              })
+                              handleAdvancedAction(
+                                'unsuspend',
+                                'wallet',
+                                w.id,
+                                w.user,
+                              )
                             }>
-                            <Eye className="w-4 h-4 mr-2" /> View Details
+                            <ShieldCheck className="w-4 h-4 mr-2" />
+                            Lift Restriction
                           </DropdownMenuItem>
+                        ) : (
                           <DropdownMenuItem
+                            className="text-destructive focus:text-destructive"
                             onClick={() =>
-                              onToggleRestriction(w.user, w.status)
+                              handleAdvancedAction(
+                                'restrict',
+                                'wallet',
+                                w.id,
+                                w.user,
+                              )
                             }>
                             <Ban className="w-4 h-4 mr-2" />
-                            {w.status === 'active'
-                              ? 'Restrict Wallet'
-                              : 'Unrestrict Wallet'}
+                            Restrict Wallet
                           </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -182,7 +229,7 @@ export function WalletsTab({
         onOpenChange={open =>
           setAdvancedModal(prev => ({...prev, isOpen: open}))
         }
-        type={advancedModal.type}
+        type={advancedModal.type as any}
         targetType="wallet"
         targetName={advancedModal.targetName}
         onConfirm={onConfirmAdvancedAction}

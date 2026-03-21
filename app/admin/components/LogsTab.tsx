@@ -6,14 +6,13 @@ import {Download, FileText} from 'lucide-react';
 import {toast} from 'sonner';
 
 import {useEffect, useState} from 'react';
-import {mockLogs} from './mock';
 
 interface LogsTabProps {
   // logs is now local
 }
 
 export function LogsTab({}: LogsTabProps) {
-  const [logs, setLogs] = useState(mockLogs);
+  const [logs, setLogs] = useState<any[]>([]);
 
   useEffect(() => {
     const handleNewLog = (e: any) => {

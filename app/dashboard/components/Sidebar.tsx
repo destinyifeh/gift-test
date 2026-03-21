@@ -1,5 +1,6 @@
 'use client';
 
+import {RoleSwitcher} from '@/components/RoleSwitcher';
 import {Avatar, AvatarFallback} from '@/components/ui/avatar';
 import {useProfile} from '@/hooks/use-profile';
 import {updateCreatorStatus} from '@/lib/server/actions/auth';
@@ -114,6 +115,7 @@ export function Sidebar({
           </div>
         )}
       </div>
+      <RoleSwitcher />
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
         {navItems.map(item => (
           <button

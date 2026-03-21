@@ -8,6 +8,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import {fetchAdminDashboardStats} from '@/lib/server/actions/admin';
+import {useQuery} from '@tanstack/react-query';
 import {Activity, DollarSign, ShieldAlert, Store, Users} from 'lucide-react';
 import {
   Bar,
@@ -18,8 +20,9 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import {metrics, recentActivity, revenueData} from './mock';
 import {Section} from './Sidebar';
+
+const recentActivity: any[] = [];
 
 interface DashboardTabProps {
   searchQuery: string;
@@ -27,6 +30,46 @@ interface DashboardTabProps {
 }
 
 export function DashboardTab({searchQuery, setSection}: DashboardTabProps) {
+  const {data: statsResponse, isLoading} = useQuery({
+    queryKey: ['admin-dashboard-stats'],
+    queryFn: () => fetchAdminDashboardStats(),
+  });
+
+  const stats = statsResponse?.data;
+
+  const metrics = [
+    {
+      label: 'Total Users',
+      value: isLoading ? '...' : (stats?.totalUsers || 0).toLocaleString(),
+      change: 'Platform-wide',
+      icon: Users,
+      color: 'text-blue-500',
+    },
+    {
+      label: 'Total Campaigns',
+      value: isLoading ? '...' : (stats?.totalCampaigns || 0).toLocaleString(),
+      change: 'Running & past',
+      icon: Store,
+      color: 'text-emerald-500',
+    },
+    {
+      label: 'Direct Support Vol.',
+      value: isLoading
+        ? '...'
+        : `₦${(stats?.totalSupport || 0).toLocaleString()}`,
+      change: 'Processed (USD)',
+      icon: DollarSign,
+      color: 'text-amber-500',
+    },
+    {
+      label: 'Flagged Reports',
+      value: '0',
+      change: 'Needs attention',
+      icon: ShieldAlert,
+      color: 'text-rose-500',
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -58,7 +101,7 @@ export function DashboardTab({searchQuery, setSection}: DashboardTabProps) {
           </CardHeader>
           <CardContent className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={revenueData}>
+              <BarChart data={stats?.revenueData || []}>
                 <CartesianGrid
                   strokeDasharray="3 3"
                   vertical={false}
@@ -80,7 +123,7 @@ export function DashboardTab({searchQuery, setSection}: DashboardTabProps) {
                     fill: 'hsl(var(--muted-foreground))',
                     fontSize: 12,
                   }}
-                  tickFormatter={value => `$${value}`}
+                  tickFormatter={value => `₦${value}`}
                 />
                 <Tooltip
                   contentStyle={{

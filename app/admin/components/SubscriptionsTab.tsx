@@ -7,29 +7,20 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {Download, Eye, MoreVertical, X} from 'lucide-react';
+import {Download} from 'lucide-react';
 import {useState} from 'react';
 import {toast} from 'sonner';
 import {ActionAdvancedModal} from './ActionAdvancedModal';
-import {mockSubscriptions} from './mock';
 import {handleExport} from './utils';
-
-interface SubscriptionsTabProps {
-  searchQuery: string;
-  addLog: (action: string) => void;
-  setViewDetailsModal: (modal: any) => void;
-}
 
 export function SubscriptionsTab({
   searchQuery,
   addLog,
   setViewDetailsModal,
-}: SubscriptionsTabProps) {
-  const [subscriptions, setSubscriptions] = useState(mockSubscriptions);
+}: any) {
+  const [subscriptions] = useState<any[]>([]); // Future true backend connection
   const [advancedModal, setAdvancedModal] = useState<{
     isOpen: boolean;
     type: 'cancel';
@@ -42,38 +33,13 @@ export function SubscriptionsTab({
     targetName: '',
   });
 
-  const handleAdvancedAction = (
-    type: any,
-    targetType: string,
-    targetId: string,
-    targetName: string,
-  ) => {
-    setAdvancedModal({
-      isOpen: true,
-      type,
-      targetId,
-      targetName,
-    });
-  };
-
   const onConfirmAdvancedAction = (data: {days?: string; reason: string}) => {
-    const {type, targetName, targetId} = advancedModal;
-    const formattedType = type.charAt(0).toUpperCase() + type.slice(1);
-    const logMessage = `${formattedType}ed subscription for ${targetName}. Reason: ${data.reason}`;
-
-    if (type === 'cancel') {
-      setSubscriptions(prev =>
-        prev.map(s => (s.user === targetId ? {...s, status: 'cancelled'} : s)),
-      );
-    }
-
-    toast.success(`${formattedType} action confirmed for ${targetName}`);
-    addLog(logMessage);
+    toast.success(`Action confirmed for ${advancedModal.targetName}`);
     setAdvancedModal(prev => ({...prev, isOpen: false}));
   };
 
   const filteredSubscriptions = subscriptions.filter(
-    s =>
+    (s: any) =>
       s.user.toLowerCase().includes(searchQuery.toLowerCase()) ||
       s.plan.toLowerCase().includes(searchQuery.toLowerCase()),
   );
@@ -82,10 +48,10 @@ export function SubscriptionsTab({
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          {plan: 'Free', count: 10200, price: '$0'},
-          {plan: 'Pro (Monthly)', count: 1540, price: '$8/mo'},
-          {plan: 'Pro (Yearly)', count: 300, price: '$79/yr'},
-          {plan: 'White-Label', count: 12, price: 'Custom'},
+          {plan: 'Free', count: 0, price: '$0'},
+          {plan: 'Pro (Monthly)', count: 0, price: '$8/mo'},
+          {plan: 'Pro (Yearly)', count: 0, price: '$79/yr'},
+          {plan: 'White-Label', count: 0, price: 'Custom'},
         ].map(p => (
           <Card key={p.plan} className="border-border">
             <CardContent className="p-4 text-center">
@@ -110,14 +76,6 @@ export function SubscriptionsTab({
               onClick={() => handleExport('csv', 'Subscriptions')}>
               CSV
             </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => handleExport('excel', 'Subscriptions')}>
-              Excel
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => handleExport('pdf', 'Subscriptions')}>
-              PDF
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -134,8 +92,10 @@ export function SubscriptionsTab({
             </tr>
           </thead>
           <tbody>
-            {filteredSubscriptions.map(s => (
-              <tr key={s.user} className="border-b border-border last:border-0">
+            {filteredSubscriptions.map((s: any) => (
+              <tr
+                key={s.user}
+                className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
                 <td className="py-3 font-medium text-foreground">{s.user}</td>
                 <td className="py-3 pl-6">
                   <Badge variant={s.plan === 'Pro' ? 'default' : 'outline'}>
@@ -147,43 +107,18 @@ export function SubscriptionsTab({
                 <td className="py-3">
                   <Badge variant="secondary">{s.status}</Badge>
                 </td>
-                <td className="py-3 text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        <MoreVertical className="w-3.5 h-3.5" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem
-                        onClick={() =>
-                          setViewDetailsModal({
-                            isOpen: true,
-                            title: 'Subscription Details',
-                            data: s,
-                          })
-                        }>
-                        <Eye className="w-4 h-4 mr-2" /> View Details
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        className="text-destructive focus:text-destructive"
-                        onClick={() =>
-                          handleAdvancedAction(
-                            'cancel',
-                            'subscription',
-                            s.user,
-                            s.user,
-                          )
-                        }>
-                        <X className="w-4 h-4 mr-2" /> Cancel Subscription
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </td>
+                <td className="py-3 text-right"></td>
               </tr>
             ))}
+            {filteredSubscriptions.length === 0 && (
+              <tr>
+                <td
+                  colSpan={6}
+                  className="py-8 text-center text-muted-foreground">
+                  No active premium subscriptions found in the database.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
@@ -192,7 +127,7 @@ export function SubscriptionsTab({
         onOpenChange={open =>
           setAdvancedModal(prev => ({...prev, isOpen: open}))
         }
-        type={advancedModal.type}
+        type={advancedModal.type as any}
         targetType="subscription"
         targetName={advancedModal.targetName}
         onConfirm={onConfirmAdvancedAction}

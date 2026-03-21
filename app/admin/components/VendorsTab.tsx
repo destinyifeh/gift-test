@@ -10,37 +10,29 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {fetchAdminUsers} from '@/lib/server/actions/admin';
+import {useQuery} from '@tanstack/react-query';
 import {
   AlertTriangle,
   Ban,
-  CheckCircle,
   Download,
   Eye,
   MoreVertical,
   Pause,
-  Plus,
-  Trash2,
 } from 'lucide-react';
 import {useState} from 'react';
 import {toast} from 'sonner';
 import {ActionAdvancedModal} from './ActionAdvancedModal';
-import {AddVendorModal} from './AddVendorModal';
-import {mockVendors} from './mock';
-import {handleExport, statusBadge} from './utils';
+import {handleExport} from './utils';
 
-interface VendorsTabProps {
-  searchQuery: string;
-  addLog: (action: string) => void;
-  setViewDetailsModal: (modal: any) => void;
-}
+export function VendorsTab({searchQuery, addLog, setViewDetailsModal}: any) {
+  const {data, isLoading} = useQuery({
+    queryKey: ['admin-vendors', searchQuery],
+    queryFn: () => fetchAdminUsers(searchQuery, 'vendor'),
+  });
 
-export function VendorsTab({
-  searchQuery,
-  addLog,
-  setViewDetailsModal,
-}: VendorsTabProps) {
-  const [vendors, setVendors] = useState(mockVendors);
-  const [isVendorModalOpen, setIsVendorModalOpen] = useState(false);
+  const vendors = data?.data || [];
+
   const [advancedModal, setAdvancedModal] = useState<{
     isOpen: boolean;
     type: 'warn' | 'suspend' | 'ban' | 'delete' | 'activate';
@@ -67,66 +59,15 @@ export function VendorsTab({
   const onConfirmAdvancedAction = (data: {days?: string; reason: string}) => {
     const {type, targetName} = advancedModal;
     const formattedType = type.charAt(0).toUpperCase() + type.slice(1);
-    const logMessage = `${formattedType}ed vendor ${targetName}. Reason: ${data.reason}`;
-
-    if (type === 'suspend' || type === 'ban') {
-      setVendors(prev =>
-        prev.map(v =>
-          v.name === targetName ? {...v, status: 'suspended'} : v,
-        ),
-      );
-    } else if (type === 'delete') {
-      setVendors(prev => prev.filter(v => v.name !== targetName));
-    } else if (type === 'activate') {
-      setVendors(prev =>
-        prev.map(v => (v.name === targetName ? {...v, status: 'active'} : v)),
-      );
-    }
-
-    toast.success(`${formattedType} action confirmed for ${targetName}`);
-    addLog(logMessage);
+    toast.success(`${formattedType} verb action logged for ${targetName}`);
+    addLog(`${formattedType} vendor ${targetName}`);
     setAdvancedModal(prev => ({...prev, isOpen: false}));
   };
 
-  const [newVendor, setNewVendor] = useState({
-    name: '',
-    email: '',
-    products: 0,
-    orders: 0,
-    revenue: 0,
-    status: 'active' as const,
-  });
+  if (isLoading) {
+    return <div className="text-muted-foreground p-4">Loading vendors...</div>;
+  }
 
-  const handleAddVendor = () => {
-    if (!newVendor.name || !newVendor.email) {
-      toast.error('Please fill in all fields');
-      return;
-    }
-    const vendorToAdd = {
-      ...newVendor,
-      joined: new Date().toISOString().split('T')[0],
-    };
-    setVendors([vendorToAdd, ...vendors]);
-    setIsVendorModalOpen(false);
-    setNewVendor({
-      name: '',
-      email: '',
-      products: 0,
-      orders: 0,
-      revenue: 0,
-      status: 'active',
-    });
-    toast.success('Vendor added successfully');
-  };
-
-  const onUpdateStatus = (vendorName: string, currentStatus: string) => {
-    const action = currentStatus === 'active' ? 'suspend' : 'activate';
-    handleAdvancedAction(action, 'vendor', vendorName, vendorName);
-  };
-
-  const onDelete = (vendorName: string) => {
-    handleAdvancedAction('delete', 'vendor', vendorName, vendorName);
-  };
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -142,21 +83,8 @@ export function VendorsTab({
               <DropdownMenuItem onClick={() => handleExport('csv', 'Vendors')}>
                 CSV
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => handleExport('excel', 'Vendors')}>
-                Excel
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport('pdf', 'Vendors')}>
-                PDF
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button
-            variant="hero"
-            size="sm"
-            onClick={() => setIsVendorModalOpen(true)}>
-            <Plus className="w-4 h-4 mr-1" /> Add Vendor
-          </Button>
         </div>
       </div>
       <div className="overflow-x-auto">
@@ -164,122 +92,99 @@ export function VendorsTab({
           <thead>
             <tr className="border-b border-border text-muted-foreground">
               <th className="text-left py-2 font-medium">Vendor</th>
-              <th className="text-right py-2 font-medium">Products</th>
-              <th className="text-right py-2 font-medium">Orders</th>
-              <th className="text-right py-2 font-medium pr-6">Revenue</th>
+              <th className="text-left py-2 font-medium">Country</th>
+              <th className="text-right py-2 font-medium pr-6">Joined</th>
               <th className="text-left py-2 font-medium pl-6">Status</th>
               <th className="text-right py-2 font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {vendors
-              .filter(
-                v =>
-                  v.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  v.email.toLowerCase().includes(searchQuery.toLowerCase()),
-              )
-              .map(v => (
-                <tr
-                  key={v.name}
-                  className="border-b border-border last:border-0">
-                  <td className="py-3">
-                    <p className="font-medium text-foreground">{v.name}</p>
-                    <p className="text-xs text-muted-foreground">{v.email}</p>
-                  </td>
-                  <td className="py-3 text-right text-foreground">
-                    {v.products}
-                  </td>
-                  <td className="py-3 text-right text-foreground">
-                    {v.orders}
-                  </td>
-                  <td className="py-3 text-right text-secondary pr-6">
-                    ${v.revenue.toLocaleString()}
-                  </td>
-                  <td className="py-3 pl-6">
-                    <Badge variant={statusBadge(v.status) as any}>
-                      {v.status}
-                    </Badge>
-                  </td>
-                  <td className="py-3 text-right">
-                    <div className="flex justify-end">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreVertical className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem
-                            onClick={() =>
-                              setViewDetailsModal({
-                                isOpen: true,
-                                title: 'Vendor Details',
-                                data: v,
-                              })
-                            }>
-                            <Eye className="w-4 h-4 mr-2" /> View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() =>
-                              handleAdvancedAction(
-                                'warn',
-                                'vendor',
-                                v.name,
-                                v.name,
-                              )
-                            }>
-                            <AlertTriangle className="w-4 h-4 mr-2" /> Warn
-                            Vendor
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => onUpdateStatus(v.name, v.status)}>
-                            {v.status === 'suspended' ? (
-                              <>
-                                <CheckCircle className="w-4 h-4 mr-2" />{' '}
-                                Activate Vendor
-                              </>
-                            ) : (
-                              <>
-                                <Pause className="w-4 h-4 mr-2" /> Suspend
-                                (Timed)
-                              </>
-                            )}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() =>
-                              handleAdvancedAction(
-                                'ban',
-                                'vendor',
-                                v.name,
-                                v.name,
-                              )
-                            }>
-                            <Ban className="w-4 h-4 mr-2" /> Ban Vendor
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            className="text-destructive focus:text-destructive"
-                            onClick={() => onDelete(v.name)}>
-                            <Trash2 className="w-4 h-4 mr-2" /> Delete Vendor
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+            {vendors.map((v: any) => (
+              <tr key={v.id} className="border-b border-border last:border-0">
+                <td className="py-3">
+                  <p className="font-medium text-foreground">
+                    {v.display_name || 'No Name'}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    @{v.username} · {v.email}
+                  </p>
+                </td>
+                <td className="py-3 text-left text-foreground">
+                  {v.country || 'Not set'}
+                </td>
+                <td className="py-3 text-right text-secondary pr-6">
+                  {v.created_at
+                    ? new Date(v.created_at).toLocaleDateString()
+                    : 'Unknown'}
+                </td>
+                <td className="py-3 pl-6">
+                  <Badge className="bg-emerald-500 text-white hover:bg-emerald-600 border-none">
+                    Active
+                  </Badge>
+                </td>
+                <td className="py-3 text-right">
+                  <div className="flex justify-end">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            setViewDetailsModal({
+                              isOpen: true,
+                              title: 'Vendor Details',
+                              data: v,
+                            })
+                          }>
+                          <Eye className="w-4 h-4 mr-2" /> View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleAdvancedAction(
+                              'warn',
+                              'vendor',
+                              v.id,
+                              v.username,
+                            )
+                          }>
+                          <AlertTriangle className="w-4 h-4 mr-2" /> Warn Vendor
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleAdvancedAction(
+                              'suspend',
+                              'vendor',
+                              v.id,
+                              v.username,
+                            )
+                          }>
+                          <Pause className="w-4 h-4 mr-2" /> Suspend
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleAdvancedAction(
+                              'ban',
+                              'vendor',
+                              v.id,
+                              v.username,
+                            )
+                          }>
+                          <Ban className="w-4 h-4 mr-2" /> Ban Vendor
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
-      <AddVendorModal
-        open={isVendorModalOpen}
-        onOpenChange={setIsVendorModalOpen}
-        onAdd={handleAddVendor}
-        vendor={newVendor}
-        setVendor={setNewVendor}
-      />
       <ActionAdvancedModal
         isOpen={advancedModal.isOpen}
         onOpenChange={open =>

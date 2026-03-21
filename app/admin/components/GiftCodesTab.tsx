@@ -2,11 +2,12 @@
 
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
+import {fetchAdminGiftCodes} from '@/lib/server/actions/admin';
+import {useQuery} from '@tanstack/react-query';
 import {Ban, Download, Tag} from 'lucide-react';
 import {useState} from 'react';
 import {toast} from 'sonner';
 import {ActionAdvancedModal} from './ActionAdvancedModal';
-import {mockGiftCodes} from './mock';
 import {statusBadge} from './utils';
 
 interface GiftCodesTabProps {
@@ -20,7 +21,13 @@ export function GiftCodesTab({
   addLog,
   setViewDetailsModal,
 }: GiftCodesTabProps) {
-  const [giftCodes, setGiftCodes] = useState(mockGiftCodes);
+  const {data, isLoading} = useQuery({
+    queryKey: ['admin-gift-codes', searchQuery],
+    queryFn: () => fetchAdminGiftCodes(searchQuery),
+  });
+
+  const giftCodes = data?.data || [];
+
   const [advancedModal, setAdvancedModal] = useState<{
     isOpen: boolean;
     type: 'invalidate';
@@ -52,13 +59,9 @@ export function GiftCodesTab({
     const formattedType = type.charAt(0).toUpperCase() + type.slice(1);
     const logMessage = `${formattedType}ed code ${targetName}. Reason: ${data.reason}`;
 
-    if (type === 'invalidate') {
-      setGiftCodes(prev =>
-        prev.map(c => (c.code === targetId ? {...c, status: 'expired'} : c)),
-      );
-    }
-
-    toast.success(`${formattedType} action confirmed for ${targetName}`);
+    toast.info(
+      `Mock ${formattedType} tracked for ${targetName}. (Review backend hook).`,
+    );
     addLog(logMessage);
     setAdvancedModal(prev => ({...prev, isOpen: false}));
   };
@@ -66,10 +69,25 @@ export function GiftCodesTab({
   const onInvalidate = (code: string) => {
     handleAdvancedAction('invalidate', 'gift', code, code);
   };
+
+  if (isLoading) {
+    return (
+      <div className="text-muted-foreground p-4">
+        Loading active gift codes...
+      </div>
+    );
+  }
+
+  const filtered = giftCodes.filter(
+    (c: any) =>
+      c.code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.vendor?.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-muted-foreground">{giftCodes.length} codes</p>
+        <p className="text-muted-foreground">{filtered.length} codes</p>
         <div className="flex gap-2">
           <Button variant="hero" size="sm">
             <Tag className="w-4 h-4 mr-1" /> Generate Codes
@@ -92,39 +110,42 @@ export function GiftCodesTab({
             </tr>
           </thead>
           <tbody>
-            {giftCodes
-              .filter(
-                c =>
-                  c.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  c.vendor.toLowerCase().includes(searchQuery.toLowerCase()),
-              )
-              .map(c => (
-                <tr
-                  key={c.code}
-                  className="border-b border-border last:border-0">
-                  <td className="py-3 font-mono font-semibold text-foreground">
-                    {c.code}
-                  </td>
-                  <td className="py-3 text-foreground">{c.vendor}</td>
-                  <td className="py-3 text-foreground">{c.product}</td>
-                  <td className="py-3">
-                    <Badge variant={statusBadge(c.status) as any}>
-                      {c.status}
-                    </Badge>
-                  </td>
-                  <td className="py-3 text-muted-foreground">
-                    {c.redeemedBy || '—'}
-                  </td>
-                  <td className="py-3 text-right">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onInvalidate(c.code)}>
-                      <Ban className="w-3.5 h-3.5" />
-                    </Button>
-                  </td>
-                </tr>
-              ))}
+            {filtered.map((c: any) => (
+              <tr
+                key={c.code}
+                className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+                <td className="py-3 font-mono font-semibold text-foreground">
+                  {c.code}
+                </td>
+                <td className="py-3 text-foreground">{c.vendor}</td>
+                <td className="py-3 text-foreground">{c.product}</td>
+                <td className="py-3">
+                  <Badge variant={statusBadge(c.status) as any}>
+                    {c.status}
+                  </Badge>
+                </td>
+                <td className="py-3 text-muted-foreground">
+                  {c.redeemedBy || '—'}
+                </td>
+                <td className="py-3 text-right">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onInvalidate(c.code)}>
+                    <Ban className="w-3.5 h-3.5" />
+                  </Button>
+                </td>
+              </tr>
+            ))}
+            {filtered.length === 0 && (
+              <tr>
+                <td
+                  colSpan={6}
+                  className="py-8 text-center text-muted-foreground">
+                  No gift codes found in the database.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
@@ -133,7 +154,7 @@ export function GiftCodesTab({
         onOpenChange={open =>
           setAdvancedModal(prev => ({...prev, isOpen: open}))
         }
-        type={advancedModal.type}
+        type={advancedModal.type as any}
         targetType="gift"
         targetName={advancedModal.targetName}
         onConfirm={onConfirmAdvancedAction}

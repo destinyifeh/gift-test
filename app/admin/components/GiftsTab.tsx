@@ -7,6 +7,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -16,11 +17,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
+import {fetchAdminGifts, flagCreatorGift} from '@/lib/server/actions/admin';
+import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
 import {Download, Eye, Flag, MoreVertical} from 'lucide-react';
 import {useState} from 'react';
 import {toast} from 'sonner';
 import {ActionAdvancedModal} from './ActionAdvancedModal';
-import {mockGifts} from './mock';
 import {handleExport, statusBadge} from './utils';
 
 interface GiftsTabProps {
@@ -34,7 +37,15 @@ export function GiftsTab({
   addLog,
   setViewDetailsModal,
 }: GiftsTabProps) {
-  const [gifts, setGifts] = useState(mockGifts);
+  const queryClient = useQueryClient();
+
+  const {data, isLoading} = useQuery({
+    queryKey: ['admin-gifts', searchQuery],
+    queryFn: () => fetchAdminGifts(searchQuery),
+  });
+
+  const gifts = data?.data || [];
+
   const [advancedModal, setAdvancedModal] = useState<{
     isOpen: boolean;
     type: 'flag';
@@ -45,6 +56,42 @@ export function GiftsTab({
     type: 'flag',
     targetId: '',
     targetName: '',
+  });
+
+  const [typeFilter, setTypeFilter] = useState('all');
+
+  const mutation = useMutation({
+    mutationFn: ({id, reason}: {id: string; reason: string}) =>
+      flagCreatorGift(id, reason),
+    onSuccess: (res, vars) => {
+      if (!res.success) {
+        toast.error(res.error || 'Failed to flag gift record');
+        return;
+      }
+      queryClient.invalidateQueries({queryKey: ['admin-gifts']});
+      toast.success('System moderation flag attached to gift log.');
+      addLog(`Flagged anomalous direct support transaction ID: ${vars.id}`);
+    },
+    onError: () => toast.error('System error flagging gift'),
+  });
+
+  const filteredGifts = gifts.filter((g: any) => {
+    const sender = g.donor_name || '';
+    const recipient = g.recipient?.username || '';
+    const id = g.id || '';
+
+    const matchesSearch =
+      sender.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      recipient.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      id.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const isMoney = !g.gift_name;
+    const matchesType =
+      typeFilter === 'all' ||
+      (typeFilter === 'money' && isMoney) ||
+      (typeFilter === 'giftcard' && !isMoney);
+
+    return matchesSearch && matchesType;
   });
 
   const handleAdvancedAction = (
@@ -62,37 +109,36 @@ export function GiftsTab({
   };
 
   const onConfirmAdvancedAction = (data: {days?: string; reason: string}) => {
-    const {type, targetName, targetId} = advancedModal;
-    const formattedType = type.charAt(0).toUpperCase() + type.slice(1);
-    const logMessage = `${formattedType}ged gift ${targetName}. Reason: ${data.reason}`;
-
-    if (type === 'flag') {
-      setGifts(prev =>
-        prev.map(g => (g.id === targetId ? {...g, status: 'flagged'} : g)),
-      );
-    }
-
-    toast.success(`${formattedType} action confirmed for ${targetName}`);
-    addLog(logMessage);
+    mutation.mutate({id: advancedModal.targetId, reason: data.reason});
     setAdvancedModal(prev => ({...prev, isOpen: false}));
   };
 
-  const onFlag = (id: string) => {
-    handleAdvancedAction('flag', 'gift', id, id);
+  const onFlag = (id: string, name: string) => {
+    handleAdvancedAction('flag', 'gift', id, name);
   };
+
+  if (isLoading) {
+    return (
+      <div className="text-muted-foreground p-4">
+        Loading creator support volume...
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-muted-foreground">{gifts.length} gifts</p>
+        <p className="text-muted-foreground">
+          {filteredGifts.length} creator gifts
+        </p>
         <div className="flex gap-2">
-          <Select defaultValue="all">
+          <Select value={typeFilter} onValueChange={setTypeFilter}>
             <SelectTrigger className="w-32">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Types</SelectItem>
               <SelectItem value="money">Money</SelectItem>
-              <SelectItem value="vendor">Vendor</SelectItem>
               <SelectItem value="giftcard">Gift Card</SelectItem>
             </SelectContent>
           </Select>
@@ -105,12 +151,6 @@ export function GiftsTab({
             <DropdownMenuContent>
               <DropdownMenuItem onClick={() => handleExport('csv', 'Gifts')}>
                 CSV
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport('excel', 'Gifts')}>
-                Excel
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport('pdf', 'Gifts')}>
-                PDF
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -131,67 +171,89 @@ export function GiftsTab({
             </tr>
           </thead>
           <tbody>
-            {gifts
-              .filter(
-                g =>
-                  g.sender.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  g.recipient
-                    .toLowerCase()
-                    .includes(searchQuery.toLowerCase()) ||
-                  g.id.toLowerCase().includes(searchQuery.toLowerCase()),
-              )
-              .map(g => (
-                <tr key={g.id} className="border-b border-border last:border-0">
-                  <td className="py-3 font-mono text-xs text-muted-foreground">
-                    {g.id}
-                  </td>
-                  <td className="py-3 text-foreground">{g.sender}</td>
-                  <td className="py-3 text-foreground">{g.recipient}</td>
-                  <td className="py-3">
-                    <Badge variant="outline" className="text-xs">
-                      {g.type}
-                    </Badge>
-                  </td>
-                  <td className="py-3 text-right text-foreground">
-                    ${g.amount}
-                  </td>
-                  <td className="py-3 text-right text-muted-foreground pr-6">
-                    ${g.fee}
-                  </td>
-                  <td className="py-3 pl-6">
-                    <Badge variant={statusBadge(g.status) as any}>
-                      {g.status}
-                    </Badge>
-                  </td>
-                  <td className="py-3 text-right">
-                    <div className="flex justify-end">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreVertical className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem
-                            onClick={() =>
-                              setViewDetailsModal({
-                                isOpen: true,
-                                title: 'Gift Details',
-                                data: g,
-                              })
-                            }>
-                            <Eye className="w-4 h-4 mr-2" /> View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => onFlag(g.id)}>
-                            <Flag className="w-4 h-4 mr-2" /> Flag Gift
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+            {filteredGifts.map((g: any) => (
+              <tr
+                key={g.id}
+                className={`border-b border-border last:border-0 hover:bg-muted/30 transition-colors ${g.is_flagged ? 'bg-destructive/10' : ''}`}>
+                <td
+                  className="py-3 font-mono text-xs text-muted-foreground"
+                  title={g.id}>
+                  {g.is_flagged && (
+                    <Flag className="w-3 h-3 text-destructive inline mr-1" />
+                  )}
+                  {g.id.split('-')[0]}...
+                </td>
+                <td className="py-3 text-foreground font-medium">
+                  {g.donor_name} {g.is_anonymous ? '(Anon)' : ''}
+                </td>
+                <td className="py-3 text-foreground">
+                  {g.recipient?.username || 'Unknown'}
+                </td>
+                <td className="py-3">
+                  <Badge
+                    variant="outline"
+                    className="text-[10px] uppercase truncate max-w-[120px]">
+                    {g.gift_name ? 'Gift Card' : 'Money'}
+                  </Badge>
+                </td>
+                <td className="py-3 text-right text-foreground font-mono">
+                  {getCurrencySymbol(
+                    getCurrencyByCountry(g.recipient?.country),
+                  )}
+                  {g.amount}
+                </td>
+                <td className="py-3 text-right text-muted-foreground pr-6 font-mono">
+                  {getCurrencySymbol(
+                    getCurrencyByCountry(g.recipient?.country),
+                  )}
+                  0
+                </td>
+                <td className="py-3 pl-6">
+                  <Badge
+                    variant={
+                      statusBadge(g.transactions?.status || 'success') as any
+                    }
+                    className="capitalize">
+                    {g.transactions?.status || 'success'}
+                  </Badge>
+                </td>
+                <td className="py-3 text-right">
+                  <div className="flex justify-end">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            setViewDetailsModal({
+                              isOpen: true,
+                              title: 'Gift Details',
+                              data: g,
+                            })
+                          }>
+                          <Eye className="w-4 h-4 mr-2" /> View Details
+                        </DropdownMenuItem>
+
+                        {!g.is_flagged && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={() => onFlag(g.id, g.amount)}>
+                              <Flag className="w-4 h-4 mr-2" /> Flag Gift
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -200,7 +262,7 @@ export function GiftsTab({
         onOpenChange={open =>
           setAdvancedModal(prev => ({...prev, isOpen: open}))
         }
-        type={advancedModal.type}
+        type={advancedModal.type as any}
         targetType="gift"
         targetName={advancedModal.targetName}
         onConfirm={onConfirmAdvancedAction}

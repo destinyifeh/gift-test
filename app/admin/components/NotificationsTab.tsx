@@ -1,6 +1,5 @@
 'use client';
 
-import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {Input} from '@/components/ui/input';
@@ -14,8 +13,13 @@ import {
 } from '@/components/ui/select';
 import {Textarea} from '@/components/ui/textarea';
 import {Bell, Mail} from 'lucide-react';
+import {toast} from 'sonner';
 
 export function NotificationsTab() {
+  const handlePush = () => {
+    toast.success('Broadcast message queued for delivery!');
+  };
+
   return (
     <div className="space-y-6">
       <Card className="border-border">
@@ -47,10 +51,10 @@ export function NotificationsTab() {
               <Textarea placeholder="Write your announcement..." rows={4} />
             </div>
             <div className="flex gap-2">
-              <Button variant="hero">
+              <Button variant="hero" onClick={handlePush}>
                 <Mail className="w-4 h-4 mr-1" /> Send Email Broadcast
               </Button>
-              <Button variant="outline">
+              <Button variant="outline" onClick={handlePush}>
                 <Bell className="w-4 h-4 mr-1" /> Push Notification
               </Button>
             </div>
@@ -64,42 +68,9 @@ export function NotificationsTab() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {[
-            {
-              subject: 'New Feature: Custom Domains',
-              audience: 'Creators',
-              date: '2026-03-08',
-              type: 'Email',
-            },
-            {
-              subject: 'System Maintenance — March 12',
-              audience: 'All Users',
-              date: '2026-03-05',
-              type: 'Email + Push',
-            },
-            {
-              subject: 'Holiday Gift Season Promo',
-              audience: 'All Users',
-              date: '2026-02-28',
-              type: 'Email',
-            },
-          ].map((n, i) => (
-            <div
-              key={i}
-              className="flex items-center justify-between py-2 border-b border-border last:border-0">
-              <div>
-                <p className="text-sm font-medium text-foreground">
-                  {n.subject}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {n.audience} · {n.date}
-                </p>
-              </div>
-              <Badge variant="outline" className="text-xs">
-                {n.type}
-              </Badge>
-            </div>
-          ))}
+          <div className="p-4 text-center border-dashed border-2 border-border text-muted-foreground text-sm rounded-lg">
+            No recent system-bound push notifications found.
+          </div>
         </CardContent>
       </Card>
     </div>

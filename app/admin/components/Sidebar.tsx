@@ -1,3 +1,4 @@
+import {RoleSwitcher} from '@/components/RoleSwitcher';
 import {Avatar, AvatarFallback} from '@/components/ui/avatar';
 import {
   ArrowUpRight,
@@ -58,7 +59,7 @@ export const navItems: {id: Section; label: string; icon: React.ElementType}[] =
     {id: 'moderation', label: 'Moderation', icon: Shield},
     {id: 'notifications', label: 'Notifications', icon: Bell},
     {id: 'settings', label: 'Settings', icon: Settings},
-    {id: 'admins', label: 'Admin Accounts', icon: UserCog},
+    {id: 'admins', label: 'Role Management', icon: UserCog},
     {id: 'logs', label: 'Logs', icon: FileText},
   ];
 
@@ -96,6 +97,7 @@ export function Sidebar({
           </div>
         </div>
       </div>
+      <RoleSwitcher />
       <nav className="flex-1 p-2 space-y-0.5 overflow-y-auto">
         {navItems.map(item => (
           <button

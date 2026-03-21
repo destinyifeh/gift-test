@@ -38,6 +38,8 @@ export function useProfile() {
         social_links: profile.social_links || {},
         theme_settings: profile.theme_settings || {},
         country: profile.country,
+        roles: profile.roles || ['user'],
+        admin_role: profile.admin_role || null,
         bank_accounts: accounts || [],
       };
     },
@@ -81,6 +83,8 @@ export function useProfileByUsername(username: string | null) {
         social_links: profile.social_links || {},
         theme_settings: profile.theme_settings || {},
         country: profile.country,
+        roles: profile.roles || ['user'],
+        admin_role: profile.admin_role || null,
         bank_accounts: accounts || [],
       };
     },

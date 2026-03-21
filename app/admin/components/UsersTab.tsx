@@ -11,18 +11,22 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
+  fetchAdminUsers,
+  updateUserSystemStatus,
+} from '@/lib/server/actions/admin';
+import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
+import {
   AlertTriangle,
   Ban,
-  CheckCircle,
   Download,
   Eye,
   MoreVertical,
   Pause,
+  RotateCcw,
 } from 'lucide-react';
 import {useState} from 'react';
 import {toast} from 'sonner';
 import {ActionAdvancedModal} from './ActionAdvancedModal';
-import {mockUsers} from './mock';
 import {handleExport, statusBadge} from './utils';
 
 interface UsersTabProps {
@@ -36,7 +40,15 @@ export function UsersTab({
   addLog,
   setViewDetailsModal,
 }: UsersTabProps) {
-  const [users, setUsers] = useState(mockUsers);
+  const queryClient = useQueryClient();
+
+  const {data, isLoading} = useQuery({
+    queryKey: ['admin-all-users', searchQuery],
+    queryFn: () => fetchAdminUsers(searchQuery),
+  });
+
+  const users = data?.data || [];
+
   const [advancedModal, setAdvancedModal] = useState<{
     isOpen: boolean;
     type: 'warn' | 'suspend' | 'ban' | 'activate';
@@ -47,6 +59,21 @@ export function UsersTab({
     type: 'warn',
     targetId: '',
     targetName: '',
+  });
+
+  const mutation = useMutation({
+    mutationFn: ({id, updates}: {id: string; updates: any}) =>
+      updateUserSystemStatus(id, updates),
+    onSuccess: (res, vars) => {
+      if (!res.success) {
+        toast.error(res.error || 'Failed to update user status');
+        return;
+      }
+      queryClient.invalidateQueries({queryKey: ['admin-all-users']});
+      toast.success('User access level updated globally.');
+      addLog(`Updated system access for ID: ${vars.id}`);
+    },
+    onError: () => toast.error('System error enforcing penalty'),
   });
 
   const handleAdvancedAction = (
@@ -64,33 +91,41 @@ export function UsersTab({
   };
 
   const onConfirmAdvancedAction = (data: {days?: string; reason: string}) => {
-    const {type, targetName, targetId} = advancedModal;
-    const formattedType = type.charAt(0).toUpperCase() + type.slice(1);
-    const logMessage = `${formattedType}ed user ${targetName}. Reason: ${data.reason}${data.days ? ` (${data.days} days)` : ''}`;
+    const {type, targetId} = advancedModal;
 
-    if (type === 'suspend' || type === 'ban') {
-      setUsers(prev =>
-        prev.map(u => (u.id === targetId ? {...u, status: 'suspended'} : u)),
-      );
+    // Warn does not change DB status but could create a moderation ticket/log
+    if (type === 'warn') {
+      toast.error('User formally warned via platform notification.');
+    } else if (type === 'suspend') {
+      const end = data.days
+        ? new Date(Date.now() + parseInt(data.days) * 86400000).toISOString()
+        : null;
+      mutation.mutate({
+        id: targetId,
+        updates: {status: 'suspended', suspension_end: end},
+      });
+    } else if (type === 'ban') {
+      mutation.mutate({id: targetId, updates: {status: 'banned'}});
     } else if (type === 'activate') {
-      setUsers(prev =>
-        prev.map(u => (u.id === targetId ? {...u, status: 'active'} : u)),
-      );
+      mutation.mutate({
+        id: targetId,
+        updates: {status: 'active', suspension_end: null},
+      });
     }
 
-    toast.success(`${formattedType} action confirmed for ${targetName}`);
-    addLog(logMessage);
     setAdvancedModal(prev => ({...prev, isOpen: false}));
   };
 
-  const onToggleStatus = (id: string, currentStatus: string, name: string) => {
-    const action = currentStatus === 'active' ? 'suspend' : 'activate';
-    handleAdvancedAction(action, 'user', id, name);
-  };
+  if (isLoading) {
+    return (
+      <div className="text-muted-foreground p-4">Loading user records...</div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-muted-foreground">{users.length} users</p>
+        <p className="text-muted-foreground">{users.length} total users</p>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm">
@@ -101,12 +136,6 @@ export function UsersTab({
             <DropdownMenuItem onClick={() => handleExport('csv', 'Users')}>
               CSV
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleExport('excel', 'Users')}>
-              Excel
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleExport('pdf', 'Users')}>
-              PDF
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -115,116 +144,134 @@ export function UsersTab({
           <thead>
             <tr className="border-b border-border text-muted-foreground">
               <th className="text-left py-2 font-medium">User</th>
-              <th className="text-left py-2 font-medium">Role</th>
-              <th className="text-right py-2 font-medium">Balance</th>
-              <th className="text-right py-2 font-medium">Received</th>
-              <th className="text-right py-2 font-medium">Sent</th>
+              <th className="text-left py-2 font-medium">Roles</th>
+              <th className="text-left py-2 font-medium">Joined</th>
               <th className="text-left py-2 font-medium pl-6">Status</th>
               <th className="text-right py-2 font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {users
-              .filter(
-                u =>
-                  u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  u.username
-                    .toLowerCase()
-                    .includes(searchQuery.toLowerCase()) ||
-                  u.email.toLowerCase().includes(searchQuery.toLowerCase()),
-              )
-              .map(u => (
-                <tr key={u.id} className="border-b border-border last:border-0">
-                  <td className="py-3">
-                    <div>
-                      <p className="font-medium text-foreground">{u.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        @{u.username} · {u.email}
-                      </p>
-                    </div>
-                  </td>
-                  <td className="py-3">
-                    <Badge variant="outline" className="text-xs">
-                      {u.role}
-                    </Badge>
-                  </td>
-                  <td className="py-3 text-right text-foreground">
-                    ${u.balance}
-                  </td>
-                  <td className="py-3 text-right text-secondary pr-4">
-                    ${u.received}
-                  </td>
-                  <td className="py-3 text-right text-primary pr-6">
-                    ${u.sent}
-                  </td>
-                  <td className="py-3 pl-6">
-                    <Badge variant={statusBadge(u.status) as any}>
-                      {u.status}
-                    </Badge>
-                  </td>
-                  <td className="py-3 text-right">
-                    <div className="flex justify-end">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreVertical className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            {users.map((u: any) => (
+              <tr
+                key={u.id}
+                className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+                <td className="py-3">
+                  <div className="flex flex-col">
+                    <p className="font-medium text-foreground">
+                      {u.display_name || u.username}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      @{u.username} · {u.email}
+                    </p>
+                  </div>
+                </td>
+                <td className="py-3">
+                  <div className="flex gap-1 flex-wrap">
+                    {u.roles?.map((r: string) => (
+                      <Badge
+                        key={r}
+                        variant="outline"
+                        className="text-[10px] capitalize">
+                        {r}
+                      </Badge>
+                    ))}
+                  </div>
+                </td>
+                <td className="py-3 text-muted-foreground">
+                  {u.created_at || u.updated_at
+                    ? new Date(
+                        u.created_at || u.updated_at,
+                      ).toLocaleDateString()
+                    : 'Unknown'}
+                </td>
+                <td className="py-3 pl-6">
+                  <Badge
+                    variant={statusBadge(u.status || 'active') as any}
+                    className="capitalize">
+                    {u.status || 'active'}
+                  </Badge>
+                </td>
+                <td className="py-3 text-right">
+                  <div className="flex justify-end">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            setViewDetailsModal({
+                              isOpen: true,
+                              title: 'User Details',
+                              data: u,
+                            })
+                          }>
+                          <Eye className="w-4 h-4 mr-2" /> View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+
+                        {u.status === 'banned' || u.status === 'suspended' ? (
                           <DropdownMenuItem
+                            className="text-emerald-500 focus:text-emerald-500"
                             onClick={() =>
-                              setViewDetailsModal({
-                                isOpen: true,
-                                title: 'User Details',
-                                data: u,
-                              })
+                              handleAdvancedAction(
+                                'activate',
+                                'user',
+                                u.id,
+                                u.username,
+                              )
                             }>
-                            <Eye className="w-4 h-4 mr-2" /> View Details
+                            <RotateCcw className="w-4 h-4 mr-2" /> Restore
+                            Access
                           </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() =>
-                              handleAdvancedAction('warn', 'user', u.id, u.name)
-                            }>
-                            <AlertTriangle className="w-4 h-4 mr-2" /> Warn User
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() =>
-                              u.status === 'suspended'
-                                ? onToggleStatus(u.id, u.status, u.name)
-                                : handleAdvancedAction(
-                                    'suspend',
-                                    'user',
-                                    u.id,
-                                    u.name,
-                                  )
-                            }>
-                            {u.status === 'suspended' ? (
-                              <>
-                                <CheckCircle className="w-4 h-4 mr-2" />{' '}
-                                Activate Account
-                              </>
-                            ) : (
-                              <>
-                                <Pause className="w-4 h-4 mr-2" /> Suspend
-                                (Timed)
-                              </>
-                            )}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-destructive focus:text-destructive"
-                            onClick={() =>
-                              handleAdvancedAction('ban', 'user', u.id, u.name)
-                            }>
-                            <Ban className="w-4 h-4 mr-2" /> Ban User
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                        ) : (
+                          <>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleAdvancedAction(
+                                  'warn',
+                                  'user',
+                                  u.id,
+                                  u.username,
+                                )
+                              }>
+                              <AlertTriangle className="w-4 h-4 mr-2" /> Warn
+                              User
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleAdvancedAction(
+                                  'suspend',
+                                  'user',
+                                  u.id,
+                                  u.username,
+                                )
+                              }>
+                              <Pause className="w-4 h-4 mr-2" /> Suspend
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={() =>
+                                handleAdvancedAction(
+                                  'ban',
+                                  'user',
+                                  u.id,
+                                  u.username,
+                                )
+                              }>
+                              <Ban className="w-4 h-4 mr-2" /> Ban User
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

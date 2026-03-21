@@ -11,39 +11,40 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
+  fetchAdminUsers,
+  updateUserRole,
+  updateUserSystemStatus,
+} from '@/lib/server/actions/admin';
+import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
+import {
   AlertTriangle,
   Ban,
-  CheckCircle,
+  Download,
   Eye,
   MoreVertical,
   Pause,
-  Settings,
-  Trash2,
-  Users,
+  RotateCcw,
+  ShieldAlert,
 } from 'lucide-react';
 import {useState} from 'react';
 import {toast} from 'sonner';
 import {ActionAdvancedModal} from './ActionAdvancedModal';
-import {AddAdminModal} from './AddAdminModal';
-import {Admin, mockAdmins} from './mock';
-import {statusBadge} from './utils';
+import {ManageRolesModal} from './ManageRolesModal';
+import {handleExport, statusBadge} from './utils';
 
-interface AdminsTabProps {
-  searchQuery: string;
-  addLog: (action: string) => void;
-  setViewDetailsModal: (modal: any) => void;
-}
+export function AdminsTab({searchQuery, addLog, setViewDetailsModal}: any) {
+  const queryClient = useQueryClient();
 
-export function AdminsTab({
-  searchQuery,
-  addLog,
-  setViewDetailsModal,
-}: AdminsTabProps) {
-  const [admins, setAdmins] = useState<Admin[]>(mockAdmins);
-  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const {data, isLoading} = useQuery({
+    queryKey: ['admin-users', searchQuery],
+    queryFn: () => fetchAdminUsers(searchQuery),
+  });
+
+  const users = data?.data || [];
+
   const [advancedModal, setAdvancedModal] = useState<{
     isOpen: boolean;
-    type: 'warn' | 'suspend' | 'ban' | 'remove' | 'activate';
+    type: 'warn' | 'suspend' | 'ban' | 'activate';
     targetId: string;
     targetName: string;
   }>({
@@ -51,6 +52,42 @@ export function AdminsTab({
     type: 'warn',
     targetId: '',
     targetName: '',
+  });
+
+  const [manageRolesModal, setManageRolesModal] = useState<{
+    isOpen: boolean;
+    user: any;
+  }>({
+    isOpen: false,
+    user: null,
+  });
+
+  const roleMutation = useMutation({
+    mutationFn: updateUserRole,
+    onSuccess: result => {
+      if (!result.success) {
+        toast.error(result.error || 'Failed to update roles');
+        return;
+      }
+      toast.success('User roles updated!');
+      queryClient.invalidateQueries({queryKey: ['admin-users']});
+      setManageRolesModal({isOpen: false, user: null});
+      addLog(`Updated roles`);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to update roles');
+    },
+  });
+
+  const statusMutation = useMutation({
+    mutationFn: ({id, updates}: {id: string; updates: any}) =>
+      updateUserSystemStatus(id, updates),
+    onSuccess: res => {
+      if (!res.success) throw new Error(res.error);
+      queryClient.invalidateQueries({queryKey: ['admin-users']});
+      toast.success('User system status updated');
+    },
+    onError: () => toast.error('Failed to change user access'),
   });
 
   const handleAdvancedAction = (
@@ -68,249 +105,232 @@ export function AdminsTab({
   };
 
   const onConfirmAdvancedAction = (data: {days?: string; reason: string}) => {
-    const {type, targetName} = advancedModal;
-    const formattedType = type.charAt(0).toUpperCase() + type.slice(1);
-    const logMessage = `${formattedType}ed admin ${targetName}. Reason: ${data.reason}`;
+    const {type, targetId} = advancedModal;
 
-    if (type === 'suspend' || type === 'ban') {
-      setAdmins(prev =>
-        prev.map(a =>
-          a.name === targetName ? {...a, status: 'suspended'} : a,
-        ),
-      );
-    } else if (type === 'remove') {
-      setAdmins(prev => prev.filter(a => a.name !== targetName));
+    if (type === 'warn') {
+      toast.error('User formally warned.');
+    } else if (type === 'suspend') {
+      const end = data.days
+        ? new Date(Date.now() + parseInt(data.days) * 86400000).toISOString()
+        : null;
+      statusMutation.mutate({
+        id: targetId,
+        updates: {status: 'suspended', suspension_end: end},
+      });
+    } else if (type === 'ban') {
+      statusMutation.mutate({id: targetId, updates: {status: 'banned'}});
     } else if (type === 'activate') {
-      setAdmins(prev =>
-        prev.map(a => (a.name === targetName ? {...a, status: 'active'} : a)),
-      );
+      statusMutation.mutate({
+        id: targetId,
+        updates: {status: 'active', suspension_end: null},
+      });
     }
 
-    toast.success(`${formattedType} action confirmed for ${targetName}`);
-    addLog(logMessage);
     setAdvancedModal(prev => ({...prev, isOpen: false}));
   };
 
-  const [adminToEdit, setAdminToEdit] = useState<Admin | null>(null);
-  const [newAdmin, setNewAdmin] = useState({
-    name: '',
-    email: '',
-    role: 'Support Admin' as const,
-    permissions: '',
-  });
-
-  const handleAddAdmin = () => {
-    if (!newAdmin.name || !newAdmin.email) {
-      toast.error('Please fill in Name and Email');
-      return;
-    }
-
-    if (adminToEdit) {
-      setAdmins(
-        admins.map(a =>
-          a.id === adminToEdit.id
-            ? {
-                ...a,
-                name: newAdmin.name,
-                email: newAdmin.email,
-                role: newAdmin.role,
-                permissions: newAdmin.permissions,
-              }
-            : a,
-        ),
-      );
-      toast.success('Admin account updated');
-      addLog(`Updated admin account for ${newAdmin.name}`);
-      setAdminToEdit(null);
-    } else {
-      const adminToAdd: Admin = {
-        ...newAdmin,
-        id: `ADM${Math.floor(Math.random() * 1000)}`,
-        lastLogin: 'Never',
-        status: 'active',
-      };
-      setAdmins([...admins, adminToAdd]);
-      toast.success('Admin account created');
-      addLog(`Created admin account for ${adminToAdd.name}`);
-    }
-
-    setIsAdminModalOpen(false);
-    setNewAdmin({
-      name: '',
-      email: '',
-      role: 'Support Admin',
-      permissions: '',
-    });
-  };
-
-  const onToggleStatus = (adminName: string, currentStatus: string) => {
-    const action = currentStatus === 'active' ? 'suspend' : 'activate';
-    handleAdvancedAction(action, 'admin', adminName, adminName);
-  };
-
-  const onRemove = (name: string, id: string) => {
-    handleAdvancedAction('remove', 'admin', id || name, name);
-  };
+  if (isLoading) {
+    return (
+      <div className="text-muted-foreground p-4">Loading user directory...</div>
+    );
+  }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-muted-foreground">{admins.length} admin accounts</p>
-        <Button
-          variant="hero"
-          size="sm"
-          onClick={() => {
-            setAdminToEdit(null);
-            setNewAdmin({
-              name: '',
-              email: '',
-              role: 'Support Admin',
-              permissions: '',
-            });
-            setIsAdminModalOpen(true);
-          }}>
-          <Users className="w-4 h-4 mr-1" /> Add Admin
-        </Button>
+        <p className="text-muted-foreground">{users.length} users</p>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm">
+              <Download className="w-4 h-4 mr-1" /> Export
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={() => handleExport('csv', 'Users')}>
+              CSV
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-muted-foreground">
-              <th className="text-left py-2 font-medium">Name</th>
-              <th className="text-left py-2 font-medium">Role</th>
-              <th className="text-left py-2 font-medium">Permissions</th>
-              <th className="text-left py-2 font-medium">Last Login</th>
+              <th className="text-left py-2 font-medium">User</th>
+              <th className="text-left py-2 font-medium">Roles</th>
               <th className="text-left py-2 font-medium pl-6">Status</th>
               <th className="text-right py-2 font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {admins
-              .filter(
-                a =>
-                  a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  a.email.toLowerCase().includes(searchQuery.toLowerCase()),
-              )
-              .map((a: any) => (
-                <tr
-                  key={a.name}
-                  className="border-b border-border last:border-0">
-                  <td className="py-3 font-medium text-foreground">{a.name}</td>
-                  <td className="py-3">
-                    <Badge variant="outline">{a.role}</Badge>
-                  </td>
-                  <td className="py-3 text-sm text-muted-foreground max-w-xs truncate">
-                    {a.permissions}
-                  </td>
-                  <td className="py-3 text-muted-foreground">{a.lastLogin}</td>
-                  <td className="py-3 pl-6">
-                    <Badge variant={statusBadge(a.status) as any}>
-                      {a.status}
-                    </Badge>
-                  </td>
-                  <td className="py-3 text-right">
-                    <div className="flex justify-end">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreVertical className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem
-                            onClick={() =>
-                              setViewDetailsModal({
-                                isOpen: true,
-                                title: 'Admin Details',
-                                data: a,
-                              })
-                            }>
-                            <Eye className="w-4 h-4 mr-2" /> View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => {
-                              setAdminToEdit(a);
-                              setNewAdmin({
-                                name: a.name,
-                                email: a.email,
-                                role: a.role as any,
-                                permissions: a.permissions,
-                              });
-                              setIsAdminModalOpen(true);
-                            }}>
-                            <Settings className="w-4 h-4 mr-2" /> Edit Admin
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() =>
-                              handleAdvancedAction(
-                                'warn',
-                                'admin',
-                                a.name,
-                                a.name,
-                              )
-                            }>
-                            <AlertTriangle className="w-4 h-4 mr-2" /> Warn
-                            Admin
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => onToggleStatus(a.name, a.status)}>
-                            {a.status === 'suspended' ? (
-                              <>
-                                <CheckCircle className="w-4 h-4 mr-2" />{' '}
-                                Activate Admin
-                              </>
-                            ) : (
-                              <>
-                                <Pause className="w-4 h-4 mr-2" /> Suspend
-                                (Timed)
-                              </>
-                            )}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() =>
-                              handleAdvancedAction(
-                                'ban',
-                                'admin',
-                                a.name,
-                                a.name,
-                              )
-                            }>
-                            <Ban className="w-4 h-4 mr-2" /> Ban Admin
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            className="text-destructive focus:text-destructive"
-                            onClick={() => onRemove(a.name, a.id)}>
-                            <Trash2 className="w-4 h-4 mr-2" /> Remove Admin
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+            {users.map((u: any) => (
+              <tr
+                key={u.id}
+                className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+                <td className="py-3">
+                  <div className="flex items-center gap-3">
+                    {u.avatar_url ? (
+                      <img
+                        src={u.avatar_url}
+                        alt=""
+                        className="w-8 h-8 rounded-full bg-muted object-cover"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                        {(u.display_name || u.username)
+                          ?.charAt(0)
+                          .toUpperCase() || 'U'}
+                      </div>
+                    )}
+                    <div>
+                      <p className="font-medium text-foreground">
+                        {u.display_name || 'No Name'}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        @{u.username} · {u.email}
+                      </p>
                     </div>
-                  </td>
-                </tr>
-              ))}
+                  </div>
+                </td>
+                <td className="py-3">
+                  <div className="flex flex-wrap gap-1">
+                    {u.roles?.map((role: string) => (
+                      <Badge
+                        key={role}
+                        variant="secondary"
+                        className="text-[10px] capitalize">
+                        {role}
+                        {role === 'admin' && u.admin_role
+                          ? ` (${u.admin_role})`
+                          : ''}
+                      </Badge>
+                    ))}
+                  </div>
+                </td>
+                <td className="py-3 pl-6">
+                  <Badge
+                    variant={statusBadge(u.status || 'active') as any}
+                    className="capitalize">
+                    {u.status || 'active'}
+                  </Badge>
+                </td>
+                <td className="py-3 text-right">
+                  <div className="flex justify-end">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            setViewDetailsModal({
+                              isOpen: true,
+                              title: 'User Details',
+                              data: u,
+                            })
+                          }>
+                          <Eye className="w-4 h-4 mr-2" /> View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            setManageRolesModal({isOpen: true, user: u})
+                          }>
+                          <ShieldAlert className="w-4 h-4 mr-2" /> Manage Roles
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+
+                        {u.status === 'banned' || u.status === 'suspended' ? (
+                          <DropdownMenuItem
+                            className="text-emerald-500 focus:text-emerald-500"
+                            onClick={() =>
+                              handleAdvancedAction(
+                                'activate',
+                                'user',
+                                u.id,
+                                u.username,
+                              )
+                            }>
+                            <RotateCcw className="w-4 h-4 mr-2" /> Restore
+                            Access
+                          </DropdownMenuItem>
+                        ) : (
+                          <>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleAdvancedAction(
+                                  'warn',
+                                  'user',
+                                  u.id,
+                                  u.username,
+                                )
+                              }>
+                              <AlertTriangle className="w-4 h-4 mr-2" /> Warn
+                              User
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleAdvancedAction(
+                                  'suspend',
+                                  'user',
+                                  u.id,
+                                  u.username,
+                                )
+                              }>
+                              <Pause className="w-4 h-4 mr-2" /> Suspend
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={() =>
+                                handleAdvancedAction(
+                                  'ban',
+                                  'user',
+                                  u.id,
+                                  u.username,
+                                )
+                              }>
+                              <Ban className="w-4 h-4 mr-2" /> Ban User
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
-      <AddAdminModal
-        isOpen={isAdminModalOpen}
-        onOpenChange={setIsAdminModalOpen}
-        onAdd={handleAddAdmin}
-        admin={newAdmin}
-        setAdmin={setNewAdmin}
-        isEditing={!!adminToEdit}
-      />
+
       <ActionAdvancedModal
         isOpen={advancedModal.isOpen}
         onOpenChange={open =>
           setAdvancedModal(prev => ({...prev, isOpen: open}))
         }
         type={advancedModal.type}
-        targetType="admin"
+        targetType="user"
         targetName={advancedModal.targetName}
         onConfirm={onConfirmAdvancedAction}
+      />
+
+      <ManageRolesModal
+        isOpen={manageRolesModal.isOpen}
+        user={manageRolesModal.user}
+        onOpenChange={open =>
+          setManageRolesModal(prev => ({...prev, isOpen: open}))
+        }
+        onSave={(roles, adminRole) => {
+          if (!manageRolesModal.user) return;
+          roleMutation.mutate({
+            userId: manageRolesModal.user.id,
+            roles,
+            adminRole,
+          });
+        }}
+        isLoading={roleMutation.isPending}
       />
     </div>
   );
