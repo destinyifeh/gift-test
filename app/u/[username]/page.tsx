@@ -228,9 +228,7 @@ export default function CreatorProfilePage({
     theme_settings: dbProfile?.theme_settings || {},
     theme,
     currencySymbol: getCurrencySymbol(
-      dbProfile?.bank_accounts?.find((a: any) => a.is_primary)?.currency ||
-        dbProfile?.bank_accounts?.[0]?.currency ||
-        getCurrencyByCountry(dbProfile?.country || 'Nigeria'),
+      getCurrencyByCountry(dbProfile?.country || 'Nigeria'),
     ),
     banner:
       plan === 'pro' && dbProfile?.theme_settings?.proBanner
@@ -444,12 +442,9 @@ export default function CreatorProfilePage({
                     acceptMoney={profile.acceptMoney}
                     acceptVendor={profile.acceptVendor}
                     currencySymbol={profile.currencySymbol}
-                    currencyCode={
-                      dbProfile?.bank_accounts?.find((a: any) => a.is_primary)
-                        ?.currency ||
-                      dbProfile?.bank_accounts?.[0]?.currency ||
-                      getCurrencyByCountry(dbProfile?.country || 'Nigeria')
-                    }
+                    currencyCode={getCurrencyByCountry(
+                      dbProfile?.country || 'Nigeria',
+                    )}
                     vendorGifts={profile.vendorGifts}
                   />
 

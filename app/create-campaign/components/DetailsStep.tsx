@@ -237,10 +237,11 @@ export function DetailsStep({
 
           <div>
             <Label htmlFor="currency">Campaign Currency</Label>
-            <p className="text-xs text-muted-foreground mb-2">
-              Select the currency for your campaign goal and contributions.
+            <p className="text-xs text-muted-foreground mb-2 font-medium">
+              This is based on your account country.
             </p>
             <Select
+              disabled
               value={standard.currency}
               onValueChange={standard.setCurrency}>
               <SelectTrigger id="currency" className="w-full">
