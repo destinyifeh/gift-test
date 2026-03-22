@@ -1,6 +1,7 @@
 'use server';
 
 import {getCurrencyByCountry} from '@/lib/constants/currencies';
+import {sendThankYouEmail} from '@/lib/server/actions/email';
 import {generateGiftCode} from '@/lib/utils/gift-codes';
 import {revalidatePath} from 'next/cache';
 import {createClient} from '../supabase/server';
@@ -554,7 +555,7 @@ export async function recordCreatorGift({
   // 1. Get creator profile ID
   const {data: creator} = await supabase
     .from('profiles')
-    .select('id')
+    .select('id, display_name, theme_settings')
     .ilike('username', creatorUsername)
     .single();
 
@@ -673,6 +674,23 @@ export async function recordCreatorGift({
 
       revalidatePath(`/u/${creatorUsername}`);
       revalidatePath(`/dashboard`);
+
+      // Send thank-you email if creator is pro and has a custom message
+      const creatorPlan = (creator as any)?.theme_settings?.plan;
+      const thankYouMsg = (creator as any)?.theme_settings?.proThankYou;
+      if (creatorPlan === 'pro' && thankYouMsg && donorEmail) {
+        sendThankYouEmail({
+          to: donorEmail,
+          donorName: isAnonymous ? 'Supporter' : donorName,
+          creatorName: (creator as any)?.display_name || creatorUsername,
+          creatorUsername,
+          thankYouMessage: thankYouMsg,
+          giftName: giftName || null,
+          amount: 0,
+          currency,
+        }).catch(e => console.error('Thank-you email failed:', e));
+      }
+
       return {success: true};
     }
 
@@ -765,6 +783,23 @@ export async function recordCreatorGift({
 
     revalidatePath(`/u/${creatorUsername}`);
     revalidatePath(`/dashboard`);
+
+    // Send thank-you email if creator is pro and has a custom message
+    const creatorPlan = (creator as any)?.theme_settings?.plan;
+    const thankYouMsg = (creator as any)?.theme_settings?.proThankYou;
+    if (creatorPlan === 'pro' && thankYouMsg && donorEmail) {
+      sendThankYouEmail({
+        to: donorEmail,
+        donorName: isAnonymous ? 'Supporter' : donorName,
+        creatorName: (creator as any)?.display_name || creatorUsername,
+        creatorUsername,
+        thankYouMessage: thankYouMsg,
+        giftName: giftName || null,
+        amount: paidAmount,
+        currency: body.data.currency || currency,
+      }).catch(e => console.error('Thank-you email failed:', e));
+    }
+
     return {success: true};
   } catch (err: any) {
     return {success: false, error: err.message || 'Processing error'};

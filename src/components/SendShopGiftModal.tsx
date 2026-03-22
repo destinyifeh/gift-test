@@ -37,8 +37,8 @@ const SendShopGiftModal = ({
 
   const [formData, setFormData] = useState({
     recipientEmail: '',
-    recipientUsername: '',
     senderName: '',
+    senderEmail: '',
     message: '',
     isAnonymous: false,
   });
@@ -49,8 +49,8 @@ const SendShopGiftModal = ({
       setIsLoading(false);
       setFormData({
         recipientEmail: '',
-        recipientUsername: '',
         senderName: '',
+        senderEmail: '',
         message: '',
         isAnonymous: false,
       });
@@ -64,6 +64,14 @@ const SendShopGiftModal = ({
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.recipientEmail)) {
       toast.error('Invalid recipient email format');
+      return false;
+    }
+    if (!formData.senderEmail) {
+      toast.error('Your email address is required');
+      return false;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.senderEmail)) {
+      toast.error('Invalid sender email format');
       return false;
     }
     if (!formData.senderName && !formData.isAnonymous) {
@@ -96,7 +104,7 @@ const SendShopGiftModal = ({
     const paystack = new PaystackPop();
     paystack.newTransaction({
       key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || '',
-      email: formData.recipientEmail,
+      email: formData.senderEmail, // Use sender email for Paystack receipt
       amount: gift.price * 100, // Paystack amount is in kobo/cents
       // currency: gift.currency || 'KES',
       currency: 'NGN',
@@ -199,6 +207,8 @@ const SendShopGiftModal = ({
                     <Input
                       placeholder="E.g. alex@example.com"
                       type="email"
+                      name="recipient_email"
+                      autoComplete="off"
                       value={formData.recipientEmail}
                       onChange={e =>
                         setFormData({
@@ -214,19 +224,26 @@ const SendShopGiftModal = ({
                   </div>
                   <div className="space-y-2">
                     <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">
-                      Recipient Username (Optional)
+                      Your Email
+                      {/* <span className="text-destructive">*</span> */}
                     </Label>
                     <Input
-                      placeholder="E.g. alexsmith"
-                      value={formData.recipientUsername}
+                      placeholder="E.g. you@example.com"
+                      type="email"
+                      name="sender_email"
+                      autoComplete="email"
+                      value={formData.senderEmail}
                       onChange={e =>
                         setFormData({
                           ...formData,
-                          recipientUsername: e.target.value,
+                          senderEmail: e.target.value,
                         })
                       }
                       className="h-12 rounded-xl bg-muted/20 border-2 font-medium"
                     />
+                    <p className="text-[10px] text-muted-foreground ml-1">
+                      For your payment receipt and gift confirmation.
+                    </p>
                   </div>
                   <div className="space-y-2">
                     <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">

@@ -159,7 +159,7 @@ export function UsersTab({
                 className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
                 <td className="py-3">
                   <div className="flex flex-col">
-                    <p className="font-medium text-foreground">
+                    <p className="font-medium text-foreground capitalize">
                       {u.display_name || u.username}
                     </p>
                     <p className="text-xs text-muted-foreground">

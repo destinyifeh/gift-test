@@ -116,7 +116,7 @@ export function PartnersTab({searchQuery, addLog, setViewDetailsModal}: any) {
                 key={p.id}
                 className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
                 <td className="py-3">
-                  <p className="font-medium text-foreground">
+                  <p className="font-medium text-foreground capitalize">
                     {p.display_name || 'No Name'}
                   </p>
                   <p className="text-xs text-muted-foreground">

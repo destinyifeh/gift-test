@@ -1,6 +1,7 @@
 'use server';
 
 import GiftCardEmail from '@/components/emails/GiftCardEmail';
+import ThankYouEmail from '@/components/emails/ThankYouEmail';
 import React from 'react';
 import {Resend} from 'resend';
 
@@ -52,6 +53,56 @@ export async function sendGiftEmail({
     return {success: true, data};
   } catch (err: any) {
     console.error('Email action error:', err);
+    return {success: false, error: err.message};
+  }
+}
+
+export async function sendThankYouEmail({
+  to,
+  donorName,
+  creatorName,
+  creatorUsername,
+  thankYouMessage,
+  giftName,
+  amount,
+  currency,
+}: {
+  to: string;
+  donorName: string;
+  creatorName: string;
+  creatorUsername: string;
+  thankYouMessage: string;
+  giftName?: string | null;
+  amount?: number;
+  currency?: string;
+}) {
+  try {
+    const {data, error} = await resend.emails.send({
+      from: 'Gifthance <gifts@discussday.com>',
+      to: [to],
+      subject: `💌 A personal message from ${creatorName}`,
+      react: React.createElement(ThankYouEmail, {
+        donorName,
+        creatorName,
+        creatorUsername,
+        thankYouMessage,
+        giftName,
+        amount,
+        currency,
+      }),
+    });
+
+    if (error) {
+      console.error('Thank-you email error:', error);
+      if (error.message.includes('onboarding')) {
+        return {success: true, warning: 'Onboarding domain restriction'};
+      }
+      return {success: false, error: error.message};
+    }
+
+    return {success: true, data};
+  } catch (err: any) {
+    console.error('Thank-you email action error:', err);
     return {success: false, error: err.message};
   }
 }

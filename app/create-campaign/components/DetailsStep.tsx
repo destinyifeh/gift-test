@@ -153,8 +153,10 @@ export function DetailsStep({
                           : 'border-border hover:border-primary/20'
                       }`}>
                       <div>
-                        <p className="font-semibold text-sm">{g.name}</p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="font-semibold text-sm capitalize">
+                          {g.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground capitalize">
                           {g.vendor}
                         </p>
                       </div>

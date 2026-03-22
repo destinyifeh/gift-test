@@ -35,7 +35,7 @@ export function OrdersTab() {
                   : 'GIFT'}{' '}
                 — {o.title}
               </p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground capitalize">
                 Buyer:{' '}
                 {o.profiles?.display_name || o.profiles?.username || 'User'} ·{' '}
                 {new Date(o.created_at).toLocaleDateString()}

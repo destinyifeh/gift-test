@@ -27,7 +27,7 @@ export function CreatorsTab() {
                 <tr
                   key={c.id}
                   className="border-b border-border last:border-0 hover:bg-muted/50 transition-colors">
-                  <td className="p-4 font-semibold text-foreground">
+                  <td className="p-4 font-semibold text-foreground capitalize">
                     {c.name}
                   </td>
                   <td className="p-4 text-muted-foreground">{c.email}</td>

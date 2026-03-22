@@ -112,7 +112,7 @@ export function VendorsTab({searchQuery, addLog, setViewDetailsModal}: any) {
             {vendors.map((v: any) => (
               <tr key={v.id} className="border-b border-border last:border-0">
                 <td className="py-3">
-                  <p className="font-medium text-foreground">
+                  <p className="font-medium text-foreground capitalize">
                     {v.display_name || 'No Name'}
                   </p>
                   <p className="text-xs text-muted-foreground">

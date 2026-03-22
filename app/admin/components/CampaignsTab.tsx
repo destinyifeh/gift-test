@@ -183,7 +183,7 @@ export function CampaignsTab({
                     ID: {c.id.split('-')[0]}
                   </p>
                 </td>
-                <td className="py-3 text-foreground">
+                <td className="py-3 text-foreground capitalize">
                   {c.profiles?.display_name ||
                     c.profiles?.username ||
                     'Unknown'}

@@ -72,7 +72,7 @@ export function AnalyticsTab() {
                     #{i + 1}
                   </div>
                   <div>
-                    <p className="text-sm font-semibold">{c.name}</p>
+                    <p className="text-sm font-semibold capitalize">{c.name}</p>
                     <p className="text-[11px] text-muted-foreground font-body">
                       {c.gifts} gifts received
                     </p>

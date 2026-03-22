@@ -52,12 +52,14 @@ export function SupportersTab() {
           <CardContent className="p-3 sm:p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Avatar className="w-9 h-9">
-                <AvatarFallback className="bg-muted text-xs">
+                <AvatarFallback className="bg-muted text-xs capitalize">
                   {s.anonymous ? '?' : s.name.charAt(0)}
                 </AvatarFallback>
               </Avatar>
               <div>
-                <p className="text-sm font-bold text-foreground">{s.name}</p>
+                <p className="text-sm font-bold text-foreground capitalize">
+                  {s.name}
+                </p>
                 {s.message && (
                   <p className="text-xs text-muted-foreground mt-0.5 italic">
                     "{s.message}"

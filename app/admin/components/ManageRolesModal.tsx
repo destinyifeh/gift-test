@@ -70,7 +70,10 @@ export function ManageRolesModal({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
-            Manage Roles for {user?.display_name || user?.username}
+            Manage Roles for{' '}
+            <span className="capitalize">
+              {user?.display_name || user?.username}
+            </span>
           </DialogTitle>
           <DialogDescription>
             Assign or revoke system roles and admin privileges.

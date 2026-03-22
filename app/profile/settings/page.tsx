@@ -81,6 +81,7 @@ export default function ProfileSettingsPage() {
                     <Input
                       value={name}
                       onChange={e => setName(e.target.value)}
+                      className="capitalize"
                     />
                   </div>
                   <div className="space-y-2">

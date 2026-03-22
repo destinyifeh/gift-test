@@ -10,6 +10,7 @@ import {
   Mail,
   ShieldCheck,
   Sparkles,
+  Store,
 } from 'lucide-react';
 import Link from 'next/link';
 import {useParams, useRouter} from 'next/navigation';
@@ -119,14 +120,18 @@ export default function ClaimGiftPage() {
                 <Gift className="w-10 h-10 text-primary" />
               )}
             </div>
-
-            <h1 className="text-3xl font-black text-foreground leading-tight mb-2">
-              You’ve received a {giftName}!
-            </h1>
-            <p className="text-lg text-muted-foreground font-medium">
-              From{' '}
-              <span className="text-foreground font-bold">{senderName}</span>
-            </p>
+            <div className="mb-6">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
+                A gift from{' '}
+                <span className="text-primary capitalize">{senderName}</span>!
+              </h1>
+              <p className="text-muted-foreground">
+                You've received a{' '}
+                <span className="font-semibold text-foreground capitalize">
+                  {giftName}
+                </span>
+              </p>
+            </div>
           </div>
 
           <CardContent className="p-8 space-y-8">
@@ -140,13 +145,16 @@ export default function ClaimGiftPage() {
                   {Number(gift.goal_amount).toLocaleString()}
                 </p>
               </div>
-              <div className="bg-secondary/5 p-4 rounded-2xl border border-secondary/10">
-                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">
-                  Vendor
-                </p>
-                <p className="text-xl font-black text-foreground truncate">
-                  {vendorName}
-                </p>
+              <div className="flex items-center gap-3 bg-muted/30 p-4 rounded-2xl border border-border/50">
+                <Store className="w-5 h-5 text-muted-foreground" />
+                <div className="text-left">
+                  <p className="text-xs text-muted-foreground font-medium">
+                    Redeemable at
+                  </p>
+                  <p className="font-bold text-foreground capitalize">
+                    {vendorName}
+                  </p>
+                </div>
               </div>
             </div>
 

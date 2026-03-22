@@ -129,7 +129,7 @@ export function OverviewTab({
               <div className="flex items-center gap-3 min-w-0">
                 <Send className="w-4 h-4 text-primary shrink-0" />
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">
+                  <p className="text-sm font-medium text-foreground truncate capitalize">
                     {g.name}
                   </p>
                   <p className="text-xs text-muted-foreground">{g.date}</p>
@@ -143,7 +143,7 @@ export function OverviewTab({
               <div className="flex items-center gap-3 min-w-0">
                 <Gift className="w-4 h-4 text-secondary shrink-0" />
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">
+                  <p className="text-sm font-medium text-foreground truncate capitalize">
                     {g.name}
                   </p>
                   <p className="text-xs text-muted-foreground">{g.date}</p>

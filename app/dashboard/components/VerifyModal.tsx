@@ -36,7 +36,10 @@ export function VerifyModal({
             <Shield className="w-10 h-10 text-primary mx-auto mb-2" />
             <h3 className="font-semibold text-foreground">
               Welcome back,{' '}
-              {user?.display_name || user?.email?.split('@')[0] || 'User'}! 🎁
+              <span className="capitalize">
+                {user?.display_name || user?.email?.split('@')[0] || 'User'}
+              </span>
+              ! 🎁
             </h3>
             <p className="text-muted-foreground text-sm">
               Please enter your password to confirm this action.

@@ -36,7 +36,7 @@ export function FavoritesTab() {
                     {f.emoji}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-foreground truncate">
+                    <p className="font-semibold text-foreground truncate capitalize">
                       {f.name}
                     </p>
                     <p className="text-xs text-muted-foreground">{f.vendor}</p>

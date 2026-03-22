@@ -186,14 +186,14 @@ export function AdminsTab({searchQuery, addLog, setViewDetailsModal}: any) {
                         className="w-8 h-8 rounded-full bg-muted object-cover"
                       />
                     ) : (
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold capitalize">
                         {(u.display_name || u.username)
                           ?.charAt(0)
                           .toUpperCase() || 'U'}
                       </div>
                     )}
                     <div>
-                      <p className="font-medium text-foreground">
+                      <p className="font-medium text-foreground capitalize">
                         {u.display_name || 'No Name'}
                       </p>
                       <p className="text-xs text-muted-foreground">

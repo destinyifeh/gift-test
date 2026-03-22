@@ -102,9 +102,11 @@ export default function GiftDetailPage({
                   ) : (
                     <Store className="w-3.5 h-3.5" />
                   )}
-                  {gift.profiles?.shop_name ||
-                    gift.profiles?.display_name ||
-                    'Vendor'}
+                  <span className="capitalize">
+                    {gift.profiles?.shop_name ||
+                      gift.profiles?.display_name ||
+                      'Vendor'}
+                  </span>
                 </Link>
               </div>
               <p className="text-muted-foreground mb-6 text-sm sm:text-base">
@@ -129,7 +131,7 @@ export default function GiftDetailPage({
                           <Store className="w-4 h-4 text-muted-foreground/50" />
                         )}
                       </div>
-                      <p className="font-semibold text-foreground">
+                      <p className="font-semibold text-foreground capitalize">
                         {gift.profiles?.shop_name ||
                           gift.profiles?.display_name ||
                           'Vendor'}

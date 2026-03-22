@@ -51,10 +51,10 @@ export function SentGiftsTab() {
                 <Send className="w-5 h-5 text-primary" />
               </div>
               <div className="min-w-0">
-                <p className="font-semibold text-foreground truncate">
+                <p className="font-semibold text-foreground truncate capitalize">
                   {g.name}
                 </p>
-                <p className="text-sm text-muted-foreground truncate">
+                <p className="text-sm text-muted-foreground truncate capitalize">
                   To: {g.recipient} · {g.date}
                 </p>
               </div>

@@ -104,6 +104,7 @@ export function SettingsTab() {
                 value={displayName}
                 onChange={e => setDisplayName(e.target.value)}
                 placeholder="Your name"
+                className="capitalize"
               />
             </div>
             <div className="space-y-1">

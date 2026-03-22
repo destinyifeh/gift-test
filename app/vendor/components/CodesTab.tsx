@@ -124,7 +124,7 @@ export function CodesTab() {
               <div className="flex items-center gap-2 text-sm">
                 <CheckCircle2 className="w-4 h-4 text-green-500" />
                 <span className="text-muted-foreground">Beneficiary:</span>
-                <span className="font-semibold text-foreground">
+                <span className="font-semibold text-foreground capitalize">
                   {voucher.profiles?.display_name ||
                     voucher.profiles?.username ||
                     'Gifter'}

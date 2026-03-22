@@ -104,7 +104,7 @@ export default function VendorShopPage({
               )}
             </div>
             <div className="flex-1">
-              <h1 className="text-3xl font-bold font-display text-foreground mb-2">
+              <h1 className="text-3xl font-bold font-display text-foreground mb-2 capitalize">
                 {vendor.shop_name || vendor.display_name}
               </h1>
 

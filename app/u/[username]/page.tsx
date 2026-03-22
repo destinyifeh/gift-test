@@ -226,7 +226,9 @@ export default function CreatorProfilePage({
                 {profile.name?.charAt(0) || '?'}
               </AvatarFallback>
             </Avatar>
-            <h1 className="text-2xl font-bold font-display">{profile.name}</h1>
+            <h1 className="text-2xl font-bold font-display capitalize">
+              {profile.name}
+            </h1>
             <p className="opacity-70 mt-1">@{username}</p>
             <p className="mt-3 max-w-md mx-auto">{profile.bio}</p>
 
@@ -394,7 +396,7 @@ export default function CreatorProfilePage({
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
-                          <p className="text-sm font-bold text-foreground truncate">
+                          <p className="text-sm font-bold text-foreground truncate capitalize">
                             {s.name}
                           </p>
                         </div>{' '}
@@ -461,13 +463,15 @@ export default function CreatorProfilePage({
                             key={s.id}
                             className="flex items-start gap-3 group">
                             <Avatar className="w-9 h-9 border border-border group-hover:scale-105 transition-transform">
-                              <AvatarFallback className="bg-muted text-xs font-bold">
+                              <AvatarFallback className="bg-muted text-xs font-bold capitalize">
                                 {s.anonymous ? '?' : s.name.charAt(0)}
                               </AvatarFallback>
                             </Avatar>
                             <div className="flex-1">
                               <div className="flex items-center justify-between">
-                                <p className="text-sm font-bold">{s.name}</p>
+                                <p className="text-sm font-bold capitalize">
+                                  {s.name}
+                                </p>
                                 {profile.showAmounts && !s.hideAmount && (
                                   <span
                                     className="text-sm font-bold"
@@ -527,7 +531,8 @@ export default function CreatorProfilePage({
 
           <div className="text-center mt-6">
             <Button variant="outline" className="gap-2 font-semibold">
-              <Share2 className="w-4 h-4" /> Share {profile.name}'s page
+              <Share2 className="w-4 h-4" /> Share{' '}
+              <span className="capitalize">{profile.name}</span>'s page
             </Button>
           </div>
 

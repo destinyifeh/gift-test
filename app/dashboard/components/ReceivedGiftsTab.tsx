@@ -98,7 +98,7 @@ export function ReceivedGiftsTab({
                 <Gift className="w-5 h-5 text-secondary" />
               </div>
               <div className="min-w-0">
-                <p className="font-semibold text-foreground truncate">
+                <p className="font-semibold text-foreground truncate capitalize">
                   {g.name}
                 </p>
                 {g.vendorShopName && (

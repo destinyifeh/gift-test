@@ -172,7 +172,7 @@ export default function GiftShopPage() {
                         <h3 className="font-semibold text-foreground mb-1 text-sm sm:text-base line-clamp-1">
                           {gift.name}
                         </h3>
-                        <p className="text-xs sm:text-sm text-muted-foreground mb-2">
+                        <p className="text-xs sm:text-sm text-muted-foreground mb-2 capitalize">
                           {gift.profiles?.shop_name ||
                             gift.profiles?.display_name ||
                             'Vendor'}
