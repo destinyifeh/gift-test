@@ -6,12 +6,13 @@ import {useUserStore} from '@/lib/store/useUserStore';
 import {CheckCircle, ChevronRight, Copy, Key} from 'lucide-react';
 import Link from 'next/link';
 import {useState} from 'react';
-import {mockApiKey} from './mock';
 
 export function IntegrationsTab() {
   const user = useUserStore(state => state.user);
   const [apiKeyRevealed, setApiKeyRevealed] = useState(false);
   const [apiKeyCopied, setApiKeyCopied] = useState(false);
+
+  const mockApiKey = 'gh_live_********************';
 
   const copyApiKey = () => {
     navigator.clipboard.writeText(mockApiKey);

@@ -72,6 +72,7 @@ export async function getMyCampaigns({
     .from('campaigns')
     .select('*, contributions(id)')
     .eq('user_id', user.id)
+    .is('gift_code', null)
     .order('created_at', {ascending: false})
     .range(from, to);
 
@@ -92,7 +93,7 @@ export async function getCampaignBySlug(slug: string) {
   const {data, error} = await supabase
     .from('campaigns')
     .select(
-      '*, profiles(id, username, display_name, avatar_url), contributions(*)',
+      '*, profiles!campaigns_user_id_fkey(id, username, display_name, avatar_url), contributions(*)',
     )
     .eq('slug', slug)
     .order('created_at', {foreignTable: 'contributions', ascending: false})
@@ -173,10 +174,11 @@ export async function getAllPublicCampaigns({
   const {data, error} = await supabase
     .from('campaigns')
     .select(
-      '*, profiles(id, username, display_name, avatar_url), contributions(id)',
+      '*, profiles!campaigns_user_id_fkey(id, username, display_name, avatar_url), contributions(id)',
     )
     .eq('visibility', 'public')
     .eq('status', 'active')
+    .is('gift_code', null)
     .order('created_at', {ascending: false})
     .range(from, to);
 

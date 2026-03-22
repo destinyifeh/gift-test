@@ -4,15 +4,15 @@ import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
 import {Heart, Star} from 'lucide-react';
 import Link from 'next/link';
-import {mockFavorites} from './mock';
 
 export function FavoritesTab() {
+  const favorites: any[] = [];
   return (
     <div className="space-y-4">
       <p className="text-muted-foreground">
         Your favorite gifts from the Gift Shop
       </p>
-      {mockFavorites.length === 0 ? (
+      {favorites.length === 0 ? (
         <Card className="border-border">
           <CardContent className="p-8 text-center">
             <Star className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
@@ -28,7 +28,7 @@ export function FavoritesTab() {
         </Card>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {mockFavorites.map(f => (
+          {favorites.map((f: any) => (
             <Link key={f.id} href={`/gift-shop/${f.id}`}>
               <Card className="border-border hover:shadow-card transition-shadow cursor-pointer">
                 <CardContent className="p-4 flex items-center gap-4">

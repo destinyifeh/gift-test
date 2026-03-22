@@ -138,8 +138,7 @@ const SendVendorGiftModal = ({
                       Your Name
                     </Label>
                     <Input
-                      placeholder="E.g. Destiny I."
-                      defaultValue="Destiny I."
+                      placeholder="E.g. John Doe"
                       className="h-12 rounded-xl bg-muted/20 border-2 font-medium"
                     />
                   </div>

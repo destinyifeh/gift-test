@@ -12,7 +12,7 @@ import {formatCurrency} from '@/lib/utils/currency';
 import {useQuery} from '@tanstack/react-query';
 import {DollarSign, Gift, Loader2, Send, Sparkles, Users} from 'lucide-react';
 import {toast} from 'sonner';
-import {SelectedSection} from './mock';
+import {SelectedSection} from './dashboard-config';
 import {statusColor} from './utils';
 
 interface OverviewTabProps {

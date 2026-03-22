@@ -1,6 +1,7 @@
 'use server';
 
 import {getCurrencyByCountry} from '@/lib/constants/currencies';
+import {generateGiftCode} from '@/lib/utils/gift-codes';
 import {revalidatePath} from 'next/cache';
 import {createClient} from '../supabase/server';
 
@@ -821,12 +822,36 @@ export async function recordShopGiftPurchase({
 
     if (!gift) return {success: false, error: 'Gift product not found'};
 
-    // 3. Generate Gift Code
-    const prefix =
-      giftName?.split(' ')[1]?.substring(0, 3).toUpperCase() || 'GFT';
-    const giftCode = `${prefix}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    // Fetch vendor shop name for the email
+    const {data: vendorProfile} = await supabase
+      .from('profiles')
+      .select('shop_name, display_name')
+      .eq('id', gift.vendor_id)
+      .single();
+    const vendorShopName =
+      vendorProfile?.shop_name ||
+      vendorProfile?.display_name ||
+      'Gifthance Partner';
 
-    // 4. Create "Voucher" Campaign tied to vendor
+    // 3. Generate a Unique Gift Code
+    let giftCode = generateGiftCode();
+    let isUnique = false;
+
+    // Safety loop to ensure the code is absolutely unique
+    while (!isUnique) {
+      const {data: existing} = await supabase
+        .from('campaigns')
+        .select('id')
+        .eq('gift_code', giftCode)
+        .maybeSingle();
+
+      if (!existing) {
+        isUnique = true;
+      } else {
+        // Generate a new one if it somehow collided
+        giftCode = generateGiftCode();
+      }
+    }
     // We are setting user_id to vendor_id so they can see it as "Pending Claim"
     const {error: campaignError} = await supabase.from('campaigns').insert({
       user_id: gift.vendor_id,
@@ -877,24 +902,14 @@ export async function recordShopGiftPurchase({
     // or just import it at top.
     const {sendGiftEmail} = await import('./email');
 
-    // Ensure the image URL is absolute for the email
-    let giftImage = gift.image_url;
-    if (giftImage && !giftImage.startsWith('http')) {
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(
-        /\/+$/,
-        '',
-      );
-      giftImage = `${supabaseUrl}/storage/v1/object/public/vendor-products/${giftImage}`;
-    }
-
-    console.log('Sending gift email with image:', giftImage);
+    console.log('Sending gift email for:', giftName);
 
     await sendGiftEmail({
       to: recipientEmail,
       senderName,
+      vendorShopName,
       giftName,
       giftAmount: expectedAmount,
-      giftImage: giftImage || undefined,
       message,
       claimUrl,
     });

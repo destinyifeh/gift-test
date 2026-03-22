@@ -7,7 +7,6 @@ import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
 import {VisuallyHidden} from '@/components/ui/visually-hidden';
 import {recordShopGiftPurchase} from '@/lib/server/actions/transactions';
-import PaystackPop from '@paystack/inline-js';
 import {ArrowRight, Heart, Loader2} from 'lucide-react';
 import {useEffect, useState} from 'react';
 import {toast} from 'sonner';
@@ -39,7 +38,7 @@ const SendShopGiftModal = ({
   const [formData, setFormData] = useState({
     recipientEmail: '',
     recipientUsername: '',
-    senderName: 'Destiny I.', // Default from provided code
+    senderName: '',
     message: '',
     isAnonymous: false,
   });
@@ -51,7 +50,7 @@ const SendShopGiftModal = ({
       setFormData({
         recipientEmail: '',
         recipientUsername: '',
-        senderName: 'Destiny I.',
+        senderName: '',
         message: '',
         isAnonymous: false,
       });
@@ -88,8 +87,12 @@ const SendShopGiftModal = ({
     if (step === 'payment') setStep('recipient');
   };
 
-  const handlePaystackPayment = () => {
+  const handlePaystackPayment = async () => {
     setIsLoading(true);
+
+    // Dynamically import Paystack to avoid SSR 'window is not defined' errors
+    const PaystackPop = (await import('@paystack/inline-js')).default;
+
     const paystack = new PaystackPop();
     paystack.newTransaction({
       key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || '',
@@ -97,12 +100,19 @@ const SendShopGiftModal = ({
       amount: gift.price * 100, // Paystack amount is in kobo/cents
       // currency: gift.currency || 'KES',
       currency: 'NGN',
-      onSuccess: async (transaction: any) => {
+      onSuccess: (transaction: any) => {
         setIsLoading(false);
         console.log('Payment successful', transaction);
 
-        // Record the gift purchase and send email
-        const result = await recordShopGiftPurchase({
+        // Show immediate success toast as requested
+        toast.success('Gift card sent successfully!');
+
+        // Close the modal as the Paystack popup is now showing
+        onOpenChange(false);
+
+        // Record the gift purchase and send email completely asynchronously
+        // so the user UI isn't blocked for multiple seconds.
+        recordShopGiftPurchase({
           reference: transaction.reference,
           recipientEmail: formData.recipientEmail,
           senderName: formData.senderName,
@@ -110,16 +120,15 @@ const SendShopGiftModal = ({
           giftId: Number(gift.id),
           giftName: gift.name,
           expectedAmount: gift.price,
-          currency: 'NGN', // Based on user manual edit
+          currency: gift.currency as string, // Based on user manual edit
+        }).then(result => {
+          if (!result.success) {
+            toast.error(
+              'Payment verified but background gift recording had an issue: ' +
+                result.error,
+            );
+          }
         });
-
-        if (result.success) {
-          toast.success('Gift card sent successfully!');
-        } else {
-          toast.error(
-            'Payment verified but gift recording failed: ' + result.error,
-          );
-        }
       },
       onCancel: () => {
         setIsLoading(false);

@@ -8,7 +8,6 @@ import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
 import {VisuallyHidden} from '@/components/ui/visually-hidden';
 import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
-import {allVendorGifts} from '@/lib/data/gifts';
 import {recordCreatorGift} from '@/lib/server/actions/transactions';
 import {formatCurrency} from '@/lib/utils/currency';
 import {useQueryClient} from '@tanstack/react-query';
@@ -87,9 +86,7 @@ const SendCreatorGiftModal = ({
     }
   }, [open, initialStep, initialAmount, initialCustomAmount, initialGiftId]);
 
-  const selectedGiftData = (
-    vendorGifts.length > 0 ? vendorGifts : allVendorGifts
-  ).find(g => g.id === selectedGift);
+  const selectedGiftData = vendorGifts.find((g: any) => g.id === selectedGift);
 
   const handleNext = () => {
     if (step === 'details') setStep('recipient');
@@ -142,7 +139,8 @@ const SendCreatorGiftModal = ({
         key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY as string,
         email: donorEmail,
         amount: Math.round(finalAmount * 100),
-        currency,
+        // currency,
+        currency: 'NGN',
         onSuccess: async (response: any) => {
           const res = await recordCreatorGift({
             reference: response.reference,

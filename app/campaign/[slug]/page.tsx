@@ -27,8 +27,6 @@ import {
 import Link from 'next/link';
 import {use, useState} from 'react';
 
-// Removed mockContributions as we now use real data
-
 export default function CampaignPage({
   params,
 }: {

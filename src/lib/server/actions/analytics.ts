@@ -34,31 +34,52 @@ export async function fetchDashboardAnalytics() {
       return acc;
     }, 0);
 
-    // 2. Fetch User's Campaigns Count & Inbound donations
+    // 2. Fetch User's Campaigns Count & Inbound donations (exclude gift-card entries)
     const {data: userCampaigns} = await supabase
       .from('campaigns')
       .select('id, title')
-      .eq('user_id', user.id);
+      .eq('user_id', user.id)
+      .is('gift_code', null);
 
     const campaignIds = (userCampaigns || []).map(c => c.id);
     const campaignsCount = campaignIds.length;
 
-    // 3. Fetch direct support received
+    // 3. Fetch direct support received (creator_support table)
     const {data: directSupport} = await supabase
       .from('creator_support')
-      .select('id, amount, created_at, donor_name')
+      .select('id, amount, created_at, donor_name, gift_name')
       .eq('user_id', user.id)
-      .order('created_at', {ascending: false});
+      .order('created_at', {ascending: false})
+      .limit(5);
 
     const directRecent = (directSupport || []).slice(0, 5).map(s => ({
       id: s.id,
-      name: `Gift from ${s.donor_name}`,
+      name: s.gift_name
+        ? `🎁 ${s.gift_name} from ${s.donor_name}`
+        : `Gift from ${s.donor_name}`,
       date: new Date(s.created_at).toLocaleDateString(),
       status: 'success',
       type: 'direct',
     }));
 
-    // 4. Fetch campaign donations to their campaigns
+    // 4. Fetch vendor gift cards received (campaigns with gift_code)
+    const {data: vendorGiftCampaigns} = await supabase
+      .from('campaigns')
+      .select('id, title, created_at, sender_name, gift_code, status')
+      .eq('user_id', user.id)
+      .not('gift_code', 'is', null)
+      .order('created_at', {ascending: false})
+      .limit(5);
+
+    const vendorGiftRecent = (vendorGiftCampaigns || []).map(c => ({
+      id: 'vgift-' + c.id,
+      name: `🎁 ${c.title} from ${c.sender_name || 'Someone'}`,
+      date: new Date(c.created_at).toLocaleDateString(),
+      status: c.status === 'redeemed' ? 'claimed' : 'pending claim',
+      type: 'vendor-gift',
+    }));
+
+    // 5. Fetch campaign donations to their campaigns
     let campaignRecent: any[] = [];
     let campaignCount = 0;
     if (campaignIds.length > 0) {
@@ -66,7 +87,8 @@ export async function fetchDashboardAnalytics() {
         .from('contributions')
         .select('id, amount, created_at, donor_name, campaigns(title)')
         .in('campaign_id', campaignIds)
-        .order('created_at', {ascending: false});
+        .order('created_at', {ascending: false})
+        .limit(5);
 
       campaignCount = inboundContribs?.length || 0;
       campaignRecent = (inboundContribs || []).slice(0, 5).map(c => ({
@@ -79,8 +101,16 @@ export async function fetchDashboardAnalytics() {
       }));
     }
 
-    const giftsReceivedCount = (directSupport?.length || 0) + campaignCount;
-    const recentReceived = [...directRecent, ...campaignRecent]
+    const giftsReceivedCount =
+      (directSupport?.length || 0) +
+      (vendorGiftCampaigns?.length || 0) +
+      campaignCount;
+
+    const recentReceived = [
+      ...directRecent,
+      ...vendorGiftRecent,
+      ...campaignRecent,
+    ]
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, 5);
 
@@ -229,7 +259,7 @@ export async function fetchSentGiftsList({
       .select(
         `
         id, amount, currency, created_at, status, description, type,
-        campaigns ( id, title, profiles ( display_name ) )
+        campaigns ( id, title, profiles!campaigns_user_id_fkey ( display_name ) )
       `,
       )
       .eq('user_id', user.id)
@@ -282,13 +312,56 @@ export async function fetchReceivedGiftsList({
     const {data: campaigns} = await supabase
       .from('campaigns')
       .select(
-        'id, title, goal_amount, currency, created_at, gift_code, sender_name, status',
+        'id, title, goal_amount, currency, created_at, gift_code, sender_name, status, vendor_rating, claimable_gift_id',
       )
       .eq('user_id', user.id);
 
     const crowdfundingCampaignIds = (campaigns || [])
       .filter(c => c.gift_code === null) // Crowdfunding typically doesn't have a single gift code
       .map(c => c.id);
+
+    const giftIds = (campaigns || [])
+      .map(c => c.claimable_gift_id)
+      .filter(Boolean) as number[];
+
+    const shopsMap: Record<number, {name: string; slug: string}> = {};
+    if (giftIds.length > 0) {
+      // 1. Fetch vendor_ids for these gifts
+      const {data: vendorGiftsInfo} = await supabase
+        .from('vendor_gifts')
+        .select('id, vendor_id')
+        .in('id', giftIds);
+
+      if (vendorGiftsInfo && vendorGiftsInfo.length > 0) {
+        const vendorIds = vendorGiftsInfo
+          .map((vg: any) => vg.vendor_id)
+          .filter(Boolean);
+
+        // 2. Fetch the profiles for these vendors
+        let profilesMap: Record<string, {name: string; slug: string}> = {};
+        if (vendorIds.length > 0) {
+          const {data: profilesInfo} = await supabase
+            .from('profiles')
+            .select('id, shop_name, shop_slug, username')
+            .in('id', vendorIds);
+
+          profilesInfo?.forEach((p: any) => {
+            profilesMap[p.id] = {
+              name: p.shop_name || 'Partner Shop',
+              slug: p.shop_slug || p.username || '',
+            };
+          });
+        }
+
+        // 3. Map gifts to their vendor's shop details
+        vendorGiftsInfo.forEach((vg: any) => {
+          shopsMap[vg.id] = profilesMap[vg.vendor_id] || {
+            name: 'Partner Shop',
+            slug: '',
+          };
+        });
+      }
+    }
 
     const voucherGifts = (campaigns || [])
       .filter(c => c.gift_code !== null) // These are the claimed vouchers
@@ -299,16 +372,23 @@ export async function fetchReceivedGiftsList({
         date: new Date(c.created_at).toLocaleDateString(),
         amount: Number(c.goal_amount),
         currency: c.currency || 'NGN',
-        status: c.status === 'redeemed' ? 'claimed' : 'withdrawable', // Status mapping for UI
+        status: c.status === 'redeemed' ? 'claimed' : 'pending claim', // Status mapping for UI
         code: c.gift_code,
+        rating: c.vendor_rating || 0,
         type: 'gift',
+        vendorShopName: c.claimable_gift_id
+          ? shopsMap[c.claimable_gift_id]?.name
+          : undefined,
+        vendorShopSlug: c.claimable_gift_id
+          ? shopsMap[c.claimable_gift_id]?.slug
+          : undefined,
       }));
 
     // 2. Fetch direct support (creator_support table)
     const {data: support} = await supabase
       .from('creator_support')
       .select(
-        'id, amount, currency, created_at, donor_name, donor_email, is_anonymous, message, gift_name',
+        'id, amount, currency, created_at, donor_name, donor_email, is_anonymous, message, gift_name, vendor_rating',
       )
       .eq('user_id', user.id)
       .order('created_at', {ascending: false})
@@ -351,6 +431,7 @@ export async function fetchReceivedGiftsList({
       currency: s.currency || 'NGN',
       status: 'success',
       message: s.message,
+      rating: s.vendor_rating || 0,
     }));
 
     const combined = [...voucherGifts, ...directFormatted, ...campaignContribs]

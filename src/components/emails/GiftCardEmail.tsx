@@ -6,8 +6,6 @@ import {
   Heading,
   Hr,
   Html,
-  Img,
-  Link,
   Preview,
   Section,
   Text,
@@ -16,9 +14,9 @@ import {
 interface GiftCardEmailProps {
   senderName: string;
   recipientName?: string;
+  vendorShopName: string;
   giftName: string;
   giftAmount: number;
-  giftImage?: string;
   message?: string;
   claimUrl: string;
   currencySymbol?: string;
@@ -27,9 +25,9 @@ interface GiftCardEmailProps {
 export const GiftCardEmail = ({
   senderName,
   recipientName,
+  vendorShopName,
   giftName,
   giftAmount,
-  giftImage,
   message,
   claimUrl,
   currencySymbol = '₦',
@@ -50,15 +48,6 @@ export const GiftCardEmail = ({
 
         <Section style={card}>
           <Section style={cardGradient}>
-            {giftImage && (
-              <Img
-                src={giftImage}
-                width="600"
-                height="auto"
-                alt={giftName}
-                style={image}
-              />
-            )}
             <Section style={cardContent}>
               <Text style={giftTitle}>🎁 {giftName}</Text>
               <Heading style={amount}>
@@ -66,7 +55,10 @@ export const GiftCardEmail = ({
                 {giftAmount.toLocaleString()}
               </Heading>
               <Text style={fromText}>
-                From: <span style={bold}>{senderName}</span>
+                From: <span style={bold}>{vendorShopName}</span>
+              </Text>
+              <Text style={fromText}>
+                Sent by: <span style={bold}>{senderName}</span>
               </Text>
             </Section>
           </Section>
@@ -82,12 +74,6 @@ export const GiftCardEmail = ({
           <Button style={button} href={claimUrl}>
             Claim Your Gift
           </Button>
-          <Text style={linkText}>
-            Or use this link:{' '}
-            <Link href={claimUrl} style={link}>
-              {claimUrl}
-            </Link>
-          </Text>
         </Section>
 
         <Hr style={hr} />
@@ -229,12 +215,16 @@ const ctaSection = {
 const button = {
   backgroundColor: '#f97316',
   borderRadius: '16px',
-  color: '#fff',
+  color: '#ffffff',
   fontSize: '18px',
-  fontWeight: '700',
+  fontWeight: '800',
   textDecoration: 'none',
+  textAlign: 'center' as const,
   display: 'inline-block',
-  boxShadow: '0 4px 12px rgba(249, 115, 22, 0.3)',
+  width: '100%',
+  maxWidth: '280px',
+  padding: '18px 0',
+  boxShadow: '0 8px 24px rgba(249, 115, 22, 0.4)',
 };
 
 const linkText = {

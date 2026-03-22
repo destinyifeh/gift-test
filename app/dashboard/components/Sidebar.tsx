@@ -8,7 +8,7 @@ import {useUserStore} from '@/lib/store/useUserStore';
 import {LogOut, Sparkles} from 'lucide-react';
 import {useEffect, useState} from 'react';
 import {toast} from 'sonner';
-import {creatorNavItems, navItems, SelectedSection} from './mock';
+import {creatorNavItems, navItems, SelectedSection} from './dashboard-config';
 
 interface SidebarProps {
   section: SelectedSection;
@@ -33,7 +33,6 @@ export function Sidebar({
   const {user: storeUser, setUser: setStoreUser} = useUserStore();
   const {data: profile, isLoading} = useProfile();
 
-  // Local state for UI display, defaults to empty strings instead of mock
   const [user, setUser] = useState({
     name: '',
     username: '',

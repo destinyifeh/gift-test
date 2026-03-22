@@ -9,17 +9,17 @@ const resend = new Resend(process.env.NEXT_PUBLIC_RESEND_API_KEY);
 export async function sendGiftEmail({
   to,
   senderName,
+  vendorShopName,
   giftName,
   giftAmount,
-  giftImage,
   message,
   claimUrl,
 }: {
   to: string;
   senderName: string;
+  vendorShopName: string;
   giftName: string;
   giftAmount: number;
-  giftImage?: string;
   message?: string;
   claimUrl: string;
 }) {
@@ -31,9 +31,9 @@ export async function sendGiftEmail({
       subject: `🎁 You've received a gift from ${senderName}!`,
       react: React.createElement(GiftCardEmail, {
         senderName,
+        vendorShopName,
         giftName,
         giftAmount,
-        giftImage,
         message,
         claimUrl,
       }),

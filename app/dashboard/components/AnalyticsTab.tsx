@@ -11,7 +11,17 @@ import {fetchCreatorAnalytics} from '@/lib/server/actions/analytics';
 import {formatCurrency} from '@/lib/utils/currency';
 import {useQuery} from '@tanstack/react-query';
 import {Bar, BarChart, CartesianGrid, XAxis, YAxis} from 'recharts';
-import {chartConfig} from './mock';
+
+const chartConfig = {
+  views: {
+    label: 'Page Views',
+    color: 'hsl(var(--primary))',
+  },
+  gifts: {
+    label: 'Gifts Received',
+    color: 'hsl(var(--secondary))',
+  },
+};
 
 export function AnalyticsTab() {
   const {data: profile} = useProfile();

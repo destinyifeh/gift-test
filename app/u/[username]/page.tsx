@@ -28,90 +28,6 @@ import {
 import Link from 'next/link';
 import {use, useState} from 'react';
 
-const enabledUsers: Record<
-  string,
-  {
-    name: string;
-    bio: string;
-    suggestedAmounts: number[];
-    showSupporters: boolean;
-    plan: 'free' | 'pro';
-    theme?: {
-      primary: string;
-      background: string;
-      text: string;
-    };
-    banner?: string;
-    removeBranding?: boolean;
-    supporters: {
-      id: number;
-      name: string;
-      amount: number;
-      message: string;
-      anonymous: boolean;
-      date: string;
-    }[];
-    vendorGifts: {id: number; name: string; price: number}[];
-    totalReceived: number;
-    totalSupporters: number;
-  }
-> = {
-  destiny: {
-    name: 'Destiny O.',
-    bio: 'Frontend developer. Appreciate your support! 🚀',
-    suggestedAmounts: [5, 10, 25],
-    showSupporters: true,
-    plan: 'pro',
-    theme: {
-      primary: 'hsl(16 85% 60%)',
-      background: 'hsl(30 50% 98%)',
-      text: 'hsl(20 25% 12%)',
-    },
-    removeBranding: true,
-    supporters: [
-      {
-        id: 1,
-        name: 'John',
-        amount: 10,
-        message: 'Great work!',
-        anonymous: false,
-        date: '2026-03-08',
-      },
-      {
-        id: 2,
-        name: 'Mary',
-        amount: 25,
-        message: 'Keep building!',
-        anonymous: false,
-        date: '2026-03-07',
-      },
-      {
-        id: 3,
-        name: 'Anonymous',
-        amount: 5,
-        message: '',
-        anonymous: true,
-        date: '2026-03-06',
-      },
-      {
-        id: 4,
-        name: 'Sarah',
-        amount: 50,
-        message: 'Love your content 🎉',
-        anonymous: false,
-        date: '2026-03-05',
-      },
-    ],
-    vendorGifts: [
-      {id: 1, name: '☕ Coffee Gift Card', price: 10},
-      {id: 2, name: '🎂 Cake Gift Card', price: 25},
-      {id: 3, name: '💆 Spa Voucher', price: 50},
-    ],
-    totalReceived: 320,
-    totalSupporters: 28,
-  },
-};
-
 export default function CreatorProfilePage({
   params,
 }: {
@@ -151,9 +67,6 @@ export default function CreatorProfilePage({
   const totalSupporters = supportersData?.pages[0]?.totalSupporters || 0;
   const totalReceived = supportersData?.pages[0]?.totalReceived || 0;
 
-  // Merge DB data with mock data if it exists for backward compatibility during dev
-  const mockData = username ? enabledUsers[username] : null;
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -166,7 +79,7 @@ export default function CreatorProfilePage({
     loggedInUser?.username?.toLowerCase() === username?.toLowerCase();
 
   // Profile is valid if it exists in DB and is_creator is true
-  const isCreatorEnabled = dbProfile?.is_creator || mockData !== null;
+  const isCreatorEnabled = dbProfile?.is_creator;
 
   if (!dbProfile || !isCreatorEnabled) {
     return (
@@ -196,33 +109,19 @@ export default function CreatorProfilePage({
     );
   }
 
-  const plan =
-    (dbProfile ? dbProfile.theme_settings?.plan : mockData?.plan) || 'free';
+  const plan = dbProfile?.theme_settings?.plan || 'free';
 
   const theme = {
-    primary:
-      dbProfile?.theme_settings?.primaryColor ||
-      mockData?.theme?.primary ||
-      'hsl(16 85% 60%)',
-    background:
-      dbProfile?.theme_settings?.bgColor ||
-      mockData?.theme?.background ||
-      'var(--background)',
-    text:
-      dbProfile?.theme_settings?.textColor ||
-      mockData?.theme?.text ||
-      'var(--foreground)',
+    primary: dbProfile?.theme_settings?.primaryColor || 'hsl(16 85% 60%)',
+    background: dbProfile?.theme_settings?.bgColor || 'var(--background)',
+    text: dbProfile?.theme_settings?.textColor || 'var(--foreground)',
   };
 
   const profile = {
-    name: dbProfile?.display_name || mockData?.name || username || 'User',
-    bio: dbProfile?.bio || mockData?.bio || 'No bio yet.',
-    suggestedAmounts: dbProfile?.suggested_amounts ||
-      mockData?.suggestedAmounts || [5, 10, 25],
-    showSupporters:
-      dbProfile?.theme_settings?.showSupporters ??
-      mockData?.showSupporters ??
-      true,
+    name: dbProfile?.display_name || username || 'User',
+    bio: dbProfile?.bio || 'No bio yet.',
+    suggestedAmounts: dbProfile?.suggested_amounts || [5, 10, 25],
+    showSupporters: dbProfile?.theme_settings?.showSupporters ?? true,
     showAmounts: dbProfile?.theme_settings?.showAmounts ?? true,
     acceptMoney: dbProfile?.theme_settings?.acceptMoney ?? true,
     acceptVendor: dbProfile?.theme_settings?.acceptVendor ?? true,
@@ -659,6 +558,7 @@ export default function CreatorProfilePage({
         initialCustomAmount={customAmount}
         initialStep="recipient"
         currency={getCurrencyByCountry(dbProfile?.country || 'Nigeria')}
+        vendorGifts={profile.vendorGifts}
       />
     </div>
   );

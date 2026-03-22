@@ -7,7 +7,7 @@ import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
 import {useProfileByShopSlug} from '@/hooks/use-profile';
-import {useVendorProducts} from '@/hooks/use-vendor';
+import {useVendorProducts, useVendorRatingStats} from '@/hooks/use-vendor';
 import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
 import {
   ArrowLeft,
@@ -32,6 +32,8 @@ export default function VendorShopPage({
     vendor?.id,
     false,
   );
+  const {data: ratingStats} = useVendorRatingStats(vendor?.id);
+
   const [showGiftModal, setShowGiftModal] = useState(false);
   const [selectedGift, setSelectedGift] = useState<any>(null);
 
@@ -105,18 +107,33 @@ export default function VendorShopPage({
               <h1 className="text-3xl font-bold font-display text-foreground mb-2">
                 {vendor.shop_name || vendor.display_name}
               </h1>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
-                <span className="flex items-center gap-1">
-                  <Star className="w-4 h-4 fill-accent text-accent" /> 4.9
-                  (Verified Vendor)
-                </span>
+
+              <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4 mt-2">
+                {ratingStats && ratingStats.count > 0 ? (
+                  <div className="flex items-center gap-1.5 bg-muted/50 px-3 py-1.5 rounded-full">
+                    <Star className="w-4 h-4 text-yellow-500 fill-yellow-400" />
+                    <span className="font-semibold text-foreground">
+                      {ratingStats.average.toFixed(1)}
+                    </span>
+                    <span className="opacity-70">
+                      ({ratingStats.count} review
+                      {ratingStats.count !== 1 ? 's' : ''})
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5 bg-muted/50 px-3 py-1.5 rounded-full text-foreground/60 italic text-xs">
+                    No reviews yet
+                  </div>
+                )}
                 {vendor.shop_address && (
-                  <span className="flex items-center gap-1">
-                    <MapPin className="w-4 h-4" /> {vendor.shop_address}
-                  </span>
+                  <div className="flex items-center gap-1.5 bg-muted/50 px-3 py-1.5 rounded-full">
+                    <MapPin className="w-4 h-4 text-primary" />
+                    <span>{vendor.shop_address}</span>
+                  </div>
                 )}
               </div>
-              <p className="text-muted-foreground max-w-2xl">
+
+              <p className="text-muted-foreground max-w-2xl leading-relaxed">
                 {vendor.shop_description ||
                   vendor.bio ||
                   'No shop description available.'}

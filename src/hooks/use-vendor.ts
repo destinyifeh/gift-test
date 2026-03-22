@@ -1,3 +1,4 @@
+import {getVendorRatingStats} from '@/lib/server/actions/ratings';
 import {
   fetchVendorOrders,
   fetchVendorProductById,
@@ -74,5 +75,17 @@ export function useVendorWallet() {
       }
       return result.data;
     },
+  });
+}
+
+export function useVendorRatingStats(vendorId: string | undefined) {
+  return useQuery({
+    queryKey: ['vendor-rating', vendorId],
+    queryFn: async () => {
+      if (!vendorId) return null;
+      return await getVendorRatingStats(vendorId);
+    },
+    enabled: !!vendorId,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }

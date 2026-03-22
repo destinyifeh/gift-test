@@ -30,7 +30,10 @@ export function OrdersTab() {
           <CardContent className="p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <p className="font-semibold text-foreground">
-                {o.gift_code || 'GIFT'} — {o.title}
+                {o.gift_code
+                  ? `${o.gift_code.split('-')[0]}-${o.gift_code.split('-')[1]?.charAt(0) || ''}*******`
+                  : 'GIFT'}{' '}
+                — {o.title}
               </p>
               <p className="text-sm text-muted-foreground">
                 Buyer:{' '}
