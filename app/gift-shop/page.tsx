@@ -12,12 +12,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {useFavorites} from '@/hooks/use-favorites';
 import {useVendorProducts} from '@/hooks/use-vendor';
 import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
+import {useUserStore} from '@/lib/store/useUserStore';
 import {motion} from 'framer-motion';
 import {Heart, Loader2, Search, ShoppingBag, Star} from 'lucide-react';
 import Link from 'next/link';
 import {useState} from 'react';
+import {toast} from 'sonner';
 
 const categories = ['all', 'birthday', 'spa', 'fashion', 'food'];
 
@@ -28,12 +31,20 @@ export default function GiftShopPage() {
   const [category, setCategory] = useState('all');
   const [priceRange, setPriceRange] = useState('all');
   const [giftType, setGiftType] = useState('all');
-  const [favorites, setFavorites] = useState<string[]>([]);
 
-  const toggleFavorite = (id: string) => {
-    setFavorites(prev =>
-      prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id],
-    );
+  const {favorites: favList, toggleFavorite} = useFavorites();
+  const user = useUserStore(state => state.user);
+
+  const favIds = favList.map(f => String(f.id));
+
+  const handleFavoriteClick = (e: React.MouseEvent, productId: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user) {
+      toast.error('Please sign in to add favorites');
+      return;
+    }
+    toggleFavorite(productId);
   };
 
   const filtered = gifts.filter(g => {
@@ -130,14 +141,11 @@ export default function GiftShopPage() {
                   {/* ... same card ... */}
                   <Card className="group hover:shadow-elevated transition-all duration-300 cursor-pointer border-border hover:border-primary/30 overflow-hidden relative">
                     <button
-                      onClick={e => {
-                        e.preventDefault();
-                        toggleFavorite(gift.id);
-                      }}
-                      className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-background/80 flex items-center justify-center">
+                      onClick={e => handleFavoriteClick(e, gift.id)}
+                      className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-background/80 flex items-center justify-center shadow-sm hover:scale-110 transition-transform">
                       <Heart
                         className={`w-4 h-4 ${
-                          favorites.includes(gift.id)
+                          favIds.includes(String(gift.id))
                             ? 'fill-destructive text-destructive'
                             : 'text-muted-foreground'
                         }`}

@@ -6,8 +6,10 @@ import SendShopGiftModal from '@/components/SendShopGiftModal';
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
+import {useFavorites, useIsFavorited} from '@/hooks/use-favorites';
 import {useVendorProductBySlugs} from '@/hooks/use-vendor';
 import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
+import {useUserStore} from '@/lib/store/useUserStore';
 import {
   ArrowLeft,
   Heart,
@@ -19,6 +21,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import {use, useState} from 'react';
+import {toast} from 'sonner';
 
 export default function GiftDetailPage({
   params,
@@ -31,7 +34,38 @@ export default function GiftDetailPage({
     product_slug,
   );
   const [showGiftModal, setShowGiftModal] = useState(false);
-  const [liked, setLiked] = useState(false);
+  const {toggleFavorite, isToggling} = useFavorites();
+  const {data: isFavorited} = useIsFavorited(gift?.id);
+  const user = useUserStore(state => state.user);
+
+  const onShare = async () => {
+    const shareData = {
+      title: gift?.name || 'Check out this gift!',
+      text: gift?.description || 'Found this amazing gift on Gifthance!',
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success('Link copied to clipboard!');
+      }
+    } catch (err) {
+      console.error('Error sharing:', err);
+    }
+  };
+
+  const handleFavoriteClick = () => {
+    if (!user) {
+      toast.error('Please sign in to add favorites');
+      return;
+    }
+    if (gift?.id) {
+      toggleFavorite(gift.id);
+    }
+  };
 
   if (loading) {
     return (
@@ -169,21 +203,22 @@ export default function GiftDetailPage({
                 <Button
                   variant="outline"
                   size="lg"
-                  onClick={() => setLiked(!liked)}
+                  disabled={isToggling}
+                  onClick={handleFavoriteClick}
                   className={
-                    liked
+                    isFavorited
                       ? 'text-destructive border-destructive/30 bg-destructive/5'
                       : ''
                   }>
                   <Heart
-                    className={`w-4 h-4 ${liked ? 'fill-destructive' : ''}`}
+                    className={`w-4 h-4 ${isFavorited ? 'fill-destructive' : ''}`}
                   />
                 </Button>
-                <Button variant="outline" size="lg">
+                <Button variant="outline" size="lg" onClick={onShare}>
                   <Share2 className="w-4 h-4" />
                 </Button>
               </div>
-              {liked && (
+              {isFavorited && (
                 <p className="text-xs text-muted-foreground mt-2">
                   ❤️ Added to your favorites
                 </p>

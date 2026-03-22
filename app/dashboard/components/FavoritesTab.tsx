@@ -2,11 +2,23 @@
 
 import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
-import {Heart, Star} from 'lucide-react';
+import {useFavorites} from '@/hooks/use-favorites';
+import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
+import {Heart, Loader2, Star} from 'lucide-react';
 import Link from 'next/link';
 
 export function FavoritesTab() {
-  const favorites: any[] = [];
+  const {favorites, isLoading} = useFavorites();
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <Loader2 className="w-8 h-8 text-primary animate-spin mb-2" />
+        <p className="text-sm text-muted-foreground">Loading favorites...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <p className="text-muted-foreground">
@@ -28,27 +40,45 @@ export function FavoritesTab() {
         </Card>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {favorites.map((f: any) => (
-            <Link key={f.id} href={`/gift-shop/${f.id}`}>
-              <Card className="border-border hover:shadow-card transition-shadow cursor-pointer">
-                <CardContent className="p-4 flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center text-2xl">
-                    {f.emoji}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-foreground truncate capitalize">
-                      {f.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{f.vendor}</p>
-                    <p className="text-sm font-bold text-primary mt-1">
-                      ${f.price}
-                    </p>
-                  </div>
-                  <Heart className="w-4 h-4 fill-destructive text-destructive shrink-0" />
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+          {favorites.map((f: any) => {
+            const currencyCode = getCurrencyByCountry(f.profiles?.country);
+            const symbol = getCurrencySymbol(currencyCode);
+
+            return (
+              <Link
+                key={f.favoriteId}
+                href={`/gift-shop/${f.profiles?.shop_slug || 'unknown'}/${f.slug || f.id}`}>
+                <Card className="border-border hover:shadow-card transition-shadow cursor-pointer">
+                  <CardContent className="p-4 flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center overflow-hidden">
+                      {f.image_url ? (
+                        <img
+                          src={f.image_url}
+                          alt={f.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <p className="text-2xl">🎁</p>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-foreground truncate capitalize">
+                        {f.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground capitalize">
+                        {f.vendor}
+                      </p>
+                      <p className="text-sm font-bold text-primary mt-1">
+                        {symbol}
+                        {f.price.toLocaleString()}
+                      </p>
+                    </div>
+                    <Heart className="w-4 h-4 fill-destructive text-destructive shrink-0" />
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
