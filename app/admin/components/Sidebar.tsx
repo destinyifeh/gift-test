@@ -1,5 +1,9 @@
 import {RoleSwitcher} from '@/components/RoleSwitcher';
 import {Avatar, AvatarFallback} from '@/components/ui/avatar';
+import {useProfile} from '@/hooks/use-profile';
+import {signOut} from '@/lib/server/actions/auth';
+import {useUserStore} from '@/lib/store/useUserStore';
+import {useQueryClient} from '@tanstack/react-query';
 import {
   ArrowUpRight,
   BarChart3,
@@ -21,7 +25,9 @@ import {
   X,
 } from 'lucide-react';
 import Link from 'next/link';
+import {useRouter} from 'next/navigation';
 import React from 'react';
+import {toast} from 'sonner';
 
 export type Section =
   | 'dashboard'
@@ -78,6 +84,34 @@ export function Sidebar({
   setSidebarOpen,
   setConfirmModal,
 }: SidebarProps) {
+  const queryClient = useQueryClient();
+  const clearUser = useUserStore(state => state.clearUser);
+  const router = useRouter();
+  const {data: profile} = useProfile();
+
+  const formatAdminRole = (role: string | null) => {
+    if (!role) return 'Admin';
+    const formatted = role
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+
+    if (formatted.toLowerCase().includes('admin')) {
+      return formatted;
+    }
+    return `${formatted} Admin`;
+  };
+  const handleSignOut = async () => {
+    const result = await signOut();
+    if (result.success) {
+      queryClient.clear();
+      clearUser();
+      toast.success('Signed out successfully');
+      router.push('/login');
+    } else {
+      toast.error(result.error || 'Failed to sign out');
+    }
+  };
   const NavContent = () => (
     <div className="flex flex-col h-full">
       <div className="p-4 border-b border-border">
@@ -88,11 +122,11 @@ export function Sidebar({
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
-            <p className="font-semibold text-foreground text-sm truncate">
-              Admin User
+            <p className="font-semibold text-foreground text-sm truncate capitalize">
+              {profile?.display_name || profile?.username || 'Admin User'}
             </p>
             <p className="text-xs text-muted-foreground truncate">
-              Super Admin
+              {formatAdminRole(profile?.admin_role || null)}
             </p>
           </div>
         </div>
@@ -120,7 +154,7 @@ export function Sidebar({
               title: 'Logout Confirmation',
               description:
                 'Are you sure you want to logout and return to the main site?',
-              onConfirm: () => (window.location.href = '/'),
+              onConfirm: handleSignOut,
             });
           }}
           className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer">

@@ -2,6 +2,7 @@
 
 import {Badge} from '@/components/ui/badge';
 import {Input} from '@/components/ui/input';
+import {createAdminLog} from '@/lib/server/actions/admin';
 import {Menu, Search} from 'lucide-react';
 import {useState} from 'react';
 
@@ -59,6 +60,9 @@ export default function AdminDashboardPage() {
   });
 
   const addLog = (action: string) => {
+    // Persist to database
+    createAdminLog(action).catch(console.error);
+    // Also dispatch for real-time UI update in LogsTab
     window.dispatchEvent(new CustomEvent('admin-log', {detail: action}));
   };
 

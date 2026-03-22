@@ -64,7 +64,9 @@ export function WithdrawalsTab({
       }
       queryClient.invalidateQueries({queryKey: ['admin-withdrawals']});
       toast.success(`Withdrawal marked as ${vars.status}`);
-      addLog(`Set withdrawal ${vars.id} to ${vars.status}`);
+      addLog(
+        `Updated withdrawal ${vars.id.slice(0, 8)}… → status: "${vars.status}"`,
+      );
     },
     onError: () => toast.error('Error updating withdrawal'),
   });

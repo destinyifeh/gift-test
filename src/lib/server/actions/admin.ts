@@ -503,3 +503,69 @@ export async function flagCreatorGift(id: string, reason: string) {
     return {success: false, error: error.message};
   }
 }
+
+export async function createAdminLog(action: string) {
+  try {
+    const supabase = await createClient();
+    const {
+      data: {user},
+    } = await supabase.auth.getUser();
+    if (!user) return {success: false, error: 'Not authenticated'};
+
+    const adminDb = createAdminClient();
+
+    const {error} = await adminDb.from('admin_logs').insert({
+      admin_id: user.id,
+      action,
+    });
+
+    if (error) throw error;
+    return {success: true};
+  } catch (error: any) {
+    console.error('Error creating admin log:', error);
+    return {success: false, error: error.message};
+  }
+}
+
+export async function fetchAdminLogs() {
+  try {
+    const supabase = await createClient();
+    const isAdmin = await checkIsAdmin(supabase);
+    if (!isAdmin) return {success: false, error: 'Unauthorized'};
+
+    const adminDb = createAdminClient();
+
+    const {data, error} = await adminDb
+      .from('admin_logs')
+      .select(
+        '*, admin:profiles!admin_logs_admin_id_fkey(username, display_name)',
+      )
+      .order('created_at', {ascending: false})
+      .limit(200);
+
+    if (error) throw error;
+
+    return {success: true, data: data || []};
+  } catch (error: any) {
+    console.error('Error fetching admin logs:', error);
+    return {success: false, error: error.message};
+  }
+}
+
+export async function deleteAdminLog(logId: string) {
+  try {
+    const supabase = await createClient();
+    const isAdmin = await checkIsAdmin(supabase);
+    if (!isAdmin) return {success: false, error: 'Unauthorized'};
+
+    const adminDb = createAdminClient();
+
+    const {error} = await adminDb.from('admin_logs').delete().eq('id', logId);
+
+    if (error) throw error;
+    return {success: true};
+  } catch (error: any) {
+    console.error('Error deleting admin log:', error);
+    return {success: false, error: error.message};
+  }
+}

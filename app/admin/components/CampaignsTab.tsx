@@ -79,7 +79,9 @@ export function CampaignsTab({
       }
       queryClient.invalidateQueries({queryKey: ['admin-campaigns']});
       toast.success('Campaign updated successfully');
-      addLog(`Updated campaign state for ID: ${vars.id}`);
+      addLog(
+        `Updated campaign ${vars.id.slice(0, 8)}… → status: "${vars.updates.status || 'updated'}"`,
+      );
     },
     onError: () => toast.error('Error updating campaign'),
   });

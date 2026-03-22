@@ -63,7 +63,9 @@ export function WalletsTab({
       }
       queryClient.invalidateQueries({queryKey: ['admin-wallets']});
       toast.success('Wallet operations updated successfully.');
-      addLog(`Wallet restriction applied to ID: ${vars.id}`);
+      addLog(
+        `${vars.status === 'restricted' ? 'Restricted' : 'Unrestricted'} wallet for @${advancedModal.targetName}`,
+      );
     },
     onError: () => toast.error('System error enforcing wallet lock'),
   });

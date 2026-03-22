@@ -8,9 +8,19 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {fetchAdminDashboardStats} from '@/lib/server/actions/admin';
+import {
+  fetchAdminDashboardStats,
+  fetchAdminLogs,
+} from '@/lib/server/actions/admin';
 import {useQuery} from '@tanstack/react-query';
-import {Activity, DollarSign, ShieldAlert, Store, Users} from 'lucide-react';
+import {
+  Activity,
+  DollarSign,
+  FileText,
+  ShieldAlert,
+  Store,
+  Users,
+} from 'lucide-react';
 import {
   Bar,
   BarChart,
@@ -21,8 +31,6 @@ import {
   YAxis,
 } from 'recharts';
 import {Section} from './Sidebar';
-
-const recentActivity: any[] = [];
 
 interface DashboardTabProps {
   searchQuery: string;
@@ -35,7 +43,13 @@ export function DashboardTab({searchQuery, setSection}: DashboardTabProps) {
     queryFn: () => fetchAdminDashboardStats(),
   });
 
+  const {data: logsResponse} = useQuery({
+    queryKey: ['admin-logs-recent'],
+    queryFn: () => fetchAdminLogs(),
+  });
+
   const stats = statsResponse?.data;
+  const recentLogs = (logsResponse?.data || []).slice(0, 8);
 
   const metrics = [
     {
@@ -57,7 +71,7 @@ export function DashboardTab({searchQuery, setSection}: DashboardTabProps) {
       value: isLoading
         ? '...'
         : `₦${(stats?.totalSupport || 0).toLocaleString()}`,
-      change: 'Processed (USD)',
+      change: 'Processed',
       icon: DollarSign,
       color: 'text-amber-500',
     },
@@ -180,30 +194,46 @@ export function DashboardTab({searchQuery, setSection}: DashboardTabProps) {
         </Card>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <Card className="border-border">
-          <CardHeader>
+      <Card className="border-border">
+        <CardHeader>
+          <div className="flex items-center justify-between">
             <CardTitle className="text-base font-body flex items-center gap-2">
               <Activity className="w-4 h-4 text-secondary" /> Recent Activity
             </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {recentActivity
-              .filter(a =>
-                a.text.toLowerCase().includes(searchQuery.toLowerCase()),
-              )
-              .map(a => (
-                <div key={a.id} className="flex items-start gap-3">
-                  <a.icon className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
-                  <div>
-                    <p className="text-sm text-foreground">{a.text}</p>
-                    <p className="text-xs text-muted-foreground">{a.time}</p>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs text-muted-foreground"
+              onClick={() => setSection('logs')}>
+              View All →
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {recentLogs.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-6">
+              No recent admin activity recorded yet.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {recentLogs.map((log: any) => (
+                <div key={log.id} className="flex items-start gap-3 group">
+                  <FileText className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm text-foreground break-words">
+                      {log.action}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      by @{log.admin?.username || 'Unknown'} ·{' '}
+                      {new Date(log.created_at).toLocaleString()}
+                    </p>
                   </div>
                 </div>
               ))}
-          </CardContent>
-        </Card>
-      </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

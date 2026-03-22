@@ -70,7 +70,9 @@ export function GiftsTab({
       }
       queryClient.invalidateQueries({queryKey: ['admin-gifts']});
       toast.success('System moderation flag attached to gift log.');
-      addLog(`Flagged anomalous direct support transaction ID: ${vars.id}`);
+      addLog(
+        `Flagged gift (amount: ${vars.id.slice(0, 8)}…) — Reason: "${vars.reason}"`,
+      );
     },
     onError: () => toast.error('System error flagging gift'),
   });

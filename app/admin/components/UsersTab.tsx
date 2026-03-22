@@ -71,7 +71,9 @@ export function UsersTab({
       }
       queryClient.invalidateQueries({queryKey: ['admin-all-users']});
       toast.success('User access level updated globally.');
-      addLog(`Updated system access for ID: ${vars.id}`);
+      addLog(
+        `Updated system status for @${advancedModal.targetName} → "${vars.updates.status || 'warned'}"`,
+      );
     },
     onError: () => toast.error('System error enforcing penalty'),
   });

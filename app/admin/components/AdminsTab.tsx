@@ -64,15 +64,22 @@ export function AdminsTab({searchQuery, addLog, setViewDetailsModal}: any) {
 
   const roleMutation = useMutation({
     mutationFn: updateUserRole,
-    onSuccess: result => {
+    onSuccess: (result, vars) => {
       if (!result.success) {
         toast.error(result.error || 'Failed to update roles');
         return;
       }
       toast.success('User roles updated!');
       queryClient.invalidateQueries({queryKey: ['admin-users']});
+      const targetUser = manageRolesModal.user;
+      const roleList = vars.roles.join(', ');
+      const adminSub = vars.adminRole
+        ? ` (admin sub-role: ${vars.adminRole})`
+        : '';
+      addLog(
+        `Updated roles for @${targetUser?.username || 'unknown'} → [${roleList}]${adminSub}`,
+      );
       setManageRolesModal({isOpen: false, user: null});
-      addLog(`Updated roles`);
     },
     onError: (error: any) => {
       toast.error(error.message || 'Failed to update roles');
@@ -82,10 +89,13 @@ export function AdminsTab({searchQuery, addLog, setViewDetailsModal}: any) {
   const statusMutation = useMutation({
     mutationFn: ({id, updates}: {id: string; updates: any}) =>
       updateUserSystemStatus(id, updates),
-    onSuccess: res => {
+    onSuccess: (res, vars) => {
       if (!res.success) throw new Error(res.error);
       queryClient.invalidateQueries({queryKey: ['admin-users']});
       toast.success('User system status updated');
+      addLog(
+        `Changed status of user ${vars.id.slice(0, 8)}… to "${vars.updates.status}"`,
+      );
     },
     onError: () => toast.error('Failed to change user access'),
   });

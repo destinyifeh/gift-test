@@ -45,7 +45,9 @@ export function ModerationTab({addLog}: any) {
       }
       queryClient.invalidateQueries({queryKey: ['admin-moderation']});
       toast.success('Moderation ticket processed successfully.');
-      addLog(`Processed moderation ticket ID: ${vars.id}`);
+      addLog(
+        `Resolved moderation ticket ${vars.id.slice(0, 8)}… → "${vars.updates.status}"`,
+      );
     },
     onError: () => toast.error('System error processing ticket'),
   });

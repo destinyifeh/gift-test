@@ -30,3 +30,11 @@ CREATE TABLE IF NOT EXISTS public.moderation_tickets (
 
 -- Note: Ensure Row Level Security exists on moderation_tickets if necessary, 
 -- or explicitly trust the backend Server Actions which execute in service_role mode.
+
+-- 5. CREATE ADMIN AUDIT LOG TABLE
+CREATE TABLE IF NOT EXISTS public.admin_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    admin_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+    action TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
