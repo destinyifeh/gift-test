@@ -12,34 +12,37 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {useProfile} from '@/hooks/use-profile';
+import {useVendorWallet} from '@/hooks/use-vendor';
+import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
 import {
   ArrowUpRight,
   Building,
   CheckCircle,
   Clock,
   DollarSign,
+  Loader2,
   Shield,
   Trash2,
   Wallet,
 } from 'lucide-react';
 import {useState} from 'react';
-import {
-  BankAccount,
-  initialBankAccounts,
-  vendorWallet as initialWallet,
-} from './mock';
 import {SecurityModal} from './SecurityModal';
 
 export function WalletTab() {
+  const {data: profile} = useProfile();
   const [walletView, setWalletView] = useState<
     'overview' | 'transactions' | 'bank' | 'withdraw'
   >('overview');
-  const [vendorWallet] = useState(initialWallet);
-  const [bankAccounts, setBankAccounts] =
-    useState<BankAccount[]>(initialBankAccounts);
-  const [withdrawAmount, setWithdrawAmount] = useState('');
-  const [withdrawBank, setWithdrawBank] = useState('');
-  const [verifyAction, setVerifyAction] = useState<null | string>(null);
+  const {
+    data: vendorWallet = {
+      available: 0,
+      pending: 0,
+      totalSales: 0,
+      transactions: [],
+    },
+    isLoading: loading,
+  } = useVendorWallet();
 
   const [bankForm, setBankForm] = useState({
     country: '',
@@ -86,6 +89,23 @@ export function WalletTab() {
     setVerifyAction(null);
   };
 
+  const [bankAccounts, setBankAccounts] = useState<any[]>([]);
+  const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [withdrawBank, setWithdrawBank] = useState('');
+  const [verifyAction, setVerifyAction] = useState<null | string>(null);
+
+  const currencyCode = getCurrencyByCountry(profile?.country);
+  const currencySymbol = getCurrencySymbol(currencyCode);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-border rounded-xl">
+        <Loader2 className="w-8 h-8 text-primary animate-spin mb-4" />
+        <p className="text-muted-foreground">Loading wallet data...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <SecurityModal
@@ -99,7 +119,8 @@ export function WalletTab() {
           <CardContent className="p-4 sm:p-5 text-center">
             <Wallet className="w-6 h-6 text-primary mx-auto mb-2" />
             <p className="text-2xl sm:text-3xl font-bold text-foreground">
-              ${vendorWallet.available}
+              {currencySymbol}
+              {vendorWallet.available.toLocaleString()}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
               Available Balance
@@ -110,7 +131,8 @@ export function WalletTab() {
           <CardContent className="p-4 sm:p-5 text-center">
             <Clock className="w-6 h-6 text-accent mx-auto mb-2" />
             <p className="text-2xl sm:text-3xl font-bold text-foreground">
-              ${vendorWallet.pending}
+              {currencySymbol}
+              {vendorWallet.pending.toLocaleString()}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
               Pending Balance
@@ -122,7 +144,8 @@ export function WalletTab() {
           <CardContent className="p-4 sm:p-5 text-center">
             <DollarSign className="w-6 h-6 text-secondary mx-auto mb-2" />
             <p className="text-2xl sm:text-3xl font-bold text-foreground">
-              ${vendorWallet.totalSales.toLocaleString()}
+              {currencySymbol}
+              {vendorWallet.totalSales.toLocaleString()}
             </p>
             <p className="text-xs text-muted-foreground mt-1">Total Sales</p>
           </CardContent>
@@ -155,7 +178,8 @@ export function WalletTab() {
         </Button>
       </div>
       <p className="text-xs text-muted-foreground">
-        You can only withdraw from Available Balance (${vendorWallet.available}
+        You can only withdraw from Available Balance ({currencySymbol}
+        {vendorWallet.available.toLocaleString()}
         ).
       </p>
 
@@ -296,12 +320,13 @@ export function WalletTab() {
                 <Label>Amount</Label>
                 <Input
                   type="number"
-                  placeholder="$0.00"
+                  placeholder={`${currencySymbol}0.00`}
                   value={withdrawAmount}
                   onChange={e => setWithdrawAmount(e.target.value)}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Max: ${vendorWallet.available}
+                  Max: {currencySymbol}
+                  {vendorWallet.available}
                 </p>
               </div>
             </div>
@@ -341,7 +366,7 @@ export function WalletTab() {
                   </tr>
                 </thead>
                 <tbody>
-                  {vendorWallet.transactions.map(t => (
+                  {vendorWallet.transactions.map((t: any) => (
                     <tr
                       key={t.id}
                       className="border-b border-border last:border-0">
@@ -361,9 +386,9 @@ export function WalletTab() {
                               : 'text-muted-foreground'
                         }`}>
                         {t.amount > 0
-                          ? `+$${t.amount}`
+                          ? `+${currencySymbol}${t.amount}`
                           : t.amount < 0
-                            ? `-$${Math.abs(t.amount)}`
+                            ? `-${currencySymbol}${Math.abs(t.amount)}`
                             : '—'}
                       </td>
                     </tr>

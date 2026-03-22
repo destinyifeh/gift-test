@@ -427,14 +427,54 @@ export async function updateWalletStatus(id: string, wallet_status: string) {
 
     const adminDb = createAdminClient();
 
+    return {success: true};
+  } catch (error: any) {
+    return {success: false, error: error.message};
+  }
+}
+
+export async function updateVendorShopAdmin(
+  userId: string,
+  updates: {
+    shop_name?: string;
+    shop_description?: string;
+    shop_address?: string;
+    shop_slug?: string;
+    shop_logo_url?: string;
+  },
+) {
+  try {
+    const supabase = await createClient();
+    const isAdmin = await checkIsAdmin(supabase);
+    if (!isAdmin) return {success: false, error: 'Unauthorized'};
+
+    const adminDb = createAdminClient();
+
+    // If shop_slug is being updated, check if it's already taken
+    if (updates.shop_slug) {
+      const {data: existingShop} = await adminDb
+        .from('profiles')
+        .select('id')
+        .eq('shop_slug', updates.shop_slug.toLowerCase())
+        .neq('id', userId)
+        .maybeSingle();
+
+      if (existingShop) {
+        return {success: false, error: 'Shop URL identifier is already taken'};
+      }
+      updates.shop_slug = updates.shop_slug.toLowerCase();
+    }
+
     const {error} = await adminDb
       .from('profiles')
-      .update({wallet_status})
-      .eq('id', id);
+      .update(updates)
+      .eq('id', userId);
+
     if (error) throw error;
 
     return {success: true};
   } catch (error: any) {
+    console.error('Error updating vendor shop admin:', error);
     return {success: false, error: error.message};
   }
 }

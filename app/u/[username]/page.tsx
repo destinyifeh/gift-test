@@ -9,6 +9,7 @@ import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
 import {InfiniteScroll} from '@/components/ui/infinite-scroll';
 import {useProfileByUsername} from '@/hooks/use-profile';
+import {useVendorProducts} from '@/hooks/use-vendor';
 import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
 import {fetchCreatorSupporters} from '@/lib/server/actions/analytics';
 import {useUserStore} from '@/lib/store/useUserStore';
@@ -126,6 +127,7 @@ export default function CreatorProfilePage({
   const [selectedVendorGift, setSelectedVendorGift] = useState<number | null>(
     null,
   );
+  const {data: vendorGifts = []} = useVendorProducts();
   const [showAllSupporters, setShowAllSupporters] = useState(false);
 
   const loggedInUser = useUserStore((state: any) => state.user);
@@ -242,11 +244,7 @@ export default function CreatorProfilePage({
     totalReceived,
     totalSupporters,
     socialLinks: dbProfile?.social_links || {},
-    vendorGifts: mockData?.vendorGifts || [
-      {id: 1, name: '☕ Coffee Gift Card', price: 10},
-      {id: 2, name: '🎂 Cake Gift Card', price: 25},
-      {id: 3, name: '💆 Spa Voucher', price: 50},
-    ],
+    vendorGifts: vendorGifts,
   };
 
   const isDetailsValid =

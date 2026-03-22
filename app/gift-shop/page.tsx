@@ -12,105 +12,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {useVendorProducts} from '@/hooks/use-vendor';
+import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
 import {motion} from 'framer-motion';
-import {Heart, Search, ShoppingBag, Star} from 'lucide-react';
+import {Heart, Loader2, Search, ShoppingBag, Star} from 'lucide-react';
 import Link from 'next/link';
 import {useState} from 'react';
-
-const gifts = [
-  {
-    id: 'AX8H2K',
-    name: 'Cake Gift Card',
-    image:
-      'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&auto=format&fit=crop&q=60',
-    price: 25,
-    vendor: 'Sweet Delights',
-    category: 'food',
-    type: 'digital',
-    rating: 4.8,
-  },
-  {
-    id: 'SP3M9N',
-    name: 'Spa Voucher',
-    image:
-      'https://images.unsplash.com/photo-1544161515-4ae6ce6db87e?w=800&auto=format&fit=crop&q=60',
-    price: 50,
-    vendor: 'Relax Spa',
-    category: 'spa',
-    type: 'digital',
-    rating: 4.9,
-  },
-  {
-    id: 'FS7K2L',
-    name: 'Fashion Store Gift Card',
-    image:
-      'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&auto=format&fit=crop&q=60',
-    price: 75,
-    vendor: 'StyleHub',
-    category: 'fashion',
-    type: 'digital',
-    rating: 4.7,
-  },
-  {
-    id: 'GM4R8T',
-    name: 'Gaming Store Credit',
-    image:
-      'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop&q=60',
-    price: 30,
-    vendor: 'GameVault',
-    category: 'birthday',
-    type: 'digital',
-    rating: 4.6,
-  },
-  {
-    id: 'BK2N5P',
-    name: 'Book Store Voucher',
-    image:
-      'https://images.unsplash.com/photo-1524578271613-d550eebad07b?w=800&auto=format&fit=crop&q=60',
-    price: 20,
-    vendor: 'PageTurner',
-    category: 'birthday',
-    type: 'digital',
-    rating: 4.5,
-  },
-  {
-    id: 'FL9W3Q',
-    name: 'Flower Bouquet Delivery',
-    image:
-      'https://images.unsplash.com/photo-1522673607200-164883eecd0c?w=800&auto=format&fit=crop&q=60',
-    price: 45,
-    vendor: 'BloomBox',
-    category: 'spa',
-    type: 'physical',
-    rating: 4.8,
-  },
-  {
-    id: 'MU6Y1R',
-    name: 'Music Streaming Gift',
-    image:
-      'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=800&auto=format&fit=crop&q=60',
-    price: 15,
-    vendor: 'TuneWave',
-    category: 'birthday',
-    type: 'digital',
-    rating: 4.4,
-  },
-  {
-    id: 'CF8T4S',
-    name: 'Coffee Subscription Box',
-    image:
-      'https://images.unsplash.com/photo-1559056191-48ad0408546b?w=800&auto=format&fit=crop&q=60',
-    price: 35,
-    vendor: 'BrewCraft',
-    category: 'food',
-    type: 'physical',
-    rating: 4.7,
-  },
-];
 
 const categories = ['all', 'birthday', 'spa', 'fashion', 'food'];
 
 export default function GiftShopPage() {
+  const {data: gifts = [], isLoading: loading} = useVendorProducts();
+
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('all');
   const [priceRange, setPriceRange] = useState('all');
@@ -201,76 +114,90 @@ export default function GiftShopPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
-            {filtered.map((gift, i) => (
-              <motion.div
-                key={gift.id}
-                initial={{opacity: 0, y: 20}}
-                animate={{opacity: 1, y: 0}}
-                transition={{delay: i * 0.05}}>
-                <Card className="group hover:shadow-elevated transition-all duration-300 cursor-pointer border-border hover:border-primary/30 overflow-hidden relative">
-                  <button
-                    onClick={e => {
-                      e.preventDefault();
-                      toggleFavorite(gift.id);
-                    }}
-                    className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-background/80 flex items-center justify-center">
-                    <Heart
-                      className={`w-4 h-4 ${
-                        favorites.includes(gift.id)
-                          ? 'fill-destructive text-destructive'
-                          : 'text-muted-foreground'
-                      }`}
-                    />
-                  </button>
-                  <Link href={`/gift-shop/${gift.id}`}>
-                    <div className="h-32 sm:h-44 bg-muted overflow-hidden relative group-hover:scale-105 transition-transform duration-500">
-                      {gift.image ? (
-                        <img
-                          src={gift.image}
-                          alt={gift.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-4xl sm:text-6xl text-muted-foreground/20">
-                          🎁
-                        </div>
-                      )}
-                    </div>
-                    <CardContent className="p-3 sm:p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <Badge variant="secondary" className="text-xs">
-                          {gift.category}
-                        </Badge>
-                        <Badge
-                          variant="outline"
-                          className="text-xs hidden sm:inline-flex">
-                          {gift.type}
-                        </Badge>
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-20">
+              <Loader2 className="w-10 h-10 text-primary animate-spin mb-4" />
+              <p className="text-muted-foreground">Loading products...</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
+              {filtered.map((gift, i) => (
+                <motion.div
+                  key={gift.id}
+                  initial={{opacity: 0, y: 20}}
+                  animate={{opacity: 1, y: 0}}
+                  transition={{delay: i * 0.05}}>
+                  {/* ... same card ... */}
+                  <Card className="group hover:shadow-elevated transition-all duration-300 cursor-pointer border-border hover:border-primary/30 overflow-hidden relative">
+                    <button
+                      onClick={e => {
+                        e.preventDefault();
+                        toggleFavorite(gift.id);
+                      }}
+                      className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-background/80 flex items-center justify-center">
+                      <Heart
+                        className={`w-4 h-4 ${
+                          favorites.includes(gift.id)
+                            ? 'fill-destructive text-destructive'
+                            : 'text-muted-foreground'
+                        }`}
+                      />
+                    </button>
+                    <Link
+                      href={`/gift-shop/${gift.profiles?.shop_slug || 'unknown'}/${gift.slug || gift.id}`}>
+                      <div className="h-32 sm:h-44 bg-muted overflow-hidden relative group-hover:scale-105 transition-transform duration-500">
+                        {gift.image_url ? (
+                          <img
+                            src={gift.image_url}
+                            alt={gift.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-4xl sm:text-6xl text-muted-foreground/20">
+                            🎁
+                          </div>
+                        )}
                       </div>
-                      <h3 className="font-semibold text-foreground mb-1 text-sm sm:text-base line-clamp-1">
-                        {gift.name}
-                      </h3>
-                      <p className="text-xs sm:text-sm text-muted-foreground mb-2">
-                        {gift.vendor}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-base sm:text-lg font-bold text-primary">
-                          ${gift.price}
-                        </span>
-                        <div className="flex items-center gap-1 text-xs sm:text-sm text-accent">
-                          <Star className="w-3 sm:w-3.5 h-3 sm:h-3.5 fill-accent" />
-                          {gift.rating}
+                      <CardContent className="p-3 sm:p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <Badge variant="secondary" className="text-xs">
+                            {gift.category}
+                          </Badge>
+                          <Badge
+                            variant="outline"
+                            className="text-xs hidden sm:inline-flex">
+                            {gift.type}
+                          </Badge>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Link>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
+                        <h3 className="font-semibold text-foreground mb-1 text-sm sm:text-base line-clamp-1">
+                          {gift.name}
+                        </h3>
+                        <p className="text-xs sm:text-sm text-muted-foreground mb-2">
+                          {gift.profiles?.shop_name ||
+                            gift.profiles?.display_name ||
+                            'Vendor'}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-base sm:text-lg font-bold text-primary">
+                            {getCurrencySymbol(
+                              getCurrencyByCountry(gift.profiles?.country),
+                            )}
+                            {gift.price.toLocaleString()}
+                          </span>
+                          <div className="flex items-center gap-1 text-xs sm:text-sm text-accent">
+                            <Star className="w-3 sm:w-3.5 h-3 sm:h-3.5 fill-accent" />
+                            {gift.rating || 5.0}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Link>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          )}
 
-          {filtered.length === 0 && (
+          {!loading && filtered.length === 0 && (
             <div className="text-center py-16">
               <ShoppingBag className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-lg text-muted-foreground">

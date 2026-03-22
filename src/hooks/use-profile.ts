@@ -40,6 +40,11 @@ export function useProfile() {
         country: profile.country,
         roles: profile.roles || ['user'],
         admin_role: profile.admin_role || null,
+        shop_name: profile.shop_name || null,
+        shop_description: profile.shop_description || null,
+        shop_address: profile.shop_address || null,
+        shop_slug: profile.shop_slug || null,
+        shop_logo_url: profile.shop_logo_url || null,
         bank_accounts: accounts || [],
       };
     },
@@ -85,10 +90,66 @@ export function useProfileByUsername(username: string | null) {
         country: profile.country,
         roles: profile.roles || ['user'],
         admin_role: profile.admin_role || null,
+        shop_name: profile.shop_name || null,
+        shop_description: profile.shop_description || null,
+        shop_address: profile.shop_address || null,
+        shop_slug: profile.shop_slug || null,
+        shop_logo_url: profile.shop_logo_url || null,
         bank_accounts: accounts || [],
       };
     },
     enabled: !!username,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+}
+
+export function useProfileByShopSlug(shopSlug: string | null) {
+  const supabase = createClient();
+
+  return useQuery({
+    queryKey: ['profile', 'shop', shopSlug],
+    queryFn: async () => {
+      if (!shopSlug) return null;
+
+      const {data: profile, error: pError} = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('shop_slug', shopSlug)
+        .single();
+
+      if (pError) {
+        if (pError.code === 'PGRST116') return null; // Not found
+        throw pError;
+      }
+
+      const {data: accounts} = await supabase
+        .from('bank_accounts')
+        .select('id, currency, is_primary')
+        .eq('user_id', profile.id);
+
+      return {
+        id: profile.id,
+        email: profile.email,
+        username: profile.username,
+        display_name: profile.display_name,
+        avatar_url: profile.avatar_url,
+        bio: profile.bio,
+        is_creator: profile.is_creator,
+        suggested_amounts: profile.suggested_amounts || [5, 10, 25],
+        social_links: profile.social_links || {},
+        theme_settings: profile.theme_settings || {},
+        country: profile.country,
+        roles: profile.roles || ['user'],
+        admin_role: profile.admin_role || null,
+        shop_name: profile.shop_name || null,
+        shop_description: profile.shop_description || null,
+        shop_address: profile.shop_address || null,
+        shop_slug: profile.shop_slug || null,
+        shop_logo_url: profile.shop_logo_url || null,
+        bank_accounts: accounts || [],
+      };
+    },
+    enabled: !!shopSlug,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }

@@ -19,10 +19,12 @@ import {
   Eye,
   MoreVertical,
   Pause,
+  Store,
 } from 'lucide-react';
 import {useState} from 'react';
 import {toast} from 'sonner';
 import {ActionAdvancedModal} from './ActionAdvancedModal';
+import {EditVendorModal} from './EditVendorModal';
 import {handleExport} from './utils';
 
 export function VendorsTab({searchQuery, addLog, setViewDetailsModal}: any) {
@@ -41,6 +43,14 @@ export function VendorsTab({searchQuery, addLog, setViewDetailsModal}: any) {
     isOpen: false,
     type: 'warn',
     targetName: '',
+  });
+
+  const [editVendorModal, setEditVendorModal] = useState<{
+    isOpen: boolean;
+    vendor: any;
+  }>({
+    isOpen: false,
+    vendor: null,
   });
 
   const handleAdvancedAction = (
@@ -142,6 +152,21 @@ export function VendorsTab({searchQuery, addLog, setViewDetailsModal}: any) {
                           }>
                           <Eye className="w-4 h-4 mr-2" /> View Details
                         </DropdownMenuItem>
+                        {v.shop_slug && (
+                          <DropdownMenuItem
+                            onClick={() =>
+                              window.open(`/gift-shop/${v.shop_slug}`, '_blank')
+                            }>
+                            <Store className="w-4 h-4 mr-2" /> View Shop
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem
+                          onClick={() =>
+                            setEditVendorModal({isOpen: true, vendor: v})
+                          }>
+                          <MoreVertical className="w-4 h-4 mr-2" /> Edit Vendor
+                          Info
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={() =>
@@ -194,6 +219,17 @@ export function VendorsTab({searchQuery, addLog, setViewDetailsModal}: any) {
         targetType="vendor"
         targetName={advancedModal.targetName}
         onConfirm={onConfirmAdvancedAction}
+      />
+      <EditVendorModal
+        isOpen={editVendorModal.isOpen}
+        onOpenChange={(open: boolean) =>
+          setEditVendorModal(prev => ({...prev, isOpen: open}))
+        }
+        vendor={editVendorModal.vendor}
+        onSuccess={() => {
+          // No direct refetch here as it's a mutation, but the user might want a refetch
+          // However, vendors list usually doesn't show shop details so no immediate need
+        }}
       />
     </div>
   );

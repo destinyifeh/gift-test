@@ -6,17 +6,23 @@ import {Dialog, DialogContent, DialogTitle} from '@/components/ui/dialog';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
 import {VisuallyHidden} from '@/components/ui/visually-hidden';
-import {ArrowRight, CreditCard, Heart} from 'lucide-react';
+import {recordShopGiftPurchase} from '@/lib/server/actions/transactions';
+import PaystackPop from '@paystack/inline-js';
+import {ArrowRight, Heart, Loader2} from 'lucide-react';
 import {useEffect, useState} from 'react';
+import {toast} from 'sonner';
 
 interface SendShopGiftModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   gift: {
+    id: string | number;
     name: string;
     price: number;
     vendor: string;
     image?: string;
+    currency?: string;
+    symbol?: string;
   };
 }
 
@@ -28,20 +34,105 @@ const SendShopGiftModal = ({
   const [step, setStep] = useState<'recipient' | 'payment' | 'success'>(
     'recipient',
   );
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [formData, setFormData] = useState({
+    recipientEmail: '',
+    recipientUsername: '',
+    senderName: 'Destiny I.', // Default from provided code
+    message: '',
+    isAnonymous: false,
+  });
 
   useEffect(() => {
     if (open) {
       setStep('recipient');
+      setIsLoading(false);
+      setFormData({
+        recipientEmail: '',
+        recipientUsername: '',
+        senderName: 'Destiny I.',
+        message: '',
+        isAnonymous: false,
+      });
     }
   }, [open]);
 
+  const validateRecipient = () => {
+    if (!formData.recipientEmail) {
+      toast.error('Recipient email is required');
+      return false;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.recipientEmail)) {
+      toast.error('Invalid recipient email format');
+      return false;
+    }
+    if (!formData.senderName && !formData.isAnonymous) {
+      toast.error('Sender name is required');
+      return false;
+    }
+    return true;
+  };
+
   const handleNext = () => {
-    if (step === 'recipient') setStep('payment');
-    else if (step === 'payment') setStep('success');
+    if (step === 'recipient') {
+      if (validateRecipient()) {
+        setStep('payment');
+      }
+    } else if (step === 'payment') {
+      handlePaystackPayment();
+    }
   };
 
   const handleBack = () => {
     if (step === 'payment') setStep('recipient');
+  };
+
+  const handlePaystackPayment = () => {
+    setIsLoading(true);
+    const paystack = new PaystackPop();
+    paystack.newTransaction({
+      key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || '',
+      email: formData.recipientEmail,
+      amount: gift.price * 100, // Paystack amount is in kobo/cents
+      // currency: gift.currency || 'KES',
+      currency: 'NGN',
+      onSuccess: async (transaction: any) => {
+        setIsLoading(false);
+        console.log('Payment successful', transaction);
+
+        // Record the gift purchase and send email
+        const result = await recordShopGiftPurchase({
+          reference: transaction.reference,
+          recipientEmail: formData.recipientEmail,
+          senderName: formData.senderName,
+          message: formData.message,
+          giftId: Number(gift.id),
+          giftName: gift.name,
+          expectedAmount: gift.price,
+          currency: 'NGN', // Based on user manual edit
+        });
+
+        if (result.success) {
+          toast.success('Gift card sent successfully!');
+        } else {
+          toast.error(
+            'Payment verified but gift recording failed: ' + result.error,
+          );
+        }
+      },
+      onCancel: () => {
+        setIsLoading(false);
+        toast.info('Payment cancelled');
+      },
+      onError: (error: any) => {
+        setIsLoading(false);
+        toast.error('Payment failed: ' + error.message);
+      },
+    });
+
+    // Close the modal as the Paystack popup is now showing
+    onOpenChange(false);
   };
 
   return (
@@ -99,6 +190,13 @@ const SendShopGiftModal = ({
                     <Input
                       placeholder="E.g. alex@example.com"
                       type="email"
+                      value={formData.recipientEmail}
+                      onChange={e =>
+                        setFormData({
+                          ...formData,
+                          recipientEmail: e.target.value,
+                        })
+                      }
                       className="h-12 rounded-xl bg-muted/20 border-2 font-medium"
                     />
                     <p className="text-[10px] text-muted-foreground ml-1">
@@ -111,6 +209,13 @@ const SendShopGiftModal = ({
                     </Label>
                     <Input
                       placeholder="E.g. alexsmith"
+                      value={formData.recipientUsername}
+                      onChange={e =>
+                        setFormData({
+                          ...formData,
+                          recipientUsername: e.target.value,
+                        })
+                      }
                       className="h-12 rounded-xl bg-muted/20 border-2 font-medium"
                     />
                   </div>
@@ -120,7 +225,10 @@ const SendShopGiftModal = ({
                     </Label>
                     <Input
                       placeholder="E.g. Mary K."
-                      defaultValue="Destiny I."
+                      value={formData.senderName}
+                      onChange={e =>
+                        setFormData({...formData, senderName: e.target.value})
+                      }
                       className="h-12 rounded-xl bg-muted/20 border-2 font-medium"
                     />
                   </div>
@@ -131,11 +239,21 @@ const SendShopGiftModal = ({
                     <textarea
                       className="w-full min-h-[100px] p-3 rounded-xl bg-muted/20 border-2 font-medium focus:outline-none focus:border-primary transition-all resize-none text-sm"
                       placeholder="Write a sweet note..."
+                      value={formData.message}
+                      onChange={e =>
+                        setFormData({...formData, message: e.target.value})
+                      }
                     />
                   </div>
 
                   <div className="flex items-center space-x-2 p-3 rounded-xl bg-muted/10 border border-transparent hover:border-primary/20 transition-all cursor-pointer">
-                    <Checkbox id="anonymous" />
+                    <Checkbox
+                      id="anonymous"
+                      checked={formData.isAnonymous}
+                      onCheckedChange={(checked: boolean) =>
+                        setFormData({...formData, isAnonymous: checked})
+                      }
+                    />
                     <label
                       htmlFor="anonymous"
                       className="text-sm font-medium leading-none cursor-pointer">
@@ -162,56 +280,28 @@ const SendShopGiftModal = ({
                     <p className="font-bold text-lg">{gift.name}</p>
                   </div>
                   <p className="text-2xl font-bold text-primary">
-                    ${gift.price}
+                    {gift.symbol || '$'}
+                    {gift.price.toLocaleString()}
                   </p>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">
-                      Card Details
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        placeholder="0000 0000 0000 0000"
-                        className="h-12 rounded-xl bg-muted/20 border-2 font-medium pl-10"
-                      />
-                      <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">
-                        Expiry
-                      </Label>
-                      <Input
-                        placeholder="MM / YY"
-                        className="h-12 rounded-xl bg-muted/20 border-2 font-medium"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">
-                        CVC
-                      </Label>
-                      <Input
-                        placeholder="123"
-                        className="h-12 rounded-xl bg-muted/20 border-2 font-medium"
-                      />
-                    </div>
-                  </div>
                 </div>
 
                 <div className="flex gap-3 pt-2">
                   <Button
                     variant="outline"
                     className="h-14 px-6 rounded-2xl font-bold border-2"
-                    onClick={handleBack}>
+                    onClick={handleBack}
+                    disabled={isLoading}>
                     Back
                   </Button>
                   <Button
                     className="flex-1 h-14 text-lg font-bold shadow-lg shadow-primary/20 rounded-2xl"
-                    onClick={handleNext}>
-                    Pay ${gift.price}
+                    onClick={handleNext}
+                    disabled={isLoading}>
+                    {isLoading ? (
+                      <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                    ) : null}
+                    Pay {gift.symbol || '$'}
+                    {gift.price.toLocaleString()}
                   </Button>
                 </div>
               </div>
@@ -224,12 +314,13 @@ const SendShopGiftModal = ({
                   <Heart className="w-12 h-12 text-green-500 fill-green-500" />
                 </div>
                 <h3 className="text-2xl font-bold mb-2">Gift Card Sent!</h3>
-                <p className="text-muted-foreground mb-8 text-balance">
+                <p className="text-muted-foreground mb-8 text-balance px-4">
                   Your{' '}
                   <span className="text-foreground font-bold">{gift.name}</span>{' '}
                   worth{' '}
                   <span className="text-foreground font-bold">
-                    ${gift.price}
+                    {gift.symbol || '$'}
+                    {gift.price.toLocaleString()}
                   </span>{' '}
                   has been successfully sent.
                 </p>

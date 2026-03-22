@@ -277,15 +277,34 @@ export async function fetchReceivedGiftsList({
   if (!user) return {success: false, data: []};
 
   try {
-    // 1. Fetch campaigns to get contributions
+    // 1. Fetch campaigns (where they are the owner)
+    // This includes their own crowdfunding campaigns AND gifts they've claimed
     const {data: campaigns} = await supabase
       .from('campaigns')
-      .select('id, title')
+      .select(
+        'id, title, goal_amount, currency, created_at, gift_code, sender_name, status',
+      )
       .eq('user_id', user.id);
 
-    const campaignIds = (campaigns || []).map(c => c.id);
+    const crowdfundingCampaignIds = (campaigns || [])
+      .filter(c => c.gift_code === null) // Crowdfunding typically doesn't have a single gift code
+      .map(c => c.id);
 
-    // 2. Fetch direct support
+    const voucherGifts = (campaigns || [])
+      .filter(c => c.gift_code !== null) // These are the claimed vouchers
+      .map((c: any) => ({
+        id: 'gift-' + c.id,
+        name: c.title || 'Gift Card',
+        sender: c.sender_name || 'A Friend',
+        date: new Date(c.created_at).toLocaleDateString(),
+        amount: Number(c.goal_amount),
+        currency: c.currency || 'NGN',
+        status: c.status === 'redeemed' ? 'claimed' : 'withdrawable', // Status mapping for UI
+        code: c.gift_code,
+        type: 'gift',
+      }));
+
+    // 2. Fetch direct support (creator_support table)
     const {data: support} = await supabase
       .from('creator_support')
       .select(
@@ -295,9 +314,9 @@ export async function fetchReceivedGiftsList({
       .order('created_at', {ascending: false})
       .range(from, to);
 
-    // 3. Fetch campaign contributions
+    // 3. Fetch campaign contributions (to their own crowdfunding campaigns)
     let campaignContribs: any[] = [];
-    if (campaignIds.length > 0) {
+    if (crowdfundingCampaignIds.length > 0) {
       const {data: contribs} = await supabase
         .from('contributions')
         .select(
@@ -306,7 +325,7 @@ export async function fetchReceivedGiftsList({
           campaigns ( title )
         `,
         )
-        .in('campaign_id', campaignIds)
+        .in('campaign_id', crowdfundingCampaignIds)
         .order('created_at', {ascending: false})
         .range(from, to);
 
@@ -334,7 +353,7 @@ export async function fetchReceivedGiftsList({
       message: s.message,
     }));
 
-    const combined = [...directFormatted, ...campaignContribs]
+    const combined = [...voucherGifts, ...directFormatted, ...campaignContribs]
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, limit);
 

@@ -1,16 +1,40 @@
 'use client';
 
 import Navbar from '@/components/landing/Navbar';
+import {RoleSwitcher} from '@/components/RoleSwitcher';
 import {Card, CardContent} from '@/components/ui/card';
 import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs';
+import {useProfile} from '@/hooks/use-profile';
+import {useVendorWallet} from '@/hooks/use-vendor';
+import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
+import {formatCurrency} from '@/lib/utils/currency';
 import {CreditCard, DollarSign, Package, ShoppingCart} from 'lucide-react';
+import {notFound} from 'next/navigation';
 import {CodesTab} from './components/CodesTab';
 import {OrdersTab} from './components/OrdersTab';
-import {PayoutsTab} from './components/PayoutsTab';
 import {ProductsTab} from './components/ProductsTab';
+import {ShopTab} from './components/ShopTab';
 import {WalletTab} from './components/WalletTab';
 
 export default function VendorDashboardPage() {
+  const {data: profile, isLoading} = useProfile();
+  const {data: stats, isLoading: statsLoading} = useVendorWallet();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!profile?.roles?.includes('vendor')) {
+    notFound();
+  }
+
+  const currencyCode = getCurrencyByCountry(profile?.country || 'Nigeria');
+  const currencySymbol = getCurrencySymbol(currencyCode);
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -25,18 +49,37 @@ export default function VendorDashboardPage() {
                 Manage your products, codes, and payouts
               </p>
             </div>
+            <div className="w-full sm:w-auto -mt-3 sm:mt-0">
+              <RoleSwitcher />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-8">
             {[
               {
                 label: 'Products',
-                value: '3',
+                value: statsLoading ? '...' : stats?.productsCount || 0,
                 icon: Package,
               },
-              {label: 'Total Orders', value: '265', icon: ShoppingCart},
-              {label: 'Revenue', value: '$12,450', icon: DollarSign},
-              {label: 'Pending Payout', value: '$2,340', icon: CreditCard},
+              {
+                label: 'Total Orders',
+                value: statsLoading ? '...' : stats?.ordersCount || 0,
+                icon: ShoppingCart,
+              },
+              {
+                label: 'Revenue',
+                value: statsLoading
+                  ? '...'
+                  : formatCurrency(stats?.totalSales || 0, currencyCode),
+                icon: DollarSign,
+              },
+              {
+                label: 'Pending Payout',
+                value: statsLoading
+                  ? '...'
+                  : formatCurrency(stats?.pending || 0, currencyCode),
+                icon: CreditCard,
+              },
             ].map(s => (
               <Card key={s.label} className="border-border">
                 <CardContent className="p-3 sm:p-4 flex items-center gap-3">
@@ -55,16 +98,20 @@ export default function VendorDashboardPage() {
           </div>
 
           <Tabs defaultValue="products" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5 max-w-xl">
+            <TabsList className="grid w-full grid-cols-5 max-w-lg">
               <TabsTrigger value="products">Products</TabsTrigger>
+              <TabsTrigger value="shop">Shop</TabsTrigger>
               <TabsTrigger value="codes">Codes</TabsTrigger>
               <TabsTrigger value="orders">Orders</TabsTrigger>
               <TabsTrigger value="wallet">Wallet</TabsTrigger>
-              <TabsTrigger value="payouts">Payouts</TabsTrigger>
             </TabsList>
 
             <TabsContent value="products">
               <ProductsTab />
+            </TabsContent>
+
+            <TabsContent value="shop">
+              <ShopTab />
             </TabsContent>
 
             <TabsContent value="codes">
@@ -77,10 +124,6 @@ export default function VendorDashboardPage() {
 
             <TabsContent value="wallet">
               <WalletTab />
-            </TabsContent>
-
-            <TabsContent value="payouts">
-              <PayoutsTab />
             </TabsContent>
           </Tabs>
         </div>

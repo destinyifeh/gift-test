@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {Eye} from 'lucide-react';
+import {Eye, Store} from 'lucide-react';
 
 interface ViewDetailsModalProps {
   isOpen: boolean;
@@ -56,7 +56,16 @@ export function ViewDetailsModal({
           </div>
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
+          {data.shop_slug && (
+            <Button
+              variant="hero"
+              onClick={() =>
+                window.open(`/gift-shop/${data.shop_slug}`, '_blank')
+              }>
+              <Store className="w-4 h-4 mr-2" /> View Shop
+            </Button>
+          )}
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Close
           </Button>

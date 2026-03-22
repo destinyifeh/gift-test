@@ -5,6 +5,9 @@ export const allVendorGifts = [
     price: 10,
     vendor: 'BrewCraft',
     category: 'food',
+    image_url:
+      'https://images.unsplash.com/photo-1559056191-48ad0408546b?w=800&auto=format&fit=crop&q=60',
+    description: 'Instant delivery • Quick energy',
   },
   {
     id: 2,
@@ -12,6 +15,9 @@ export const allVendorGifts = [
     price: 25,
     vendor: 'Sweet Delights',
     category: 'food',
+    image_url:
+      'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&auto=format&fit=crop&q=60',
+    description: 'Celebrate • Sweet treats',
   },
   {
     id: 3,
@@ -19,6 +25,9 @@ export const allVendorGifts = [
     price: 50,
     vendor: 'Relax Spa',
     category: 'spa',
+    image_url:
+      'https://images.unsplash.com/photo-1544161515-4ae6ce6db87e?w=800&auto=format&fit=crop&q=60',
+    description: 'Relax • Self care',
   },
   {
     id: 4,

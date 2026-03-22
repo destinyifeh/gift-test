@@ -7,6 +7,7 @@ import {Dialog, DialogContent, DialogTitle} from '@/components/ui/dialog';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
 import {VisuallyHidden} from '@/components/ui/visually-hidden';
+import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
 import {allVendorGifts} from '@/lib/data/gifts';
 import {recordCreatorGift} from '@/lib/server/actions/transactions';
 import {formatCurrency} from '@/lib/utils/currency';
@@ -27,6 +28,7 @@ interface SendCreatorGiftModalProps {
   initialCustomAmount?: string;
   initialStep?: 'details' | 'recipient';
   currency?: string;
+  vendorGifts?: any[];
 }
 
 const SendCreatorGiftModal = ({
@@ -41,6 +43,7 @@ const SendCreatorGiftModal = ({
   initialCustomAmount = '',
   initialStep = 'details',
   currency = 'NGN',
+  vendorGifts = [],
 }: SendCreatorGiftModalProps) => {
   const [step, setStep] = useState<
     'details' | 'recipient' | 'payment' | 'success'
@@ -84,7 +87,9 @@ const SendCreatorGiftModal = ({
     }
   }, [open, initialStep, initialAmount, initialCustomAmount, initialGiftId]);
 
-  const selectedGiftData = allVendorGifts.find(g => g.id === selectedGift);
+  const selectedGiftData = (
+    vendorGifts.length > 0 ? vendorGifts : allVendorGifts
+  ).find(g => g.id === selectedGift);
 
   const handleNext = () => {
     if (step === 'details') setStep('recipient');
@@ -380,7 +385,17 @@ const SendCreatorGiftModal = ({
                       </span>{' '}
                       worth{' '}
                       <span className="text-foreground font-bold">
-                        {formatCurrency(selectedGiftData?.price || 0, currency)}
+                        {activeTab === 'vendor' &&
+                        selectedGiftData?.profiles?.country
+                          ? getCurrencySymbol(
+                              getCurrencyByCountry(
+                                selectedGiftData.profiles.country,
+                              ),
+                            ) + (selectedGiftData.price || 0).toLocaleString()
+                          : formatCurrency(
+                              selectedGiftData?.price || 0,
+                              currency,
+                            )}
                       </span>{' '}
                       has been successfully sent to {creatorName}.
                     </>

@@ -572,6 +572,35 @@ export async function recordCreatorGift({
     gift_name: giftName || null,
   };
 
+  // 1.5. If it's a vendor gift, generate a code and create a campaign
+  let giftCode = null;
+  if (giftId) {
+    const prefix =
+      giftName?.split(' ')[1]?.substring(0, 3).toUpperCase() || 'GFT';
+    giftCode = `${prefix}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    // Create the campaign record for the vendor gift
+    const {error: campaignError} = await supabase.from('campaigns').insert({
+      user_id: creator.id,
+      title: giftName || 'Gift Card',
+      slug: `${creatorUsername}-gift-${Date.now()}`,
+      status: 'active',
+      goal_amount: expectedAmount,
+      current_amount: expectedAmount, // fully funded
+      claimable_type: 'gift-card',
+      claimable_gift_id: giftId,
+      gift_code: giftCode,
+      currency: currency,
+      category: 'other',
+      visibility: 'private',
+    });
+
+    if (campaignError) {
+      console.error('Error creating campaign for creator gift:', campaignError);
+      // We continue anyway, but the vendor flow might be broken for this specific gift
+    }
+  }
+
   try {
     // Message-only gift (no payment) — skip Paystack verification
     if (expectedAmount <= 0) {
@@ -584,8 +613,10 @@ export async function recordCreatorGift({
           type: 'creator_support',
           status: 'success',
           reference,
-          description: `Message from ${isAnonymous ? 'Anonymous' : donorName}`,
-          metadata,
+          description: giftCode
+            ? `Gift: ${giftName} (Code: ${giftCode})`
+            : `Message from ${isAnonymous ? 'Anonymous' : donorName}`,
+          metadata: {...metadata, gift_code: giftCode},
         })
         .select()
         .single();
@@ -674,8 +705,10 @@ export async function recordCreatorGift({
         type: 'creator_support',
         status: 'success',
         reference,
-        description: `Direct support from ${isAnonymous ? 'Anonymous' : donorName}`,
-        metadata,
+        description: giftCode
+          ? `Gift: ${giftName} (Code: ${giftCode})`
+          : `Direct support from ${isAnonymous ? 'Anonymous' : donorName}`,
+        metadata: {...metadata, gift_code: giftCode},
       })
       .select()
       .single();
@@ -734,5 +767,141 @@ export async function recordCreatorGift({
     return {success: true};
   } catch (err: any) {
     return {success: false, error: err.message || 'Processing error'};
+  }
+}
+
+export async function recordShopGiftPurchase({
+  reference,
+  recipientEmail,
+  senderName,
+  message,
+  giftId,
+  giftName,
+  expectedAmount,
+  currency,
+}: {
+  reference: string;
+  recipientEmail: string;
+  senderName: string;
+  message?: string;
+  giftId: number;
+  giftName: string;
+  expectedAmount: number;
+  currency: string;
+}) {
+  const supabase = await createClient();
+
+  // 1. Verify with Paystack
+  const secretKey = process.env.NEXT_PUBLIC_PAYSTACK_SECRET_KEY;
+  try {
+    const response = await fetch(
+      `https://api.paystack.co/transaction/verify/${reference}`,
+      {
+        headers: {Authorization: `Bearer ${secretKey}`},
+      },
+    );
+
+    const body = await response.json();
+    if (!body.status || body.data.status !== 'success') {
+      return {success: false, error: 'Payment verification failed'};
+    }
+
+    // Verify amount
+    const paidAmount = body.data.amount / 100;
+    if (paidAmount < expectedAmount) {
+      return {success: false, error: 'Incomplete payment amount'};
+    }
+
+    // 2. Get Vendor ID from Gift
+    const {data: gift} = await supabase
+      .from('vendor_gifts')
+      .select('vendor_id, image_url')
+      .eq('id', giftId)
+      .single();
+
+    if (!gift) return {success: false, error: 'Gift product not found'};
+
+    // 3. Generate Gift Code
+    const prefix =
+      giftName?.split(' ')[1]?.substring(0, 3).toUpperCase() || 'GFT';
+    const giftCode = `${prefix}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+
+    // 4. Create "Voucher" Campaign tied to vendor
+    // We are setting user_id to vendor_id so they can see it as "Pending Claim"
+    const {error: campaignError} = await supabase.from('campaigns').insert({
+      user_id: gift.vendor_id,
+      title: giftName,
+      slug: `gift-${giftCode.toLowerCase()}-${Date.now()}`,
+      status: 'active',
+      goal_amount: expectedAmount,
+      current_amount: expectedAmount,
+      claimable_type: 'gift-card',
+      claimable_gift_id: giftId,
+      gift_code: giftCode,
+      currency: currency,
+      category: 'other',
+      visibility: 'private',
+      recipient_email: recipientEmail,
+      sender_name: senderName,
+      message: message,
+    });
+
+    if (campaignError) throw campaignError;
+
+    // 5. Record Transaction for Buyer (if logged in)
+    const {
+      data: {user: buyer},
+    } = await supabase.auth.getUser();
+    await supabase.from('transactions').insert({
+      user_id: buyer?.id || null, // Buyer's ID or null for guests
+      amount: body.data.amount,
+      currency: body.data.currency || currency,
+      type: 'creator_support_sent', // Existing type used for sent gifts
+      status: 'success',
+      reference,
+      description: `Gift: ${giftName} for ${recipientEmail}`,
+      metadata: {
+        gift_code: giftCode,
+        recipient_email: recipientEmail,
+        sender_name: senderName,
+        message,
+        gift_id: giftId,
+      },
+    });
+
+    // 6. Send Email!
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    const claimUrl = `${siteUrl}/claim/${giftCode}`;
+
+    // Import the sendGiftEmail action dynamically to avoid circular or early execution if needed
+    // or just import it at top.
+    const {sendGiftEmail} = await import('./email');
+
+    // Ensure the image URL is absolute for the email
+    let giftImage = gift.image_url;
+    if (giftImage && !giftImage.startsWith('http')) {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(
+        /\/+$/,
+        '',
+      );
+      giftImage = `${supabaseUrl}/storage/v1/object/public/vendor-products/${giftImage}`;
+    }
+
+    console.log('Sending gift email with image:', giftImage);
+
+    await sendGiftEmail({
+      to: recipientEmail,
+      senderName,
+      giftName,
+      giftAmount: expectedAmount,
+      giftImage: giftImage || undefined,
+      message,
+      claimUrl,
+    });
+
+    return {success: true, giftCode};
+  } catch (err: any) {
+    console.error('Error recording shop gift:', err);
+    return {success: false, error: err.message};
   }
 }

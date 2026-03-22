@@ -5,7 +5,7 @@ import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
 import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs';
 import {getCurrencyMetadata} from '@/lib/constants/currencies';
-import {allVendorGifts} from '@/lib/data/gifts';
+import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
 import {CreditCard, Gift, Search} from 'lucide-react';
 import {useState} from 'react';
 
@@ -31,7 +31,17 @@ interface GiftSelectionProps {
   acceptVendor?: boolean;
   currencySymbol?: string;
   currencyCode?: string;
-  vendorGifts?: {id: number; name: string; price: number}[];
+  vendorGifts?: {
+    id: number;
+    name: string;
+    price: number;
+    image_url?: string;
+    description?: string;
+    profiles?: {
+      display_name: string;
+      country: string;
+    };
+  }[];
 }
 
 const GiftSelection = ({
@@ -56,17 +66,18 @@ const GiftSelection = ({
 }: GiftSelectionProps) => {
   const [giftSearch, setGiftSearch] = useState('');
 
-  const displayVendorGifts = vendorGifts || allVendorGifts;
+  const displayVendorGifts = vendorGifts || [];
   const currencyMetadata = getCurrencyMetadata(currencyCode);
   const suggestedAmounts = currencyMetadata?.suggestedAmounts || [
     10, 20, 50, 100, 200,
   ];
-
   const filteredVendorGifts = displayVendorGifts.filter(
     g =>
       !giftSearch ||
       g.name.toLowerCase().includes(giftSearch.toLowerCase()) ||
-      (g as any).vendor?.toLowerCase().includes(giftSearch.toLowerCase()),
+      g.profiles?.display_name
+        ?.toLowerCase()
+        .includes(giftSearch.toLowerCase()),
   );
 
   return (
@@ -191,25 +202,35 @@ const GiftSelection = ({
                     : {}
                 }>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-lg group-hover:scale-110 transition-transform shadow-sm">
-                    {g.name.split(' ')[0]}
+                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden group-hover:scale-110 transition-transform shadow-sm">
+                    {g.image_url ? (
+                      <img
+                        src={g.image_url}
+                        alt={g.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-lg">{g.name.split(' ')[0]}</span>
+                    )}
                   </div>
                   <div>
                     <p className="font-bold text-foreground text-sm leading-none">
-                      {g.name.split(' ').slice(1).join(' ')}
+                      {g.image_url
+                        ? g.name
+                        : g.name.split(' ').slice(1).join(' ') || g.name}
                     </p>
-                    <p className="text-[10px] text-muted-foreground mt-1 font-medium">
-                      {g.name.includes('Coffee')
-                        ? 'Instant delivery • Quick energy'
-                        : g.name.includes('Cake')
-                          ? 'Celebrate • Sweet treats'
-                          : 'Relax • Self care'}
+                    <p className="text-[10px] text-muted-foreground mt-1 font-medium line-clamp-1">
+                      {g.description || 'Verified gift card • Instant delivery'}
                     </p>
                   </div>
                 </div>
-                <span className="font-bold text-primary text-base">
-                  {currencySymbol}
-                  {g.price}
+                <span className="font-bold text-primary text-base text-right shrink-0">
+                  {g.profiles?.country
+                    ? getCurrencySymbol(
+                        getCurrencyByCountry(g.profiles.country),
+                      )
+                    : currencySymbol}
+                  {g.price.toLocaleString()}
                 </span>
               </button>
             ))}

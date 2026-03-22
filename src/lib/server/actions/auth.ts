@@ -154,6 +154,11 @@ export async function updateProfile(updates: {
   avatar_url?: string;
   is_creator?: boolean;
   country?: string;
+  shop_name?: string;
+  shop_description?: string;
+  shop_address?: string;
+  shop_slug?: string;
+  shop_logo_url?: string;
 }) {
   const supabase = await createClient();
   const {
@@ -177,6 +182,21 @@ export async function updateProfile(updates: {
       return {success: false, error: 'Username is already taken'};
     }
     updates.username = updates.username.toLowerCase();
+  }
+
+  // If shop_slug is being updated, check if it's already taken
+  if (updates.shop_slug) {
+    const {data: existingShop} = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('shop_slug', updates.shop_slug.toLowerCase())
+      .neq('id', user.id)
+      .maybeSingle();
+
+    if (existingShop) {
+      return {success: false, error: 'Shop URL identifier is already taken'};
+    }
+    updates.shop_slug = updates.shop_slug.toLowerCase();
   }
 
   // PROTECT THE PLAN FIELD: Ensure theme_settings doesn't overwrite the user's plan
