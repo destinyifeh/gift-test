@@ -12,12 +12,12 @@ import {useEffect, useState} from 'react';
 import {toast} from 'sonner';
 import {AnalyticsTab} from './components/AnalyticsTab';
 import {ContributionsTab} from './components/ContributionsTab';
+import {SelectedSection} from './components/dashboard-config';
 import {DesktopSidebar} from './components/DesktopSidebar';
 import {FavoritesTab} from './components/FavoritesTab';
 import {GiftPageTab} from './components/GiftPageTab';
 import {IntegrationsTab} from './components/IntegrationsTab';
 import {MobileSidebar} from './components/MobileSidebar';
-import {SelectedSection} from './components/mock';
 import {MyCampaignsTab} from './components/MyCampaignsTab';
 import {OverviewTab} from './components/OverviewTab';
 import {ReceivedGiftsTab} from './components/ReceivedGiftsTab';
@@ -97,6 +97,22 @@ export default function DashboardPage() {
             </h1>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
+            <Link href="/gift-shop">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs sm:text-sm text-muted-foreground hover:text-foreground">
+                Gift Shop
+              </Button>
+            </Link>
+            <Link href="/campaigns">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs sm:text-sm text-muted-foreground hover:text-foreground">
+                Campaigns
+              </Button>
+            </Link>
             <Link href="/create-campaign">
               <Button variant="hero" size="sm" className="text-xs sm:text-sm">
                 <Plus className="w-4 h-4 mr-1" />{' '}

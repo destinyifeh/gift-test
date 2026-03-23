@@ -2,8 +2,10 @@
 
 import {Badge} from '@/components/ui/badge';
 import {Input} from '@/components/ui/input';
+import {useProfile} from '@/hooks/use-profile';
 import {createAdminLog} from '@/lib/server/actions/admin';
 import {Menu, Search} from 'lucide-react';
+import {notFound} from 'next/navigation';
 import {useState} from 'react';
 
 // Modular Components
@@ -30,11 +32,25 @@ import {Section, Sidebar} from './components/Sidebar';
 import {ViewDetailsModal} from './components/ViewDetailsModal';
 
 export default function AdminDashboardPage() {
+  const {data: profile, isLoading} = useProfile();
+
   const [section, setSection] = useState<Section>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [txTypeFilter] = useState('all');
   const [txProviderFilter] = useState('all');
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!profile?.admin_role) {
+    notFound();
+  }
 
   // Action Confirmation State
   const [confirmModal, setConfirmModal] = useState<{

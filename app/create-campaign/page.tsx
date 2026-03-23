@@ -242,7 +242,7 @@ export default function CreateCampaignPage() {
 
   if (isProfileLoading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 bg-secondary/30">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
         <Navbar />
         <Loader2 className="w-10 h-10 animate-spin text-primary" />
       </div>
@@ -250,7 +250,7 @@ export default function CreateCampaignPage() {
   }
   if (!profile) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 bg-secondary/30">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
         <Navbar />
         <Card className="w-full max-w-md border-border shadow-2xl rounded-3xl p-8 text-center space-y-6">
           <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto">
