@@ -267,10 +267,7 @@ export async function fetchWalletProfile() {
   );
 
   const totalDirectInflowKobo = (txs || []).reduce((acc, t) => {
-    if (
-      (t.type === 'creator_support' || t.type === 'receipt') &&
-      t.status === 'success'
-    ) {
+    if (t.type === 'creator_support' && t.status === 'success') {
       return acc + Number(t.amount);
     }
     return acc;
@@ -585,41 +582,48 @@ export async function recordCreatorGift({
 
   // 1.5. If it's a vendor gift, generate a code and create a campaign
   let giftCode = null;
+  let newCampaignId = null;
+  const admin = createAdminClient();
+
   if (giftId) {
     const prefix =
       giftName?.split(' ')[1]?.substring(0, 3).toUpperCase() || 'GFT';
     giftCode = `${prefix}-${Math.floor(1000 + Math.random() * 9000)}`;
 
     // Create the campaign record for the vendor gift (Use admin client)
-    const admin = createAdminClient();
-    const {error: campaignError} = await admin.from('campaigns').insert({
-      user_id: null, // Unclaimed
-      title: giftName || 'Gift Card',
-      slug: `${creatorUsername}-gift-${Date.now()}`,
-      status: 'active',
-      goal_amount: expectedAmount,
-      current_amount: expectedAmount, // fully funded
-      claimable_type: 'gift-card',
-      claimable_gift_id: giftId,
-      gift_code: giftCode,
-      currency: currency,
-      category: 'other',
-      visibility: 'private',
-      sender_name: isAnonymous ? 'Anonymous' : donorName,
-      recipient_email: creator.email,
-      message: message,
-    });
+    const {data: newCamp, error: campaignError} = await admin
+      .from('campaigns')
+      .insert({
+        user_id: creator.id, // Assigned to the creator so it shows in their dashboard
+        title: giftName || 'Gift Card',
+        slug: `${creatorUsername}-gift-${Date.now()}`,
+        status: 'claimed', // Auto-claimed since they have an account
+        goal_amount: expectedAmount,
+        current_amount: expectedAmount, // fully funded
+        claimable_type: 'gift-card',
+        claimable_gift_id: giftId,
+        gift_code: giftCode,
+        currency: currency,
+        category: 'gift-received',
+        visibility: 'private',
+        sender_name: isAnonymous ? 'Anonymous' : donorName,
+        recipient_email: creator.email,
+        message: message,
+      })
+      .select('id')
+      .single();
 
     if (campaignError) {
       console.error('Error creating campaign for creator gift:', campaignError);
-      // We continue anyway, but the vendor flow might be broken for this specific gift
+    } else {
+      newCampaignId = newCamp?.id;
     }
   }
 
   try {
     // Message-only gift (no payment) — skip Paystack verification
-    if (expectedAmount <= 0) {
-      const {data: tx, error: txError} = await supabase
+    if (expectedAmount <= 0 && !giftId) {
+      const {data: tx, error: txError} = await admin
         .from('transactions')
         .insert({
           user_id: creator.id,
@@ -628,10 +632,8 @@ export async function recordCreatorGift({
           type: 'creator_support',
           status: 'success',
           reference,
-          description: giftCode
-            ? `Gift: ${giftName} (Code: ${giftCode})`
-            : `Message from ${isAnonymous ? 'Anonymous' : donorName}`,
-          metadata: {...metadata, gift_code: giftCode},
+          description: `Message from ${isAnonymous ? 'Anonymous' : donorName}`,
+          metadata: {...metadata},
         })
         .select()
         .single();
@@ -644,21 +646,19 @@ export async function recordCreatorGift({
       }
 
       // Insert into creator_support metadata table
-      const {error: supportError} = await supabase
-        .from('creator_support')
-        .insert({
-          user_id: creator.id,
-          transaction_id: tx.id,
-          amount: 0,
-          currency: currency,
-          donor_name: donorName,
-          donor_email: donorEmail,
-          message,
-          is_anonymous: isAnonymous,
-          hide_amount: hideAmount,
-          gift_id: giftId || null,
-          gift_name: giftName || null,
-        });
+      const {error: supportError} = await admin.from('creator_support').insert({
+        user_id: creator.id,
+        transaction_id: tx.id,
+        amount: 0,
+        currency: currency,
+        donor_name: donorName,
+        donor_email: donorEmail,
+        message,
+        is_anonymous: isAnonymous,
+        hide_amount: hideAmount,
+        gift_id: giftId || null,
+        gift_name: giftName || null,
+      });
 
       if (supportError) {
         console.error('Error recording creator support message:', supportError);
@@ -677,7 +677,7 @@ export async function recordCreatorGift({
           user_id: donor.id,
           amount: 0,
           currency: currency,
-          type: 'creator_support_sent',
+          type: 'campaign_contribution',
           status: 'success',
           reference: `${reference}-out`,
           description: `Gift to ${creatorUsername}`,
@@ -728,37 +728,60 @@ export async function recordCreatorGift({
     }
 
     // 3. Try inserting transaction and creator support record
-    const {data: tx, error: txError} = await supabase
-      .from('transactions')
-      .insert({
-        user_id: creator.id, // The recipient owns the transaction
-        amount: body.data.amount,
-        currency: body.data.currency || currency,
-        type: 'creator_support',
-        status: 'success',
-        reference,
-        description: giftCode
-          ? `Gift: ${giftName} (Code: ${giftCode})`
-          : `Direct support from ${isAnonymous ? 'Anonymous' : donorName}`,
-        metadata: {...metadata, gift_code: giftCode},
-      })
-      .select()
-      .single();
+    let txId = null;
 
-    if (txError) {
-      if (txError.code === '23505') {
-        return {success: false, error: 'Payment already processed'};
+    if (!giftId) {
+      // If it's monetary support, credit the creator's wallet
+      const {data: tx, error: txError} = await admin
+        .from('transactions')
+        .insert({
+          user_id: creator.id, // The recipient owns the transaction
+          amount: body.data.amount,
+          currency: body.data.currency || currency,
+          type: 'creator_support',
+          status: 'success',
+          reference,
+          description: `Direct support from ${isAnonymous ? 'Anonymous' : donorName}`,
+          metadata: {...metadata},
+        })
+        .select()
+        .single();
+
+      if (txError) {
+        if (txError.code === '23505') {
+          return {success: false, error: 'Payment already processed'};
+        }
+        throw txError;
       }
-      throw txError;
+      txId = tx.id;
+    } else {
+      // For gift cards, create a 0-amount transaction just to anchor the creator_support record
+      // so the donor message appears in the Supporters tab without giving them duplicate cash.
+      const {data: tx, error: txError} = await admin
+        .from('transactions')
+        .insert({
+          user_id: creator.id,
+          amount: 0,
+          currency: body.data.currency || currency,
+          type: 'creator_support',
+          status: 'success',
+          reference,
+          description: `Gift from ${isAnonymous ? 'Anonymous' : donorName}`,
+          metadata: {...metadata, gift_code: giftCode},
+        })
+        .select()
+        .single();
+
+      if (txError && txError.code !== '23505') throw txError;
+      if (tx) txId = tx.id;
     }
 
-    // 4. Insert into creator_support metadata table
-    const {error: supportError} = await supabase
-      .from('creator_support')
-      .insert({
+    if (txId) {
+      // 4. Insert into creator_support metadata table
+      const {error: supportError} = await admin.from('creator_support').insert({
         user_id: creator.id,
-        transaction_id: tx.id,
-        amount: paidAmount,
+        transaction_id: txId,
+        amount: paidAmount, // Real amount spent to show on the Supporters Tab
         currency: body.data.currency || currency,
         donor_name: donorName,
         donor_email: donorEmail,
@@ -769,12 +792,13 @@ export async function recordCreatorGift({
         gift_name: giftName || null,
       });
 
-    if (supportError) {
-      console.error('Error recording creator support:', supportError);
-      return {
-        success: true,
-        warning: 'Payment successful but donor details could not be saved.',
-      };
+      if (supportError) {
+        console.error('Error recording creator support:', supportError);
+        return {
+          success: true,
+          warning: 'Payment successful but donor details could not be saved.',
+        };
+      }
     }
 
     // 5. If donor is logged in, record the outbound transaction too
@@ -784,12 +808,15 @@ export async function recordCreatorGift({
     if (donor) {
       await supabase.from('transactions').insert({
         user_id: donor.id,
+        campaign_id: newCampaignId,
         amount: body.data.amount,
         currency: body.data.currency || currency,
-        type: 'creator_support_sent',
+        type: 'campaign_contribution',
         status: 'success',
         reference: `${reference}-out`,
-        description: `Gift to ${creatorUsername}`,
+        description: giftId
+          ? `Gift: ${giftName} to ${creatorUsername}`
+          : `Support for ${creatorUsername}`,
         metadata: {...metadata, is_outbound: true},
       });
     }
@@ -800,7 +827,38 @@ export async function recordCreatorGift({
     // Send thank-you email if creator is pro and has a custom message
     const creatorPlan = (creator as any)?.theme_settings?.plan;
     const thankYouMsg = (creator as any)?.theme_settings?.proThankYou;
-    if (creatorPlan === 'pro' && thankYouMsg && donorEmail) {
+
+    if (giftId && creator.email) {
+      try {
+        const siteUrl =
+          process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+        const {sendGiftEmail} = await import('./email');
+        const {data: vendorGift} = await supabase
+          .from('vendor_gifts')
+          .select('vendor_id')
+          .eq('id', giftId)
+          .single();
+        const {data: vendorProfile} = vendorGift
+          ? await supabase
+              .from('profiles')
+              .select('shop_name')
+              .eq('id', vendorGift.vendor_id)
+              .single()
+          : {data: null};
+
+        await sendGiftEmail({
+          to: creator.email,
+          senderName: isAnonymous ? 'A Supporter' : donorName,
+          vendorShopName: vendorProfile?.shop_name || 'Gifthance Partner',
+          giftName: giftName || 'Gift Card',
+          giftAmount: expectedAmount,
+          message,
+          claimUrl: `${siteUrl}/dashboard`, // Instructing them to view it in their dashboard
+        });
+      } catch (e) {
+        console.error('Failed to send creator gift email', e);
+      }
+    } else if (creatorPlan === 'pro' && thankYouMsg && donorEmail) {
       sendThankYouEmail({
         to: donorEmail,
         donorName: isAnonymous ? 'Supporter' : donorName,
@@ -931,7 +989,7 @@ export async function recordShopGiftPurchase({
       user_id: buyer?.id || null, // Buyer's ID or null for guests
       amount: body.data.amount,
       currency: body.data.currency || currency,
-      type: 'creator_support_sent', // Existing type used for sent gifts
+      type: 'campaign_contribution',
       status: 'success',
       reference,
       description: `Gift: ${giftName} for ${recipientEmail}`,

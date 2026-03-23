@@ -178,7 +178,14 @@ export function OverviewTab({
                   <p className="text-sm font-medium text-foreground truncate capitalize">
                     {g.name}
                   </p>
-                  <p className="text-xs text-muted-foreground">{g.date}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {g.giftCategory && (
+                      <span className="font-semibold text-primary/80 mr-1">
+                        {g.giftCategory} •
+                      </span>
+                    )}
+                    {g.date}
+                  </p>
                 </div>
               </div>
               <Badge variant={statusColor(g.status) as any}>{g.status}</Badge>
@@ -192,7 +199,14 @@ export function OverviewTab({
                   <p className="text-sm font-medium text-foreground truncate capitalize">
                     {g.name}
                   </p>
-                  <p className="text-xs text-muted-foreground">{g.date}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {g.type && (
+                      <span className="font-semibold text-secondary/80 mr-1">
+                        {g.type.replace('-', ' ')} •
+                      </span>
+                    )}
+                    {g.date}
+                  </p>
                 </div>
               </div>
               <Badge variant={statusColor(g.status) as any}>{g.status}</Badge>

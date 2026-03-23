@@ -22,10 +22,13 @@ export async function fetchDashboardAnalytics() {
     // 1. Fetch Gifts Sent & Total Given (Outbound transactions)
     const {data: outTxs} = await supabase
       .from('transactions')
-      .select('id, amount, status, created_at, description, type')
+      .select(
+        'id, amount, status, created_at, description, type, user_id, campaigns(category, claimable_type)',
+      )
       .eq('user_id', user.id)
-      .in('type', ['campaign_contribution', 'creator_support_sent'])
-      .order('created_at', {ascending: false});
+      .in('type', ['campaign_contribution'])
+      .order('created_at', {ascending: false})
+      .limit(5);
 
     const giftsSentCount = (outTxs || []).filter(
       t => t.status === 'success',
@@ -267,15 +270,11 @@ export async function fetchSentGiftsList({
       .select(
         `
         id, amount, currency, created_at, status, description, type,
-        campaigns ( id, title, profiles!campaigns_user_id_fkey ( display_name ) )
+        campaigns ( id, title, category, claimable_type, profiles!campaigns_user_id_fkey ( display_name ) )
       `,
       )
       .eq('user_id', user.id)
-      .in('type', [
-        'campaign_contribution',
-        'creator_support',
-        'creator_support_sent',
-      ])
+      .in('type', ['campaign_contribution'])
       .order('created_at', {ascending: false})
       .range(from, to);
 
@@ -285,16 +284,29 @@ export async function fetchSentGiftsList({
       id: t.id,
       name:
         t.campaigns?.title ||
-        (t.description?.includes(': ')
-          ? t.description.split(': ')[1].split(' to ')[0].trim()
+        (t.description?.startsWith('Gift:')
+          ? t.description
+              .split(':')[1]
+              .split(' to ')[0]
+              .split(' for ')[0]
+              .trim()
           : t.description) ||
         'Personal Gift',
-      recipient:
-        t.type === 'creator_support_sent' && t.description?.includes(' to ')
+      recipient: t.description?.startsWith('Gift')
+        ? t.description.includes(' to ')
           ? t.description.split(' to ')[1]
-          : t.campaigns?.profiles?.display_name ||
-            t.description?.replace('Gift to ', '') ||
-            'Creator',
+          : t.description.includes(' for ')
+            ? t.description.split(' for ')[1]
+            : t.campaigns?.profiles?.display_name || 'Creator'
+        : t.campaigns?.profiles?.display_name || t.description || 'Creator',
+      giftType: t.campaigns
+        ? t.campaigns.claimable_type === 'gift-card'
+          ? 'Prepaid Gift Card'
+          : t.campaigns.category === 'claimable' ||
+              t.campaigns.category === 'gift-received'
+            ? 'Claimable Monetary Gift'
+            : 'Campaign Contribution'
+        : 'Direct Support',
       date: new Date(t.created_at).toLocaleDateString(),
       amount: Number(t.amount) / 100,
       currency: t.currency || 'USD',
@@ -332,9 +344,9 @@ export async function fetchReceivedGiftsList({
     const {data: allCampaigns} = await supabase
       .from('campaigns')
       .select(
-        'id, title, goal_amount, currency, created_at, gift_code, sender_name, status, vendor_rating, claimable_gift_id, recipient_email, user_id',
+        'id, title, goal_amount, currency, created_at, gift_code, sender_name, status, vendor_rating, claimable_gift_id, recipient_email, user_id, claimable_type',
       )
-      .eq('user_id', user.id);
+      .or(`user_id.eq.${user.id},recipient_email.eq.${user.email}`);
 
     const campaigns = allCampaigns || [];
 
@@ -386,7 +398,24 @@ export async function fetchReceivedGiftsList({
     }
 
     const voucherGifts = (campaigns || [])
-      .filter(c => c.gift_code !== null && c.status !== 'active') // Exclude unclaimed gift cards
+      .filter(c => {
+        // Only show if it has a gift code AND is NOT active (i.e. it's already claimed/redeemed)
+        // AND for monetary gifts, only show if they are NOT redundant with creator_support
+        // Actually, we want to show UNCLAIMED gifts if the user is the recipient (recipient_email)
+        // But the user said: "it suppose to show on my received tab after it has been claimed"
+
+        const isClaimed = c.status === 'claimed' || c.status === 'redeemed';
+        const isGiftCard = c.claimable_type === 'gift-card';
+        const isMonetary = c.claimable_type === 'money';
+
+        if (c.gift_code === null) return false;
+        if (!isClaimed) return false; // Per user request: only show after claimed
+
+        // Avoid duplicates: monetary gifts are already in creator_support table once claimed/redeemed
+        if (isMonetary) return false;
+
+        return true;
+      })
       .map((c: any) => ({
         id: 'gift-' + c.id,
         name: c.title || 'Gift Card',
@@ -406,6 +435,7 @@ export async function fetchReceivedGiftsList({
         code: c.gift_code,
         rating: c.vendor_rating || 0,
         type: 'gift',
+        claimable_type: c.claimable_type,
         vendorShopName: c.claimable_gift_id
           ? shopsMap[c.claimable_gift_id]?.name
           : undefined,
@@ -464,6 +494,7 @@ export async function fetchReceivedGiftsList({
       status: 'success',
       message: s.message,
       rating: s.vendor_rating || 0,
+      claimable_type: 'money', // These are always monetary
     }));
 
     const combined = [...voucherGifts, ...directFormatted, ...campaignContribs]
@@ -509,112 +540,80 @@ export async function fetchCreatorSupporters({
       return {success: true, data: [], totalReceived: 0, totalSupporters: 0};
     }
 
-    // 2. Get user's campaigns
-    const {data: userCampaigns} = await supabase
-      .from('campaigns')
-      .select('id, current_amount')
-      .eq('user_id', creator.id);
-
-    const campaignIds = (userCampaigns || []).map(c => c.id);
-    const campaignTotal = (userCampaigns || []).reduce(
-      (acc, c) => acc + (Number(c.current_amount) || 0),
-      0,
-    );
-
-    // 3. Sum total received from direct gifts (new type)
-    const {data: allReceipts} = await supabase
+    // 2. Primary source: transactions table (type=creator_support) — this is where
+    // recordCreatorGift stores the actual gift data for the creator's page.
+    const {data: allDirectTxs} = await supabase
       .from('transactions')
-      .select('amount')
+      .select('id, amount, created_at, metadata, description, currency')
       .eq('user_id', creator.id)
-      .in('type', ['receipt', 'creator_support'])
-      .eq('status', 'success');
+      .eq('type', 'creator_support')
+      .eq('status', 'success')
+      .order('created_at', {ascending: false});
 
-    const totalReceivedDirect = (allReceipts || []).reduce(
+    // Filter out claimed monetary gifts (these are self-claims via the claim flow)
+    const filteredTxs = (allDirectTxs || []).filter(t => {
+      const desc = t.description || '';
+      return !desc.startsWith('Claimed');
+    });
+
+    // 3. Calculate total received (in kobo, convert to main unit)
+    const totalReceived = filteredTxs.reduce(
       (acc, t) => acc + Number(t.amount) / 100,
       0,
     );
+    const totalSupporters = filteredTxs.length;
 
-    // 4. Count total supporters
-    const {count: receiptCount} = await supabase
-      .from('creator_support')
-      .select('id', {count: 'exact', head: true})
-      .eq('user_id', creator.id);
+    // 4. Paginate and format the list
+    const paginatedTxs = filteredTxs.slice(from, from + limit);
 
-    // For backward compatibility (legacy metadata-only gifts)
-    const {count: legacyCount} = await supabase
-      .from('transactions')
-      .select('id', {count: 'exact', head: true})
-      .eq('user_id', creator.id)
-      .eq('type', 'receipt')
-      .eq('status', 'success');
+    // Enrich with creator_support metadata if available
+    const txIds = paginatedTxs.map(t => t.id);
+    const {data: supportMeta} =
+      txIds.length > 0
+        ? await supabase
+            .from('creator_support')
+            .select(
+              'transaction_id, donor_name, donor_email, message, is_anonymous, hide_amount, gift_name',
+            )
+            .in('transaction_id', txIds)
+        : {data: []};
 
-    let contribCount = 0;
-    if (campaignIds.length > 0) {
-      const {count} = await supabase
-        .from('contributions')
-        .select('id', {count: 'exact', head: true})
-        .in('campaign_id', campaignIds);
-      contribCount = count || 0;
-    }
+    const metaMap = new Map(
+      (supportMeta || []).map(m => [m.transaction_id, m]),
+    );
 
-    // 5. Fetch paginated data — merge direct support + campaign contributions
-    const {data: supportData} = await supabase
-      .from('creator_support')
-      .select('*')
-      .eq('user_id', creator.id)
-      .order('created_at', {ascending: false})
-      .range(from, to);
+    const formatted = paginatedTxs.map((t: any) => {
+      const meta = metaMap.get(t.id);
+      const isAnon = meta?.is_anonymous || t.metadata?.is_anonymous || false;
+      const donorName =
+        meta?.donor_name ||
+        t.metadata?.donor_name ||
+        t.description
+          ?.replace('Direct support from ', '')
+          ?.replace('Message from ', '') ||
+        'Supporter';
 
-    const supportFormatted = (supportData || []).map((s: any) => ({
-      id: s.id,
-      name: s.is_anonymous ? 'Anonymous' : s.donor_name || 'Supporter',
-      amount: Number(s.amount),
-      currency: s.currency || 'NGN',
-      message: s.message || '',
-      date: new Date(s.created_at).toLocaleDateString(),
-      anonymous: s.is_anonymous,
-      hideAmount: s.hide_amount,
-      giftName: s.gift_name,
-      source: 'Supporter' as const,
-      campaignTitle: null,
-    }));
-
-    // Campaign contributions
-    let campaignContribs: any[] = [];
-    if (campaignIds.length > 0 && pageParam === 0) {
-      const {data: contribs} = await supabase
-        .from('contributions')
-        .select(
-          'id, amount, currency, donor_name, is_anonymous, message, created_at, hide_amount, campaigns(title)',
-        )
-        .in('campaign_id', campaignIds)
-        .order('created_at', {ascending: false})
-        .limit(10);
-
-      campaignContribs = (contribs || []).map((c: any) => ({
-        id: 'contrib-' + c.id,
-        name: c.is_anonymous ? 'Anonymous' : c.donor_name || 'Guest Donor',
-        amount: Number(c.amount),
-        currency: c.currency || 'NGN',
-        message: c.message || '',
-        date: new Date(c.created_at).toLocaleDateString(),
-        anonymous: c.is_anonymous,
-        hideAmount: c.hide_amount,
-        source: 'Donor' as const,
-        campaignTitle: (c.campaigns as any)?.title || 'Campaign',
-      }));
-    }
-
-    const combined = supportFormatted
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, limit);
+      return {
+        id: t.id,
+        name: isAnon ? 'Anonymous' : donorName,
+        amount: Number(t.amount) / 100,
+        currency: t.currency || 'NGN',
+        message: meta?.message || t.metadata?.message || '',
+        date: new Date(t.created_at).toLocaleDateString(),
+        anonymous: isAnon,
+        hideAmount: meta?.hide_amount || t.metadata?.hide_amount || false,
+        giftName: meta?.gift_name || t.metadata?.gift_name || null,
+        source: 'Supporter' as const,
+        campaignTitle: null,
+      };
+    });
 
     return {
       success: true,
-      data: combined,
-      totalReceived: totalReceivedDirect, // STRICT: Excluding campaign total
-      totalSupporters: (receiptCount || 0) + (legacyCount || 0), // STRICT: Excluding campaign contributors
-      nextPage: supportFormatted.length === limit ? pageParam + 1 : undefined,
+      data: formatted,
+      totalReceived,
+      totalSupporters,
+      nextPage: paginatedTxs.length === limit ? pageParam + 1 : undefined,
     };
   } catch (err: any) {
     console.error('fetchCreatorSupporters Error:', err);

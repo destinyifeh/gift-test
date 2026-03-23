@@ -2,7 +2,6 @@
 
 import {generateSlug} from '@/lib/utils/slugs';
 import {revalidatePath} from 'next/cache';
-import {createAdminClient} from '../supabase/admin';
 import {createClient} from '../supabase/server';
 import {sendGiftEmail} from './email';
 import {fetchVendorProductById} from './vendor';
@@ -63,13 +62,12 @@ export async function createCampaign(data: {
   ) {
     // Avoid transaction ID collisions by suffixing the reference
     const txRef = `${data.payment_reference}-out`;
-    const adminSupabase = createAdminClient();
-    const {error: txError} = await adminSupabase.from('transactions').insert({
+    const {error: txError} = await supabase.from('transactions').insert({
       user_id: user.id, // the sender
       campaign_id: campaign.id,
       amount: Math.round(data.goal_amount * 100), // stored in kobo
       currency: data.currency || 'NGN',
-      type: 'creator_support_sent', // Tracked in Sent Gifts and Recent Activity
+      type: 'campaign_contribution', // Since creator_support_sent isn't in DB enum
       status: 'success',
       reference: txRef,
       description: `Gift: ${data.title || 'Gift'} to ${data.recipient_email || 'Friend'}`,

@@ -154,7 +154,13 @@ export function SuccessScreen({
               <div className="flex flex-col sm:flex-row gap-3 pt-4">
                 {isClaimable ? (
                   <>
-                    <Link href="/create-campaign" className="flex-1">
+                    <Link
+                      href=""
+                      onClick={e => {
+                        e.preventDefault();
+                        window.location.href = '/create-campaign';
+                      }}
+                      className="flex-1">
                       <Button variant="hero" className="w-full h-12">
                         Create Another Campaign
                       </Button>

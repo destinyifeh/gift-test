@@ -560,12 +560,8 @@ export function WalletTab() {
                             : t.type}
                       </td>
                       <td
-                        className={`py-3 text-right font-semibold ${['receipt', 'creator_support', 'campaign_contribution'].includes(t.type) ? 'text-secondary' : 'text-destructive'}`}>
-                        {[
-                          'receipt',
-                          'creator_support',
-                          'campaign_contribution',
-                        ].includes(t.type)
+                        className={`py-3 text-right font-semibold ${['receipt', 'creator_support'].includes(t.type) ? 'text-secondary' : 'text-destructive'}`}>
+                        {['receipt', 'creator_support'].includes(t.type)
                           ? '+'
                           : '-'}
                         {formatCurrency(Math.abs(t.amount / 100), userCurrency)}

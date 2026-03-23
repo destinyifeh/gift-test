@@ -152,8 +152,8 @@ const SendCreatorGiftModal = ({
             hideAmount,
             expectedAmount: finalAmount,
             currency,
-            giftId: selectedGift,
-            giftName: selectedGiftData?.name,
+            giftId: activeTab === 'money' ? null : selectedGift,
+            giftName: activeTab === 'money' ? null : selectedGiftData?.name,
           });
 
           if (res.success) {

@@ -174,7 +174,7 @@ export function ReceivedGiftsTab({
                   {claimingId === g.id ? 'Claiming...' : 'Claim Gift'}
                 </Button>
               )}
-              {g.status === 'redeemed' && (
+              {g.status === 'redeemed' && g.claimable_type === 'gift-card' && (
                 <div className="flex flex-col items-end gap-1">
                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mr-1">
                     Rate Vendor

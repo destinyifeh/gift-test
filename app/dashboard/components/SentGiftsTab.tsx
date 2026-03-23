@@ -55,6 +55,11 @@ export function SentGiftsTab() {
                   {g.name}
                 </p>
                 <p className="text-sm text-muted-foreground truncate capitalize">
+                  {g.giftType && (
+                    <span className="font-semibold text-primary/80 mr-1">
+                      {g.giftType} •
+                    </span>
+                  )}
                   To: {g.recipient} · {g.date}
                 </p>
               </div>

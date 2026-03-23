@@ -44,7 +44,7 @@ export default function CreateCampaignPage() {
   const [submitted, setSubmitted] = useState(false);
   const [minAmount, setMinAmount] = useState('');
   const [image, setImage] = useState<string | null>(null);
-  const {data: profile} = useProfile();
+  const {data: profile, isLoading: isProfileLoading} = useProfile();
   const [currency, setCurrency] = useState('NGN');
   const [hasSetDefaultCurrency, setHasSetDefaultCurrency] = useState(false);
 
@@ -240,6 +240,14 @@ export default function CreateCampaignPage() {
     );
   }
 
+  if (isProfileLoading) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 bg-secondary/30">
+        <Navbar />
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+      </div>
+    );
+  }
   if (!profile) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 bg-secondary/30">
