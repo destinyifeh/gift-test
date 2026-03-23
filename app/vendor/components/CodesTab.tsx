@@ -30,10 +30,12 @@ export function CodesTab() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [redeeming, setRedeeming] = useState(false);
   const [unclaimedError, setUnclaimedError] = useState<string | null>(null);
+  const [invalidCodeError, setInvalidCodeError] = useState<string | null>(null);
 
   const handleVerify = async () => {
     if (!searchCode.trim()) return;
     setVerifying(true);
+    setInvalidCodeError(null);
     const res = await verifyVoucherCode(searchCode);
     setVerifying(false);
     if (res.success) {
@@ -45,7 +47,7 @@ export function CodesTab() {
         setUnclaimedError(res.error);
       } else {
         setUnclaimedError(null);
-        toast.error(res.error || 'Invalid code');
+        setInvalidCodeError(res.error || 'Invalid code');
       }
     }
   };
@@ -201,11 +203,21 @@ export function CodesTab() {
         </Card>
       )}
 
-      {!voucher && !unclaimedError && (
-        <div className="text-center py-12 bg-muted/30 rounded-xl border border-dashed border-border">
+      {!voucher && !unclaimedError && !invalidCodeError && (
+        <div className="text-center py-12 bg-muted/30 rounded-xl border border-dashed border-border animate-in fade-in duration-300">
           <Tag className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
           <p className="text-muted-foreground">
             Enter a voucher code above to verify and redeem.
+          </p>
+        </div>
+      )}
+
+      {invalidCodeError && (
+        <div className="text-center py-12 bg-red-500/5 rounded-xl border border-dashed border-red-500/20 animate-in zoom-in duration-300">
+          <XCircle className="w-12 h-12 text-red-500/50 mx-auto mb-3" />
+          <p className="text-red-500 font-bold text-lg">{invalidCodeError}</p>
+          <p className="text-sm text-red-500/70 mt-1">
+            Please check the code and try again.
           </p>
         </div>
       )}

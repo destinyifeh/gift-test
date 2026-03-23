@@ -6,6 +6,7 @@ import SendShopGiftModal from '@/components/SendShopGiftModal';
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
+import {VendorRating} from '@/components/VendorRating';
 import {useFavorites, useIsFavorited} from '@/hooks/use-favorites';
 import {useVendorProductBySlugs} from '@/hooks/use-vendor';
 import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
@@ -16,7 +17,6 @@ import {
   Loader2,
   Share2,
   ShoppingBag,
-  Star,
   Store,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -122,8 +122,11 @@ export default function GiftDetailPage({
                 {gift.name}
               </h1>
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-                <Star className="w-4 h-4 fill-accent text-accent" />{' '}
-                {gift.rating || 5.0} ·{' '}
+                <VendorRating
+                  vendorId={gift.vendor_id}
+                  className="mr-1"
+                  iconClassName="w-4 h-4"
+                />
                 <Link
                   href={`/gift-shop/${gift.profiles?.shop_slug}`}
                   className="text-primary hover:underline font-semibold flex items-center gap-1.5">

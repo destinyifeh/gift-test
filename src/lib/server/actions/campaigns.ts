@@ -2,6 +2,7 @@
 
 import {generateSlug} from '@/lib/utils/slugs';
 import {revalidatePath} from 'next/cache';
+import {createAdminClient} from '../supabase/admin';
 import {createClient} from '../supabase/server';
 import {sendGiftEmail} from './email';
 import {fetchVendorProductById} from './vendor';
@@ -21,6 +22,7 @@ export async function createCampaign(data: {
   claimable_recipient_type?: 'self' | 'other';
   recipient_email?: string;
   sender_email?: string;
+  sender_name?: string;
   gift_code?: string;
   currency?: string;
   payment_reference?: string;
@@ -53,6 +55,30 @@ export async function createCampaign(data: {
     return {success: false, error: error.message};
   }
 
+  // Handle Recording the Outbound Transaction for Paid Claimable Gifts
+  if (
+    data.category === 'claimable' &&
+    data.payment_reference &&
+    data.goal_amount
+  ) {
+    // Avoid transaction ID collisions by suffixing the reference
+    const txRef = `${data.payment_reference}-out`;
+    const adminSupabase = createAdminClient();
+    const {error: txError} = await adminSupabase.from('transactions').insert({
+      user_id: user.id, // the sender
+      campaign_id: campaign.id,
+      amount: Math.round(data.goal_amount * 100), // stored in kobo
+      currency: data.currency || 'NGN',
+      type: 'creator_support_sent', // Tracked in Sent Gifts and Recent Activity
+      status: 'success',
+      reference: txRef,
+      description: `Gift: ${data.title || 'Gift'} to ${data.recipient_email || 'Friend'}`,
+    });
+    if (txError) {
+      console.error('Error recording outbound gift transaction:', txError);
+    }
+  }
+
   revalidatePath('/dashboard');
 
   // Handle Email Sending for Claimable Gifts
@@ -81,9 +107,11 @@ export async function createCampaign(data: {
       }
     }
 
+    const finalSenderName = data.sender_name || senderName;
+
     await sendGiftEmail({
       to: data.recipient_email,
-      senderName,
+      senderName: finalSenderName,
       vendorShopName,
       giftName: data.title || 'Gift',
       giftAmount: data.goal_amount || 0,

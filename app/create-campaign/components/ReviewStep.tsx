@@ -13,6 +13,8 @@ interface ReviewStepProps {
     recipientType: 'self' | 'other';
     recipientEmail: string;
     senderEmail: string;
+    senderName?: string;
+    isAnonymous?: boolean;
   };
   standard: {
     title: string;

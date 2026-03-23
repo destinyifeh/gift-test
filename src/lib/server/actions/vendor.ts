@@ -1,6 +1,7 @@
 'use server';
 
 import {revalidatePath} from 'next/cache';
+import {createAdminClient} from '../supabase/admin';
 import {createClient} from '../supabase/server';
 
 /**
@@ -31,7 +32,35 @@ export async function fetchVendorProducts(
     return {success: false, error: error.message};
   }
 
-  return {success: true, data: data as any[]};
+  if (!data || data.length === 0) {
+    return {success: true, data: []};
+  }
+
+  // Fetch 'sold' counts from campaigns tracking purchased gifts
+  const productIds = data.map((p: any) => p.id);
+  const {data: soldCounts} = await supabase
+    .from('campaigns')
+    .select('claimable_gift_id')
+    .in('claimable_gift_id', productIds);
+
+  const soldMap = new Map();
+  if (soldCounts) {
+    for (const row of soldCounts) {
+      if (row.claimable_gift_id) {
+        soldMap.set(
+          row.claimable_gift_id,
+          (soldMap.get(row.claimable_gift_id) || 0) + 1,
+        );
+      }
+    }
+  }
+
+  const dataWithSold = data.map((p: any) => ({
+    ...p,
+    sold: soldMap.get(p.id) || 0,
+  }));
+
+  return {success: true, data: dataWithSold};
 }
 
 /**
@@ -288,7 +317,8 @@ export async function redeemVoucherCode(code: string) {
     };
   }
 
-  const {error} = await supabase
+  const adminSupabase = createAdminClient();
+  const {error} = await adminSupabase
     .from('campaigns')
     .update({
       status: 'redeemed',

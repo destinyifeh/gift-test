@@ -271,7 +271,11 @@ export async function fetchSentGiftsList({
       `,
       )
       .eq('user_id', user.id)
-      .in('type', ['campaign_contribution', 'creator_support'])
+      .in('type', [
+        'campaign_contribution',
+        'creator_support',
+        'creator_support_sent',
+      ])
       .order('created_at', {ascending: false})
       .range(from, to);
 
@@ -279,11 +283,18 @@ export async function fetchSentGiftsList({
 
     const formatted = txs.map((t: any) => ({
       id: t.id,
-      name: t.campaigns?.title || t.description || 'Personal Gift',
+      name:
+        t.campaigns?.title ||
+        (t.description?.includes(': ')
+          ? t.description.split(': ')[1].split(' to ')[0].trim()
+          : t.description) ||
+        'Personal Gift',
       recipient:
-        t.campaigns?.profiles?.display_name ||
-        t.description?.replace('Gift to ', '') ||
-        'Creator',
+        t.type === 'creator_support_sent' && t.description?.includes(' to ')
+          ? t.description.split(' to ')[1]
+          : t.campaigns?.profiles?.display_name ||
+            t.description?.replace('Gift to ', '') ||
+            'Creator',
       date: new Date(t.created_at).toLocaleDateString(),
       amount: Number(t.amount) / 100,
       currency: t.currency || 'USD',

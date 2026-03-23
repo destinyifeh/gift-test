@@ -12,12 +12,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {VendorRating} from '@/components/VendorRating';
 import {useFavorites} from '@/hooks/use-favorites';
 import {useVendorProducts} from '@/hooks/use-vendor';
 import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
 import {useUserStore} from '@/lib/store/useUserStore';
 import {motion} from 'framer-motion';
-import {Heart, Loader2, Search, ShoppingBag, Star} from 'lucide-react';
+import {Heart, Loader2, Search, ShoppingBag} from 'lucide-react';
 import Link from 'next/link';
 import {useState} from 'react';
 import {toast} from 'sonner';
@@ -192,10 +193,11 @@ export default function GiftShopPage() {
                             )}
                             {gift.price.toLocaleString()}
                           </span>
-                          <div className="flex items-center gap-1 text-xs sm:text-sm text-accent">
-                            <Star className="w-3 sm:w-3.5 h-3 sm:h-3.5 fill-accent" />
-                            {gift.rating || 5.0}
-                          </div>
+                          <VendorRating
+                            vendorId={gift.vendor_id}
+                            className="text-xs sm:text-sm text-accent"
+                            iconClassName="w-3 sm:w-3.5 h-3 sm:h-3.5"
+                          />
                         </div>
                       </CardContent>
                     </Link>

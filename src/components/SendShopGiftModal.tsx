@@ -6,6 +6,7 @@ import {Dialog, DialogContent, DialogTitle} from '@/components/ui/dialog';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
 import {VisuallyHidden} from '@/components/ui/visually-hidden';
+import {useProfile} from '@/hooks/use-profile';
 import {recordShopGiftPurchase} from '@/lib/server/actions/transactions';
 import {ArrowRight, Gift, Heart, Loader2} from 'lucide-react';
 import {useEffect, useState} from 'react';
@@ -34,6 +35,7 @@ const SendShopGiftModal = ({
     'recipient',
   );
   const [isLoading, setIsLoading] = useState(false);
+  const {data: profile} = useProfile();
 
   const [formData, setFormData] = useState({
     recipientEmail: '',
@@ -49,13 +51,13 @@ const SendShopGiftModal = ({
       setIsLoading(false);
       setFormData({
         recipientEmail: '',
-        senderName: '',
-        senderEmail: '',
+        senderName: profile?.display_name || profile?.username || '',
+        senderEmail: profile?.email || '',
         message: '',
         isAnonymous: false,
       });
     }
-  }, [open]);
+  }, [open, profile]);
 
   const validateRecipient = () => {
     if (!formData.recipientEmail) {

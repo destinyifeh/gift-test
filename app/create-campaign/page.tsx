@@ -35,6 +35,8 @@ export default function CreateCampaignPage() {
   const [goal, setGoal] = useState('');
   const [recipientEmail, setRecipientEmail] = useState('');
   const [senderEmail, setSenderEmail] = useState('');
+  const [senderName, setSenderName] = useState('');
+  const [isAnonymous, setIsAnonymous] = useState(false);
   const [visibility, setVisibility] = useState<'public' | 'private'>('public');
   const [contributorsSeeEachOther, setContributorsSeeEachOther] =
     useState(true);
@@ -57,6 +59,15 @@ export default function CreateCampaignPage() {
       setHasSetDefaultCurrency(true);
     }
   }, [profile, hasSetDefaultCurrency]);
+
+  useEffect(() => {
+    if (profile) {
+      if (!senderEmail && profile.email) setSenderEmail(profile.email);
+      if (!senderName && (profile.display_name || profile.username)) {
+        setSenderName(profile.display_name || profile.username);
+      }
+    }
+  }, [profile, senderEmail, senderName]);
 
   const [isLaunching, setIsLaunching] = useState(false);
 
@@ -188,6 +199,7 @@ export default function CreateCampaignPage() {
         image_url: finalImageUrl || undefined,
         recipient_email: recipientEmail || undefined,
         sender_email: senderEmail || undefined,
+        sender_name: isAnonymous ? 'Anonymous' : senderName || undefined,
         gift_code: giftCode || undefined,
         payment_reference: paymentReference,
       };
@@ -304,6 +316,10 @@ export default function CreateCampaignPage() {
                     setRecipientEmail: setRecipientEmail,
                     senderEmail: senderEmail,
                     setSenderEmail: setSenderEmail,
+                    senderName: senderName,
+                    setSenderName: setSenderName,
+                    isAnonymous: isAnonymous,
+                    setIsAnonymous: setIsAnonymous,
                   }}
                   standard={{
                     title,
@@ -345,6 +361,8 @@ export default function CreateCampaignPage() {
                     recipientType: claimableRecipientType,
                     recipientEmail: recipientEmail,
                     senderEmail: senderEmail,
+                    senderName: senderName,
+                    isAnonymous: isAnonymous,
                   }}
                   standard={{title, goal, endDate, currency}}
                 />

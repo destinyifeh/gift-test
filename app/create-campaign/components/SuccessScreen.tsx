@@ -74,63 +74,13 @@ export function SuccessScreen({
               </h2>
               <p className="text-muted-foreground text-sm">
                 {isClaimable
-                  ? 'Your gift is ready to be claimed. Share the unique link with the recipient.'
+                  ? 'Your gift has been sent successfully! The recipient will receive an email with their claim link.'
                   : 'Your campaign is now live. Share it with friends and start receiving gifts.'}
               </p>
             </div>
 
             <div className="space-y-6">
-              {isClaimable ? (
-                <div className="space-y-4">
-                  <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-                    Your Claim Link
-                  </Label>
-                  <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 text-center">
-                    <p className="text-xs text-muted-foreground mb-1 uppercase tracking-tighter">
-                      Unique Claim Link
-                    </p>
-                    <p className="font-mono font-bold text-lg text-primary mb-3 text-wrap break-all">
-                      {origin.replace(/^https?:\/\//, '')}/claim/
-                      {claimableGiftCode}
-                    </p>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1"
-                        onClick={() => {
-                          navigator.clipboard.writeText(
-                            `${origin}/claim/${claimableGiftCode}`,
-                          );
-                          setCopied(true);
-                          setTimeout(() => setCopied(false), 2000);
-                        }}>
-                        {copied ? (
-                          <CheckCircle className="w-4 h-4 mr-2" />
-                        ) : (
-                          <Copy className="w-4 h-4 mr-2" />
-                        )}
-                        {copied ? 'Copied' : 'Copy Link'}
-                      </Button>
-                      <Button
-                        variant="hero"
-                        size="sm"
-                        className="flex-1"
-                        onClick={() => {
-                          if (navigator.share) {
-                            navigator.share({
-                              title: 'Claim your gift!',
-                              text: `Here is your gift claim link: `,
-                              url: `${origin}/claim/${claimableGiftCode}`,
-                            });
-                          }
-                        }}>
-                        <Plus className="w-4 h-4 mr-2" /> Share Link
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ) : (
+              {!isClaimable && (
                 <>
                   <div className="space-y-2">
                     <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
@@ -202,22 +152,33 @@ export function SuccessScreen({
               )}
 
               <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                <Link
-                  href={
-                    isClaimable
-                      ? `/claim/${claimableGiftCode}`
-                      : `/campaign/${slug}`
-                  }
-                  className="flex-1">
-                  <Button variant="hero" className="w-full h-12">
-                    {isClaimable ? 'View Gift Preview' : 'View Campaign'}
-                  </Button>
-                </Link>
-                <Link href="/dashboard" className="flex-1">
-                  <Button variant="outline" className="w-full h-12">
-                    Go to Dashboard
-                  </Button>
-                </Link>
+                {isClaimable ? (
+                  <>
+                    <Link href="/create-campaign" className="flex-1">
+                      <Button variant="hero" className="w-full h-12">
+                        Create Another Campaign
+                      </Button>
+                    </Link>
+                    <Link href="/dashboard" className="flex-1">
+                      <Button variant="outline" className="w-full h-12">
+                        Go to Dashboard
+                      </Button>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link href={`/campaign/${slug}`} className="flex-1">
+                      <Button variant="hero" className="w-full h-12">
+                        View Campaign
+                      </Button>
+                    </Link>
+                    <Link href="/dashboard" className="flex-1">
+                      <Button variant="outline" className="w-full h-12">
+                        Go to Dashboard
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </CardContent>

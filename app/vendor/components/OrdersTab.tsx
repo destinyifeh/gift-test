@@ -37,8 +37,11 @@ export function OrdersTab() {
               </p>
               <p className="text-sm text-muted-foreground capitalize">
                 Buyer:{' '}
-                {o.profiles?.display_name || o.profiles?.username || 'User'} ·{' '}
-                {new Date(o.created_at).toLocaleDateString()}
+                {o.sender_name ||
+                  o.profiles?.display_name ||
+                  o.profiles?.username ||
+                  'User'}{' '}
+                · {new Date(o.created_at).toLocaleDateString()}
               </p>
             </div>
             <div className="flex items-center gap-3 self-end sm:self-auto">

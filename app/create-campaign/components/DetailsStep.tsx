@@ -32,6 +32,10 @@ interface DetailsStepProps {
     setRecipientEmail: (v: string) => void;
     senderEmail: string;
     setSenderEmail: (v: string) => void;
+    senderName: string;
+    setSenderName: (v: string) => void;
+    isAnonymous: boolean;
+    setIsAnonymous: (v: boolean) => void;
   };
   standard: {
     title: string;
@@ -204,6 +208,32 @@ export function DetailsStep({
               <p className="text-[10px] text-muted-foreground">
                 Used to send you the purchase receipt.
               </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <Label htmlFor="sender-name">Your Name (optional)</Label>
+              <Input
+                id="sender-name"
+                value={claimable.senderName}
+                onChange={e => claimable.setSenderName(e.target.value)}
+                placeholder="E.g. John Doe"
+              />
+            </div>
+            <div className="flex items-center space-x-2 pt-8">
+              <input
+                type="checkbox"
+                id="is-anonymous-claimable"
+                checked={claimable.isAnonymous}
+                onChange={e => claimable.setIsAnonymous(e.target.checked)}
+                className="w-4 h-4 text-primary bg-muted border-muted-foreground rounded"
+              />
+              <Label
+                htmlFor="is-anonymous-claimable"
+                className="cursor-pointer">
+                Hide my name from recipient
+              </Label>
             </div>
           </div>
 

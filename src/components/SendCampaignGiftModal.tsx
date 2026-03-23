@@ -6,6 +6,7 @@ import {Dialog, DialogContent, DialogTitle} from '@/components/ui/dialog';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
 import {VisuallyHidden} from '@/components/ui/visually-hidden';
+import {useProfile} from '@/hooks/use-profile';
 import {getCurrencySymbol} from '@/lib/constants/currencies';
 import {recordCampaignContribution} from '@/lib/server/actions/transactions';
 import {formatCurrency} from '@/lib/utils/currency';
@@ -48,20 +49,21 @@ const SendCampaignGiftModal = ({
   const [hideAmount, setHideAmount] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const queryClient = useQueryClient();
+  const {data: profile} = useProfile();
 
   useEffect(() => {
     if (open) {
       setStep('details');
       setAmount(null);
       setCustomAmount('');
-      setDonorName('');
-      setDonorEmail('');
+      setDonorName(profile?.display_name || profile?.username || '');
+      setDonorEmail(profile?.email || '');
       setMessage('');
       setIsAnonymous(false);
       setHideAmount(false);
       setIsProcessing(false);
     }
-  }, [open]);
+  }, [open, profile]);
 
   const handleNext = () => {
     if (step === 'details') setStep('recipient');
@@ -105,7 +107,8 @@ const SendCampaignGiftModal = ({
         key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY as string,
         email: donorEmail,
         amount: Math.round(finalAmount * 100), // Paystack expects kobo/cents
-        currency: currency,
+        //currency: currency,
+        currency: 'NGN',
         onSuccess: async (response: any) => {
           const res = await recordCampaignContribution({
             reference: response.reference,
