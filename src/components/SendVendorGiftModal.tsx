@@ -8,8 +8,11 @@ import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
 import {VisuallyHidden} from '@/components/ui/visually-hidden';
 import {allVendorGifts} from '@/lib/data/gifts';
-import {ArrowRight, CreditCard, Heart} from 'lucide-react';
+import {recordShopGiftPurchase} from '@/lib/server/actions/transactions';
+import PaystackPop from '@paystack/inline-js';
+import {ArrowRight, CreditCard, Heart, Loader2} from 'lucide-react';
 import {useEffect, useState} from 'react';
+import {toast} from 'sonner';
 import GiftSelection from './GiftSelection';
 
 interface SendVendorGiftModalProps {
@@ -27,18 +30,35 @@ const SendVendorGiftModal = ({
     'details' | 'recipient' | 'payment' | 'success'
   >('details');
   const [selectedGift, setSelectedGift] = useState<number | null>(null);
+  const [recipientEmail, setRecipientEmail] = useState('');
+  const [recipientUsername, setRecipientUsername] = useState('');
+  const [senderName, setSenderName] = useState('');
+  const [message, setMessage] = useState('');
+  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     if (open) {
       setStep('details');
       setSelectedGift(null);
+      setRecipientEmail('');
+      setRecipientUsername('');
+      setSenderName('');
+      setMessage('');
+      setIsAnonymous(false);
+      setIsProcessing(false);
     }
   }, [open]);
 
   const handleNext = () => {
     if (step === 'details') setStep('recipient');
-    else if (step === 'recipient') setStep('payment');
-    else if (step === 'payment') setStep('success');
+    else if (step === 'recipient') {
+      if (!recipientEmail || !recipientEmail.includes('@')) {
+        toast.error('Please enter a valid recipient email');
+        return;
+      }
+      setStep('payment');
+    } else if (step === 'payment') setStep('success');
   };
 
   const handleBack = () => {
@@ -118,6 +138,9 @@ const SendVendorGiftModal = ({
                     <Input
                       placeholder="E.g. alex@example.com"
                       type="email"
+                      required
+                      value={recipientEmail}
+                      onChange={e => setRecipientEmail(e.target.value)}
                       className="h-12 rounded-xl bg-muted/20 border-2 font-medium"
                     />
                     <p className="text-[10px] text-muted-foreground ml-1">
@@ -130,6 +153,8 @@ const SendVendorGiftModal = ({
                     </Label>
                     <Input
                       placeholder="E.g. alexsmith"
+                      value={recipientUsername}
+                      onChange={e => setRecipientUsername(e.target.value)}
                       className="h-12 rounded-xl bg-muted/20 border-2 font-medium"
                     />
                   </div>
@@ -139,6 +164,8 @@ const SendVendorGiftModal = ({
                     </Label>
                     <Input
                       placeholder="E.g. John Doe"
+                      value={senderName}
+                      onChange={e => setSenderName(e.target.value)}
                       className="h-12 rounded-xl bg-muted/20 border-2 font-medium"
                     />
                   </div>
@@ -149,13 +176,24 @@ const SendVendorGiftModal = ({
                     <textarea
                       className="w-full min-h-[100px] p-3 rounded-xl bg-muted/20 border-2 font-medium focus:outline-none focus:border-primary transition-all resize-none text-sm"
                       placeholder="Tell them why you chose this..."
+                      value={message}
+                      onChange={e => setMessage(e.target.value)}
                     />
                   </div>
-                  <div className="flex items-center space-x-2 p-3 rounded-xl bg-muted/10 border border-transparent hover:border-primary/20 transition-all cursor-pointer">
-                    <Checkbox id="anonymous" />
+                  <div
+                    className="flex items-center space-x-2 p-3 rounded-xl bg-muted/10 border border-transparent hover:border-primary/20 transition-all cursor-pointer"
+                    onClick={() => setIsAnonymous(!isAnonymous)}>
+                    <Checkbox
+                      id="anonymous"
+                      checked={isAnonymous}
+                      onCheckedChange={checked =>
+                        setIsAnonymous(checked as boolean)
+                      }
+                      className="pointer-events-none"
+                    />
                     <label
                       htmlFor="anonymous"
-                      className="text-sm font-medium leading-none cursor-pointer">
+                      className="text-sm font-medium leading-none cursor-pointer pointer-events-none">
                       Hide my name
                     </label>
                   </div>
@@ -181,7 +219,7 @@ const SendVendorGiftModal = ({
                 <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 flex items-center justify-between">
                   <div>
                     <p className="text-xs font-bold text-muted-foreground uppercase">
-                      Summary
+                      Gift Card
                     </p>
                     <p className="font-bold text-lg">
                       {selectedGiftData?.name}
@@ -191,51 +229,72 @@ const SendVendorGiftModal = ({
                     ${selectedGiftData?.price}
                   </p>
                 </div>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">
-                      Card Details
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        placeholder="0000 0000 0000 0000"
-                        className="h-12 rounded-xl bg-muted/20 border-2 font-medium pl-10"
-                      />
-                      <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    </div>
+
+                <div className="p-4 bg-muted/20 rounded-2xl border-2 border-dashed border-border text-center space-y-2">
+                  <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                    <CreditCard className="w-5 h-5 text-primary" />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">
-                        Expiry
-                      </Label>
-                      <Input
-                        placeholder="MM / YY"
-                        className="h-12 rounded-xl bg-muted/20 border-2 font-medium"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">
-                        CVC
-                      </Label>
-                      <Input
-                        placeholder="123"
-                        className="h-12 rounded-xl bg-muted/20 border-2 font-medium"
-                      />
-                    </div>
-                  </div>
+                  <h4 className="font-bold text-sm">Secure Payment Required</h4>
+                  <p className="text-[10px] text-muted-foreground leading-relaxed px-4">
+                    You'll be redirected to our secure payment partner to
+                    complete this purchase.
+                  </p>
                 </div>
+
                 <div className="flex gap-3 pt-2">
                   <Button
                     variant="outline"
                     className="h-14 px-6 rounded-2xl font-bold border-2"
-                    onClick={handleBack}>
+                    onClick={handleBack}
+                    disabled={isProcessing}>
                     Back
                   </Button>
                   <Button
                     className="flex-1 h-14 text-lg font-bold shadow-lg shadow-primary/20 rounded-2xl"
-                    onClick={handleNext}>
-                    Pay ${selectedGiftData?.price}
+                    disabled={isProcessing}
+                    onClick={async () => {
+                      if (!selectedGiftData) return;
+                      setIsProcessing(true);
+
+                      const paystack = new PaystackPop();
+                      paystack.newTransaction({
+                        key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || '',
+                        email: recipientEmail, // Or current user email
+                        amount: Math.round(selectedGiftData.price * 100),
+                        currency: 'USD',
+                        onSuccess: async (response: any) => {
+                          const result = await recordShopGiftPurchase({
+                            reference: response.reference,
+                            recipientEmail,
+                            senderName: isAnonymous ? 'Anonymous' : senderName,
+                            message,
+                            giftId: selectedGiftData.id,
+                            giftName: selectedGiftData.name,
+                            expectedAmount: selectedGiftData.price,
+                            currency: 'USD',
+                          });
+
+                          if (result.success) {
+                            setStep('success');
+                          } else {
+                            toast.error(
+                              result.error ||
+                                'Payment recorded but failed to finalize gift',
+                            );
+                          }
+                          setIsProcessing(false);
+                        },
+                        onCancel: () => {
+                          toast.info('Payment cancelled');
+                          setIsProcessing(false);
+                        },
+                      });
+                    }}>
+                    {isProcessing ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      `Pay $${selectedGiftData?.price}`
+                    )}
                   </Button>
                 </div>
               </div>

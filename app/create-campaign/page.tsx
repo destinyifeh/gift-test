@@ -4,13 +4,16 @@ import Navbar from '@/components/landing/Navbar';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
 import {useProfile} from '@/hooks/use-profile';
+import {useVendorProducts} from '@/hooks/use-vendor';
 import {SUPPORTED_CURRENCIES} from '@/lib/constants/currencies';
-import {allVendorGifts} from '@/lib/data/gifts';
+// import {allVendorGifts} from '@/lib/data/gifts';
 import {
   createCampaign,
   uploadCampaignImage,
 } from '@/lib/server/actions/campaigns';
-import {ArrowLeft, ArrowRight, Loader2} from 'lucide-react';
+import PaystackPop from '@paystack/inline-js';
+import {ArrowLeft, ArrowRight, Loader2, Lock} from 'lucide-react';
+import Link from 'next/link';
 import {useEffect, useRef, useState} from 'react';
 import {toast} from 'sonner';
 
@@ -26,10 +29,12 @@ import {VisibilityStep} from './components/VisibilityStep';
 export default function CreateCampaignPage() {
   const [step, setStep] = useState(0);
   const [category, setCategory] = useState('');
+  const {data: products = []} = useVendorProducts();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [goal, setGoal] = useState('');
   const [recipientEmail, setRecipientEmail] = useState('');
+  const [senderEmail, setSenderEmail] = useState('');
   const [visibility, setVisibility] = useState<'public' | 'private'>('public');
   const [contributorsSeeEachOther, setContributorsSeeEachOther] =
     useState(true);
@@ -99,6 +104,38 @@ export default function CreateCampaignPage() {
   };
 
   const handleLaunch = async () => {
+    if (category === 'claimable') {
+      // Trigger Paystack for claimable gifts
+      const amount =
+        claimableGiftType === 'money'
+          ? parseFloat(claimableAmount)
+          : products.find(p => p.id === claimableGiftId)?.price || 0;
+
+      if (!amount || amount <= 0) {
+        toast.error('Invalid amount for gift');
+        return;
+      }
+
+      const paystack = new PaystackPop();
+      paystack.newTransaction({
+        key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || '',
+        email: senderEmail || profile?.email || '',
+        amount: Math.round(amount * 100), // convert to kobo
+        // currency: currency,
+        currency: 'NGN',
+        onSuccess: (response: any) => {
+          proceedWithLaunch(response.reference);
+        },
+        onCancel: () => {
+          toast.info('Payment cancelled');
+        },
+      });
+    } else {
+      proceedWithLaunch();
+    }
+  };
+
+  const proceedWithLaunch = async (paymentReference?: string) => {
     setIsLaunching(true);
     try {
       let finalImageUrl = image;
@@ -131,9 +168,14 @@ export default function CreateCampaignPage() {
 
       const campaignData = {
         category,
-        title,
+        title: title || (category === 'claimable' ? 'Gift' : ''),
         description,
-        goal_amount: goal ? parseFloat(goal) : undefined,
+        goal_amount: goal
+          ? parseFloat(goal)
+          : category === 'claimable'
+            ? parseFloat(claimableAmount) ||
+              products.find(p => p.id === claimableGiftId)?.price
+            : undefined,
         min_amount: minAmount ? parseFloat(minAmount) : undefined,
         currency,
         end_date: endDate || undefined,
@@ -145,7 +187,9 @@ export default function CreateCampaignPage() {
         status: 'active',
         image_url: finalImageUrl || undefined,
         recipient_email: recipientEmail || undefined,
+        sender_email: senderEmail || undefined,
         gift_code: giftCode || undefined,
+        payment_reference: paymentReference,
       };
 
       const result = await createCampaign(campaignData);
@@ -155,7 +199,11 @@ export default function CreateCampaignPage() {
           setCreatedSlug(result.data.slug);
         }
         setSubmitted(true);
-        toast.success('Campaign launched successfully! 🚀');
+        toast.success(
+          category === 'claimable'
+            ? 'Gift launched successfully! 🎁'
+            : 'Campaign launched successfully! 🚀',
+        );
       } else {
         toast.error(result.error || 'Failed to launch campaign');
       }
@@ -177,6 +225,38 @@ export default function CreateCampaignPage() {
         claimableGiftCode={claimableGiftCode}
         slug={createdSlug}
       />
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 bg-secondary/30">
+        <Navbar />
+        <Card className="w-full max-w-md border-border shadow-2xl rounded-3xl p-8 text-center space-y-6">
+          <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto">
+            <Lock className="w-8 h-8 text-primary" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold">Authentication Required</h1>
+            <p className="text-muted-foreground text-sm">
+              You must be logged in to create a campaign.
+            </p>
+          </div>
+          <div className="flex flex-col gap-3">
+            <Button asChild className="h-12 font-bold rounded-xl">
+              <Link href="/login?redirect=/create-campaign">Sign In</Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="h-12 font-bold rounded-xl">
+              <Link href="/signup?redirect=/create-campaign">
+                Create Account
+              </Link>
+            </Button>
+          </div>
+        </Card>
+      </div>
     );
   }
 
@@ -204,7 +284,7 @@ export default function CreateCampaignPage() {
               {step === 1 && (
                 <DetailsStep
                   category={category}
-                  allVendorGifts={allVendorGifts}
+                  allVendorGifts={products}
                   description={description}
                   setDescription={setDescription}
                   image={image}
@@ -222,6 +302,8 @@ export default function CreateCampaignPage() {
                     setRecipientType: setClaimableRecipientType,
                     recipientEmail: recipientEmail,
                     setRecipientEmail: setRecipientEmail,
+                    senderEmail: senderEmail,
+                    setSenderEmail: setSenderEmail,
                   }}
                   standard={{
                     title,
@@ -255,15 +337,16 @@ export default function CreateCampaignPage() {
                   visibility={visibility}
                   image={image}
                   contributorsSeeEachOther={contributorsSeeEachOther}
-                  allVendorGifts={allVendorGifts}
+                  allVendorGifts={products}
                   claimable={{
                     giftType: claimableGiftType,
                     amount: claimableAmount,
                     giftId: claimableGiftId,
                     recipientType: claimableRecipientType,
                     recipientEmail: recipientEmail,
+                    senderEmail: senderEmail,
                   }}
-                  standard={{title, goal, endDate}}
+                  standard={{title, goal, endDate, currency}}
                 />
               )}
 

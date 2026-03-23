@@ -5,10 +5,11 @@ import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
 import {InfiniteScroll} from '@/components/ui/infinite-scroll';
 import {fetchReceivedGiftsList} from '@/lib/server/actions/analytics';
+import {claimGiftByCode} from '@/lib/server/actions/claim';
 import {rateSupportGift, rateVoucherGift} from '@/lib/server/actions/ratings';
 import {formatCurrency} from '@/lib/utils/currency';
 import {useInfiniteQuery} from '@tanstack/react-query';
-import {ArrowUpRight, CheckCircle2, Gift, Loader2, Star} from 'lucide-react';
+import {CheckCircle2, Gift, Loader2, Star} from 'lucide-react';
 import Link from 'next/link';
 import {useState} from 'react';
 import {toast} from 'sonner';
@@ -29,6 +30,7 @@ export function ReceivedGiftsTab({
   const [hoverRating, setHoverRating] = useState<
     Record<string | number, number>
   >({});
+  const [claimingId, setClaimingId] = useState<string | null>(null);
 
   const handleRate = async (giftId: string | number, rating: number) => {
     // Optimistic update
@@ -62,6 +64,7 @@ export function ReceivedGiftsTab({
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    refetch,
   } = useInfiniteQuery({
     queryKey: ['received-gifts'],
     initialPageParam: 0,
@@ -143,11 +146,35 @@ export function ReceivedGiftsTab({
                     setSection('wallet');
                     setWalletView();
                   }}>
-                  <ArrowUpRight className="w-3 h-3 mr-1" />
                   Withdraw
                 </Button>
               )}
-              {g.status === 'claimed' && (
+              {g.status === 'pending-claim' && (
+                <Button
+                  size="sm"
+                  disabled={claimingId === g.id}
+                  className="bg-primary hover:bg-primary/90 text-white font-bold px-6 shadow-lg shadow-primary/20"
+                  onClick={async e => {
+                    e.stopPropagation();
+                    setClaimingId(g.id);
+                    const res = await claimGiftByCode(g.code!);
+                    if (res.success) {
+                      toast.success('Gift successfully claimed! ✨');
+                      refetch();
+                    } else {
+                      toast.error(res.error || 'Claim failed');
+                    }
+                    setClaimingId(null);
+                  }}>
+                  {claimingId === g.id ? (
+                    <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                  ) : (
+                    <Gift className="w-3 h-3 mr-1" />
+                  )}
+                  {claimingId === g.id ? 'Claiming...' : 'Claim Gift'}
+                </Button>
+              )}
+              {g.status === 'redeemed' && (
                 <div className="flex flex-col items-end gap-1">
                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mr-1">
                     Rate Vendor

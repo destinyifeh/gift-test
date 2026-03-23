@@ -249,31 +249,37 @@ const SendCampaignGiftModal = ({
                     />
                   </div>
                   <div className="flex flex-col gap-3 p-3 rounded-xl bg-muted/10 border border-transparent hover:border-primary/20 transition-all">
-                    <div className="flex items-center space-x-2 cursor-pointer">
+                    <div
+                      className="flex items-center space-x-2 cursor-pointer"
+                      onClick={() => setIsAnonymous(!isAnonymous)}>
                       <Checkbox
                         id="anonymous"
                         checked={isAnonymous}
                         onCheckedChange={checked =>
                           setIsAnonymous(checked as boolean)
                         }
+                        className="pointer-events-none"
                       />
                       <label
                         htmlFor="anonymous"
-                        className="text-sm font-medium leading-none cursor-pointer">
+                        className="text-sm font-medium leading-none cursor-pointer pointer-events-none">
                         Hide my name from campaign
                       </label>
                     </div>
-                    <div className="flex items-center space-x-2 cursor-pointer border-t border-muted pt-2">
+                    <div
+                      className="flex items-center space-x-2 cursor-pointer border-t border-muted pt-2"
+                      onClick={() => setHideAmount(!hideAmount)}>
                       <Checkbox
                         id="hideAmount"
                         checked={hideAmount}
                         onCheckedChange={checked =>
                           setHideAmount(checked as boolean)
                         }
+                        className="pointer-events-none"
                       />
                       <label
                         htmlFor="hideAmount"
-                        className="text-sm font-medium leading-none cursor-pointer">
+                        className="text-sm font-medium leading-none cursor-pointer pointer-events-none">
                         Hide my contribution amount
                       </label>
                     </div>

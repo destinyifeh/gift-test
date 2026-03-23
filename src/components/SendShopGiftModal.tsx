@@ -7,7 +7,7 @@ import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
 import {VisuallyHidden} from '@/components/ui/visually-hidden';
 import {recordShopGiftPurchase} from '@/lib/server/actions/transactions';
-import {ArrowRight, Heart, Loader2} from 'lucide-react';
+import {ArrowRight, Gift, Heart, Loader2} from 'lucide-react';
 import {useEffect, useState} from 'react';
 import {toast} from 'sonner';
 
@@ -123,7 +123,7 @@ const SendShopGiftModal = ({
         recordShopGiftPurchase({
           reference: transaction.reference,
           recipientEmail: formData.recipientEmail,
-          senderName: formData.senderName,
+          senderName: formData.isAnonymous ? 'Anonymous' : formData.senderName,
           message: formData.message,
           giftId: Number(gift.id),
           giftName: gift.name,
@@ -170,7 +170,9 @@ const SendShopGiftModal = ({
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  gift.name.split(' ')[0]
+                  <div className="w-full h-full bg-primary/10 flex items-center justify-center">
+                    <Gift className="w-7 h-7 text-primary" />
+                  </div>
                 )}
               </div>
               <div>
@@ -272,17 +274,25 @@ const SendShopGiftModal = ({
                     />
                   </div>
 
-                  <div className="flex items-center space-x-2 p-3 rounded-xl bg-muted/10 border border-transparent hover:border-primary/20 transition-all cursor-pointer">
+                  <div
+                    className="flex items-center space-x-2 p-3 rounded-xl bg-muted/10 border border-transparent hover:border-primary/20 transition-all cursor-pointer"
+                    onClick={() =>
+                      setFormData({
+                        ...formData,
+                        isAnonymous: !formData.isAnonymous,
+                      })
+                    }>
                     <Checkbox
                       id="anonymous"
                       checked={formData.isAnonymous}
                       onCheckedChange={(checked: boolean) =>
                         setFormData({...formData, isAnonymous: checked})
                       }
+                      className="pointer-events-none"
                     />
                     <label
                       htmlFor="anonymous"
-                      className="text-sm font-medium leading-none cursor-pointer">
+                      className="text-sm font-medium leading-none cursor-pointer pointer-events-none">
                       Hide my name from recipient
                     </label>
                   </div>

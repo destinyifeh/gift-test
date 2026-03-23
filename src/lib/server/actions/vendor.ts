@@ -240,6 +240,19 @@ export async function verifyVoucherCode(code: string) {
     }
   }
 
+  // CHECK: If the gift hasn't been claimed yet, it shouldn't be redeemed
+  if (
+    campaign.status === 'active' ||
+    !campaign.user_id ||
+    campaign.user_id === campaign.profiles.id
+  ) {
+    return {
+      success: false,
+      error:
+        'This gift card is yet to be claimed by the recipient. Redemption is only possible after the gift has been claimed.',
+    };
+  }
+
   return {success: true, data: campaign};
 }
 
@@ -253,6 +266,27 @@ export async function redeemVoucherCode(code: string) {
   } = await supabase.auth.getUser();
 
   if (!user) return {success: false, error: 'Not authenticated'};
+
+  // 1. Verify it's claimable and already claimed
+  const {data: campaign, error: vError} = await supabase
+    .from('campaigns')
+    .select('status')
+    .eq('gift_code', code.trim())
+    .single();
+
+  if (vError || !campaign) {
+    return {success: false, error: 'Invalid or expired code'};
+  }
+
+  if (campaign.status !== 'claimed') {
+    return {
+      success: false,
+      error:
+        campaign.status === 'active'
+          ? 'This gift card is yet to be claimed by the recipient.'
+          : `This gift card cannot be redeemed (Status: ${campaign.status})`,
+    };
+  }
 
   const {error} = await supabase
     .from('campaigns')

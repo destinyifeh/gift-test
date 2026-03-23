@@ -31,66 +31,82 @@ export const GiftCardEmail = ({
   message,
   claimUrl,
   currencySymbol = '₦',
-}: GiftCardEmailProps) => (
-  <Html>
-    <Head />
-    <Preview>You’ve just received a gift from {senderName}!</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Section style={header}>
-          <Text style={logo}>GIFTHANCE</Text>
-        </Section>
+}: GiftCardEmailProps) => {
+  const capitalizedSender = senderName
+    ? senderName.charAt(0).toUpperCase() + senderName.slice(1)
+    : 'A Friend';
+  const capitalizedVendor = vendorShopName
+    ? vendorShopName.charAt(0).toUpperCase() + vendorShopName.slice(1)
+    : 'Gift Partner';
 
-        <Section style={hero}>
-          <Heading style={h1}>Hi there 👋</Heading>
-          <Text style={heroText}>You’ve just received a special gift!</Text>
-        </Section>
+  return (
+    <Html>
+      <Head />
+      <Preview>You’ve just received a gift from {capitalizedSender}!</Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Section style={header}>
+            <Text style={logo}>GIFTHANCE</Text>
+          </Section>
 
-        <Section style={card}>
-          <Section style={cardGradient}>
+          <Section style={hero}>
+            <Heading style={h1}>Hi there! 👋</Heading>
+            <Text style={heroText}>You’ve just received a special gift!</Text>
+          </Section>
+
+          <Section style={card}>
             <Section style={cardContent}>
               <Text style={giftTitle}>🎁 {giftName}</Text>
               <Heading style={amount}>
                 {currencySymbol}
-                {giftAmount.toLocaleString()}
+                {Number(giftAmount).toLocaleString()}
               </Heading>
-              <Text style={fromText}>
-                From: <span style={bold}>{vendorShopName}</span>
-              </Text>
-              <Text style={fromText}>
-                Sent by: <span style={bold}>{senderName}</span>
-              </Text>
+
+              <Section style={infoSection}>
+                <table width="100%" cellPadding="0" cellSpacing="0">
+                  <tr>
+                    <td style={infoLabel}>From</td>
+                    <td style={infoValue}>{capitalizedVendor}</td>
+                  </tr>
+                  <tr>
+                    <td style={infoLabel}>Sent by</td>
+                    <td style={infoValue}>{capitalizedSender}</td>
+                  </tr>
+                </table>
+              </Section>
             </Section>
           </Section>
-        </Section>
 
-        {message && (
-          <Section style={messageSection}>
-            <Text style={messageQuote}>"{message}"</Text>
+          {message && (
+            <Section style={messageSection}>
+              <Text style={messageQuote}>"{message}"</Text>
+            </Section>
+          )}
+
+          <Section style={ctaSection}>
+            <Button style={button} href={claimUrl}>
+              Claim Your Gift
+            </Button>
+            <Text style={expiryText}>
+              Click the button above to add this gift to your account.
+            </Text>
           </Section>
-        )}
 
-        <Section style={ctaSection}>
-          <Button style={button} href={claimUrl}>
-            Claim Your Gift
-          </Button>
-        </Section>
+          <Hr style={hr} />
 
-        <Hr style={hr} />
-
-        <Section style={footer}>
-          <Text style={footerText}>
-            This gift is waiting for you on Gifthance 🎉. Enjoy your gifting
-            experience!
-          </Text>
-          <Text style={footerSubtext}>
-            © 2026 Gifthance. All rights reserved.
-          </Text>
-        </Section>
-      </Container>
-    </Body>
-  </Html>
-);
+          <Section style={footer}>
+            <Text style={footerText}>
+              This gift is waiting for you on Gifthance 🎉.
+            </Text>
+            <Text style={footerSubtext}>
+              © 2026 Gifthance. All rights reserved.
+            </Text>
+          </Section>
+        </Container>
+      </Body>
+    </Html>
+  );
+};
 
 const main = {
   backgroundColor: '#f6f9fc',
@@ -194,6 +210,31 @@ const bold = {
   color: '#000',
 };
 
+const infoSection = {
+  backgroundColor: '#f8fafc',
+  borderRadius: '16px',
+  padding: '20px',
+  marginTop: '24px',
+  border: '1px solid #e2e8f0',
+};
+
+const infoLabel = {
+  fontSize: '13px',
+  fontWeight: '600',
+  color: '#64748b',
+  textTransform: 'uppercase' as const,
+  letterSpacing: '0.05em',
+  padding: '4px 0',
+};
+
+const infoValue = {
+  fontSize: '15px',
+  fontWeight: '700',
+  color: '#1e293b',
+  textAlign: 'right' as const,
+  padding: '4px 0',
+};
+
 const messageSection = {
   textAlign: 'center' as const,
   padding: '0 32px',
@@ -225,6 +266,13 @@ const button = {
   maxWidth: '280px',
   padding: '18px 0',
   boxShadow: '0 8px 24px rgba(249, 115, 22, 0.4)',
+};
+
+const expiryText = {
+  fontSize: '12px',
+  color: '#94a3b8',
+  marginTop: '16px',
+  fontWeight: '500',
 };
 
 const linkText = {

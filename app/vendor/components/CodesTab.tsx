@@ -19,7 +19,7 @@ import {
   redeemVoucherCode,
   verifyVoucherCode,
 } from '@/lib/server/actions/vendor';
-import {CheckCircle2, Search, Tag, XCircle} from 'lucide-react';
+import {CheckCircle2, Gift, Search, Tag, XCircle} from 'lucide-react';
 import {useState} from 'react';
 import {toast} from 'sonner';
 
@@ -29,6 +29,7 @@ export function CodesTab() {
   const [voucher, setVoucher] = useState<any>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [redeeming, setRedeeming] = useState(false);
+  const [unclaimedError, setUnclaimedError] = useState<string | null>(null);
 
   const handleVerify = async () => {
     if (!searchCode.trim()) return;
@@ -37,9 +38,15 @@ export function CodesTab() {
     setVerifying(false);
     if (res.success) {
       setVoucher(res.data);
+      setUnclaimedError(null);
     } else {
       setVoucher(null);
-      toast.error(res.error || 'Invalid code');
+      if (res.error?.includes('yet to be claimed')) {
+        setUnclaimedError(res.error);
+      } else {
+        setUnclaimedError(null);
+        toast.error(res.error || 'Invalid code');
+      }
     }
   };
 
@@ -174,7 +181,27 @@ export function CodesTab() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {!voucher && (
+      {unclaimedError && (
+        <Card className="border-amber-500/20 bg-amber-500/5 animate-in fade-in slide-in-from-top-4 duration-300">
+          <CardContent className="p-10 text-center flex flex-col items-center justify-center gap-4">
+            <div className="w-16 h-16 bg-amber-500/10 rounded-full flex items-center justify-center border border-amber-500/20 mb-2">
+              <Gift className="w-8 h-8 text-amber-500" />
+            </div>
+            <h3 className="text-xl font-bold text-amber-600">
+              Pending Recipient Claim
+            </h3>
+            <p className="text-muted-foreground max-w-sm mx-auto leading-relaxed">
+              {unclaimedError}
+            </p>
+            <div className="mt-4 p-3 bg-amber-500/10 rounded-lg text-xs font-medium text-amber-700 flex items-center gap-2">
+              Please ask the customer to check their email and click "Claim"
+              first.
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {!voucher && !unclaimedError && (
         <div className="text-center py-12 bg-muted/30 rounded-xl border border-dashed border-border">
           <Tag className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
           <p className="text-muted-foreground">

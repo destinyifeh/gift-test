@@ -4,6 +4,7 @@ import {getCurrencyByCountry} from '@/lib/constants/currencies';
 import {sendThankYouEmail} from '@/lib/server/actions/email';
 import {generateGiftCode} from '@/lib/utils/gift-codes';
 import {revalidatePath} from 'next/cache';
+import {createAdminClient} from '../supabase/admin';
 import {createClient} from '../supabase/server';
 
 export async function verifyPaymentAndUpgrade(reference: string) {
@@ -249,12 +250,14 @@ export async function fetchWalletProfile() {
           'campaign_contribution',
           'creator_support',
           'creator_support_sent',
+          'receipt',
         ])
         .order('created_at', {ascending: false}),
       supabase
         .from('campaigns')
         .select('current_amount')
-        .eq('user_id', user.id),
+        .eq('user_id', user.id)
+        .is('gift_code', null),
     ]);
 
   // Total Inflow: Campaigns + Direct Gifts
@@ -264,7 +267,10 @@ export async function fetchWalletProfile() {
   );
 
   const totalDirectInflowKobo = (txs || []).reduce((acc, t) => {
-    if (t.type === 'creator_support' && t.status === 'success') {
+    if (
+      (t.type === 'creator_support' || t.type === 'receipt') &&
+      t.status === 'success'
+    ) {
       return acc + Number(t.amount);
     }
     return acc;
@@ -514,10 +520,13 @@ export async function recordCampaignContribution({
       // Don't fail the whole process if just metadata insert fails, payment is secured
     }
 
-    // 5. Update campaign total
-    await supabase
+    // 5. Update campaign total (Use admin client to bypass RLS for non-owners/guests)
+    const admin = createAdminClient();
+    await admin
       .from('campaigns')
-      .update({current_amount: Number(campaign.current_amount) + paidAmount});
+      .update({current_amount: Number(campaign.current_amount) + paidAmount})
+      .eq('id', campaign.id);
+
     revalidatePath(`/campaign/${campaignSlug}`);
     return {success: true};
   } catch (err: any) {
@@ -555,7 +564,7 @@ export async function recordCreatorGift({
   // 1. Get creator profile ID
   const {data: creator} = await supabase
     .from('profiles')
-    .select('id, display_name, theme_settings')
+    .select('id, display_name, email, theme_settings')
     .ilike('username', creatorUsername)
     .single();
 
@@ -581,9 +590,10 @@ export async function recordCreatorGift({
       giftName?.split(' ')[1]?.substring(0, 3).toUpperCase() || 'GFT';
     giftCode = `${prefix}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-    // Create the campaign record for the vendor gift
-    const {error: campaignError} = await supabase.from('campaigns').insert({
-      user_id: creator.id,
+    // Create the campaign record for the vendor gift (Use admin client)
+    const admin = createAdminClient();
+    const {error: campaignError} = await admin.from('campaigns').insert({
+      user_id: null, // Unclaimed
       title: giftName || 'Gift Card',
       slug: `${creatorUsername}-gift-${Date.now()}`,
       status: 'active',
@@ -595,6 +605,9 @@ export async function recordCreatorGift({
       currency: currency,
       category: 'other',
       visibility: 'private',
+      sender_name: isAnonymous ? 'Anonymous' : donorName,
+      recipient_email: creator.email,
+      message: message,
     });
 
     if (campaignError) {
@@ -888,7 +901,9 @@ export async function recordShopGiftPurchase({
       }
     }
     // We are setting user_id to vendor_id so they can see it as "Pending Claim"
-    const {error: campaignError} = await supabase.from('campaigns').insert({
+    // Use admin client to bypass RLS for guest/non-owner purchases
+    const admin = createAdminClient();
+    const {error: campaignError} = await admin.from('campaigns').insert({
       user_id: gift.vendor_id,
       title: giftName,
       slug: `gift-${giftCode.toLowerCase()}-${Date.now()}`,

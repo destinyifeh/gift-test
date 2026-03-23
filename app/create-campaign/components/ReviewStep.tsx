@@ -1,7 +1,8 @@
 'use client';
 
 import {Badge} from '@/components/ui/badge';
-import {CreditCard, Globe, Lock} from 'lucide-react';
+import {getCurrencySymbol} from '@/lib/constants/currencies';
+import {Globe, Lock} from 'lucide-react';
 
 interface ReviewStepProps {
   category: string;
@@ -11,11 +12,13 @@ interface ReviewStepProps {
     giftId: number | null;
     recipientType: 'self' | 'other';
     recipientEmail: string;
+    senderEmail: string;
   };
   standard: {
     title: string;
     goal: string;
     endDate: string;
+    currency: string;
   };
   visibility: 'public' | 'private';
   image: string | null;
@@ -33,15 +36,16 @@ export function ReviewStep({
   allVendorGifts,
 }: ReviewStepProps) {
   const isClaimable = category === 'claimable';
+  const selectedGift = allVendorGifts.find(g => g.id === claimable.giftId);
   const claimableGiftValue =
     claimable.giftType === 'money'
-      ? `$${claimable.amount || '0'}`
-      : allVendorGifts.find(g => g.id === claimable.giftId)?.name || '—';
+      ? `${getCurrencySymbol(standard.currency)}${claimable.amount || '0'}`
+      : selectedGift?.name || '—';
 
   const totalToPay =
     claimable.giftType === 'money'
-      ? `$${claimable.amount || '0'}`
-      : `$${allVendorGifts.find(g => g.id === claimable.giftId)?.price || '0'}`;
+      ? `${getCurrencySymbol(standard.currency)}${claimable.amount || '0'}`
+      : `${getCurrencySymbol(standard.currency)}${Number(selectedGift?.price || 0).toLocaleString()}`;
 
   return (
     <div className="space-y-5">
@@ -56,14 +60,7 @@ export function ReviewStep({
 
         {isClaimable && (
           <div className="mt-4 p-4 bg-primary/5 rounded-xl border border-primary/20 space-y-3">
-            <div className="flex items-center gap-2 text-primary font-semibold text-sm">
-              <CreditCard className="w-4 h-4" /> Payment Required
-            </div>
-            <p className="text-xs text-muted-foreground">
-              You will be redirected to our secure payment partner to complete
-              this {claimable.giftType} purchase.
-            </p>
-            <div className="flex justify-between items-center pt-2 border-t border-primary/10">
+            <div className="flex justify-between items-center">
               <span className="text-sm font-medium">Total to Pay</span>
               <span className="text-lg font-bold text-primary">
                 {totalToPay}
@@ -87,11 +84,15 @@ export function ReviewStep({
               </span>
             </div>
             <div className="flex justify-between py-2 border-b border-border">
-              <span className="text-muted-foreground">For</span>
+              <span className="text-muted-foreground">Recipient</span>
               <span className="text-foreground font-medium">
-                {claimable.recipientType === 'self'
-                  ? 'Myself'
-                  : claimable.recipientEmail || '—'}
+                {claimable.recipientEmail || '—'}
+              </span>
+            </div>
+            <div className="flex justify-between py-2 border-b border-border">
+              <span className="text-muted-foreground">Sender Email</span>
+              <span className="text-foreground font-medium">
+                {claimable.senderEmail || '—'}
               </span>
             </div>
           </div>

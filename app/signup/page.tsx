@@ -54,6 +54,7 @@ export default function SignupPage() {
     resolver: zodResolver(signupSchema),
     defaultValues: {
       username: '',
+      email: searchParams.get('email') || '',
     },
   });
 

@@ -3,6 +3,8 @@
 import {generateSlug} from '@/lib/utils/slugs';
 import {revalidatePath} from 'next/cache';
 import {createClient} from '../supabase/server';
+import {sendGiftEmail} from './email';
+import {fetchVendorProductById} from './vendor';
 
 export async function createCampaign(data: {
   category: string;
@@ -18,8 +20,10 @@ export async function createCampaign(data: {
   claimable_gift_id?: number;
   claimable_recipient_type?: 'self' | 'other';
   recipient_email?: string;
+  sender_email?: string;
   gift_code?: string;
   currency?: string;
+  payment_reference?: string;
 }) {
   const supabase = await createClient();
   const {
@@ -50,6 +54,44 @@ export async function createCampaign(data: {
   }
 
   revalidatePath('/dashboard');
+
+  // Handle Email Sending for Claimable Gifts
+  if (data.category === 'claimable' && data.recipient_email && data.gift_code) {
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    const claimUrl = `${siteUrl}/claim/${data.gift_code}`;
+
+    // Get sender info
+    const {data: profile} = await supabase
+      .from('profiles')
+      .select('display_name, shop_name')
+      .eq('id', user.id)
+      .single();
+
+    const senderName = profile?.display_name || user.email || 'Someone';
+
+    // Get vendor info if it's a gift card
+    let vendorShopName = 'Gifthance';
+    if (data.claimable_type === 'gift-card' && data.claimable_gift_id) {
+      const productRes = await fetchVendorProductById(data.claimable_gift_id);
+      if (productRes.success && productRes.data) {
+        vendorShopName =
+          productRes.data.profiles?.shop_name ||
+          productRes.data.profiles?.display_name ||
+          'Gifthance';
+      }
+    }
+
+    await sendGiftEmail({
+      to: data.recipient_email,
+      senderName,
+      vendorShopName,
+      giftName: data.title || 'Gift',
+      giftAmount: data.goal_amount || 0,
+      message: data.description,
+      claimUrl,
+    });
+  }
+
   return {success: true, data: campaign};
 }
 

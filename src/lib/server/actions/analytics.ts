@@ -1,6 +1,7 @@
 'use server';
 
 import {getCurrencyByCountry} from '@/lib/constants/currencies';
+import {createAdminClient} from '../supabase/admin';
 import {createClient} from '../supabase/server';
 
 export async function fetchDashboardAnalytics() {
@@ -63,11 +64,13 @@ export async function fetchDashboardAnalytics() {
     }));
 
     // 4. Fetch vendor gift cards received (campaigns with gift_code)
+    // ONLY include claimed or redeemed gifts in the analytics stats
     const {data: vendorGiftCampaigns} = await supabase
       .from('campaigns')
       .select('id, title, created_at, sender_name, gift_code, status')
       .eq('user_id', user.id)
       .not('gift_code', 'is', null)
+      .neq('status', 'active') // Exclude unclaimed gifts
       .order('created_at', {ascending: false})
       .limit(5);
 
@@ -75,7 +78,12 @@ export async function fetchDashboardAnalytics() {
       id: 'vgift-' + c.id,
       name: `🎁 ${c.title} from ${c.sender_name || 'Someone'}`,
       date: new Date(c.created_at).toLocaleDateString(),
-      status: c.status === 'redeemed' ? 'claimed' : 'pending claim',
+      status:
+        c.status === 'redeemed'
+          ? 'redeemed'
+          : c.status === 'claimed'
+            ? 'claimed'
+            : 'pending claim',
       type: 'vendor-gift',
     }));
 
@@ -309,15 +317,18 @@ export async function fetchReceivedGiftsList({
   try {
     // 1. Fetch campaigns (where they are the owner)
     // This includes their own crowdfunding campaigns AND gifts they've claimed
-    const {data: campaigns} = await supabase
+    // 1. Fetch campaigns where user is the owner OR where they are the recipient by email (but not yet owner)
+    const {data: allCampaigns} = await supabase
       .from('campaigns')
       .select(
-        'id, title, goal_amount, currency, created_at, gift_code, sender_name, status, vendor_rating, claimable_gift_id',
+        'id, title, goal_amount, currency, created_at, gift_code, sender_name, status, vendor_rating, claimable_gift_id, recipient_email, user_id',
       )
       .eq('user_id', user.id);
 
-    const crowdfundingCampaignIds = (campaigns || [])
-      .filter(c => c.gift_code === null) // Crowdfunding typically doesn't have a single gift code
+    const campaigns = allCampaigns || [];
+
+    const crowdfundingCampaignIds = campaigns
+      .filter(c => c.gift_code === null && c.user_id === user.id) // Only count their own crowdfunding
       .map(c => c.id);
 
     const giftIds = (campaigns || [])
@@ -364,15 +375,23 @@ export async function fetchReceivedGiftsList({
     }
 
     const voucherGifts = (campaigns || [])
-      .filter(c => c.gift_code !== null) // These are the claimed vouchers
+      .filter(c => c.gift_code !== null && c.status !== 'active') // Exclude unclaimed gift cards
       .map((c: any) => ({
         id: 'gift-' + c.id,
         name: c.title || 'Gift Card',
         sender: c.sender_name || 'A Friend',
         date: new Date(c.created_at).toLocaleDateString(),
+        timestamp: new Date(c.created_at).getTime(),
         amount: Number(c.goal_amount),
         currency: c.currency || 'NGN',
-        status: c.status === 'redeemed' ? 'claimed' : 'pending claim', // Status mapping for UI
+        status:
+          c.user_id !== user.id
+            ? 'pending-claim'
+            : c.status === 'redeemed'
+              ? 'redeemed'
+              : c.status === 'claimed'
+                ? 'claimed'
+                : 'pending claim',
         code: c.gift_code,
         rating: c.vendor_rating || 0,
         type: 'gift',
@@ -415,6 +434,7 @@ export async function fetchReceivedGiftsList({
         campaign: c.campaigns?.title || 'Unknown Campaign',
         sender: c.is_anonymous ? 'Anonymous' : c.donor_name || 'Guest Donor',
         date: new Date(c.created_at).toLocaleDateString(),
+        timestamp: new Date(c.created_at).getTime(),
         amount: Number(c.amount),
         currency: c.currency || 'USD',
         status: 'success',
@@ -427,6 +447,7 @@ export async function fetchReceivedGiftsList({
       name: s.gift_name ? `Gift: ${s.gift_name}` : 'Personal Support',
       sender: s.is_anonymous ? 'Anonymous' : s.donor_name || 'Supporter',
       date: new Date(s.created_at).toLocaleDateString(),
+      timestamp: new Date(s.created_at).getTime(),
       amount: Number(s.amount),
       currency: s.currency || 'NGN',
       status: 'success',
@@ -435,7 +456,7 @@ export async function fetchReceivedGiftsList({
     }));
 
     const combined = [...voucherGifts, ...directFormatted, ...campaignContribs]
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .sort((a, b) => b.timestamp - a.timestamp)
       .slice(0, limit);
 
     return {
@@ -742,5 +763,36 @@ export async function fetchCreatorAnalytics({username}: {username: string}) {
   } catch (err: any) {
     console.error('Analytics Error:', err);
     return {success: false, error: err.message};
+  }
+}
+
+/**
+ * Fetches gifts sent to the user's email that haven't been claimed yet.
+ * Uses the admin client to bypass RLS for email-based discovery.
+ */
+export async function fetchUnclaimedGifts() {
+  const supabase = await createClient();
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user?.email) return {success: false, data: []};
+
+  try {
+    const admin = createAdminClient();
+    const {data: unclaimed, error} = await admin
+      .from('campaigns')
+      .select('id, title, gift_code, sender_name, status')
+      .ilike('recipient_email', user.email.trim())
+      .not('gift_code', 'is', null)
+      .eq('status', 'active');
+
+    return {
+      success: true,
+      data: unclaimed || [],
+    };
+  } catch (err: any) {
+    console.error('fetchUnclaimedGifts Error:', err);
+    return {success: false, error: err.message, data: []};
   }
 }

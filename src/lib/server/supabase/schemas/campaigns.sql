@@ -20,6 +20,9 @@ create table if not exists campaigns (
   claimable_gift_id int, 
   claimable_recipient_type text, -- 'self' or 'other'
   recipient_email text,
+  sender_email text,
+  payment_reference text,
+  currency text default 'NGN',
   gift_code text, -- Generated on launch for claimable
   
   created_at timestamp with time zone default now(),
@@ -39,8 +42,6 @@ create policy "Users can insert their own campaigns." on campaigns
 create policy "Users can update their own campaigns." on campaigns
   for update using (auth.uid() = user_id);
 
-create policy "Users can delete their own campaigns." on campaigns
-  for delete using (auth.uid() = user_id);
 
 -- Function to handle updated_at
 create or replace function handle_updated_at()

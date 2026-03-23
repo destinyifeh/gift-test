@@ -5,12 +5,17 @@ import {Button} from '@/components/ui/button';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {useProfile} from '@/hooks/use-profile';
 import {getCurrencyByCountry} from '@/lib/constants/currencies';
-import {fetchDashboardAnalytics} from '@/lib/server/actions/analytics';
+import {
+  fetchDashboardAnalytics,
+  fetchUnclaimedGifts,
+} from '@/lib/server/actions/analytics';
 import {updateCreatorStatus} from '@/lib/server/actions/auth';
 import {useUserStore} from '@/lib/store/useUserStore';
 import {formatCurrency} from '@/lib/utils/currency';
 import {useQuery} from '@tanstack/react-query';
+import {motion} from 'framer-motion';
 import {DollarSign, Gift, Loader2, Send, Sparkles, Users} from 'lucide-react';
+import Link from 'next/link';
 import {toast} from 'sonner';
 import {SelectedSection} from './dashboard-config';
 import {statusColor} from './utils';
@@ -47,7 +52,15 @@ export function OverviewTab({
     queryKey: ['dashboard-analytics'],
     queryFn: () => fetchDashboardAnalytics(),
   });
-  const {data: profile} = useProfile();
+  const {data: unclaimedRes} = useQuery({
+    queryKey: ['unclaimed-gifts'],
+    queryFn: () => fetchUnclaimedGifts(),
+  });
+
+  const {data: userProfile} = useProfile();
+
+  const unclaimedGifts = unclaimedRes?.data || [];
+  const profile = userProfile || null;
   const userCurrency = getCurrencyByCountry(profile?.country);
 
   const analytics = analyticsRes?.data || {
@@ -69,6 +82,39 @@ export function OverviewTab({
 
   return (
     <div className="space-y-6">
+      {/* Pending Gift Banner */}
+      {unclaimedGifts.length > 0 && (
+        <motion.div
+          initial={{opacity: 0, y: -20}}
+          animate={{opacity: 1, y: 0}}
+          className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-primary/20 via-primary/10 to-transparent border border-primary/20 p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16" />
+          <div className="flex items-center gap-4 relative z-10">
+            <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20 shrink-0">
+              <Gift className="w-6 h-6 animate-bounce" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-foreground">
+                You have {unclaimedGifts.length} unclaimed gift
+                {unclaimedGifts.length > 1 ? 's' : ''} waiting! 🎁
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Sent to your email. Claim now to add to your dashboard.
+              </p>
+            </div>
+          </div>
+          <Button
+            asChild
+            variant="hero"
+            size="lg"
+            className="rounded-xl font-bold shadow-xl shadow-primary/20 transition-transform active:scale-95 px-8 relative z-10">
+            <Link href={`/claim/${unclaimedGifts[0].gift_code}`}>
+              Claim Now
+            </Link>
+          </Button>
+        </motion.div>
+      )}
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         {[
           {

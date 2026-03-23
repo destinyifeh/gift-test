@@ -202,7 +202,7 @@ const GiftSelection = ({
                     : {}
                 }>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden group-hover:scale-110 transition-transform shadow-sm">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden group-hover:scale-110 transition-transform shadow-sm">
                     {g.image_url ? (
                       <img
                         src={g.image_url}
@@ -210,7 +210,7 @@ const GiftSelection = ({
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <span className="text-lg">{g.name.split(' ')[0]}</span>
+                      <Gift className="w-5 h-5 text-primary" />
                     )}
                   </div>
                   <div>

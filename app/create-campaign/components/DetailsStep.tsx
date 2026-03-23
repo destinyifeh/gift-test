@@ -30,6 +30,8 @@ interface DetailsStepProps {
     setRecipientType: (v: 'self' | 'other') => void;
     recipientEmail: string;
     setRecipientEmail: (v: string) => void;
+    senderEmail: string;
+    setSenderEmail: (v: string) => void;
   };
   standard: {
     title: string;
@@ -141,7 +143,9 @@ export function DetailsStep({
                     g =>
                       !giftSearch ||
                       g.name.toLowerCase().includes(giftSearch.toLowerCase()) ||
-                      g.vendor.toLowerCase().includes(giftSearch.toLowerCase()),
+                      (g.profiles?.shop_name || g.profiles?.display_name || '')
+                        .toLowerCase()
+                        .includes(giftSearch.toLowerCase()),
                   )
                   .map(g => (
                     <button
@@ -152,59 +156,56 @@ export function DetailsStep({
                           ? 'border-primary bg-primary/5'
                           : 'border-border hover:border-primary/20'
                       }`}>
-                      <div>
-                        <p className="font-semibold text-sm capitalize">
+                      <div className="flex-1 mr-4">
+                        <p className="font-semibold text-sm capitalize line-clamp-1">
                           {g.name}
                         </p>
-                        <p className="text-xs text-muted-foreground capitalize">
-                          {g.vendor}
+                        <p className="text-[10px] text-muted-foreground capitalize">
+                          {g.profiles?.shop_name ||
+                            g.profiles?.display_name ||
+                            'Vendor'}
                         </p>
                       </div>
-                      <span className="font-bold text-primary">${g.price}</span>
+                      <span className="font-bold text-primary flex-shrink-0">
+                        {getCurrencySymbol(standard.currency)}
+                        {Number(g.price).toLocaleString()}
+                      </span>
                     </button>
                   ))}
               </div>
             </div>
           )}
 
-          <div className="space-y-3">
-            <Label>Who is this for?</Label>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => claimable.setRecipientType('self')}
-                className={`p-3 rounded-lg border text-sm font-medium transition-all ${
-                  claimable.recipientType === 'self'
-                    ? 'bg-primary text-primary-foreground border-primary'
-                    : 'border-border'
-                }`}>
-                For me
-              </button>
-              <button
-                onClick={() => claimable.setRecipientType('other')}
-                className={`p-3 rounded-lg border text-sm font-medium transition-all ${
-                  claimable.recipientType === 'other'
-                    ? 'bg-primary text-primary-foreground border-primary'
-                    : 'border-border'
-                }`}>
-                Someone else
-              </button>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <Label htmlFor="rec-email">Recipient Email (required)</Label>
+              <Input
+                id="rec-email"
+                type="email"
+                required
+                value={claimable.recipientEmail}
+                onChange={e => claimable.setRecipientEmail(e.target.value)}
+                placeholder="recipient@example.com"
+              />
+              <p className="text-[10px] text-muted-foreground">
+                To send the gift link to the recipient.
+              </p>
+            </div>
+            <div className="space-y-3">
+              <Label htmlFor="sender-email">Your Email (required)</Label>
+              <Input
+                id="sender-email"
+                type="email"
+                required
+                value={claimable.senderEmail}
+                onChange={e => claimable.setSenderEmail(e.target.value)}
+                placeholder="your@email.com"
+              />
+              <p className="text-[10px] text-muted-foreground">
+                Used to send you the purchase receipt.
+              </p>
             </div>
           </div>
-
-          {claimable.recipientType === 'other' && (
-            <div className="space-y-3 p-4 bg-muted/30 rounded-xl border border-border">
-              <div>
-                <Label htmlFor="rec-email">Recipient Email (required)</Label>
-                <Input
-                  id="rec-email"
-                  type="email"
-                  value={claimable.recipientEmail}
-                  onChange={e => claimable.setRecipientEmail(e.target.value)}
-                  placeholder="email@example.com"
-                />
-              </div>
-            </div>
-          )}
 
           <div>
             <Label>Message (optional)</Label>

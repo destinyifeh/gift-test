@@ -1,7 +1,18 @@
 export const statusColor = (s: string) => {
-  if (s === 'delivered' || s === 'claimed' || s === 'completed')
+  if (
+    s === 'delivered' ||
+    s === 'claimed' ||
+    s === 'completed' ||
+    s === 'redeemed'
+  )
     return 'secondary';
-  if (s === 'pending' || s === 'unclaimed' || s === 'active') return 'outline';
+  if (
+    s === 'pending' ||
+    s === 'unclaimed' ||
+    s === 'active' ||
+    s === 'pending-claim'
+  )
+    return 'outline';
   return 'default';
 };
 
