@@ -9,7 +9,6 @@ import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
 import {InfiniteScroll} from '@/components/ui/infinite-scroll';
 import {useProfileByUsername} from '@/hooks/use-profile';
-import {useVendorProducts} from '@/hooks/use-vendor';
 import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
 import {fetchCreatorSupporters} from '@/lib/server/actions/analytics';
 import {useUserStore} from '@/lib/store/useUserStore';
@@ -35,15 +34,9 @@ export default function CreatorProfilePage({
 }) {
   const {username} = use(params);
   const [showGiftModal, setShowGiftModal] = useState(false);
-  const [selectedMethod, setSelectedMethod] = useState<
-    'money' | 'vendor' | null
-  >(null);
+  const [selectedMethod, setSelectedMethod] = useState<'money' | null>(null);
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState('');
-  const [selectedVendorGift, setSelectedVendorGift] = useState<number | null>(
-    null,
-  );
-  const {data: vendorGifts = []} = useVendorProducts();
   const [showAllSupporters, setShowAllSupporters] = useState(false);
 
   const loggedInUser = useUserStore((state: any) => state.user);
@@ -124,7 +117,7 @@ export default function CreatorProfilePage({
     showSupporters: dbProfile?.theme_settings?.showSupporters ?? true,
     showAmounts: dbProfile?.theme_settings?.showAmounts ?? true,
     acceptMoney: dbProfile?.theme_settings?.acceptMoney ?? true,
-    acceptVendor: dbProfile?.theme_settings?.acceptVendor ?? true,
+    acceptVendor: false, // Gift cards removed from creator page for simplicity
     plan,
     theme_settings: dbProfile?.theme_settings || {},
     theme,
@@ -143,14 +136,12 @@ export default function CreatorProfilePage({
     totalReceived,
     totalSupporters,
     socialLinks: dbProfile?.social_links || {},
-    vendorGifts: vendorGifts,
+    vendorGifts: [],
   };
 
   const isDetailsValid =
-    selectedMethod === 'vendor'
-      ? selectedVendorGift !== null
-      : (selectedAmount !== null && selectedAmount > 0) ||
-        (customAmount !== '' && Number(customAmount) > 0);
+    (selectedAmount !== null && selectedAmount > 0) ||
+    (customAmount !== '' && Number(customAmount) > 0);
 
   const customStyles =
     profile.plan === 'pro'
@@ -312,39 +303,31 @@ export default function CreatorProfilePage({
             }}>
             <CardContent className="p-6">
               <h2 className="font-bold text-lg mb-1 text-center text-foreground">
-                Support or send a gift 🎁
+                Send Support 🎁
               </h2>
               <p className="text-sm text-muted-foreground text-center mb-6">
-                Choose an amount or send a vendor gift.
+                Choose an amount to support this creator.
               </p>
 
-              {profile.acceptMoney || profile.acceptVendor ? (
+              {profile.acceptMoney ? (
                 <>
                   <GiftSelection
-                    activeTab={
-                      selectedMethod === 'vendor' && profile.acceptVendor
-                        ? 'vendor'
-                        : profile.acceptMoney
-                          ? 'money'
-                          : 'vendor'
-                    }
-                    onTabChange={t =>
-                      setSelectedMethod(t as 'money' | 'vendor')
-                    }
+                    activeTab="money"
+                    onTabChange={() => {}}
                     amount={selectedAmount}
                     setAmount={setSelectedAmount}
                     customAmount={customAmount}
                     setCustomAmount={setCustomAmount}
-                    selectedGift={selectedVendorGift}
-                    setSelectedGift={setSelectedVendorGift}
+                    selectedGift={null}
+                    setSelectedGift={() => {}}
                     profileTheme={profile.theme}
                     acceptMoney={profile.acceptMoney}
-                    acceptVendor={profile.acceptVendor}
+                    acceptVendor={false}
                     currencySymbol={profile.currencySymbol}
                     currencyCode={getCurrencyByCountry(
                       dbProfile?.country || 'Nigeria',
                     )}
-                    vendorGifts={profile.vendorGifts}
+                    vendorGifts={[]}
                   />
 
                   <Button
@@ -361,9 +344,7 @@ export default function CreatorProfilePage({
                     disabled={!isDetailsValid}
                     onClick={() => setShowGiftModal(true)}>
                     <Gift className="w-5 h-5 mr-2" />
-                    {selectedMethod === 'vendor'
-                      ? 'Send Gift Card'
-                      : 'Send Support'}
+                    Send Support
                   </Button>
                 </>
               ) : (
@@ -557,13 +538,10 @@ export default function CreatorProfilePage({
         creatorName={profile.name}
         creatorUsername={username}
         minAmount={5}
-        initialTab={selectedMethod === 'vendor' ? 'vendor' : 'money'}
         initialAmount={selectedAmount}
-        initialGiftId={selectedVendorGift}
         initialCustomAmount={customAmount}
         initialStep="recipient"
         currency={getCurrencyByCountry(dbProfile?.country || 'Nigeria')}
-        vendorGifts={profile.vendorGifts}
       />
     </div>
   );

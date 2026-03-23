@@ -48,7 +48,6 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
   const [bio, setBio] = useState('');
   const [suggestedAmounts, setSuggestedAmounts] = useState('5, 10, 20');
   const [acceptMoney, setAcceptMoney] = useState(true);
-  const [acceptVendor, setAcceptVendor] = useState(true);
   const [showSupporters, setShowSupporters] = useState(true);
   const [showAmounts, setShowAmounts] = useState(true);
 
@@ -71,7 +70,6 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
 
       const theme = profile.theme_settings || {};
       setAcceptMoney(theme.acceptMoney ?? true);
-      setAcceptVendor(theme.acceptVendor ?? true);
       setShowSupporters(theme.showSupporters ?? true);
       setShowAmounts(theme.showAmounts ?? true);
 
@@ -141,7 +139,6 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
         suggested_amounts: amounts,
         theme_settings: {
           acceptMoney,
-          acceptVendor,
           showSupporters,
           showAmounts,
           proTheme,
@@ -359,20 +356,7 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
               </div>
               <Switch checked={acceptMoney} onCheckedChange={setAcceptMoney} />
             </div>
-            <div className="flex items-center justify-between gap-4">
-              <div className="min-w-0">
-                <p className="font-medium text-foreground">
-                  Accept vendor gifts
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Gift cards and vouchers from vendors
-                </p>
-              </div>
-              <Switch
-                checked={acceptVendor}
-                onCheckedChange={setAcceptVendor}
-              />
-            </div>
+
           </div>
 
           <div className="space-y-4 border-t border-border pt-4">

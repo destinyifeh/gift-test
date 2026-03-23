@@ -3,6 +3,7 @@
 import {getCurrencyByCountry} from '@/lib/constants/currencies';
 import {createAdminClient} from '../supabase/admin';
 import {createClient} from '../supabase/server';
+import {TX_CAMPAIGN_CONTRIBUTION, TX_CREATOR_SUPPORT} from './constants';
 
 export async function fetchDashboardAnalytics() {
   const supabase = await createClient();
@@ -26,7 +27,7 @@ export async function fetchDashboardAnalytics() {
         'id, amount, status, created_at, description, type, user_id, campaigns(category, claimable_type)',
       )
       .eq('user_id', user.id)
-      .in('type', ['campaign_contribution'])
+      .in('type', [TX_CAMPAIGN_CONTRIBUTION])
       .order('created_at', {ascending: false})
       .limit(5);
 
@@ -129,7 +130,7 @@ export async function fetchDashboardAnalytics() {
       id: t.id,
       name:
         t.description ||
-        (t.type === 'campaign_contribution'
+        (t.type === TX_CAMPAIGN_CONTRIBUTION
           ? 'Campaign Contribution'
           : 'Direct Gift'),
       date: new Date(t.created_at).toLocaleDateString(),
@@ -183,7 +184,7 @@ export async function fetchMyContributions({
       `,
       )
       .eq('user_id', user.id)
-      .eq('type', 'campaign_contribution')
+      .eq('type', TX_CAMPAIGN_CONTRIBUTION)
       .eq('status', 'success')
       .order('created_at', {ascending: false});
 
@@ -274,7 +275,7 @@ export async function fetchSentGiftsList({
       `,
       )
       .eq('user_id', user.id)
-      .in('type', ['campaign_contribution'])
+      .in('type', [TX_CAMPAIGN_CONTRIBUTION])
       .order('created_at', {ascending: false})
       .range(from, to);
 
@@ -546,7 +547,7 @@ export async function fetchCreatorSupporters({
       .from('transactions')
       .select('id, amount, created_at, metadata, description, currency')
       .eq('user_id', creator.id)
-      .eq('type', 'creator_support')
+      .eq('type', TX_CREATOR_SUPPORT)
       .eq('status', 'success')
       .order('created_at', {ascending: false});
 
@@ -556,9 +557,33 @@ export async function fetchCreatorSupporters({
       return !desc.startsWith('Claimed');
     });
 
-    // 3. Calculate total received (in kobo, convert to main unit)
+    // Fetch ALL creator_support metadata for this creator to get real amounts
+    // (gift card txs have amount=0 in transactions, real amount is in creator_support)
+    const txIdsAll = filteredTxs.map(t => t.id);
+    const {data: allSupportMeta} =
+      txIdsAll.length > 0
+        ? await supabase
+            .from('creator_support')
+            .select(
+              'transaction_id, amount, donor_name, donor_email, message, is_anonymous, hide_amount, gift_name',
+            )
+            .in('transaction_id', txIdsAll)
+        : {data: []};
+
+    const allMetaMap = new Map(
+      (allSupportMeta || []).map(m => [m.transaction_id, m]),
+    );
+
+    // Helper: get the real amount for a transaction (prefer creator_support amount)
+    const getRealAmount = (t: any) => {
+      const meta = allMetaMap.get(t.id);
+      if (meta && Number(meta.amount) > 0) return Number(meta.amount);
+      return Number(t.amount) / 100;
+    };
+
+    // 3. Calculate total received using real amounts
     const totalReceived = filteredTxs.reduce(
-      (acc, t) => acc + Number(t.amount) / 100,
+      (acc, t) => acc + getRealAmount(t),
       0,
     );
     const totalSupporters = filteredTxs.length;
@@ -566,24 +591,8 @@ export async function fetchCreatorSupporters({
     // 4. Paginate and format the list
     const paginatedTxs = filteredTxs.slice(from, from + limit);
 
-    // Enrich with creator_support metadata if available
-    const txIds = paginatedTxs.map(t => t.id);
-    const {data: supportMeta} =
-      txIds.length > 0
-        ? await supabase
-            .from('creator_support')
-            .select(
-              'transaction_id, donor_name, donor_email, message, is_anonymous, hide_amount, gift_name',
-            )
-            .in('transaction_id', txIds)
-        : {data: []};
-
-    const metaMap = new Map(
-      (supportMeta || []).map(m => [m.transaction_id, m]),
-    );
-
     const formatted = paginatedTxs.map((t: any) => {
-      const meta = metaMap.get(t.id);
+      const meta = allMetaMap.get(t.id);
       const isAnon = meta?.is_anonymous || t.metadata?.is_anonymous || false;
       const donorName =
         meta?.donor_name ||
@@ -596,7 +605,7 @@ export async function fetchCreatorSupporters({
       return {
         id: t.id,
         name: isAnon ? 'Anonymous' : donorName,
-        amount: Number(t.amount) / 100,
+        amount: getRealAmount(t),
         currency: t.currency || 'NGN',
         message: meta?.message || t.metadata?.message || '',
         date: new Date(t.created_at).toLocaleDateString(),
@@ -721,7 +730,7 @@ export async function fetchCreatorAnalytics({username}: {username: string}) {
         .from('transactions')
         .select('amount, created_at')
         .eq('user_id', creator.id)
-        .eq('type', 'creator_support')
+        .eq('type', TX_CREATOR_SUPPORT)
         .eq('status', 'success')
         .gte('created_at', sevenDaysAgo.toISOString()),
       // Campaign contributions

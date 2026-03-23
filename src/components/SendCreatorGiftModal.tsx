@@ -7,7 +7,6 @@ import {Dialog, DialogContent, DialogTitle} from '@/components/ui/dialog';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
 import {VisuallyHidden} from '@/components/ui/visually-hidden';
-import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
 import {recordCreatorGift} from '@/lib/server/actions/transactions';
 import {formatCurrency} from '@/lib/utils/currency';
 import {useQueryClient} from '@tanstack/react-query';
@@ -21,13 +20,10 @@ interface SendCreatorGiftModalProps {
   creatorName: string;
   creatorUsername: string;
   minAmount?: number;
-  initialTab?: 'money' | 'vendor';
   initialAmount?: number | null;
-  initialGiftId?: number | null;
   initialCustomAmount?: string;
   initialStep?: 'details' | 'recipient';
   currency?: string;
-  vendorGifts?: any[];
 }
 
 const SendCreatorGiftModal = ({
@@ -36,23 +32,16 @@ const SendCreatorGiftModal = ({
   creatorName,
   creatorUsername,
   minAmount = 0,
-  initialTab = 'money',
   initialAmount = null,
-  initialGiftId = null,
   initialCustomAmount = '',
   initialStep = 'details',
   currency = 'NGN',
-  vendorGifts = [],
 }: SendCreatorGiftModalProps) => {
   const [step, setStep] = useState<
     'details' | 'recipient' | 'payment' | 'success'
   >(initialStep as any);
-  const [activeTab, setActiveTab] = useState(initialTab);
   const [amount, setAmount] = useState<number | null>(initialAmount);
   const [customAmount, setCustomAmount] = useState(initialCustomAmount);
-  const [selectedGift, setSelectedGift] = useState<number | null>(
-    initialGiftId,
-  );
 
   const [donorName, setDonorName] = useState('');
   const [donorEmail, setDonorEmail] = useState('');
@@ -64,19 +53,16 @@ const SendCreatorGiftModal = ({
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    setActiveTab(initialTab);
     setAmount(initialAmount);
     setCustomAmount(initialCustomAmount);
-    setSelectedGift(initialGiftId);
     setStep(initialStep as any);
-  }, [open, initialTab, initialAmount, initialGiftId, initialStep]);
+  }, [open, initialAmount, initialStep]);
 
   useEffect(() => {
     if (open) {
       setStep(initialStep as any);
       setAmount(initialAmount);
       setCustomAmount(initialCustomAmount);
-      setSelectedGift(initialGiftId);
       setDonorName('');
       setDonorEmail('');
       setMessage('');
@@ -84,9 +70,7 @@ const SendCreatorGiftModal = ({
       setHideAmount(false);
       setIsProcessing(false);
     }
-  }, [open, initialStep, initialAmount, initialCustomAmount, initialGiftId]);
-
-  const selectedGiftData = vendorGifts.find((g: any) => g.id === selectedGift);
+  }, [open, initialStep, initialAmount, initialCustomAmount]);
 
   const handleNext = () => {
     if (step === 'details') setStep('recipient');
@@ -100,12 +84,10 @@ const SendCreatorGiftModal = ({
   };
 
   const isDetailsValid =
-    activeTab === 'money'
-      ? (amount !== null && amount > 0 && amount >= minAmount) ||
-        (customAmount !== '' &&
-          Number(customAmount) > 0 &&
-          Number(customAmount) >= minAmount)
-      : selectedGift !== null;
+    (amount !== null && amount > 0 && amount >= minAmount) ||
+    (customAmount !== '' &&
+      Number(customAmount) > 0 &&
+      Number(customAmount) >= minAmount);
 
   const isRecipientValid =
     donorName.trim() !== '' &&
@@ -113,11 +95,7 @@ const SendCreatorGiftModal = ({
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(donorEmail);
 
   const finalAmount =
-    activeTab === 'money'
-      ? amount !== null
-        ? amount
-        : Number(customAmount)
-      : selectedGiftData?.price || 0;
+    amount !== null ? amount : Number(customAmount);
 
   const handlePaystackPayment = async () => {
     if (!donorEmail) return;
@@ -152,8 +130,8 @@ const SendCreatorGiftModal = ({
             hideAmount,
             expectedAmount: finalAmount,
             currency,
-            giftId: activeTab === 'money' ? null : selectedGift,
-            giftName: activeTab === 'money' ? null : selectedGiftData?.name,
+            giftId: null,
+            giftName: null,
           });
 
           if (res.success) {
@@ -324,9 +302,7 @@ const SendCreatorGiftModal = ({
                       Summary
                     </p>
                     <p className="font-bold text-lg">
-                      {activeTab === 'money'
-                        ? 'Monetary Support'
-                        : `${selectedGiftData?.name}`}
+                      Monetary Support
                     </p>
                   </div>
                   <p className="text-2xl font-bold text-primary">
@@ -366,42 +342,16 @@ const SendCreatorGiftModal = ({
                   <Heart className="w-12 h-12 text-green-500 fill-green-500" />
                 </div>
                 <h3 className="text-2xl font-bold mb-2">Awesome!</h3>
-                <p className="text-muted-foreground mb-8 text-balance">
-                  {activeTab === 'money' ? (
-                    <>
-                      Your contribution of{' '}
-                      <span className="text-foreground font-bold">
-                        {formatCurrency(
-                          Number(amount || customAmount),
-                          currency,
-                        )}
-                      </span>{' '}
-                      has been sent to {creatorName}.
-                    </>
-                  ) : (
-                    <>
-                      Your{' '}
-                      <span className="text-foreground font-bold">
-                        {selectedGiftData?.name}
-                      </span>{' '}
-                      worth{' '}
-                      <span className="text-foreground font-bold">
-                        {activeTab === 'vendor' &&
-                        selectedGiftData?.profiles?.country
-                          ? getCurrencySymbol(
-                              getCurrencyByCountry(
-                                selectedGiftData.profiles.country,
-                              ),
-                            ) + (selectedGiftData.price || 0).toLocaleString()
-                          : formatCurrency(
-                              selectedGiftData?.price || 0,
-                              currency,
-                            )}
-                      </span>{' '}
-                      has been successfully sent to {creatorName}.
-                    </>
-                  )}
-                </p>
+                  <p className="text-muted-foreground mb-8 text-balance">
+                    Your contribution of{' '}
+                    <span className="text-foreground font-bold">
+                      {formatCurrency(
+                        Number(amount || customAmount),
+                        currency,
+                      )}
+                    </span>{' '}
+                    has been sent to {creatorName}.
+                  </p>
                 <Button
                   className="w-full h-14 rounded-2xl font-bold text-lg"
                   onClick={() => onOpenChange(false)}>

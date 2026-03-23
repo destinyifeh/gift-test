@@ -3,6 +3,7 @@
 import {revalidatePath} from 'next/cache';
 import {createAdminClient} from '../supabase/admin';
 import {createClient} from '../supabase/server';
+import {TX_CREATOR_SUPPORT, TX_RECEIPT} from './constants';
 
 /**
  * Fetch a gift by its unique gift_code.
@@ -97,7 +98,7 @@ export async function claimGiftByCode(code: string) {
       user_id: user.id,
       amount: Math.round(amountToClaim * 100), // Store in smallest unit (kobo/cents)
       currency: gift.currency || 'NGN',
-      type: isMoney ? 'creator_support' : 'receipt', // creator_support contributes to balance in this system
+      type: isMoney ? TX_CREATOR_SUPPORT : TX_RECEIPT, // creator_support contributes to balance in this system
       status: 'success',
       reference: `claim-${code}-${Date.now()}`,
       description: `Claimed ${isMoney ? 'monetary gift' : 'gift card'}: ${code}`,

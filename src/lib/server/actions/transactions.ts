@@ -6,6 +6,7 @@ import {generateGiftCode} from '@/lib/utils/gift-codes';
 import {revalidatePath} from 'next/cache';
 import {createAdminClient} from '../supabase/admin';
 import {createClient} from '../supabase/server';
+import {TX_CAMPAIGN_CONTRIBUTION, TX_CREATOR_SUPPORT} from './constants';
 
 export async function verifyPaymentAndUpgrade(reference: string) {
   const supabase = await createClient();
@@ -484,7 +485,7 @@ export async function recordCampaignContribution({
         campaign_id: campaign.id,
         amount: body.data.amount, // Store in smallest unit
         currency: body.data.currency || currency,
-        type: 'campaign_contribution',
+        type: TX_CAMPAIGN_CONTRIBUTION,
         status: 'success',
         reference,
         description: `Contribution to campaign: ${campaignSlug}`,
@@ -629,7 +630,7 @@ export async function recordCreatorGift({
           user_id: creator.id,
           amount: 0,
           currency: currency,
-          type: 'creator_support',
+          type: TX_CREATOR_SUPPORT,
           status: 'success',
           reference,
           description: `Message from ${isAnonymous ? 'Anonymous' : donorName}`,
@@ -677,7 +678,7 @@ export async function recordCreatorGift({
           user_id: donor.id,
           amount: 0,
           currency: currency,
-          type: 'campaign_contribution',
+          type: TX_CAMPAIGN_CONTRIBUTION,
           status: 'success',
           reference: `${reference}-out`,
           description: `Gift to ${creatorUsername}`,
@@ -738,7 +739,7 @@ export async function recordCreatorGift({
           user_id: creator.id, // The recipient owns the transaction
           amount: body.data.amount,
           currency: body.data.currency || currency,
-          type: 'creator_support',
+          type: TX_CREATOR_SUPPORT,
           status: 'success',
           reference,
           description: `Direct support from ${isAnonymous ? 'Anonymous' : donorName}`,
@@ -763,7 +764,7 @@ export async function recordCreatorGift({
           user_id: creator.id,
           amount: 0,
           currency: body.data.currency || currency,
-          type: 'creator_support',
+          type: TX_CREATOR_SUPPORT,
           status: 'success',
           reference,
           description: `Gift from ${isAnonymous ? 'Anonymous' : donorName}`,
@@ -811,7 +812,7 @@ export async function recordCreatorGift({
         campaign_id: newCampaignId,
         amount: body.data.amount,
         currency: body.data.currency || currency,
-        type: 'campaign_contribution',
+        type: TX_CAMPAIGN_CONTRIBUTION,
         status: 'success',
         reference: `${reference}-out`,
         description: giftId
@@ -989,7 +990,7 @@ export async function recordShopGiftPurchase({
       user_id: buyer?.id || null, // Buyer's ID or null for guests
       amount: body.data.amount,
       currency: body.data.currency || currency,
-      type: 'campaign_contribution',
+      type: TX_CAMPAIGN_CONTRIBUTION,
       status: 'success',
       reference,
       description: `Gift: ${giftName} for ${recipientEmail}`,
