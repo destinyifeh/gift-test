@@ -1,6 +1,7 @@
 'use client';
 
 import Navbar from '@/components/landing/Navbar';
+import {RequireVendor} from '@/components/guards';
 import {RoleSwitcher} from '@/components/RoleSwitcher';
 import {Card, CardContent} from '@/components/ui/card';
 import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs';
@@ -9,7 +10,6 @@ import {useVendorWallet} from '@/hooks/use-vendor';
 import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
 import {formatCurrency} from '@/lib/utils/currency';
 import {CreditCard, DollarSign, Package, ShoppingCart} from 'lucide-react';
-import {notFound} from 'next/navigation';
 import {CodesTab} from './components/CodesTab';
 import {OrdersTab} from './components/OrdersTab';
 import {ProductsTab} from './components/ProductsTab';
@@ -17,27 +17,16 @@ import {ShopTab} from './components/ShopTab';
 import {WalletTab} from './components/WalletTab';
 
 export default function VendorDashboardPage() {
-  const {data: profile, isLoading} = useProfile();
+  const {data: profile} = useProfile();
   const {data: stats, isLoading: statsLoading} = useVendorWallet();
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  if (!profile?.roles?.includes('vendor')) {
-    notFound();
-  }
 
   const currencyCode = getCurrencyByCountry(profile?.country || 'Nigeria');
   const currencySymbol = getCurrencySymbol(currencyCode);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
+    <RequireVendor>
+      <div className="min-h-screen bg-background">
+        <Navbar />
       <div className="pt-20 pb-16">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-3">
@@ -128,6 +117,7 @@ export default function VendorDashboardPage() {
           </Tabs>
         </div>
       </div>
-    </div>
+      </div>
+    </RequireVendor>
   );
 }

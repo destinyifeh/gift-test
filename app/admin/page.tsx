@@ -1,11 +1,10 @@
 'use client';
 
 import {Badge} from '@/components/ui/badge';
+import {RequireAdmin} from '@/components/guards';
 import {Input} from '@/components/ui/input';
-import {useProfile} from '@/hooks/use-profile';
 import {createAdminLog} from '@/lib/server/actions/admin';
 import {Menu, Search} from 'lucide-react';
-import {notFound} from 'next/navigation';
 import {useState} from 'react';
 
 // Modular Components
@@ -32,25 +31,11 @@ import {Section, Sidebar} from './components/Sidebar';
 import {ViewDetailsModal} from './components/ViewDetailsModal';
 
 export default function AdminDashboardPage() {
-  const {data: profile, isLoading} = useProfile();
-
   const [section, setSection] = useState<Section>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [txTypeFilter] = useState('all');
   const [txProviderFilter] = useState('all');
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  if (!profile?.admin_role) {
-    notFound();
-  }
 
   // Action Confirmation State
   const [confirmModal, setConfirmModal] = useState<{
@@ -83,141 +68,143 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
-      <Sidebar
-        section={section}
-        setSection={setSection}
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
-        setConfirmModal={setConfirmModal}
-      />
+    <RequireAdmin>
+      <div className="min-h-screen bg-background flex">
+        <Sidebar
+          section={section}
+          setSection={setSection}
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
+          setConfirmModal={setConfirmModal}
+        />
 
-      {/* Main content */}
-      <main className="flex-1 min-w-0">
-        <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border px-4 md:px-8 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button className="md:hidden" onClick={() => setSidebarOpen(true)}>
-              <Menu className="w-5 h-5 text-foreground" />
-            </button>
-            <h1 className="text-lg font-semibold font-display text-foreground capitalize">
-              {section.replace('-', ' ')}
-            </h1>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="relative hidden sm:block">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search..."
-                className="pl-9 w-60"
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-              />
+        {/* Main content */}
+        <main className="flex-1 min-w-0">
+          <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border px-4 md:px-8 h-14 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button className="md:hidden" onClick={() => setSidebarOpen(true)}>
+                <Menu className="w-5 h-5 text-foreground" />
+              </button>
+              <h1 className="text-lg font-semibold font-display text-foreground capitalize">
+                {section.replace('-', ' ')}
+              </h1>
             </div>
-            <Badge variant="destructive" className="text-xs">
-              Admin
-            </Badge>
+            <div className="flex items-center gap-3">
+              <div className="relative hidden sm:block">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search..."
+                  className="pl-9 w-60"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <Badge variant="destructive" className="text-xs">
+                Admin
+              </Badge>
+            </div>
+          </header>
+
+          <div className="p-4 md:p-6 max-w-7xl">
+            {section === 'dashboard' && (
+              <DashboardTab searchQuery={searchQuery} setSection={setSection} />
+            )}
+            {section === 'users' && (
+              <UsersTab
+                searchQuery={searchQuery}
+                addLog={addLog}
+                setViewDetailsModal={setViewDetailsModal}
+              />
+            )}
+            {section === 'campaigns' && (
+              <CampaignsTab
+                searchQuery={searchQuery}
+                addLog={addLog}
+                setViewDetailsModal={setViewDetailsModal}
+              />
+            )}
+            {section === 'gifts' && (
+              <GiftsTab
+                searchQuery={searchQuery}
+                addLog={addLog}
+                setViewDetailsModal={setViewDetailsModal}
+              />
+            )}
+            {section === 'transactions' && (
+              <TransactionsTab
+                searchQuery={searchQuery}
+                setViewDetailsModal={setViewDetailsModal}
+              />
+            )}
+            {section === 'wallets' && (
+              <WalletsTab
+                searchQuery={searchQuery}
+                addLog={addLog}
+                setViewDetailsModal={setViewDetailsModal}
+              />
+            )}
+            {section === 'withdrawals' && (
+              <WithdrawalsTab
+                searchQuery={searchQuery}
+                addLog={addLog}
+                setViewDetailsModal={setViewDetailsModal}
+              />
+            )}
+            {section === 'vendors' && (
+              <VendorsTab
+                searchQuery={searchQuery}
+                addLog={addLog}
+                setViewDetailsModal={setViewDetailsModal}
+              />
+            )}
+            {section === 'partners' && (
+              <PartnersTab
+                searchQuery={searchQuery}
+                addLog={addLog}
+                setViewDetailsModal={setViewDetailsModal}
+              />
+            )}
+            {section === 'subscriptions' && (
+              <SubscriptionsTab
+                searchQuery={searchQuery}
+                addLog={addLog}
+                setViewDetailsModal={setViewDetailsModal}
+              />
+            )}
+            {section === 'reports' && <ReportsTab />}
+            {section === 'moderation' && <ModerationTab addLog={addLog} />}
+            {section === 'notifications' && <NotificationsTab />}
+            {section === 'settings' && <SettingsTab />}
+            {section === 'admins' && (
+              <AdminsTab
+                searchQuery={searchQuery}
+                addLog={addLog}
+                setViewDetailsModal={setViewDetailsModal}
+              />
+            )}
+            {section === 'logs' && <LogsTab />}
           </div>
-        </header>
+        </main>
 
-        <div className="p-4 md:p-6 max-w-7xl">
-          {section === 'dashboard' && (
-            <DashboardTab searchQuery={searchQuery} setSection={setSection} />
-          )}
-          {section === 'users' && (
-            <UsersTab
-              searchQuery={searchQuery}
-              addLog={addLog}
-              setViewDetailsModal={setViewDetailsModal}
-            />
-          )}
-          {section === 'campaigns' && (
-            <CampaignsTab
-              searchQuery={searchQuery}
-              addLog={addLog}
-              setViewDetailsModal={setViewDetailsModal}
-            />
-          )}
-          {section === 'gifts' && (
-            <GiftsTab
-              searchQuery={searchQuery}
-              addLog={addLog}
-              setViewDetailsModal={setViewDetailsModal}
-            />
-          )}
-          {section === 'transactions' && (
-            <TransactionsTab
-              searchQuery={searchQuery}
-              setViewDetailsModal={setViewDetailsModal}
-            />
-          )}
-          {section === 'wallets' && (
-            <WalletsTab
-              searchQuery={searchQuery}
-              addLog={addLog}
-              setViewDetailsModal={setViewDetailsModal}
-            />
-          )}
-          {section === 'withdrawals' && (
-            <WithdrawalsTab
-              searchQuery={searchQuery}
-              addLog={addLog}
-              setViewDetailsModal={setViewDetailsModal}
-            />
-          )}
-          {section === 'vendors' && (
-            <VendorsTab
-              searchQuery={searchQuery}
-              addLog={addLog}
-              setViewDetailsModal={setViewDetailsModal}
-            />
-          )}
-          {section === 'partners' && (
-            <PartnersTab
-              searchQuery={searchQuery}
-              addLog={addLog}
-              setViewDetailsModal={setViewDetailsModal}
-            />
-          )}
-          {section === 'subscriptions' && (
-            <SubscriptionsTab
-              searchQuery={searchQuery}
-              addLog={addLog}
-              setViewDetailsModal={setViewDetailsModal}
-            />
-          )}
-          {section === 'reports' && <ReportsTab />}
-          {section === 'moderation' && <ModerationTab addLog={addLog} />}
-          {section === 'notifications' && <NotificationsTab />}
-          {section === 'settings' && <SettingsTab />}
-          {section === 'admins' && (
-            <AdminsTab
-              searchQuery={searchQuery}
-              addLog={addLog}
-              setViewDetailsModal={setViewDetailsModal}
-            />
-          )}
-          {section === 'logs' && <LogsTab />}
-        </div>
-      </main>
+        <ActionConfirmModal
+          open={confirmModal.isOpen}
+          onOpenChange={open =>
+            setConfirmModal(prev => ({...prev, isOpen: open}))
+          }
+          title={confirmModal.title}
+          description={confirmModal.description}
+          onConfirm={confirmModal.onConfirm}
+        />
 
-      <ActionConfirmModal
-        open={confirmModal.isOpen}
-        onOpenChange={open =>
-          setConfirmModal(prev => ({...prev, isOpen: open}))
-        }
-        title={confirmModal.title}
-        description={confirmModal.description}
-        onConfirm={confirmModal.onConfirm}
-      />
-
-      <ViewDetailsModal
-        isOpen={viewDetailsModal.isOpen}
-        onOpenChange={open =>
-          setViewDetailsModal(prev => ({...prev, isOpen: open}))
-        }
-        title={viewDetailsModal.title}
-        data={viewDetailsModal.data}
-      />
-    </div>
+        <ViewDetailsModal
+          isOpen={viewDetailsModal.isOpen}
+          onOpenChange={open =>
+            setViewDetailsModal(prev => ({...prev, isOpen: open}))
+          }
+          title={viewDetailsModal.title}
+          data={viewDetailsModal.data}
+        />
+      </div>
+    </RequireAdmin>
   );
 }
