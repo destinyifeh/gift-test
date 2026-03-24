@@ -18,33 +18,42 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
-import {fetchAdminGifts, flagCreatorGift} from '@/lib/server/actions/admin';
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
+import {fetchAdminCreatorGifts, flagCreatorGift} from '@/lib/server/actions/admin';
+import {useInfiniteQuery, useMutation, useQueryClient} from '@tanstack/react-query';
 import {Download, Eye, Flag, MoreVertical} from 'lucide-react';
 import {useState} from 'react';
 import {toast} from 'sonner';
 import {ActionAdvancedModal} from './ActionAdvancedModal';
 import {handleExport, statusBadge} from './utils';
+import {InfiniteScroll} from '@/components/ui/infinite-scroll';
 
-interface GiftsTabProps {
+interface CreatorGiftsTabProps {
   searchQuery: string;
   addLog: (action: string) => void;
   setViewDetailsModal: (modal: any) => void;
 }
 
-export function GiftsTab({
+export function CreatorGiftsTab({
   searchQuery,
   addLog,
   setViewDetailsModal,
-}: GiftsTabProps) {
+}: CreatorGiftsTabProps) {
   const queryClient = useQueryClient();
 
-  const {data, isLoading} = useQuery({
-    queryKey: ['admin-gifts', searchQuery],
-    queryFn: () => fetchAdminGifts(searchQuery),
+  const {
+    data: infiniteData,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ['admin-creator-gifts', searchQuery],
+    queryFn: ({pageParam = 0}) => fetchAdminCreatorGifts({search: searchQuery, pageParam}),
+    getNextPageParam: lastPage => lastPage.nextPage,
+    initialPageParam: 0,
   });
 
-  const gifts = data?.data || [];
+  const gifts = infiniteData?.pages.flatMap(page => page.data || []) || [];
 
   const [advancedModal, setAdvancedModal] = useState<{
     isOpen: boolean;
@@ -68,7 +77,7 @@ export function GiftsTab({
         toast.error(res.error || 'Failed to flag gift record');
         return;
       }
-      queryClient.invalidateQueries({queryKey: ['admin-gifts']});
+      queryClient.invalidateQueries({queryKey: ['admin-creator-gifts']});
       toast.success('System moderation flag attached to gift log.');
       addLog(
         `Flagged gift (amount: ${vars.id.slice(0, 8)}…) — Reason: "${vars.reason}"`,
@@ -78,22 +87,13 @@ export function GiftsTab({
   });
 
   const filteredGifts = gifts.filter((g: any) => {
-    const sender = g.donor_name || '';
-    const recipient = g.recipient?.username || '';
-    const id = g.id || '';
-
-    const matchesSearch =
-      sender.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      recipient.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      id.toLowerCase().includes(searchQuery.toLowerCase());
-
     const isMoney = !g.gift_name;
     const matchesType =
       typeFilter === 'all' ||
       (typeFilter === 'money' && isMoney) ||
       (typeFilter === 'giftcard' && !isMoney);
 
-    return matchesSearch && matchesType;
+    return matchesType;
   });
 
   const handleAdvancedAction = (
@@ -131,7 +131,7 @@ export function GiftsTab({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-muted-foreground">
-          {filteredGifts.length} creator gifts
+          {filteredGifts.length} creator gifts loaded
         </p>
         <div className="flex gap-2">
           <Select value={typeFilter} onValueChange={setTypeFilter}>
@@ -167,7 +167,6 @@ export function GiftsTab({
               <th className="text-left py-2 font-medium">Recipient</th>
               <th className="text-left py-2 font-medium">Type</th>
               <th className="text-right py-2 font-medium">Amount</th>
-              <th className="text-right py-2 font-medium pr-6">Fee</th>
               <th className="text-left py-2 font-medium pl-6">Status</th>
               <th className="text-right py-2 font-medium">Actions</th>
             </tr>
@@ -203,12 +202,6 @@ export function GiftsTab({
                     getCurrencyByCountry(g.recipient?.country),
                   )}
                   {g.amount}
-                </td>
-                <td className="py-3 text-right text-muted-foreground pr-6 font-mono">
-                  {getCurrencySymbol(
-                    getCurrencyByCountry(g.recipient?.country),
-                  )}
-                  0
                 </td>
                 <td className="py-3 pl-6">
                   <Badge
@@ -259,6 +252,13 @@ export function GiftsTab({
           </tbody>
         </table>
       </div>
+
+      <InfiniteScroll
+        hasMore={!!hasNextPage}
+        isLoading={isFetchingNextPage}
+        onLoadMore={fetchNextPage}
+      />
+
       <ActionAdvancedModal
         isOpen={advancedModal.isOpen}
         onOpenChange={open =>

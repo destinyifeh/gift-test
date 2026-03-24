@@ -1,5 +1,3 @@
-'use client';
-
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {
@@ -15,7 +13,7 @@ import {
   fetchAdminCampaigns,
   updateCampaignAdmin,
 } from '@/lib/server/actions/admin';
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
+import {useInfiniteQuery, useMutation, useQueryClient} from '@tanstack/react-query';
 import {
   Download,
   Eye,
@@ -30,6 +28,7 @@ import {useState} from 'react';
 import {toast} from 'sonner';
 import {ActionAdvancedModal} from './ActionAdvancedModal';
 import {handleExport, statusBadge} from './utils';
+import {InfiniteScroll} from '@/components/ui/infinite-scroll';
 
 interface CampaignsTabProps {
   searchQuery: string;
@@ -44,12 +43,20 @@ export function CampaignsTab({
 }: CampaignsTabProps) {
   const queryClient = useQueryClient();
 
-  const {data, isLoading} = useQuery({
+  const {
+    data: infiniteData,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: ['admin-campaigns', searchQuery],
-    queryFn: () => fetchAdminCampaigns(searchQuery),
+    queryFn: ({pageParam = 0}) => fetchAdminCampaigns({search: searchQuery, pageParam}),
+    getNextPageParam: lastPage => lastPage.nextPage,
+    initialPageParam: 0,
   });
 
-  const campaigns = data?.data || [];
+  const campaigns = infiniteData?.pages.flatMap(page => page.data || []) || [];
 
   const [advancedModal, setAdvancedModal] = useState<{
     isOpen: boolean;
@@ -101,7 +108,7 @@ export function CampaignsTab({
   };
 
   const onConfirmAdvancedAction = (data: {days?: string; reason: string}) => {
-    const {type, targetName, targetId} = advancedModal;
+    const {type, targetId} = advancedModal;
 
     if (type === 'pause') {
       mutation.mutate({id: targetId, updates: {status: 'paused'}});
@@ -110,7 +117,6 @@ export function CampaignsTab({
     } else if (type === 'reactivate') {
       mutation.mutate({id: targetId, updates: {status: 'active'}});
     } else if (type === 'feature' || type === 'unfeature') {
-      // Assuming featured column exists or we store in metadata; omit since schema might not have it natively.
       toast.info('Feature campaign function mock-triggered');
     } else if (type === 'delete') {
       toast.info('Delete functionality disabled for data retention policies');
@@ -141,7 +147,7 @@ export function CampaignsTab({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-muted-foreground">{campaigns.length} campaigns</p>
+        <p className="text-muted-foreground">{campaigns.length} campaigns loaded</p>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm">
@@ -199,7 +205,7 @@ export function CampaignsTab({
                     : '-'}
                 </td>
                 <td className="py-3 text-right text-secondary pr-6 font-mono">
-                  {getCurrencySymbol(getCurrencyByCountry(c.profiles?.country))}
+                  {getCurrencySymbol(getCurrencyByCountry(c.vendor?.country))}
                   {c.current_amount || 0}
                 </td>
                 <td className="py-3 pl-6">
@@ -224,7 +230,11 @@ export function CampaignsTab({
                             setViewDetailsModal({
                               isOpen: true,
                               title: 'Campaign Details',
-                              data: c,
+                              data: {
+                                ...c,
+                                shop_name: c.vendor?.shop_name || 'N/A',
+                                shop_address: c.vendor?.shop_address || 'N/A',
+                              },
                             })
                           }>
                           <Eye className="w-4 h-4 mr-2" /> View Details
@@ -276,6 +286,13 @@ export function CampaignsTab({
           </tbody>
         </table>
       </div>
+      
+      <InfiniteScroll
+        hasMore={!!hasNextPage}
+        isLoading={isFetchingNextPage}
+        onLoadMore={fetchNextPage}
+      />
+
       <ActionAdvancedModal
         isOpen={advancedModal.isOpen}
         onOpenChange={open =>

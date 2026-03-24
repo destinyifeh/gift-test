@@ -11,7 +11,8 @@ import {useState} from 'react';
 import {AdminsTab} from './components/AdminsTab';
 import {CampaignsTab} from './components/CampaignsTab';
 import {DashboardTab} from './components/DashboardTab';
-import {GiftsTab} from './components/GiftsTab';
+import {CreatorGiftsTab} from './components/CreatorGiftsTab';
+import {ClaimableGiftsTab} from './components/ClaimableGiftsTab';
 import {LogsTab} from './components/LogsTab';
 import {ModerationTab} from './components/ModerationTab';
 import {NotificationsTab} from './components/NotificationsTab';
@@ -123,8 +124,15 @@ export default function AdminDashboardPage() {
                 setViewDetailsModal={setViewDetailsModal}
               />
             )}
-            {section === 'gifts' && (
-              <GiftsTab
+            {section === 'creator-gifts' && (
+              <CreatorGiftsTab
+                searchQuery={searchQuery}
+                addLog={addLog}
+                setViewDetailsModal={setViewDetailsModal}
+              />
+            )}
+            {section === 'claimable-gifts' && (
+              <ClaimableGiftsTab
                 searchQuery={searchQuery}
                 addLog={addLog}
                 setViewDetailsModal={setViewDetailsModal}

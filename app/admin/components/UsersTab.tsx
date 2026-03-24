@@ -14,7 +14,7 @@ import {
   fetchAdminUsers,
   updateUserSystemStatus,
 } from '@/lib/server/actions/admin';
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
+import {useInfiniteQuery, useMutation, useQueryClient} from '@tanstack/react-query';
 import {
   AlertTriangle,
   Ban,
@@ -27,7 +27,8 @@ import {
 import {useState} from 'react';
 import {toast} from 'sonner';
 import {ActionAdvancedModal} from './ActionAdvancedModal';
-import {handleExport, statusBadge} from './utils';
+import {statusBadge, handleExport} from './utils';
+import {InfiniteScroll} from '@/components/ui/infinite-scroll';
 
 interface UsersTabProps {
   searchQuery: string;
@@ -42,12 +43,20 @@ export function UsersTab({
 }: UsersTabProps) {
   const queryClient = useQueryClient();
 
-  const {data, isLoading} = useQuery({
+  const {
+    data: infiniteData,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: ['admin-all-users', searchQuery],
-    queryFn: () => fetchAdminUsers(searchQuery),
+    queryFn: ({pageParam = 0}) => fetchAdminUsers({search: searchQuery, pageParam}),
+    getNextPageParam: lastPage => lastPage.nextPage,
+    initialPageParam: 0,
   });
 
-  const users = data?.data || [];
+  const users = infiniteData?.pages.flatMap(page => page.data || []) || [];
 
   const [advancedModal, setAdvancedModal] = useState<{
     isOpen: boolean;
@@ -95,7 +104,6 @@ export function UsersTab({
   const onConfirmAdvancedAction = (data: {days?: string; reason: string}) => {
     const {type, targetId} = advancedModal;
 
-    // Warn does not change DB status but could create a moderation ticket/log
     if (type === 'warn') {
       toast.error('User formally warned via platform notification.');
     } else if (type === 'suspend') {
@@ -127,19 +135,16 @@ export function UsersTab({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-muted-foreground">{users.length} total users</p>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
-              <Download className="w-4 h-4 mr-1" /> Export
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => handleExport('csv', 'Users')}>
-              CSV
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <p className="text-muted-foreground">{users.length} users loaded</p>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => handleExport('csv', 'Users')}
+          >
+            <Download className="w-4 h-4 mr-1" /> Export
+          </Button>
+        </div>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
@@ -277,6 +282,13 @@ export function UsersTab({
           </tbody>
         </table>
       </div>
+
+      <InfiniteScroll
+        hasMore={!!hasNextPage}
+        isLoading={isFetchingNextPage}
+        onLoadMore={fetchNextPage}
+      />
+
       <ActionAdvancedModal
         isOpen={advancedModal.isOpen}
         onOpenChange={open =>

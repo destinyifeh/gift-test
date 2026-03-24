@@ -1,5 +1,3 @@
-'use client';
-
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {
@@ -14,12 +12,13 @@ import {
   fetchAdminWallets,
   updateWalletStatus,
 } from '@/lib/server/actions/admin';
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
+import {useInfiniteQuery, useMutation, useQueryClient} from '@tanstack/react-query';
 import {Ban, Download, Eye, MoreVertical, ShieldCheck} from 'lucide-react';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {toast} from 'sonner';
 import {ActionAdvancedModal} from './ActionAdvancedModal';
 import {handleExport, statusBadge} from './utils';
+import {InfiniteScroll} from '@/components/ui/infinite-scroll';
 
 interface WalletsTabProps {
   searchQuery: string;
@@ -34,12 +33,25 @@ export function WalletsTab({
 }: WalletsTabProps) {
   const queryClient = useQueryClient();
 
-  const {data, isLoading} = useQuery({
+  const {
+    data: infiniteData,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: ['admin-wallets', searchQuery],
-    queryFn: () => fetchAdminWallets(searchQuery),
+    queryFn: ({pageParam = 0}) => fetchAdminWallets({search: searchQuery, pageParam}),
+    getNextPageParam: lastPage => lastPage.nextPage,
+    initialPageParam: 0,
   });
 
-  const wallets = data?.data || [];
+  useEffect(() => {
+    const errorPage = infiniteData?.pages.find(p => p.success === false);
+    if (errorPage) toast.error(errorPage.error || 'Failed to load wallets');
+  }, [infiniteData]);
+
+  const wallets = infiniteData?.pages.flatMap(page => page.data || []) || [];
 
   const [advancedModal, setAdvancedModal] = useState<{
     isOpen: boolean;
@@ -102,15 +114,11 @@ export function WalletsTab({
     );
   }
 
-  const filteredWallets = wallets.filter((w: any) =>
-    (w.user || '').toLowerCase().includes(searchQuery.toLowerCase()),
-  );
-
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-muted-foreground">
-          {filteredWallets.length} active wallets
+          {wallets.length} active wallets loaded
         </p>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -139,7 +147,7 @@ export function WalletsTab({
             </tr>
           </thead>
           <tbody>
-            {filteredWallets.map((w: any) => (
+            {wallets.map((w: any) => (
               <tr
                 key={w.id}
                 className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
@@ -226,6 +234,13 @@ export function WalletsTab({
           </tbody>
         </table>
       </div>
+
+      <InfiniteScroll
+        hasMore={!!hasNextPage}
+        isLoading={isFetchingNextPage}
+        onLoadMore={fetchNextPage}
+      />
+
       <ActionAdvancedModal
         isOpen={advancedModal.isOpen}
         onOpenChange={open =>

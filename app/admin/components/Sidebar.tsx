@@ -33,12 +33,12 @@ export type Section =
   | 'dashboard'
   | 'users'
   | 'campaigns'
-  | 'gifts'
+  | 'creator-gifts'
+  | 'claimable-gifts'
   | 'transactions'
   | 'wallets'
   | 'withdrawals'
   | 'vendors'
-  | 'gift-codes'
   | 'partners'
   | 'subscriptions'
   | 'reports'
@@ -53,12 +53,12 @@ export const navItems: {id: Section; label: string; icon: React.ElementType}[] =
     {id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard},
     {id: 'users', label: 'Users', icon: Users},
     {id: 'campaigns', label: 'Campaigns', icon: Gift},
-    {id: 'gifts', label: 'Gifts', icon: Gift},
+    {id: 'creator-gifts', label: 'Gifts (Creators)', icon: Gift},
+    {id: 'claimable-gifts', label: 'Claimable Gifts', icon: ShoppingCart},
     {id: 'transactions', label: 'Transactions', icon: DollarSign},
     {id: 'wallets', label: 'Wallets', icon: Wallet},
     {id: 'withdrawals', label: 'Withdrawals', icon: ArrowUpRight},
     {id: 'vendors', label: 'Vendors', icon: ShoppingCart},
-    {id: 'gift-codes', label: 'Gift Codes', icon: Tag},
     {id: 'partners', label: 'Partners', icon: Globe},
     {id: 'subscriptions', label: 'Subscriptions', icon: Crown},
     {id: 'reports', label: 'Reports', icon: BarChart3},

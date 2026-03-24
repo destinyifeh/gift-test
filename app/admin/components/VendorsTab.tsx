@@ -10,126 +10,146 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {fetchAdminUsers} from '@/lib/server/actions/admin';
-import {useQuery} from '@tanstack/react-query';
+import {InfiniteScroll} from '@/components/ui/infinite-scroll';
+import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
+import {fetchAdminVendors, updateVendorStatus} from '@/lib/server/actions/admin';
+import {useInfiniteQuery, useMutation, useQueryClient} from '@tanstack/react-query';
 import {
-  AlertTriangle,
-  Ban,
+  CheckCircle2,
   Download,
-  Eye,
+  ExternalLink,
   MoreVertical,
-  Pause,
   Store,
+  XCircle,
 } from 'lucide-react';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {toast} from 'sonner';
-import {ActionAdvancedModal} from './ActionAdvancedModal';
+import {AddVendorModal} from './AddVendorModal';
 import {EditVendorModal} from './EditVendorModal';
-import {handleExport} from './utils';
+import {statusBadge, handleExport} from './utils';
 
-export function VendorsTab({searchQuery, addLog, setViewDetailsModal}: any) {
-  const {data, isLoading} = useQuery({
-    queryKey: ['admin-vendors', searchQuery],
-    queryFn: () => fetchAdminUsers(searchQuery, 'vendor'),
-  });
+interface VendorsTabProps {
+  searchQuery: string;
+  addLog: (action: string) => void;
+  setViewDetailsModal: (modal: any) => void;
+}
 
-  const vendors = data?.data || [];
-
-  const [advancedModal, setAdvancedModal] = useState<{
-    isOpen: boolean;
-    type: 'warn' | 'suspend' | 'ban' | 'delete' | 'activate';
-    targetName: string;
-  }>({
-    isOpen: false,
-    type: 'warn',
-    targetName: '',
-  });
-
-  const [editVendorModal, setEditVendorModal] = useState<{
-    isOpen: boolean;
-    vendor: any;
-  }>({
+export function VendorsTab({
+  searchQuery,
+  addLog,
+  setViewDetailsModal,
+}: VendorsTabProps) {
+  const queryClient = useQueryClient();
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editModal, setEditModal] = useState<{isOpen: boolean; vendor: any}>({
     isOpen: false,
     vendor: null,
   });
 
-  const handleAdvancedAction = (
-    type: any,
-    targetType: string,
-    targetId: string,
-    targetName: string,
-  ) => {
-    setAdvancedModal({
-      isOpen: true,
-      type,
-      targetName,
-    });
-  };
+  const {
+    data: infiniteData,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ['admin-vendors', searchQuery],
+    queryFn: ({pageParam = 0}) => fetchAdminVendors({search: searchQuery, pageParam}),
+    getNextPageParam: lastPage => lastPage.nextPage,
+    initialPageParam: 0,
+  });
 
-  const onConfirmAdvancedAction = (data: {days?: string; reason: string}) => {
-    const {type, targetName} = advancedModal;
-    const formattedType = type.charAt(0).toUpperCase() + type.slice(1);
-    toast.success(`${formattedType} verb action logged for ${targetName}`);
-    addLog(`${formattedType} vendor ${targetName}`);
-    setAdvancedModal(prev => ({...prev, isOpen: false}));
+  useEffect(() => {
+    const errorPage = infiniteData?.pages.find(p => p.success === false);
+    if (errorPage) toast.error(errorPage.error || 'Failed to load vendors');
+  }, [infiniteData]);
+
+  const vendors = infiniteData?.pages.flatMap(page => page.data || []) || [];
+
+  const mutation = useMutation({
+    mutationFn: ({id, status}: {id: string; status: string}) =>
+      updateVendorStatus(id, status),
+    onSuccess: (res, vars) => {
+      if (!res.success) {
+        toast.error(res.error || 'Failed to update vendor status');
+        return;
+      }
+      queryClient.invalidateQueries({queryKey: ['admin-vendors']});
+      toast.success('Vendor status updated');
+      addLog(`Updated vendor status to ${vars.status} for vendor ${vars.id}`);
+    },
+    onError: () => toast.error('Error updating vendor'),
+  });
+
+  const onToggleStatus = (id: string, currentStatus: string) => {
+    const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
+    mutation.mutate({id, status: newStatus});
   };
 
   if (isLoading) {
-    return <div className="text-muted-foreground p-4">Loading vendors...</div>;
+    return (
+      <div className="text-muted-foreground p-4">Loading vendor profiles...</div>
+    );
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-muted-foreground">{vendors.length} vendors</p>
+        <p className="text-muted-foreground">{vendors.length} vendors loaded</p>
         <div className="flex gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Download className="w-4 h-4 mr-1" /> Export
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => handleExport('csv', 'Vendors')}>
-                CSV
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button
+            variant="hero"
+            size="sm"
+            onClick={() => setIsAddModalOpen(true)}>
+            <Store className="w-4 h-4 mr-1" /> Add Vendor
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => handleExport('csv', 'vendors')}
+          >
+            <Download className="w-4 h-4 mr-1" /> Export
+          </Button>
         </div>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-muted-foreground">
-              <th className="text-left py-2 font-medium">Vendor</th>
-              <th className="text-left py-2 font-medium">Country</th>
-              <th className="text-right py-2 font-medium pr-6">Joined</th>
+              <th className="text-left py-2 font-medium">Vendor Name</th>
+              <th className="text-left py-2 font-medium">Category</th>
+              <th className="text-right py-2 font-medium">Orders</th>
+              <th className="text-right py-2 font-medium">Total Sales</th>
               <th className="text-left py-2 font-medium pl-6">Status</th>
               <th className="text-right py-2 font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
             {vendors.map((v: any) => (
-              <tr key={v.id} className="border-b border-border last:border-0">
+              <tr
+                key={v.id}
+                className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
                 <td className="py-3">
-                  <p className="font-medium text-foreground capitalize">
-                    {v.display_name || 'No Name'}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    @{v.username} · {v.email}
-                  </p>
+                  <p className="font-medium text-foreground">{v.shop_name || v.display_name}</p>
+                  <p className="text-xs text-muted-foreground">@{v.username}</p>
                 </td>
-                <td className="py-3 text-left text-foreground">
-                  {v.country || 'Not set'}
+                <td className="py-3">
+                  <Badge variant="outline" className="text-[10px] uppercase">
+                    {v.category || 'General'}
+                  </Badge>
                 </td>
-                <td className="py-3 text-right text-secondary pr-6">
-                  {v.created_at
-                    ? new Date(v.created_at).toLocaleDateString()
-                    : 'Unknown'}
+                <td className="py-3 text-right text-foreground font-mono">
+                  {v.orders_count || 0}
+                </td>
+                <td className="py-3 text-right text-secondary font-mono">
+                   {getCurrencySymbol(getCurrencyByCountry(v.country))}
+                   {v.sales_volume || 0}
                 </td>
                 <td className="py-3 pl-6">
-                  <Badge className="bg-emerald-500 text-white hover:bg-emerald-600 border-none">
-                    Active
+                  <Badge
+                    variant={statusBadge(v.status) as any}
+                    className="capitalize">
+                    {v.status}
                   </Badge>
                 </td>
                 <td className="py-3 text-right">
@@ -147,59 +167,39 @@ export function VendorsTab({searchQuery, addLog, setViewDetailsModal}: any) {
                             setViewDetailsModal({
                               isOpen: true,
                               title: 'Vendor Details',
-                              data: v,
+                              data: {
+                                ...v,
+                                shop_name: v.shop_name || v.display_name,
+                                shop_address: v.shop_address || 'N/A',
+                              },
                             })
                           }>
-                          <Eye className="w-4 h-4 mr-2" /> View Details
+                          <ExternalLink className="w-4 h-4 mr-2" /> View Public
+                          Page
                         </DropdownMenuItem>
-                        {v.shop_slug && (
-                          <DropdownMenuItem
-                            onClick={() =>
-                              window.open(`/gift-shop/${v.shop_slug}`, '_blank')
-                            }>
-                            <Store className="w-4 h-4 mr-2" /> View Shop
-                          </DropdownMenuItem>
-                        )}
                         <DropdownMenuItem
-                          onClick={() =>
-                            setEditVendorModal({isOpen: true, vendor: v})
-                          }>
-                          <MoreVertical className="w-4 h-4 mr-2" /> Edit Vendor
-                          Info
+                          onClick={() => setEditModal({isOpen: true, vendor: v})}>
+                          Edit Configuration
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                          onClick={() =>
-                            handleAdvancedAction(
-                              'warn',
-                              'vendor',
-                              v.id,
-                              v.username,
-                            )
-                          }>
-                          <AlertTriangle className="w-4 h-4 mr-2" /> Warn Vendor
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() =>
-                            handleAdvancedAction(
-                              'suspend',
-                              'vendor',
-                              v.id,
-                              v.username,
-                            )
-                          }>
-                          <Pause className="w-4 h-4 mr-2" /> Suspend
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() =>
-                            handleAdvancedAction(
-                              'ban',
-                              'vendor',
-                              v.id,
-                              v.username,
-                            )
-                          }>
-                          <Ban className="w-4 h-4 mr-2" /> Ban Vendor
+                          className={
+                            v.status === 'active'
+                              ? 'text-destructive'
+                              : 'text-emerald-500'
+                          }
+                          onClick={() => onToggleStatus(v.id, v.status)}>
+                          {v.status === 'active' ? (
+                            <>
+                              <XCircle className="w-4 h-4 mr-2" /> Suspend
+                              Vendor
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle2 className="w-4 h-4 mr-2" /> Activate
+                              Vendor
+                            </>
+                          )}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -210,27 +210,37 @@ export function VendorsTab({searchQuery, addLog, setViewDetailsModal}: any) {
           </tbody>
         </table>
       </div>
-      <ActionAdvancedModal
-        isOpen={advancedModal.isOpen}
-        onOpenChange={open =>
-          setAdvancedModal(prev => ({...prev, isOpen: open}))
-        }
-        type={advancedModal.type}
-        targetType="vendor"
-        targetName={advancedModal.targetName}
-        onConfirm={onConfirmAdvancedAction}
+
+      <InfiniteScroll
+        hasMore={!!hasNextPage}
+        isLoading={isFetchingNextPage}
+        onLoadMore={fetchNextPage}
       />
-      <EditVendorModal
-        isOpen={editVendorModal.isOpen}
-        onOpenChange={(open: boolean) =>
-          setEditVendorModal(prev => ({...prev, isOpen: open}))
-        }
-        vendor={editVendorModal.vendor}
-        onSuccess={() => {
-          // No direct refetch here as it's a mutation, but the user might want a refetch
-          // However, vendors list usually doesn't show shop details so no immediate need
-        }}
-      />
+
+      {isAddModalOpen && (
+        <AddVendorModal
+          open={isAddModalOpen}
+          onOpenChange={setIsAddModalOpen}
+          onAdd={() => {
+            toast.info('Feature coming soon: Manual vendor addition');
+            setIsAddModalOpen(false);
+          }}
+          vendor={{name: '', email: '', products: 0, status: 'active'}}
+          setVendor={() => {}}
+        />
+      )}
+
+      {editModal.isOpen && (
+        <EditVendorModal
+          isOpen={editModal.isOpen}
+          onOpenChange={open => setEditModal(prev => ({...prev, isOpen: open}))}
+          vendor={editModal.vendor}
+          onSuccess={() => {
+            queryClient.invalidateQueries({queryKey: ['admin-vendors']});
+            addLog(`Updated configuration for vendor ${editModal.vendor?.id}`);
+          }}
+        />
+      )}
     </div>
   );
 }

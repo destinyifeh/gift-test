@@ -1,136 +1,122 @@
 'use client';
 
-import {Badge} from '@/components/ui/badge';
+import {fetchAdminSubscriptions} from '@/lib/server/actions/admin';
+import {useInfiniteQuery} from '@tanstack/react-query';
+import {Download, Mail, Shield, UserCheck} from 'lucide-react';
+import {InfiniteScroll} from '@/components/ui/infinite-scroll';
 import {Button} from '@/components/ui/button';
-import {Card, CardContent} from '@/components/ui/card';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {Download} from 'lucide-react';
-import {useState} from 'react';
-import {toast} from 'sonner';
-import {ActionAdvancedModal} from './ActionAdvancedModal';
 import {handleExport} from './utils';
+import {useEffect} from 'react';
+import {toast} from 'sonner';
 
 export function SubscriptionsTab({
   searchQuery,
   addLog,
   setViewDetailsModal,
-}: any) {
-  const [subscriptions] = useState<any[]>([]); // Future true backend connection
-  const [advancedModal, setAdvancedModal] = useState<{
-    isOpen: boolean;
-    type: 'cancel';
-    targetId: string;
-    targetName: string;
-  }>({
-    isOpen: false,
-    type: 'cancel',
-    targetId: '',
-    targetName: '',
+}: {
+  searchQuery: string;
+  addLog: (action: string) => void;
+  setViewDetailsModal: (modal: any) => void;
+}) {
+  const {
+    data: infiniteData,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ['admin-subscriptions', searchQuery],
+    queryFn: ({pageParam = 0}) =>
+      fetchAdminSubscriptions({search: searchQuery, pageParam}),
+    getNextPageParam: lastPage => lastPage.nextPage,
+    initialPageParam: 0,
   });
 
-  const onConfirmAdvancedAction = (data: {days?: string; reason: string}) => {
-    toast.success(`Action confirmed for ${advancedModal.targetName}`);
-    setAdvancedModal(prev => ({...prev, isOpen: false}));
-  };
+  useEffect(() => {
+    const errorPage = infiniteData?.pages.find(p => p.success === false);
+    if (errorPage) toast.error(errorPage.error || 'Failed to load subcriptions');
+  }, [infiniteData]);
 
-  const filteredSubscriptions = subscriptions.filter(
-    (s: any) =>
-      s.user.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.plan.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  const subscriptions =
+    infiniteData?.pages.flatMap(page => page.data || []) || [];
+
+  if (isLoading) {
+    return (
+      <div className="text-muted-foreground p-4">
+        Loading active subscriptions...
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          {plan: 'Free', count: 0, price: '$0'},
-          {plan: 'Pro (Monthly)', count: 0, price: '$8/mo'},
-          {plan: 'Pro (Yearly)', count: 0, price: '$79/yr'},
-          {plan: 'White-Label', count: 0, price: 'Custom'},
-        ].map(p => (
-          <Card key={p.plan} className="border-border">
-            <CardContent className="p-4 text-center">
-              <p className="text-2xl font-bold text-foreground">
-                {p.count.toLocaleString()}
-              </p>
-              <p className="text-sm font-medium text-foreground">{p.plan}</p>
-              <p className="text-xs text-muted-foreground">{p.price}</p>
-            </CardContent>
-          </Card>
-        ))}
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <p className="text-muted-foreground">
+          {subscriptions.length} active subscribers loaded
+        </p>
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => handleExport('csv', 'subscriptions')}
+        >
+          <Download className="w-4 h-4 mr-1" /> Export List
+        </Button>
       </div>
-      <div className="flex justify-end gap-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
-              <Download className="w-4 h-4 mr-1" /> Export
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem
-              onClick={() => handleExport('csv', 'Subscriptions')}>
-              CSV
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-muted-foreground">
               <th className="text-left py-2 font-medium">User</th>
               <th className="text-left py-2 font-medium">Plan</th>
-              <th className="text-left py-2 font-medium">Price</th>
-              <th className="text-left py-2 font-medium">Started</th>
-              <th className="text-left py-2 font-medium pl-6">Status</th>
-              <th className="text-right py-2 font-medium">Actions</th>
+              <th className="text-left py-2 font-medium">Status</th>
+              <th className="text-left py-2 font-medium">Auto-renew</th>
+              <th className="text-right py-2 font-medium">Expires</th>
             </tr>
           </thead>
           <tbody>
-            {filteredSubscriptions.map((s: any) => (
-              <tr
-                key={s.user}
-                className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
-                <td className="py-3 font-medium text-foreground">{s.user}</td>
-                <td className="py-3 pl-6">
-                  <Badge variant={s.plan === 'Pro' ? 'default' : 'outline'}>
-                    {s.plan}
-                  </Badge>
-                </td>
-                <td className="py-3 text-foreground">{s.price}</td>
-                <td className="py-3 text-muted-foreground">{s.started}</td>
+            {subscriptions.map((sub: any) => (
+              <tr key={sub.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
                 <td className="py-3">
-                  <Badge variant="secondary">{s.status}</Badge>
+                  <div className="flex items-center gap-2">
+                    <UserCheck className="w-4 h-4 text-secondary" />
+                    <div>
+                      <p className="font-medium text-foreground">
+                        {sub.display_name || sub.username}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {sub.email}
+                      </p>
+                    </div>
+                  </div>
                 </td>
-                <td className="py-3 text-right"></td>
+                <td className="py-3">
+                  <div className="flex items-center gap-1.5">
+                    <Shield className="w-3.5 h-3.5 text-hero" />
+                    <span className="font-medium text-foreground">
+                      {sub.plan || 'Pro'}
+                    </span>
+                  </div>
+                </td>
+                <td className="py-3">
+                  <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-500">
+                    {sub.status || 'Active'}
+                  </span>
+                </td>
+                <td className="py-3 text-muted-foreground">Yes</td>
+                <td className="py-3 text-right font-mono text-foreground">
+                  {sub.expires || 'N/A'}
+                </td>
               </tr>
             ))}
-            {filteredSubscriptions.length === 0 && (
-              <tr>
-                <td
-                  colSpan={6}
-                  className="py-8 text-center text-muted-foreground">
-                  No active premium subscriptions found in the database.
-                </td>
-              </tr>
-            )}
           </tbody>
         </table>
       </div>
-      <ActionAdvancedModal
-        isOpen={advancedModal.isOpen}
-        onOpenChange={open =>
-          setAdvancedModal(prev => ({...prev, isOpen: open}))
-        }
-        type={advancedModal.type as any}
-        targetType="subscription"
-        targetName={advancedModal.targetName}
-        onConfirm={onConfirmAdvancedAction}
+
+      <InfiniteScroll
+        hasMore={!!hasNextPage}
+        isLoading={isFetchingNextPage}
+        onLoadMore={fetchNextPage}
       />
     </div>
   );
