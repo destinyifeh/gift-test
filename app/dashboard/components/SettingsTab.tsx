@@ -123,8 +123,8 @@ export function SettingsTab() {
             </div>
             <div className="space-y-1 sm:col-span-2">
               <Label className="text-xs">Country of Residence</Label>
-              <Select value={country} onValueChange={setCountry}>
-                <SelectTrigger className="w-full">
+              <Select value={country} onValueChange={setCountry} disabled>
+                <SelectTrigger className="w-full bg-muted/50">
                   <div className="flex items-center gap-2">
                     <Globe className="w-4 h-4 text-muted-foreground" />
                     <SelectValue placeholder="Select your country" />
@@ -139,8 +139,7 @@ export function SettingsTab() {
                 </SelectContent>
               </Select>
               <p className="text-[10px] text-muted-foreground mt-1">
-                Changing your country of residence will affect your currency and
-                payout options.
+                This is your payout region. It cannot be changed here.
               </p>
             </div>
             <div className="space-y-1 sm:col-span-2">

@@ -26,7 +26,7 @@ import {
   Trash2,
   Wallet,
 } from 'lucide-react';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {SecurityModal} from './SecurityModal';
 
 export function WalletTab() {
@@ -45,11 +45,17 @@ export function WalletTab() {
   } = useVendorWallet();
 
   const [bankForm, setBankForm] = useState({
-    country: '',
+    country: profile?.country || '',
     bankName: '',
     accountNumber: '',
     holderName: '',
   });
+
+  useEffect(() => {
+    if (profile?.country) {
+      setBankForm(prev => ({...prev, country: profile.country}));
+    }
+  }, [profile?.country]);
 
   const handleAddBank = () => {
     if (
@@ -239,8 +245,9 @@ export function WalletTab() {
                   <Label className="text-xs">Country</Label>
                   <Select
                     value={bankForm.country}
+                    disabled
                     onValueChange={v => setBankForm({...bankForm, country: v})}>
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-muted/50">
                       <SelectValue placeholder="Select country" />
                     </SelectTrigger>
                     <SelectContent>
@@ -253,6 +260,9 @@ export function WalletTab() {
                       </SelectItem>
                     </SelectContent>
                   </Select>
+                  <p className="text-[10px] text-muted-foreground mt-1">
+                    Locked to your profile country of residence.
+                  </p>
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">Bank Name</Label>

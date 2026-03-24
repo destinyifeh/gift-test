@@ -334,6 +334,7 @@ export function WalletTab() {
                   <Label className="text-xs">Country</Label>
                   <Select
                     value={selectedCountry}
+                    disabled
                     onValueChange={v => {
                       setSelectedCountry(v);
                       setBankForm({
@@ -343,7 +344,7 @@ export function WalletTab() {
                         holderName: '',
                       });
                     }}>
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-muted/50">
                       <SelectValue placeholder="Select country" />
                     </SelectTrigger>
                     <SelectContent>
@@ -354,6 +355,9 @@ export function WalletTab() {
                       ))}
                     </SelectContent>
                   </Select>
+                  <p className="text-[10px] text-muted-foreground mt-1">
+                    Locked to your profile country of residence.
+                  </p>
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">Select Bank</Label>

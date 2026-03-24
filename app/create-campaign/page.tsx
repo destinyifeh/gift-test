@@ -1,6 +1,7 @@
 'use client';
 
 import Navbar from '@/components/landing/Navbar';
+import {RequireAuthUI} from '@/components/guards';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
 import {useProfile} from '@/hooks/use-profile';
@@ -240,49 +241,10 @@ export default function CreateCampaignPage() {
     );
   }
 
-  if (isProfileLoading) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
-        <Navbar />
-        <Loader2 className="w-10 h-10 animate-spin text-primary" />
-      </div>
-    );
-  }
-  if (!profile) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
-        <Navbar />
-        <Card className="w-full max-w-md border-border shadow-2xl rounded-3xl p-8 text-center space-y-6">
-          <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto">
-            <Lock className="w-8 h-8 text-primary" />
-          </div>
-          <div className="space-y-2">
-            <h1 className="text-2xl font-bold">Authentication Required</h1>
-            <p className="text-muted-foreground text-sm">
-              You must be logged in to create a campaign.
-            </p>
-          </div>
-          <div className="flex flex-col gap-3">
-            <Button asChild className="h-12 font-bold rounded-xl">
-              <Link href="/login?redirect=/create-campaign">Sign In</Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              className="h-12 font-bold rounded-xl">
-              <Link href="/signup?redirect=/create-campaign">
-                Create Account
-              </Link>
-            </Button>
-          </div>
-        </Card>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
+    <RequireAuthUI header={<Navbar />} redirectPath="/create-campaign">
+      <div className="min-h-screen bg-background">
+        <Navbar />
       <div className="pt-24 pb-16">
         <div className="container mx-auto px-4 max-w-2xl">
           <StepsHeader steps={steps} currentStep={step} />
@@ -406,6 +368,7 @@ export default function CreateCampaignPage() {
           </Card>
         </div>
       </div>
-    </div>
+      </div>
+    </RequireAuthUI>
   );
 }
