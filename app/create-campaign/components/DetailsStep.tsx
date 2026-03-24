@@ -125,7 +125,7 @@ export function DetailsStep({
                   placeholder="0.00"
                   value={claimable.amount}
                   onChange={e => claimable.setAmount(e.target.value)}
-                  className="pl-8"
+                  className="pl-12"
                 />
               </div>
             </div>
@@ -330,7 +330,7 @@ export function DetailsStep({
                   value={standard.goal}
                   onChange={e => standard.setGoal(e.target.value)}
                   placeholder="0.00"
-                  className="pl-8"
+                  className="pl-12"
                 />
               </div>
             </div>
@@ -346,7 +346,7 @@ export function DetailsStep({
                   value={standard.minAmount}
                   onChange={e => standard.setMinAmount(e.target.value)}
                   placeholder="0.00"
-                  className="pl-8"
+                  className="pl-12"
                 />
               </div>
             </div>

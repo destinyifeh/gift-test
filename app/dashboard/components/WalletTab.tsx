@@ -474,13 +474,13 @@ export function WalletTab() {
               <div className="space-y-2">
                 <Label>Amount</Label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">
                     {currencySymbol}
                   </span>
                   <Input
                     type="number"
                     placeholder="0.00"
-                    className="pl-8"
+                    className="pl-12"
                     value={withdrawAmount}
                     onChange={e => setWithdrawAmount(e.target.value)}
                     max={wallet.balance}
