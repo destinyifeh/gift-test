@@ -232,17 +232,36 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
                 {creatorPlan === 'pro' ? 'Pro' : 'Free'}
               </Badge>
             </div>
-            <p className="text-sm text-muted-foreground">
-              gifttogether.com/{user?.username || 'username'}
+            <p className="text-sm text-muted-foreground font-medium">
+              gifthance.com/u/{profile?.username || user?.username || '[username]'}
             </p>
           </div>
           <div className="flex gap-2">
-            <Link href={`/u/${profile?.username || 'username'}`}>
-              <Button variant="outline" size="sm" disabled={isProfileLoading}>
+            <Button asChild variant="outline" size="sm" disabled={isProfileLoading}>
+              <Link href={`/u/${profile?.username || user?.username || ''}`}>
                 <Eye className="w-4 h-4 mr-1" /> View
-              </Button>
-            </Link>
-            <Button variant="outline" size="sm">
+              </Link>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                const url = `https://gifthance.com/u/${profile?.username || user?.username}`;
+                if (navigator.share) {
+                  try {
+                    await navigator.share({
+                      title: 'My Gift Page',
+                      url,
+                    });
+                  } catch (err) {
+                    navigator.clipboard.writeText(url);
+                    toast.success('Link copied to clipboard!');
+                  }
+                } else {
+                  navigator.clipboard.writeText(url);
+                  toast.success('Link copied to clipboard!');
+                }
+              }}>
               <Share2 className="w-4 h-4 mr-1" /> Share
             </Button>
           </div>
