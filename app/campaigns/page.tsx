@@ -23,6 +23,7 @@ import {motion} from 'framer-motion';
 import {Clock, Globe, Loader2, Plus, Search, Users} from 'lucide-react';
 import Link from 'next/link';
 import {useState} from 'react';
+import {generateSlug} from '@/lib/utils/slugs';
 
 export default function CampaignsPage() {
   const {data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage} =
@@ -97,7 +98,7 @@ export default function CampaignsPage() {
                   initial={{opacity: 0, y: 20}}
                   animate={{opacity: 1, y: 0}}
                   transition={{delay: i * 0.05}}>
-                  <Link href={`/campaign/${c.slug}`}>
+                  <Link href={`/campaign/${c.campaign_short_id}/${c.campaign_slug || generateSlug(c.title)}`}>
                     <Card className="border-border hover:shadow-elevated hover:border-primary/30 transition-all cursor-pointer h-full overflow-hidden">
                       <div className="aspect-video bg-muted relative">
                         <img

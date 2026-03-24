@@ -444,7 +444,7 @@ export async function recordCampaignContribution({
   const {data: campaign} = await supabase
     .from('campaigns')
     .select('id, current_amount')
-    .eq('slug', campaignSlug)
+    .eq('campaign_short_id', campaignSlug)
     .single();
 
   if (!campaign) {
@@ -525,7 +525,7 @@ export async function recordCampaignContribution({
       .update({current_amount: Number(campaign.current_amount) + paidAmount})
       .eq('id', campaign.id);
 
-    revalidatePath(`/campaign/${campaignSlug}`);
+    revalidatePath(`/campaign/${campaignSlug}`, 'layout');
     return {success: true};
   } catch (err: any) {
     return {success: false, error: err.message || 'Processing error'};
@@ -597,7 +597,8 @@ export async function recordCreatorGift({
       .insert({
         user_id: creator.id, // Assigned to the creator so it shows in their dashboard
         title: giftName || 'Gift Card',
-        slug: `${creatorUsername}-gift-${Date.now()}`,
+        campaign_short_id: `${creatorUsername}-gift-${Date.now()}`,
+        campaign_slug: 'gift-received',
         status: 'claimed', // Auto-claimed since they have an account
         goal_amount: expectedAmount,
         current_amount: expectedAmount, // fully funded
@@ -965,7 +966,8 @@ export async function recordShopGiftPurchase({
     const {error: campaignError} = await admin.from('campaigns').insert({
       user_id: gift.vendor_id,
       title: giftName,
-      slug: `gift-${giftCode.toLowerCase()}-${Date.now()}`,
+      campaign_short_id: `gift-${giftCode.toLowerCase()}-${Date.now()}`,
+      campaign_slug: 'prepaid-gift',
       status: 'active',
       goal_amount: expectedAmount,
       current_amount: expectedAmount,

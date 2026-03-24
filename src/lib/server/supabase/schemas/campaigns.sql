@@ -13,7 +13,8 @@ create table if not exists campaigns (
   visibility text default 'public', -- 'public' or 'private'
   contributors_see_each_other boolean default true,
   status text default 'active', -- 'active', 'completed', 'cancelled'
-  slug text unique, -- For public access: gifthance.com/c/slug
+  campaign_short_id text unique, -- Unique short identifier
+  campaign_slug text, -- SEO-friendly title slug
   
   -- Claimable specific fields
   claimable_type text, -- 'money' or 'gift-card'

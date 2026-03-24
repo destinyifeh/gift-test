@@ -15,6 +15,7 @@ import {
 import Link from 'next/link';
 
 import {useEffect, useState} from 'react';
+import {generateSlug} from '@/lib/utils/slugs';
 
 interface SuccessScreenProps {
   category: string;
@@ -36,7 +37,7 @@ export function SuccessScreen({
     setOrigin(window.location.origin);
   }, []);
 
-  const campaignLink = `${origin}/campaign/${slug}`;
+  const campaignLink = `${origin}/campaign/${slug}/${generateSlug(title)}`;
 
   const handleShare = async () => {
     const shareText = `Check out my gift campaign: ${title}`;
@@ -173,7 +174,7 @@ export function SuccessScreen({
                   </>
                 ) : (
                   <>
-                    <Link href={`/campaign/${slug}`} className="flex-1">
+                    <Link href={`/campaign/${slug}/${generateSlug(title)}`} className="flex-1">
                       <Button variant="hero" className="w-full h-12">
                         View Campaign
                       </Button>

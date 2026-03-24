@@ -208,8 +208,8 @@ export default function CreateCampaignPage() {
       const result = await createCampaign(campaignData);
 
       if (result.success) {
-        if (result.data?.slug) {
-          setCreatedSlug(result.data.slug);
+        if (result.data?.campaign_short_id) {
+          setCreatedSlug(result.data.campaign_short_id);
         }
         setSubmitted(true);
         toast.success(

@@ -78,7 +78,7 @@ const FeaturedCampaigns = () => {
                 viewport={{once: true}}
                 transition={{delay: i * 0.1}}
                 className="rounded-xl bg-card border border-border overflow-hidden hover:shadow-card transition-all duration-300 group cursor-pointer">
-                <Link href={`/campaign/${slug}`}>
+                <Link href={`/campaign/mock-${i}/${slug}`}>
                   <div className="h-36 bg-muted relative overflow-hidden group-hover:scale-105 transition-transform duration-300">
                     <img
                       src={(c as any).image || '/default-campaign.png'}

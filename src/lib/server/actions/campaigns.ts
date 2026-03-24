@@ -1,6 +1,6 @@
 'use server';
 
-import {generateSlug} from '@/lib/utils/slugs';
+import {generateSlug, generateShortId} from '@/lib/utils/slugs';
 import {revalidatePath} from 'next/cache';
 import {createClient} from '../supabase/server';
 import {sendGiftEmail} from './email';
@@ -35,15 +35,16 @@ export async function createCampaign(data: {
     return {success: false, error: 'Not authenticated'};
   }
 
-  // Generate a unique slug from title
-  const slug = generateSlug(data.title);
+  const campaign_short_id = generateShortId();
+  const campaign_slug = generateSlug(data.title);
 
   const {data: campaign, error} = await supabase
     .from('campaigns')
     .insert({
       ...data,
       user_id: user.id,
-      slug,
+      campaign_short_id,
+      campaign_slug,
       status: 'active',
     })
     .select()
@@ -163,7 +164,7 @@ export async function getCampaignBySlug(slug: string) {
     .select(
       '*, profiles!campaigns_user_id_fkey(id, username, display_name, avatar_url), contributions(*)',
     )
-    .eq('slug', slug)
+    .eq('campaign_short_id', slug)
     .order('created_at', {foreignTable: 'contributions', ascending: false})
     .single();
 

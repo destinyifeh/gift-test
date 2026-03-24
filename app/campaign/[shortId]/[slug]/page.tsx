@@ -25,16 +25,29 @@ import {
   Users,
 } from 'lucide-react';
 import Link from 'next/link';
-import {use, useState} from 'react';
+import {useRouter} from 'next/navigation';
+import {useEffect, use, useState} from 'react';
+import {generateSlug} from '@/lib/utils/slugs';
 
 export default function CampaignPage({
   params,
 }: {
-  params: Promise<{slug: string}>;
+  params: Promise<{ shortId: string; slug: string }>;
 }) {
-  const {slug} = use(params);
-  const {data: c, isLoading, error} = useCampaign(slug);
+  const { shortId, slug: urlSlug } = use(params);
+  const router = useRouter();
+  const {data: c, isLoading, error} = useCampaign(shortId);
   const [showGiftModal, setShowGiftModal] = useState(false);
+
+  // SEO validation: ensure the URL slug matches the campaign's title slug
+  useEffect(() => {
+    if (c) {
+      const expectedSlug = c.campaign_slug || generateSlug(c.title || '');
+      if (urlSlug !== expectedSlug && expectedSlug) {
+        router.replace(`/campaign/${shortId}/${expectedSlug}`);
+      }
+    }
+  }, [c, urlSlug, shortId, router]);
 
   // Paginated contributions for this campaign
   const {
@@ -43,11 +56,11 @@ export default function CampaignPage({
     hasNextPage: hasMoreContribs,
     isFetchingNextPage: isFetchingContribs,
   } = useInfiniteQuery({
-    queryKey: ['campaign-contributions', slug],
+    queryKey: ['campaign-contributions', shortId],
     initialPageParam: 0,
-    queryFn: ({pageParam = 0}) => fetchCampaignContributions({slug, pageParam}),
+    queryFn: ({pageParam = 0}) => fetchCampaignContributions({slug: shortId, pageParam}),
     getNextPageParam: lastPage => lastPage.nextPage,
-    enabled: !!slug,
+    enabled: !!shortId,
   });
 
   const paginatedContribs =
@@ -251,7 +264,7 @@ export default function CampaignPage({
       <SendCampaignGiftModal
         open={showGiftModal}
         onOpenChange={setShowGiftModal}
-        campaignSlug={slug}
+        campaignSlug={shortId}
         campaignTitle={c.title}
         creatorName={c.profiles?.display_name || 'Organizer'}
         minAmount={c.min_amount}

@@ -656,7 +656,7 @@ export async function fetchCampaignContributions({
     const {data: campaign} = await supabase
       .from('campaigns')
       .select('id, currency')
-      .eq('slug', slug)
+      .eq('campaign_short_id', slug)
       .single();
 
     if (!campaign) {

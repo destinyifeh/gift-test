@@ -15,6 +15,7 @@ import {ChevronRight, Clock, Edit, Loader2, Plus} from 'lucide-react';
 import Link from 'next/link';
 import {useState} from 'react';
 import {toast} from 'sonner';
+import {generateSlug} from '@/lib/utils/slugs';
 import {getDaysLeft, statusColor} from './utils';
 
 export function MyCampaignsTab() {
@@ -129,7 +130,7 @@ export function MyCampaignsTab() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-                      <Link href={`/campaign/${c.slug}`} className="block">
+                      <Link href={`/campaign/${c.campaign_short_id}/${c.campaign_slug || generateSlug(c.title)}`} className="block">
                         <p className="font-semibold text-foreground">
                           {c.title}
                         </p>
