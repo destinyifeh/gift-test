@@ -34,7 +34,7 @@ const Navbar = () => {
 
   const roles = profile?.roles || ['user'];
   const isVendor = roles.includes('vendor');
-  const isAdmin = !!profile?.admin_role;
+  const isAdmin = roles.includes('admin') || !!profile?.admin_role;
 
   // Close role menu on outside click
   useEffect(() => {
