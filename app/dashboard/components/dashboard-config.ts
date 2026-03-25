@@ -1,6 +1,5 @@
 import {
   BarChart3,
-  Code,
   Gift,
   Heart,
   LayoutDashboard,
@@ -23,7 +22,6 @@ export type SelectedSection =
   | 'gift-page'
   | 'supporters'
   | 'analytics'
-  | 'integrations'
   | 'favorites';
 
 export const navItems: {id: SelectedSection; label: string; icon: any}[] = [
@@ -45,5 +43,4 @@ export const creatorNavItems: {
   {id: 'gift-page', label: 'My Gift Page', icon: Sparkles},
   {id: 'supporters', label: 'Supporters', icon: Heart},
   {id: 'analytics', label: 'Analytics', icon: BarChart3},
-  {id: 'integrations', label: 'Integrations', icon: Code},
 ];

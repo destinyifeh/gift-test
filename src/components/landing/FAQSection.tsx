@@ -26,8 +26,8 @@ const faqs = [
     a: 'Absolutely! Group gifting is one of our core features. Create a campaign, share the link, and let everyone contribute toward a common gift goal.',
   },
   {
-    q: 'How do I integrate the widget or SDK?',
-    a: 'Visit our Developer page for API keys, SDK downloads, and step-by-step documentation. Our widget can be embedded with just a few lines of code.',
+    q: 'How does the Gift Shop work?',
+    a: 'Our Gift Shop features curated gift cards from verified vendors. Browse available options, purchase a gift card, and the recipient will receive a unique code to redeem their gift.',
   },
   {
     q: 'Is my payment information secure?',

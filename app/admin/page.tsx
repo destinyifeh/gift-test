@@ -16,7 +16,6 @@ import {ClaimableGiftsTab} from './components/ClaimableGiftsTab';
 import {LogsTab} from './components/LogsTab';
 import {ModerationTab} from './components/ModerationTab';
 import {NotificationsTab} from './components/NotificationsTab';
-import {PartnersTab} from './components/PartnersTab';
 import {ReportsTab} from './components/ReportsTab';
 import {SettingsTab} from './components/SettingsTab';
 import {SubscriptionsTab} from './components/SubscriptionsTab';
@@ -160,13 +159,6 @@ export default function AdminDashboardPage() {
             )}
             {section === 'vendors' && (
               <VendorsTab
-                searchQuery={searchQuery}
-                addLog={addLog}
-                setViewDetailsModal={setViewDetailsModal}
-              />
-            )}
-            {section === 'partners' && (
-              <PartnersTab
                 searchQuery={searchQuery}
                 addLog={addLog}
                 setViewDetailsModal={setViewDetailsModal}

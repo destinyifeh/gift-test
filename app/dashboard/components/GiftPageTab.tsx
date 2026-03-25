@@ -298,7 +298,7 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
                   </span>
                   <span className="flex items-center gap-2">
                     <CheckCircle className="w-3.5 h-3.5 text-secondary shrink-0" />{' '}
-                    Priority integrations
+                    Priority support
                   </span>
                   <span className="flex items-center gap-2">
                     <CheckCircle className="w-3.5 h-3.5 text-secondary shrink-0" />{' '}

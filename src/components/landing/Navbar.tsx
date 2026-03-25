@@ -66,7 +66,6 @@ const Navbar = () => {
   const mainLinks = [
     {label: 'Gift Shop', href: '/gift-shop'},
     {label: 'Campaigns', href: '/campaigns'},
-    ...(isHome && !user ? [{label: 'Developers', href: '/developers'}] : []),
   ];
 
   const homeLinks = [

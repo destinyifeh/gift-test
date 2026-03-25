@@ -16,7 +16,6 @@ import {SelectedSection} from './components/dashboard-config';
 import {DesktopSidebar} from './components/DesktopSidebar';
 import {FavoritesTab} from './components/FavoritesTab';
 import {GiftPageTab} from './components/GiftPageTab';
-import {IntegrationsTab} from './components/IntegrationsTab';
 import {MobileSidebar} from './components/MobileSidebar';
 import {MyCampaignsTab} from './components/MyCampaignsTab';
 import {OverviewTab} from './components/OverviewTab';
@@ -160,9 +159,6 @@ export default function DashboardPage() {
 
           {section === 'analytics' && isEffectivelyCreator && <AnalyticsTab />}
 
-          {section === 'integrations' && isEffectivelyCreator && (
-            <IntegrationsTab />
-          )}
         </div>
       </main>
     </div>

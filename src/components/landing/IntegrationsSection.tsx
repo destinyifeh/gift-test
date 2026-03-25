@@ -2,62 +2,62 @@
 
 import {motion} from 'framer-motion';
 import {
-  BarChart3,
-  Code,
-  Globe,
-  LayoutTemplate,
-  Paintbrush,
-  Puzzle,
+  Gift,
+  Heart,
+  LineChart,
+  Shield,
   Share2,
-  Smartphone,
+  ShoppingBag,
+  Store,
+  Wallet,
 } from 'lucide-react';
 
 const features = [
   {
-    icon: Globe,
-    title: 'Website Widget',
-    desc: 'Embeddable gifting widget for blogs or websites.',
+    icon: Store,
+    title: 'Trusted Vendor Gift Shop',
+    desc: 'Browse and send gift cards from verified vendors you can trust.',
   },
   {
-    icon: Smartphone,
-    title: 'Mobile SDK / NPM',
-    desc: 'Integrate gifting flows directly into mobile apps.',
+    icon: Shield,
+    title: 'Secure & Transparent',
+    desc: 'Every gift is tracked, protected, and easy to manage.',
+  },
+  {
+    icon: Gift,
+    title: 'Campaign Fundraising',
+    desc: 'Rally friends and family to contribute towards any occasion.',
   },
   {
     icon: Share2,
-    title: 'Social Sharing Tools',
-    desc: 'One-click sharing for WhatsApp, Instagram, Twitter, Email.',
+    title: 'One-Click Sharing',
+    desc: 'Share campaigns instantly via WhatsApp, Instagram, Twitter & Email.',
   },
   {
-    icon: LayoutTemplate,
-    title: 'Prebuilt Templates',
-    desc: 'High-conversion campaign layouts ready to use.',
+    icon: LineChart,
+    title: 'Real-Time Tracking',
+    desc: 'Watch contributions grow with live progress and analytics.',
   },
   {
-    icon: BarChart3,
-    title: 'Analytics Dashboard',
-    desc: 'Track contributions, donor count, and progress in real-time.',
+    icon: Heart,
+    title: 'Creator Support',
+    desc: 'Send love and gifts directly to your favourite creators.',
   },
   {
-    icon: Paintbrush,
-    title: 'White-Label Options',
-    desc: "Customize to match your platform's branding seamlessly.",
+    icon: Wallet,
+    title: 'Easy Withdrawals',
+    desc: 'Cash out your gifts to your bank account quickly and easily.',
   },
   {
-    icon: Puzzle,
-    title: 'Platform-Wide Gifting',
-    desc: 'Embed our widget or SDK across all your users.',
-  },
-  {
-    icon: Code,
-    title: 'Developer API',
-    desc: 'Full REST API with webhooks and documentation.',
+    icon: ShoppingBag,
+    title: 'Gift Card Marketplace',
+    desc: 'Discover curated gift cards from trusted vendors nationwide.',
   },
 ];
 
-const IntegrationsSection = () => {
+const WhyGifthanceSection = () => {
   return (
-    <section id="integrations" className="py-20 md:py-28 bg-muted/50">
+    <section id="why-gifthance" className="py-20 md:py-28 bg-muted/50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-14">
           <motion.div
@@ -65,14 +65,15 @@ const IntegrationsSection = () => {
             whileInView={{opacity: 1, y: 0}}
             viewport={{once: true}}>
             <span className="text-sm font-semibold text-secondary uppercase tracking-wider">
-              Integrations
+              Why Gifthance
             </span>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3">
-              Integrate & Share <span className="text-gradient">Anywhere</span>
+              Everything You Need to{' '}
+              <span className="text-gradient">Give Better</span>
             </h2>
             <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
-              Give your entire app the power of gifting. Embed our widget or SDK
-              across all your users.
+              From trusted gift shops to real-time campaign tracking — Gifthance
+              makes every gift memorable, secure, and effortless.
             </p>
           </motion.div>
         </div>
@@ -101,4 +102,4 @@ const IntegrationsSection = () => {
   );
 };
 
-export default IntegrationsSection;
+export default WhyGifthanceSection;

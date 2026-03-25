@@ -13,12 +13,12 @@ const Footer = () => {
       ],
     },
     {
-      title: 'Developers',
+      title: 'Features',
       links: [
-        {label: 'API Docs', to: '/developers'},
-        {label: 'Widget SDK', to: '/developers'},
-        {label: 'SDK Packages', to: '/developers'},
-        {label: 'Integrations', to: '/developers'},
+        {label: 'Gift Shop', to: '/gift-shop'},
+        {label: 'Campaigns', to: '/campaigns'},
+        {label: 'Creator Support', to: '/campaigns'},
+        {label: 'Vendor Marketplace', to: '/gift-shop'},
       ],
     },
     {

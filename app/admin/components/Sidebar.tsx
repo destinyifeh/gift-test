@@ -12,7 +12,6 @@ import {
   DollarSign,
   FileText,
   Gift,
-  Globe,
   LayoutDashboard,
   LogOut,
   Settings,
@@ -39,7 +38,6 @@ export type Section =
   | 'wallets'
   | 'withdrawals'
   | 'vendors'
-  | 'partners'
   | 'subscriptions'
   | 'reports'
   | 'moderation'
@@ -59,7 +57,6 @@ export const navItems: {id: Section; label: string; icon: React.ElementType}[] =
     {id: 'wallets', label: 'Wallets', icon: Wallet},
     {id: 'withdrawals', label: 'Withdrawals', icon: ArrowUpRight},
     {id: 'vendors', label: 'Vendors', icon: ShoppingCart},
-    {id: 'partners', label: 'Partners', icon: Globe},
     {id: 'subscriptions', label: 'Subscriptions', icon: Crown},
     {id: 'reports', label: 'Reports', icon: BarChart3},
     {id: 'moderation', label: 'Moderation', icon: Shield},
