@@ -190,8 +190,8 @@ export function CampaignsTab({
                   </p>
                 </td>
                 <td className="py-3 text-foreground capitalize">
-                  {c.profiles?.display_name ||
-                    c.profiles?.username ||
+                  {c.vendor?.display_name ||
+                    c.vendor?.username ||
                     'Unknown'}
                 </td>
                 <td className="py-3">
@@ -201,7 +201,7 @@ export function CampaignsTab({
                 </td>
                 <td className="py-3 text-right text-foreground font-mono">
                   {c.goal_amount
-                    ? `${getCurrencySymbol(getCurrencyByCountry(c.profiles?.country))}${c.goal_amount}`
+                    ? `${getCurrencySymbol(getCurrencyByCountry(c.vendor?.country))}${c.goal_amount}`
                     : '-'}
                 </td>
                 <td className="py-3 text-right text-secondary pr-6 font-mono">

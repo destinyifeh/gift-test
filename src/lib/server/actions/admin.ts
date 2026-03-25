@@ -643,7 +643,7 @@ export async function fetchAdminCreatorGifts({
 
     let query = adminDb
       .from('creator_support')
-      .select('*, recipient:profiles!recipient_id(*), sender:profiles!sender_id(*)')
+      .select('*, recipient:profiles!user_id(*)')
       .order('created_at', {ascending: false})
       .range(from, to);
 

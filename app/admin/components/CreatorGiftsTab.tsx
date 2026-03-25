@@ -188,7 +188,7 @@ export function CreatorGiftsTab({
                   {g.donor_name} {g.is_anonymous ? '(Anon)' : ''}
                 </td>
                 <td className="py-3 text-foreground">
-                  {g.recipient?.username || 'Unknown'}
+                  {g.recipient?.display_name || g.recipient?.username || 'Unknown'}
                 </td>
                 <td className="py-3">
                   <Badge

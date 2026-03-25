@@ -133,7 +133,7 @@ export function ClaimableGiftsTab({
                 key={c.id}
                 className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
                 <td className="py-3 font-mono font-semibold text-foreground">
-                  {c.gift_code || 'PREPAID'}
+                  {c.gift_code ? `${c.gift_code.slice(0, 6)}${'*'.repeat(Math.max(0, c.gift_code.length - 6))}` : 'PREPAID'}
                 </td>
                 <td className="py-3 text-foreground capitalize">
                    {c.profiles?.display_name || c.profiles?.username || 'System'}
