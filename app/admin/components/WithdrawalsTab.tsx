@@ -37,7 +37,7 @@ export function WithdrawalsTab({
 
   const {data, isLoading} = useQuery({
     queryKey: ['admin-withdrawals', searchQuery],
-    queryFn: () => fetchAdminWithdrawals(searchQuery),
+    queryFn: () => fetchAdminWithdrawals({search: searchQuery}),
   });
 
   const withdrawals = data?.data || [];

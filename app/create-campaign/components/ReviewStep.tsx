@@ -1,54 +1,27 @@
 'use client';
 
 import {Badge} from '@/components/ui/badge';
-import {getCurrencySymbol} from '@/lib/constants/currencies';
 import {Globe, Lock} from 'lucide-react';
 
 interface ReviewStepProps {
   category: string;
-  claimable: {
-    giftType: 'money' | 'gift-card';
-    amount: string;
-    giftId: number | null;
-    recipientType: 'self' | 'other';
-    recipientEmail: string;
-    senderEmail: string;
-    senderName?: string;
-    isAnonymous?: boolean;
-  };
   standard: {
     title: string;
     goal: string;
     endDate: string;
-    currency: string;
   };
   visibility: 'public' | 'private';
   image: string | null;
   contributorsSeeEachOther: boolean;
-  allVendorGifts: any[];
 }
 
 export function ReviewStep({
   category,
-  claimable,
   standard,
   visibility,
   image,
   contributorsSeeEachOther,
-  allVendorGifts,
 }: ReviewStepProps) {
-  const isClaimable = category === 'claimable';
-  const selectedGift = allVendorGifts.find(g => g.id === claimable.giftId);
-  const claimableGiftValue =
-    claimable.giftType === 'money'
-      ? `${getCurrencySymbol(standard.currency)}${claimable.amount || '0'}`
-      : selectedGift?.name || '—';
-
-  const totalToPay =
-    claimable.giftType === 'money'
-      ? `${getCurrencySymbol(standard.currency)}${claimable.amount || '0'}`
-      : `${getCurrencySymbol(standard.currency)}${Number(selectedGift?.price || 0).toLocaleString()}`;
-
   return (
     <div className="space-y-5">
       <h2 className="text-xl font-semibold text-foreground mb-4">
@@ -60,62 +33,22 @@ export function ReviewStep({
           <Badge variant="secondary">{category || '—'}</Badge>
         </div>
 
-        {isClaimable && (
-          <div className="mt-4 p-4 bg-primary/5 rounded-xl border border-primary/20 space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium">Total to Pay</span>
-              <span className="text-lg font-bold text-primary">
-                {totalToPay}
-              </span>
-            </div>
+        <div className="space-y-3">
+          <div className="flex justify-between py-2 border-b border-border">
+            <span className="text-muted-foreground">Title</span>
+            <span className="text-foreground font-medium">
+              {standard.title || '—'}
+            </span>
           </div>
-        )}
+          <div className="flex justify-between py-2 border-b border-border">
+            <span className="text-muted-foreground">Goal</span>
+            <span className="text-foreground font-medium">
+              {standard.goal ? `$${standard.goal}` : 'No goal'}
+            </span>
+          </div>
+        </div>
 
-        {isClaimable ? (
-          <div className="space-y-3 mt-3">
-            <div className="flex justify-between py-2 border-b border-border">
-              <span className="text-muted-foreground">Gift Type</span>
-              <span className="text-foreground font-medium capitalize">
-                {claimable.giftType}
-              </span>
-            </div>
-            <div className="flex justify-between py-2 border-b border-border">
-              <span className="text-muted-foreground">Value</span>
-              <span className="text-foreground font-medium">
-                {claimableGiftValue}
-              </span>
-            </div>
-            <div className="flex justify-between py-2 border-b border-border">
-              <span className="text-muted-foreground">Recipient</span>
-              <span className="text-foreground font-medium">
-                {claimable.recipientEmail || '—'}
-              </span>
-            </div>
-            <div className="flex justify-between py-2 border-b border-border">
-              <span className="text-muted-foreground">Sender Email</span>
-              <span className="text-foreground font-medium">
-                {claimable.senderEmail || '—'}
-              </span>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <div className="flex justify-between py-2 border-b border-border">
-              <span className="text-muted-foreground">Title</span>
-              <span className="text-foreground font-medium">
-                {standard.title || '—'}
-              </span>
-            </div>
-            <div className="flex justify-between py-2 border-b border-border">
-              <span className="text-muted-foreground">Goal</span>
-              <span className="text-foreground font-medium">
-                {standard.goal ? `$${standard.goal}` : 'No goal'}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {standard.endDate && !isClaimable && (
+        {standard.endDate && (
           <div className="flex justify-between py-2 border-b border-border">
             <span className="text-muted-foreground">End Date</span>
             <span className="text-foreground font-medium">
@@ -151,7 +84,7 @@ export function ReviewStep({
           </div>
         </div>
 
-        {visibility === 'private' && !isClaimable && (
+        {visibility === 'private' && (
           <div className="flex justify-between py-2 border-b border-border">
             <span className="text-muted-foreground">Contributors</span>
             <span className="text-foreground font-medium text-sm">

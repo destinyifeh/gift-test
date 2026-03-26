@@ -14,11 +14,11 @@ import {useQueryClient} from '@tanstack/react-query';
 import {AlertCircle, Eye, EyeOff, Gift, Lock, Mail} from 'lucide-react';
 import Link from 'next/link';
 import {useRouter, useSearchParams} from 'next/navigation';
-import {useState} from 'react';
+import {Suspense, useState} from 'react';
 import {useForm} from 'react-hook-form';
 import {toast} from 'sonner';
 
-export default function LoginPage() {
+function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -228,3 +228,13 @@ export default function LoginPage() {
     </div>
   );
 }
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center">Loading...</div>}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+export const dynamic = 'force-dynamic';

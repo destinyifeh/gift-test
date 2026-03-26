@@ -30,11 +30,11 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import {useRouter, useSearchParams} from 'next/navigation';
-import {useState} from 'react';
+import {Suspense, useState} from 'react';
 import {Controller, useForm} from 'react-hook-form';
 import {toast} from 'sonner';
 
-export default function SignupPage() {
+function SignupForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -334,3 +334,13 @@ export default function SignupPage() {
     </div>
   );
 }
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center">Loading...</div>}>
+      <SignupForm />
+    </Suspense>
+  );
+}
+
+export const dynamic = 'force-dynamic';

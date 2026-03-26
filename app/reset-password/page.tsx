@@ -9,10 +9,10 @@ import {updatePassword} from '@/lib/server/actions/auth';
 import {AlertCircle, Eye, EyeOff, Gift, Lock} from 'lucide-react';
 import Link from 'next/link';
 import {useRouter, useSearchParams} from 'next/navigation';
-import {useState} from 'react';
+import {Suspense, useState} from 'react';
 import {toast} from 'sonner';
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -149,3 +149,13 @@ export default function ResetPasswordPage() {
     </div>
   );
 }
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center">Loading...</div>}>
+      <ResetPasswordForm />
+    </Suspense>
+  );
+}
+
+export const dynamic = 'force-dynamic';

@@ -17,7 +17,9 @@ import Link from 'next/link';
 import {useRouter, useSearchParams} from 'next/navigation';
 import {useEffect, useState} from 'react';
 
-export default function ClaimAuthPage() {
+import {Suspense} from 'react';
+
+function ClaimAuthForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -194,5 +196,13 @@ export default function ClaimAuthPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function ClaimAuthPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-secondary/5 flex items-center justify-center"><p className="text-muted-foreground">Loading...</p></div>}>
+      <ClaimAuthForm />
+    </Suspense>
   );
 }

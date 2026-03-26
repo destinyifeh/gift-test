@@ -43,6 +43,7 @@ export function Sidebar({
   // Sync profile to store only when profile changes
   useEffect(() => {
     if (profile) {
+      console.log('Sidebar: Profile found, is_creator:', profile.is_creator);
       const userData = {
         id: profile.id,
         email: profile.email || '',
@@ -114,6 +115,7 @@ export function Sidebar({
           </div>
         )}
       </div>
+
       <RoleSwitcher />
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
         {navItems.map(item => (

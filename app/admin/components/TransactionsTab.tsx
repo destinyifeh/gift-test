@@ -33,7 +33,7 @@ export function TransactionsTab({
 }: TransactionsTabProps) {
   const {data, isLoading} = useQuery({
     queryKey: ['admin-transactions', searchQuery],
-    queryFn: () => fetchAdminTransactions(searchQuery),
+    queryFn: () => fetchAdminTransactions({search: searchQuery}),
   });
 
   const transactions = data?.data || [];

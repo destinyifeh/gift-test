@@ -5,19 +5,21 @@ import {useProfile} from '@/hooks/use-profile';
 import {signOut} from '@/lib/server/actions/auth';
 import {useUserStore} from '@/lib/store/useUserStore';
 import {useQueryClient} from '@tanstack/react-query';
-import {Menu, Plus} from 'lucide-react';
+import {Menu, Plus, Send} from 'lucide-react';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {useEffect, useState} from 'react';
 import {toast} from 'sonner';
 import {AnalyticsTab} from './components/AnalyticsTab';
 import {ContributionsTab} from './components/ContributionsTab';
+import {CreatorGiftsTab} from './components/CreatorGiftsTab';
 import {SelectedSection} from './components/dashboard-config';
 import {DesktopSidebar} from './components/DesktopSidebar';
 import {FavoritesTab} from './components/FavoritesTab';
 import {GiftPageTab} from './components/GiftPageTab';
 import {MobileSidebar} from './components/MobileSidebar';
 import {MyCampaignsTab} from './components/MyCampaignsTab';
+import {MyGiftsTab} from './components/MyGiftsTab';
 import {OverviewTab} from './components/OverviewTab';
 import {ReceivedGiftsTab} from './components/ReceivedGiftsTab';
 import {SentGiftsTab} from './components/SentGiftsTab';
@@ -96,6 +98,15 @@ export default function DashboardPage() {
             </h1>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
+            <Link href="/send-gift">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs sm:text-sm text-primary font-medium hover:text-primary/80 hover:bg-primary/5">
+                <Send className="w-4 h-4 mr-1 pb-0.5" />
+                Send Gift
+              </Button>
+            </Link>
             <Link href="/gift-shop">
               <Button
                 variant="ghost"
@@ -131,6 +142,15 @@ export default function DashboardPage() {
           )}
 
           {section === 'sent' && <SentGiftsTab />}
+
+          {section === 'my-gifts' && <MyGiftsTab />}
+
+          {section === 'creator-gifts' && (
+            <CreatorGiftsTab
+              setSection={setSection}
+              setWalletView={() => setSection('wallet')}
+            />
+          )}
 
           {section === 'received' && (
             <ReceivedGiftsTab

@@ -18,21 +18,17 @@ import {useEffect, useState} from 'react';
 import {generateSlug} from '@/lib/utils/slugs';
 
 interface SuccessScreenProps {
-  category: string;
   title: string;
-  claimableGiftCode: string;
   slug: string;
 }
 
 export function SuccessScreen({
-  category,
   title,
-  claimableGiftCode,
   slug,
 }: SuccessScreenProps) {
   const [copied, setCopied] = useState(false);
-  const isClaimable = category === 'claimable';
   const [origin, setOrigin] = useState('');
+  
   useEffect(() => {
     setOrigin(window.location.origin);
   }, []);
@@ -69,123 +65,92 @@ export function SuccessScreen({
                 <CheckCircle className="w-10 h-10 text-secondary" />
               </div>
               <h2 className="text-2xl font-bold font-display text-foreground mb-2">
-                {isClaimable
-                  ? '🎉 Gift Created Successfully!'
-                  : '🎉 Campaign Created Successfully!'}
+                🎉 Campaign Created Successfully!
               </h2>
               <p className="text-muted-foreground text-sm">
-                {isClaimable
-                  ? 'Your gift has been sent successfully! The recipient will receive an email with their claim link.'
-                  : 'Your campaign is now live. Share it with friends and start receiving gifts.'}
+                Your campaign is now live. Share it with friends and start receiving gifts.
               </p>
             </div>
 
             <div className="space-y-6">
-              {!isClaimable && (
-                <>
-                  <div className="space-y-2">
-                    <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-                      Campaign Link
-                    </Label>
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <div className="flex-1 bg-muted rounded-lg px-4 py-3 flex items-center gap-2 border border-border overflow-hidden">
-                        <LinkIcon className="w-4 h-4 text-muted-foreground shrink-0" />
-                        <span className="font-mono text-sm text-foreground truncate flex-1">
-                          {campaignLink}
-                        </span>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className={`flex-1 sm:flex-none h-11 transition-all ${
-                            copied ? 'border-green-500 text-green-500' : ''
-                          }`}
-                          onClick={() => {
-                            navigator.clipboard.writeText(campaignLink);
-                            setCopied(true);
-                            setTimeout(() => setCopied(false), 2000);
-                          }}>
-                          {copied ? (
-                            <>
-                              <CheckCircle className="w-4 h-4 mr-2" /> Copied!
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-4 h-4 mr-2" /> Copy link
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </div>
+              <div className="space-y-2">
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                  Campaign Link
+                </Label>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="flex-1 bg-muted rounded-lg px-4 py-3 flex items-center gap-2 border border-border overflow-hidden">
+                    <LinkIcon className="w-4 h-4 text-muted-foreground shrink-0" />
+                    <span className="font-mono text-sm text-foreground truncate flex-1">
+                      {campaignLink}
+                    </span>
                   </div>
-
-                  <div className="space-y-2">
-                    <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-                      Quick Share
-                    </Label>
+                  <div className="flex gap-2">
                     <Button
-                      onClick={handleShare}
-                      variant="hero"
-                      className="w-full h-11">
-                      <Plus className="w-4 h-4 mr-2" /> Share Campaign
+                      variant="outline"
+                      size="sm"
+                      className={`flex-1 sm:flex-none h-11 transition-all ${
+                        copied ? 'border-green-500 text-green-500' : ''
+                      }`}
+                      onClick={() => {
+                        navigator.clipboard.writeText(campaignLink);
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 2000);
+                      }}>
+                      {copied ? (
+                        <>
+                          <CheckCircle className="w-4 h-4 mr-2" /> Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-4 h-4 mr-2" /> Copy link
+                        </>
+                      )}
                     </Button>
                   </div>
+                </div>
+              </div>
 
-                  {/* Invite Section */}
-                  <div className="space-y-2">
-                    <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-                      Invite Contributors
-                    </Label>
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <Input
-                        placeholder="Enter emails (e.g. sarah@mail.com, john@mail.com)"
-                        className="bg-muted border-border"
-                      />
-                      <Button
-                        variant="hero"
-                        className="shrink-0 w-full sm:w-auto">
-                        <SendHorizontal className="w-4 h-4 mr-2" /> Send Invites
-                      </Button>
-                    </div>
-                  </div>
-                </>
-              )}
+              <div className="space-y-2">
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                  Quick Share
+                </Label>
+                <Button
+                  onClick={handleShare}
+                  variant="hero"
+                  className="w-full h-11">
+                  <Plus className="w-4 h-4 mr-2" /> Share Campaign
+                </Button>
+              </div>
+
+              {/* Invite Section */}
+              <div className="space-y-2">
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                  Invite Contributors
+                </Label>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Input
+                    placeholder="Enter emails (e.g. sarah@mail.com, john@mail.com)"
+                    className="bg-muted border-border"
+                  />
+                  <Button
+                    variant="hero"
+                    className="shrink-0 w-full sm:w-auto">
+                    <SendHorizontal className="w-4 h-4 mr-2" /> Send Invites
+                  </Button>
+                </div>
+              </div>
 
               <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                {isClaimable ? (
-                  <>
-                    <Link
-                      href=""
-                      onClick={e => {
-                        e.preventDefault();
-                        window.location.href = '/create-campaign';
-                      }}
-                      className="flex-1">
-                      <Button variant="hero" className="w-full h-12">
-                        Create Another Campaign
-                      </Button>
-                    </Link>
-                    <Link href="/dashboard" className="flex-1">
-                      <Button variant="outline" className="w-full h-12">
-                        Go to Dashboard
-                      </Button>
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    <Link href={`/campaign/${slug}/${generateSlug(title)}`} className="flex-1">
-                      <Button variant="hero" className="w-full h-12">
-                        View Campaign
-                      </Button>
-                    </Link>
-                    <Link href="/dashboard" className="flex-1">
-                      <Button variant="outline" className="w-full h-12">
-                        Go to Dashboard
-                      </Button>
-                    </Link>
-                  </>
-                )}
+                <Link href={`/campaign/${slug}/${generateSlug(title)}`} className="flex-1">
+                  <Button variant="hero" className="w-full h-12">
+                    View Campaign
+                  </Button>
+                </Link>
+                <Link href="/dashboard" className="flex-1">
+                  <Button variant="outline" className="w-full h-12">
+                    Go to Dashboard
+                  </Button>
+                </Link>
               </div>
             </div>
           </CardContent>

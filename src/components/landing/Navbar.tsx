@@ -66,7 +66,8 @@ const Navbar = () => {
   const mainLinks = [
     {label: 'Gift Shop', href: '/gift-shop'},
     {label: 'Campaigns', href: '/campaigns'},
-  ];
+    ...(user ? [{label: 'Send Gift', href: '/send-gift'}] : []),
+  ].filter(l => user || !['/send-gift', '/dashboard', '/admin', '/vendor'].includes(l.href));
 
   const homeLinks = [
     {label: 'How It Works', href: '#how-it-works'},

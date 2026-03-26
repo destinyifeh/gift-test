@@ -15,6 +15,8 @@ export type SelectedSection =
   | 'overview'
   | 'sent'
   | 'received'
+  | 'my-gifts'
+  | 'creator-gifts'
   | 'contributions'
   | 'campaigns'
   | 'wallet'
@@ -27,9 +29,10 @@ export type SelectedSection =
 export const navItems: {id: SelectedSection; label: string; icon: any}[] = [
   {id: 'overview', label: 'Overview', icon: LayoutDashboard},
   {id: 'sent', label: 'Gifts Sent', icon: Send},
-  {id: 'received', label: 'Gifts Received', icon: Gift},
-  {id: 'contributions', label: 'Contributions', icon: Heart},
-  {id: 'campaigns', label: 'Campaigns', icon: Users},
+  {id: 'my-gifts', label: 'My Gifts', icon: Gift},
+  {id: 'received', label: 'Campaign Donations', icon: Heart},
+  {id: 'contributions', label: 'My Contributions', icon: Send},
+  {id: 'campaigns', label: 'My Campaigns', icon: Users},
   {id: 'favorites', label: 'Favorites', icon: Star},
   {id: 'wallet', label: 'Wallet', icon: Wallet},
   {id: 'settings', label: 'Settings', icon: Settings},
@@ -41,6 +44,7 @@ export const creatorNavItems: {
   icon: any;
 }[] = [
   {id: 'gift-page', label: 'My Gift Page', icon: Sparkles},
-  {id: 'supporters', label: 'Supporters', icon: Heart},
+  {id: 'supporters', label: 'Supporters', icon: Users},
+  {id: 'creator-gifts', label: 'Creator Gifts', icon: Gift},
   {id: 'analytics', label: 'Analytics', icon: BarChart3},
 ];

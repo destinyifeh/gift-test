@@ -40,6 +40,7 @@ import {
   Shield,
   Trash2,
   Wallet,
+  Coins,
 } from 'lucide-react';
 import {useEffect, useState} from 'react';
 import {toast} from 'sonner';
@@ -232,11 +233,11 @@ export function WalletTab() {
         setPassword={setVerifyPassword}
         user={user || {id: '', email: '', display_name: 'User', username: ''}}
       />
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card className="border-border">
           <CardContent className="p-4 sm:p-5 text-center">
             <Wallet className="w-6 h-6 text-primary mx-auto mb-2" />
-            <p className="text-2xl sm:text-3xl font-bold text-foreground">
+            <p className="text-2xl font-bold text-foreground">
               {formatCurrency(wallet.balance, userCurrency)}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
@@ -244,10 +245,25 @@ export function WalletTab() {
             </p>
           </CardContent>
         </Card>
+        
+        {/* Platform Credit Card */}
+        <Card className="border-secondary/20 bg-secondary/5">
+          <CardContent className="p-4 sm:p-5 text-center">
+            <Coins className="w-6 h-6 text-secondary mx-auto mb-2" />
+            <p className="text-2xl font-bold text-secondary">
+              {formatCurrency(profile?.platform_balance || 0, userCurrency)}
+            </p>
+            <div className="flex flex-col items-center gap-0.5 mt-1">
+              <p className="text-xs font-bold text-secondary uppercase tracking-tight">Platform Credit</p>
+              <p className="text-[9px] text-muted-foreground leading-none">Internal Use • Non-withdrawable</p>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card className="border-border">
           <CardContent className="p-4 sm:p-5 text-center">
-            <ArrowDownLeft className="w-6 h-6 text-secondary mx-auto mb-2" />
-            <p className="text-2xl sm:text-3xl font-bold text-foreground">
+            <ArrowDownLeft className="w-6 h-6 text-green-600 mx-auto mb-2" />
+            <p className="text-2xl font-bold text-foreground">
               {formatCurrency(wallet.totalInflow, userCurrency)}
             </p>
             <p className="text-xs text-muted-foreground mt-1">Total Inflow</p>
@@ -256,7 +272,7 @@ export function WalletTab() {
         <Card className="border-border">
           <CardContent className="p-4 sm:p-5 text-center">
             <DollarSign className="w-6 h-6 text-destructive mx-auto mb-2" />
-            <p className="text-2xl sm:text-3xl font-bold text-foreground">
+            <p className="text-2xl font-bold text-foreground">
               {formatCurrency(wallet.pendingPayouts, userCurrency)}
             </p>
             <p className="text-xs text-muted-foreground mt-1">

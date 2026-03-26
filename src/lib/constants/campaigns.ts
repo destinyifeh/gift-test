@@ -23,12 +23,6 @@ export const CAMPAIGN_CATEGORIES = [
     desc: 'Pool contributions from friends and family',
   },
   {
-    id: 'claimable',
-    label: 'Claimable / Prepaid',
-    icon: CreditCard,
-    desc: 'Send a gift the recipient claims later',
-  },
-  {
     id: 'appreciation',
     label: 'Appreciation Gifts',
     icon: Heart,

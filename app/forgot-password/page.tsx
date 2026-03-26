@@ -9,10 +9,10 @@ import {forgotPassword} from '@/lib/server/actions/auth';
 import {AlertCircle, ArrowLeft, Gift, Mail} from 'lucide-react';
 import Link from 'next/link';
 import {useSearchParams} from 'next/navigation';
-import {useState} from 'react';
+import {Suspense, useState} from 'react';
 import {toast} from 'sonner';
 
-export default function ForgotPasswordPage() {
+function ForgotPasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -137,3 +137,13 @@ export default function ForgotPasswordPage() {
     </div>
   );
 }
+
+export default function ForgotPasswordPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center">Loading...</div>}>
+      <ForgotPasswordForm />
+    </Suspense>
+  );
+}
+
+export const dynamic = 'force-dynamic';

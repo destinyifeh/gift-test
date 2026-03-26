@@ -26,5 +26,9 @@ export const getDaysLeft = (endDate: string) => {
 };
 
 export const getTitle = (section: string) => {
+  if (section === 'received') return 'Campaign Donations';
+  if (section === 'creator-gifts') return 'Creator Gifts';
+  if (section === 'contributions') return 'My Contributions';
+  if (section === 'sent') return 'Gifts Sent';
   return section.replace('-', ' ');
 };
