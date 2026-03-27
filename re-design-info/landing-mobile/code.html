@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gifthance | The Warm Curator</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-dim": "#ffcaa1",
+                        "secondary-fixed": "#ffc69a",
+                        "tertiary-fixed-dim": "#efb118",
+                        "primary-fixed": "#f9873e",
+                        "secondary": "#8c4b00",
+                        "on-primary-container": "#451b00",
+                        "error-container": "#f95630",
+                        "background": "#fff4ef",
+                        "on-secondary-fixed": "#522a00",
+                        "surface-container": "#ffe3cf",
+                        "secondary-container": "#ffc69a",
+                        "on-primary-fixed-variant": "#542200",
+                        "outline-variant": "#d9a275",
+                        "on-surface-variant": "#7d522b",
+                        "on-background": "#492604",
+                        "secondary-fixed-dim": "#ffb374",
+                        "surface-bright": "#fff4ef",
+                        "secondary-dim": "#7a4100",
+                        "tertiary": "#775600",
+                        "on-secondary": "#fff0e7",
+                        "on-secondary-fixed-variant": "#7c4200",
+                        "on-tertiary-fixed-variant": "#624600",
+                        "surface-tint": "#964300",
+                        "inverse-surface": "#1b0a00",
+                        "tertiary-container": "#febf2a",
+                        "surface": "#fff4ef",
+                        "primary-container": "#f9873e",
+                        "tertiary-dim": "#684b00",
+                        "tertiary-fixed": "#febf2a",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-dim": "#843a00",
+                        "on-surface": "#492604",
+                        "on-tertiary-container": "#573e00",
+                        "inverse-primary": "#f9873e",
+                        "inverse-on-surface": "#c79266",
+                        "outline": "#9d6c44",
+                        "primary": "#964300",
+                        "on-tertiary": "#fff1dd",
+                        "on-error": "#ffefec",
+                        "surface-container-high": "#ffdcc2",
+                        "primary-fixed-dim": "#e97b32",
+                        "on-secondary-container": "#6e3a00",
+                        "surface-container-highest": "#ffd5b5",
+                        "error": "#b02500",
+                        "error-dim": "#b92902",
+                        "surface-container-low": "#ffede2",
+                        "on-primary": "#fff0e9",
+                        "on-primary-fixed": "#100300",
+                        "surface-variant": "#ffd5b5",
+                        "on-tertiary-fixed": "#3e2b00",
+                        "on-error-container": "#520c00"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; background-color: #fff4ef; color: #492604; -webkit-tap-highlight-color: transparent; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-nav { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .primary-gradient { background: linear-gradient(135deg, #964300 0%, #f9873e 100%); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background antialiased overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fff4ef]/80 dark:bg-[#492604]/80 backdrop-blur-md">
+<div class="flex items-center justify-between px-6 h-16 w-full max-w-screen-xl mx-auto">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#964300] dark:text-[#f9873e] hover:opacity-80 transition-opacity cursor-pointer">menu</span>
+<span class="text-xl font-extrabold text-[#964300] dark:text-[#f9873e] tracking-tighter font-['Plus_Jakarta_Sans']">Gifthance</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#7d522b] dark:text-[#d9a275] hover:opacity-80 transition-opacity cursor-pointer">search</span>
+<span class="material-symbols-outlined text-[#7d522b] dark:text-[#d9a275] hover:opacity-80 transition-opacity cursor-pointer">shopping_bag</span>
+</div>
+</div>
+</header>
+<main class="pt-16 pb-24">
+<!-- Hero Section -->
+<section class="relative px-6 py-12 flex flex-col gap-8">
+<div class="space-y-4">
+<h1 class="font-headline font-extrabold text-5xl tracking-tight text-on-background leading-[1.1]">
+                    Gifts that tell <span class="text-primary italic">their</span> story.
+                </h1>
+<p class="font-body text-lg text-on-surface-variant leading-relaxed max-w-[85%]">
+                    Curation meets intuition. Discover hand-picked treasures for every heartbeat and occasion.
+                </p>
+<div class="flex flex-col gap-3 pt-4">
+<button class="primary-gradient text-on-primary py-4 px-8 rounded-xl font-headline font-bold text-lg flex items-center justify-center gap-2 active:scale-95 transition-transform">
+                        Explore Collections
+                        <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<button class="bg-surface-container-high text-primary py-4 px-8 rounded-xl font-headline font-bold text-lg active:scale-95 transition-transform">
+                        Personal Gift Concierge
+                    </button>
+</div>
+</div>
+<div class="relative w-full aspect-[4/5] rounded-[2rem] overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="lifestyle shot of elegant gift boxes with satin ribbons arranged on a cream marble surface with warm natural sunlight casting soft shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_3-Sp185mI6sXUNv9jjGXs0sLfPQ7QWjvsV1RtWrBDx3BaopsQIfH9qQqQUzqG4ozht3PIPD_IcqBVjxl1oWDcSZkNOE0vm6bcW3S2kc0Urt72U4rNcnd0JOVK5Yp5TETRvo1E83iN6UnuVS0PpnW1P2LgjzyMhHJ06I-y8GNwjQfj-5h-_rRLDBTEi39Cr4f2_mJ5BNKFmnaJoQ_5Y-t7YcoWTTUkF6PED-TxpdBmUz82w71vw_3V72xC631jXp6L_a_22CWWhk"/>
+<div class="absolute bottom-6 left-6 right-6 p-6 bg-white/20 backdrop-blur-xl rounded-2xl border border-white/30">
+<div class="flex items-center gap-4">
+<div class="h-12 w-12 rounded-full bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container" style="font-variation-settings: 'FILL' 1;">redeem</span>
+</div>
+<div>
+<p class="font-headline font-bold text-white text-sm">Curator's Choice</p>
+<p class="font-body text-white/90 text-xs">The Autumn Earth Collection</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Category Bento Grid -->
+<section class="px-6 py-12 space-y-8">
+<div class="space-y-2">
+<h2 class="font-headline font-bold text-3xl tracking-tight">A gift for every occasion</h2>
+<p class="font-body text-on-surface-variant">Hand-picked by our editors for life's biggest moments.</p>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="col-span-2 h-48 bg-surface-container-low rounded-xl relative overflow-hidden flex flex-col justify-end p-6 group">
+<img class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-700" data-alt="modern home interior with ceramic vases and minimalist decor in soft warm earth tones highlighting curated aesthetic gifts" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYj-RlLghmul67kTh7lo275d_bu8UfV1Qz7AdTk4PKj4TMbw00ZGDYzOALxMks-3DoAwMeKgucnQXA7PDtZYD0OvMJF_C6QIYvUHkSFkooW1ou-KrvOAlmliDmZoCphWrzYrZLUCaX5ORsZ04Ipjx9KKC4xHVIx4CEXv7WC1BEfbuLUVCI9_9IoHa_plGhYlPgN4A94c2-Z7Dp8U2lxiIOw6tvWCQUOFl-AXBMgCycWwuNxA-rFTsyfCR1BDTk6DI1iEgnPBKCTCY"/>
+<div class="relative z-10">
+<h3 class="font-headline font-bold text-2xl">Housewarming</h3>
+<p class="font-body text-sm text-on-surface-variant">Warmth for new homes</p>
+</div>
+</div>
+<div class="h-64 bg-surface-container-low rounded-xl relative overflow-hidden flex flex-col justify-end p-6 group">
+<img class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-700" data-alt="close up of artisan leather journals and high quality stationery for professional milestone gifts" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRPG8k5bh5uq083npF-bvYS_1A4FvH7n-YGXjgVKZwTdsymkYKVUlY7T6AusrU4R1Em50y5y6UNhvDtPobD4tUeFSTKMsBvFMxM0xsjbeBkQf0FnpacRInXc3v6-lAOMw57GG6PFC9WthDG1unvOU6Y9Zy3zEkUtnhQJMfEtOeEwJK5QZsn9e3s_cvrdDN4NpvzBCf51HD7o_6Zvv07mss7fTu2oDFIM7PhWmlksEvYfs79iqFLNd7ZLFOmehOAG9POmiFWE-2H7Y"/>
+<div class="relative z-10">
+<h3 class="font-headline font-bold text-xl leading-tight">Career Wins</h3>
+</div>
+</div>
+<div class="h-64 bg-surface-container-low rounded-xl relative overflow-hidden flex flex-col justify-end p-6 group">
+<img class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-700" data-alt="delicate handmade jewelry pieces resting on a soft velvet tray with soft cinematic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCw2wLpsshhTn81Uey8FKA0nEGx12mfMeuSOTTsE-G9U7XUmjNciDsjG0Cvbe2vGlGvtYfCEBJtv8TpXwzDf4YQ9yIR91Pc2woNbWnviFh2jbPKnpNPwIGfN3P_03IlumA2RkwApnyt6jqqvvqFWy22H4LS0SGFD0NTDR8Vat142B73JNhfDsmSfDMbGlzSl9tKG9g_q5j0CSFAfTa0WLqCDm5EFmYKhxAUYrPo9DstEz3D2V50xKsZPnZBwgO6envqUMQNCUuMt5U"/>
+<div class="relative z-10">
+<h3 class="font-headline font-bold text-xl leading-tight">Anniversary</h3>
+</div>
+</div>
+</div>
+</section>
+<!-- Features Bento -->
+<section class="bg-surface-container-low py-16 px-6">
+<div class="space-y-12">
+<div class="text-center space-y-3">
+<h2 class="font-headline font-extrabold text-3xl">Everything You Need to Give Better</h2>
+<p class="font-body text-on-surface-variant max-w-xs mx-auto">We've refined the gifting process into a seamless, tactile experience.</p>
+</div>
+<div class="flex flex-col gap-6">
+<div class="bg-surface-container-lowest p-8 rounded-[2rem] space-y-4">
+<span class="material-symbols-outlined text-4xl text-primary" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<h3 class="font-headline font-bold text-xl">Curated Quality</h3>
+<p class="font-body text-on-surface-variant leading-relaxed">Every item in our shop is hand-verified for material integrity and ethical production.</p>
+</div>
+<div class="bg-surface-container-lowest p-8 rounded-[2rem] space-y-4">
+<span class="material-symbols-outlined text-4xl text-primary" style="font-variation-settings: 'FILL' 1;">magic_button</span>
+<h3 class="font-headline font-bold text-xl">Smart Concierge</h3>
+<p class="font-body text-on-surface-variant leading-relaxed">Our AI understands the nuances of relationships to suggest the perfect sentimental match.</p>
+</div>
+<div class="bg-surface-container-lowest p-8 rounded-[2rem] space-y-4">
+<span class="material-symbols-outlined text-4xl text-primary" style="font-variation-settings: 'FILL' 1;">eco</span>
+<h3 class="font-headline font-bold text-xl">Sustainably Wrapped</h3>
+<p class="font-body text-on-surface-variant leading-relaxed">Premium presentation using only recycled and biodegradable aesthetic materials.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- How it works -->
+<section class="px-6 py-16 space-y-12">
+<h2 class="font-headline font-bold text-3xl text-center">How Gifthance Works</h2>
+<div class="relative">
+<div class="absolute left-6 top-0 bottom-0 w-0.5 bg-outline-variant/20"></div>
+<div class="space-y-16">
+<div class="relative pl-16">
+<div class="absolute left-0 top-0 h-12 w-12 rounded-full bg-primary flex items-center justify-center font-headline font-bold text-white z-10">1</div>
+<div class="space-y-2">
+<h3 class="font-headline font-bold text-xl">Define the Vibe</h3>
+<p class="font-body text-on-surface-variant">Tell us who they are and what the moment represents. We handle the sentiment mapping.</p>
+<img class="w-full h-40 object-cover rounded-xl mt-4" data-alt="a person using a clean minimalist mobile app interface with warm typography and soft colors for gift selection" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnX8bhJUjqiQYcvqmjeN0BC-1cfjgp3R-QBs3l5gVmSQj1nODU62tkOT4gNddchAvSsAc0MPGUKMBKxfGRTBXjX8l8UjXAHNvNdO7khQsNbgj3lso8HkOcDk2z2wjxBt4JoO8db8CZNluFT4TjjOfuH5-RMT0aU3QHu1NuXodSi_b0Icl7jjHef1lTPeoq4dHGpUFe2htSTqwCb3cGZ1rCtTd4ZveyIcHa9B30pAnJ_mLaFFnlcA2Iv8NdgSTGJbpPsWA4oEsfjZA"/>
+</div>
+</div>
+<div class="relative pl-16">
+<div class="absolute left-0 top-0 h-12 w-12 rounded-full bg-primary flex items-center justify-center font-headline font-bold text-white z-10">2</div>
+<div class="space-y-2">
+<h3 class="font-headline font-bold text-xl">Select Your Gem</h3>
+<p class="font-body text-on-surface-variant">Choose from a refined shortlist curated by experts, not algorithms.</p>
+</div>
+</div>
+<div class="relative pl-16">
+<div class="absolute left-0 top-0 h-12 w-12 rounded-full bg-primary flex items-center justify-center font-headline font-bold text-white z-10">3</div>
+<div class="space-y-2">
+<h3 class="font-headline font-bold text-xl">Seamless Joy</h3>
+<p class="font-body text-on-surface-variant">We wrap it beautifully and deliver it with a handwritten note. No plastic, just heart.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Trending Carousel -->
+<section class="py-16 space-y-8">
+<div class="px-6 flex justify-between items-end">
+<div class="space-y-2">
+<h2 class="font-headline font-bold text-3xl">Trending right now</h2>
+<p class="font-body text-on-surface-variant">Items capturing hearts this week.</p>
+</div>
+<span class="text-primary font-bold text-sm">View all</span>
+</div>
+<div class="flex overflow-x-auto no-scrollbar gap-6 px-6 pb-4">
+<div class="flex-shrink-0 w-64 space-y-4">
+<div class="aspect-[4/5] bg-surface-container rounded-[2rem] overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="organic shaped ceramic mugs and saucers with a speckled beige glaze on a rustic wooden table" src="https://lh3.googleusercontent.com/aida-public/AB6AXuClMxBImwU5Gq05KuI-DWqwTEp3yg7GkuBj-f4nQYIRRR4cdehWMLMK7WteJtbQrZcdgX6bC_YQEDk-KZPPUU4lWdTIyTGOxhdRnCQw8H5QAFYova0sLi7yt5gAioYm7xyjAR0ZcG-9Cn4KxYJn4l5ueKim1iVNb-8pgFUu_24iOi_ApMcq8pONnDjQTmH_do-0jQlx0u40usPPcG1-yLxmxshL3mq8h2vLzgYABTDHGdXH8QuTOerkZHHC4ILhgSXp7w2yjQIQyoM"/>
+</div>
+<div class="space-y-1">
+<h4 class="font-headline font-bold text-lg">Terra Ceramic Set</h4>
+<p class="font-body text-sm text-on-surface-variant">Artisan Houseware</p>
+<p class="font-headline font-bold text-primary">$48.00</p>
+</div>
+</div>
+<div class="flex-shrink-0 w-64 space-y-4">
+<div class="aspect-[4/5] bg-surface-container rounded-[2rem] overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="a curated wellness gift box containing high quality candles and botanical skincare products" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtT2JIHPr3JaP1odx71s4Mi3jifwL5-w0adf8_iLHaquX5hy_xOMvZl1pXCPvTpYl_qHPITYATyKhN3YXrbOHKVj5vHZYMXiCXVb6Cgj_aw2AiQkqFnoikDcMw54yu0jQSpS4tk2fOvxM90fshjwycQiXPN4_YDcSkapsEo27nt6jmSyGcty0VzBQInQJ46WSPQKpE9keNBJp07s4BcBRVxSbZdSVuPpDxtft83ur-t451LvmyMOBd4fBAVPr1h3Vs9Hoo_Nninhc"/>
+</div>
+<div class="space-y-1">
+<h4 class="font-headline font-bold text-lg">Slow Morning Box</h4>
+<p class="font-body text-sm text-on-surface-variant">Wellness Curation</p>
+<p class="font-headline font-bold text-primary">$120.00</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Newsletter Subscription -->
+<section class="px-6 py-12">
+<div class="bg-primary-container/20 rounded-[2.5rem] p-8 space-y-6 relative overflow-hidden">
+<div class="relative z-10 space-y-4">
+<h2 class="font-headline font-extrabold text-3xl text-on-primary-container">Stay Updated</h2>
+<p class="font-body text-on-primary-fixed-variant">Get a weekly edit of the world's most beautiful gifts and exclusive early access to drops.</p>
+<div class="space-y-3 pt-2">
+<input class="w-full bg-white/60 backdrop-blur-md border-none rounded-xl px-5 py-4 font-body placeholder:text-on-surface-variant/50 focus:ring-2 focus:ring-primary" placeholder="Your email address" type="email"/>
+<button class="w-full primary-gradient text-white font-headline font-bold py-4 rounded-xl active:scale-95 transition-transform">Join the Inner Circle</button>
+</div>
+</div>
+<div class="absolute -right-12 -bottom-12 w-48 h-48 bg-primary/10 rounded-full blur-3xl"></div>
+</div>
+</section>
+<!-- FAQ Section -->
+<section class="px-6 py-12 space-y-8">
+<h2 class="font-headline font-bold text-2xl">Common Questions</h2>
+<div class="space-y-4">
+<div class="bg-surface-container-low p-6 rounded-2xl">
+<div class="flex justify-between items-center">
+<h3 class="font-headline font-semibold text-on-background">How fast is shipping?</h3>
+<span class="material-symbols-outlined text-primary">add</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-2xl">
+<div class="flex justify-between items-center">
+<h3 class="font-headline font-semibold text-on-background">Can I return a gift?</h3>
+<span class="material-symbols-outlined text-primary">add</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-2xl">
+<div class="flex justify-between items-center">
+<h3 class="font-headline font-semibold text-on-background">How does AI Concierge work?</h3>
+<span class="material-symbols-outlined text-primary">add</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Navigation Drawer (Mobile Floating Behavior) -->
+<!-- Hidden by default, normally toggled. Bottom Nav is the primary mobile anchor -->
+<!-- Bottom Navigation Bar (Mobile Native Style) -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl z-50 px-6 py-3 flex justify-between items-center md:hidden border-t border-outline-variant/10">
+<div class="flex flex-col items-center gap-1 text-[#964300] dark:text-[#f9873e]">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="text-[10px] font-bold font-label">Home</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-[#7d522b] dark:text-[#d9a275]">
+<span class="material-symbols-outlined">redeem</span>
+<span class="text-[10px] font-medium font-label">Gifts</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-[#7d522b] dark:text-[#d9a275]">
+<span class="material-symbols-outlined">history</span>
+<span class="text-[10px] font-medium font-label">Activity</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-[#7d522b] dark:text-[#d9a275]">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[10px] font-medium font-label">Settings</span>
+</div>
+</nav>
+<!-- Footer -->
+<footer class="w-full rounded-t-[1.5rem] mt-auto bg-[#ffede2] dark:bg-[#2d1a08] w-full px-8 py-12 flex flex-col items-center gap-6 pb-32">
+<div class="text-lg font-bold text-[#492604] dark:text-[#fff4ef] font-headline">Gifthance</div>
+<div class="flex gap-8 text-[#7d522b] dark:text-[#d9a275] font-['Manrope'] text-sm">
+<span class="hover:text-[#964300] transition-colors cursor-pointer">Privacy</span>
+<span class="hover:text-[#964300] transition-colors cursor-pointer">Terms</span>
+<span class="hover:text-[#964300] transition-colors cursor-pointer">Support</span>
+</div>
+<div class="font-['Manrope'] text-sm leading-relaxed text-[#7d522b] dark:text-[#d9a275] text-center">
+            © 2024 Gifthance. Curated with warmth.
+        </div>
+</footer>
+</body></html>

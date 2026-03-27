@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "tertiary-fixed-dim": "#efb118",
+                        "surface-variant": "#ffd5b5",
+                        "error": "#b02500",
+                        "error-dim": "#b92902",
+                        "on-primary-fixed-variant": "#542200",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed-dim": "#ffb374",
+                        "secondary": "#8c4b00",
+                        "on-background": "#492604",
+                        "on-primary-fixed": "#100300",
+                        "surface-container-high": "#ffdcc2",
+                        "secondary-fixed": "#ffc69a",
+                        "tertiary-container": "#febf2a",
+                        "on-primary": "#fff0e9",
+                        "surface-container": "#ffe3cf",
+                        "primary-container": "#f9873e",
+                        "outline": "#9d6c44",
+                        "inverse-on-surface": "#c79266",
+                        "secondary-container": "#ffc69a",
+                        "primary-fixed": "#f9873e",
+                        "on-surface": "#492604",
+                        "surface-tint": "#964300",
+                        "on-secondary": "#fff0e7",
+                        "surface-dim": "#ffcaa1",
+                        "on-error": "#ffefec",
+                        "on-primary-container": "#451b00",
+                        "tertiary-dim": "#684b00",
+                        "surface-container-low": "#ffede2",
+                        "error-container": "#f95630",
+                        "surface-bright": "#fff4ef",
+                        "on-tertiary": "#fff1dd",
+                        "primary": "#964300",
+                        "outline-variant": "#d9a275",
+                        "primary-fixed-dim": "#e97b32",
+                        "tertiary-fixed": "#febf2a",
+                        "background": "#fff4ef",
+                        "on-surface-variant": "#7d522b",
+                        "on-secondary-container": "#6e3a00",
+                        "surface": "#fff4ef",
+                        "secondary-dim": "#7a4100",
+                        "inverse-surface": "#1b0a00",
+                        "on-secondary-fixed-variant": "#7c4200",
+                        "tertiary": "#775600",
+                        "on-tertiary-container": "#573e00",
+                        "on-error-container": "#520c00",
+                        "on-tertiary-fixed-variant": "#624600",
+                        "surface-container-highest": "#ffd5b5",
+                        "primary-dim": "#843a00",
+                        "inverse-primary": "#f9873e",
+                        "on-secondary-fixed": "#522a00",
+                        "on-tertiary-fixed": "#3e2b00"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #fff4ef; /* surface */
+            color: #492604; /* on-surface */
+            font-family: 'Manrope', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .glass-nav {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full z-50 bg-orange-50/80 dark:bg-stone-900/80 backdrop-blur-xl">
+<div class="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto">
+<span class="text-2xl font-bold text-orange-900 dark:text-orange-50 tracking-tighter font-headline">Gifthance</span>
+<div class="flex items-center gap-4">
+<button class="p-2 text-orange-700 dark:text-orange-500">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="pt-20 pb-32 px-6">
+<!-- Header & Search -->
+<header class="mb-8">
+<h1 class="font-headline text-3xl font-extrabold tracking-tight text-on-surface mb-6">Gift Shop</h1>
+<div class="relative group">
+<div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-on-surface-variant">search</span>
+</div>
+<input class="w-full pl-12 pr-4 py-4 bg-surface-container-low border-none rounded-2xl font-body text-on-surface placeholder:text-on-surface-variant focus:ring-1 focus:ring-outline-variant/30 focus:bg-surface-container-lowest transition-all" placeholder="Search curated gifts..." type="text"/>
+</div>
+</header>
+<!-- Categories Scroller -->
+<section class="mb-10 -mx-6 px-6 overflow-x-auto no-scrollbar flex gap-3">
+<button class="whitespace-nowrap px-6 py-2.5 bg-primary text-on-primary rounded-full font-label text-sm font-bold">All Gifts</button>
+<button class="whitespace-nowrap px-6 py-2.5 bg-surface-container-high text-on-surface-variant rounded-full font-label text-sm font-semibold">For Him</button>
+<button class="whitespace-nowrap px-6 py-2.5 bg-surface-container-high text-on-surface-variant rounded-full font-label text-sm font-semibold">For Her</button>
+<button class="whitespace-nowrap px-6 py-2.5 bg-surface-container-high text-on-surface-variant rounded-full font-label text-sm font-semibold">Digital</button>
+<button class="whitespace-nowrap px-6 py-2.5 bg-surface-container-high text-on-surface-variant rounded-full font-label text-sm font-semibold">Home</button>
+</section>
+<!-- Gift Grid - Bento Style -->
+<div class="grid grid-cols-2 gap-4">
+<!-- Featured Large Card -->
+<div class="col-span-2 bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm">
+<div class="relative h-56 w-full">
+<img class="w-full h-full object-cover" data-alt="luxury curated gift box with gold ribbon and artisan treats on a warm wooden background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDefc_AvCy_52qD4PaYWsYXcdWmciemDXweNmodJ3rYjYe4qQBWbGAqVd48dOfc8azDuE8zN3sh4FUngsYX3cNB1Vz5y5860Np_wvz3TjCoR1me2XohoIJRXbGlpAwXSf1xgR3nx2BZC3flvBVWJFsj3VuW4D83lF5hI-pqQPPHmVltEs57tjzsocjCCDvj7m9KqGRGTxg79ibkUEcAB0-dR1YC6ciNVsaf2WjKF7MIkPzh0lgCJ5FNwjK3ByrcMGUXHcJSV0NSLtQ"/>
+<div class="absolute top-4 right-4 bg-tertiary-container text-on-tertiary-container px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase">Editor's Pick</div>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-headline font-bold text-lg leading-tight">Artisan Celebration Suite</h3>
+<span class="font-body font-extrabold text-primary text-lg">$125</span>
+</div>
+<p class="text-on-surface-variant text-sm font-body mb-4">A handcrafted selection of fine wines and dark chocolate.</p>
+<button class="w-full py-3 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-xl font-bold flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-lg">add_shopping_cart</span>
+                        Send Gift
+                    </button>
+</div>
+</div>
+<!-- Standard Card 1 -->
+<div class="bg-surface-container-lowest rounded-3xl overflow-hidden">
+<div class="h-40 w-full bg-surface-container-low">
+<img class="w-full h-full object-cover" data-alt="minimalist white ceramic vase with single dried flower in warm sunlit room" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFvwZyp5eHtgsYzVpkWAtthr14G9Vg_gxI4Mg8Zey-11x1zKK3EeW8qKwr5wBbcy2I1c0XblAFUdcm74osXLNwVKMNsxDOq9ZqJHJbDMqwFjKW-pfGkeb68_IN8yO5DivImsEKUYDAdQzSx7PxQ8345QM3RHh7zk0IUNaVRtFBvh3kUF_N8EvJdRDYcAaCSIWHkmuIb6w6miL1VB37nHyt9yD6ZFsIE8JkM2Mb_mNVHyl3hHUKhtu4g0ozNvPiNKRLcJvJfwhn1-8"/>
+</div>
+<div class="p-4">
+<h3 class="font-headline font-bold text-sm mb-1 truncate">Nordic Stone Vase</h3>
+<div class="flex justify-between items-center">
+<span class="font-body font-bold text-on-surface">$45</span>
+<span class="material-symbols-outlined text-primary text-xl">favorite</span>
+</div>
+</div>
+</div>
+<!-- Standard Card 2 -->
+<div class="bg-surface-container-lowest rounded-3xl overflow-hidden">
+<div class="h-40 w-full bg-surface-container-low">
+<img class="w-full h-full object-cover" data-alt="elegant fountain pen resting on a leather-bound journal with warm lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3G6u85K-DxoemKgxDD9dyEhjwAiwjrx3_66vvfmrvCor-1na1O9iBYv2DDwFi1ahpGTBMne5j9iYqTXslgVj4Zdld9kMUuM4JfIWCnxQYq4SJ-nJVHJn0YYc79Z2XMlPTs5tMR3nORBxOSUjSWoBmN0IAvGtAilj9P4piEx0qFqMcL0UgO4gWSRQKI940trtenZjV0_YTfaT0bZzZ3w5O0bzGPsJ_BUDuWULyJMEnUEYPnoaJ-jSlzkSwKeVdVwmuLkqxEbEhAWc"/>
+</div>
+<div class="p-4">
+<h3 class="font-headline font-bold text-sm mb-1 truncate">Legacy Leather Journal</h3>
+<div class="flex justify-between items-center">
+<span class="font-body font-bold text-on-surface">$32</span>
+<span class="material-symbols-outlined text-primary text-xl">favorite</span>
+</div>
+</div>
+</div>
+<!-- Wide Card -->
+<div class="col-span-2 flex bg-surface-container-low rounded-3xl p-4 gap-4 items-center">
+<div class="w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="luxury scented candle in amber glass jar on a marble surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwyDuxNWnMte2T5l7OU2dHUi63NI8Z4mbY97h2DGG0DYbb5NhBqyDo1fG3PxEtiS7nKa_zIVBi-qk_Ap4w_6WJ6eyOD2AFsTwQm-SOLHx1zv63r85fcAnIDuZcVEfUab-y9IDJNa0gfa6IKm7ma-HOdkXX2jhMIAnVvYbt-To_ZnpD3eFvyfDD5TqaqL8NAQx7M5yDpoo1hwGmtyTQQH_JemLf2G3b7F8bOI23tFoMqUUH2CsWBVHC3z70xwjrGGE44YPURZ8okl0"/>
+</div>
+<div class="flex-grow">
+<div class="bg-secondary-container/30 text-on-secondary-container text-[8px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-full inline-block mb-1">New Arrival</div>
+<h3 class="font-headline font-bold text-base leading-tight">Amber &amp; Oak Candle</h3>
+<p class="text-on-surface-variant text-xs mb-2">Slow-burn essential oils.</p>
+<span class="font-body font-extrabold text-primary">$24</span>
+</div>
+<button class="bg-surface-container-lowest p-3 rounded-full shadow-sm text-primary">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+<!-- Standard Card 3 -->
+<div class="bg-surface-container-lowest rounded-3xl overflow-hidden">
+<div class="h-40 w-full bg-surface-container-low">
+<img class="w-full h-full object-cover" data-alt="classic tortoiseshell sunglasses on a warm tan surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDb3jRZc10CQmDozY9Htyn8HM1H4Wjsl6eb2I0kPjzt3006zIvb8KAEL1vbIxWN6qqFRZC1pe4WA4xVpg4ss6jy3lWOCIGvx_m6j45qhG-b3F9YVVMsPEG6jnHFyKXi32t9UO8iXoJwBGvf6j1NaeLw8i4FV5-wv3a9pXNo-4LtURG283Q7gwOYMUd2bC6fR3R8N_dkLsb7f3sYQVk1And7zUM_TbRjArCAm2jck4Dj3Dw2bHe6GGVv8syLX2LCYqJI0iJ2eQUDMeo"/>
+</div>
+<div class="p-4">
+<h3 class="font-headline font-bold text-sm mb-1 truncate">Classic Heritage Frames</h3>
+<div class="flex justify-between items-center">
+<span class="font-body font-bold text-on-surface">$89</span>
+<span class="material-symbols-outlined text-primary text-xl">favorite</span>
+</div>
+</div>
+</div>
+<!-- Standard Card 4 -->
+<div class="bg-surface-container-lowest rounded-3xl overflow-hidden border border-outline-variant/10">
+<div class="h-40 w-full bg-surface-container-low">
+<img class="w-full h-full object-cover" data-alt="premium coffee beans in a craft paper bag with copper scoop" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3UO4Bl1t-gV4TRTLqAuR6JcytSjn54GfX9XkJ3pp4t6PXUe9IHdocaquQstqgDxb4Rgmuhh9l7ZbgwxZ0qDqKgfdAQBQW5aAleAZkb4ovWmg-DxZbvVYCuKn6l6VRAsLEUtHjX0H6rlmyH-OQTh8ObXx3JMFJP4XToueRh8uejzKggEgCgsKbxf3kB1wBbzQCb6E5lhiuPu58D2Wu0tCKLU6jIInl4m--vVgdQG8pQm_bxlcIm0FOWxqmcfLGLfz47oSx4BFBPOs"/>
+</div>
+<div class="p-4">
+<h3 class="font-headline font-bold text-sm mb-1 truncate">Ethical Roast Bundle</h3>
+<div class="flex justify-between items-center">
+<span class="font-body font-bold text-on-surface">$18</span>
+<span class="material-symbols-outlined text-primary text-xl">favorite</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 w-full rounded-t-3xl z-50 pb-safe bg-orange-50/80 dark:bg-stone-900/80 backdrop-blur-xl shadow-[0_-10px_40px_rgba(73,38,4,0.06)]">
+<div class="flex justify-around items-center px-4 py-3">
+<!-- Home -->
+<a class="flex flex-col items-center justify-center text-stone-500 dark:text-stone-400 px-4 py-2 active:bg-orange-100 dark:active:bg-stone-800 transition-all" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-manrope text-[10px] font-bold uppercase tracking-widest">Home</span>
+</a>
+<!-- Gifts (Active) -->
+<a class="flex flex-col items-center justify-center bg-orange-200/50 dark:bg-orange-900/40 text-orange-900 dark:text-orange-100 rounded-2xl px-4 py-2 scale-95 transition-all" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">redeem</span>
+<span class="font-manrope text-[10px] font-bold uppercase tracking-widest">Gifts</span>
+</a>
+<!-- Campaigns -->
+<a class="flex flex-col items-center justify-center text-stone-500 dark:text-stone-400 px-4 py-2 active:bg-orange-100 dark:active:bg-stone-800 transition-all" href="#">
+<span class="material-symbols-outlined mb-1">campaign</span>
+<span class="font-manrope text-[10px] font-bold uppercase tracking-widest">Campaigns</span>
+</a>
+<!-- Wallet -->
+<a class="flex flex-col items-center justify-center text-stone-500 dark:text-stone-400 px-4 py-2 active:bg-orange-100 dark:active:bg-stone-800 transition-all" href="#">
+<span class="material-symbols-outlined mb-1">account_balance_wallet</span>
+<span class="font-manrope text-[10px] font-bold uppercase tracking-widest">Wallet</span>
+</a>
+</div>
+</nav>
+</body></html>

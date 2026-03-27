@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gifthance | Gift and support the people you care about</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-dim": "#ffcaa1",
+                        "secondary-fixed": "#ffc69a",
+                        "tertiary-fixed-dim": "#efb118",
+                        "primary-fixed": "#f9873e",
+                        "secondary": "#8c4b00",
+                        "on-primary-container": "#451b00",
+                        "error-container": "#f95630",
+                        "background": "#fff4ef",
+                        "on-secondary-fixed": "#522a00",
+                        "surface-container": "#ffe3cf",
+                        "secondary-container": "#ffc69a",
+                        "on-primary-fixed-variant": "#542200",
+                        "outline-variant": "#d9a275",
+                        "on-surface-variant": "#7d522b",
+                        "on-background": "#492604",
+                        "secondary-fixed-dim": "#ffb374",
+                        "surface-bright": "#fff4ef",
+                        "secondary-dim": "#7a4100",
+                        "tertiary": "#775600",
+                        "on-secondary": "#fff0e7",
+                        "on-secondary-fixed-variant": "#7c4200",
+                        "on-tertiary-fixed-variant": "#624600",
+                        "surface-tint": "#964300",
+                        "inverse-surface": "#1b0a00",
+                        "tertiary-container": "#febf2a",
+                        "surface": "#fff4ef",
+                        "primary-container": "#f9873e",
+                        "tertiary-dim": "#684b00",
+                        "tertiary-fixed": "#febf2a",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-dim": "#843a00",
+                        "on-surface": "#492604",
+                        "on-tertiary-container": "#573e00",
+                        "inverse-primary": "#f9873e",
+                        "inverse-on-surface": "#c79266",
+                        "outline": "#9d6c44",
+                        "primary": "#964300",
+                        "on-tertiary": "#fff1dd",
+                        "on-error": "#ffefec",
+                        "surface-container-high": "#ffdcc2",
+                        "primary-fixed-dim": "#e97b32",
+                        "on-secondary-container": "#6e3a00",
+                        "surface-container-highest": "#ffd5b5",
+                        "error": "#b02500",
+                        "error-dim": "#b92902",
+                        "surface-container-low": "#ffede2",
+                        "on-primary": "#fff0e9",
+                        "on-primary-fixed": "#100300",
+                        "surface-variant": "#ffd5b5",
+                        "on-tertiary-fixed": "#3e2b00",
+                        "on-error-container": "#520c00"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "1.5rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bg-warm-gradient {
+            background: linear-gradient(135deg, #964300 0%, #f9873e 100%);
+        }
+        .glass-nav {
+            background: rgba(255, 244, 239, 0.8);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full z-50 glass-nav">
+<div class="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
+<div class="text-2xl font-bold tracking-tight text-orange-950 dark:text-orange-50 font-headline">Gifthance</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-orange-900 font-semibold border-b-2 border-orange-600 transition-colors duration-300" href="#">Gift Shop</a>
+<a class="text-orange-800/70 hover:text-orange-600 transition-colors duration-300" href="#">Campaigns</a>
+<a class="text-orange-800/70 hover:text-orange-600 transition-colors duration-300" href="#">Send Gift</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="px-5 py-2 text-primary font-semibold hover:text-orange-600 transition-all">Login</button>
+<button class="px-6 py-2.5 bg-warm-gradient text-on-primary rounded-xl font-bold active:scale-95 transition-all shadow-lg shadow-primary/10">Sign Up</button>
+</div>
+</div>
+</nav>
+<main class="pt-24 overflow-x-hidden">
+<!-- Hero Section -->
+<section class="max-w-7xl mx-auto px-8 py-16 md:py-24 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+<div class="space-y-8">
+<div class="inline-flex items-center gap-2 px-4 py-2 bg-secondary-container text-on-secondary-container rounded-full text-sm font-label font-bold tracking-wide uppercase">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">favorite</span>
+                    The Warm Curator
+                </div>
+<h1 class="text-5xl md:text-7xl font-headline font-extrabold leading-[1.1] text-on-background tracking-tight">
+                    Gift and support the people you care about
+                </h1>
+<p class="text-lg md:text-xl text-on-surface-variant max-w-lg leading-relaxed">
+                    Personalized giving meets community support. Whether it's a birthday wish or a dream campaign, Gifthance makes every moment meaningful.
+                </p>
+<div class="flex flex-wrap gap-4 pt-4">
+<button class="px-8 py-4 bg-warm-gradient text-on-primary rounded-xl font-bold text-lg active:scale-95 transition-all shadow-xl shadow-primary/20 flex items-center gap-2">
+                        Send a Gift
+                        <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<button class="px-8 py-4 bg-surface-container-high text-primary rounded-xl font-bold text-lg active:scale-95 transition-all">
+                        Start a Campaign
+                    </button>
+</div>
+</div>
+<div class="relative group">
+<div class="absolute -inset-4 bg-primary-container/20 rounded-3xl blur-3xl group-hover:bg-primary-container/30 transition-all duration-700"></div>
+<div class="relative rounded-3xl overflow-hidden aspect-[4/5] shadow-2xl transform rotate-1 group-hover:rotate-0 transition-transform duration-500">
+<img alt="Gift box with warm lighting" class="w-full h-full object-cover" data-alt="Close-up of a beautifully wrapped gift box with a soft silk ribbon, placed on a light wooden surface with warm morning sunlight and shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxFyY_bZDNqEP5bqEIqbZAoyKxbCQIwTUkRUeUw8mhYBOwJ6B9Q7p7WEiXDC0OlSjFO0SgUJqGxFMQD9vatGSDFWVk4Zk3Rh3pn7Bn3jdkj3ezeSQW5XAeBPk_TXJ09fnd_hJs_15rphoNJ_cScjxVkLKjVi4grh0thHIQx474LN7JkqqxUdWdwbbRwnDYKEXXWCkP5mLINzUY3wrKFJ_KVMsrlXHnb_66DQk8EMCWk2VgZgamhUr3dwp7Dlqoy_YfFbbAB2kPXdE"/>
+</div>
+<div class="absolute -bottom-6 -left-6 bg-surface-container-lowest p-6 rounded-2xl shadow-xl flex items-center gap-4 border border-outline-variant/10">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">volunteer_activism</span>
+</div>
+<div>
+<div class="text-sm font-label text-on-surface-variant uppercase tracking-widest">Active Campaigns</div>
+<div class="text-xl font-headline font-bold text-on-surface">1,240+ Support Groups</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Categories Section -->
+<section class="bg-surface-container-low py-24">
+<div class="max-w-7xl mx-auto px-8">
+<div class="flex justify-between items-end mb-12">
+<div class="space-y-2">
+<h2 class="text-3xl md:text-4xl font-headline font-extrabold text-on-background">A gift for every occasion</h2>
+<p class="text-on-surface-variant">Carefully curated selections for those who matter most.</p>
+</div>
+<button class="hidden md:flex items-center gap-2 text-primary font-bold hover:underline underline-offset-4">
+                        Explore all categories <span class="material-symbols-outlined">trending_flat</span>
+</button>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+<!-- Category 1 -->
+<div class="group cursor-pointer">
+<div class="aspect-square rounded-3xl overflow-hidden mb-4 relative">
+<img alt="Birthday celebration" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="Colorful birthday celebration with confetti and elegant decor in warm indoor lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAr8UZFtbEd6Asoa7lb636-mn7fAmCLFCyEwORUU1bypxLuRSCSZdPn-SkJh4rwldVD9m_eil9Le-k4bGjXbxIMoy2Ocj6lypSODVMe7cfGsQdmnp4QH_ePN3E1plIVe42DsHMRTAIduoMYQLXJcNq0jRvHOcR49ONN8poyNKsvAm972EhtRtS__3mmJyLcYkfFa2p0p2-TwmQbUlc7uD3euQ2L5Bz6QbeLCUCWJ-bj7bWSZD1bKNzLunwnmkXCYjHoNTyTNYkx9GA"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-background/60 to-transparent"></div>
+<div class="absolute bottom-6 left-6 text-on-primary">
+<p class="text-xl font-headline font-bold">Birthdays</p>
+</div>
+</div>
+</div>
+<!-- Category 2 -->
+<div class="group cursor-pointer">
+<div class="aspect-square rounded-3xl overflow-hidden mb-4 relative">
+<img alt="Wedding gift" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="Two crystal champagne glasses clinking at a warm garden wedding reception with bokeh string lights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCE8qWwKJrhWaT2608XVDdG9MtwU6WM6v1aHO09aPgQRlNMOM-sEulfbelStV8HgB7A7wbG3hDXIll4CcL_LeB9VadePEMsIPVXllPPWxbHKEjLSjNlBJbcaQ5IJZA5MKQOz2THp0foS2OK3KWZKYZDN-tDbOVSZX7apuQ9d9kQG2kZ7oUTwZSe_r0xOqmoYo1kVAG26F3q2gJEVGhDA4TT2Vg6AR_jix4JKGizXRyDG_7RSgtklcmkbvpmQO5yL3yPCD4yafpD-tU"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-background/60 to-transparent"></div>
+<div class="absolute bottom-6 left-6 text-on-primary">
+<p class="text-xl font-headline font-bold">Weddings</p>
+</div>
+</div>
+</div>
+<!-- Category 3 -->
+<div class="group cursor-pointer">
+<div class="aspect-square rounded-3xl overflow-hidden mb-4 relative">
+<img alt="Baby shower" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="Cozy scene with a pair of knitted baby shoes and a soft blanket on a light-colored rug" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBm1v5IXQLh7CRjiff5tCaMt4G4vFLB80a6HTvPyxvHV1GsRqWEEKuZT2RGFxf0F99F_Fh3gGon9cVS7K_Jx8h0wyrVcy8fbDyOI1InFnczepiH0NcmRolFbVQSXwb28Dt282VKnvDYSY6XZAQuovO7PYk_2ZvvjLJqJcpDuyKtEjH8AXvwQQNIHmQVHnzgaxEnyLVxG7Uh0O9tBwWo7JMoc9keUdp9WR9U5KGQdqR5YFzFaEOnu5qy_LdcvTxPYv8ztN8uEG2tJzk"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-background/60 to-transparent"></div>
+<div class="absolute bottom-6 left-6 text-on-primary">
+<p class="text-xl font-headline font-bold">Baby Shower</p>
+</div>
+</div>
+</div>
+<!-- Category 4 -->
+<div class="group cursor-pointer">
+<div class="aspect-square rounded-3xl overflow-hidden mb-4 relative">
+<img alt="Anniversary" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="Handcrafted jewelry on a velvet cushion with a rose petal nearby under warm focused lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsuNY-2hQlHecaHe6hL8ZKTrp5BdnpzufwBGGKTNHXqhhOF2adupaiSTCDW2fybxWYFTmrw_MM6-5lhI2C7ZIs7ldbcWpsviXm9Z9Nm1qNQB-4oCj62tPo1uLcOz5DLUNkJ-VxyreWtyQOgKP-8UgWz84thmL9U4bTEDr2xeksp3pwQvI6zEzz8tKDr3RSWSW1Hsr7l97h5RIr83YcfhxNB5-AShXN60uFKBvrL-4EKXlTpWyx1x0wtAltAvzGBjzEVhuJBGfQIz0"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-background/60 to-transparent"></div>
+<div class="absolute bottom-6 left-6 text-on-primary">
+<p class="text-xl font-headline font-bold">Anniversary</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Features Section (Everything You Need) -->
+<section class="py-24 max-w-7xl mx-auto px-8">
+<div class="text-center max-w-3xl mx-auto mb-20 space-y-4">
+<h2 class="text-4xl md:text-5xl font-headline font-extrabold text-on-background">Everything You Need to Give Better</h2>
+<p class="text-lg text-on-surface-variant">We've reimagined the gifting experience from the ground up to focus on what matters: the connection.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="p-10 bg-surface-container-lowest rounded-3xl shadow-sm border border-outline-variant/5 hover:border-primary-container/20 transition-all group">
+<div class="w-14 h-14 rounded-2xl bg-primary-container/10 flex items-center justify-center text-primary mb-8 group-hover:bg-primary-gradient group-hover:text-on-primary transition-all">
+<span class="material-symbols-outlined text-3xl">card_giftcard</span>
+</div>
+<h3 class="text-2xl font-headline font-bold mb-4">Smart Curation</h3>
+<p class="text-on-surface-variant leading-relaxed">Our AI-driven recommendations suggest the perfect gift based on personality, occasion, and relationship depth.</p>
+</div>
+<div class="p-10 bg-surface-container-lowest rounded-3xl shadow-sm border border-outline-variant/5 hover:border-primary-container/20 transition-all group">
+<div class="w-14 h-14 rounded-2xl bg-primary-container/10 flex items-center justify-center text-primary mb-8 group-hover:bg-primary-gradient group-hover:text-on-primary transition-all">
+<span class="material-symbols-outlined text-3xl">group</span>
+</div>
+<h3 class="text-2xl font-headline font-bold mb-4">Group Campaigns</h3>
+<p class="text-on-surface-variant leading-relaxed">Pool resources with friends and family for larger gifts or meaningful social causes without the administrative headache.</p>
+</div>
+<div class="p-10 bg-surface-container-lowest rounded-3xl shadow-sm border border-outline-variant/5 hover:border-primary-container/20 transition-all group">
+<div class="w-14 h-14 rounded-2xl bg-primary-container/10 flex items-center justify-center text-primary mb-8 group-hover:bg-primary-gradient group-hover:text-on-primary transition-all">
+<span class="material-symbols-outlined text-3xl">verified</span>
+</div>
+<h3 class="text-2xl font-headline font-bold mb-4">Trusted Fulfillment</h3>
+<p class="text-on-surface-variant leading-relaxed">Every partner in our shop is vetted for quality and ethical practices, ensuring your gift arrives exactly as intended.</p>
+</div>
+</div>
+</section>
+<!-- How It Works Section -->
+<section class="py-24 bg-surface-container">
+<div class="max-w-7xl mx-auto px-8">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+<div class="relative order-2 lg:order-1">
+<div class="bg-surface-container-lowest p-8 rounded-[2rem] shadow-2xl space-y-8">
+<div class="flex items-center gap-6 p-6 rounded-2xl bg-surface-container-low border border-outline-variant/10">
+<span class="text-4xl font-headline font-extrabold text-primary-container/30">01</span>
+<div>
+<h4 class="text-xl font-headline font-bold">Choose Your Path</h4>
+<p class="text-on-surface-variant">Send a direct gift or start a collaborative campaign.</p>
+</div>
+</div>
+<div class="flex items-center gap-6 p-6 rounded-2xl bg-surface-container-low border border-outline-variant/10">
+<span class="text-4xl font-headline font-extrabold text-primary-container/30">02</span>
+<div>
+<h4 class="text-xl font-headline font-bold">Curate with Love</h4>
+<p class="text-on-surface-variant">Personalize with videos, messages, and photos.</p>
+</div>
+</div>
+<div class="flex items-center gap-6 p-6 rounded-2xl bg-primary-container text-on-primary shadow-lg scale-105">
+<span class="text-4xl font-headline font-extrabold opacity-50">03</span>
+<div>
+<h4 class="text-xl font-headline font-bold">Deliver Joy</h4>
+<p class="opacity-90">Watch the impact unfold with real-time updates.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="space-y-8 order-1 lg:order-2">
+<h2 class="text-4xl md:text-5xl font-headline font-extrabold text-on-background leading-tight">Giving is simpler than you think</h2>
+<p class="text-xl text-on-surface-variant leading-relaxed">We've removed the barriers to meaningful connection. No more guessing, no more logistical stress—just the joy of giving.</p>
+<ul class="space-y-4">
+<li class="flex items-center gap-3 text-on-surface font-semibold">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                One-click contribution links
+                            </li>
+<li class="flex items-center gap-3 text-on-surface font-semibold">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                Automated thank-you notes
+                            </li>
+<li class="flex items-center gap-3 text-on-surface font-semibold">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                Multi-currency support for global gifting
+                            </li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<!-- Trending Campaigns -->
+<section class="py-24 max-w-7xl mx-auto px-8">
+<div class="flex justify-between items-end mb-12">
+<div>
+<h2 class="text-3xl md:text-4xl font-headline font-extrabold text-on-background">Trending right now</h2>
+<p class="text-on-surface-variant">Join these communities and make a difference today.</p>
+</div>
+<button class="text-primary font-bold hover:underline underline-offset-4 flex items-center gap-2">
+                    View all campaigns <span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Campaign Card 1 -->
+<div class="bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-outline-variant/10">
+<img alt="Team working together" class="w-full h-56 object-cover" data-alt="A diverse group of cheerful university students working on a community garden project together in soft daylight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOXKQUumXc7w60zBd_0nKFg3OnoBWRSUpxyKeLyfdv5TNotsOyaXqYamvRAAYdMwZ2rb-dMUzCUQEWXksZ9XVN5HRqiARneQ6tFOt0dl1rSjr-XBIXQCUoRUrULYu57JzukKFmQI6q4S5FPw3LdQFtMzI4K_LmKORSR1Zw4wcMJz15GE4kkXn1_ojAMfE0cqe0HImikWlyeNLNejtshS2udR0lriEs9U7gxklFNnUSckCqKaolodVMPnvzEc04ivEMd-ksPDPtvMQ"/>
+<div class="p-6 space-y-4">
+<div class="flex justify-between items-start">
+<span class="px-3 py-1 bg-tertiary-container text-on-tertiary-container rounded-full text-xs font-bold uppercase tracking-wider">Education</span>
+<span class="text-on-surface-variant text-sm font-medium">12 days left</span>
+</div>
+<h4 class="text-xl font-headline font-bold text-on-background">New Tech Lab for Oakwood High</h4>
+<p class="text-on-surface-variant line-clamp-2 text-sm">Helping underprivileged students access the tools they need for a brighter future in technology.</p>
+<div class="space-y-2">
+<div class="flex justify-between text-sm">
+<span class="font-bold text-primary">$12,450 raised</span>
+<span class="text-on-surface-variant">75%</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 75%"></div>
+</div>
+</div>
+<button class="w-full py-3 bg-surface-container-low text-primary rounded-xl font-bold hover:bg-primary-container hover:text-on-primary-container transition-all">Contribute</button>
+</div>
+</div>
+<!-- Campaign Card 2 -->
+<div class="bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-outline-variant/10">
+<img alt="Clean water initiative" class="w-full h-56 object-cover" data-alt="Close up of clear water pouring into a glass in a vibrant sunlit outdoor setting with lush greenery" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB96L-0krUC9Wgr-rI3hfDmNHRvAA8w5ddVHW0fMSD8SzTKE8h81XO9j7gird13By9jpsDi3Pj-ICvZYUDyC7OFo9AOhJN0zr-L6HsJCOVq_aWJ5mblnZ3k0SwoS2MSHhzT-YJD6lx-nBJJB7kVdcha1qm3JlBgYExIIpM7VxRuAtgXFGERI3hpTDoY3pQlL4LshCasXl2mauyhDCxzvCBLXpj8Iqrnz-jNn2sxTPxNB8cirSPmWJE6SFjhKlYN0WDP_eviLxVCM6M"/>
+<div class="p-6 space-y-4">
+<div class="flex justify-between items-start">
+<span class="px-3 py-1 bg-tertiary-container text-on-tertiary-container rounded-full text-xs font-bold uppercase tracking-wider">Health</span>
+<span class="text-on-surface-variant text-sm font-medium">5 days left</span>
+</div>
+<h4 class="text-xl font-headline font-bold text-on-background">Pure Water Initiative: Kenya</h4>
+<p class="text-on-surface-variant line-clamp-2 text-sm">Installing sustainable filtration systems for three rural villages to prevent waterborne illnesses.</p>
+<div class="space-y-2">
+<div class="flex justify-between text-sm">
+<span class="font-bold text-primary">$8,900 raised</span>
+<span class="text-on-surface-variant">92%</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 92%"></div>
+</div>
+</div>
+<button class="w-full py-3 bg-surface-container-low text-primary rounded-xl font-bold hover:bg-primary-container hover:text-on-primary-container transition-all">Contribute</button>
+</div>
+</div>
+<!-- Campaign Card 3 -->
+<div class="bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-outline-variant/10">
+<img alt="Pet shelter support" class="w-full h-56 object-cover" data-alt="A cute golden retriever looking up with hopeful eyes in a bright, clean indoor space" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-GGMiz0Wh0Ba9f8T-Ya8qCfE4rHOt4KrVsq0o7pHsvEpGdnm-ZwxcQjCbhse9aS7q5jdlNYhmzP3fib5PfTkki1LhZDBC7zyds2ucE6EqT8Rlqt-6HP1zP9i1pdG8IdRN0cyk4Lg_aTANMFtjiwGFqoe3GbmAODio2L1sqdQsv3bz8vzNfst6vzmLoYbKtfbSgLemFO3JPkbp2YXgALBgfD9bGSqALLfFds46_hpsaPdgG0vzcoiZFHTm3QA3BoSK2C8pcdETYk0"/>
+<div class="p-6 space-y-4">
+<div class="flex justify-between items-start">
+<span class="px-3 py-1 bg-tertiary-container text-on-tertiary-container rounded-full text-xs font-bold uppercase tracking-wider">Animals</span>
+<span class="text-on-surface-variant text-sm font-medium">21 days left</span>
+</div>
+<h4 class="text-xl font-headline font-bold text-on-background">Second Chance Pet Haven</h4>
+<p class="text-on-surface-variant line-clamp-2 text-sm">Expanding our local shelter to house 50 more animals and provide specialized medical care.</p>
+<div class="space-y-2">
+<div class="flex justify-between text-sm">
+<span class="font-bold text-primary">$4,200 raised</span>
+<span class="text-on-surface-variant">45%</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 45%"></div>
+</div>
+</div>
+<button class="w-full py-3 bg-surface-container-low text-primary rounded-xl font-bold hover:bg-primary-container hover:text-on-primary-container transition-all">Contribute</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Newsletter Section -->
+<section class="py-24 max-w-7xl mx-auto px-8">
+<div class="bg-inverse-surface rounded-[3rem] p-8 md:p-16 flex flex-col md:flex-row items-center gap-12 overflow-hidden relative">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary rounded-full blur-[120px] opacity-20 translate-x-1/2 -translate-y-1/2"></div>
+<div class="md:w-1/2 space-y-6 relative z-10">
+<h2 class="text-4xl md:text-5xl font-headline font-extrabold text-white leading-tight">Stay Updated</h2>
+<p class="text-inverse-on-surface text-lg leading-relaxed">Get gifting tips, trending campaigns, and updates delivered to your inbox every week.</p>
+</div>
+<div class="md:w-1/2 w-full relative z-10">
+<form class="flex flex-col sm:flex-row gap-4">
+<input class="flex-grow bg-white/10 border-white/20 text-white rounded-xl px-6 py-4 focus:ring-primary focus:border-primary placeholder:text-white/40 backdrop-blur-sm" placeholder="Your email address" type="email"/>
+<button class="bg-warm-gradient text-on-primary font-bold px-8 py-4 rounded-xl hover:shadow-2xl hover:shadow-primary/40 transition-all whitespace-nowrap" type="submit">Subscribe</button>
+</form>
+<p class="text-white/40 text-xs mt-4">We respect your privacy. Unsubscribe at any time.</p>
+</div>
+</div>
+</section>
+<!-- FAQ Section -->
+<section class="py-24 max-w-4xl mx-auto px-8">
+<h2 class="text-4xl font-headline font-extrabold text-center text-on-background mb-16">Frequently Asked Questions</h2>
+<div class="space-y-6">
+<div class="bg-surface-container-low rounded-2xl p-6 border border-outline-variant/10">
+<button class="flex justify-between items-center w-full text-left group">
+<span class="text-xl font-headline font-bold text-on-surface">How secure are the payments?</span>
+<span class="material-symbols-outlined text-primary group-hover:rotate-180 transition-transform">expand_more</span>
+</button>
+<div class="mt-4 text-on-surface-variant leading-relaxed">
+                        We use bank-level encryption and partner with industry-leading payment processors like Stripe to ensure your data and transactions are 100% secure.
+                    </div>
+</div>
+<div class="bg-surface-container-low rounded-2xl p-6 border border-outline-variant/10">
+<button class="flex justify-between items-center w-full text-left group">
+<span class="text-xl font-headline font-bold text-on-surface">Can I send gifts internationally?</span>
+<span class="material-symbols-outlined text-primary group-hover:rotate-180 transition-transform">expand_more</span>
+</button>
+<div class="mt-4 text-on-surface-variant leading-relaxed hidden">
+                        Yes, Gifthance supports international shipping and multi-currency contributions for campaigns. Fees may vary based on location.
+                    </div>
+</div>
+<div class="bg-surface-container-low rounded-2xl p-6 border border-outline-variant/10">
+<button class="flex justify-between items-center w-full text-left group">
+<span class="text-xl font-headline font-bold text-on-surface">What happens if a campaign doesn't reach its goal?</span>
+<span class="material-symbols-outlined text-primary group-hover:rotate-180 transition-transform">expand_more</span>
+</button>
+<div class="mt-4 text-on-surface-variant leading-relaxed hidden">
+                        Campaign creators can choose between 'All or Nothing' or 'Flex' funding. In 'Flex' funding, the amount raised is still used for the intended cause.
+                    </div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-stone-100 dark:bg-stone-950 mt-24">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 px-8 py-16 max-w-7xl mx-auto">
+<div class="space-y-6">
+<div class="text-xl font-bold text-orange-950 dark:text-orange-50 font-headline">Gifthance</div>
+<p class="text-stone-600 dark:text-stone-400 text-sm leading-relaxed">Curating warmth and connection through the art of giving. Join thousands making the world a kinder place.</p>
+<div class="flex gap-4">
+<a class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary hover:bg-primary hover:text-on-primary transition-all" href="#">
+<span class="material-symbols-outlined">public</span>
+</a>
+<a class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary hover:bg-primary hover:text-on-primary transition-all" href="#">
+<span class="material-symbols-outlined">mail</span>
+</a>
+<a class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary hover:bg-primary hover:text-on-primary transition-all" href="#">
+<span class="material-symbols-outlined">share</span>
+</a>
+</div>
+</div>
+<div class="space-y-6">
+<h5 class="text-sm font-label font-bold uppercase tracking-widest text-orange-700">Explore</h5>
+<ul class="space-y-4">
+<li><a class="text-stone-600 dark:text-stone-400 hover:text-orange-600 underline-offset-4 hover:underline transition-all" href="#">Gift Shop</a></li>
+<li><a class="text-stone-600 dark:text-stone-400 hover:text-orange-600 underline-offset-4 hover:underline transition-all" href="#">Trending Campaigns</a></li>
+<li><a class="text-stone-600 dark:text-stone-400 hover:text-orange-600 underline-offset-4 hover:underline transition-all" href="#">Gift Ideas</a></li>
+<li><a class="text-stone-600 dark:text-stone-400 hover:text-orange-600 underline-offset-4 hover:underline transition-all" href="#">Gifting Guide</a></li>
+</ul>
+</div>
+<div class="space-y-6">
+<h5 class="text-sm font-label font-bold uppercase tracking-widest text-orange-700">Company</h5>
+<ul class="space-y-4">
+<li><a class="text-stone-600 dark:text-stone-400 hover:text-orange-600 underline-offset-4 hover:underline transition-all" href="#">About Us</a></li>
+<li><a class="text-stone-600 dark:text-stone-400 hover:text-orange-600 underline-offset-4 hover:underline transition-all" href="#">Contact</a></li>
+<li><a class="text-stone-600 dark:text-stone-400 hover:text-orange-600 underline-offset-4 hover:underline transition-all" href="#">Press</a></li>
+<li><a class="text-stone-600 dark:text-stone-400 hover:text-orange-600 underline-offset-4 hover:underline transition-all" href="#">FAQ</a></li>
+</ul>
+</div>
+<div class="space-y-6">
+<h5 class="text-sm font-label font-bold uppercase tracking-widest text-orange-700">Legal</h5>
+<ul class="space-y-4">
+<li><a class="text-stone-600 dark:text-stone-400 hover:text-orange-600 underline-offset-4 hover:underline transition-all" href="#">Privacy Policy</a></li>
+<li><a class="text-stone-600 dark:text-stone-400 hover:text-orange-600 underline-offset-4 hover:underline transition-all" href="#">Terms of Service</a></li>
+<li><a class="text-stone-600 dark:text-stone-400 hover:text-orange-600 underline-offset-4 hover:underline transition-all" href="#">Cookie Policy</a></li>
+</ul>
+</div>
+</div>
+<div class="max-w-7xl mx-auto px-8 py-8 border-t border-stone-200 dark:border-stone-800 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-stone-600 dark:text-stone-400 text-sm">© 2024 Gifthance. Curated with warmth.</p>
+<div class="flex items-center gap-2 text-stone-400 text-sm">
+                Made with <span class="material-symbols-outlined text-xs text-error" style="font-variation-settings: 'FILL' 1;">favorite</span> for the community
+            </div>
+</div>
+</footer>
+</body></html>

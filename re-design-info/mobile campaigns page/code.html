@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gifthance | Explore Campaigns</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary-fixed": "#ffc69a",
+                        "on-tertiary-fixed": "#3e2b00",
+                        "secondary-container": "#ffc69a",
+                        "on-secondary": "#fff0e7",
+                        "secondary-fixed-dim": "#ffb374",
+                        "secondary-dim": "#7a4100",
+                        "outline-variant": "#d9a275",
+                        "error-container": "#f95630",
+                        "primary-dim": "#843a00",
+                        "outline": "#9d6c44",
+                        "surface": "#fff4ef",
+                        "tertiary-fixed": "#febf2a",
+                        "error-dim": "#b92902",
+                        "surface-container-low": "#ffede2",
+                        "on-error-container": "#520c00",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-bright": "#fff4ef",
+                        "secondary": "#8c4b00",
+                        "surface-container-high": "#ffdcc2",
+                        "on-secondary-fixed-variant": "#7c4200",
+                        "on-tertiary-container": "#573e00",
+                        "inverse-surface": "#1b0a00",
+                        "on-secondary-fixed": "#522a00",
+                        "surface-tint": "#964300",
+                        "on-error": "#ffefec",
+                        "on-primary-fixed": "#100300",
+                        "on-surface": "#492604",
+                        "on-primary-fixed-variant": "#542200",
+                        "primary-fixed": "#f9873e",
+                        "on-secondary-container": "#6e3a00",
+                        "on-tertiary": "#fff1dd",
+                        "inverse-primary": "#f9873e",
+                        "tertiary-container": "#febf2a",
+                        "primary-fixed-dim": "#e97b32",
+                        "on-surface-variant": "#7d522b",
+                        "on-primary": "#fff0e9",
+                        "background": "#fff4ef",
+                        "surface-container-highest": "#ffd5b5",
+                        "primary": "#964300",
+                        "on-primary-container": "#451b00",
+                        "on-background": "#492604",
+                        "surface-dim": "#ffcaa1",
+                        "tertiary-fixed-dim": "#efb118",
+                        "tertiary-dim": "#684b00",
+                        "tertiary": "#775600",
+                        "surface-variant": "#ffd5b5",
+                        "on-tertiary-fixed-variant": "#624600",
+                        "primary-container": "#f9873e",
+                        "error": "#b02500",
+                        "inverse-on-surface": "#c79266",
+                        "surface-container": "#ffe3cf"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface antialiased pb-24">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md shadow-sm">
+<div class="flex justify-between items-center h-16 px-6 max-w-screen-2xl mx-auto">
+<h1 class="text-2xl font-black text-orange-800 tracking-tight font-headline">Gifthance</h1>
+<div class="flex items-center gap-4">
+<button class="p-2 hover:bg-orange-100/50 rounded-full transition-all text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+<button class="p-2 hover:bg-orange-100/50 rounded-full transition-all text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="filter_list">filter_list</span>
+</button>
+</div>
+</div>
+</header>
+<main class="pt-20 px-4 space-y-6">
+<!-- Category Tabs -->
+<section class="flex overflow-x-auto hide-scrollbar -mx-4 px-4 gap-3">
+<button class="whitespace-nowrap bg-primary-container text-on-primary-container px-6 py-2 rounded-full font-bold text-sm transition-all shadow-sm">All</button>
+<button class="whitespace-nowrap bg-surface-container-low text-on-surface-variant px-6 py-2 rounded-full font-semibold text-sm hover:bg-surface-container-high transition-all">Personal</button>
+<button class="whitespace-nowrap bg-surface-container-low text-on-surface-variant px-6 py-2 rounded-full font-semibold text-sm hover:bg-surface-container-high transition-all">Group</button>
+<button class="whitespace-nowrap bg-surface-container-low text-on-surface-variant px-6 py-2 rounded-full font-semibold text-sm hover:bg-surface-container-high transition-all">Corporate</button>
+<button class="whitespace-nowrap bg-surface-container-low text-on-surface-variant px-6 py-2 rounded-full font-semibold text-sm hover:bg-surface-container-high transition-all">Education</button>
+<button class="whitespace-nowrap bg-surface-container-low text-on-surface-variant px-6 py-2 rounded-full font-semibold text-sm hover:bg-surface-container-high transition-all">Relief</button>
+</section>
+<!-- Page Header Section -->
+<section class="space-y-1">
+<h2 class="text-3xl font-extrabold font-headline tracking-tight text-on-surface">Active Campaigns</h2>
+<p class="text-on-surface-variant text-sm font-medium">Empower impactful gifts today</p>
+</section>
+<!-- Vertical List of Campaign Cards -->
+<div class="grid grid-cols-1 gap-6">
+<!-- Card 1 -->
+<article class="bg-surface-container-lowest rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(73,38,4,0.05)] flex flex-col group">
+<div class="relative h-56 overflow-hidden">
+<img alt="Education initiative" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Close-up of diverse children in a classroom laughing, sunbeams through the window, warm and uplifting atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCs8ajWPr1cfLs9DtLrQNjCEHWrRkzLZt6CAXmlQLbw44MjEGSLSgKQafZLzBtDrBgdeUfBiiw6FaU9waEfHiqFQITzZumYtvfpV7-Un52ybHhAf0ItEcOW1azK2QxOPg_BtetGETrBqa3DDmGYdU1YZkSBAxg-IEezvNzGXYThdg24MZ4GW2g_ThI15eCx4MUOX95M-Pf2SYRE3GkJd4ayUYItB6Jy1MWjs0_cSNE08x0GkD_IK6rAiACZK4IIHNy7AIyEbilmI3Q"/>
+<div class="absolute top-4 left-4">
+<span class="bg-orange-800/90 text-white text-[10px] font-bold px-3 py-1 rounded-full tracking-widest uppercase backdrop-blur-sm">EDUCATION</span>
+</div>
+</div>
+<div class="p-6 space-y-5">
+<div class="space-y-2">
+<h3 class="text-xl font-bold font-headline text-on-surface leading-tight">Empowering Future Scholars</h3>
+<div class="flex justify-between items-end">
+<span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Raised of $25,000</span>
+<span class="text-lg font-black text-primary">82%</span>
+</div>
+<div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
+<div class="bg-gradient-to-r from-primary to-primary-container h-full rounded-full w-[82%]"></div>
+</div>
+</div>
+<div class="grid grid-cols-3 border-t border-outline-variant/10 pt-5">
+<div class="text-center">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter">Raised</p>
+<p class="text-sm font-extrabold text-on-surface">$20.5k</p>
+</div>
+<div class="text-center border-x border-outline-variant/10">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter">Donors</p>
+<p class="text-sm font-extrabold text-on-surface">412</p>
+</div>
+<div class="text-center">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter">Days Left</p>
+<p class="text-sm font-extrabold text-on-surface">12</p>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 2 -->
+<article class="bg-surface-container-lowest rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(73,38,4,0.05)] flex flex-col group">
+<div class="relative h-56 overflow-hidden">
+<img alt="Community Garden" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Lush urban community garden with diverse volunteers harvesting vegetables during a vibrant golden sunset" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDk61QpjID3PxXsU3Wxg4OEpvQ4cNPuzgEokXraLpjQvzLeVW8n2umrhR4tIam2NsUu5Y9teQLfkaPqHDh1MjHn1PAqE0d7xXoU-5xn-iQZSUVjlkb2Hv62uh576MD36DZc01XJKsQ1EKVIe2-qlRKNsrHbSx_PCDLCcyQvNRma08MFZXbgdZcqaVqB9uXMrICLse894mdhdLNO988_RS5cUlbZU7QLUc_uNCajmpbWgCD_mWWYguXCkmVpCqWQmwfekJFOxS-Fu8"/>
+<div class="absolute top-4 left-4">
+<span class="bg-orange-800/90 text-white text-[10px] font-bold px-3 py-1 rounded-full tracking-widest uppercase backdrop-blur-sm">ENVIRONMENT</span>
+</div>
+</div>
+<div class="p-6 space-y-5">
+<div class="space-y-2">
+<h3 class="text-xl font-bold font-headline text-on-surface leading-tight">Greening the Urban Canvas</h3>
+<div class="flex justify-between items-end">
+<span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Raised of $12,000</span>
+<span class="text-lg font-black text-primary">45%</span>
+</div>
+<div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
+<div class="bg-gradient-to-r from-primary to-primary-container h-full rounded-full w-[45%]"></div>
+</div>
+</div>
+<div class="grid grid-cols-3 border-t border-outline-variant/10 pt-5">
+<div class="text-center">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter">Raised</p>
+<p class="text-sm font-extrabold text-on-surface">$5.4k</p>
+</div>
+<div class="text-center border-x border-outline-variant/10">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter">Donors</p>
+<p class="text-sm font-extrabold text-on-surface">128</p>
+</div>
+<div class="text-center">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter">Days Left</p>
+<p class="text-sm font-extrabold text-on-surface">24</p>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 3 -->
+<article class="bg-surface-container-lowest rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(73,38,4,0.05)] flex flex-col group">
+<div class="relative h-56 overflow-hidden">
+<img alt="Relief Food" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Hands holding a warm ceramic bowl of soup, steam rising, soft indoor light, feeling of comfort and care" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAulGRFp95LhnQefsIG7IBtVK2kcHx0PgR-u9GiQ_ANHlqsFQmOrF3nX0mk-wHO40FsLHp2_vnW5V_Pm-1vzInOHEcojdRTGqOaeDL044aT__J1EHBOJ41aEi0A_-4qL2JUctP2GHY2a34gRlaD34lJ4OTFEj0oQWu4TIq_bTb8e75EQp1_30afbhLxbLoGL3nCi8GtRgIzvwKpLw_3odIm5YZx4Bh1B0SVetWfeTsTIBSJNdiGal5hqPvJKfnHhDwern7olbARS1Q"/>
+<div class="absolute top-4 left-4">
+<span class="bg-orange-800/90 text-white text-[10px] font-bold px-3 py-1 rounded-full tracking-widest uppercase backdrop-blur-sm">RELIEF</span>
+</div>
+</div>
+<div class="p-6 space-y-5">
+<div class="space-y-2">
+<h3 class="text-xl font-bold font-headline text-on-surface leading-tight">Winter Food &amp; Warmth Drive</h3>
+<div class="flex justify-between items-end">
+<span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Raised of $8,500</span>
+<span class="text-lg font-black text-primary">95%</span>
+</div>
+<div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
+<div class="bg-gradient-to-r from-primary to-primary-container h-full rounded-full w-[95%]"></div>
+</div>
+</div>
+<div class="grid grid-cols-3 border-t border-outline-variant/10 pt-5">
+<div class="text-center">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter">Raised</p>
+<p class="text-sm font-extrabold text-on-surface">$8.1k</p>
+</div>
+<div class="text-center border-x border-outline-variant/10">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter">Donors</p>
+<p class="text-sm font-extrabold text-on-surface">305</p>
+</div>
+<div class="text-center">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter">Days Left</p>
+<p class="text-sm font-extrabold text-on-surface">3</p>
+</div>
+</div>
+</div>
+</article>
+</div>
+</main>
+<!-- Native Bottom NavBar -->
+<nav class="fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-xl flex justify-around items-center px-4 pb-6 pt-3 z-50 rounded-t-3xl shadow-[0_-10px_40px_rgba(73,38,4,0.08)]">
+<!-- Explore (Active) -->
+<a class="flex flex-col items-center justify-center bg-orange-100 text-orange-800 rounded-2xl px-5 py-2" href="#">
+<span class="material-symbols-outlined" data-icon="explore" style="font-variation-settings: 'FILL' 1;">explore</span>
+<span class="font-['Manrope'] font-semibold text-[10px] uppercase tracking-wider mt-1">Explore</span>
+</a>
+<!-- Impact -->
+<a class="flex flex-col items-center justify-center text-stone-500 px-5 py-2 active:bg-orange-50 transition-all rounded-2xl" href="#">
+<span class="material-symbols-outlined" data-icon="auto_awesome">auto_awesome</span>
+<span class="font-['Manrope'] font-semibold text-[10px] uppercase tracking-wider mt-1">Impact</span>
+</a>
+<!-- My Gifts -->
+<a class="flex flex-col items-center justify-center text-stone-500 px-5 py-2 active:bg-orange-50 transition-all rounded-2xl" href="#">
+<span class="material-symbols-outlined" data-icon="featured_seasonal">featured_seasonal_and_gifts</span>
+<span class="font-['Manrope'] font-semibold text-[10px] uppercase tracking-wider mt-1">My Gifts</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-stone-500 px-5 py-2 active:bg-orange-50 transition-all rounded-2xl" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-['Manrope'] font-semibold text-[10px] uppercase tracking-wider mt-1">Profile</span>
+</a>
+</nav>
+<!-- FAB Action (Contextual for Explore) -->
+<button class="fixed bottom-28 right-6 bg-gradient-to-br from-primary to-primary-container text-white p-4 rounded-2xl shadow-xl z-40 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-2xl" data-icon="add" style="font-variation-settings: 'wght' 700;">add</span>
+</button>
+</body></html>

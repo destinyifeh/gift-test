@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-fixed": "#ffc69a",
+              "on-tertiary-fixed": "#3e2b00",
+              "secondary-container": "#ffc69a",
+              "on-secondary": "#fff0e7",
+              "secondary-fixed-dim": "#ffb374",
+              "secondary-dim": "#7a4100",
+              "outline-variant": "#d9a275",
+              "error-container": "#f95630",
+              "primary-dim": "#843a00",
+              "outline": "#9d6c44",
+              "surface": "#fff4ef",
+              "tertiary-fixed": "#febf2a",
+              "error-dim": "#b92902",
+              "surface-container-low": "#ffede2",
+              "on-error-container": "#520c00",
+              "surface-container-lowest": "#ffffff",
+              "surface-bright": "#fff4ef",
+              "secondary": "#8c4b00",
+              "surface-container-high": "#ffdcc2",
+              "on-secondary-fixed-variant": "#7c4200",
+              "on-tertiary-container": "#573e00",
+              "inverse-surface": "#1b0a00",
+              "on-secondary-fixed": "#522a00",
+              "surface-tint": "#964300",
+              "on-error": "#ffefec",
+              "on-primary-fixed": "#100300",
+              "on-surface": "#492604",
+              "on-primary-fixed-variant": "#542200",
+              "primary-fixed": "#f9873e",
+              "on-secondary-container": "#6e3a00",
+              "on-tertiary": "#fff1dd",
+              "inverse-primary": "#f9873e",
+              "tertiary-container": "#febf2a",
+              "primary-fixed-dim": "#e97b32",
+              "on-surface-variant": "#7d522b",
+              "on-primary": "#fff0e9",
+              "background": "#fff4ef",
+              "surface-container-highest": "#ffd5b5",
+              "primary": "#964300",
+              "on-primary-container": "#451b00",
+              "on-background": "#492604",
+              "surface-dim": "#ffcaa1",
+              "tertiary-fixed-dim": "#efb118",
+              "tertiary-dim": "#684b00",
+              "tertiary": "#775600",
+              "surface-variant": "#ffd5b5",
+              "on-tertiary-fixed-variant": "#624600",
+              "primary-container": "#f9873e",
+              "error": "#b02500",
+              "inverse-on-surface": "#c79266",
+              "surface-container": "#ffe3cf"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .tonal-shift-no-border {
+        background-color: rgba(255, 244, 239, 0.8);
+        backdrop-filter: blur(12px);
+      }
+      .spring-physics-bounce {
+        transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      body {
+        background-color: #fff4ef;
+        color: #492604;
+      }
+    </style>
+</head>
+<body class="font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-orange-50/80 dark:bg-stone-900/80 backdrop-blur-md shadow-sm dark:shadow-none">
+<div class="flex justify-between items-center h-20 px-8 max-w-screen-2xl mx-auto">
+<div class="text-2xl font-black text-orange-800 dark:text-orange-500 tracking-tight font-headline">Gifthance</div>
+<div class="hidden md:flex items-center space-x-8 font-['Plus_Jakarta_Sans'] font-bold text-lg">
+<a class="text-orange-900 dark:text-orange-300 border-b-2 border-orange-600 dark:border-orange-400 pb-1" href="#">Explore</a>
+<a class="text-orange-800/70 dark:text-stone-400 hover:text-orange-900 dark:hover:text-stone-200 transition-colors" href="#">My Campaigns</a>
+<a class="text-orange-800/70 dark:text-stone-400 hover:text-orange-900 dark:hover:text-stone-200 transition-colors" href="#">Impact</a>
+<a class="text-orange-800/70 dark:text-stone-400 hover:text-orange-900 dark:hover:text-stone-200 transition-colors" href="#">About</a>
+</div>
+<div class="flex items-center space-x-6">
+<div class="hidden lg:flex items-center space-x-4">
+<button class="text-on-surface-variant hover:bg-orange-100/50 p-2 rounded-full transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:bg-orange-100/50 p-2 rounded-full transition-all">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+<button class="bg-gradient-to-br from-primary to-primary-container text-on-primary px-6 py-3 rounded-xl font-bold font-headline hover:scale-105 transition-transform active:scale-95">
+                    Start Campaign
+                </button>
+</div>
+</div>
+</nav>
+<main class="pt-32 pb-24 px-8 max-w-screen-2xl mx-auto">
+<!-- Header Section -->
+<header class="mb-12">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div class="max-w-2xl">
+<h1 class="text-5xl font-extrabold font-headline tracking-tight text-on-surface mb-4">Public Campaigns</h1>
+<p class="text-xl text-on-surface-variant leading-relaxed">Browse and contribute to gift campaigns from the community. Support moments that matter.</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="bg-surface-container-low rounded-xl px-4 py-3 flex items-center gap-3 w-80 shadow-inner">
+<span class="material-symbols-outlined text-outline">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-outline w-full font-medium" placeholder="Search campaigns..." type="text"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Filters & Action Bar -->
+<section class="flex flex-wrap items-center justify-between gap-4 mb-10">
+<div class="flex gap-3">
+<div class="relative inline-block text-left">
+<button class="flex items-center gap-2 bg-surface-container-lowest px-5 py-3 rounded-full font-semibold text-on-surface shadow-sm hover:bg-surface-container-low transition-colors">
+                        All Categories
+                        <span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</div>
+<button class="bg-surface-container-lowest px-5 py-3 rounded-full font-semibold text-on-surface-variant hover:text-primary transition-colors">Trending</button>
+<button class="bg-surface-container-lowest px-5 py-3 rounded-full font-semibold text-on-surface-variant hover:text-primary transition-colors">Recent</button>
+</div>
+<button class="flex items-center gap-2 bg-secondary-container text-on-secondary-container px-6 py-3 rounded-full font-bold hover:bg-secondary-fixed transition-colors">
+<span class="material-symbols-outlined">add</span>
+                Create
+            </button>
+</section>
+<!-- Campaigns Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Card 1 -->
+<article class="bg-surface-container-lowest rounded-[2rem] overflow-hidden group hover:shadow-xl transition-all duration-300">
+<div class="relative h-64 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Close-up of vibrant party confetti and wrapped gifts on a warm wooden table with soft morning sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhvHVLdjGw3LHuT3tRqukUlDahDjidGMU8C13gxAWQX6xRgMaq7deEevHz5ObKyf6DqXuMi-ZZPEPVdYdpaxy9WmBK6HxmBhPeBulqKSjf0TM-1E7nwJ09c8OQn2WZ6iHCtLaSKL2ncBXRrOyH6JciEYznzABJ0342HxRLUKMge4ZyY6LbT1IAMP-1Ro3sq6VxefSlk96bLZ9p_nvqXhCAknnD4p9BnyLdycST9Mcb9HGFcvsvVJhagR_WHCjsWsikLP2fAlsdLvg"/>
+<div class="absolute top-4 left-4">
+<span class="bg-white/90 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest text-primary font-label">Public</span>
+</div>
+</div>
+<div class="p-8">
+<h3 class="text-2xl font-bold font-headline mb-3 text-on-surface group-hover:text-primary transition-colors">Happy birthday madama kiki</h3>
+<p class="text-on-surface-variant line-clamp-2 mb-6 text-sm leading-relaxed italic font-medium">Let's make this 60th milestone unforgettable with the professional culinary set she's always dreamed of...</p>
+<div class="space-y-4">
+<div class="flex justify-between text-sm font-bold font-label">
+<span class="text-primary">5% raised</span>
+<span class="text-on-surface-variant">Goal: GH₵400</span>
+</div>
+<div class="h-3 bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary to-primary-container rounded-full" style="width: 5%"></div>
+</div>
+<div class="flex items-center justify-between pt-4 mt-4 border-t border-surface-container">
+<div class="flex flex-col">
+<span class="text-xs text-on-surface-variant font-bold uppercase tracking-tighter">Raised</span>
+<span class="text-lg font-black text-on-surface">GH₵20</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-xs text-on-surface-variant font-bold uppercase tracking-tighter">Time Left</span>
+<span class="text-lg font-black text-on-surface">10 days</span>
+</div>
+</div>
+<div class="flex items-center gap-3 pt-4">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-primary font-bold text-xs uppercase">AM</div>
+<div class="flex flex-col">
+<span class="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest">By</span>
+<span class="text-sm font-bold text-on-surface">Araba Mensah</span>
+</div>
+<div class="ml-auto flex -space-x-2">
+<div class="w-6 h-6 rounded-full border-2 border-white bg-orange-200"></div>
+<div class="w-6 h-6 rounded-full border-2 border-white bg-orange-300"></div>
+<div class="w-6 h-6 rounded-full border-2 border-white bg-orange-100 flex items-center justify-center text-[8px] font-bold">+8</div>
+</div>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 2 -->
+<article class="bg-surface-container-lowest rounded-[2rem] overflow-hidden group hover:shadow-xl transition-all duration-300">
+<div class="relative h-64 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Group of diverse young people laughing together while holding a large surprise gift box decorated with ribbons" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDuJtxfDmRdLgbs2Q30sZbleGRc5Gzo5DCohkPbz9ewmtxRX4dc7gPxeWgP216gqkbcfeYRTkt35d1iii5BxEKehBOzEWIRoW50kyhNGLpr0ZO618s1cR8qm3OstKmGDBY4GwYu3lKEe_WjAbfieQTtcCuJZ-8DdPPKISfzaA9q-MCpDDPmEbkgaBt0ZhkXECrIW3PXkUb_oVAkVNuWxTK7Tf46Jb0NNKGovLKgqadvh-cZdWUwFCNY8B-V-huE1rseRfwHctfC9hE"/>
+<div class="absolute top-4 left-4">
+<span class="bg-white/90 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest text-secondary font-label">Community</span>
+</div>
+</div>
+<div class="p-8">
+<h3 class="text-2xl font-bold font-headline mb-3 text-on-surface group-hover:text-primary transition-colors">Graduation Fund for Kofi</h3>
+<p class="text-on-surface-variant line-clamp-2 mb-6 text-sm leading-relaxed italic font-medium">Helping our brightest student secure his laptop for his engineering journey ahead at the university.</p>
+<div class="space-y-4">
+<div class="flex justify-between text-sm font-bold font-label">
+<span class="text-primary">72% raised</span>
+<span class="text-on-surface-variant">Goal: GH₵5,000</span>
+</div>
+<div class="h-3 bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary to-primary-container rounded-full" style="width: 72%"></div>
+</div>
+<div class="flex items-center justify-between pt-4 mt-4 border-t border-surface-container">
+<div class="flex flex-col">
+<span class="text-xs text-on-surface-variant font-bold uppercase tracking-tighter">Raised</span>
+<span class="text-lg font-black text-on-surface">GH₵3,600</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-xs text-on-surface-variant font-bold uppercase tracking-tighter">Time Left</span>
+<span class="text-lg font-black text-on-surface">3 days</span>
+</div>
+</div>
+<div class="flex items-center gap-3 pt-4">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-primary font-bold text-xs uppercase">JA</div>
+<div class="flex flex-col">
+<span class="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest">By</span>
+<span class="text-sm font-bold text-on-surface">John Appiah</span>
+</div>
+<div class="ml-auto flex -space-x-2">
+<div class="w-6 h-6 rounded-full border-2 border-white bg-orange-400"></div>
+<div class="w-6 h-6 rounded-full border-2 border-white bg-orange-500"></div>
+<div class="w-6 h-6 rounded-full border-2 border-white bg-orange-200 flex items-center justify-center text-[8px] font-bold">+24</div>
+</div>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 3 -->
+<article class="bg-surface-container-lowest rounded-[2rem] overflow-hidden group hover:shadow-xl transition-all duration-300">
+<div class="relative h-64 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Artistic studio shot of an elegant acoustic guitar and professional recording gear in warm amber lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFxdOL4qqEzivuHzKMjXqrq8M_nyb9VY3UhbUJmGtE2uY6O2W3koBVrthkbpOmBfwRdzHqHdQViG02q2a-mt4PSYG02NIU2QfNCjM9lDxVPJPNetST0fuTmSlFSvACHfmVGzVj_6qZYUHC6FxUlbYcpKa05nMDWQr0BXwKuO8hBj0PzmeMq3kBkh3vwEsJqMaM2V9WAg581Z_hmywoZ-WXyN4Qej4uI9ySyyeCcOjzhK1ZHHrnJB9mHMi1DMupuhv634iVpANnA5Y"/>
+<div class="absolute top-4 left-4">
+<span class="bg-white/90 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest text-primary font-label">Personal</span>
+</div>
+</div>
+<div class="p-8">
+<h3 class="text-2xl font-bold font-headline mb-3 text-on-surface group-hover:text-primary transition-colors">Sister's Dream Guitar</h3>
+<p class="text-on-surface-variant line-clamp-2 mb-6 text-sm leading-relaxed italic font-medium">My sister has been playing the same worn-out guitar for 10 years. Let's get her that Taylor acoustic.</p>
+<div class="space-y-4">
+<div class="flex justify-between text-sm font-bold font-label">
+<span class="text-primary">45% raised</span>
+<span class="text-on-surface-variant">Goal: GH₵1,200</span>
+</div>
+<div class="h-3 bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary to-primary-container rounded-full" style="width: 45%"></div>
+</div>
+<div class="flex items-center justify-between pt-4 mt-4 border-t border-surface-container">
+<div class="flex flex-col">
+<span class="text-xs text-on-surface-variant font-bold uppercase tracking-tighter">Raised</span>
+<span class="text-lg font-black text-on-surface">GH₵540</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-xs text-on-surface-variant font-bold uppercase tracking-tighter">Time Left</span>
+<span class="text-lg font-black text-on-surface">15 days</span>
+</div>
+</div>
+<div class="flex items-center gap-3 pt-4">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-primary font-bold text-xs uppercase">EY</div>
+<div class="flex flex-col">
+<span class="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest">By</span>
+<span class="text-sm font-bold text-on-surface">Efua Yeboah</span>
+</div>
+<div class="ml-auto flex -space-x-2">
+<div class="w-6 h-6 rounded-full border-2 border-white bg-orange-100"></div>
+<div class="w-6 h-6 rounded-full border-2 border-white bg-orange-200"></div>
+<div class="w-6 h-6 rounded-full border-2 border-white bg-orange-50 flex items-center justify-center text-[8px] font-bold">+12</div>
+</div>
+</div>
+</div>
+</div>
+</article>
+</div>
+<!-- Empty State / Load More (Asymmetric Layout element) -->
+<div class="mt-20 flex flex-col items-center justify-center text-center p-12 bg-surface-container-low rounded-[3rem] border-2 border-dashed border-outline-variant/30">
+<span class="material-symbols-outlined text-6xl text-primary-container mb-4">volunteer_activism</span>
+<h4 class="text-2xl font-headline font-bold mb-2">Can't find what you're looking for?</h4>
+<p class="text-on-surface-variant mb-8 max-w-md">The most meaningful gifts are those started with intention. Launch your own community campaign today.</p>
+<button class="bg-primary text-on-primary px-8 py-4 rounded-2xl font-bold font-headline shadow-lg hover:shadow-primary/20 transition-shadow">
+                Start a New Campaign
+            </button>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-low py-20 px-8 border-t border-surface-container mt-12">
+<div class="max-w-screen-2xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
+<div class="col-span-1 md:col-span-1">
+<div class="text-2xl font-black text-orange-800 mb-6 tracking-tight font-headline">Gifthance</div>
+<p class="text-on-surface-variant text-sm leading-relaxed mb-6">
+                    Redefining community gifting through collective impact and shared joy. Every gift tells a story.
+                </p>
+<div class="flex space-x-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary hover:bg-primary hover:text-on-primary transition-all cursor-pointer">
+<span class="material-symbols-outlined text-lg">public</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary hover:bg-primary hover:text-on-primary transition-all cursor-pointer">
+<span class="material-symbols-outlined text-lg">mail</span>
+</div>
+</div>
+</div>
+<div>
+<h5 class="font-bold text-on-surface mb-6 uppercase tracking-widest text-xs">Explore</h5>
+<ul class="space-y-4 text-on-surface-variant text-sm font-medium">
+<li><a class="hover:text-primary transition-colors" href="#">How it works</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Success Stories</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Gift Guides</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Categories</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-bold text-on-surface mb-6 uppercase tracking-widest text-xs">Support</h5>
+<ul class="space-y-4 text-on-surface-variant text-sm font-medium">
+<li><a class="hover:text-primary transition-colors" href="#">Help Center</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Trust &amp; Safety</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Terms of Service</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Privacy Policy</a></li>
+</ul>
+</div>
+<div class="bg-surface-container-highest p-8 rounded-3xl">
+<h5 class="font-bold text-on-surface mb-4">Join our newsletter</h5>
+<p class="text-on-surface-variant text-xs mb-6 font-medium">Get updates on the most impactful campaigns directly in your inbox.</p>
+<div class="flex gap-2">
+<input class="bg-white border-none rounded-xl px-4 py-2 text-sm focus:ring-primary w-full shadow-sm" placeholder="Email" type="email"/>
+<button class="bg-primary text-on-primary p-2 rounded-xl">
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<div class="max-w-screen-2xl mx-auto pt-12 mt-12 border-t border-surface-container flex flex-col md:flex-row justify-between items-center gap-6">
+<p class="text-sm text-on-surface-variant font-medium">© 2024 Gifthance Inc. All rights reserved.</p>
+<div class="flex gap-8 text-xs font-bold text-outline-variant uppercase tracking-widest">
+<a class="hover:text-primary transition-colors" href="#">English (US)</a>
+<a class="hover:text-primary transition-colors" href="#">GH₵ GHS</a>
+</div>
+</div>
+</footer>
+</body></html>
