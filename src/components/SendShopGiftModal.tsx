@@ -2,7 +2,11 @@
 
 import {Button} from '@/components/ui/button';
 import {Checkbox} from '@/components/ui/checkbox';
-import {Dialog, DialogContent, DialogTitle} from '@/components/ui/dialog';
+import {
+  ResponsiveModal,
+  ResponsiveModalContent,
+  ResponsiveModalTitle,
+} from '@/components/ui/responsive-modal';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
 import {VisuallyHidden} from '@/components/ui/visually-hidden';
@@ -155,10 +159,10 @@ const SendShopGiftModal = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px] p-0 overflow-hidden border-none shadow-2xl rounded-3xl">
+    <ResponsiveModal open={open} onOpenChange={onOpenChange}>
+      <ResponsiveModalContent className="sm:max-w-[480px] p-0 overflow-hidden border-none shadow-2xl sm:rounded-3xl">
         <VisuallyHidden>
-          <DialogTitle>Send {gift.name} Gift Card</DialogTitle>
+          <ResponsiveModalTitle>Send {gift.name} Gift Card</ResponsiveModalTitle>
         </VisuallyHidden>
         <div className="relative">
           {/* Header Section */}
@@ -372,7 +376,7 @@ const SendShopGiftModal = ({
           </div>
 
           {step !== 'success' && (
-            <div className="p-4 bg-muted/30 border-t border-muted text-center">
+            <div className="p-4 bg-muted/30 border-t border-muted text-center pb-safe">
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] flex items-center justify-center gap-1.5">
                 <span className="w-1 h-1 rounded-full bg-primary animate-pulse" />
                 Powered by Gifthance
@@ -380,8 +384,8 @@ const SendShopGiftModal = ({
             </div>
           )}
         </div>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveModalContent>
+    </ResponsiveModal>
   );
 };
 

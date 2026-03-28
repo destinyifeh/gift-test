@@ -1,3 +1,5 @@
+'use client';
+
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {
@@ -7,18 +9,20 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {InfiniteScroll} from '@/components/ui/infinite-scroll';
+import {useIsMobile} from '@/hooks/use-mobile';
 import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
 import {
   fetchAdminWallets,
   updateWalletStatus,
 } from '@/lib/server/actions/admin';
+import {cn} from '@/lib/utils';
 import {useInfiniteQuery, useMutation, useQueryClient} from '@tanstack/react-query';
-import {Ban, Download, Eye, MoreVertical, ShieldCheck} from 'lucide-react';
+import {Ban, Download, Eye, Loader2, MoreVertical, ShieldCheck, Wallet} from 'lucide-react';
 import {useEffect, useState} from 'react';
 import {toast} from 'sonner';
 import {ActionAdvancedModal} from './ActionAdvancedModal';
 import {handleExport, statusBadge} from './utils';
-import {InfiniteScroll} from '@/components/ui/infinite-scroll';
 
 interface WalletsTabProps {
   searchQuery: string;
@@ -32,6 +36,7 @@ export function WalletsTab({
   setViewDetailsModal,
 }: WalletsTabProps) {
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
 
   const {
     data: infiniteData,
@@ -108,132 +113,179 @@ export function WalletsTab({
 
   if (isLoading) {
     return (
-      <div className="text-muted-foreground p-4">
-        Computing user balances...
+      <div className="flex flex-col items-center justify-center py-16">
+        <Loader2 className="w-8 h-8 animate-spin text-primary mb-3" />
+        <p className="text-sm text-muted-foreground">Computing user balances...</p>
       </div>
     );
   }
 
+  const WalletActions = ({w}: {w: any}) => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+          <MoreVertical className="w-4 h-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuItem
+          onClick={() =>
+            setViewDetailsModal({
+              isOpen: true,
+              title: 'Wallet Profile',
+              data: w,
+            })
+          }>
+          <Eye className="w-4 h-4 mr-2" /> View Details
+        </DropdownMenuItem>
+
+        {w.status === 'restricted' ? (
+          <DropdownMenuItem
+            className="text-emerald-500 focus:text-emerald-500"
+            onClick={() => handleAdvancedAction('unsuspend', 'wallet', w.id, w.user)}>
+            <ShieldCheck className="w-4 h-4 mr-2" />
+            Lift Restriction
+          </DropdownMenuItem>
+        ) : (
+          <DropdownMenuItem
+            className="text-destructive focus:text-destructive"
+            onClick={() => handleAdvancedAction('restrict', 'wallet', w.id, w.user)}>
+            <Ban className="w-4 h-4 mr-2" />
+            Restrict Wallet
+          </DropdownMenuItem>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
+  const getCurrency = (country: string) => getCurrencySymbol(getCurrencyByCountry(country));
+
   return (
     <div className="space-y-4">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <p className="text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           {wallets.length} active wallets loaded
         </p>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
-              <Download className="w-4 h-4 mr-1" /> Export
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => handleExport('csv', 'Wallets')}>
-              CSV
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-9"
+          onClick={() => handleExport('csv', 'Wallets')}>
+          <Download className="w-4 h-4 mr-1.5" /> Export
+        </Button>
       </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border text-muted-foreground">
-              <th className="text-left py-2 font-medium">User</th>
-              <th className="text-right py-2 font-medium">Balance</th>
-              <th className="text-right py-2 font-medium">Pending Output</th>
-              <th className="text-right py-2 font-medium">Total Earned</th>
-              <th className="text-right py-2 font-medium">Total Withdrawn</th>
-              <th className="text-left py-2 font-medium pl-6">Status</th>
-              <th className="text-right py-2 font-medium">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {wallets.map((w: any) => (
-              <tr
-                key={w.id}
-                className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
-                <td className="py-3 font-medium text-foreground">@{w.user}</td>
-                <td className="py-3 text-right text-foreground font-mono font-medium">
-                  {getCurrencySymbol(getCurrencyByCountry(w.country))}
-                  {w.balance}
-                </td>
-                <td className="py-3 text-right text-accent font-mono">
-                  {getCurrencySymbol(getCurrencyByCountry(w.country))}
-                  {w.pending}
-                </td>
-                <td className="py-3 text-right text-secondary font-mono">
-                  {getCurrencySymbol(getCurrencyByCountry(w.country))}
-                  {w.earned}
-                </td>
-                <td className="py-3 text-right text-muted-foreground font-mono">
-                  {getCurrencySymbol(getCurrencyByCountry(w.country))}
-                  {w.withdrawn}
-                </td>
-                <td className="py-3 pl-6">
-                  <Badge
-                    variant={statusBadge(w.status) as any}
-                    className="capitalize">
-                    {w.status}
-                  </Badge>
-                </td>
-                <td className="py-3 text-right">
-                  <div className="flex justify-end">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreVertical className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem
-                          onClick={() =>
-                            setViewDetailsModal({
-                              isOpen: true,
-                              title: 'Wallet Profile',
-                              data: w,
-                            })
-                          }>
-                          <Eye className="w-4 h-4 mr-2" /> View Details
-                        </DropdownMenuItem>
 
-                        {w.status === 'restricted' ? (
-                          <DropdownMenuItem
-                            className="text-emerald-500 focus:text-emerald-500"
-                            onClick={() =>
-                              handleAdvancedAction(
-                                'unsuspend',
-                                'wallet',
-                                w.id,
-                                w.user,
-                              )
-                            }>
-                            <ShieldCheck className="w-4 h-4 mr-2" />
-                            Lift Restriction
-                          </DropdownMenuItem>
-                        ) : (
-                          <DropdownMenuItem
-                            className="text-destructive focus:text-destructive"
-                            onClick={() =>
-                              handleAdvancedAction(
-                                'restrict',
-                                'wallet',
-                                w.id,
-                                w.user,
-                              )
-                            }>
-                            <Ban className="w-4 h-4 mr-2" />
-                            Restrict Wallet
-                          </DropdownMenuItem>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+      {/* Mobile Card View */}
+      {isMobile ? (
+        <div className="space-y-2">
+          {wallets.map((w: any) => (
+            <div
+              key={w.id}
+              className={cn(
+                'p-4 rounded-xl bg-card border border-border',
+                'active:bg-muted/50 transition-colors',
+              )}>
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <Wallet className="w-5 h-5 text-primary" />
                   </div>
-                </td>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-foreground">@{w.user}</p>
+                      <Badge
+                        variant={statusBadge(w.status) as any}
+                        className="capitalize text-[10px]">
+                        {w.status}
+                      </Badge>
+                    </div>
+                    <p className="text-lg font-bold font-mono text-foreground">
+                      {getCurrency(w.country)}{w.balance}
+                    </p>
+                  </div>
+                </div>
+                <WalletActions w={w} />
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-border">
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase">Pending</p>
+                  <p className="font-mono text-sm text-accent">
+                    {getCurrency(w.country)}{w.pending}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase">Earned</p>
+                  <p className="font-mono text-sm text-secondary">
+                    {getCurrency(w.country)}{w.earned}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase">Withdrawn</p>
+                  <p className="font-mono text-sm text-muted-foreground">
+                    {getCurrency(w.country)}{w.withdrawn}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        /* Desktop Table View */
+        <div className="overflow-x-auto rounded-xl border border-border">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/30">
+                <th className="text-left py-3 px-4 font-medium text-muted-foreground">User</th>
+                <th className="text-right py-3 px-4 font-medium text-muted-foreground">Balance</th>
+                <th className="text-right py-3 px-4 font-medium text-muted-foreground">Pending</th>
+                <th className="text-right py-3 px-4 font-medium text-muted-foreground">Earned</th>
+                <th className="text-right py-3 px-4 font-medium text-muted-foreground">Withdrawn</th>
+                <th className="text-left py-3 px-4 font-medium text-muted-foreground">Status</th>
+                <th className="text-right py-3 px-4 font-medium text-muted-foreground">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {wallets.map((w: any) => (
+                <tr
+                  key={w.id}
+                  className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+                  <td className="py-3 px-4 font-medium text-foreground">@{w.user}</td>
+                  <td className="py-3 px-4 text-right text-foreground font-mono font-medium">
+                    {getCurrency(w.country)}{w.balance}
+                  </td>
+                  <td className="py-3 px-4 text-right text-accent font-mono">
+                    {getCurrency(w.country)}{w.pending}
+                  </td>
+                  <td className="py-3 px-4 text-right text-secondary font-mono">
+                    {getCurrency(w.country)}{w.earned}
+                  </td>
+                  <td className="py-3 px-4 text-right text-muted-foreground font-mono">
+                    {getCurrency(w.country)}{w.withdrawn}
+                  </td>
+                  <td className="py-3 px-4">
+                    <Badge variant={statusBadge(w.status) as any} className="capitalize">
+                      {w.status}
+                    </Badge>
+                  </td>
+                  <td className="py-3 px-4 text-right">
+                    <WalletActions w={w} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {wallets.length === 0 && (
+        <div className="text-center py-12">
+          <Wallet className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+          <p className="text-sm text-muted-foreground">No wallets found</p>
+        </div>
+      )}
 
       <InfiniteScroll
         hasMore={!!hasNextPage}

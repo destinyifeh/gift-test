@@ -120,6 +120,28 @@
   box-shadow: var(--shadow-elevated);
 }
 
+/* Safe area utilities for notched devices */
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
+@utility mb-safe {
+  margin-bottom: env(safe-area-inset-bottom, 0);
+}
+
+/* Hide scrollbar utility */
+@utility hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @layer base {
   :root {
     --background: 30 50% 98%;

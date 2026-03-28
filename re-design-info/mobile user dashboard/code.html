@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gifthance Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-tint": "#964300",
+                        "on-error-container": "#520c00",
+                        "tertiary-fixed-dim": "#efb118",
+                        "surface-bright": "#fff4ef",
+                        "tertiary-dim": "#684b00",
+                        "primary-container": "#f9873e",
+                        "on-surface": "#492604",
+                        "on-tertiary": "#fff1dd",
+                        "surface-container-highest": "#ffd5b5",
+                        "on-background": "#492604",
+                        "primary-dim": "#843a00",
+                        "surface-variant": "#ffd5b5",
+                        "on-secondary-container": "#6e3a00",
+                        "secondary-container": "#ffc69a",
+                        "on-secondary-fixed": "#522a00",
+                        "error-dim": "#b92902",
+                        "surface-container": "#ffe3cf",
+                        "background": "#fff4ef",
+                        "primary": "#964300",
+                        "surface-container-high": "#ffdcc2",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface-variant": "#7d522b",
+                        "inverse-surface": "#1b0a00",
+                        "error-container": "#f95630",
+                        "secondary-fixed": "#ffc69a",
+                        "on-secondary-fixed-variant": "#7c4200",
+                        "surface-container-low": "#ffede2",
+                        "secondary-fixed-dim": "#ffb374",
+                        "inverse-primary": "#f9873e",
+                        "primary-fixed": "#f9873e",
+                        "outline": "#9d6c44",
+                        "on-error": "#ffefec",
+                        "on-primary-container": "#451b00",
+                        "tertiary-fixed": "#febf2a",
+                        "secondary-dim": "#7a4100",
+                        "on-primary": "#fff0e9",
+                        "tertiary-container": "#febf2a",
+                        "on-secondary": "#fff0e7",
+                        "on-tertiary-fixed-variant": "#624600",
+                        "error": "#b02500",
+                        "on-tertiary-container": "#573e00",
+                        "on-primary-fixed": "#100300",
+                        "primary-fixed-dim": "#e97b32",
+                        "on-primary-fixed-variant": "#542200",
+                        "outline-variant": "#d9a275",
+                        "surface-dim": "#ffcaa1",
+                        "inverse-on-surface": "#c79266",
+                        "tertiary": "#775600",
+                        "surface": "#fff4ef",
+                        "secondary": "#8c4b00",
+                        "on-tertiary-fixed": "#3e2b00"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "3xl": "1.5rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-nav { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fff4ef]/80 dark:bg-orange-950/80 backdrop-blur-xl flex items-center justify-between px-6 h-16">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high ring-2 ring-primary-container/20">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="Close-up portrait of a smiling young woman with warm natural lighting and soft blurred outdoor background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRyAUL14LO9-ChNRuR1W0GssrC8vz1T7L6dE-La9HTFIyyrDcIbrSl3z63ycfMQG79pefmSVhrMTHLfzIU4gpeeVCTDRdHVob6FGh5N6cDJ2_RW49CjGwSKIOu9pP2jwhwRMdWjg56Z3PJCp1jQS5xMsBuQmX9SxFuXFOY9zZdqIvaN18ib20xuGeQJfUxV2llzqq1xjOxBnZ_NUG1qUB78EZSjpIxnOKYtPlcOTZp3vstuxwh8xg5aLkhVEvzYkHgWKovCdtVurI"/>
+</div>
+<span class="text-[#964300] dark:text-[#f9873e] font-extrabold tracking-tighter font-['Plus_Jakarta_Sans'] text-xl">Gifthance</span>
+</div>
+<button class="text-[#964300] dark:text-[#f9873e] hover:opacity-80 transition-opacity active:scale-95">
+<span class="material-symbols-outlined text-[28px]" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="pt-24 px-6 max-w-md mx-auto">
+<!-- Greeting Section -->
+<section class="mb-8">
+<p class="text-on-surface-variant font-medium font-label mb-1">Welcome back,</p>
+<h1 class="text-3xl font-extrabold font-headline tracking-tight text-on-surface">Alex Rivera</h1>
+</section>
+<!-- Bento Grid Summary Cards -->
+<div class="grid grid-cols-2 gap-4 mb-8">
+<!-- Total Given (Large/Wide) -->
+<div class="col-span-2 p-6 rounded-3xl bg-gradient-to-br from-primary to-primary-container text-white shadow-xl shadow-primary/10 relative overflow-hidden">
+<div class="relative z-10">
+<p class="text-white/80 font-medium font-label mb-1">Total Given</p>
+<h2 class="text-4xl font-extrabold font-headline">$12,450.00</h2>
+</div>
+<span class="material-symbols-outlined absolute -right-4 -bottom-4 text-white/10 text-[120px]" data-icon="redeem">redeem</span>
+</div>
+<!-- Gifts Sent -->
+<div class="p-5 rounded-3xl bg-surface-container-lowest border border-outline-variant/10 shadow-sm">
+<div class="w-10 h-10 rounded-full bg-secondary-container/30 flex items-center justify-center mb-3">
+<span class="material-symbols-outlined text-secondary" data-icon="outbox">outbox</span>
+</div>
+<p class="text-on-surface-variant text-sm font-medium font-label">Gifts Sent</p>
+<p class="text-xl font-bold font-headline text-on-surface">142</p>
+</div>
+<!-- Gifts Received -->
+<div class="p-5 rounded-3xl bg-surface-container-lowest border border-outline-variant/10 shadow-sm">
+<div class="w-10 h-10 rounded-full bg-tertiary-container/20 flex items-center justify-center mb-3">
+<span class="material-symbols-outlined text-tertiary" data-icon="move_to_inbox">move_to_inbox</span>
+</div>
+<p class="text-on-surface-variant text-sm font-medium font-label">Received</p>
+<p class="text-xl font-bold font-headline text-on-surface">28</p>
+</div>
+</div>
+<!-- Active Campaigns (Editorial Glass Look) -->
+<section class="mb-8">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-lg font-bold font-headline">Active Campaigns</h3>
+<button class="text-primary font-bold text-sm">View all</button>
+</div>
+<div class="relative group cursor-pointer">
+<div class="absolute inset-0 bg-primary/5 rounded-3xl transform group-active:scale-[0.98] transition-transform"></div>
+<div class="relative p-6 rounded-3xl bg-surface-container-low border border-outline-variant/5">
+<div class="flex gap-4 items-start">
+<div class="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0">
+<img alt="Campaign" class="w-full h-full object-cover" data-alt="Festive holiday celebration with colorful confetti, warm string lights, and blurred people in a cozy indoor setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGRWsfY6gJKXwP7AQ29w-4rI6cqwaX_-l9bUI1KOAqjUdM_Ec9sLEV6gHZyLXQbbjALpvulgpYPkVN1xGR3R_3p9VPGLyfNCiewO-5o_1GSv_Y2J5SQ3rIn5PfqQobP_9Gw9DjFN3Jy5dhroBdCU-8DYpFoMnX7M_NJS8GdLzgq-tBq4PRrzdzZoemCi8I0DaryIhcmj1R0QOFXxUAyd25fn-FbiwcKtQRzSQ-AaCTUHxQESK8rqpziOC8iFB4StxhlFRFDr0X0dM"/>
+</div>
+<div class="flex-1">
+<span class="inline-block px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-bold uppercase tracking-wider mb-2">Holiday Special</span>
+<h4 class="font-bold text-on-surface leading-tight mb-1">Corporate Christmas Gifting 2024</h4>
+<div class="flex items-center gap-2 text-on-surface-variant text-xs">
+<span class="material-symbols-outlined text-sm" data-icon="group">group</span>
+<span>84% Participants joined</span>
+</div>
+</div>
+</div>
+<div class="mt-4">
+<div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[84%] rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Recent Activity -->
+<section>
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-lg font-bold font-headline">Recent Activity</h3>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="history">history</span>
+</div>
+<div class="space-y-3">
+<!-- Activity Item 1 -->
+<div class="flex items-center justify-between p-4 rounded-2xl bg-surface-container-low/50">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-xl bg-surface-container-lowest flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="person_celebrate">person_celebrate</span>
+</div>
+<div>
+<p class="font-bold text-sm text-on-surface">Sarah Johnson</p>
+<p class="text-xs text-on-surface-variant">Birthday Hamper sent</p>
+</div>
+</div>
+<span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-bold">SUCCESS</span>
+</div>
+<!-- Activity Item 2 -->
+<div class="flex items-center justify-between p-4 rounded-2xl bg-surface-container-low/50">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-xl bg-surface-container-lowest flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="schedule_send">schedule_send</span>
+</div>
+<div>
+<p class="font-bold text-sm text-on-surface">Amazon GC ($50)</p>
+<p class="text-xs text-on-surface-variant">Bulk distribution initiated</p>
+</div>
+</div>
+<span class="px-3 py-1 rounded-full bg-surface-container-highest text-on-surface-variant text-[10px] font-bold">PENDING</span>
+</div>
+<!-- Activity Item 3 -->
+<div class="flex items-center justify-between p-4 rounded-2xl bg-surface-container-low/50">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-xl bg-surface-container-lowest flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="card_giftcard">card_giftcard</span>
+</div>
+<div>
+<p class="font-bold text-sm text-on-surface">Starbucks Rewards</p>
+<p class="text-xs text-on-surface-variant">Received from HR Team</p>
+</div>
+</div>
+<span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-bold">SUCCESS</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Action Button (FAB) -->
+<button class="fixed bottom-28 right-6 w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-container text-white shadow-xl flex items-center justify-center active:scale-90 transition-transform z-40">
+<span class="material-symbols-outlined text-2xl" data-icon="add">add</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-[#fff4ef]/80 dark:bg-orange-950/80 backdrop-blur-xl z-50 rounded-t-[1.5rem] shadow-[0_-10px_40px_rgba(73,38,4,0.06)]">
+<!-- Overview (Active) -->
+<a class="flex flex-col items-center justify-center bg-gradient-to-br from-[#964300] to-[#f9873e] text-white rounded-2xl px-5 py-2 spring-physics-damping-0.8 scale-95 active" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-['Manrope'] font-medium text-[11px] mt-0.5">Overview</span>
+</a>
+<!-- Gifts -->
+<a class="flex flex-col items-center justify-center text-[#7d522b] dark:text-orange-200/60 px-5 py-2 hover:bg-[#ffede2] dark:hover:bg-orange-900/40 rounded-2xl transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="redeem">redeem</span>
+<span class="font-['Manrope'] font-medium text-[11px] mt-0.5">Gifts</span>
+</a>
+<!-- Campaigns -->
+<a class="flex flex-col items-center justify-center text-[#7d522b] dark:text-orange-200/60 px-5 py-2 hover:bg-[#ffede2] dark:hover:bg-orange-900/40 rounded-2xl transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="campaign">campaign</span>
+<span class="font-['Manrope'] font-medium text-[11px] mt-0.5">Campaigns</span>
+</a>
+<!-- Wallet -->
+<a class="flex flex-col items-center justify-center text-[#7d522b] dark:text-orange-200/60 px-5 py-2 hover:bg-[#ffede2] dark:hover:bg-orange-900/40 rounded-2xl transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-['Manrope'] font-medium text-[11px] mt-0.5">Wallet</span>
+</a>
+</nav>
+</body></html>

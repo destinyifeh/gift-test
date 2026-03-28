@@ -1,12 +1,13 @@
 'use client';
 
-import {Card, CardContent} from '@/components/ui/card';
 import {InfiniteScroll} from '@/components/ui/infinite-scroll';
 import {Progress} from '@/components/ui/progress';
 import {fetchMyContributions} from '@/lib/server/actions/analytics';
 import {formatCurrency} from '@/lib/utils/currency';
+import {cn} from '@/lib/utils';
 import {useInfiniteQuery} from '@tanstack/react-query';
-import {Loader2} from 'lucide-react';
+import {Loader2, Users} from 'lucide-react';
+import {DashboardEmptyState} from './shared';
 
 export function ContributionsTab() {
   const {
@@ -26,53 +27,63 @@ export function ContributionsTab() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-[200px] opacity-50">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="flex flex-col items-center justify-center min-h-[300px]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary mb-3" />
+        <p className="text-sm text-muted-foreground">Loading contributions...</p>
       </div>
     );
   }
 
   if (contributionsData.length === 0) {
     return (
-      <div className="text-center py-10 text-muted-foreground border border-border rounded-lg bg-card">
-        You haven't made any contributions yet.
-      </div>
+      <DashboardEmptyState
+        icon={<Users className="w-8 h-8" />}
+        title="No Contributions Yet"
+        description="You haven't contributed to any campaigns yet. Explore campaigns to support!"
+        action={{label: 'Browse Campaigns', href: '/campaigns'}}
+      />
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {contributionsData.map((c: any) => (
-        <Card key={c.id} className="border-border">
-          <CardContent className="p-3 sm:p-4">
-            <div className="flex items-center justify-between mb-3">
-              <p className="font-semibold text-foreground">{c.campaign}</p>
-              <span className="text-sm text-muted-foreground">
-                {c.contributors} contributors
-              </span>
-            </div>
+        <div
+          key={c.id}
+          className={cn(
+            'p-4 rounded-xl',
+            'bg-card border border-border',
+          )}>
+          {/* Header */}
+          <div className="flex items-center justify-between mb-3">
+            <p className="font-semibold text-foreground truncate pr-2">
+              {c.campaign}
+            </p>
+            <span className="text-xs text-muted-foreground whitespace-nowrap">
+              {c.contributors} contributor{c.contributors !== 1 ? 's' : ''}
+            </span>
+          </div>
 
-            {c.goal > 0 ? (
-              <Progress value={c.progress} className="h-2 mb-2" />
-            ) : (
-              <div className="h-2 mb-2" /> /*Spacer*/
-            )}
+          {/* Progress */}
+          {c.goal > 0 && (
+            <Progress value={c.progress} className="h-2 mb-3" />
+          )}
 
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">
-                You contributed:{' '}
-                <span className="text-primary font-semibold">
-                  {formatCurrency(c.contributed, c.currency)}
-                </span>
+          {/* Stats */}
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">
+              You contributed:{' '}
+              <span className="text-primary font-semibold">
+                {formatCurrency(c.contributed, c.currency)}
               </span>
-              <span className="text-muted-foreground">
-                {c.goal > 0
-                  ? `${Math.round(c.progress)}% of ${formatCurrency(c.goal, c.currency)}`
-                  : `${formatCurrency(c.current_amount, c.currency)} raised so far`}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
+            </span>
+            <span className="text-muted-foreground text-xs">
+              {c.goal > 0
+                ? `${Math.round(c.progress)}% of ${formatCurrency(c.goal, c.currency)}`
+                : `${formatCurrency(c.current_amount, c.currency)} raised`}
+            </span>
+          </div>
+        </div>
       ))}
 
       {!isLoading && contributionsData.length > 0 && (

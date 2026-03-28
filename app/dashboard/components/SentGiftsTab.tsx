@@ -1,12 +1,11 @@
 'use client';
 
-import {Badge} from '@/components/ui/badge';
-import {Card, CardContent} from '@/components/ui/card';
 import {InfiniteScroll} from '@/components/ui/infinite-scroll';
 import {fetchSentGiftsList} from '@/lib/server/actions/analytics';
 import {formatCurrency} from '@/lib/utils/currency';
 import {useInfiniteQuery} from '@tanstack/react-query';
 import {Loader2, Send} from 'lucide-react';
+import {DashboardEmptyState, DashboardListItem} from './shared';
 import {statusColor} from './utils';
 
 export function SentGiftsTab() {
@@ -27,51 +26,36 @@ export function SentGiftsTab() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-[200px] opacity-50">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="flex flex-col items-center justify-center min-h-[300px]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary mb-3" />
+        <p className="text-sm text-muted-foreground">Loading sent gifts...</p>
       </div>
     );
   }
 
   if (sentGiftsList.length === 0) {
     return (
-      <div className="text-center py-10 text-muted-foreground border border-border rounded-lg bg-card">
-        You haven't sent any gifts or contributions yet.
-      </div>
+      <DashboardEmptyState
+        icon={<Send className="w-8 h-8" />}
+        title="No Sent Gifts Yet"
+        description="You haven't sent any gifts or contributions yet. Brighten someone's day!"
+        action={{label: 'Send a Gift', href: '/send-gift'}}
+      />
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {sentGiftsList.map((g: any) => (
-        <Card key={g.id} className="border-border">
-          <CardContent className="p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                <Send className="w-5 h-5 text-primary" />
-              </div>
-              <div className="min-w-0">
-                <p className="font-semibold text-foreground truncate capitalize">
-                  {g.name}
-                </p>
-                <p className="text-sm text-muted-foreground truncate capitalize">
-                  {g.giftType && (
-                    <span className="font-semibold text-primary/80 mr-1">
-                      {g.giftType} •
-                    </span>
-                  )}
-                  To: {g.recipient} · {g.date}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 self-end sm:self-auto">
-              <span className="font-bold text-foreground">
-                {formatCurrency(g.amount, g.currency)}
-              </span>
-              <Badge variant={statusColor(g.status) as any}>{g.status}</Badge>
-            </div>
-          </CardContent>
-        </Card>
+        <DashboardListItem
+          key={g.id}
+          icon={<Send className="w-5 h-5" />}
+          iconBg="bg-primary/10 text-primary"
+          title={g.name}
+          subtitle={`${g.giftType ? `${g.giftType} • ` : ''}To: ${g.recipient} • ${g.date}`}
+          amount={formatCurrency(g.amount, g.currency)}
+          badge={{label: g.status, variant: statusColor(g.status) as any}}
+        />
       ))}
 
       {!isLoading && sentGiftsList.length > 0 && (

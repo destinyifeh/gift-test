@@ -1,17 +1,18 @@
 'use client';
 
 import {Button} from '@/components/ui/button';
-import {Card, CardContent} from '@/components/ui/card';
 import {useProfile} from '@/hooks/use-profile';
 import {getCurrencySymbol} from '@/lib/currencies';
 import {signOut} from '@/lib/server/actions/auth';
 import {claimGiftByCode, fetchGiftByCode} from '@/lib/server/actions/claim';
-import {AnimatePresence, motion} from 'framer-motion';
+import {cn} from '@/lib/utils';
 import {
   ArrowRight,
   Gift,
   Loader2,
   Lock,
+  LogOut,
+  MessageSquare,
   Sparkles,
   Store,
   UserPlus,
@@ -53,8 +54,8 @@ export default function ClaimGiftPage() {
     if (result.success) {
       toast.success(
         gift?.claimable_type === 'money'
-          ? 'Gift successfully claimed and added to your wallet! 💰'
-          : 'Gift successfully claimed! It has been added to your account.',
+          ? 'Gift claimed and added to your wallet!'
+          : 'Gift successfully claimed!',
       );
       router.push('/dashboard?tab=received');
     } else {
@@ -67,382 +68,303 @@ export default function ClaimGiftPage() {
     setIsLoggingOut(true);
     try {
       await signOut();
-      router.refresh(); // Or router.push('/login')
-    } catch (error) {
+      router.refresh();
+    } catch {
       toast.error('Failed to sign out');
     } finally {
       setIsLoggingOut(false);
     }
   };
 
+  // Loading State
   if (loading || profileLoading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0a0a0b] p-4 text-center overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
-        <motion.div
-          animate={{rotate: 360}}
-          transition={{duration: 2, repeat: Infinity, ease: 'linear'}}
-          className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full mb-6"
-        />
-        <motion.p
-          initial={{opacity: 0}}
-          animate={{opacity: 1}}
-          className="text-gray-500 font-medium tracking-widest uppercase text-xs">
-          Preparing your gift...
-        </motion.p>
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+        <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6">
+          <Gift className="w-8 h-8 text-primary animate-pulse" />
+        </div>
+        <Loader2 className="w-6 h-6 animate-spin text-primary mb-3" />
+        <p className="text-sm text-muted-foreground">Loading your gift...</p>
       </div>
     );
   }
 
+  // Gift Not Found State
   if (!gift) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0a0a0b] p-6 text-center relative overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-red-500/10 rounded-full blur-[120px]" />
-
-        <motion.div
-          initial={{opacity: 0, scale: 0.9}}
-          animate={{opacity: 1, scale: 1}}
-          className="w-full max-w-md relative z-10">
-          <Card className="border border-white/10 shadow-2xl rounded-[2.5rem] bg-black/40 backdrop-blur-3xl p-10">
-            <div className="w-20 h-20 bg-red-500/10 rounded-3xl flex items-center justify-center mb-8 mx-auto border border-red-500/20">
-              <Gift className="w-10 h-10 text-red-500 opacity-50" />
+      <div className="min-h-screen bg-background flex flex-col">
+        <Header />
+        <main className="flex-1 flex flex-col items-center justify-center p-4">
+          <div className="w-full max-w-md text-center">
+            <div className="w-20 h-20 bg-destructive/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <Gift className="w-10 h-10 text-destructive/50" />
             </div>
-            <h1 className="text-2xl font-black text-white mb-3">
-              Invalid or Expired Code
+            <h1 className="text-2xl font-bold text-foreground mb-3">
+              Gift Not Found
             </h1>
-            <p className="text-gray-400 mb-8 leading-relaxed">
-              We couldn't find a gift waiting for this code. It may have already
-              been claimed or the link is incorrect.
+            <p className="text-muted-foreground mb-8">
+              This gift code is invalid or has already been claimed.
+              Please check the link and try again.
             </p>
-            <Button
-              asChild
-              className="w-full h-14 rounded-2xl border border-white/10 bg-white/5 text-white hover:bg-white/10 font-bold transition-all">
-              <Link href="/gift-shop">Return to Shop</Link>
-            </Button>
-          </Card>
-        </motion.div>
+            <Link href="/">
+              <Button variant="outline" className="w-full h-12">
+                Go to Homepage
+              </Button>
+            </Link>
+          </div>
+        </main>
       </div>
     );
   }
 
-  // 1. Auth Gate (Not Logged In)
+  // Not Logged In State
   if (!profile) {
     return (
-      <div className="min-h-screen bg-[#0a0a0b] flex flex-col items-center justify-center p-6 relative overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] animate-pulse" />
-
-        <div className="w-full max-w-md text-center space-y-10 relative z-10">
-          <motion.div
-            initial={{opacity: 0, y: -20}}
-            animate={{opacity: 1, y: 0}}
-            className="flex items-center justify-center gap-2 mb-2">
-            <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white shadow-2xl shadow-primary/40 rotate-12">
-              <Gift className="w-7 h-7" />
+      <div className="min-h-screen bg-background flex flex-col">
+        <Header />
+        <main className="flex-1 flex flex-col items-center justify-center p-4">
+          <div className="w-full max-w-md">
+            {/* Gift Preview */}
+            <div className="text-center mb-8">
+              <div className="w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6 relative">
+                <Gift className="w-10 h-10 text-primary" />
+                <Sparkles className="w-5 h-5 text-primary absolute -top-1 -right-1" />
+              </div>
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+                You've got a gift!
+              </h1>
+              <p className="text-muted-foreground">
+                Someone sent you something special
+              </p>
             </div>
-          </motion.div>
 
-          <div className="space-y-4 px-4">
-            <h1 className="text-3xl font-black tracking-tight text-white leading-tight mt-4">
-              You’ve received a gift! 🎁
-            </h1>
-            <p className="text-gray-400 text-lg font-medium">
-              This gift was sent to: <br />
-              <span className="text-primary font-bold break-all">
+            {/* Recipient Email */}
+            <div className="bg-muted/50 rounded-2xl p-4 mb-8 text-center">
+              <p className="text-sm text-muted-foreground mb-1">This gift was sent to</p>
+              <p className="text-foreground font-semibold break-all">
                 {gift.recipient_email}
-              </span>
-            </p>
-            <p className="text-gray-500 text-sm">
-              Please sign in or create an account with this email to claim your
-              gift.
+              </p>
+            </div>
+
+            {/* Auth Buttons */}
+            <div className="space-y-3">
+              <Link
+                href={`/login?redirect=/claim/${params.id}&email=${gift.recipient_email}`}
+                className="block">
+                <Button variant="hero" className="w-full h-14 text-base font-semibold">
+                  <Lock className="w-5 h-5 mr-2" />
+                  Log In to Claim
+                </Button>
+              </Link>
+
+              <div className="relative py-4">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center">
+                  <span className="bg-background px-4 text-xs text-muted-foreground">
+                    New to Gifthance?
+                  </span>
+                </div>
+              </div>
+
+              <Link
+                href={`/signup?redirect=/claim/${params.id}&email=${gift.recipient_email}`}
+                className="block">
+                <Button variant="outline" className="w-full h-14 text-base font-semibold">
+                  <UserPlus className="w-5 h-5 mr-2" />
+                  Create Account
+                </Button>
+              </Link>
+            </div>
+
+            <p className="text-xs text-muted-foreground text-center mt-8">
+              Sign in with the email address above to claim your gift
             </p>
           </div>
-
-          <motion.div
-            initial={{opacity: 0, scale: 0.95}}
-            animate={{opacity: 1, scale: 1}}
-            transition={{delay: 0.2}}>
-            <Card className="border border-white/10 shadow-2xl rounded-[3rem] bg-black/40 backdrop-blur-3xl p-10">
-              <div className="space-y-4">
-                <Button
-                  asChild
-                  className="w-full h-16 text-lg font-black rounded-2xl bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95">
-                  <Link
-                    href={`/login?redirect=/claim/${params.id}&email=${gift.recipient_email}`}>
-                    <Lock className="w-5 h-5 mr-3" /> Login to Claim
-                  </Link>
-                </Button>
-                <div className="relative py-4">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-white/5" />
-                  </div>
-                  <div className="relative flex justify-center text-[10px] uppercase font-black tracking-widest">
-                    <span className="bg-[#0e0e11] px-4 text-gray-500">
-                      New to Gifthance?
-                    </span>
-                  </div>
-                </div>
-                <Button
-                  asChild
-                  className="w-full h-16 text-lg font-bold rounded-2xl border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-all">
-                  <Link
-                    href={`/signup?redirect=/claim/${params.id}&email=${gift.recipient_email}`}>
-                    <UserPlus className="w-5 h-5 mr-3" /> Create Account
-                  </Link>
-                </Button>
-              </div>
-            </Card>
-          </motion.div>
-
-          <p className="text-[10px] uppercase tracking-widest font-black text-gray-600 px-8 pt-4">
-            Gifthance • The art of thoughtful gifting
-          </p>
-        </div>
+        </main>
       </div>
     );
   }
 
-  // 2. Email Mismatch Check (Logged In with wrong account)
+  // Wrong Account State
   if (gift.recipient_email && profile.email !== gift.recipient_email) {
     return (
-      <div className="min-h-screen bg-[#0a0a0b] flex flex-col items-center justify-center p-6 relative overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-red-500/10 rounded-full blur-[120px]" />
-
-        <div className="w-full max-w-md text-center space-y-8 relative z-10">
-          <div className="w-20 h-20 bg-red-500/10 rounded-3xl flex items-center justify-center mb-8 mx-auto border border-red-500/20">
-            <Lock className="w-10 h-10 text-red-500" />
-          </div>
-
-          <div className="space-y-4">
-            <h1 className="text-3xl font-black text-white">Wrong Account 🔒</h1>
-            <p className="text-gray-400 text-lg">
-              This gift was sent to: <br />
-              <span className="text-white font-bold">
-                {gift.recipient_email}
-              </span>
+      <div className="min-h-screen bg-background flex flex-col">
+        <Header />
+        <main className="flex-1 flex flex-col items-center justify-center p-4">
+          <div className="w-full max-w-md text-center">
+            <div className="w-20 h-20 bg-amber-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <Lock className="w-10 h-10 text-amber-500" />
+            </div>
+            <h1 className="text-2xl font-bold text-foreground mb-3">
+              Wrong Account
+            </h1>
+            <p className="text-muted-foreground mb-6">
+              This gift was sent to a different email address.
             </p>
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-sm">
-              <p className="text-gray-500 mb-1">
-                You are currently logged in as:
-              </p>
-              <p className="text-gray-300 font-medium">{profile.email}</p>
+
+            {/* Email Comparison */}
+            <div className="space-y-3 mb-8">
+              <div className="bg-muted/50 rounded-xl p-4 text-left">
+                <p className="text-xs text-muted-foreground mb-1">Gift sent to</p>
+                <p className="text-foreground font-semibold break-all">
+                  {gift.recipient_email}
+                </p>
+              </div>
+              <div className="bg-muted/50 rounded-xl p-4 text-left">
+                <p className="text-xs text-muted-foreground mb-1">You're logged in as</p>
+                <p className="text-foreground font-semibold break-all">
+                  {profile.email}
+                </p>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="space-y-3">
+              <Button
+                onClick={handleSignOut}
+                disabled={isLoggingOut}
+                variant="hero"
+                className="w-full h-12">
+                {isLoggingOut ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : (
+                  <LogOut className="w-4 h-4 mr-2" />
+                )}
+                Switch Account
+              </Button>
+              <Link href="/dashboard" className="block">
+                <Button variant="outline" className="w-full h-12">
+                  Go to Dashboard
+                </Button>
+              </Link>
             </div>
           </div>
-
-          <Card className="border border-white/10 rounded-[2.5rem] bg-black/40 backdrop-blur-3xl p-8">
-            <p className="text-gray-400 text-sm mb-6">
-              To claim this gift, please sign out and log in with the correct
-              email address.
-            </p>
-            <Button
-              onClick={handleSignOut}
-              disabled={isLoggingOut}
-              variant="destructive"
-              className="w-full h-14 rounded-2xl font-bold flex items-center justify-center gap-2">
-              {isLoggingOut ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Signing out...
-                </>
-              ) : (
-                'Sign Out & Switch Account'
-              )}
-            </Button>
-          </Card>
-
-          <Button
-            asChild
-            variant="ghost"
-            className="text-gray-500 hover:text-primary hover:bg-primary/5 transition-colors">
-            <Link href="/dashboard">Go to Dashboard</Link>
-          </Button>
-        </div>
+        </main>
       </div>
     );
   }
 
-  // Display name fallbacks
-  const senderName =
-    gift.sender_name || gift.sender?.display_name || 'A Friend';
-  const giftName = gift.product?.name || gift.title || 'Gift Card';
+  // Main Claim View
+  const senderName = gift.sender_name || gift.sender?.display_name || 'Someone';
+  const giftName = gift.product?.name || gift.title || 'Gift';
   const giftImage = gift.product?.image_url || null;
-  const vendorName =
-    gift.product?.vendor?.shop_name ||
-    gift.product?.vendor?.display_name ||
-    'Vendor';
+  const vendorName = gift.product?.vendor?.shop_name || gift.product?.vendor?.display_name || 'Vendor';
+  const currency = getCurrencySymbol(gift.currency || 'USD');
 
   return (
-    <div className="min-h-screen bg-[#0a0a0b] flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      {/* Dynamic Background Elements */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] animate-pulse" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/10 rounded-full blur-[120px] animate-pulse delay-700" />
+    <div className="min-h-screen bg-background flex flex-col">
+      <Header />
 
-      <div className="w-full max-w-xl relative z-10">
-        <motion.div
-          initial={{opacity: 0, y: 20}}
-          animate={{opacity: 1, y: 0}}
-          transition={{duration: 0.8, ease: 'easeOut'}}
-          className="flex items-center justify-center gap-3 mb-10">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary-foreground flex items-center justify-center text-white shadow-2xl shadow-primary/40 rotate-12 hover:rotate-0 transition-transform duration-500">
-            <Gift className="w-7 h-7" />
-          </div>
-          <span className="text-3xl font-black tracking-tighter text-white uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-            GIFTHANCE
-          </span>
-        </motion.div>
-
-        <motion.div
-          initial={{opacity: 0, scale: 0.95}}
-          animate={{opacity: 1, scale: 1}}
-          transition={{duration: 1, delay: 0.2, ease: 'circOut'}}>
-          <Card className="border border-white/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] rounded-[3rem] overflow-hidden bg-black/40 backdrop-blur-3xl relative group">
-            <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
-
-            <div className="px-8 pt-16 pb-10 text-center relative z-10">
-              <motion.div
-                whileHover={{scale: 1.05, rotate: -2}}
-                className="w-32 h-32 bg-white/5 p-2 rounded-[2.5rem] shadow-2xl flex items-center justify-center mx-auto mb-8 relative border border-white/10 group-hover:border-primary/30 transition-colors duration-500 overflow-hidden">
+      <main className="flex-1 flex flex-col p-4 pb-8">
+        <div className="w-full max-w-lg mx-auto flex-1 flex flex-col">
+          {/* Gift Card */}
+          <div className="bg-card border border-border rounded-3xl overflow-hidden flex-1 flex flex-col">
+            {/* Gift Image/Icon */}
+            <div className="p-6 md:p-8 flex-1 flex flex-col items-center justify-center text-center">
+              <div className={cn(
+                'w-24 h-24 md:w-32 md:h-32 rounded-2xl flex items-center justify-center mb-6 overflow-hidden',
+                giftImage ? '' : 'bg-primary/10',
+              )}>
                 {giftImage ? (
                   <img
                     src={giftImage}
                     alt={giftName}
-                    className="w-full h-full object-cover rounded-[2rem]"
+                    className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center rounded-[2rem]">
-                    <Gift className="w-12 h-12 text-primary" />
-                  </div>
+                  <Gift className="w-12 h-12 md:w-16 md:h-16 text-primary" />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-              </motion.div>
-
-              <div className="space-y-3">
-                <motion.h1
-                  initial={{opacity: 0, y: 10}}
-                  animate={{opacity: 1, y: 0}}
-                  transition={{delay: 0.5}}
-                  className="text-3xl sm:text-4xl font-black text-white leading-tight">
-                  A gift from{' '}
-                  <span className="text-primary italic px-1 capitalize">
-                    {senderName}
-                  </span>
-                  !
-                </motion.h1>
-                <motion.p
-                  initial={{opacity: 0}}
-                  animate={{opacity: 1}}
-                  transition={{delay: 0.7}}
-                  className="text-gray-400 text-lg font-medium">
-                  You've received a{' '}
-                  <span className="text-white border-b-2 border-primary/40 pb-0.5 capitalize">
-                    {giftName}
-                  </span>
-                </motion.p>
               </div>
+
+              {/* Gift Info */}
+              <h1 className="text-xl md:text-2xl font-bold text-foreground mb-2">
+                A gift from{' '}
+                <span className="text-primary capitalize">{senderName}</span>
+              </h1>
+              <p className="text-muted-foreground">
+                {giftName}
+              </p>
+
+              {/* Value */}
+              <div className="mt-6 flex items-center justify-center gap-4 md:gap-6">
+                <div className="text-center">
+                  <p className="text-3xl md:text-4xl font-bold text-foreground">
+                    {currency}{Number(gift.goal_amount).toLocaleString()}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">Gift Value</p>
+                </div>
+                {gift.claimable_type !== 'money' && (
+                  <>
+                    <div className="w-px h-12 bg-border" />
+                    <div className="text-center">
+                      <div className="flex items-center justify-center gap-1.5">
+                        <Store className="w-4 h-4 text-muted-foreground" />
+                        <p className="text-sm font-medium text-foreground capitalize truncate max-w-[120px]">
+                          {vendorName}
+                        </p>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">Shop</p>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Message */}
+              {gift.message && (
+                <div className="mt-8 w-full max-w-sm">
+                  <div className="bg-muted/50 rounded-2xl p-4 relative">
+                    <MessageSquare className="w-4 h-4 text-muted-foreground absolute top-3 left-3" />
+                    <p className="text-sm text-foreground italic pl-6">
+                      "{gift.message}"
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
-            <CardContent className="px-10 pb-12 pt-0 space-y-10 relative z-10">
-              <motion.div
-                initial={{opacity: 0, y: 10}}
-                animate={{opacity: 1, y: 0}}
-                transition={{delay: 0.9}}
-                className="grid grid-cols-2 gap-6">
-                <div className="bg-white/5 p-6 rounded-[2rem] border border-white/10 group-hover:bg-white/[0.07] transition-colors">
-                  <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2 text-center">
-                    Gift Value
-                  </p>
-                  <p className="text-3xl font-black text-white text-center flex items-center justify-center gap-1">
-                    <span className="text-primary/80 text-xl font-bold">
-                      {getCurrencySymbol(gift.currency || 'USD')}
-                    </span>
-                    {Number(gift.goal_amount).toLocaleString()}
-                  </p>
-                </div>
-                <div className="bg-white/5 p-6 rounded-[2rem] border border-white/10 group-hover:bg-white/[0.07] transition-colors flex flex-col items-center justify-center text-center">
-                  <Store className="w-5 h-5 text-gray-500 mb-2" />
-                  <div>
-                    <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.2em] mb-1">
-                      {gift.claimable_type === 'money' ? 'AddTo' : 'Shop'}
-                    </p>
-                    <p className="font-bold text-white leading-tight capitalize">
-                      {gift.claimable_type === 'money' ? 'Wallet' : vendorName}
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
+            {/* Action Footer */}
+            <div className="p-4 md:p-6 border-t border-border bg-muted/30">
+              <Button
+                onClick={handleClaim}
+                disabled={claiming}
+                variant="hero"
+                className="w-full h-14 text-lg font-semibold">
+                {claiming ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    Claim Gift
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </>
+                )}
+              </Button>
 
-              {gift.message && (
-                <motion.div
-                  initial={{opacity: 0, scale: 0.95}}
-                  animate={{opacity: 1, scale: 1}}
-                  transition={{delay: 1.1}}
-                  className="relative p-8 bg-primary/10 rounded-[2.5rem] border border-primary/20">
-                  <Sparkles className="absolute -top-3 -left-3 w-8 h-8 text-primary/50 animate-pulse" />
-                  <p className="text-lg text-white/90 italic leading-relaxed font-serif text-center">
-                    "{gift.message}"
-                  </p>
-                </motion.div>
-              )}
-
-              <motion.div
-                initial={{opacity: 0, y: 20}}
-                animate={{opacity: 1, y: 0}}
-                transition={{delay: 1.3}}
-                className="space-y-6">
-                <Button
-                  onClick={handleClaim}
-                  disabled={claiming}
-                  className="w-full h-20 text-xl font-black rounded-3xl bg-primary hover:bg-primary/90 text-white shadow-[0_20px_40px_-10px_rgba(249,115,22,0.4)] transition-all hover:scale-[1.03] active:scale-95 group overflow-hidden relative">
-                  <AnimatePresence mode="wait">
-                    {claiming ? (
-                      <motion.div
-                        key="loading"
-                        initial={{opacity: 0}}
-                        animate={{opacity: 1}}
-                        exit={{opacity: 0}}
-                        className="flex items-center justify-center">
-                        <Loader2 className="w-7 h-7 animate-spin" />
-                      </motion.div>
-                    ) : (
-                      <motion.div
-                        key="cta"
-                        initial={{opacity: 0}}
-                        animate={{opacity: 1}}
-                        exit={{opacity: 0}}
-                        className="flex items-center justify-center gap-3">
-                        <span>Claim Your Gift</span>
-                        <ArrowRight className="w-6 h-6 group-hover:translate-x-1.5 transition-transform" />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
-                </Button>
-              </motion.div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{opacity: 0}}
-          animate={{opacity: 1}}
-          transition={{delay: 1.5}}
-          className="text-center mt-12 text-sm text-gray-500 border-t border-white/5 pt-8">
-          Logged in as{' '}
-          <span className="font-bold text-gray-300 capitalize">
-            {profile.display_name}
-          </span>
-        </motion.div>
-      </div>
-
-      <style jsx global>{`
-        @keyframes shimmer {
-          100% {
-            transform: translateX(100%);
-          }
-        }
-        .animate-shimmer {
-          animation: shimmer 2s infinite;
-        }
-      `}</style>
+              {/* Logged in as */}
+              <p className="text-xs text-muted-foreground text-center mt-4">
+                Claiming as{' '}
+                <span className="font-medium text-foreground capitalize">
+                  {profile.display_name || profile.email}
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
+  );
+}
+
+function Header() {
+  return (
+    <header className="flex items-center justify-center py-6 px-4">
+      <Link href="/" className="inline-flex items-center gap-2">
+        <Gift className="w-7 h-7 text-primary" />
+        <span className="text-xl font-bold font-display text-foreground">
+          Gifthance
+        </span>
+      </Link>
+    </header>
   );
 }

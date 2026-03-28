@@ -5,16 +5,20 @@ import SendCampaignGiftModal from '@/components/SendCampaignGiftModal';
 import {Avatar, AvatarFallback} from '@/components/ui/avatar';
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
-import {Card, CardContent} from '@/components/ui/card';
 import {InfiniteScroll} from '@/components/ui/infinite-scroll';
 import {Progress} from '@/components/ui/progress';
+import {StickyFooter} from '@/components/ui/sticky-footer';
 import {useCampaign} from '@/hooks/use-campaigns';
+import {useIsMobile} from '@/hooks/use-mobile';
 import {fetchCampaignContributions} from '@/lib/server/actions/analytics';
 import {formatCurrency} from '@/lib/utils/currency';
 import {getDaysLeft} from '@/lib/utils/date';
+import {generateSlug} from '@/lib/utils/slugs';
+import {cn} from '@/lib/utils';
 import {useInfiniteQuery} from '@tanstack/react-query';
 import {
   Calendar,
+  ChevronLeft,
   Clock,
   Gift,
   Globe,
@@ -27,15 +31,16 @@ import {
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {useEffect, use, useState} from 'react';
-import {generateSlug} from '@/lib/utils/slugs';
+import {toast} from 'sonner';
 
 export default function CampaignPage({
   params,
 }: {
-  params: Promise<{ shortId: string; slug: string }>;
+  params: Promise<{shortId: string; slug: string}>;
 }) {
-  const { shortId, slug: urlSlug } = use(params);
+  const {shortId, slug: urlSlug} = use(params);
   const router = useRouter();
+  const isMobile = useIsMobile();
   const {data: c, isLoading, error} = useCampaign(shortId);
   const [showGiftModal, setShowGiftModal] = useState(false);
 
@@ -63,14 +68,28 @@ export default function CampaignPage({
     enabled: !!shortId,
   });
 
-  const paginatedContribs =
-    contribPages?.pages.flatMap(p => p.data || []) || [];
+  const paginatedContribs = contribPages?.pages.flatMap(p => p.data || []) || [];
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({title: c?.title, url});
+      } catch {
+        navigator.clipboard.writeText(url);
+        toast.success('Link copied!');
+      }
+    } else {
+      navigator.clipboard.writeText(url);
+      toast.success('Link copied!');
+    }
+  };
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
-        <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
-        <p className="text-xl font-medium">Loading campaign...</p>
+        <Loader2 className="w-10 h-10 animate-spin text-primary mb-3" />
+        <p className="text-sm text-muted-foreground">Loading campaign...</p>
       </div>
     );
   }
@@ -78,14 +97,15 @@ export default function CampaignPage({
   if (error || !c) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
-        <h1 className="text-2xl font-bold mb-4 font-display">
-          Campaign not found
-        </h1>
-        <p className="text-muted-foreground mb-8">
+        <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+          <Users className="w-8 h-8 text-muted-foreground" />
+        </div>
+        <h1 className="text-xl font-bold mb-2">Campaign not found</h1>
+        <p className="text-sm text-muted-foreground mb-6 text-center">
           The campaign you're looking for doesn't exist or has been removed.
         </p>
         <Link href="/campaigns">
-          <Button variant="default">Browse Campaigns</Button>
+          <Button variant="hero">Browse Campaigns</Button>
         </Link>
       </div>
     );
@@ -96,21 +116,34 @@ export default function CampaignPage({
       ? (Number(c.current_amount) / Number(c.goal_amount)) * 100
       : 0;
 
+  const daysLeft = getDaysLeft(c.end_date);
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="pt-20 pb-16">
+      <div className="pt-16 pb-32 md:pt-20 md:pb-16">
         <div className="container mx-auto px-4 max-w-4xl">
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-8">
-            <div className="md:col-span-3">
-              <div className="rounded-2xl overflow-hidden bg-muted aspect-video mb-6 flex items-center justify-center relative border border-border">
+          {/* Back Link */}
+          <Link
+            href="/campaigns"
+            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4 md:mb-6">
+            <ChevronLeft className="w-4 h-4" /> Back to Campaigns
+          </Link>
+
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6 md:gap-8">
+            {/* Main Content */}
+            <div className="md:col-span-3 space-y-4">
+              {/* Image */}
+              <div className="rounded-xl overflow-hidden bg-muted aspect-video relative border border-border">
                 <img
                   src={c.image_url || '/default-campaign.png'}
                   alt={c.title}
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="flex items-center gap-2 mb-3">
+
+              {/* Badges */}
+              <div className="flex items-center gap-2">
                 <Badge variant="secondary" className="capitalize">
                   {c.category}
                 </Badge>
@@ -123,143 +156,206 @@ export default function CampaignPage({
                   {c.visibility}
                 </Badge>
               </div>
-              <h1 className="text-3xl font-bold font-display text-foreground mb-3">
+
+              {/* Title & Description */}
+              <h1 className="text-xl md:text-2xl font-bold text-foreground">
                 {c.title}
               </h1>
-              <p className="text-muted-foreground leading-relaxed mb-4">
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 {c.description || 'No description provided.'}
               </p>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+
+              {/* Meta */}
+              <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground pt-2">
                 <span>
                   Created by{' '}
                   <span className="text-foreground font-medium capitalize">
-                    {c.profiles?.display_name ||
-                      c.profiles?.username ||
-                      'Organizer'}
+                    {c.profiles?.display_name || c.profiles?.username || 'Organizer'}
                   </span>
                 </span>
                 <span className="flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5" /> Ends on{' '}
-                  {c.end_date
-                    ? new Date(c.end_date).toLocaleDateString()
-                    : 'No end date'}
+                  <Calendar className="w-3 h-3" />
+                  Ends {c.end_date ? new Date(c.end_date).toLocaleDateString() : 'No end date'}
                 </span>
               </div>
-            </div>
 
-            <div className="md:col-span-2 space-y-4">
-              <Card className="border-border shadow-elevated">
-                <CardContent className="p-6">
-                  <div className="text-center mb-4">
-                    <p className="text-3xl font-bold text-foreground">
+              {/* Mobile Progress Card */}
+              <div className="md:hidden">
+                <div className={cn('p-4 rounded-xl', 'bg-card border border-border')}>
+                  {/* Amount */}
+                  <div className="text-center mb-3">
+                    <p className="text-2xl font-bold text-foreground">
                       {formatCurrency(c.current_amount, c.currency)}
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       {Number(c.goal_amount) > 0
                         ? `raised of ${formatCurrency(c.goal_amount, c.currency)} goal`
                         : 'raised so far'}
                     </p>
                   </div>
+
+                  {/* Progress */}
                   {Number(c.goal_amount) > 0 && (
-                    <Progress value={progress} className="h-3 mb-4" />
+                    <Progress value={progress} className="h-2 mb-3" />
                   )}
-                  {
-                    Number(c.goal_amount) === 0 && (
-                      <div className="h-3 mb-4" />
-                    ) /* Spacer if no progress */
-                  }
-                  <div className="flex justify-between text-sm text-muted-foreground mb-6">
+
+                  {/* Stats */}
+                  <div className="flex justify-between text-xs text-muted-foreground">
                     <span className="flex items-center gap-1">
-                      <Users className="w-4 h-4" />{' '}
+                      <Users className="w-3.5 h-3.5" />
                       {c.contributions?.length || 0} contributors
                     </span>
                     <span className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" /> {getDaysLeft(c.end_date)}{' '}
-                      days left
+                      <Clock className="w-3.5 h-3.5" />
+                      {daysLeft} days left
                     </span>
                   </div>
-                  <Button
-                    variant="hero"
-                    className="w-full h-12 text-base mb-3"
-                    onClick={() => setShowGiftModal(true)}>
-                    <Gift className="w-5 h-5 mr-2" /> Send a Gift
-                  </Button>
-                  <Button variant="outline" className="w-full gap-2">
-                    <Share2 className="w-4 h-4" /> Share Campaign
-                  </Button>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
-              <Card className="border-border">
-                <CardContent className="p-4">
-                  <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-                    <Heart className="w-4 h-4 text-primary" /> Recent
-                    Contributions
-                  </h3>
-                  <div className="space-y-3">
-                    {paginatedContribs.length > 0 ? (
-                      <>
-                        {paginatedContribs.map((contrib: any) => (
-                          <div
-                            key={contrib.id}
-                            className="flex items-start gap-3">
-                            <Avatar className="w-8 h-8">
-                              <AvatarFallback className="bg-muted text-xs">
-                                {contrib.is_anonymous
-                                  ? '?'
-                                  : contrib.donor_name.charAt(0)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between">
-                                <p className="text-sm font-medium text-foreground">
-                                  {contrib.is_anonymous
-                                    ? 'Anonymous'
-                                    : contrib.donor_name}
-                                </p>
-                                {!contrib.hide_amount && contrib.amount && (
-                                  <span className="text-sm font-semibold text-primary">
-                                    {formatCurrency(
-                                      contrib.amount,
-                                      contrib.currency || c.currency,
-                                    )}
-                                  </span>
-                                )}
-                                {contrib.hide_amount && (
-                                  <span className="text-xs text-muted-foreground italic">
-                                    hidden
-                                  </span>
-                                )}
-                              </div>
-                              {contrib.message && (
-                                <p className="text-xs text-muted-foreground mt-0.5 break-words">
-                                  "{contrib.message}"
-                                </p>
-                              )}
+              {/* Contributions Section */}
+              <div className={cn('p-4 rounded-xl mt-4', 'bg-card border border-border')}>
+                <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                  <Heart className="w-4 h-4 text-primary" />
+                  Recent Contributions
+                </h3>
+                <div className="space-y-3">
+                  {paginatedContribs.length > 0 ? (
+                    <>
+                      {paginatedContribs.map((contrib: any) => (
+                        <div
+                          key={contrib.id}
+                          className="flex items-start gap-3 py-2 border-b border-border last:border-0">
+                          <Avatar className="w-9 h-9">
+                            <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                              {contrib.is_anonymous ? '?' : contrib.donor_name.charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="text-sm font-medium text-foreground truncate">
+                                {contrib.is_anonymous ? 'Anonymous' : contrib.donor_name}
+                              </p>
+                              {!contrib.hide_amount && contrib.amount ? (
+                                <span className="text-sm font-semibold text-primary shrink-0">
+                                  {formatCurrency(contrib.amount, contrib.currency || c.currency)}
+                                </span>
+                              ) : contrib.hide_amount ? (
+                                <span className="text-[10px] text-muted-foreground italic shrink-0">
+                                  hidden
+                                </span>
+                              ) : null}
                             </div>
+                            {contrib.message && (
+                              <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                                "{contrib.message}"
+                              </p>
+                            )}
                           </div>
-                        ))}
-                        <InfiniteScroll
-                          hasMore={!!hasMoreContribs}
-                          isLoading={isFetchingContribs}
-                          onLoadMore={fetchMoreContribs}
-                        />
-                      </>
-                    ) : (
-                      <div className="text-center py-6">
-                        <p className="text-sm text-muted-foreground">
-                          No contributions yet. Be the first to support this
-                          campaign!
-                        </p>
-                      </div>
+                        </div>
+                      ))}
+                      <InfiniteScroll
+                        hasMore={!!hasMoreContribs}
+                        isLoading={isFetchingContribs}
+                        onLoadMore={fetchMoreContribs}
+                      />
+                    </>
+                  ) : (
+                    <div className="text-center py-6">
+                      <p className="text-sm text-muted-foreground">
+                        No contributions yet. Be the first to support this campaign!
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Desktop Sidebar */}
+            <div className="hidden md:block md:col-span-2 space-y-4">
+              {/* Progress Card */}
+              <div className={cn('p-5 rounded-xl', 'bg-card border border-border shadow-sm')}>
+                {/* Amount */}
+                <div className="text-center mb-4">
+                  <p className="text-3xl font-bold text-foreground">
+                    {formatCurrency(c.current_amount, c.currency)}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {Number(c.goal_amount) > 0
+                      ? `raised of ${formatCurrency(c.goal_amount, c.currency)} goal`
+                      : 'raised so far'}
+                  </p>
+                </div>
+
+                {/* Progress */}
+                {Number(c.goal_amount) > 0 && (
+                  <Progress value={progress} className="h-2.5 mb-4" />
+                )}
+
+                {/* Stats */}
+                <div className="flex justify-between text-sm text-muted-foreground mb-6">
+                  <span className="flex items-center gap-1.5">
+                    <Users className="w-4 h-4" />
+                    {c.contributions?.length || 0} contributors
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <Clock className="w-4 h-4" />
+                    {daysLeft} days left
+                  </span>
+                </div>
+
+                {/* Actions */}
+                <Button
+                  variant="hero"
+                  className="w-full h-12 text-base mb-3"
+                  onClick={() => setShowGiftModal(true)}>
+                  <Gift className="w-5 h-5 mr-2" /> Send a Gift
+                </Button>
+                <Button variant="outline" className="w-full gap-2" onClick={handleShare}>
+                  <Share2 className="w-4 h-4" /> Share Campaign
+                </Button>
+              </div>
+
+              {/* Organizer Card */}
+              <div className={cn('p-4 rounded-xl', 'bg-card border border-border')}>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
+                  Organized by
+                </p>
+                <div className="flex items-center gap-3">
+                  <Avatar className="w-10 h-10">
+                    <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                      {(c.profiles?.display_name || c.profiles?.username || 'O').charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-medium text-foreground capitalize">
+                      {c.profiles?.display_name || c.profiles?.username || 'Organizer'}
+                    </p>
+                    {c.profiles?.username && (
+                      <p className="text-xs text-muted-foreground">@{c.profiles.username}</p>
                     )}
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Mobile Sticky CTA */}
+      {isMobile && (
+        <StickyFooter className="flex gap-3">
+          <Button
+            variant="hero"
+            className="flex-1 h-12"
+            onClick={() => setShowGiftModal(true)}>
+            <Gift className="w-5 h-5 mr-2" /> Send a Gift
+          </Button>
+          <Button variant="outline" className="h-12 w-12 p-0" onClick={handleShare}>
+            <Share2 className="w-5 h-5" />
+          </Button>
+        </StickyFooter>
+      )}
 
       <SendCampaignGiftModal
         open={showGiftModal}

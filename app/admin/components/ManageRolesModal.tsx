@@ -1,13 +1,15 @@
+'use client';
+
 import {Button} from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import {Label} from '@/components/ui/label';
+import {
+  ResponsiveModal,
+  ResponsiveModalContent,
+  ResponsiveModalDescription,
+  ResponsiveModalFooter,
+  ResponsiveModalHeader,
+  ResponsiveModalTitle,
+} from '@/components/ui/responsive-modal';
 import {
   Select,
   SelectContent,
@@ -16,6 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {Switch} from '@/components/ui/switch';
+import {Loader2, UserCog} from 'lucide-react';
 import {useEffect, useState} from 'react';
 
 interface ManageRolesModalProps {
@@ -27,13 +30,18 @@ interface ManageRolesModalProps {
 }
 
 const AVAILABLE_ROLES = [
-  {id: 'user', label: 'User (Default)', disabled: true},
-  {id: 'vendor', label: 'Vendor', disabled: false},
-  {id: 'partner', label: 'Partner', disabled: false},
-  {id: 'admin', label: 'Admin', disabled: false},
+  {id: 'user', label: 'User', description: 'Default role for all users', disabled: true},
+  {id: 'vendor', label: 'Vendor', description: 'Can sell products', disabled: false},
+  {id: 'partner', label: 'Partner', description: 'Partner privileges', disabled: false},
+  {id: 'admin', label: 'Admin', description: 'Administrative access', disabled: false},
 ];
 
-const ADMIN_SUBROLES = ['support', 'finance', 'mod', 'super_admin'];
+const ADMIN_SUBROLES = [
+  {id: 'support', label: 'Support'},
+  {id: 'finance', label: 'Finance'},
+  {id: 'mod', label: 'Moderator'},
+  {id: 'super_admin', label: 'Super Admin'},
+];
 
 export function ManageRolesModal({
   isOpen,
@@ -53,7 +61,7 @@ export function ManageRolesModal({
   }, [user, isOpen]);
 
   const toggleRole = (roleId: string, checked: boolean) => {
-    if (roleId === 'user') return; // Cannot toggle base user role
+    if (roleId === 'user') return;
     setSelectedRoles(prev =>
       checked ? [...prev, roleId] : prev.filter(r => r !== roleId),
     );
@@ -66,27 +74,41 @@ export function ManageRolesModal({
   const isAdminSelected = selectedRoles.includes('admin');
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>
-            Manage Roles for{' '}
-            <span className="capitalize">
-              {user?.display_name || user?.username}
-            </span>
-          </DialogTitle>
-          <DialogDescription>
-            Assign or revoke system roles and admin privileges.
-          </DialogDescription>
-        </DialogHeader>
+    <ResponsiveModal open={isOpen} onOpenChange={onOpenChange}>
+      <ResponsiveModalContent className="sm:max-w-md">
+        <ResponsiveModalHeader>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              <UserCog className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <ResponsiveModalTitle>
+                Manage Roles
+              </ResponsiveModalTitle>
+              <ResponsiveModalDescription>
+                <span className="capitalize">
+                  {user?.display_name || user?.username}
+                </span>
+              </ResponsiveModalDescription>
+            </div>
+          </div>
+        </ResponsiveModalHeader>
 
-        <div className="grid gap-6 py-4">
-          <div className="space-y-4">
+        <div className="px-4 md:px-6 py-4 space-y-4">
+          {/* Role Toggles */}
+          <div className="space-y-3">
             {AVAILABLE_ROLES.map(role => (
-              <div key={role.id} className="flex items-center justify-between">
-                <Label htmlFor={`role-${role.id}`} className="flex flex-col">
-                  <span className="font-medium">{role.label}</span>
-                </Label>
+              <div
+                key={role.id}
+                className="flex items-center justify-between p-3 rounded-xl bg-muted/50">
+                <div>
+                  <Label
+                    htmlFor={`role-${role.id}`}
+                    className="text-sm font-medium cursor-pointer">
+                    {role.label}
+                  </Label>
+                  <p className="text-xs text-muted-foreground">{role.description}</p>
+                </div>
                 <Switch
                   id={`role-${role.id}`}
                   checked={selectedRoles.includes(role.id)}
@@ -97,40 +119,56 @@ export function ManageRolesModal({
             ))}
           </div>
 
+          {/* Admin Sub-Role */}
           {isAdminSelected && (
-            <div className="space-y-3 pt-4 border-t border-border">
-              <Label>Admin Sub-Role</Label>
+            <div className="space-y-3 pt-3 border-t border-border">
+              <Label className="text-sm font-medium">Admin Sub-Role</Label>
               <Select
                 value={adminRole || 'support'}
                 onValueChange={setAdminRole}
                 disabled={isLoading}>
-                <SelectTrigger>
+                <SelectTrigger className="h-11">
                   <SelectValue placeholder="Select admin sub-role" />
                 </SelectTrigger>
                 <SelectContent>
                   {ADMIN_SUBROLES.map(role => (
-                    <SelectItem key={role} value={role} className="capitalize">
-                      {role.replace('_', ' ')}
+                    <SelectItem key={role.id} value={role.id}>
+                      {role.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              <p className="text-xs text-muted-foreground">
+                Determines administrative permissions level
+              </p>
             </div>
           )}
         </div>
 
-        <DialogFooter>
+        <ResponsiveModalFooter className="flex-col-reverse sm:flex-row gap-2">
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            disabled={isLoading}>
+            disabled={isLoading}
+            className="w-full sm:w-auto h-11">
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={isLoading}>
-            {isLoading ? 'Saving...' : 'Save Changes'}
+          <Button
+            variant="hero"
+            onClick={handleSave}
+            disabled={isLoading}
+            className="w-full sm:w-auto h-11">
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                Saving...
+              </>
+            ) : (
+              'Save Changes'
+            )}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </ResponsiveModalFooter>
+      </ResponsiveModalContent>
+    </ResponsiveModal>
   );
 }

@@ -37,36 +37,37 @@ const faqs = [
 
 const FAQSection = () => {
   return (
-    <section id="faq" className="py-20 md:py-28 bg-muted/50">
-      <div className="container mx-auto px-4 max-w-3xl">
-        <div className="text-center mb-14">
+    <section id="faq" className="py-12 sm:py-16 md:py-24 bg-muted/50">
+      <div className="container mx-auto px-4 max-w-2xl lg:max-w-3xl">
+        {/* Header */}
+        <div className="text-center mb-8 sm:mb-12">
           <motion.div
-            initial={{opacity: 0, y: 20}}
+            initial={{opacity: 0, y: 15}}
             whileInView={{opacity: 1, y: 0}}
             viewport={{once: true}}>
-            <span className="text-sm font-semibold text-primary uppercase tracking-wider">
+            <span className="text-xs sm:text-sm font-semibold text-primary uppercase tracking-wider">
               FAQ
             </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mt-2 sm:mt-3">
               Frequently Asked <span className="text-gradient">Questions</span>
             </h2>
           </motion.div>
         </div>
 
         <motion.div
-          initial={{opacity: 0, y: 20}}
+          initial={{opacity: 0, y: 15}}
           whileInView={{opacity: 1, y: 0}}
           viewport={{once: true}}>
-          <Accordion type="single" collapsible className="space-y-3">
+          <Accordion type="single" collapsible className="space-y-2 sm:space-y-3">
             {faqs.map((faq, i) => (
               <AccordionItem
                 key={i}
                 value={`item-${i}`}
-                className="bg-card border border-border rounded-xl px-6">
-                <AccordionTrigger className="text-left font-semibold text-foreground hover:no-underline font-body">
+                className="bg-card border border-border rounded-xl px-4 sm:px-6">
+                <AccordionTrigger className="text-left font-semibold text-foreground hover:no-underline font-body text-sm sm:text-base py-4">
                   {faq.q}
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">
+                <AccordionContent className="text-muted-foreground text-sm pb-4">
                   {faq.a}
                 </AccordionContent>
               </AccordionItem>

@@ -10,25 +10,29 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {InfiniteScroll} from '@/components/ui/infinite-scroll';
+import {useIsMobile} from '@/hooks/use-mobile';
 import {
   fetchAdminUsers,
   updateUserSystemStatus,
 } from '@/lib/server/actions/admin';
+import {cn} from '@/lib/utils';
 import {useInfiniteQuery, useMutation, useQueryClient} from '@tanstack/react-query';
 import {
   AlertTriangle,
   Ban,
   Download,
   Eye,
+  Loader2,
   MoreVertical,
   Pause,
   RotateCcw,
+  Users,
 } from 'lucide-react';
 import {useState} from 'react';
 import {toast} from 'sonner';
 import {ActionAdvancedModal} from './ActionAdvancedModal';
 import {statusBadge, handleExport} from './utils';
-import {InfiniteScroll} from '@/components/ui/infinite-scroll';
 
 interface UsersTabProps {
   searchQuery: string;
@@ -42,6 +46,7 @@ export function UsersTab({
   setViewDetailsModal,
 }: UsersTabProps) {
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
 
   const {
     data: infiniteData,
@@ -128,160 +133,203 @@ export function UsersTab({
 
   if (isLoading) {
     return (
-      <div className="text-muted-foreground p-4">Loading user records...</div>
+      <div className="flex flex-col items-center justify-center py-16">
+        <Loader2 className="w-8 h-8 animate-spin text-primary mb-3" />
+        <p className="text-sm text-muted-foreground">Loading users...</p>
+      </div>
     );
   }
 
+  const UserActions = ({u}: {u: any}) => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+          <MoreVertical className="w-4 h-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuItem
+          onClick={() =>
+            setViewDetailsModal({
+              isOpen: true,
+              title: 'User Details',
+              data: u,
+            })
+          }>
+          <Eye className="w-4 h-4 mr-2" /> View Details
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+
+        {u.status === 'banned' || u.status === 'suspended' ? (
+          <DropdownMenuItem
+            className="text-emerald-500 focus:text-emerald-500"
+            onClick={() =>
+              handleAdvancedAction('activate', 'user', u.id, u.username)
+            }>
+            <RotateCcw className="w-4 h-4 mr-2" /> Restore Access
+          </DropdownMenuItem>
+        ) : (
+          <>
+            <DropdownMenuItem
+              onClick={() =>
+                handleAdvancedAction('warn', 'user', u.id, u.username)
+              }>
+              <AlertTriangle className="w-4 h-4 mr-2" /> Warn User
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() =>
+                handleAdvancedAction('suspend', 'user', u.id, u.username)
+              }>
+              <Pause className="w-4 h-4 mr-2" /> Suspend
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="text-destructive focus:text-destructive"
+              onClick={() =>
+                handleAdvancedAction('ban', 'user', u.id, u.username)
+              }>
+              <Ban className="w-4 h-4 mr-2" /> Ban User
+            </DropdownMenuItem>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
   return (
     <div className="space-y-4">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <p className="text-muted-foreground">{users.length} users loaded</p>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => handleExport('csv', 'Users')}
-          >
-            <Download className="w-4 h-4 mr-1" /> Export
-          </Button>
-        </div>
+        <p className="text-sm text-muted-foreground">{users.length} users loaded</p>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-9"
+          onClick={() => handleExport('csv', 'Users')}>
+          <Download className="w-4 h-4 mr-1.5" /> Export
+        </Button>
       </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border text-muted-foreground">
-              <th className="text-left py-2 font-medium">User</th>
-              <th className="text-left py-2 font-medium">Roles</th>
-              <th className="text-left py-2 font-medium">Joined</th>
-              <th className="text-left py-2 font-medium pl-6">Status</th>
-              <th className="text-right py-2 font-medium">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((u: any) => (
-              <tr
-                key={u.id}
-                className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
-                <td className="py-3">
-                  <div className="flex flex-col">
-                    <p className="font-medium text-foreground capitalize">
+
+      {/* Mobile Card View */}
+      {isMobile ? (
+        <div className="space-y-2">
+          {users.map((u: any) => (
+            <div
+              key={u.id}
+              className={cn(
+                'p-4 rounded-xl bg-card border border-border',
+                'active:bg-muted/50 transition-colors',
+              )}>
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium text-foreground capitalize truncate">
                       {u.display_name || u.username}
                     </p>
-                    <p className="text-xs text-muted-foreground">
-                      @{u.username} · {u.email}
-                    </p>
+                    <Badge
+                      variant={statusBadge(u.status || 'active') as any}
+                      className="capitalize text-[10px]">
+                      {u.status || 'active'}
+                    </Badge>
                   </div>
-                </td>
-                <td className="py-3">
-                  <div className="flex gap-1 flex-wrap">
-                    {u.roles?.map((r: string) => (
-                      <Badge
-                        key={r}
-                        variant="outline"
-                        className="text-[10px] capitalize">
-                        {r}
-                      </Badge>
-                    ))}
-                  </div>
-                </td>
-                <td className="py-3 text-muted-foreground">
-                  {u.created_at || u.updated_at
-                    ? new Date(
-                        u.created_at || u.updated_at,
-                      ).toLocaleDateString()
-                    : 'Unknown'}
-                </td>
-                <td className="py-3 pl-6">
-                  <Badge
-                    variant={statusBadge(u.status || 'active') as any}
-                    className="capitalize">
-                    {u.status || 'active'}
-                  </Badge>
-                </td>
-                <td className="py-3 text-right">
-                  <div className="flex justify-end">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreVertical className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem
-                          onClick={() =>
-                            setViewDetailsModal({
-                              isOpen: true,
-                              title: 'User Details',
-                              data: u,
-                            })
-                          }>
-                          <Eye className="w-4 h-4 mr-2" /> View Details
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    @{u.username}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {u.email}
+                  </p>
+                </div>
+                <UserActions u={u} />
+              </div>
 
-                        {u.status === 'banned' || u.status === 'suspended' ? (
-                          <DropdownMenuItem
-                            className="text-emerald-500 focus:text-emerald-500"
-                            onClick={() =>
-                              handleAdvancedAction(
-                                'activate',
-                                'user',
-                                u.id,
-                                u.username,
-                              )
-                            }>
-                            <RotateCcw className="w-4 h-4 mr-2" /> Restore
-                            Access
-                          </DropdownMenuItem>
-                        ) : (
-                          <>
-                            <DropdownMenuItem
-                              onClick={() =>
-                                handleAdvancedAction(
-                                  'warn',
-                                  'user',
-                                  u.id,
-                                  u.username,
-                                )
-                              }>
-                              <AlertTriangle className="w-4 h-4 mr-2" /> Warn
-                              User
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() =>
-                                handleAdvancedAction(
-                                  'suspend',
-                                  'user',
-                                  u.id,
-                                  u.username,
-                                )
-                              }>
-                              <Pause className="w-4 h-4 mr-2" /> Suspend
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              className="text-destructive focus:text-destructive"
-                              onClick={() =>
-                                handleAdvancedAction(
-                                  'ban',
-                                  'user',
-                                  u.id,
-                                  u.username,
-                                )
-                              }>
-                              <Ban className="w-4 h-4 mr-2" /> Ban User
-                            </DropdownMenuItem>
-                          </>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </td>
+              <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border">
+                <div className="flex gap-1 flex-wrap flex-1">
+                  {u.roles?.map((r: string) => (
+                    <Badge
+                      key={r}
+                      variant="outline"
+                      className="text-[10px] capitalize">
+                      {r}
+                    </Badge>
+                  ))}
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {u.created_at
+                    ? new Date(u.created_at).toLocaleDateString()
+                    : '—'}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        /* Desktop Table View */
+        <div className="overflow-x-auto rounded-xl border border-border">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/30">
+                <th className="text-left py-3 px-4 font-medium text-muted-foreground">User</th>
+                <th className="text-left py-3 px-4 font-medium text-muted-foreground">Roles</th>
+                <th className="text-left py-3 px-4 font-medium text-muted-foreground">Joined</th>
+                <th className="text-left py-3 px-4 font-medium text-muted-foreground">Status</th>
+                <th className="text-right py-3 px-4 font-medium text-muted-foreground">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {users.map((u: any) => (
+                <tr
+                  key={u.id}
+                  className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+                  <td className="py-3 px-4">
+                    <div className="flex flex-col">
+                      <p className="font-medium text-foreground capitalize">
+                        {u.display_name || u.username}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        @{u.username} · {u.email}
+                      </p>
+                    </div>
+                  </td>
+                  <td className="py-3 px-4">
+                    <div className="flex gap-1 flex-wrap">
+                      {u.roles?.map((r: string) => (
+                        <Badge
+                          key={r}
+                          variant="outline"
+                          className="text-[10px] capitalize">
+                          {r}
+                        </Badge>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="py-3 px-4 text-muted-foreground">
+                    {u.created_at
+                      ? new Date(u.created_at).toLocaleDateString()
+                      : '—'}
+                  </td>
+                  <td className="py-3 px-4">
+                    <Badge
+                      variant={statusBadge(u.status || 'active') as any}
+                      className="capitalize">
+                      {u.status || 'active'}
+                    </Badge>
+                  </td>
+                  <td className="py-3 px-4 text-right">
+                    <UserActions u={u} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {users.length === 0 && (
+        <div className="text-center py-12">
+          <Users className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+          <p className="text-sm text-muted-foreground">No users found</p>
+        </div>
+      )}
 
       <InfiniteScroll
         hasMore={!!hasNextPage}

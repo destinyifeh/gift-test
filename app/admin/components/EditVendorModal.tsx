@@ -1,17 +1,18 @@
 'use client';
 
 import {Button} from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
+import {
+  ResponsiveModal,
+  ResponsiveModalContent,
+  ResponsiveModalDescription,
+  ResponsiveModalFooter,
+  ResponsiveModalHeader,
+  ResponsiveModalTitle,
+} from '@/components/ui/responsive-modal';
 import {Textarea} from '@/components/ui/textarea';
+import {cn} from '@/lib/utils';
 import {updateVendorShopAdmin} from '@/lib/server/actions/admin';
 import {
   deleteVendorProductImage,
@@ -138,20 +139,29 @@ export function EditVendorModal({
   if (!vendor) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Store className="w-5 h-5 text-hero" /> Edit Vendor Shop
-          </DialogTitle>
-          <DialogDescription>
-            Update the shop profile for @{vendor.username}.
-          </DialogDescription>
-        </DialogHeader>
+    <ResponsiveModal open={isOpen} onOpenChange={onOpenChange}>
+      <ResponsiveModalContent className="sm:max-w-xl">
+        <ResponsiveModalHeader>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Store className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <ResponsiveModalTitle>Edit Vendor Shop</ResponsiveModalTitle>
+              <ResponsiveModalDescription>
+                Update shop profile for @{vendor.username}
+              </ResponsiveModalDescription>
+            </div>
+          </div>
+        </ResponsiveModalHeader>
 
-        <div className="flex flex-col gap-4 py-4">
-          <div className="flex items-center gap-4 px-1">
-            <div className="w-16 h-16 rounded-xl border-2 border-dashed border-border flex items-center justify-center bg-muted overflow-hidden relative group">
+        <div className="px-4 md:px-6 py-4 space-y-4 max-h-[60vh] overflow-y-auto">
+          {/* Logo Upload */}
+          <div className="flex items-center gap-4">
+            <div className={cn(
+              'w-16 h-16 rounded-xl border-2 border-dashed border-border',
+              'flex items-center justify-center bg-muted overflow-hidden relative group',
+            )}>
               {uploading ? (
                 <Loader2 className="w-5 h-5 text-primary animate-spin" />
               ) : form.shop_logo_url ? (
@@ -172,18 +182,21 @@ export function EditVendorModal({
               )}
             </div>
             <div className="flex-1 space-y-1">
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Label
                   htmlFor="admin-shop-logo"
-                  className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 cursor-pointer transition-colors text-xs font-medium ${
-                    uploading ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}>
+                  className={cn(
+                    'inline-flex items-center gap-2 px-3 py-2 rounded-lg',
+                    'bg-primary/10 text-primary hover:bg-primary/20',
+                    'cursor-pointer transition-colors text-xs font-medium',
+                    uploading && 'opacity-50 cursor-not-allowed',
+                  )}>
                   <Upload className="w-3.5 h-3.5" />
                   {uploading
                     ? 'Uploading...'
                     : form.shop_logo_url
-                      ? 'Change Logo'
-                      : 'Upload Logo'}
+                      ? 'Change'
+                      : 'Upload'}
                 </Label>
                 <input
                   type="file"
@@ -203,66 +216,84 @@ export function EditVendorModal({
                   </Button>
                 )}
               </div>
-              <p className="text-[10px] text-muted-foreground">
-                Optional shop logo. Max: 2MB.
+              <p className="text-xs text-muted-foreground">
+                Max 2MB
               </p>
             </div>
           </div>
 
-          <div className="grid gap-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="shop_name">Shop Name</Label>
-                <Input
-                  id="shop_name"
-                  value={form.shop_name}
-                  onChange={handleShopNameChange}
-                  placeholder="Shop Name"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="shop_slug">Shop Slug</Label>
-                <Input
-                  id="shop_slug"
-                  value={form.shop_slug}
-                  onChange={e =>
-                    setForm({...form, shop_slug: generateSlug(e.target.value)})
-                  }
-                  placeholder="shop-slug"
-                />
-              </div>
-            </div>
-
+          {/* Form Fields */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="shop_description">Shop Description</Label>
-              <Textarea
-                id="shop_description"
-                value={form.shop_description}
-                onChange={e =>
-                  setForm({...form, shop_description: e.target.value})
-                }
-                placeholder="Shop Description"
-                rows={4}
+              <Label htmlFor="shop_name" className="text-sm font-medium">
+                Shop Name
+              </Label>
+              <Input
+                id="shop_name"
+                value={form.shop_name}
+                onChange={handleShopNameChange}
+                placeholder="Shop Name"
+                className="h-11"
               />
             </div>
-
             <div className="space-y-2">
-              <Label htmlFor="shop_address">Shop Address</Label>
+              <Label htmlFor="shop_slug" className="text-sm font-medium">
+                Shop Slug
+              </Label>
               <Input
-                id="shop_address"
-                value={form.shop_address}
-                onChange={e => setForm({...form, shop_address: e.target.value})}
-                placeholder="Shop Address"
+                id="shop_slug"
+                value={form.shop_slug}
+                onChange={e =>
+                  setForm({...form, shop_slug: generateSlug(e.target.value)})
+                }
+                placeholder="shop-slug"
+                className="h-11"
               />
             </div>
           </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="shop_description" className="text-sm font-medium">
+              Shop Description
+            </Label>
+            <Textarea
+              id="shop_description"
+              value={form.shop_description}
+              onChange={e =>
+                setForm({...form, shop_description: e.target.value})
+              }
+              placeholder="Describe the shop..."
+              rows={3}
+              className="resize-none"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="shop_address" className="text-sm font-medium">
+              Shop Address
+            </Label>
+            <Input
+              id="shop_address"
+              value={form.shop_address}
+              onChange={e => setForm({...form, shop_address: e.target.value})}
+              placeholder="Shop Address"
+              className="h-11"
+            />
+          </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+        <ResponsiveModalFooter className="flex-col-reverse sm:flex-row gap-2">
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            className="w-full sm:w-auto h-11">
             Cancel
           </Button>
-          <Button variant="hero" onClick={handleSave} disabled={loading}>
+          <Button
+            variant="hero"
+            onClick={handleSave}
+            disabled={loading}
+            className="w-full sm:w-auto h-11">
             {loading ? (
               <Loader2 className="w-4 h-4 animate-spin mr-2" />
             ) : (
@@ -270,8 +301,8 @@ export function EditVendorModal({
             )}
             Save Changes
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </ResponsiveModalFooter>
+      </ResponsiveModalContent>
+    </ResponsiveModal>
   );
 }

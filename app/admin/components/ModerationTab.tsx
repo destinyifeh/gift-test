@@ -2,19 +2,21 @@
 
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
-import {Card, CardContent} from '@/components/ui/card';
+import {useIsMobile} from '@/hooks/use-mobile';
 import {
   fetchAdminModerationQueue,
   resolveModerationTicket,
 } from '@/lib/server/actions/admin';
+import {cn} from '@/lib/utils';
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
-import {AlertOctagon, CheckCircle2, XCircle} from 'lucide-react';
+import {AlertOctagon, CheckCircle2, Loader2, Shield, XCircle} from 'lucide-react';
 import {useState} from 'react';
 import {toast} from 'sonner';
 import {ActionAdvancedModal} from './ActionAdvancedModal';
 
 export function ModerationTab({addLog}: any) {
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
 
   const {data, isLoading} = useQuery({
     queryKey: ['admin-moderation'],
@@ -94,7 +96,10 @@ export function ModerationTab({addLog}: any) {
 
   if (isLoading) {
     return (
-      <div className="text-muted-foreground p-4">Loading active tickets...</div>
+      <div className="flex flex-col items-center justify-center py-16">
+        <Loader2 className="w-8 h-8 animate-spin text-primary mb-3" />
+        <p className="text-sm text-muted-foreground">Loading active tickets...</p>
+      </div>
     );
   }
 
@@ -104,70 +109,78 @@ export function ModerationTab({addLog}: any) {
 
   return (
     <div className="space-y-4">
-      <p className="text-muted-foreground">
+      {/* Header */}
+      <p className="text-sm text-muted-foreground">
         {activeTickets.length} items requiring review
       </p>
 
       {activeTickets.length === 0 && (
-        <div className="p-12 flex flex-col items-center justify-center text-center border-2 border-dashed border-border rounded-xl">
-          <CheckCircle2 className="w-12 h-12 text-emerald-500/50 mb-4" />
-          <h3 className="text-lg font-medium text-foreground">All Clear!</h3>
-          <p className="text-sm text-muted-foreground">
+        <div className="py-12 flex flex-col items-center justify-center text-center">
+          <CheckCircle2 className="w-12 h-12 text-emerald-500/30 mb-3" />
+          <h3 className="text-base font-medium text-foreground">All Clear!</h3>
+          <p className="text-sm text-muted-foreground mt-1">
             The moderation queue is completely clean.
           </p>
         </div>
       )}
 
-      {activeTickets.map((m: any) => (
-        <Card
-          key={m.id}
-          className="border-border border-l-4 border-l-destructive/50 overflow-hidden">
-          <CardContent className="p-0">
-            <div className="flex flex-col md:flex-row md:items-center justify-between p-4 gap-4">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <Badge
-                    variant="destructive"
-                    className="text-[10px] uppercase">
+      {/* Tickets List */}
+      <div className="space-y-2">
+        {activeTickets.map((m: any) => (
+          <div
+            key={m.id}
+            className={cn(
+              'p-4 rounded-xl bg-card border border-border',
+              'border-l-4 border-l-destructive/50',
+            )}>
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center shrink-0">
+                <AlertOctagon className="w-5 h-5 text-destructive" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge variant="destructive" className="text-[10px] uppercase">
                     {m.target_type}
                   </Badge>
-                  <p className="font-semibold text-foreground text-sm flex items-center gap-1">
-                    <AlertOctagon className="w-4 h-4 text-destructive" />
-                    Target ID: {m.target_id.split('-')[0]}...
-                  </p>
+                  <span className="text-xs text-muted-foreground font-mono">
+                    #{m.target_id.split('-')[0]}
+                  </span>
                 </div>
-                <p className="text-sm text-foreground mt-2 bg-muted/50 p-3 rounded-md border border-border">
+                <p className="text-sm text-foreground mt-2 bg-muted/50 p-3 rounded-lg border border-border">
                   "{m.reason}"
                 </p>
-                <div className="flex items-center gap-3 mt-3">
-                  <p className="text-xs text-muted-foreground font-medium">
-                    Reported by: @{m.reporter_profile?.username || 'Unknown'}
-                  </p>
+                <div className="flex items-center gap-2 mt-2 flex-wrap">
                   <p className="text-xs text-muted-foreground">
-                    {new Date(m.created_at).toLocaleString()}
+                    by @{m.reporter_profile?.username || 'Unknown'}
+                  </p>
+                  <span className="text-xs text-muted-foreground">•</span>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(m.created_at).toLocaleDateString()}
                   </p>
                 </div>
               </div>
-              <div className="flex flex-row md:flex-col gap-2 min-w-[120px]">
-                <Button
-                  size="sm"
-                  variant="default"
-                  className="w-full text-xs"
-                  onClick={() => onResolve(m.id, 'resolve', m.target_id)}>
-                  <CheckCircle2 className="w-3 h-3 mr-1" /> Resolve
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="w-full text-xs"
-                  onClick={() => onResolve(m.id, 'dismiss', m.target_id)}>
-                  <XCircle className="w-3 h-3 mr-1" /> Dismiss
-                </Button>
-              </div>
             </div>
-          </CardContent>
-        </Card>
-      ))}
+
+            <div className="flex gap-2 mt-4 pt-4 border-t border-border">
+              <Button
+                size="sm"
+                variant="default"
+                className="flex-1 h-10"
+                onClick={() => onResolve(m.id, 'resolve', m.target_id)}>
+                <CheckCircle2 className="w-4 h-4 mr-1.5" /> Resolve
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="flex-1 h-10"
+                onClick={() => onResolve(m.id, 'dismiss', m.target_id)}>
+                <XCircle className="w-4 h-4 mr-1.5" /> Dismiss
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+
       <ActionAdvancedModal
         isOpen={advancedModal.isOpen}
         onOpenChange={open =>

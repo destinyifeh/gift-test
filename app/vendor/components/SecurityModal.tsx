@@ -1,10 +1,18 @@
 'use client';
 
 import {Button} from '@/components/ui/button';
-import {Card, CardContent} from '@/components/ui/card';
 import {Input as UIInput} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
+import {
+  ResponsiveModal,
+  ResponsiveModalContent,
+  ResponsiveModalDescription,
+  ResponsiveModalFooter,
+  ResponsiveModalHeader,
+  ResponsiveModalTitle,
+} from '@/components/ui/responsive-modal';
 import {Shield} from 'lucide-react';
+import {useState} from 'react';
 
 interface SecurityModalProps {
   isOpen: boolean;
@@ -17,56 +25,66 @@ export function SecurityModal({
   onClose,
   onConfirm,
 }: SecurityModalProps) {
-  const [password, setPassword] = require('react').useState('');
+  const [password, setPassword] = useState('');
 
-  if (!isOpen) return null;
+  const handleConfirm = () => {
+    onConfirm(password);
+    setPassword('');
+  };
+
+  const handleClose = () => {
+    onClose();
+    setPassword('');
+  };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-foreground/50" onClick={onClose} />
-      <Card className="relative z-10 w-full max-w-sm mx-4 border-border shadow-elevated">
-        <CardContent className="p-6 space-y-4">
-          <div className="text-center">
-            <Shield className="w-10 h-10 text-primary mx-auto mb-2" />
-            <h3 className="font-semibold text-foreground">
-              Security Verification
-            </h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              Enter your password to confirm
-            </p>
+    <ResponsiveModal open={isOpen} onOpenChange={open => !open && handleClose()}>
+      <ResponsiveModalContent className="sm:max-w-sm">
+        <ResponsiveModalHeader className="text-center">
+          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
+            <Shield className="w-6 h-6 text-primary" />
           </div>
+          <ResponsiveModalTitle>Security Verification</ResponsiveModalTitle>
+          <ResponsiveModalDescription>
+            Enter your password to confirm this action
+          </ResponsiveModalDescription>
+        </ResponsiveModalHeader>
+
+        <div className="px-4 md:px-6 py-4 space-y-3">
           <div className="space-y-2">
-            <Label>Password</Label>
+            <Label htmlFor="security-password">Password</Label>
             <UIInput
+              id="security-password"
               type="password"
-              placeholder="Enter password"
+              placeholder="Enter your password"
               value={password}
               onChange={e => setPassword(e.target.value)}
+              className="h-11"
+              onKeyDown={e => {
+                if (e.key === 'Enter' && password) {
+                  handleConfirm();
+                }
+              }}
             />
           </div>
-          <div className="flex gap-3">
-            <Button
-              variant="hero"
-              className="flex-1"
-              onClick={() => {
-                onConfirm(password);
-                setPassword('');
-              }}
-              disabled={!password}>
-              Confirm
-            </Button>
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => {
-                onClose();
-                setPassword('');
-              }}>
-              Cancel
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+
+        <ResponsiveModalFooter className="flex-col-reverse sm:flex-row">
+          <Button
+            variant="outline"
+            onClick={handleClose}
+            className="w-full sm:w-auto h-11">
+            Cancel
+          </Button>
+          <Button
+            variant="hero"
+            onClick={handleConfirm}
+            disabled={!password}
+            className="w-full sm:w-auto h-11">
+            Confirm
+          </Button>
+        </ResponsiveModalFooter>
+      </ResponsiveModalContent>
+    </ResponsiveModal>
   );
 }

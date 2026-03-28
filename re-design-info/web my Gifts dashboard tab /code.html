@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>My Gifts - Gifthance</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-bright": "#fff4ef",
+                        "on-primary-fixed": "#100300",
+                        "on-primary-container": "#451b00",
+                        "on-tertiary-fixed": "#3e2b00",
+                        "on-tertiary-fixed-variant": "#624600",
+                        "inverse-on-surface": "#c79266",
+                        "secondary-container": "#ffc69a",
+                        "secondary": "#8c4b00",
+                        "on-primary-fixed-variant": "#542200",
+                        "surface-dim": "#ffcaa1",
+                        "secondary-fixed-dim": "#ffb374",
+                        "outline": "#9d6c44",
+                        "on-secondary-container": "#6e3a00",
+                        "inverse-primary": "#f9873e",
+                        "on-background": "#492604",
+                        "primary-fixed-dim": "#e97b32",
+                        "tertiary-container": "#febf2a",
+                        "tertiary-dim": "#684b00",
+                        "on-error-container": "#520c00",
+                        "secondary-dim": "#7a4100",
+                        "on-secondary-fixed": "#522a00",
+                        "on-tertiary-container": "#573e00",
+                        "surface-container-high": "#ffdcc2",
+                        "primary": "#964300",
+                        "primary-dim": "#843a00",
+                        "on-secondary-fixed-variant": "#7c4200",
+                        "tertiary": "#775600",
+                        "primary-container": "#f9873e",
+                        "inverse-surface": "#1b0a00",
+                        "tertiary-fixed": "#febf2a",
+                        "tertiary-fixed-dim": "#efb118",
+                        "error-dim": "#b92902",
+                        "surface-container-lowest": "#ffffff",
+                        "error-container": "#f95630",
+                        "error": "#b02500",
+                        "on-tertiary": "#fff1dd",
+                        "surface-container": "#ffe3cf",
+                        "surface-variant": "#ffd5b5",
+                        "secondary-fixed": "#ffc69a",
+                        "background": "#fff4ef",
+                        "surface-container-low": "#ffede2",
+                        "on-error": "#ffefec",
+                        "primary-fixed": "#f9873e",
+                        "on-surface": "#492604",
+                        "on-secondary": "#fff0e7",
+                        "surface-tint": "#964300",
+                        "outline-variant": "#d9a275",
+                        "on-surface-variant": "#7d522b",
+                        "surface-container-highest": "#ffd5b5",
+                        "on-primary": "#fff0e9",
+                        "surface": "#fff4ef"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .tonal-layering { background-color: #ffede2; }
+        .glass-header { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .gradient-cta { background: linear-gradient(135deg, #964300 0%, #f9873e 100%); }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-background min-h-screen">
+<!-- Desktop Sidebar Navigation -->
+<aside class="hidden md:flex fixed left-0 top-0 h-full w-64 flex-col py-8 px-6 bg-[#ffede2] dark:bg-stone-900 border-r-0 z-30">
+<div class="mb-10 px-2">
+<h1 class="text-2xl font-black text-[#492604] dark:text-[#fff4ef] tracking-tighter font-headline">Gifthance</h1>
+<p class="text-xs font-semibold text-on-surface-variant/70 uppercase tracking-widest mt-1">The Warm Curator</p>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-plus-jakarta-sans text-sm font-semibold tracking-tight text-[#7d522b] dark:text-stone-400 hover:text-[#964300] hover:bg-[#fff4ef]/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                Overview
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-plus-jakarta-sans text-sm font-bold tracking-tight text-[#964300] dark:text-[#f9873e] border-r-4 border-[#964300] bg-[#fff4ef]/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="card_giftcard" style="font-variation-settings: 'FILL' 1;">card_giftcard</span>
+                Gifts
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-plus-jakarta-sans text-sm font-semibold tracking-tight text-[#7d522b] dark:text-stone-400 hover:text-[#964300] hover:bg-[#fff4ef]/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="campaign">campaign</span>
+                Campaigns
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-plus-jakarta-sans text-sm font-semibold tracking-tight text-[#7d522b] dark:text-stone-400 hover:text-[#964300] hover:bg-[#fff4ef]/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+                Wallet
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-plus-jakarta-sans text-sm font-semibold tracking-tight text-[#7d522b] dark:text-stone-400 hover:text-[#964300] hover:bg-[#fff4ef]/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                Settings
+            </a>
+</nav>
+<div class="mt-auto pt-6">
+<button class="w-full py-4 px-6 rounded-xl gradient-cta text-on-primary font-bold shadow-lg shadow-primary/20 flex items-center justify-center gap-2 transition-transform active:scale-95">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+                New Campaign
+            </button>
+<div class="mt-8 flex items-center gap-3 px-2">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" data-alt="Close up portrait of a friendly man with a warm smile wearing a linen shirt in soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAx4dhk7Wl_Z3oddWDJYFTku_YgPM8MBotBWEA-f0CQY6l7HU8GoYaizGEj4Y7q4hYjnfTmDqQL6PThLtRk8FcgQS0jNq8Rk7cdI51hUAhtcib4zrtRRpsh59qVel3LfM9pTIs496Y3lZkZ0HiD4IhzlDfNGzYFCaGE-PxHZL5rhLyF6R3geBmXwPGcSFGBsjHt_ks4KYRq-JbMkljoNiBL-iJ5QAePRWOK7J1P--fYdQhs6GCaWjQ2TyxDp8cUn5NUwNw9mLlYhv0"/>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-bold text-on-background">Julian V.</span>
+<span class="text-xs text-on-surface-variant">Premium Member</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Mobile Top App Bar -->
+<header class="md:hidden fixed top-0 left-0 w-full h-16 flex justify-between items-center px-6 bg-[#fff4ef]/80 dark:bg-stone-950/80 backdrop-blur-md z-40 transition-opacity">
+<h1 class="text-xl font-extrabold text-[#492604] dark:text-[#fff4ef] font-headline">Gifthance</h1>
+<div class="flex items-center gap-4 text-[#964300] dark:text-[#f9873e]">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 pt-20 md:pt-12 pb-24 md:pb-12 px-6 md:px-12 max-w-7xl mx-auto">
+<!-- Header Section -->
+<header class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<nav class="flex items-center gap-2 text-on-surface-variant mb-4 font-label text-sm">
+<span>Gifts</span>
+<span class="material-symbols-outlined text-xs" data-icon="chevron_right">chevron_right</span>
+<span class="font-bold text-primary">My Collections</span>
+</nav>
+<h2 class="text-4xl md:text-5xl font-black font-headline text-on-background tracking-tight">My Gifts</h2>
+<p class="text-on-surface-variant mt-2 max-w-lg">Manage and redeem your curated collection of digital and physical gift experiences.</p>
+</div>
+<div class="flex gap-3">
+<div class="bg-surface-container-low px-4 py-2 rounded-full flex items-center gap-2 text-on-surface-variant text-sm font-medium">
+<span class="material-symbols-outlined text-sm" data-icon="filter_list">filter_list</span>
+                    All Types
+                </div>
+<div class="bg-surface-container-low px-4 py-2 rounded-full flex items-center gap-2 text-on-surface-variant text-sm font-medium">
+<span class="material-symbols-outlined text-sm" data-icon="sort">sort</span>
+                    Recent
+                </div>
+</div>
+</header>
+<!-- Stats Bento Grid (Visual Interest) -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+<div class="bg-surface-container-low rounded-3xl p-8 flex flex-col justify-between h-48 group hover:bg-surface-container-high transition-colors">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="pending_actions">pending_actions</span>
+</div>
+<span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant opacity-60">Ready</span>
+</div>
+<div>
+<div class="text-4xl font-bold font-headline">12</div>
+<div class="text-sm font-medium text-on-surface-variant">Gifts to claim</div>
+</div>
+</div>
+<div class="bg-primary rounded-3xl p-8 flex flex-col justify-between h-48 text-on-primary">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+</div>
+<span class="text-xs font-bold uppercase tracking-widest opacity-70">Total Value</span>
+</div>
+<div>
+<div class="text-4xl font-bold font-headline">R14,250</div>
+<div class="text-sm font-medium opacity-80">Accumulated balance</div>
+</div>
+</div>
+<div class="bg-surface-container-low rounded-3xl p-8 flex flex-col justify-between h-48 hover:bg-surface-container-high transition-colors">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+</div>
+<span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant opacity-60">Activity</span>
+</div>
+<div>
+<div class="text-4xl font-bold font-headline">24</div>
+<div class="text-sm font-medium text-on-surface-variant">Redeemed last month</div>
+</div>
+</div>
+</section>
+<!-- Gifts List Section (No-Line Tonal Layering) -->
+<div class="space-y-4">
+<!-- Gift Item 1 -->
+<div class="bg-surface-container-lowest p-6 md:p-8 rounded-[2rem] flex flex-col md:flex-row items-center gap-6 cursor-pointer hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 group">
+<div class="w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden flex-shrink-0 bg-surface-container">
+<img alt="Birthday Cake Gift Card" class="w-full h-full object-cover" data-alt="A beautifully decorated gourmet vanilla birthday cake with gold leaf accents and fresh white roses on a wooden table" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2C2qx2iqlQv6KGcwGNJ9cxHW6QFGGYywiH58OEPgELIeGUam95okZ7aPfMmtsM_1AigEsjYcCzYowd7JT9h_nQC--b9RLIkSUO3LPyxS1Yd_cC0BLbMbFyoZpcxTyImlIS4LbzlaJDlR4rP6v2dC4p7LjQ5KCj3oJljbYHgHO3bq98WUTjSxFMzkVCK7uU04RXXMQVA54NClDuia_yo2hwpRi0d28HY5uBE9tAooM0h6SFzLuc4TeO8TmC6vu3Z1avsse6e_do_4"/>
+</div>
+<div class="flex-1 text-center md:text-left">
+<div class="flex flex-wrap justify-center md:justify-start items-center gap-2 mb-1">
+<span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">Ready to Use</span>
+<span class="text-on-surface-variant text-xs font-medium">May 14, 2024</span>
+</div>
+<h3 class="text-xl font-bold text-on-background group-hover:text-primary transition-colors">Birthday Cake Gift Card</h3>
+<p class="text-on-surface-variant text-sm">Sent by <span class="font-bold text-on-background">Aria Montgomery</span></p>
+</div>
+<div class="text-center md:text-right flex flex-col gap-2">
+<div class="text-2xl font-black font-headline text-on-background">R3,000</div>
+<button class="bg-surface-container-low text-primary px-6 py-2 rounded-full font-bold text-sm hover:bg-primary hover:text-on-primary transition-colors">Details</button>
+</div>
+</div>
+<!-- Gift Item 2 -->
+<div class="bg-surface-container-lowest p-6 md:p-8 rounded-[2rem] flex flex-col md:flex-row items-center gap-6 cursor-pointer hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 group">
+<div class="w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden flex-shrink-0 bg-surface-container">
+<img alt="Dining Experience" class="w-full h-full object-cover opacity-60 grayscale" data-alt="Top-down view of a sophisticated five-course dinner spread with fine wine and candlelight in a warm ambient setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6a7t6U-cgeLhRc-RWoKMaxHJ9LnW0AjoLzCeSkKpQ2Mebo5s-whga7BlvOjbaaOda7hxkKBkiHpgtrWkrWvDgYzVjg1ujnb7NP0z1dB6EDcKGOhtqdic9fib-DsNO8Gid1P6a47p_20owbGEBb9rUbk2B5mwwVjPNmmV0xnPCexAA4Xmn3pBmFJJSg4odg_gNLvspAcOrh-CTl4DkRDGcxTSa-BCpZNdbLgUCHnK83GmJV5XfOLKprim_RwLR0FU9bs4EkesSD70"/>
+</div>
+<div class="flex-1 text-center md:text-left">
+<div class="flex flex-wrap justify-center md:justify-start items-center gap-2 mb-1">
+<span class="bg-surface-container-high text-on-surface-variant text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">Redeemed</span>
+<span class="text-on-surface-variant text-xs font-medium">April 28, 2024</span>
+</div>
+<h3 class="text-xl font-bold text-on-background group-hover:text-primary transition-colors">Fine Dining Experience</h3>
+<p class="text-on-surface-variant text-sm">Sent by <span class="font-bold text-on-background">Marcus Thorne</span></p>
+</div>
+<div class="text-center md:text-right flex flex-col gap-2">
+<div class="text-2xl font-black font-headline text-on-background opacity-50">GHc987</div>
+<button class="bg-surface-container-low text-on-surface-variant px-6 py-2 rounded-full font-bold text-sm">View Receipt</button>
+</div>
+</div>
+<!-- Gift Item 3 -->
+<div class="bg-surface-container-lowest p-6 md:p-8 rounded-[2rem] flex flex-col md:flex-row items-center gap-6 cursor-pointer hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 group border-2 border-primary-container/20">
+<div class="w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden flex-shrink-0 bg-surface-container">
+<img alt="Luxury Spa Day" class="w-full h-full object-cover" data-alt="Calm spa treatment room with bamboo, smooth river stones, and a soft glowing lantern reflecting in water" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsv4Sv9FJzvm7XQ4UoIPvD7ZFvjfWo5efvVzTg3YoRNwmrPuE2rZoFzzqLunm97GVimJKmZtWMrXJrTQGGGVj6SB-rYJmpzBI7yFlHx61NNXvMGBOpwKW2-Kuzx5FvvFVcPb1l1JfHJYUsL33EtWzMwmhpB7GjmfeNPk2sfP18fwvlkU1f7svnll3lQ8zq5Y1-5Ub6eJgD-5NycAn-VJ-bHRnRG_aAh_piNmXhbIxUvPUHYX3KSBmkVp0KQmZCC78CN-dnMgcys9E"/>
+</div>
+<div class="flex-1 text-center md:text-left">
+<div class="flex flex-wrap justify-center md:justify-start items-center gap-2 mb-1">
+<span class="bg-primary-container text-on-primary-container text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">Ready to Claim</span>
+<span class="text-on-surface-variant text-xs font-medium">Just now</span>
+</div>
+<h3 class="text-xl font-bold text-on-background group-hover:text-primary transition-colors">Rejuvenation Spa Package</h3>
+<p class="text-on-surface-variant text-sm">Sent by <span class="font-bold text-on-background">Sarah Chen</span></p>
+</div>
+<div class="text-center md:text-right flex flex-col gap-2">
+<div class="text-2xl font-black font-headline text-on-background">R5,500</div>
+<button class="gradient-cta text-on-primary px-6 py-2 rounded-full font-bold text-sm shadow-md">Claim Now</button>
+</div>
+</div>
+<!-- Gift Item 4 -->
+<div class="bg-surface-container-lowest p-6 md:p-8 rounded-[2rem] flex flex-col md:flex-row items-center gap-6 cursor-pointer hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 group">
+<div class="w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden flex-shrink-0 bg-surface-container">
+<img alt="Artisanal Watch" class="w-full h-full object-cover" data-alt="Minimalist luxury watch with a leather strap and rose gold face lying on a piece of slate rock" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6-OToSHkpVyf8jURhFcI-XZGs8OWKDyn8e5Q_BUtsW7Evk58zGFAeT0y6uwm4Vw0SFl8JmrClfswPjnYY8yvAO7ZXhqUU-di4gDCM70X42d6q-krKMHdZ8SK63Xm-pPQ61YD4r8ndpdnjs6sjPxkY4ZGb65YBHan-Hpa-iCgSY7FcxGUPaUyzLZoo6ShKzEOauog5Ti4o_5btIVBvJtHLhkeqqpGahv1R9EUvstCsrPvwkMjAOm984g746wSpeEyHt1wC-8Toeyw"/>
+</div>
+<div class="flex-1 text-center md:text-left">
+<div class="flex flex-wrap justify-center md:justify-start items-center gap-2 mb-1">
+<span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">Ready to Use</span>
+<span class="text-on-surface-variant text-xs font-medium">April 12, 2024</span>
+</div>
+<h3 class="text-xl font-bold text-on-background group-hover:text-primary transition-colors">Handcrafted Timepiece</h3>
+<p class="text-on-surface-variant text-sm">Sent by <span class="font-bold text-on-background">Elena Rodriguez</span></p>
+</div>
+<div class="text-center md:text-right flex flex-col gap-2">
+<div class="text-2xl font-black font-headline text-on-background">R8,200</div>
+<button class="bg-surface-container-low text-primary px-6 py-2 rounded-full font-bold text-sm hover:bg-primary hover:text-on-primary transition-colors">Details</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Mobile Bottom Navigation Bar -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-[#ffffff]/90 dark:bg-stone-900/90 backdrop-blur-xl rounded-t-[1.5rem] z-50 shadow-[0_-10px_40px_rgba(73,38,4,0.06)]">
+<a class="flex flex-col items-center justify-center text-[#7d522b] dark:text-stone-500 opacity-70" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span class="font-manrope text-[10px] font-medium uppercase tracking-widest">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#ffede2] dark:bg-stone-800 text-[#964300] dark:text-[#f9873e] rounded-2xl px-5 py-2" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="redeem" style="font-variation-settings: 'FILL' 1;">redeem</span>
+<span class="font-manrope text-[10px] font-bold uppercase tracking-widest">My Gifts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#7d522b] dark:text-stone-500 opacity-70" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="ads_click">ads_click</span>
+<span class="font-manrope text-[10px] font-medium uppercase tracking-widest">Campaigns</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#7d522b] dark:text-stone-500 opacity-70" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-manrope text-[10px] font-medium uppercase tracking-widest">Wallet</span>
+</a>
+</nav>
+</body></html>

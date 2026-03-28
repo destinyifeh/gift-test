@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-tertiary-fixed-variant": "#624600",
+                        "on-error-container": "#520c00",
+                        "surface-container-highest": "#ffd5b5",
+                        "primary-dim": "#843a00",
+                        "on-secondary-fixed": "#522a00",
+                        "inverse-primary": "#f9873e",
+                        "on-tertiary-fixed": "#3e2b00",
+                        "on-secondary-fixed-variant": "#7c4200",
+                        "inverse-surface": "#1b0a00",
+                        "secondary-dim": "#7a4100",
+                        "on-tertiary-container": "#573e00",
+                        "tertiary": "#775600",
+                        "background": "#fff4ef",
+                        "tertiary-fixed": "#febf2a",
+                        "surface": "#fff4ef",
+                        "on-secondary-container": "#6e3a00",
+                        "on-surface-variant": "#7d522b",
+                        "surface-bright": "#fff4ef",
+                        "on-tertiary": "#fff1dd",
+                        "primary-fixed-dim": "#e97b32",
+                        "outline-variant": "#d9a275",
+                        "primary": "#964300",
+                        "tertiary-dim": "#684b00",
+                        "on-primary-container": "#451b00",
+                        "surface-container-low": "#ffede2",
+                        "error-container": "#f95630",
+                        "outline": "#9d6c44",
+                        "inverse-on-surface": "#c79266",
+                        "primary-container": "#f9873e",
+                        "surface-tint": "#964300",
+                        "secondary-container": "#ffc69a",
+                        "primary-fixed": "#f9873e",
+                        "on-surface": "#492604",
+                        "surface-dim": "#ffcaa1",
+                        "on-secondary": "#fff0e7",
+                        "on-error": "#ffefec",
+                        "secondary-fixed-dim": "#ffb374",
+                        "secondary": "#8c4b00",
+                        "on-background": "#492604",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#ffdcc2",
+                        "secondary-fixed": "#ffc69a",
+                        "on-primary-fixed": "#100300",
+                        "tertiary-container": "#febf2a",
+                        "on-primary": "#fff0e9",
+                        "surface-container": "#ffe3cf",
+                        "tertiary-fixed-dim": "#efb118",
+                        "surface-variant": "#ffd5b5",
+                        "error": "#b02500",
+                        "error-dim": "#b92902",
+                        "on-primary-fixed-variant": "#542200"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .tonal-layering {
+            background: linear-gradient(180deg, rgba(255, 244, 239, 1) 0%, rgba(255, 237, 226, 1) 100%);
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, #964300 0%, #f9873e 100%);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fff4ef]/80 backdrop-blur-xl shadow-[0_20px_40px_rgba(73,38,4,0.06)]">
+<div class="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-black text-[#492604] tracking-tight font-headline">The Warm Curator</span>
+<nav class="hidden md:flex gap-6 items-center">
+<a class="font-headline font-bold text-lg text-[#964300] border-b-2 border-[#964300] pb-1" href="#">Shop</a>
+<a class="font-headline font-bold text-lg text-[#7d522b] hover:text-[#492604] transition-colors duration-300" href="#">Occasions</a>
+<a class="font-headline font-bold text-lg text-[#7d522b] hover:text-[#492604] transition-colors duration-300" href="#">Registry</a>
+<a class="font-headline font-bold text-lg text-[#7d522b] hover:text-[#492604] transition-colors duration-300" href="#">Corporate</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden lg:flex items-center bg-surface-container-low px-4 py-2 rounded-full gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-48 font-medium placeholder:text-on-surface-variant/50" placeholder="Search curated gifts..." type="text"/>
+</div>
+<button class="p-2 rounded-full hover:bg-[#ffede2] transition-colors duration-300 active:scale-95">
+<span class="material-symbols-outlined text-[#964300]">shopping_bag</span>
+</button>
+<button class="p-2 rounded-full hover:bg-[#ffede2] transition-colors duration-300 active:scale-95">
+<span class="material-symbols-outlined text-[#964300]">person</span>
+</button>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 max-w-7xl mx-auto px-6">
+<!-- Breadcrumbs -->
+<nav class="flex items-center gap-2 mb-8 text-on-surface-variant text-sm font-medium">
+<a class="hover:text-primary" href="#">Home</a>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<a class="hover:text-primary" href="#">Vendors</a>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="text-on-surface">Sweet Delight Bakery</span>
+</nav>
+<!-- Vendor Profile Section -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mb-20">
+<!-- Asymmetric Header Layout -->
+<div class="lg:col-span-8">
+<div class="flex flex-col md:flex-row gap-8 items-start">
+<div class="w-32 h-32 rounded-3xl bg-surface-container-low flex items-center justify-center shadow-[0_20px_40px_rgba(73,38,4,0.04)]">
+<span class="material-symbols-outlined text-primary text-6xl" style="font-variation-settings: 'FILL' 1;">bakery_dining</span>
+</div>
+<div class="flex-1">
+<div class="flex flex-wrap items-center gap-4 mb-2">
+<h1 class="text-4xl md:text-5xl font-black font-headline tracking-tight text-on-surface">Sweet Delight Bakery</h1>
+<span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">Artisan Vendor</span>
+</div>
+<div class="flex items-center gap-6 mb-6">
+<div class="flex items-center gap-1.5 bg-tertiary-container/20 px-3 py-1 rounded-full">
+<span class="material-symbols-outlined text-tertiary text-lg" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-bold text-on-surface">2.0</span>
+<span class="text-on-surface-variant text-sm">(1 review)</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-lg">location_on</span>
+<span class="text-sm font-semibold">21, Baleke street, SA</span>
+</div>
+</div>
+<p class="text-lg text-on-surface-variant leading-relaxed max-w-2xl">
+                            Crafting moments of joy through traditional baking techniques and modern flavors. Every pastry is a testament to our commitment to warmth and curation.
+                        </p>
+</div>
+</div>
+</div>
+<!-- Vendor Quick Stats/Info -->
+<div class="lg:col-span-4 bg-surface-container-lowest p-8 rounded-[2rem] shadow-[0_20px_40px_rgba(73,38,4,0.04)] space-y-6">
+<h3 class="font-headline font-bold text-xl text-on-surface">Bakery Details</h3>
+<div class="space-y-4">
+<div class="flex justify-between items-center py-2">
+<span class="text-on-surface-variant font-medium">Delivery Speed</span>
+<span class="text-on-surface font-bold">24-48 Hours</span>
+</div>
+<div class="flex justify-between items-center py-2">
+<span class="text-on-surface-variant font-medium">Categories</span>
+<div class="flex gap-2">
+<span class="bg-surface-container-low text-on-surface-variant text-xs font-bold px-2 py-1 rounded-md">Cakes</span>
+<span class="bg-surface-container-low text-on-surface-variant text-xs font-bold px-2 py-1 rounded-md">Pastry</span>
+</div>
+</div>
+<button class="w-full bg-surface-container-high text-primary font-bold py-4 rounded-xl hover:opacity-80 transition-opacity active:scale-[0.98]">
+                        Contact Vendor
+                    </button>
+</div>
+</div>
+</section>
+<!-- Products Section -->
+<section>
+<div class="flex justify-between items-end mb-10">
+<div class="space-y-1">
+<h2 class="text-3xl font-black font-headline text-on-surface">Gift Products (1)</h2>
+<div class="h-1.5 w-24 hero-gradient rounded-full"></div>
+</div>
+<button class="flex items-center gap-2 text-primary font-bold hover:underline">
+                    View all catalog
+                    <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+<!-- Bento-style Product Display -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Product Card -->
+<div class="group bg-surface-container-lowest rounded-[2.5rem] overflow-hidden shadow-[0_20px_40px_rgba(73,38,4,0.04)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(73,38,4,0.1)] hover:-translate-y-2">
+<div class="relative aspect-[4/5] overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="luxury birthday cake gift card with golden foil details and elegant typography on a warm cream background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDnVBBrnmPhToZRLa2oaRqaRZoGUpT1JwOU2Nr3JcFNP6eMJNe4NZTz6EWj5vee2r0E_sQhGtBroaVvWYRP52_HDOp97GS3jndJ7sFCyLpbUdVmG7qYCw2vzGm5rmnJzq_KNVpLdiqwhpkFxRDvg4983BqAKGPwRD11UZNLD0K-T67wTB6SDKYQv9S94opxipq9owbPvXtV0vSHl1cCWfbBuWKLXDDGltbYNLApFcmna4GsH556aNLiBP-sot7MCHhvRmZcf9k6kEQ"/>
+<div class="absolute top-6 left-6 flex gap-2">
+<span class="bg-white/90 backdrop-blur-md text-on-surface text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-full">Digital</span>
+<span class="bg-primary text-on-primary text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-full">Trending</span>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+</div>
+<div class="p-8">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="text-2xl font-black font-headline text-on-surface mb-2">Birthday Cake Gift Card</h3>
+<div class="flex gap-2">
+<span class="text-on-surface-variant text-xs font-bold uppercase tracking-widest">#birthday</span>
+<span class="text-on-surface-variant text-xs font-bold uppercase tracking-widest">#digital</span>
+</div>
+</div>
+<div class="text-right">
+<p class="text-2xl font-black text-primary font-body">$50.00</p>
+</div>
+</div>
+<p class="text-on-surface-variant text-sm leading-relaxed mb-8">
+                            Surprise your loved ones with the gift of choice. Valid for any artisanal creation in our gallery.
+                        </p>
+<button class="w-full hero-gradient text-on-primary font-headline font-bold py-5 rounded-2xl flex items-center justify-center gap-3 transition-transform duration-300 active:scale-[0.95]">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">card_giftcard</span>
+                            Send as Gift
+                        </button>
+</div>
+</div>
+<!-- Empty State/Placeholder for curated look -->
+<div class="hidden lg:flex flex-col items-center justify-center border-4 border-dashed border-outline-variant/20 rounded-[2.5rem] p-12 text-center space-y-4">
+<div class="w-20 h-20 bg-surface-container-low rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-outline-variant text-3xl">add</span>
+</div>
+<h4 class="font-headline font-bold text-lg text-on-surface-variant">Stay Tuned</h4>
+<p class="text-on-surface-variant text-sm">More curated delights coming soon to the bakery catalog.</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest pt-20 pb-10">
+<div class="max-w-7xl mx-auto px-6">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
+<div class="col-span-1 md:col-span-1 space-y-6">
+<span class="text-2xl font-black text-[#492604] tracking-tight font-headline">The Warm Curator</span>
+<p class="text-on-surface-variant text-sm leading-relaxed">
+                        A boutique platform dedicated to the art of giving. We curate experiences that bridge distances and celebrate connections.
+                    </p>
+<div class="flex gap-4">
+<a class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-primary hover:bg-primary hover:text-on-primary transition-all" href="#">
+<span class="material-symbols-outlined text-xl">share</span>
+</a>
+<a class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-primary hover:bg-primary hover:text-on-primary transition-all" href="#">
+<span class="material-symbols-outlined text-xl">public</span>
+</a>
+</div>
+</div>
+<div>
+<h4 class="font-headline font-bold text-on-surface mb-6">Quick Links</h4>
+<ul class="space-y-4 text-on-surface-variant font-medium">
+<li><a class="hover:text-primary transition-colors" href="#">About Us</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Vendor Portal</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Gift Registry</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Corporate Gifting</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-headline font-bold text-on-surface mb-6">Support</h4>
+<ul class="space-y-4 text-on-surface-variant font-medium">
+<li><a class="hover:text-primary transition-colors" href="#">Help Center</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Contact Support</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Refund Policy</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Shipping Info</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-headline font-bold text-on-surface mb-6">Newsletter</h4>
+<p class="text-on-surface-variant text-sm mb-4">Subscribe for curation updates and exclusive vendor drops.</p>
+<div class="relative">
+<input class="w-full bg-surface-container-low border-none rounded-xl py-4 px-4 text-sm focus:ring-2 focus:ring-primary/20" placeholder="email@warmcurator.com" type="email"/>
+<button class="absolute right-2 top-2 bottom-2 bg-primary text-on-primary px-4 rounded-lg text-xs font-bold uppercase tracking-widest">Join</button>
+</div>
+</div>
+</div>
+<div class="pt-10 border-t border-outline-variant/10 flex flex-col md:flex-row justify-between items-center gap-6">
+<p class="text-on-surface-variant text-xs font-medium">© 2024 The Warm Curator. All rights reserved.</p>
+<div class="flex gap-8 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+<a class="hover:text-primary" href="#">Privacy Policy</a>
+<a class="hover:text-primary" href="#">Terms of Service</a>
+</div>
+</div>
+</div>
+</footer>
+<!-- Mobile Navigation Shell -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-[#ffffff]/90 backdrop-blur-lg z-50 rounded-t-[1.5rem] shadow-[0_-10px_30px_rgba(73,38,4,0.04)]">
+<a class="flex flex-col items-center justify-center text-[#7d522b] px-5 py-2 hover:opacity-80 active:scale-90 transition-all duration-300" href="#">
+<span class="material-symbols-outlined mb-1">explore</span>
+<span class="font-['Manrope'] text-[10px] font-semibold uppercase tracking-wider">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#7d522b] px-5 py-2 hover:opacity-80 active:scale-90 transition-all duration-300" href="#">
+<span class="material-symbols-outlined mb-1">search</span>
+<span class="font-['Manrope'] text-[10px] font-semibold uppercase tracking-wider">Search</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#7d522b] px-5 py-2 hover:opacity-80 active:scale-90 transition-all duration-300" href="#">
+<span class="material-symbols-outlined mb-1">favorite</span>
+<span class="font-['Manrope'] text-[10px] font-semibold uppercase tracking-wider">Saved</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#7d522b] px-5 py-2 hover:opacity-80 active:scale-90 transition-all duration-300" href="#">
+<span class="material-symbols-outlined mb-1">wallet</span>
+<span class="font-['Manrope'] text-[10px] font-semibold uppercase tracking-wider">Cart</span>
+</a>
+</nav>
+</body></html>

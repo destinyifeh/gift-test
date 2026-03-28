@@ -2,12 +2,14 @@
 
 import {Button} from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  ResponsiveModal,
+  ResponsiveModalContent,
+  ResponsiveModalDescription,
+  ResponsiveModalFooter,
+  ResponsiveModalHeader,
+  ResponsiveModalTitle,
+} from '@/components/ui/responsive-modal';
+import {AlertTriangle} from 'lucide-react';
 
 interface ActionConfirmModalProps {
   open: boolean;
@@ -15,6 +17,7 @@ interface ActionConfirmModalProps {
   title: string;
   description: string;
   onConfirm: () => void;
+  variant?: 'default' | 'destructive';
 }
 
 export function ActionConfirmModal({
@@ -23,27 +26,45 @@ export function ActionConfirmModal({
   title,
   description,
   onConfirm,
+  variant = 'default',
 }: ActionConfirmModalProps) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
-        </DialogHeader>
-        <div className="flex justify-end gap-3 mt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+    <ResponsiveModal open={open} onOpenChange={onOpenChange}>
+      <ResponsiveModalContent className="sm:max-w-md">
+        <ResponsiveModalHeader className="text-center sm:text-left">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3">
+            {variant === 'destructive' && (
+              <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-6 h-6 text-destructive" />
+              </div>
+            )}
+            <div>
+              <ResponsiveModalTitle>{title}</ResponsiveModalTitle>
+              <ResponsiveModalDescription className="mt-2">
+                {description}
+              </ResponsiveModalDescription>
+            </div>
+          </div>
+        </ResponsiveModalHeader>
+
+        <ResponsiveModalFooter className="flex-col-reverse sm:flex-row gap-2 sm:gap-3">
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            className="w-full sm:w-auto h-11">
             Cancel
           </Button>
           <Button
-            variant="hero"
+            variant={variant === 'destructive' ? 'destructive' : 'hero'}
             onClick={() => {
               onConfirm();
-            }}>
+              onOpenChange(false);
+            }}
+            className="w-full sm:w-auto h-11">
             Confirm
           </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </ResponsiveModalFooter>
+      </ResponsiveModalContent>
+    </ResponsiveModal>
   );
 }

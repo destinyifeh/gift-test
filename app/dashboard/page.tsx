@@ -1,11 +1,13 @@
 'use client';
 
+import {BottomTabBar} from '@/components/navigation/BottomTabBar';
 import {Button} from '@/components/ui/button';
+import {useIsMobile} from '@/hooks/use-mobile';
 import {useProfile} from '@/hooks/use-profile';
 import {signOut} from '@/lib/server/actions/auth';
 import {useUserStore} from '@/lib/store/useUserStore';
 import {useQueryClient} from '@tanstack/react-query';
-import {Menu, Plus, Send} from 'lucide-react';
+import {Gift, Plus, Send} from 'lucide-react';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {useEffect, useState} from 'react';
@@ -17,7 +19,6 @@ import {SelectedSection} from './components/dashboard-config';
 import {DesktopSidebar} from './components/DesktopSidebar';
 import {FavoritesTab} from './components/FavoritesTab';
 import {GiftPageTab} from './components/GiftPageTab';
-import {MobileSidebar} from './components/MobileSidebar';
 import {MyCampaignsTab} from './components/MyCampaignsTab';
 import {MyGiftsTab} from './components/MyGiftsTab';
 import {OverviewTab} from './components/OverviewTab';
@@ -35,6 +36,7 @@ export default function DashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dbIsCreator, setDbIsCreator] = useState(false);
   const [dbPlan, setDbPlan] = useState<'free' | 'pro'>('free');
+  const isMobile = useIsMobile();
 
   const user = useUserStore(state => state.user);
 
@@ -71,6 +73,10 @@ export default function DashboardPage() {
     creatorPlan: dbPlan,
   };
 
+  const handleSectionChange = (newSection: string) => {
+    setSection(newSection as SelectedSection);
+  };
+
   return (
     <div className="min-h-screen bg-background flex">
       <DesktopSidebar
@@ -79,20 +85,15 @@ export default function DashboardPage() {
         onSignOut={handleSignOut}
       />
 
-      <MobileSidebar
-        isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-        section={section}
-        commonProps={commonProps}
-        onSignOut={handleSignOut}
-      />
-
       <main className="flex-1 min-w-0">
         <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border px-4 md:px-8 h-14 sm:h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button className="md:hidden" onClick={() => setSidebarOpen(true)}>
-              <Menu className="w-5 h-5 text-foreground" />
-            </button>
+            {/* Mobile: Show logo instead of hamburger */}
+            <Link href="/" className="md:hidden flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-hero flex items-center justify-center">
+                <Gift className="w-4 h-4 text-primary-foreground" />
+              </div>
+            </Link>
             <h1 className="text-base sm:text-lg font-semibold font-display text-foreground capitalize">
               {getTitle(section)}
             </h1>
@@ -104,10 +105,10 @@ export default function DashboardPage() {
                 size="sm"
                 className="text-xs sm:text-sm text-primary font-medium hover:text-primary/80 hover:bg-primary/5">
                 <Send className="w-4 h-4 mr-1 pb-0.5" />
-                Send Gift
+                <span className="hidden sm:inline">Send Gift</span>
               </Button>
             </Link>
-            <Link href="/gift-shop">
+            <Link href="/gift-shop" className="hidden sm:block">
               <Button
                 variant="ghost"
                 size="sm"
@@ -115,7 +116,7 @@ export default function DashboardPage() {
                 Gift Shop
               </Button>
             </Link>
-            <Link href="/campaigns">
+            <Link href="/campaigns" className="hidden sm:block">
               <Button
                 variant="ghost"
                 size="sm"
@@ -132,7 +133,8 @@ export default function DashboardPage() {
           </div>
         </header>
 
-        <div className="p-4 md:p-8 max-w-5xl">
+        {/* Add bottom padding on mobile for the tab bar */}
+        <div className="p-4 md:p-8 max-w-5xl pb-24 md:pb-8">
           {section === 'overview' && (
             <OverviewTab
               {...commonProps}
@@ -181,6 +183,9 @@ export default function DashboardPage() {
 
         </div>
       </main>
+
+      {/* Mobile Bottom Tab Bar */}
+      {isMobile && <BottomTabBar onNavigate={handleSectionChange} activeSection={section} />}
     </div>
   );
 }

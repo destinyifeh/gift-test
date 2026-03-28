@@ -2,42 +2,62 @@
 
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
-import {Card, CardContent} from '@/components/ui/card';
-import {InfiniteScroll} from '@/components/ui/infinite-scroll';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
 import {Progress} from '@/components/ui/progress';
 import {Textarea} from '@/components/ui/textarea';
+import {
+  ResponsiveModal,
+  ResponsiveModalContent,
+  ResponsiveModalHeader,
+  ResponsiveModalTitle,
+  ResponsiveModalFooter,
+} from '@/components/ui/responsive-modal';
+import {InfiniteScroll} from '@/components/ui/infinite-scroll';
 import {useMyCampaigns} from '@/hooks/use-campaigns';
 import {updateCampaign} from '@/lib/server/actions/campaigns';
 import {formatCurrency} from '@/lib/utils/currency';
-import {ChevronRight, Clock, Edit, Loader2, Plus} from 'lucide-react';
+import {generateSlug} from '@/lib/utils/slugs';
+import {cn} from '@/lib/utils';
+import {ChevronRight, Clock, Edit, Loader2, Plus, Users} from 'lucide-react';
 import Link from 'next/link';
 import {useState} from 'react';
 import {toast} from 'sonner';
-import {generateSlug} from '@/lib/utils/slugs';
+import {DashboardEmptyState} from './shared';
 import {getDaysLeft, statusColor} from './utils';
 
 export function MyCampaignsTab() {
-  const {data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage} =
+  const {data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage, refetch} =
     useMyCampaigns();
 
   const campaigns = data?.pages.flatMap(page => page.data || []) || [];
 
-  const [editingCampaign, setEditingCampaign] = useState<string | null>(null);
+  const [editingCampaign, setEditingCampaign] = useState<any | null>(null);
   const [editCampaignTitle, setEditCampaignTitle] = useState('');
   const [editCampaignEndDate, setEditCampaignEndDate] = useState('');
   const [editCampaignDesc, setEditCampaignDesc] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleUpdate = async (id: string) => {
-    const result = await updateCampaign(id, {
+  const handleOpenEdit = (c: any) => {
+    setEditingCampaign(c);
+    setEditCampaignTitle(c.title);
+    setEditCampaignEndDate(c.end_date ? c.end_date.split('T')[0] : '');
+    setEditCampaignDesc(c.description || '');
+  };
+
+  const handleUpdate = async () => {
+    if (!editingCampaign) return;
+    setIsSaving(true);
+    const result = await updateCampaign(editingCampaign.id, {
       title: editCampaignTitle,
       description: editCampaignDesc,
       end_date: editCampaignEndDate,
     });
+    setIsSaving(false);
     if (result.success) {
       toast.success('Campaign updated!');
       setEditingCampaign(null);
+      refetch();
     } else {
       toast.error(result.error);
     }
@@ -45,164 +65,174 @@ export function MyCampaignsTab() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 opacity-50">
-        <Loader2 className="w-8 h-8 animate-spin mb-2" />
-        <p>Loading your campaigns...</p>
+      <div className="flex flex-col items-center justify-center min-h-[300px]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary mb-3" />
+        <p className="text-sm text-muted-foreground">Loading campaigns...</p>
       </div>
     );
   }
 
   if (!campaigns || campaigns.length === 0) {
     return (
-      <div className="text-center py-12 border-2 border-dashed border-border rounded-xl">
-        <p className="text-muted-foreground mb-4">No campaigns yet.</p>
-        <Link href="/create-campaign">
-          <Button variant="hero">
-            <Plus className="w-4 h-4 mr-2" /> Create Your First Campaign
-          </Button>
-        </Link>
-      </div>
+      <DashboardEmptyState
+        icon={<Users className="w-8 h-8" />}
+        title="No Campaigns Yet"
+        description="Create your first campaign to start collecting gifts from friends and family."
+        action={{label: 'Create Campaign', href: '/create-campaign'}}
+      />
     );
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <p className="text-muted-foreground">Your campaigns</p>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
+          {campaigns.length} campaign{campaigns.length !== 1 ? 's' : ''}
+        </p>
         <Link href="/create-campaign">
           <Button variant="hero" size="sm">
-            <Plus className="w-4 h-4 mr-1" /> New Campaign
+            <Plus className="w-4 h-4 mr-1" /> New
           </Button>
         </Link>
       </div>
-      {campaigns.map(c => (
-        <Card key={c.id} className="border-border">
-          <CardContent className="p-3 sm:p-4">
-            {editingCampaign === c.id ? (
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Campaign Title</Label>
-                  <Input
-                    value={editCampaignTitle}
-                    onChange={e => setEditCampaignTitle(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Description</Label>
-                  <Textarea
-                    value={editCampaignDesc}
-                    onChange={e => setEditCampaignDesc(e.target.value)}
-                    rows={2}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>End Date</Label>
-                  <Input
-                    type="date"
-                    value={editCampaignEndDate}
-                    onChange={e => setEditCampaignEndDate(e.target.value)}
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="hero"
-                    size="sm"
-                    onClick={() => handleUpdate(c.id)}>
-                    Save Changes
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setEditingCampaign(null)}>
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <>
-                <div className="flex gap-4">
-                  <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted shrink-0 hidden sm:block">
-                    <img
-                      src={c.image_url || '/default-campaign.png'}
-                      alt={c.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-                      <Link href={`/campaign/${c.campaign_short_id}/${c.campaign_slug || generateSlug(c.title)}`} className="block">
-                        <p className="font-semibold text-foreground">
-                          {c.title}
-                        </p>
-                      </Link>
-                      <div className="flex items-center gap-2">
-                        <Badge variant={statusColor(c.status) as any}>
-                          {c.status}
-                        </Badge>
-                        {getDaysLeft(c.end_date) > 0 && (
-                          <Badge variant="outline" className="gap-1">
-                            <Clock className="w-3 h-3" />
-                            {getDaysLeft(c.end_date)}d left
-                          </Badge>
-                        )}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setEditingCampaign(c.id);
-                            setEditCampaignTitle(c.title);
-                            setEditCampaignEndDate(
-                              c.end_date ? c.end_date.split('T')[0] : '',
-                            );
-                            setEditCampaignDesc(c.description || '');
-                          }}>
-                          <Edit className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
-                    </div>
-                    {Number(c.goal_amount) > 0 ? (
-                      <Progress
-                        value={
-                          (Number(c.current_amount) / Number(c.goal_amount)) *
-                          100
-                        }
-                        className="h-2 mb-2"
-                      />
-                    ) : (
-                      <div className="h-2 mb-2" /> // spacer
-                    )}
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground font-medium">
-                        {Number(c.goal_amount) > 0 ? (
-                          <>
-                            {formatCurrency(
-                              c.current_amount || 0,
-                              c.currency || 'NGN',
-                            )}{' '}
-                            <span className="font-normal">
-                              raised of{' '}
-                              {formatCurrency(
-                                c.goal_amount || 0,
-                                c.currency || 'NGN',
-                              )}
-                            </span>
-                          </>
-                        ) : (
-                          `${formatCurrency(c.current_amount || 0, c.currency || 'NGN')} raised`
-                        )}
-                      </span>
-                      <span className="text-muted-foreground">
-                        {c.contributions?.length || 0} contributors
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
-      ))}
 
+      {/* Campaign List */}
+      <div className="space-y-3">
+        {campaigns.map(c => (
+          <div
+            key={c.id}
+            className={cn(
+              'p-4 rounded-xl',
+              'bg-card border border-border',
+              'hover:border-primary/30 transition-colors',
+            )}>
+            {/* Top row */}
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <Link
+                href={`/campaign/${c.campaign_short_id}/${c.campaign_slug || generateSlug(c.title)}`}
+                className="flex-1 min-w-0">
+                <p className="font-semibold text-foreground hover:text-primary transition-colors truncate">
+                  {c.title}
+                </p>
+              </Link>
+              <div className="flex items-center gap-2 shrink-0">
+                <Badge variant={statusColor(c.status) as any} className="text-[10px]">
+                  {c.status}
+                </Badge>
+                {getDaysLeft(c.end_date) > 0 && (
+                  <Badge variant="outline" className="gap-1 text-[10px]">
+                    <Clock className="w-3 h-3" />
+                    {getDaysLeft(c.end_date)}d
+                  </Badge>
+                )}
+                <button
+                  onClick={() => handleOpenEdit(c)}
+                  className="p-1.5 rounded-lg hover:bg-muted transition-colors">
+                  <Edit className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
+            </div>
+
+            {/* Progress */}
+            {Number(c.goal_amount) > 0 && (
+              <Progress
+                value={(Number(c.current_amount) / Number(c.goal_amount)) * 100}
+                className="h-2 mb-3"
+              />
+            )}
+
+            {/* Stats */}
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">
+                {Number(c.goal_amount) > 0 ? (
+                  <>
+                    <span className="font-semibold text-foreground">
+                      {formatCurrency(c.current_amount || 0, c.currency || 'NGN')}
+                    </span>{' '}
+                    of {formatCurrency(c.goal_amount || 0, c.currency || 'NGN')}
+                  </>
+                ) : (
+                  <>
+                    <span className="font-semibold text-foreground">
+                      {formatCurrency(c.current_amount || 0, c.currency || 'NGN')}
+                    </span>{' '}
+                    raised
+                  </>
+                )}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {c.contributions?.length || 0} contributor{(c.contributions?.length || 0) !== 1 ? 's' : ''}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Edit Modal */}
+      <ResponsiveModal
+        open={!!editingCampaign}
+        onOpenChange={open => !open && setEditingCampaign(null)}>
+        <ResponsiveModalContent>
+          <ResponsiveModalHeader>
+            <ResponsiveModalTitle>Edit Campaign</ResponsiveModalTitle>
+          </ResponsiveModalHeader>
+
+          <div className="space-y-4 p-4 md:px-6">
+            <div className="space-y-2">
+              <Label>Campaign Title</Label>
+              <Input
+                value={editCampaignTitle}
+                onChange={e => setEditCampaignTitle(e.target.value)}
+                className="h-11"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Description</Label>
+              <Textarea
+                value={editCampaignDesc}
+                onChange={e => setEditCampaignDesc(e.target.value)}
+                rows={3}
+                className="resize-none"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>End Date</Label>
+              <Input
+                type="date"
+                value={editCampaignEndDate}
+                onChange={e => setEditCampaignEndDate(e.target.value)}
+                className="h-11"
+              />
+            </div>
+          </div>
+
+          <ResponsiveModalFooter>
+            <Button
+              variant="outline"
+              onClick={() => setEditingCampaign(null)}
+              className="flex-1">
+              Cancel
+            </Button>
+            <Button
+              variant="hero"
+              onClick={handleUpdate}
+              disabled={isSaving}
+              className="flex-1">
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                'Save Changes'
+              )}
+            </Button>
+          </ResponsiveModalFooter>
+        </ResponsiveModalContent>
+      </ResponsiveModal>
+
+      {/* Infinite Scroll */}
       {!isLoading && campaigns.length > 0 && (
         <InfiniteScroll
           hasMore={!!hasNextPage}
@@ -211,9 +241,11 @@ export function MyCampaignsTab() {
         />
       )}
 
+      {/* Browse link */}
       <Link href="/campaigns">
         <Button variant="outline" className="w-full mt-2">
-          Browse All Public Campaigns <ChevronRight className="w-4 h-4 ml-1" />
+          Browse All Public Campaigns
+          <ChevronRight className="w-4 h-4 ml-1" />
         </Button>
       </Link>
     </div>

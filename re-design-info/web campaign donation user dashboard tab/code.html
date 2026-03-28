@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gifthance - Campaign Donations</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-bright": "#fff4ef",
+                        "on-primary-fixed": "#100300",
+                        "on-primary-container": "#451b00",
+                        "on-tertiary-fixed": "#3e2b00",
+                        "on-tertiary-fixed-variant": "#624600",
+                        "inverse-on-surface": "#c79266",
+                        "secondary-container": "#ffc69a",
+                        "secondary": "#8c4b00",
+                        "on-primary-fixed-variant": "#542200",
+                        "surface-dim": "#ffcaa1",
+                        "secondary-fixed-dim": "#ffb374",
+                        "outline": "#9d6c44",
+                        "on-secondary-container": "#6e3a00",
+                        "inverse-primary": "#f9873e",
+                        "on-background": "#492604",
+                        "primary-fixed-dim": "#e97b32",
+                        "tertiary-container": "#febf2a",
+                        "tertiary-dim": "#684b00",
+                        "on-error-container": "#520c00",
+                        "secondary-dim": "#7a4100",
+                        "on-secondary-fixed": "#522a00",
+                        "on-tertiary-container": "#573e00",
+                        "surface-container-high": "#ffdcc2",
+                        "primary": "#964300",
+                        "primary-dim": "#843a00",
+                        "on-secondary-fixed-variant": "#7c4200",
+                        "tertiary": "#775600",
+                        "primary-container": "#f9873e",
+                        "inverse-surface": "#1b0a00",
+                        "tertiary-fixed": "#febf2a",
+                        "tertiary-fixed-dim": "#efb118",
+                        "error-dim": "#b92902",
+                        "surface-container-lowest": "#ffffff",
+                        "error-container": "#f95630",
+                        "error": "#b02500",
+                        "on-tertiary": "#fff1dd",
+                        "surface-container": "#ffe3cf",
+                        "surface-variant": "#ffd5b5",
+                        "secondary-fixed": "#ffc69a",
+                        "background": "#fff4ef",
+                        "surface-container-low": "#ffede2",
+                        "on-error": "#ffefec",
+                        "primary-fixed": "#f9873e",
+                        "on-surface": "#492604",
+                        "on-secondary": "#fff0e7",
+                        "surface-tint": "#964300",
+                        "outline-variant": "#d9a275",
+                        "on-surface-variant": "#7d522b",
+                        "surface-container-highest": "#ffd5b5",
+                        "on-primary": "#fff0e9",
+                        "surface": "#fff4ef"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: #fff4ef;
+            color: #492604;
+        }
+        .editorial-shadow {
+            box-shadow: 0 20px 40px rgba(73, 38, 4, 0.06);
+        }
+        .primary-gradient {
+            background: linear-gradient(135deg, #964300 0%, #f9873e 100%);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- Desktop Sidebar Navigation -->
+<aside class="fixed left-0 top-0 h-full py-8 px-6 h-screen w-64 border-r-0 flex flex-col bg-[#ffede2] dark:bg-stone-900 hidden md:flex z-30">
+<div class="mb-12">
+<h1 class="text-2xl font-black text-[#492604] dark:text-[#fff4ef] tracking-tighter">Gifthance</h1>
+<p class="font-plus-jakarta-sans text-xs font-semibold tracking-tight text-[#7d522b] mt-1 opacity-70">The Warm Curator</p>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 font-plus-jakarta-sans text-sm font-semibold tracking-tight text-[#7d522b] hover:bg-[#fff4ef]/50 transition-colors duration-200 rounded-xl" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Overview</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 font-plus-jakarta-sans text-sm font-semibold tracking-tight text-[#7d522b] hover:bg-[#fff4ef]/50 transition-colors duration-200 rounded-xl" href="#">
+<span class="material-symbols-outlined">card_giftcard</span>
+<span>Gifts</span>
+</a>
+<!-- Active State: Campaigns -->
+<a class="flex items-center gap-3 px-4 py-3 font-plus-jakarta-sans text-sm tracking-tight text-[#964300] dark:text-[#f9873e] font-bold border-r-4 border-[#964300] bg-[#fff4ef]/50 rounded-l-xl" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">campaign</span>
+<span>Campaigns</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 font-plus-jakarta-sans text-sm font-semibold tracking-tight text-[#7d522b] hover:bg-[#fff4ef]/50 transition-colors duration-200 rounded-xl" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span>Wallet</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 font-plus-jakarta-sans text-sm font-semibold tracking-tight text-[#7d522b] hover:bg-[#fff4ef]/50 transition-colors duration-200 rounded-xl" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-outline-variant/10">
+<button class="w-full primary-gradient text-on-primary py-4 px-6 rounded-xl font-headline font-bold text-sm tracking-wide shadow-lg shadow-primary/20 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-lg">add_circle</span>
+<span>New Campaign</span>
+</button>
+</div>
+</aside>
+<!-- Mobile Top Bar -->
+<header class="flex justify-between items-center w-full px-6 h-16 md:hidden fixed top-0 left-0 bg-[#fff4ef]/80 dark:bg-stone-950/80 backdrop-blur-md z-40">
+<h2 class="text-xl font-extrabold text-[#492604] dark:text-[#fff4ef]">Gifthance</h2>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#964300]">notifications</span>
+<div class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="close-up portrait of a smiling young professional woman with warm natural lighting and soft background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlEB6ERYxl8F0_7ax4g4cO783MM9nekR7hkn-qXFk1palmze6kqxCxp-hhYXM71lCB6PsR3nsns4cymaYZHl-MPktOQ7NBZ66KRuvhfjgMgqTcfPtOsOIiCema0-Ynf4MHQWbbUaevBif39b0F4knnpQnzc9hTorDCCGikBfso2J0aFdptM7RU3yZtmqqluj_7t7lZLajeK7RfWDuSS71npJ8xACjjYMywNLgQoY1iPKKZl-NTFgNNY0eoJLO6dku08LzKP-2Wia4"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 min-h-screen pt-20 md:pt-12 pb-24 md:pb-12 px-6 md:px-12 lg:px-16 max-w-7xl">
+<!-- Editorial Header Section -->
+<header class="mb-10">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<h1 class="text-4xl md:text-5xl font-headline font-extrabold tracking-tight text-on-background">Campaign Contributions</h1>
+<p class="text-on-surface-variant font-body text-lg mt-2 max-w-2xl">Monitoring the heartfelt support flowing into your active community initiatives.</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="bg-surface-container-low px-4 py-2 rounded-full flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+<span class="font-label text-sm font-semibold">Filter by Status</span>
+</div>
+</div>
+</div>
+</header>
+<!-- Stats Bento Grid (Top Layer) -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+<div class="bg-surface-container-low p-8 rounded-[2rem] flex flex-col justify-between">
+<span class="font-label text-xs uppercase tracking-widest text-on-surface-variant/60 font-bold mb-4">Total Raised Today</span>
+<div>
+<span class="text-4xl font-headline font-black text-on-background tracking-tighter">N1,250</span>
+<p class="text-secondary font-semibold text-sm mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">trending_up</span>
+<span>12% increase from yesterday</span>
+</p>
+</div>
+</div>
+<div class="bg-primary-container/10 p-8 rounded-[2rem] flex flex-col justify-between border border-primary/5">
+<span class="font-label text-xs uppercase tracking-widest text-primary/60 font-bold mb-4">Active Campaign</span>
+<div>
+<span class="text-2xl font-headline font-bold text-primary block">Save the Wetlands</span>
+<p class="text-on-surface-variant text-sm mt-1">45 Contributors</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest editorial-shadow p-8 rounded-[2rem] flex flex-col justify-between">
+<span class="font-label text-xs uppercase tracking-widest text-on-surface-variant/60 font-bold mb-4">Avg. Donation</span>
+<div>
+<span class="text-4xl font-headline font-black text-on-background tracking-tighter">N28</span>
+<p class="text-on-surface-variant text-sm mt-1">Naira per user</p>
+</div>
+</div>
+</section>
+<!-- Main List Content (Tonal Layering) -->
+<div class="bg-surface-container-low rounded-[2.5rem] p-4 md:p-8">
+<div class="flex items-center justify-between px-4 mb-6">
+<h3 class="font-headline font-bold text-xl text-on-background">Recent Contributions</h3>
+<span class="text-on-surface-variant text-sm font-medium">Viewing latest 5 entries</span>
+</div>
+<!-- List of Contributions -->
+<div class="space-y-4">
+<!-- Row 1 -->
+<div class="bg-surface-container-lowest p-6 rounded-[1.5rem] flex flex-col md:flex-row md:items-center justify-between gap-6 hover:translate-y-[-2px] transition-transform duration-300">
+<div class="flex items-center gap-5">
+<div class="w-14 h-14 rounded-2xl bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">volunteer_activism</span>
+</div>
+<div>
+<h4 class="font-headline font-bold text-on-background text-lg">Campaign Contribution</h4>
+<p class="text-on-surface-variant font-body text-sm">Save the Wetlands Fund</p>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 flex-1 gap-4 md:px-12">
+<div class="flex flex-col">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/50 font-bold">Sender</span>
+<span class="font-body text-sm font-bold text-on-background">Arinze Okafor</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/50 font-bold">Date</span>
+<span class="font-body text-sm text-on-surface-variant">Oct 12, 2023</span>
+</div>
+<div class="flex flex-col hidden md:flex">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/50 font-bold">Status</span>
+<span class="bg-secondary-container/30 text-secondary text-[10px] px-3 py-1 rounded-full font-bold w-fit mt-1">SUCCESS</span>
+</div>
+</div>
+<div class="flex flex-col items-end min-w-[80px]">
+<span class="font-headline text-2xl font-black text-on-background tracking-tight">N50</span>
+<span class="md:hidden bg-secondary-container/30 text-secondary text-[10px] px-3 py-1 rounded-full font-bold mt-1 uppercase tracking-widest">Success</span>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="bg-surface-container-lowest p-6 rounded-[1.5rem] flex flex-col md:flex-row md:items-center justify-between gap-6 hover:translate-y-[-2px] transition-transform duration-300">
+<div class="flex items-center gap-5">
+<div class="w-14 h-14 rounded-2xl bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">volunteer_activism</span>
+</div>
+<div>
+<h4 class="font-headline font-bold text-on-background text-lg">Campaign Contribution</h4>
+<p class="text-on-surface-variant font-body text-sm">Save the Wetlands Fund</p>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 flex-1 gap-4 md:px-12">
+<div class="flex flex-col">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/50 font-bold">Sender</span>
+<span class="font-body text-sm font-bold text-on-background">Amara Nwosu</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/50 font-bold">Date</span>
+<span class="font-body text-sm text-on-surface-variant">Oct 11, 2023</span>
+</div>
+<div class="flex flex-col hidden md:flex">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/50 font-bold">Status</span>
+<span class="bg-secondary-container/30 text-secondary text-[10px] px-3 py-1 rounded-full font-bold w-fit mt-1">SUCCESS</span>
+</div>
+</div>
+<div class="flex flex-col items-end min-w-[80px]">
+<span class="font-headline text-2xl font-black text-on-background tracking-tight">N50</span>
+<span class="md:hidden bg-secondary-container/30 text-secondary text-[10px] px-3 py-1 rounded-full font-bold mt-1 uppercase tracking-widest">Success</span>
+</div>
+</div>
+<!-- Row 3 -->
+<div class="bg-surface-container-lowest p-6 rounded-[1.5rem] flex flex-col md:flex-row md:items-center justify-between gap-6 hover:translate-y-[-2px] transition-transform duration-300">
+<div class="flex items-center gap-5">
+<div class="w-14 h-14 rounded-2xl bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">volunteer_activism</span>
+</div>
+<div>
+<h4 class="font-headline font-bold text-on-background text-lg">Campaign Contribution</h4>
+<p class="text-on-surface-variant font-body text-sm">EduGrow Scholarship</p>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 flex-1 gap-4 md:px-12">
+<div class="flex flex-col">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/50 font-bold">Sender</span>
+<span class="font-body text-sm font-bold text-on-background">Tunde Bello</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/50 font-bold">Date</span>
+<span class="font-body text-sm text-on-surface-variant">Oct 11, 2023</span>
+</div>
+<div class="flex flex-col hidden md:flex">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/50 font-bold">Status</span>
+<span class="bg-secondary-container/30 text-secondary text-[10px] px-3 py-1 rounded-full font-bold w-fit mt-1">SUCCESS</span>
+</div>
+</div>
+<div class="flex flex-col items-end min-w-[80px]">
+<span class="font-headline text-2xl font-black text-on-background tracking-tight">N50</span>
+<span class="md:hidden bg-secondary-container/30 text-secondary text-[10px] px-3 py-1 rounded-full font-bold mt-1 uppercase tracking-widest">Success</span>
+</div>
+</div>
+<!-- Row 4 -->
+<div class="bg-surface-container-lowest p-6 rounded-[1.5rem] flex flex-col md:flex-row md:items-center justify-between gap-6 hover:translate-y-[-2px] transition-transform duration-300">
+<div class="flex items-center gap-5">
+<div class="w-14 h-14 rounded-2xl bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">volunteer_activism</span>
+</div>
+<div>
+<h4 class="font-headline font-bold text-on-background text-lg">Campaign Contribution</h4>
+<p class="text-on-surface-variant font-body text-sm">Save the Wetlands Fund</p>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 flex-1 gap-4 md:px-12">
+<div class="flex flex-col">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/50 font-bold">Sender</span>
+<span class="font-body text-sm font-bold text-on-background">Yusuf Musa</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/50 font-bold">Date</span>
+<span class="font-body text-sm text-on-surface-variant">Oct 10, 2023</span>
+</div>
+<div class="flex flex-col hidden md:flex">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/50 font-bold">Status</span>
+<span class="bg-secondary-container/30 text-secondary text-[10px] px-3 py-1 rounded-full font-bold w-fit mt-1">SUCCESS</span>
+</div>
+</div>
+<div class="flex flex-col items-end min-w-[80px]">
+<span class="font-headline text-2xl font-black text-on-background tracking-tight">N50</span>
+<span class="md:hidden bg-secondary-container/30 text-secondary text-[10px] px-3 py-1 rounded-full font-bold mt-1 uppercase tracking-widest">Success</span>
+</div>
+</div>
+<!-- Row 5 -->
+<div class="bg-surface-container-lowest p-6 rounded-[1.5rem] flex flex-col md:flex-row md:items-center justify-between gap-6 hover:translate-y-[-2px] transition-transform duration-300">
+<div class="flex items-center gap-5">
+<div class="w-14 h-14 rounded-2xl bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">volunteer_activism</span>
+</div>
+<div>
+<h4 class="font-headline font-bold text-on-background text-lg">Campaign Contribution</h4>
+<p class="text-on-surface-variant font-body text-sm">Clean Water Initiative</p>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 flex-1 gap-4 md:px-12">
+<div class="flex flex-col">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/50 font-bold">Sender</span>
+<span class="font-body text-sm font-bold text-on-background">Chioma Eze</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/50 font-bold">Date</span>
+<span class="font-body text-sm text-on-surface-variant">Oct 09, 2023</span>
+</div>
+<div class="flex flex-col hidden md:flex">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/50 font-bold">Status</span>
+<span class="bg-secondary-container/30 text-secondary text-[10px] px-3 py-1 rounded-full font-bold w-fit mt-1">SUCCESS</span>
+</div>
+</div>
+<div class="flex flex-col items-end min-w-[80px]">
+<span class="font-headline text-2xl font-black text-on-background tracking-tight">N50</span>
+<span class="md:hidden bg-secondary-container/30 text-secondary text-[10px] px-3 py-1 rounded-full font-bold mt-1 uppercase tracking-widest">Success</span>
+</div>
+</div>
+</div>
+<!-- List Footer -->
+<div class="flex justify-center mt-8">
+<button class="bg-surface-container-high text-primary px-8 py-3 rounded-full font-headline font-bold text-sm tracking-wide hover:bg-surface-variant transition-colors">
+                    View Complete History
+                </button>
+</div>
+</div>
+</main>
+<!-- Mobile Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 md:hidden bg-[#ffffff]/90 dark:bg-stone-900/90 backdrop-blur-xl rounded-t-[1.5rem] shadow-[0_-10px_40px_rgba(73,38,4,0.06)] z-50">
+<a class="flex flex-col items-center justify-center text-[#7d522b] dark:text-stone-500 opacity-70" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-manrope text-[10px] font-medium uppercase tracking-widest mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#7d522b] dark:text-stone-500 opacity-70" href="#">
+<span class="material-symbols-outlined">redeem</span>
+<span class="font-manrope text-[10px] font-medium uppercase tracking-widest mt-1">My Gifts</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#ffede2] dark:bg-stone-800 text-[#964300] dark:text-[#f9873e] rounded-2xl px-5 py-2" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">ads_click</span>
+<span class="font-manrope text-[10px] font-medium uppercase tracking-widest mt-1">Campaigns</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#7d522b] dark:text-stone-500 opacity-70" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="font-manrope text-[10px] font-medium uppercase tracking-widest mt-1">Wallet</span>
+</a>
+</nav>
+</body></html>

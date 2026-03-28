@@ -1,14 +1,15 @@
 'use client';
 
 import {Button} from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import {Label} from '@/components/ui/label';
+import {
+  ResponsiveModal,
+  ResponsiveModalContent,
+  ResponsiveModalDescription,
+  ResponsiveModalFooter,
+  ResponsiveModalHeader,
+  ResponsiveModalTitle,
+} from '@/components/ui/responsive-modal';
 import {
   Select,
   SelectContent,
@@ -40,30 +41,39 @@ export function ActionAdvancedModal({
   const [days, setDays] = useState('3');
   const [reason, setReason] = useState('');
 
-  return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <div className="flex items-center gap-3 mb-2">
-            {getIcon(type)}
-            <DialogTitle>{getTitle(type, targetType)}</DialogTitle>
-          </div>
-          <DialogDescription>
-            Confirm the <strong>{type}</strong> action for{' '}
-            <strong>{targetName}</strong>. This action will be logged.
-          </DialogDescription>
-        </DialogHeader>
+  const handleConfirm = () => {
+    onConfirm({days, reason});
+    setReason('');
+    onOpenChange(false);
+  };
 
-        <div className="space-y-4 py-4">
+  const isDestructive = ['ban', 'delete', 'remove', 'reject', 'cancel'].includes(type);
+
+  return (
+    <ResponsiveModal open={isOpen} onOpenChange={onOpenChange}>
+      <ResponsiveModalContent className="sm:max-w-md">
+        <ResponsiveModalHeader>
+          <div className="flex items-center gap-3 mb-1">
+            {getIcon(type)}
+            <ResponsiveModalTitle>{getTitle(type, targetType)}</ResponsiveModalTitle>
+          </div>
+          <ResponsiveModalDescription>
+            Confirm the <strong className="text-foreground">{type}</strong> action for{' '}
+            <strong className="text-foreground">{targetName}</strong>. This action will be logged.
+          </ResponsiveModalDescription>
+        </ResponsiveModalHeader>
+
+        <div className="px-4 md:px-6 py-4 space-y-4">
           {type === 'suspend' && (
             <div className="space-y-2">
-              <Label>Suspension Duration</Label>
+              <Label className="text-sm font-medium">Suspension Duration</Label>
               <Select value={days} onValueChange={setDays}>
-                <SelectTrigger>
+                <SelectTrigger className="h-11">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="3">3 Days</SelectItem>
+                  <SelectItem value="7">7 Days</SelectItem>
                   <SelectItem value="14">14 Days</SelectItem>
                   <SelectItem value="21">21 Days</SelectItem>
                   <SelectItem value="30">30 Days</SelectItem>
@@ -73,35 +83,38 @@ export function ActionAdvancedModal({
           )}
 
           <div className="space-y-2">
-            <Label>Reason for {type}</Label>
+            <Label className="text-sm font-medium">
+              Reason for {type}
+            </Label>
             <Textarea
               placeholder={`Enter the reason for this ${type} action...`}
               value={reason}
               onChange={e => setReason(e.target.value)}
               rows={3}
+              className="resize-none"
             />
+            <p className="text-xs text-muted-foreground">
+              This will be recorded in the admin logs
+            </p>
           </div>
         </div>
 
-        <div className="flex justify-end gap-3">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+        <ResponsiveModalFooter className="flex-col-reverse sm:flex-row gap-2">
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            className="w-full sm:w-auto h-11">
             Cancel
           </Button>
           <Button
-            variant={
-              ['ban', 'delete', 'remove', 'reject', 'cancel'].includes(type)
-                ? 'destructive'
-                : 'hero'
-            }
-            onClick={() => {
-              onConfirm({days, reason});
-              setReason('');
-            }}
-            disabled={!reason}>
+            variant={isDestructive ? 'destructive' : 'hero'}
+            onClick={handleConfirm}
+            disabled={!reason.trim()}
+            className="w-full sm:w-auto h-11">
             Confirm {type.charAt(0).toUpperCase() + type.slice(1)}
           </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </ResponsiveModalFooter>
+      </ResponsiveModalContent>
+    </ResponsiveModal>
   );
 }

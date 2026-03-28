@@ -99,18 +99,18 @@ const Navbar = () => {
   ].filter(item => item.show);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
-      <div className="container mx-auto px-4 flex items-center justify-between h-14 sm:h-16">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-lg border-b border-border">
+      <div className="container mx-auto px-4 flex items-center justify-between h-14 md:h-16">
         <Link href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-gradient-hero flex items-center justify-center">
-            <Gift className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground" />
+          <div className="w-8 h-8 rounded-lg bg-gradient-hero flex items-center justify-center">
+            <Gift className="w-4 h-4 text-primary-foreground" />
           </div>
-          <span className="text-xl font-bold font-display text-foreground">
+          <span className="text-lg sm:text-xl font-bold font-display text-foreground">
             Gifthance
           </span>
         </Link>
 
-        <div className="hidden md:flex items-center gap-6">
+        <div className="hidden md:flex items-center gap-5 lg:gap-6">
           {mainLinks.map(link => (
             <Link
               key={link.label}
@@ -234,9 +234,9 @@ const Navbar = () => {
         </div>
 
         <button
-          className="md:hidden text-foreground"
+          className="md:hidden flex items-center justify-center w-10 h-10 -mr-2 text-foreground active:bg-muted/50 rounded-lg transition-colors"
           onClick={() => setIsOpen(!isOpen)}>
-          {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
       </div>
 
@@ -246,31 +246,40 @@ const Navbar = () => {
             initial={{height: 0, opacity: 0}}
             animate={{height: 'auto', opacity: 1}}
             exit={{height: 0, opacity: 0}}
+            transition={{duration: 0.2}}
             className="md:hidden bg-background border-b border-border overflow-hidden">
-            <div className="px-4 py-4 flex flex-col gap-1">
-              {mainLinks.map(link => (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  className="text-sm font-medium text-muted-foreground py-2.5 px-2 rounded-lg hover:bg-muted/50 transition-colors"
-                  onClick={() => setIsOpen(false)}>
-                  {link.label}
-                </Link>
-              ))}
-              {isHome &&
-                homeLinks.map(link => (
-                  <a
+            <div className="px-4 py-3 flex flex-col">
+              {/* Main navigation links */}
+              <div className="space-y-0.5">
+                {mainLinks.map(link => (
+                  <Link
                     key={link.label}
                     href={link.href}
-                    className="text-sm font-medium text-muted-foreground py-2.5 px-2 rounded-lg hover:bg-muted/50 transition-colors"
+                    className={`flex items-center text-sm font-medium py-3 px-3 rounded-lg transition-colors ${
+                      pathname === link.href
+                        ? 'text-primary bg-primary/5'
+                        : 'text-foreground active:bg-muted/50'
+                    }`}
                     onClick={() => setIsOpen(false)}>
                     {link.label}
-                  </a>
+                  </Link>
                 ))}
+                {isHome &&
+                  homeLinks.map(link => (
+                    <a
+                      key={link.label}
+                      href={link.href}
+                      className="flex items-center text-sm font-medium text-muted-foreground py-3 px-3 rounded-lg active:bg-muted/50 transition-colors"
+                      onClick={() => setIsOpen(false)}>
+                      {link.label}
+                    </a>
+                  ))}
+              </div>
 
-              <div className="border-t border-border mt-2 pt-3">
+              {/* Divider and auth section */}
+              <div className="border-t border-border mt-3 pt-3">
                 {user ? (
-                  <div className="space-y-1">
+                  <div className="space-y-0.5">
                     {roleItems.map(item => {
                       const Icon = item.icon;
                       const isActive = pathname.startsWith(item.href);
@@ -278,13 +287,13 @@ const Navbar = () => {
                         <Link
                           key={item.href}
                           href={item.href}
-                          className={`flex items-center gap-2.5 py-2.5 px-2 rounded-lg text-sm font-medium transition-colors ${
+                          className={`flex items-center gap-3 py-3 px-3 rounded-lg text-sm font-medium transition-colors ${
                             isActive
                               ? 'text-primary bg-primary/5'
-                              : 'text-foreground hover:bg-muted/50'
+                              : 'text-foreground active:bg-muted/50'
                           }`}
                           onClick={() => setIsOpen(false)}>
-                          <Icon className="w-4 h-4" />
+                          <Icon className="w-4.5 h-4.5" />
                           {item.label}
                         </Link>
                       );
@@ -294,21 +303,20 @@ const Navbar = () => {
                         setIsOpen(false);
                         handleLogout();
                       }}
-                      className="flex items-center gap-2.5 py-2.5 px-2 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/5 w-full transition-colors mt-1">
-                      <LogOut className="w-4 h-4" />
+                      className="flex items-center gap-3 py-3 px-3 rounded-lg text-sm font-medium text-destructive active:bg-destructive/5 w-full transition-colors">
+                      <LogOut className="w-4.5 h-4.5" />
                       Sign Out
                     </button>
                   </div>
                 ) : (
-                  <div className="flex gap-3">
+                  <div className="flex gap-3 pt-1">
                     <Link
                       href="/login"
                       className="flex-1"
                       onClick={() => setIsOpen(false)}>
                       <Button
                         variant="outline"
-                        size="sm"
-                        className="w-full rounded-full">
+                        className="w-full h-11 rounded-full text-sm">
                         Log In
                       </Button>
                     </Link>
@@ -318,8 +326,7 @@ const Navbar = () => {
                       onClick={() => setIsOpen(false)}>
                       <Button
                         variant="hero"
-                        size="sm"
-                        className="w-full rounded-full">
+                        className="w-full h-11 rounded-full text-sm">
                         Get Started
                       </Button>
                     </Link>

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gifthance - Send Gift</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "tertiary-fixed-dim": "#efb118",
+              "surface-variant": "#ffd5b5",
+              "error": "#b02500",
+              "error-dim": "#b92902",
+              "on-primary-fixed-variant": "#542200",
+              "surface-container-lowest": "#ffffff",
+              "secondary-fixed-dim": "#ffb374",
+              "secondary": "#8c4b00",
+              "on-background": "#492604",
+              "on-primary-fixed": "#100300",
+              "surface-container-high": "#ffdcc2",
+              "secondary-fixed": "#ffc69a",
+              "tertiary-container": "#febf2a",
+              "on-primary": "#fff0e9",
+              "surface-container": "#ffe3cf",
+              "primary-container": "#f9873e",
+              "outline": "#9d6c44",
+              "inverse-on-surface": "#c79266",
+              "secondary-container": "#ffc69a",
+              "primary-fixed": "#f9873e",
+              "on-surface": "#492604",
+              "surface-tint": "#964300",
+              "on-secondary": "#fff0e7",
+              "surface-dim": "#ffcaa1",
+              "on-error": "#ffefec",
+              "on-primary-container": "#451b00",
+              "tertiary-dim": "#684b00",
+              "surface-container-low": "#ffede2",
+              "error-container": "#f95630",
+              "surface-bright": "#fff4ef",
+              "on-tertiary": "#fff1dd",
+              "primary": "#964300",
+              "outline-variant": "#d9a275",
+              "primary-fixed-dim": "#e97b32",
+              "tertiary-fixed": "#febf2a",
+              "background": "#fff4ef",
+              "on-surface-variant": "#7d522b",
+              "on-secondary-container": "#6e3a00",
+              "surface": "#fff4ef",
+              "secondary-dim": "#7a4100",
+              "inverse-surface": "#1b0a00",
+              "on-secondary-fixed-variant": "#7c4200",
+              "tertiary": "#775600",
+              "on-tertiary-container": "#573e00",
+              "on-error-container": "#520c00",
+              "on-tertiary-fixed-variant": "#624600",
+              "surface-container-highest": "#ffd5b5",
+              "primary-dim": "#843a00",
+              "inverse-primary": "#f9873e",
+              "on-secondary-fixed": "#522a00",
+              "on-tertiary-fixed": "#3e2b00"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .font-plus-jakarta { font-family: 'Plus Jakarta Sans', sans-serif; }
+      .font-manrope { font-family: 'Manrope', sans-serif; }
+      .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background font-body text-on-surface antialiased overflow-hidden">
+<!-- Background: Gift Details (Dimmed/Blurred) -->
+<div class="fixed inset-0 z-0 brightness-50 blur-sm overflow-hidden flex flex-col">
+<!-- Shared Component: TopNavBar -->
+<header class="bg-orange-50/80 dark:bg-stone-900/80 backdrop-blur-xl fixed top-0 w-full z-50">
+<div class="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
+<div class="text-2xl font-bold text-orange-900 dark:text-orange-50 tracking-tighter">Gifthance</div>
+<nav class="hidden md:flex items-center space-x-8">
+<a class="text-stone-600 dark:text-stone-400 font-medium hover:text-orange-700 dark:hover:text-orange-300 transition-colors" href="#">Gift Shop</a>
+<a class="text-stone-600 dark:text-stone-400 font-medium hover:text-orange-700 dark:hover:text-orange-300 transition-colors" href="#">Campaigns</a>
+<a class="text-orange-800 dark:text-orange-400 border-b-2 border-orange-600 dark:border-orange-500 pb-1 hover:text-orange-700 dark:hover:text-orange-300 transition-colors" href="#">Send Gift</a>
+</nav>
+<div class="flex items-center">
+<span class="material-symbols-outlined text-orange-700 dark:text-orange-500">account_circle</span>
+</div>
+</div>
+</header>
+<!-- Mock Background Content -->
+<main class="flex-1 mt-20 p-6 space-y-8">
+<div class="aspect-square w-full rounded-3xl bg-surface-container-high overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="luxury curated gift box with artisanal chocolates and premium candle in warm cinematic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1HH6LPZozfmZhoUBINbKkm0hfRRVNeGEZLUv7MizFeKEO4ap5XshMjFDsHGof5KxpFKvb8zdtG74klAufYJ106-GEqWCNd1Y1_TzhhwBo9J4N9GonaDlweyfVXXswAIOm8dP325vq4XN3BWH-1LE0zjNllcSXiZmlk6CQDlTjlbRbYvCLGBSfEqablTEc5b1FMnnPNhP-mOtBbeJ64FjqiyG72dx2dWeDsf-9FdqOs2PyLdBeB1MPNbflwLTmONS-3jGKup-h5Jg"/>
+</div>
+<div class="space-y-4">
+<div class="h-8 w-3/4 bg-surface-container rounded-full"></div>
+<div class="h-4 w-1/2 bg-surface-container-low rounded-full"></div>
+<div class="grid grid-cols-2 gap-4">
+<div class="h-24 bg-surface-container-low rounded-2xl border border-outline-variant/10"></div>
+<div class="h-24 bg-surface-container-low rounded-2xl border border-outline-variant/10"></div>
+</div>
+</div>
+</main>
+</div>
+<!-- Multi-Step Send Gift Bottom Sheet Overlay -->
+<div class="fixed inset-0 z-[100] flex items-end">
+<!-- Backdrop Backdrop (Clickable area) -->
+<div class="absolute inset-0 bg-on-background/20 backdrop-blur-[2px]"></div>
+<!-- The Bottom Sheet Container -->
+<section class="relative w-full max-w-lg mx-auto bg-surface-container-lowest rounded-t-[2rem] shadow-[0_-20px_40px_rgba(73,38,4,0.06)] pb-safe animate-in slide-in-from-bottom duration-500 flex flex-col h-[813px]">
+<!-- Handle -->
+<div class="flex justify-center pt-3 pb-2">
+<div class="w-12 h-1.5 bg-outline-variant/30 rounded-full"></div>
+</div>
+<!-- Header -->
+<div class="px-6 py-4 flex items-center justify-between">
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-low text-on-surface-variant">
+<span class="material-symbols-outlined">close</span>
+</button>
+<h2 class="font-headline text-lg font-bold tracking-tight text-on-surface">Send Gift</h2>
+<div class="w-10"></div> <!-- Spacer for centering -->
+</div>
+<!-- Multi-step Indicator -->
+<div class="px-8 flex items-center justify-between py-2 mb-4">
+<div class="flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary text-xs font-bold">1</div>
+<span class="text-[10px] font-bold uppercase tracking-widest text-primary">Details</span>
+</div>
+<div class="flex-1 h-[2px] mx-2 mb-5 bg-primary-container/30"></div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant text-xs font-bold">2</div>
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Message</span>
+</div>
+<div class="flex-1 h-[2px] mx-2 mb-5 bg-surface-container-high"></div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant text-xs font-bold">3</div>
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Payment</span>
+</div>
+</div>
+<!-- Content Area (Scrollable) -->
+<div class="flex-1 overflow-y-auto px-6 space-y-8 pb-10">
+<!-- STEP 1: Recipient Details (Active State Visualized) -->
+<div class="space-y-6">
+<header>
+<h3 class="font-headline text-2xl font-extrabold text-on-background tracking-tight">Recipient Details</h3>
+<p class="text-on-surface-variant font-medium mt-1">Who are we sending this warmth to?</p>
+</header>
+<div class="space-y-5">
+<!-- Input Field 1 -->
+<div class="space-y-2">
+<label class="font-label text-sm font-bold text-on-surface-variant ml-1">Full Name</label>
+<div class="bg-surface-container-low rounded-2xl p-4 flex items-center group focus-within:bg-surface-container-lowest focus-within:ring-1 focus-within:ring-outline-variant/30 transition-all">
+<span class="material-symbols-outlined text-outline mr-3">person</span>
+<input class="bg-transparent border-none focus:ring-0 w-full font-body text-on-surface placeholder:text-outline-variant/60" placeholder="Sarah Jenkins" type="text"/>
+</div>
+</div>
+<!-- Input Field 2 -->
+<div class="space-y-2">
+<label class="font-label text-sm font-bold text-on-surface-variant ml-1">Email or Phone</label>
+<div class="bg-surface-container-low rounded-2xl p-4 flex items-center group focus-within:bg-surface-container-lowest focus-within:ring-1 focus-within:ring-outline-variant/30 transition-all">
+<span class="material-symbols-outlined text-outline mr-3">alternate_email</span>
+<input class="bg-transparent border-none focus:ring-0 w-full font-body text-on-surface placeholder:text-outline-variant/60" placeholder="sarah.j@example.com" type="text"/>
+</div>
+</div>
+<!-- Address Section -->
+<div class="space-y-2">
+<div class="flex items-center justify-between px-1">
+<label class="font-label text-sm font-bold text-on-surface-variant">Delivery Address</label>
+<button class="text-primary text-xs font-bold">Find Location</button>
+</div>
+<div class="bg-surface-container-low rounded-2xl p-4 flex items-start group focus-within:bg-surface-container-lowest focus-within:ring-1 focus-within:ring-outline-variant/30 transition-all">
+<span class="material-symbols-outlined text-outline mt-1 mr-3">location_on</span>
+<textarea class="bg-transparent border-none focus:ring-0 w-full font-body text-on-surface placeholder:text-outline-variant/60 resize-none" placeholder="123 Curated Lane, Artisan District, NY 10001" rows="3"></textarea>
+</div>
+</div>
+</div>
+<!-- Bento-style Address Suggestions -->
+<div class="grid grid-cols-2 gap-3">
+<div class="bg-surface-container-low p-4 rounded-2xl flex flex-col items-start gap-2 active:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="text-xs font-bold text-on-surface">Home Address</span>
+<span class="text-[10px] text-on-surface-variant line-clamp-1">Saved from previous...</span>
+</div>
+<div class="bg-surface-container-low p-4 rounded-2xl flex flex-col items-start gap-2 active:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-primary">work</span>
+<span class="text-xs font-bold text-on-surface">Office Desk</span>
+<span class="text-[10px] text-on-surface-variant line-clamp-1">7th Ave, Manhattan...</span>
+</div>
+</div>
+</div>
+<!-- Step 2 & 3 would follow here in a live multi-step flow -->
+</div>
+<!-- Sticky Footer CTA -->
+<div class="p-6 bg-surface-container-lowest/80 backdrop-blur-md border-t border-outline-variant/5">
+<div class="flex items-center justify-between mb-4">
+<div>
+<span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Estimated Delivery</span>
+<p class="text-on-surface font-bold">Tomorrow, Oct 12</p>
+</div>
+<div class="text-right">
+<span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Total</span>
+<p class="text-xl font-headline font-extrabold text-on-surface">$124.00</p>
+</div>
+</div>
+<button class="w-full h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-container text-on-primary font-headline font-bold text-lg flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-transform">
+                    Continue to Message
+                    <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</section>
+</div>
+<!-- Hidden BottomNavBar (Suppressed due to Task-Focused Flow) -->
+<!-- But keeping structure defined in shared components for logic consistency -->
+<nav class="hidden">
+<div class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 bg-orange-50/80 backdrop-blur-xl rounded-t-3xl z-50 shadow-[0_-10px_40px_rgba(73,38,4,0.06)]">
+<div class="flex flex-col items-center justify-center text-stone-500 px-4 py-2">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-manrope text-[10px] font-bold uppercase tracking-widest">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-500 px-4 py-2">
+<span class="material-symbols-outlined" data-icon="redeem">redeem</span>
+<span class="font-manrope text-[10px] font-bold uppercase tracking-widest">Gifts</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-500 px-4 py-2">
+<span class="material-symbols-outlined" data-icon="campaign">campaign</span>
+<span class="font-manrope text-[10px] font-bold uppercase tracking-widest">Campaigns</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-500 px-4 py-2">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-manrope text-[10px] font-bold uppercase tracking-widest">Wallet</span>
+</div>
+</div>
+</nav>
+</body></html>

@@ -1,10 +1,18 @@
 'use client';
 
 import {Badge} from '@/components/ui/badge';
+import {BankPicker} from '@/components/ui/bank-picker';
 import {Button} from '@/components/ui/button';
-import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
+import {
+  ResponsiveModal,
+  ResponsiveModalContent,
+  ResponsiveModalDescription,
+  ResponsiveModalFooter,
+  ResponsiveModalHeader,
+  ResponsiveModalTitle,
+} from '@/components/ui/responsive-modal';
 import {
   Select,
   SelectContent,
@@ -14,26 +22,37 @@ import {
 } from '@/components/ui/select';
 import {useProfile} from '@/hooks/use-profile';
 import {useVendorWallet} from '@/hooks/use-vendor';
-import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
 import {
+  getCurrencyByCountry,
+  getCurrencySymbol,
+  PAYSTACK_COUNTRIES,
+} from '@/lib/currencies';
+import {
+  getPaystackBanks,
+  resolvePaystackAccount,
+} from '@/lib/server/actions/transactions';
+import {cn} from '@/lib/utils';
+import {useQuery} from '@tanstack/react-query';
+import {
+  ArrowDownRight,
   ArrowUpRight,
   Building,
   CheckCircle,
   Clock,
   DollarSign,
   Loader2,
-  Shield,
+  Plus,
   Trash2,
   Wallet,
 } from 'lucide-react';
 import {useEffect, useState} from 'react';
+import {toast} from 'sonner';
 import {SecurityModal} from './SecurityModal';
+
+type ModalView = null | 'withdraw' | 'bank' | 'transactions';
 
 export function WalletTab() {
   const {data: profile} = useProfile();
-  const [walletView, setWalletView] = useState<
-    'overview' | 'transactions' | 'bank' | 'withdraw'
-  >('overview');
   const {
     data: vendorWallet = {
       available: 0,
@@ -44,8 +63,28 @@ export function WalletTab() {
     isLoading: loading,
   } = useVendorWallet();
 
+  const [modalView, setModalView] = useState<ModalView>(null);
+  const [bankAccounts, setBankAccounts] = useState<any[]>([]);
+  const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [withdrawBank, setWithdrawBank] = useState('');
+  const [verifyAction, setVerifyAction] = useState<null | string>(null);
+  const [isResolving, setIsResolving] = useState(false);
+
+  // Get country from profile, default to Nigeria
+  const userCountry = profile?.country || 'Nigeria';
+
+  // Fetch banks from Paystack API
+  const {data: banksData, isLoading: banksLoading} = useQuery({
+    queryKey: ['paystack-banks', userCountry],
+    queryFn: () => getPaystackBanks(userCountry),
+    enabled: !!userCountry,
+  });
+
+  const banks = banksData?.data || [];
+
   const [bankForm, setBankForm] = useState({
-    country: profile?.country || '',
+    country: '',
+    bankCode: '',
     bankName: '',
     accountNumber: '',
     holderName: '',
@@ -57,37 +96,72 @@ export function WalletTab() {
     }
   }, [profile?.country]);
 
+  const currencyCode = getCurrencyByCountry(profile?.country);
+  const currencySymbol = getCurrencySymbol(currencyCode);
+
+  const handleResolveAccount = async () => {
+    if (bankForm.accountNumber.length !== 10 || !bankForm.bankCode) return;
+    setIsResolving(true);
+    try {
+      const result = await resolvePaystackAccount(
+        bankForm.accountNumber,
+        bankForm.bankCode,
+      );
+      if (result.success) {
+        setBankForm(prev => ({
+          ...prev,
+          holderName: result.data.account_name,
+        }));
+        toast.success('Account verified!');
+      } else {
+        toast.error(result.error || 'Could not verify account');
+      }
+    } catch {
+      toast.error('Verification failed');
+    } finally {
+      setIsResolving(false);
+    }
+  };
+
   const handleAddBank = () => {
     if (
       !bankForm.country ||
       !bankForm.bankName ||
       !bankForm.accountNumber ||
       !bankForm.holderName
-    )
+    ) {
+      toast.error('Please fill in all fields');
       return;
+    }
     setBankAccounts([
       ...bankAccounts,
       {
         id: Date.now(),
+        bankCode: bankForm.bankCode,
         bankName: bankForm.bankName,
         accountNumber: '••••••••' + bankForm.accountNumber.slice(-4),
+        fullAccountNumber: bankForm.accountNumber,
         holderName: bankForm.holderName,
         country: bankForm.country,
         isPrimary: bankAccounts.length === 0,
       },
     ]);
-    setBankForm({country: '', bankName: '', accountNumber: '', holderName: ''});
+    setBankForm({country: profile?.country || '', bankCode: '', bankName: '', accountNumber: '', holderName: ''});
     setVerifyAction(null);
+    toast.success('Bank account added');
   };
 
   const handleConfirmAction = (password: string) => {
     if (verifyAction?.startsWith('remove-bank-')) {
       const id = Number(verifyAction.split('-')[2]);
       setBankAccounts(bankAccounts.filter(b => b.id !== id));
+      toast.success('Bank account removed');
     }
     if (verifyAction === 'withdraw') {
-      setWalletView('overview');
+      toast.success('Withdrawal initiated');
+      setModalView(null);
       setWithdrawAmount('');
+      setWithdrawBank('');
     }
     if (verifyAction === 'add-bank') {
       handleAddBank();
@@ -95,326 +169,465 @@ export function WalletTab() {
     setVerifyAction(null);
   };
 
-  const [bankAccounts, setBankAccounts] = useState<any[]>([]);
-  const [withdrawAmount, setWithdrawAmount] = useState('');
-  const [withdrawBank, setWithdrawBank] = useState('');
-  const [verifyAction, setVerifyAction] = useState<null | string>(null);
-
-  const currencyCode = getCurrencyByCountry(profile?.country);
-  const currencySymbol = getCurrencySymbol(currencyCode);
-
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-border rounded-xl">
-        <Loader2 className="w-8 h-8 text-primary animate-spin mb-4" />
-        <p className="text-muted-foreground">Loading wallet data...</p>
+      <div className="flex flex-col items-center justify-center py-16">
+        <Loader2 className="w-8 h-8 text-primary animate-spin mb-3" />
+        <p className="text-sm text-muted-foreground">Loading wallet...</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <SecurityModal
         isOpen={!!verifyAction}
         onClose={() => setVerifyAction(null)}
         onConfirm={handleConfirmAction}
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-        <Card className="border-border">
-          <CardContent className="p-4 sm:p-5 text-center">
+      {/* Balance Cards - Horizontal scroll on mobile */}
+      <div className="-mx-4 px-4 md:mx-0 md:px-0">
+        <div className="flex gap-3 overflow-x-auto pb-2 md:pb-0 scrollbar-hide md:grid md:grid-cols-3 md:gap-4">
+          <div className="shrink-0 w-[160px] md:w-auto p-4 md:p-5 rounded-xl bg-card border border-border text-center">
             <Wallet className="w-6 h-6 text-primary mx-auto mb-2" />
-            <p className="text-2xl sm:text-3xl font-bold text-foreground">
+            <p className="text-xl md:text-2xl font-bold text-foreground">
               {currencySymbol}
               {vendorWallet.available.toLocaleString()}
             </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Available Balance
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="border-border">
-          <CardContent className="p-4 sm:p-5 text-center">
-            <Clock className="w-6 h-6 text-accent mx-auto mb-2" />
-            <p className="text-2xl sm:text-3xl font-bold text-foreground">
+            <p className="text-xs text-muted-foreground mt-1">Available</p>
+          </div>
+          <div className="shrink-0 w-[160px] md:w-auto p-4 md:p-5 rounded-xl bg-card border border-border text-center">
+            <Clock className="w-6 h-6 text-amber-500 mx-auto mb-2" />
+            <p className="text-xl md:text-2xl font-bold text-foreground">
               {currencySymbol}
               {vendorWallet.pending.toLocaleString()}
             </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Pending Balance
-            </p>
-            <p className="text-xs text-muted-foreground">(not redeemed)</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border">
-          <CardContent className="p-4 sm:p-5 text-center">
-            <DollarSign className="w-6 h-6 text-secondary mx-auto mb-2" />
-            <p className="text-2xl sm:text-3xl font-bold text-foreground">
+            <p className="text-xs text-muted-foreground mt-1">Pending</p>
+          </div>
+          <div className="shrink-0 w-[160px] md:w-auto p-4 md:p-5 rounded-xl bg-card border border-border text-center">
+            <DollarSign className="w-6 h-6 text-green-500 mx-auto mb-2" />
+            <p className="text-xl md:text-2xl font-bold text-foreground">
               {currencySymbol}
               {vendorWallet.totalSales.toLocaleString()}
             </p>
             <p className="text-xs text-muted-foreground mt-1">Total Sales</p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
-      <div className="flex flex-wrap gap-2 sm:gap-3">
+      {/* Quick Actions */}
+      <div className="flex flex-wrap gap-2 md:gap-3">
         <Button
-          variant={walletView === 'withdraw' ? 'hero' : 'outline'}
-          onClick={() =>
-            setWalletView(walletView === 'withdraw' ? 'overview' : 'withdraw')
-          }>
-          <ArrowUpRight className="w-4 h-4 mr-2" /> Withdraw
+          variant="hero"
+          onClick={() => setModalView('withdraw')}
+          className="flex-1 sm:flex-initial h-11">
+          <ArrowUpRight className="w-4 h-4 mr-2" />
+          Withdraw
         </Button>
         <Button
-          variant={walletView === 'transactions' ? 'hero' : 'outline'}
-          onClick={() =>
-            setWalletView(
-              walletView === 'transactions' ? 'overview' : 'transactions',
-            )
-          }>
-          <Clock className="w-4 h-4 mr-2" /> Transactions
+          variant="outline"
+          onClick={() => setModalView('bank')}
+          className="flex-1 sm:flex-initial h-11">
+          <Building className="w-4 h-4 mr-2" />
+          Banks
         </Button>
         <Button
-          variant={walletView === 'bank' ? 'hero' : 'outline'}
-          onClick={() =>
-            setWalletView(walletView === 'bank' ? 'overview' : 'bank')
-          }>
-          <Building className="w-4 h-4 mr-2" /> Bank
+          variant="outline"
+          onClick={() => setModalView('transactions')}
+          className="flex-1 sm:flex-initial h-11">
+          <Clock className="w-4 h-4 mr-2" />
+          History
         </Button>
       </div>
+
       <p className="text-xs text-muted-foreground">
         You can only withdraw from Available Balance ({currencySymbol}
-        {vendorWallet.available.toLocaleString()}
-        ).
+        {vendorWallet.available.toLocaleString()}).
       </p>
 
-      {walletView === 'bank' && (
-        <Card className="border-border">
-          <CardContent className="p-4 sm:p-6 space-y-4">
-            <h3 className="font-semibold text-foreground">Bank Accounts</h3>
-            {bankAccounts.map(b => (
-              <div
-                key={b.id}
-                className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 bg-muted rounded-lg gap-2">
-                <div>
-                  <p className="text-sm font-medium text-foreground">
-                    {b.bankName}{' '}
+      {/* Bank Accounts Quick View */}
+      {bankAccounts.length > 0 && (
+        <div className="rounded-xl bg-card border border-border p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-foreground text-sm">Linked Banks</h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs h-7"
+              onClick={() => setModalView('bank')}>
+              Manage
+            </Button>
+          </div>
+          <div className="space-y-2">
+            {bankAccounts.slice(0, 2).map(b => (
+              <div key={b.id} className="flex items-center gap-3 p-2 bg-muted/50 rounded-lg">
+                <Building className="w-4 h-4 text-muted-foreground" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">
+                    {b.bankName}
                     {b.isPrimary && (
-                      <Badge variant="secondary" className="ml-2 text-xs">
+                      <Badge variant="secondary" className="ml-2 text-[10px]">
                         Primary
                       </Badge>
                     )}
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    {b.holderName} · {b.accountNumber} · {b.country}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  {!b.isPrimary && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() =>
-                        setBankAccounts(
-                          bankAccounts.map(ba => ({
-                            ...ba,
-                            isPrimary: ba.id === b.id,
-                          })),
-                        )
-                      }>
-                      Set Primary
-                    </Button>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-destructive"
-                    onClick={() => setVerifyAction(`remove-bank-${b.id}`)}>
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </Button>
+                  <p className="text-xs text-muted-foreground">{b.accountNumber}</p>
                 </div>
               </div>
             ))}
-            <div className="border-t border-border pt-4 space-y-3">
-              <h4 className="text-sm font-medium text-foreground">
-                Add New Bank Account
-              </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <Label className="text-xs">Country</Label>
-                  <Select
-                    value={bankForm.country}
-                    disabled
-                    onValueChange={v => setBankForm({...bankForm, country: v})}>
-                    <SelectTrigger className="bg-muted/50">
-                      <SelectValue placeholder="Select country" />
+          </div>
+        </div>
+      )}
+
+      {/* Recent Transactions Quick View */}
+      {vendorWallet.transactions.length > 0 && (
+        <div className="rounded-xl bg-card border border-border p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-foreground text-sm">Recent Transactions</h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs h-7"
+              onClick={() => setModalView('transactions')}>
+              View All
+            </Button>
+          </div>
+          <div className="space-y-2">
+            {vendorWallet.transactions.slice(0, 3).map((t: any) => (
+              <div key={t.id} className="flex items-center justify-between py-2">
+                <div className="flex items-center gap-3">
+                  <div
+                    className={cn(
+                      'w-8 h-8 rounded-full flex items-center justify-center',
+                      t.amount > 0 ? 'bg-green-500/10' : 'bg-destructive/10',
+                    )}>
+                    {t.amount > 0 ? (
+                      <ArrowDownRight className="w-4 h-4 text-green-500" />
+                    ) : (
+                      <ArrowUpRight className="w-4 h-4 text-destructive" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{t.desc}</p>
+                    <p className="text-xs text-muted-foreground">{t.date}</p>
+                  </div>
+                </div>
+                <span
+                  className={cn(
+                    'text-sm font-semibold',
+                    t.amount > 0 ? 'text-green-500' : 'text-destructive',
+                  )}>
+                  {t.amount > 0 ? '+' : ''}
+                  {currencySymbol}
+                  {Math.abs(t.amount).toLocaleString()}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Withdraw Modal */}
+      <ResponsiveModal open={modalView === 'withdraw'} onOpenChange={open => !open && setModalView(null)}>
+        <ResponsiveModalContent className="sm:max-w-md">
+          <ResponsiveModalHeader>
+            <ResponsiveModalTitle>Withdraw Funds</ResponsiveModalTitle>
+            <ResponsiveModalDescription>
+              Withdraw available balance to your bank account
+            </ResponsiveModalDescription>
+          </ResponsiveModalHeader>
+
+          <div className="px-4 md:px-6 py-4 space-y-4">
+            {bankAccounts.length === 0 ? (
+              <div className="text-center py-6">
+                <Building className="w-10 h-10 text-muted-foreground/30 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground mb-3">
+                  Add a bank account first
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setModalView('bank')}>
+                  <Plus className="w-4 h-4 mr-1" /> Add Bank
+                </Button>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <Label>Select Bank</Label>
+                  <Select value={withdrawBank} onValueChange={setWithdrawBank}>
+                    <SelectTrigger className="h-11">
+                      <SelectValue placeholder="Choose bank account" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Nigeria">Nigeria</SelectItem>
-                      <SelectItem value="United States">
-                        United States
-                      </SelectItem>
-                      <SelectItem value="United Kingdom">
-                        United Kingdom
-                      </SelectItem>
+                      {bankAccounts.map(b => (
+                        <SelectItem key={b.id} value={String(b.id)}>
+                          {b.bankName} — {b.accountNumber}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
-                  <p className="text-[10px] text-muted-foreground mt-1">
-                    Locked to your profile country of residence.
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Amount</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">
+                      {currencySymbol}
+                    </span>
+                    <Input
+                      type="number"
+                      placeholder="0.00"
+                      className="pl-12 h-11 text-lg"
+                      value={withdrawAmount}
+                      onChange={e => setWithdrawAmount(e.target.value)}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Available: {currencySymbol}
+                    {vendorWallet.available.toLocaleString()}
                   </p>
                 </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Bank Name</Label>
-                  <Input
-                    value={bankForm.bankName}
-                    onChange={e =>
-                      setBankForm({...bankForm, bankName: e.target.value})
-                    }
-                    placeholder="e.g. First Bank"
-                  />
+              </>
+            )}
+          </div>
+
+          {bankAccounts.length > 0 && (
+            <ResponsiveModalFooter className="flex-col-reverse sm:flex-row">
+              <Button
+                variant="outline"
+                onClick={() => setModalView(null)}
+                className="w-full sm:w-auto h-11">
+                Cancel
+              </Button>
+              <Button
+                variant="hero"
+                onClick={() => setVerifyAction('withdraw')}
+                disabled={!withdrawBank || !withdrawAmount || Number(withdrawAmount) > vendorWallet.available}
+                className="w-full sm:w-auto h-11">
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Withdraw
+              </Button>
+            </ResponsiveModalFooter>
+          )}
+        </ResponsiveModalContent>
+      </ResponsiveModal>
+
+      {/* Bank Management Modal */}
+      <ResponsiveModal open={modalView === 'bank'} onOpenChange={open => !open && setModalView(null)}>
+        <ResponsiveModalContent className="sm:max-w-lg">
+          <ResponsiveModalHeader>
+            <ResponsiveModalTitle>Bank Accounts</ResponsiveModalTitle>
+            <ResponsiveModalDescription>
+              Manage your withdrawal bank accounts
+            </ResponsiveModalDescription>
+          </ResponsiveModalHeader>
+
+          <div className="px-4 md:px-6 py-4 space-y-4 max-h-[60vh] overflow-y-auto">
+            {/* Existing Banks */}
+            {bankAccounts.length > 0 && (
+              <div className="space-y-2">
+                {bankAccounts.map(b => (
+                  <div
+                    key={b.id}
+                    className="flex items-center justify-between p-3 bg-muted/50 rounded-xl">
+                    <div className="flex items-center gap-3">
+                      <Building className="w-5 h-5 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">
+                          {b.bankName}
+                          {b.isPrimary && (
+                            <Badge variant="secondary" className="ml-2 text-[10px]">
+                              Primary
+                            </Badge>
+                          )}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {b.holderName} · {b.accountNumber}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex gap-1">
+                      {!b.isPrimary && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-xs h-8"
+                          onClick={() =>
+                            setBankAccounts(
+                              bankAccounts.map(ba => ({
+                                ...ba,
+                                isPrimary: ba.id === b.id,
+                              })),
+                            )
+                          }>
+                          Set Primary
+                        </Button>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive"
+                        onClick={() => setVerifyAction(`remove-bank-${b.id}`)}>
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Add New Bank Form */}
+            <div className="border-t border-border pt-4 space-y-3">
+              <h4 className="text-sm font-semibold text-foreground">Add New Bank</h4>
+              <div className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label className="text-xs">Country</Label>
+                    <Select
+                      value={bankForm.country || userCountry}
+                      disabled>
+                      <SelectTrigger className="h-10 bg-muted/50">
+                        <SelectValue placeholder="Select country">
+                          {bankForm.country || userCountry || 'Select country'}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {PAYSTACK_COUNTRIES.map(c => (
+                          <SelectItem key={c.code} value={c.name}>{c.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-[10px] text-muted-foreground">Locked to profile</p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Bank</Label>
+                    <BankPicker
+                      banks={banks}
+                      value={bankForm.bankCode}
+                      onChange={bank => setBankForm({...bankForm, bankCode: bank.code, bankName: bank.name})}
+                      isLoading={banksLoading}
+                      placeholder="Select bank"
+                      className="h-10"
+                    />
+                  </div>
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">Account Number</Label>
-                  <Input
-                    value={bankForm.accountNumber}
-                    onChange={e =>
-                      setBankForm({...bankForm, accountNumber: e.target.value})
-                    }
-                    placeholder="0123456789"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      value={bankForm.accountNumber}
+                      onChange={e => setBankForm({...bankForm, accountNumber: e.target.value})}
+                      placeholder="0123456789"
+                      maxLength={10}
+                      className="h-10"
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleResolveAccount}
+                      disabled={isResolving || bankForm.accountNumber.length !== 10 || !bankForm.bankCode}
+                      className="h-10 px-4">
+                      {isResolving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Verify'}
+                    </Button>
+                  </div>
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">Account Holder</Label>
                   <Input
                     value={bankForm.holderName}
-                    onChange={e =>
-                      setBankForm({...bankForm, holderName: e.target.value})
-                    }
-                    placeholder="Full name"
+                    readOnly
+                    placeholder="Verified name appears here"
+                    className="h-10 bg-muted"
                   />
                 </div>
               </div>
               <Button
                 variant="hero"
                 size="sm"
-                onClick={() => setVerifyAction('add-bank')}>
-                <CheckCircle className="w-4 h-4 mr-1" /> Verify & Add
+                onClick={() => setVerifyAction('add-bank')}
+                disabled={!bankForm.bankName || !bankForm.accountNumber || !bankForm.holderName}
+                className="w-full sm:w-auto">
+                <Plus className="w-4 h-4 mr-1" /> Add Bank Account
               </Button>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          </div>
 
-      {walletView === 'withdraw' && (
-        <Card className="border-primary/20">
-          <CardContent className="p-4 sm:p-6 space-y-4">
-            <h3 className="font-semibold text-foreground">Withdraw Funds</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Bank Account</Label>
-                <Select value={withdrawBank} onValueChange={setWithdrawBank}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose bank" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {bankAccounts.map(b => (
-                      <SelectItem key={b.id} value={String(b.id)}>
-                        {b.bankName} — {b.accountNumber}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Amount</Label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">
-                    {currencySymbol}
-                  </span>
-                  <Input
-                    type="number"
-                    placeholder="0.00"
-                    className="pl-12"
-                    value={withdrawAmount}
-                    onChange={e => setWithdrawAmount(e.target.value)}
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Max: {currencySymbol}
-                  {vendorWallet.available}
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <Button
-                variant="hero"
-                onClick={() => setVerifyAction('withdraw')}
-                disabled={!withdrawBank || !withdrawAmount}>
-                <Shield className="w-4 h-4 mr-1" /> Verify & Withdraw
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setWalletView('overview')}>
-                Cancel
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+          <ResponsiveModalFooter>
+            <Button variant="outline" onClick={() => setModalView(null)} className="w-full sm:w-auto h-11">
+              Done
+            </Button>
+          </ResponsiveModalFooter>
+        </ResponsiveModalContent>
+      </ResponsiveModal>
 
-      {walletView === 'transactions' && (
-        <Card className="border-border">
-          <CardHeader>
-            <CardTitle className="text-base font-body">
-              Transaction History
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border text-muted-foreground">
-                    <th className="text-left py-2 font-medium">Date</th>
-                    <th className="text-left py-2 font-medium">Description</th>
-                    <th className="text-left py-2 font-medium">Type</th>
-                    <th className="text-right py-2 font-medium">Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {vendorWallet.transactions.map((t: any) => (
-                    <tr
-                      key={t.id}
-                      className="border-b border-border last:border-0">
-                      <td className="py-3 text-foreground">{t.date}</td>
-                      <td className="py-3 text-foreground">{t.desc}</td>
-                      <td className="py-3">
-                        <Badge variant="outline" className="text-xs">
-                          {t.type}
-                        </Badge>
-                      </td>
-                      <td
-                        className={`py-3 text-right font-semibold ${
-                          t.amount > 0
-                            ? 'text-secondary'
-                            : t.amount < 0
-                              ? 'text-destructive'
-                              : 'text-muted-foreground'
-                        }`}>
-                        {t.amount > 0
-                          ? `+${currencySymbol}${t.amount}`
-                          : t.amount < 0
-                            ? `-${currencySymbol}${Math.abs(t.amount)}`
-                            : '—'}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Transactions Modal */}
+      <ResponsiveModal open={modalView === 'transactions'} onOpenChange={open => !open && setModalView(null)}>
+        <ResponsiveModalContent className="sm:max-w-lg">
+          <ResponsiveModalHeader>
+            <ResponsiveModalTitle>Transaction History</ResponsiveModalTitle>
+            <ResponsiveModalDescription>
+              Your recent wallet activity
+            </ResponsiveModalDescription>
+          </ResponsiveModalHeader>
+
+          <div className="px-4 md:px-6 py-4 max-h-[60vh] overflow-y-auto">
+            {vendorWallet.transactions.length === 0 ? (
+              <div className="text-center py-8">
+                <Clock className="w-10 h-10 text-muted-foreground/30 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">No transactions yet</p>
+              </div>
+            ) : (
+              <div className="space-y-1">
+                {vendorWallet.transactions.map((t: any) => (
+                  <div
+                    key={t.id}
+                    className="flex items-center justify-between py-3 border-b border-border last:border-0">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={cn(
+                          'w-9 h-9 rounded-full flex items-center justify-center',
+                          t.amount > 0 ? 'bg-green-500/10' : 'bg-destructive/10',
+                        )}>
+                        {t.amount > 0 ? (
+                          <ArrowDownRight className="w-4 h-4 text-green-500" />
+                        ) : (
+                          <ArrowUpRight className="w-4 h-4 text-destructive" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{t.desc}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-xs text-muted-foreground">{t.date}</p>
+                          <Badge variant="outline" className="text-[10px]">
+                            {t.type}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                    <span
+                      className={cn(
+                        'text-sm font-bold',
+                        t.amount > 0 ? 'text-green-500' : 'text-destructive',
+                      )}>
+                      {t.amount > 0 ? '+' : ''}
+                      {currencySymbol}
+                      {Math.abs(t.amount).toLocaleString()}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <ResponsiveModalFooter>
+            <Button variant="outline" onClick={() => setModalView(null)} className="w-full sm:w-auto h-11">
+              Close
+            </Button>
+          </ResponsiveModalFooter>
+        </ResponsiveModalContent>
+      </ResponsiveModal>
     </div>
   );
 }

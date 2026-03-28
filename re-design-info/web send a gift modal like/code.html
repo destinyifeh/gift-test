@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Send a Gift | The Warm Curator</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface": "#fff4ef",
+                        "on-surface-variant": "#7d522b",
+                        "surface-container-low": "#ffede2",
+                        "surface-container-lowest": "#ffffff",
+                        "primary": "#964300",
+                        "primary-container": "#f9873e",
+                        "on-primary": "#fff0e9",
+                        "on-surface": "#492604",
+                        "outline-variant": "#d9a275",
+                        "secondary-container": "#ffc69a",
+                        "on-secondary-container": "#6e3a00",
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>.material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+    vertical-align: middle
+    }
+.hide-scrollbar::-webkit-scrollbar {
+    display: none
+    }
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none
+    }
+.glass-header {
+    background: rgba(255, 244, 239, 0.8);
+    backdrop-filter: blur(20px)
+    }
+.modal-blur-bg {
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuBfg0uw_gwK8w-tbwcL8eWDynf8KomcgBogM1clVnoXuvdbErhmJS1UTl-FKx0tU6sVQ4w2idA89q3zbPmNJ0wRXd5qgctD_IefdkLTh27jADWhpKMqQyKK7X9PpWhnlYjEa_OZQec14Lr3WZYax9rAtIZJGbGot-VXgS-ihZAVcnMtcL8mEZlIdMwc43h-9pETSC0jzTPqaG_wj77ThrTJIvyoB-5zCB3ETrqHiOVIRhBfXpS0yQoExkHme5uT02obTEZ601Jf4pI);
+    background-size: cover;
+    background-position: center
+    }</style>
+</head>
+<body class="font-body bg-surface text-on-surface">
+<!-- Background Simulation (Blurred Gift Shop) -->
+<div class="fixed inset-0 modal-blur-bg z-0" data-alt="interior of a high-end boutique gift shop with warm ambient lighting wooden shelving and artisanal products in soft focus"></div>
+<div class="fixed inset-0 bg-on-surface/40 backdrop-blur-md z-10"></div>
+<!-- TopNavBar (Shared Component Template) -->
+<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-8 py-4 max-w-full mx-auto bg-[#fff4ef]/80 backdrop-blur-md">
+<div class="text-2xl font-extrabold text-[#492604] tracking-tight font-headline">The Warm Curator</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-[#7d522b] hover:text-[#492604] font-headline font-bold text-lg transition-colors" href="#">Shop</a>
+<a class="text-[#7d522b] hover:text-[#492604] font-headline font-bold text-lg transition-colors" href="#">Collections</a>
+<a class="text-[#7d522b] hover:text-[#492604] font-headline font-bold text-lg transition-colors" href="#">Gifts</a>
+<a class="text-[#7d522b] hover:text-[#492604] font-headline font-bold text-lg transition-colors border-b-2 border-[#964300] pb-1" href="#">Journal</a>
+</div>
+<div class="flex items-center gap-6">
+<span class="material-symbols-outlined text-[#964300] cursor-pointer">favorite</span>
+<span class="material-symbols-outlined text-[#964300] cursor-pointer">shopping_bag</span>
+<button class="bg-primary text-on-primary px-6 py-2 rounded-xl font-bold hover:scale-95 transition-transform duration-150">Sign In</button>
+</div>
+</nav>
+<!-- Modal Container -->
+<main class="relative z-20 min-h-screen flex items-center justify-center p-4 md:p-8">
+<div class="bg-surface-container-lowest rounded-lg shadow-2xl w-full max-w-5xl flex flex-col md:flex-row overflow-hidden ring-1 ring-black/5">
+<!-- Left Side: Form Content -->
+<div class="flex-1 p-8 md:p-12 overflow-y-auto max-h-[921px] hide-scrollbar">
+<header class="mb-10">
+<h1 class="font-headline text-3xl font-extrabold text-on-surface tracking-tight mb-2">Send a Moment of Warmth</h1>
+<p class="text-on-surface-variant">Curate a thoughtful experience for someone special.</p>
+</header>
+<!-- Section 1: Choose Gift Card -->
+<section class="mb-10">
+<div class="flex items-center justify-between mb-4">
+<h2 class="font-headline text-lg font-bold text-on-surface">Choose Gift Card</h2>
+<span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant/60">Step 1 of 3</span>
+</div>
+<div class="flex gap-4 overflow-x-auto pb-4 hide-scrollbar snap-x">
+<!-- Option 1 -->
+<div class="flex-shrink-0 w-48 snap-start group cursor-pointer">
+<div class="aspect-[4/5] rounded-xl overflow-hidden mb-3 ring-2 ring-primary ring-offset-2">
+<img alt="" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="close-up of steaming latte art in a ceramic cup on a rustic wooden table with morning sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7jh7YAF0jYQ2NPSVOSoJVur9Co58J0QPvi_1JzYM1ahLLctVkoeF-SKcd0uIRSXCClih5rLzF7f3tGm0hVX9MhV9-6Xj2URcm0XI30tro7LZ1OtQ22X5xYfHQDbseUdiN9kXfyEy1-s9AKJhdtwL04-N52B-mPGRZbePSgY7OqSR1CA7-h5G5cegvuepsPjJ4LD5uaUPioN7RF46R2HgLelluKlXoZE2nvqVvhYHiNEnFAVpDvb0azycnjXxc53rWJMs282knuOk"/>
+</div>
+<p class="font-headline font-bold text-on-surface text-center">Artisan Coffee</p>
+</div>
+<!-- Option 2 -->
+<div class="flex-shrink-0 w-48 snap-start group cursor-pointer">
+<div class="aspect-[4/5] rounded-xl overflow-hidden mb-3 ring-1 ring-outline-variant/20 hover:ring-primary/40 transition-all">
+<img alt="" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="cozy reading nook with a stack of old books and a soft wool blanket draped over a chair" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdWRLbk5dVRzzM7ijg8PUwRp_vIRurP56grM53-uau55skfsAJZjyMpjWFFw38jweDAdZPhTxPSQ2sKTfYdbkyqTCV7NRzyQoNYJB0mOoqze8RLfvQNZ8ju3aDCR6Q3KwWXciZQWI0SlGmXt1EvPHP-_EwSi_3lE8bbgOpb2NPc96BZjPWvz4I4BkJqyMf-W-Ke3Oosmr17kMqTkw88alQqX_ksiJaVWB-nQPPbl36vfOKeO-gQ10dluzjIQyL0v1zxlp0QObneQ8"/>
+</div>
+<p class="font-headline font-bold text-on-surface-variant text-center">The Reading Room</p>
+</div>
+<!-- Option 3 -->
+<div class="flex-shrink-0 w-48 snap-start group cursor-pointer">
+<div class="aspect-[4/5] rounded-xl overflow-hidden mb-3 ring-1 ring-outline-variant/20 hover:ring-primary/40 transition-all">
+<img alt="" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="minimalist nordic living room with light wood furniture neutral tones and dried flowers in a ceramic vase" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVZsyp9TlS7gy4YaBSFEbviYt3ZVvxfXo_NV1DBZkSMfe8rQXOGz3l6zuh6csdunz2R1GKmB5OuP_eUb2rZKrRI2pEZjSQT0a3zNdhXeeWrCYKbce2M6qQOJCpYr-t7uc_8JQjnPDiCx6h1TcHZEoQAVWKAK2NUPZO2qh6g3fm_PmzgMQFQpbgMdGcYMyS7EsKJIp33ZbtaEGQJmjBIPuEo-2iEPn3-QlXScl2UiT5RPvCz-J9l9vkJY6X0JwBaNCxPrjpH2IjFU4"/>
+</div>
+<p class="font-headline font-bold text-on-surface-variant text-center">Nordic Home</p>
+</div>
+</div>
+</section>
+<!-- Section 2: Personalize -->
+<section class="mb-10">
+<h2 class="font-headline text-lg font-bold text-on-surface mb-6">Personalize</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+<!-- Amount Input -->
+<div class="space-y-2">
+<label class="block text-sm font-bold text-on-surface-variant ml-1">Gift Amount</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-on-surface">$</span>
+<input class="w-full pl-8 pr-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-1 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all font-bold text-lg text-on-surface" type="number" value="100"/>
+</div>
+<div class="flex gap-2 mt-2">
+<button class="px-3 py-1 bg-surface-container-high rounded-full text-xs font-bold text-primary hover:bg-primary hover:text-white transition-colors">$25</button>
+<button class="px-3 py-1 bg-surface-container-high rounded-full text-xs font-bold text-primary hover:bg-primary hover:text-white transition-colors">$50</button>
+<button class="px-3 py-1 bg-primary rounded-full text-xs font-bold text-white">$100</button>
+</div>
+</div>
+<!-- Delivery Mode -->
+<div class="space-y-2">
+<label class="block text-sm font-bold text-on-surface-variant ml-1">Delivery Mode</label>
+<select class="w-full px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-1 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all font-semibold text-on-surface appearance-none cursor-pointer">
+<option>Instant Email</option>
+<option selected="">Scheduled Delivery</option>
+</select>
+</div>
+</div>
+<!-- Personal Message -->
+<div class="space-y-2 mb-6">
+<label class="block text-sm font-bold text-on-surface-variant ml-1">Personal Message</label>
+<textarea class="w-full px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-1 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all text-on-surface resize-none" placeholder="Write something heartfelt..." rows="4"></textarea>
+</div>
+<!-- Schedule Date -->
+<div class="space-y-2">
+<label class="block text-sm font-bold text-on-surface-variant ml-1">Schedule Date</label>
+<div class="relative">
+<span class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant">calendar_today</span>
+<input class="w-full pl-4 pr-12 py-3 bg-surface-container-low border-none rounded-xl focus:ring-1 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all font-semibold text-on-surface" type="text" value="November 24, 2024"/>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Side: Sticky Summary Sidebar -->
+<aside class="w-full md:w-[360px] bg-surface-container-low p-8 md:p-10 border-l border-outline-variant/10 flex flex-col">
+<div class="sticky top-0">
+<h2 class="font-headline text-xl font-extrabold text-on-surface mb-8 tracking-tight">Summary</h2>
+<!-- Preview Card -->
+<div class="bg-surface-container-lowest p-5 rounded-2xl mb-8 shadow-sm border border-outline-variant/10">
+<div class="aspect-video rounded-xl overflow-hidden mb-4 relative">
+<img alt="" class="w-full h-full object-cover" data-alt="close-up of steaming latte art in a ceramic cup on a rustic wooden table with morning sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBp7xn59nH2FgZW2xX0sy8ZFmeiM2NTuMguY2KAxMxvAWkSM2C0wxWbAJnuj07vHvmnwdN_wgjJ4n2D7f2ExCPReZYTB9R3lAdQRJJraSz5xqHG-hLAiuJFgBYW2rkjE5cv_Jjk_a2yvnRCR6l3cmY2yURrsSt9h3jWP7nexq6IzHFQL9-oNC2NM2_qKuX6M8ZWRKwJOwVSBVUrqxbcPanu2nfowfy_mfOm5a9pvYrtjOwa4d-o5d__I82MBZdWxDrvaexH37r3hw"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
+<span class="text-white font-headline font-bold text-lg">Artisan Coffee</span>
+</div>
+</div>
+<div class="flex justify-between items-center">
+<div>
+<p class="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant/60">Selected Gift</p>
+<p class="font-bold text-on-surface">The Morning Ritual</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant/60">Value</p>
+<p class="font-bold text-primary">$100.00</p>
+</div>
+</div>
+</div>
+<!-- Cost Breakdown -->
+<div class="space-y-3 mb-10">
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant">Gift Card Amount</span>
+<span class="font-bold text-on-surface">$100.00</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant">Service Fee</span>
+<span class="font-bold text-on-surface">$2.50</span>
+</div>
+<div class="pt-3 border-t border-outline-variant/20 flex justify-between">
+<span class="font-headline font-bold text-on-surface">Total Amount</span>
+<span class="font-headline font-extrabold text-2xl text-[#964300]">$102.50</span>
+</div>
+</div>
+<!-- Primary Action -->
+<button class="w-full py-5 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-xl font-headline font-bold text-lg flex items-center justify-center gap-3 hover:shadow-xl hover:shadow-primary/20 active:scale-95 transition-all duration-300">
+<span>Send this Gift</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">rocket_launch</span>
+</button>
+<p class="text-center mt-6 text-xs text-on-surface-variant leading-relaxed">
+                        By clicking "Send this Gift," you agree to our Terms of Curatorship and delivery guidelines.
+                    </p>
+</div>
+</aside>
+</div>
+</main>
+<!-- Footer (Shared Component Template) -->
+<footer class="w-full py-12 px-8 bg-[#fff4ef] mt-auto">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center border-t border-[#d9a275]/20 pt-8">
+<div class="font-['Plus_Jakarta_Sans'] font-bold text-[#492604] mb-4 md:mb-0">The Warm Curator</div>
+<div class="flex gap-6 mb-4 md:mb-0">
+<a class="text-[#7d522b] text-sm hover:text-[#492604] transition-colors" href="#">Privacy Policy</a>
+<a class="text-[#7d522b] text-sm hover:text-[#492604] transition-colors" href="#">Terms of Service</a>
+<a class="text-[#7d522b] text-sm hover:text-[#492604] transition-colors" href="#">Shipping Info</a>
+<a class="text-[#7d522b] text-sm hover:text-[#492604] transition-colors" href="#">Contact Us</a>
+</div>
+<p class="text-[#7d522b] text-sm opacity-80">© 2024 The Warm Curator. All rights reserved.</p>
+</div>
+</footer>
+</body></html>

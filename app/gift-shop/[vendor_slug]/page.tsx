@@ -1,14 +1,14 @@
 'use client';
 
-import Footer from '@/components/landing/Footer';
 import Navbar from '@/components/landing/Navbar';
 import SendShopGiftModal from '@/components/SendShopGiftModal';
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
-import {Card, CardContent} from '@/components/ui/card';
 import {useProfileByShopSlug} from '@/hooks/use-profile';
 import {useVendorProducts, useVendorRatingStats} from '@/hooks/use-vendor';
 import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
+import {cn} from '@/lib/utils';
+import {motion} from 'framer-motion';
 import {
   ArrowLeft,
   Loader2,
@@ -26,12 +26,8 @@ export default function VendorShopPage({
   params: Promise<{vendor_slug: string}>;
 }) {
   const {vendor_slug} = use(params);
-  const {data: vendor, isLoading: vendorLoading} =
-    useProfileByShopSlug(vendor_slug);
-  const {data: productsResult, isLoading: productsLoading} = useVendorProducts(
-    vendor?.id,
-    false,
-  );
+  const {data: vendor, isLoading: vendorLoading} = useProfileByShopSlug(vendor_slug);
+  const {data: productsResult, isLoading: productsLoading} = useVendorProducts(vendor?.id, false);
   const {data: ratingStats} = useVendorRatingStats(vendor?.id);
 
   const [showGiftModal, setShowGiftModal] = useState(false);
@@ -42,8 +38,9 @@ export default function VendorShopPage({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+        <Loader2 className="w-8 h-8 text-primary animate-spin mb-3" />
+        <p className="text-sm text-muted-foreground">Loading shop...</p>
       </div>
     );
   }
@@ -52,19 +49,17 @@ export default function VendorShopPage({
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <div className="pt-24 flex items-center justify-center">
-          <div className="text-center">
-            <ShoppingBag className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-            <h1 className="text-2xl font-bold font-display text-foreground mb-2">
-              Shop Not Found
-            </h1>
-            <p className="text-muted-foreground mb-4">
-              This vendor shop page doesn't exist.
-            </p>
-            <Link href="/gift-shop">
-              <Button variant="hero">Browse Gift Shop</Button>
-            </Link>
+        <div className="pt-20 flex flex-col items-center justify-center p-4">
+          <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+            <ShoppingBag className="w-8 h-8 text-muted-foreground" />
           </div>
+          <h1 className="text-xl font-bold mb-2">Shop Not Found</h1>
+          <p className="text-sm text-muted-foreground mb-6">
+            This vendor shop page doesn't exist.
+          </p>
+          <Link href="/gift-shop">
+            <Button variant="hero">Browse Gift Shop</Button>
+          </Link>
         </div>
       </div>
     );
@@ -76,139 +71,167 @@ export default function VendorShopPage({
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="pt-24 pb-16">
+      <div className="pt-16 pb-24 md:pt-20 md:pb-16">
         <div className="container mx-auto px-4 max-w-5xl">
+          {/* Back Link */}
           <Link
             href="/gift-shop"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8 text-shadow-sm">
+            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4 md:mb-6">
             <ArrowLeft className="w-4 h-4" /> Back to Gift Shop
           </Link>
 
-          {/* Vendor header */}
-          <div className="flex flex-col md:flex-row items-start gap-6 mb-10">
-            <div className="w-24 h-24 rounded-2xl bg-primary/10 flex items-center justify-center text-4xl shrink-0 text-primary border border-primary/20 overflow-hidden">
-              {vendor.shop_logo_url ? (
-                <img
-                  src={vendor.shop_logo_url}
-                  alt={vendor.shop_name || vendor.display_name}
-                  className="w-full h-full object-cover"
-                />
-              ) : vendor.avatar_url ? (
-                <img
-                  src={vendor.avatar_url}
-                  alt={vendor.shop_name || vendor.display_name}
-                  className="w-full h-full object-cover rounded-2xl"
-                />
-              ) : (
-                <Store className="w-12 h-12" />
-              )}
-            </div>
-            <div className="flex-1">
-              <h1 className="text-3xl font-bold font-display text-foreground mb-2 capitalize">
-                {vendor.shop_name || vendor.display_name}
-              </h1>
-
-              <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4 mt-2">
-                {ratingStats && ratingStats.count > 0 ? (
-                  <div className="flex items-center gap-1.5 bg-muted/50 px-3 py-1.5 rounded-full">
-                    <Star className="w-4 h-4 text-yellow-500 fill-yellow-400" />
-                    <span className="font-semibold text-foreground">
-                      {ratingStats.average.toFixed(1)}
-                    </span>
-                    <span className="opacity-70">
-                      ({ratingStats.count} review
-                      {ratingStats.count !== 1 ? 's' : ''})
-                    </span>
-                  </div>
+          {/* Vendor Header */}
+          <div className={cn('p-4 md:p-6 rounded-xl mb-6', 'bg-card border border-border')}>
+            <div className="flex flex-col sm:flex-row items-start gap-4">
+              {/* Logo */}
+              <div className="w-16 h-16 md:w-20 md:h-20 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20 overflow-hidden">
+                {vendor.shop_logo_url ? (
+                  <img
+                    src={vendor.shop_logo_url}
+                    alt={vendor.shop_name || vendor.display_name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : vendor.avatar_url ? (
+                  <img
+                    src={vendor.avatar_url}
+                    alt={vendor.shop_name || vendor.display_name}
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
-                  <div className="flex items-center gap-1.5 bg-muted/50 px-3 py-1.5 rounded-full text-foreground/60 italic text-xs">
-                    No reviews yet
-                  </div>
-                )}
-                {vendor.shop_address && (
-                  <div className="flex items-center gap-1.5 bg-muted/50 px-3 py-1.5 rounded-full">
-                    <MapPin className="w-4 h-4 text-primary" />
-                    <span>{vendor.shop_address}</span>
-                  </div>
+                  <Store className="w-8 h-8 md:w-10 md:h-10 text-primary" />
                 )}
               </div>
 
-              <p className="text-muted-foreground max-w-2xl leading-relaxed">
-                {vendor.shop_description ||
-                  vendor.bio ||
-                  'No shop description available.'}
-              </p>
+              {/* Info */}
+              <div className="flex-1 min-w-0">
+                <h1 className="text-xl md:text-2xl font-bold text-foreground capitalize mb-2">
+                  {vendor.shop_name || vendor.display_name}
+                </h1>
+
+                {/* Stats */}
+                <div className="flex flex-wrap items-center gap-2 mb-3">
+                  {ratingStats && ratingStats.count > 0 ? (
+                    <div className="flex items-center gap-1 bg-muted/50 px-2.5 py-1 rounded-full text-sm">
+                      <Star className="w-3.5 h-3.5 text-yellow-500 fill-yellow-400" />
+                      <span className="font-semibold text-foreground">
+                        {ratingStats.average.toFixed(1)}
+                      </span>
+                      <span className="text-muted-foreground text-xs">
+                        ({ratingStats.count})
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="text-xs text-muted-foreground italic bg-muted/50 px-2.5 py-1 rounded-full">
+                      No reviews yet
+                    </div>
+                  )}
+                  <Badge variant="secondary" className="text-xs">
+                    {products.length} {products.length === 1 ? 'product' : 'products'}
+                  </Badge>
+                </div>
+
+                {/* Address */}
+                {vendor.shop_address && (
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-3">
+                    <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
+                    <span>{vendor.shop_address}</span>
+                  </div>
+                )}
+
+                {/* Description */}
+                <p className="text-sm text-muted-foreground line-clamp-2 md:line-clamp-none">
+                  {vendor.shop_description || vendor.bio || 'No shop description available.'}
+                </p>
+              </div>
             </div>
           </div>
 
-          <hr className="border-border mb-10" />
-
-          {/* Products */}
-          <h2 className="text-xl font-semibold font-display text-foreground mb-6">
-            Gift Products ({products.length})
-          </h2>
+          {/* Products Section */}
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold text-foreground">
+              Gift Products
+            </h2>
+          </div>
 
           {products.length === 0 ? (
-            <div className="text-center py-12 bg-muted/30 rounded-2xl border border-dashed border-border">
-              <ShoppingBag className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-20" />
-              <p className="text-muted-foreground">
+            <div className="text-center py-12 bg-muted/30 rounded-xl border border-dashed border-border">
+              <ShoppingBag className="w-10 h-10 text-muted-foreground mx-auto mb-3 opacity-30" />
+              <p className="text-sm text-muted-foreground">
                 This shop hasn't added any products yet.
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.map((p: any) => (
-                <Card
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+              {products.map((p: any, i: number) => (
+                <motion.div
                   key={p.id}
-                  className="border-border hover:shadow-elevated hover:border-primary/30 transition-all overflow-hidden group">
-                  <Link href={`/gift-shop/${vendor.shop_slug}/${p.slug}`}>
-                    <div className="h-40 bg-muted overflow-hidden">
-                      {p.image_url ? (
-                        <img
-                          src={p.image_url}
-                          alt={p.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-5xl group-hover:scale-110 transition-transform duration-500">
-                          🎁
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge variant="secondary">{p.category}</Badge>
-                      <Badge variant="outline">{p.type}</Badge>
-                    </div>
+                  initial={{opacity: 0, y: 10}}
+                  animate={{opacity: 1, y: 0}}
+                  transition={{delay: i * 0.03}}>
+                  <div
+                    className={cn(
+                      'rounded-xl overflow-hidden h-full',
+                      'bg-card border border-border',
+                      'hover:border-primary/30 hover:shadow-lg',
+                      'transition-all duration-200 group',
+                    )}>
+                    {/* Image */}
                     <Link href={`/gift-shop/${vendor.shop_slug}/${p.slug}`}>
-                      <h3 className="font-semibold text-foreground mb-2 hover:text-primary transition-colors">
-                        {p.name}
-                      </h3>
+                      <div className="aspect-square bg-muted overflow-hidden relative">
+                        {p.image_url ? (
+                          <img
+                            src={p.image_url}
+                            alt={p.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-4xl md:text-5xl">
+                            🎁
+                          </div>
+                        )}
+                        <Badge
+                          variant="outline"
+                          className="absolute bottom-2 left-2 text-[10px] bg-background/90 backdrop-blur-sm">
+                          {p.type}
+                        </Badge>
+                      </div>
                     </Link>
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg font-bold text-primary">
-                        {symbol}
-                        {p.price.toLocaleString()}
-                      </span>
-                      <Button
-                        variant="hero"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedGift(p);
-                          setShowGiftModal(true);
-                        }}>
-                        Send as Gift
-                      </Button>
+
+                    {/* Content */}
+                    <div className="p-3">
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
+                        {p.category}
+                      </p>
+                      <Link href={`/gift-shop/${vendor.shop_slug}/${p.slug}`}>
+                        <h3 className="font-semibold text-foreground text-sm line-clamp-1 hover:text-primary transition-colors mb-2">
+                          {p.name}
+                        </h3>
+                      </Link>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-base font-bold text-primary">
+                          {symbol}
+                          {p.price.toLocaleString()}
+                        </span>
+                        <Button
+                          variant="hero"
+                          size="sm"
+                          className="h-8 text-xs px-3"
+                          onClick={() => {
+                            setSelectedGift(p);
+                            setShowGiftModal(true);
+                          }}>
+                          Send
+                        </Button>
+                      </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </motion.div>
               ))}
             </div>
           )}
         </div>
       </div>
-      <Footer />
+
       {selectedGift && (
         <SendShopGiftModal
           open={showGiftModal}

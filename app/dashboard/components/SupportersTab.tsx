@@ -1,13 +1,14 @@
 'use client';
 
 import {Avatar, AvatarFallback} from '@/components/ui/avatar';
-import {Card, CardContent} from '@/components/ui/card';
 import {InfiniteScroll} from '@/components/ui/infinite-scroll';
 import {fetchCreatorSupporters} from '@/lib/server/actions/analytics';
 import {useUserStore} from '@/lib/store/useUserStore';
 import {formatCurrency} from '@/lib/utils/currency';
+import {cn} from '@/lib/utils';
 import {useInfiniteQuery} from '@tanstack/react-query';
-import {Loader2} from 'lucide-react';
+import {Loader2, Users} from 'lucide-react';
+import {DashboardEmptyState} from './shared';
 
 export function SupportersTab() {
   const user = useUserStore(state => state.user);
@@ -28,56 +29,65 @@ export function SupportersTab() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-[200px] opacity-50">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="flex flex-col items-center justify-center min-h-[300px]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary mb-3" />
+        <p className="text-sm text-muted-foreground">Loading supporters...</p>
       </div>
     );
   }
 
   if (supporters.length === 0) {
     return (
-      <div className="text-center py-10 text-muted-foreground border border-border rounded-lg bg-card">
-        No supporters yet. Share your gift page to get started!
-      </div>
+      <DashboardEmptyState
+        icon={<Users className="w-8 h-8" />}
+        title="No Supporters Yet"
+        description="Share your gift page to start receiving support from your fans."
+        action={{label: 'Go to Gift Page', href: '/dashboard?tab=gift-page'}}
+      />
     );
   }
 
   return (
     <div className="space-y-4">
-      <p className="text-muted-foreground">
-        {totalSupporters} total supporters
+      <p className="text-sm text-muted-foreground">
+        {totalSupporters} total supporter{totalSupporters !== 1 ? 's' : ''}
       </p>
-      {supporters.map((s: any) => (
-        <Card key={s.id} className="border-border">
-          <CardContent className="p-3 sm:p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Avatar className="w-9 h-9">
-                <AvatarFallback className="bg-muted text-xs capitalize">
-                  {s.anonymous ? '?' : s.name.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="text-sm font-bold text-foreground capitalize">
-                  {s.name}
-                </p>
-                {s.message && (
-                  <p className="text-xs text-muted-foreground mt-0.5 italic">
-                    "{s.message}"
-                  </p>
-                )}
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="font-semibold text-primary">
-                {!s.hideAmount
-                  ? formatCurrency(s.amount, s.currency)
-                  : 'Hidden'}
+
+      <div className="space-y-2">
+        {supporters.map((s: any) => (
+          <div
+            key={s.id}
+            className={cn(
+              'flex items-center gap-3 p-3 rounded-xl',
+              'bg-card border border-border',
+              'min-h-[64px]',
+            )}>
+            <Avatar className="w-10 h-10 shrink-0">
+              <AvatarFallback className="bg-primary/10 text-primary text-sm font-bold capitalize">
+                {s.anonymous ? '?' : s.name.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-foreground text-sm capitalize truncate">
+                {s.name}
               </p>
-              <p className="text-xs text-muted-foreground">{s.date}</p>
+              {s.message && (
+                <p className="text-xs text-muted-foreground italic truncate">
+                  "{s.message}"
+                </p>
+              )}
             </div>
-          </CardContent>
-        </Card>
-      ))}
+
+            <div className="text-right shrink-0">
+              <p className="font-bold text-primary text-sm">
+                {!s.hideAmount ? formatCurrency(s.amount, s.currency) : 'Hidden'}
+              </p>
+              <p className="text-[10px] text-muted-foreground">{s.date}</p>
+            </div>
+          </div>
+        ))}
+      </div>
 
       {!isLoading && supporters.length > 0 && (
         <InfiniteScroll

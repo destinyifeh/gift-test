@@ -3,7 +3,7 @@
 import {Button} from '@/components/ui/button';
 import {Progress} from '@/components/ui/progress';
 import {motion} from 'framer-motion';
-import {ArrowRight} from 'lucide-react';
+import {ArrowRight, Users} from 'lucide-react';
 import Link from 'next/link';
 
 const campaigns = [
@@ -43,28 +43,85 @@ const campaigns = [
 
 const FeaturedCampaigns = () => {
   return (
-    <section className="py-20 md:py-28">
+    <section className="py-12 sm:py-16 md:py-24">
       <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12">
+        {/* Header */}
+        <div className="flex items-end justify-between mb-6 sm:mb-10">
           <motion.div
-            initial={{opacity: 0, y: 20}}
+            initial={{opacity: 0, y: 15}}
             whileInView={{opacity: 1, y: 0}}
             viewport={{once: true}}>
-            <span className="text-sm font-semibold text-primary uppercase tracking-wider">
+            <span className="text-xs sm:text-sm font-semibold text-primary uppercase tracking-wider">
               Featured Campaigns
             </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mt-2 sm:mt-3">
               Trending <span className="text-gradient">right now</span>
             </h2>
           </motion.div>
-          <Link href="/campaigns" className="hidden md:block">
-            <Button variant="ghost" className="text-primary">
-              View all campaigns <ArrowRight className="w-4 h-4 ml-1" />
+          <Link href="/campaigns" className="hidden sm:block">
+            <Button variant="ghost" size="sm" className="text-primary gap-1">
+              View all <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Mobile: Horizontal scroll */}
+        <div className="block sm:hidden -mx-4 px-4">
+          <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
+            {campaigns.map((c, i) => {
+              const slug = c.title
+                .toLowerCase()
+                .replace(/\s+/g, '-')
+                .replace(/[^\w-]/g, '');
+              return (
+                <motion.div
+                  key={c.title}
+                  initial={{opacity: 0, x: 20}}
+                  whileInView={{opacity: 1, x: 0}}
+                  viewport={{once: true}}
+                  transition={{delay: i * 0.05}}
+                  className="shrink-0 w-[260px] rounded-xl bg-card border border-border overflow-hidden active:scale-[0.98] transition-transform">
+                  <Link href={`/campaign/mock-${i}/${slug}`}>
+                    <div className="h-28 bg-muted relative overflow-hidden">
+                      <img
+                        src={(c as any).image || '/default-campaign.png'}
+                        alt={c.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center text-3xl bg-black/5">
+                        {c.emoji}
+                      </div>
+                    </div>
+                    <div className="p-3.5">
+                      <span className="text-[10px] font-semibold text-primary uppercase tracking-wider">
+                        {c.category}
+                      </span>
+                      <h3 className="font-semibold text-foreground text-sm mt-0.5 mb-2 line-clamp-1">
+                        {c.title}
+                      </h3>
+                      <Progress
+                        value={(c.raised / c.goal) * 100}
+                        className="h-1.5 mb-2"
+                      />
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="font-semibold text-foreground">
+                          ${c.raised.toLocaleString()}
+                        </span>
+                        <span className="text-muted-foreground flex items-center gap-1">
+                          <Users className="w-3 h-3" />
+                          {c.donors}
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Desktop Grid */}
+        <div className="hidden sm:grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
           {campaigns.map((c, i) => {
             const slug = c.title
               .toLowerCase()
@@ -73,34 +130,34 @@ const FeaturedCampaigns = () => {
             return (
               <motion.div
                 key={c.title}
-                initial={{opacity: 0, y: 30}}
+                initial={{opacity: 0, y: 20}}
                 whileInView={{opacity: 1, y: 0}}
                 viewport={{once: true}}
-                transition={{delay: i * 0.1}}
-                className="rounded-xl bg-card border border-border overflow-hidden hover:shadow-card transition-all duration-300 group cursor-pointer">
+                transition={{delay: i * 0.08}}
+                className="rounded-xl bg-card border border-border overflow-hidden hover:shadow-card hover:border-primary/20 transition-all duration-300 group cursor-pointer">
                 <Link href={`/campaign/mock-${i}/${slug}`}>
-                  <div className="h-36 bg-muted relative overflow-hidden group-hover:scale-105 transition-transform duration-300">
+                  <div className="h-32 lg:h-36 bg-muted relative overflow-hidden">
                     <img
                       src={(c as any).image || '/default-campaign.png'}
                       alt={c.title}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
-                    <div className="absolute inset-0 flex items-center justify-center text-4xl bg-black/5">
+                    <div className="absolute inset-0 flex items-center justify-center text-3xl lg:text-4xl bg-black/5">
                       {c.emoji}
                     </div>
                   </div>
-                  <div className="p-5">
-                    <span className="text-xs font-semibold text-primary uppercase tracking-wider">
+                  <div className="p-4 lg:p-5">
+                    <span className="text-[10px] lg:text-xs font-semibold text-primary uppercase tracking-wider">
                       {c.category}
                     </span>
-                    <h3 className="font-bold text-foreground mt-1 mb-3 font-body line-clamp-2">
+                    <h3 className="font-semibold text-foreground text-sm lg:text-base mt-1 mb-2.5 lg:mb-3 font-body line-clamp-2">
                       {c.title}
                     </h3>
                     <Progress
                       value={(c.raised / c.goal) * 100}
-                      className="h-2 mb-3"
+                      className="h-1.5 lg:h-2 mb-2.5 lg:mb-3"
                     />
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-xs lg:text-sm">
                       <span className="font-semibold text-foreground">
                         ${c.raised.toLocaleString()}
                       </span>
@@ -108,7 +165,8 @@ const FeaturedCampaigns = () => {
                         of ${c.goal.toLocaleString()}
                       </span>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-2">
+                    <p className="text-[10px] lg:text-xs text-muted-foreground mt-1.5 lg:mt-2 flex items-center gap-1">
+                      <Users className="w-3 h-3" />
                       {c.donors} contributors
                     </p>
                   </div>
@@ -118,11 +176,12 @@ const FeaturedCampaigns = () => {
           })}
         </div>
 
-        <div className="mt-10 text-center md:hidden">
-          <Link
-            href="/campaigns"
-            className="inline-flex items-center text-primary font-semibold hover:gap-2 transition-all">
-            View all campaigns <ArrowRight className="w-4 h-4 ml-1" />
+        {/* Mobile: View all link */}
+        <div className="mt-6 text-center sm:hidden">
+          <Link href="/campaigns">
+            <Button variant="outline" size="sm" className="gap-1.5">
+              View all campaigns <ArrowRight className="w-4 h-4" />
+            </Button>
           </Link>
         </div>
       </div>
