@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-fixed-dim": "#e97b32",
+              "surface-container": "#ffe3cf",
+              "primary": "#964300",
+              "on-primary-fixed": "#100300",
+              "outline-variant": "#d9a275",
+              "tertiary-container": "#febf2a",
+              "secondary-dim": "#7a4100",
+              "on-surface-variant": "#7d522b",
+              "tertiary": "#775600",
+              "on-secondary-container": "#6e3a00",
+              "on-primary-fixed-variant": "#542200",
+              "background": "#fff4ef",
+              "on-tertiary-fixed-variant": "#624600",
+              "inverse-on-surface": "#c79266",
+              "primary-container": "#f9873e",
+              "error-container": "#f95630",
+              "on-error-container": "#520c00",
+              "on-secondary": "#fff0e7",
+              "tertiary-dim": "#684b00",
+              "secondary": "#8c4b00",
+              "error-dim": "#b92902",
+              "surface-container-highest": "#ffd5b5",
+              "on-primary": "#fff0e9",
+              "on-error": "#ffefec",
+              "surface-tint": "#964300",
+              "outline": "#9d6c44",
+              "surface-container-low": "#ffede2",
+              "on-surface": "#492604",
+              "surface-container-lowest": "#ffffff",
+              "on-background": "#492604",
+              "on-tertiary": "#fff1dd",
+              "on-primary-container": "#451b00",
+              "on-secondary-fixed-variant": "#7c4200",
+              "surface-variant": "#ffd5b5",
+              "primary-fixed": "#f9873e",
+              "error": "#b02500",
+              "surface-dim": "#ffcaa1",
+              "on-tertiary-fixed": "#3e2b00",
+              "surface-bright": "#fff4ef",
+              "primary-dim": "#843a00",
+              "secondary-container": "#ffc69a",
+              "on-secondary-fixed": "#522a00",
+              "surface-container-high": "#ffdcc2",
+              "inverse-primary": "#f9873e",
+              "tertiary-fixed-dim": "#efb118",
+              "secondary-fixed": "#ffc69a",
+              "tertiary-fixed": "#febf2a",
+              "surface": "#fff4ef",
+              "secondary-fixed-dim": "#ffb374",
+              "on-tertiary-container": "#573e00",
+              "inverse-surface": "#1b0a00"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: #fff4ef;
+            color: #492604;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface antialiased">
+<!-- SideNavBar Component -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-[#ffede2] dark:bg-orange-950/20 flex flex-col py-8 px-4 z-50">
+<div class="mb-10 px-2">
+<h1 class="text-2xl font-bold text-[#492604] dark:text-[#fff4ef] tracking-tight font-headline">Vendor Portal</h1>
+<p class="font-label text-xs font-semibold text-[#7d522b] mt-1 uppercase tracking-widest">Premium Merchant</p>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#7d522b] dark:text-[#d9a275] font-['Plus_Jakarta_Sans'] font-semibold text-sm hover:bg-[#fff4ef] dark:hover:bg-orange-900/30 transition-colors group" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#964300] dark:text-[#f9873e] font-['Plus_Jakarta_Sans'] font-bold text-sm bg-[#fff4ef] dark:bg-orange-900/30 border-r-4 border-[#964300] transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="store" style="font-variation-settings: 'FILL' 1;">store</span>
+<span>Shop Details</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#7d522b] dark:text-[#d9a275] font-['Plus_Jakarta_Sans'] font-semibold text-sm hover:bg-[#fff4ef] dark:hover:bg-orange-900/30 transition-colors group" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span>Inventory</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#7d522b] dark:text-[#d9a275] font-['Plus_Jakarta_Sans'] font-semibold text-sm hover:bg-[#fff4ef] dark:hover:bg-orange-900/30 transition-colors group" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span>Finances</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#7d522b] dark:text-[#d9a275] font-['Plus_Jakarta_Sans'] font-semibold text-sm hover:bg-[#fff4ef] dark:hover:bg-orange-900/30 transition-colors group" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-auto px-2 pt-6 border-t border-[#d9a275]/10">
+<button class="w-full py-4 bg-gradient-to-br from-[#964300] to-[#f9873e] text-[#fff0e9] rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-[#964300]/10 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                Add Product
+            </button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen">
+<!-- TopNavBar Component -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 bg-[#ffffff]/80 dark:bg-[#492604]/80 backdrop-blur-md flex justify-between items-center px-8 z-40 shadow-sm dark:shadow-none">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-full text-sm font-body focus:ring-1 ring-[#d9a275]/30 focus:bg-surface-container-lowest transition-all" placeholder="Search orders, products..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-on-surface-variant hover:opacity-80 transition-opacity flex items-center">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:opacity-80 transition-opacity flex items-center">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<div class="h-8 w-8 rounded-full overflow-hidden bg-surface-container-high border-2 border-surface-container">
+<img alt="Vendor Profile Picture" class="w-full h-full object-cover" data-alt="Close-up portrait of a professional male merchant with a friendly smile, clean studio background, warm cinematic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-iZ7k-zr-MZcD6lW7Y1qWNew_JcOoO-dwWZE-2AFDb4h0kKICpIfA4t3qRyaM8hgvTLyEM2lZU98wuxUqqQZkXmsWbnOM7xo631j3Sr7GrdQOmYCsrYyXL791m8Yjc1Ox8qUV67ucRm1-R4YyQ44OudMYQ6sIzXEBBTyMLrxMnro2AyhrXABeifROdEK2wBz5SqMN5WvfjxuZlv1pPcKPORn_sC_KgrfrUR4rJHpuQAp7y7-hU8nfpMSVayXMqZKestVjdRIq3cA"/>
+</div>
+</div>
+</header>
+<!-- Canvas / Content -->
+<div class="pt-24 pb-12 px-12 max-w-6xl">
+<!-- Header Section -->
+<div class="flex justify-between items-end mb-10">
+<div>
+<h2 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface">Shop Details</h2>
+<p class="text-on-surface-variant font-body mt-2">Manage your brand identity and public storefront information.</p>
+</div>
+<div class="flex gap-4">
+<button class="px-6 py-3 bg-surface-container-high text-primary rounded-xl font-bold font-body hover:bg-surface-container-highest transition-colors">Discard</button>
+<button class="px-8 py-3 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-xl font-bold font-body shadow-lg shadow-primary/20 hover:opacity-90 transition-opacity">Save Changes</button>
+</div>
+</div>
+<!-- Bento Grid Layout for Settings -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Logo Upload (3/12) -->
+<div class="col-span-12 lg:col-span-4 bg-surface-container-lowest rounded-3xl p-8 flex flex-col items-center text-center">
+<h3 class="w-full text-left text-lg font-bold font-headline mb-6">Shop Logo</h3>
+<div class="relative group cursor-pointer">
+<div class="w-48 h-48 rounded-2xl overflow-hidden bg-surface-container-low flex items-center justify-center border-2 border-dashed border-outline-variant/30 group-hover:border-primary/50 transition-colors">
+<img alt="Current Shop Logo" class="w-full h-full object-cover opacity-90 group-hover:opacity-60 transition-opacity" data-alt="Minimalist artisan ceramic bowl logo on a warm cream background, elegant typography, high-end branding style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIRpNx8sd_uzzMT4A_4wd9qHhuxP9O3pAzmkUr0axD7rayhc2VMHAzatyT4jpY9HmC9UBLXslLBIKBfLBo79dfL7cAxl_u6ViA9W9_xGl0XGOHUUU6oLyH7WRXFjnUnO6X4X2R-FOPj7LRGWt1qckwDu9Imctuqraeo8AccVHcalQb1f3xirNdV69fBUNvRWC6HV0olS2HWC6YYQXP7Aeug3-5lcrf97jvbdSD-orbF-TibTzexecsig4uSy8xuUbX-GnOGbXVwU0"/>
+<div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-primary text-4xl">cloud_upload</span>
+</div>
+</div>
+</div>
+<p class="text-xs text-on-surface-variant font-medium mt-6 leading-relaxed">
+                        Recommended size: 512x512px.<br/>Supports PNG, JPG, or WEBP.
+                    </p>
+<button class="mt-6 text-sm font-bold text-primary flex items-center gap-2 hover:underline">
+                        Change Image
+                    </button>
+</div>
+<!-- Basic Info (8/12) -->
+<div class="col-span-12 lg:col-span-8 space-y-6">
+<div class="bg-surface-container-low rounded-3xl p-8 space-y-8">
+<h3 class="text-lg font-bold font-headline">Identity &amp; Presence</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="flex flex-col gap-2">
+<label class="text-sm font-bold font-label text-on-surface-variant ml-1">Shop Name</label>
+<input class="bg-surface-container-lowest border-none rounded-xl px-4 py-4 text-on-surface font-body shadow-sm focus:ring-1 ring-outline-variant/30 transition-all" type="text" value="The Terracotta Atelier"/>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-sm font-bold font-label text-on-surface-variant ml-1">Store URL</label>
+<div class="flex items-center bg-surface-container-lowest rounded-xl px-4 py-4 shadow-sm border-none focus-within:ring-1 ring-outline-variant/30 transition-all">
+<span class="text-on-surface-variant/60 text-sm font-body">vendor.io/</span>
+<input class="bg-transparent border-none p-0 ml-1 text-on-surface font-body w-full focus:ring-0" type="text" value="terracotta-atelier"/>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-sm font-bold font-label text-on-surface-variant ml-1">Shop Description</label>
+<textarea class="bg-surface-container-lowest border-none rounded-xl px-4 py-4 text-on-surface font-body shadow-sm focus:ring-1 ring-outline-variant/30 transition-all resize-none leading-relaxed" rows="4">Hand-crafted ceramic wares inspired by Mediterranean landscapes. We focus on sustainable practices and timeless editorial design for the modern home curator.</textarea>
+<div class="flex justify-end">
+<span class="text-[10px] font-bold text-on-surface-variant/40 uppercase tracking-tighter">154 / 500 characters</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Business Address (Full Width) -->
+<div class="col-span-12 bg-surface-container-low rounded-3xl p-8">
+<div class="flex items-start justify-between mb-8">
+<div>
+<h3 class="text-lg font-bold font-headline">Business Address</h3>
+<p class="text-sm text-on-surface-variant font-body">This information will be used for shipping and legal documentation.</p>
+</div>
+<div class="flex items-center gap-2 text-primary bg-primary/5 px-4 py-2 rounded-full">
+<span class="material-symbols-outlined text-sm" data-icon="verified">verified</span>
+<span class="text-xs font-bold font-label">Verified Address</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+<div class="md:col-span-8 flex flex-col gap-2">
+<label class="text-sm font-bold font-label text-on-surface-variant ml-1">Street Address</label>
+<input class="bg-surface-container-lowest border-none rounded-xl px-4 py-4 text-on-surface font-body shadow-sm focus:ring-1 ring-outline-variant/30" type="text" value="842 Artisan Boulevard, Suite 102"/>
+</div>
+<div class="md:col-span-4 flex flex-col gap-2">
+<label class="text-sm font-bold font-label text-on-surface-variant ml-1">City</label>
+<input class="bg-surface-container-lowest border-none rounded-xl px-4 py-4 text-on-surface font-body shadow-sm focus:ring-1 ring-outline-variant/30" type="text" value="Santa Fe"/>
+</div>
+<div class="md:col-span-4 flex flex-col gap-2">
+<label class="text-sm font-bold font-label text-on-surface-variant ml-1">State / Province</label>
+<input class="bg-surface-container-lowest border-none rounded-xl px-4 py-4 text-on-surface font-body shadow-sm focus:ring-1 ring-outline-variant/30" type="text" value="New Mexico"/>
+</div>
+<div class="md:col-span-3 flex flex-col gap-2">
+<label class="text-sm font-bold font-label text-on-surface-variant ml-1">ZIP / Postal Code</label>
+<input class="bg-surface-container-lowest border-none rounded-xl px-4 py-4 text-on-surface font-body shadow-sm focus:ring-1 ring-outline-variant/30" type="text" value="87501"/>
+</div>
+<div class="md:col-span-5 flex flex-col gap-2">
+<label class="text-sm font-bold font-label text-on-surface-variant ml-1">Country</label>
+<select class="bg-surface-container-lowest border-none rounded-xl px-4 py-4 text-on-surface font-body shadow-sm focus:ring-1 ring-outline-variant/30 appearance-none">
+<option selected="">United States</option>
+<option>Canada</option>
+<option>United Kingdom</option>
+<option>Australia</option>
+</select>
+</div>
+</div>
+</div>
+<!-- Preview Card (Asymmetric) -->
+<div class="col-span-12 bg-primary rounded-3xl p-10 text-on-primary flex flex-col md:flex-row items-center gap-10 overflow-hidden relative">
+<div class="absolute -right-20 -bottom-20 w-80 h-80 bg-primary-container rounded-full blur-3xl opacity-20"></div>
+<div class="relative z-10 md:w-2/3">
+<span class="text-[10px] font-bold uppercase tracking-[0.2em] opacity-80 mb-4 block">Public Preview</span>
+<h2 class="text-3xl font-headline font-extrabold mb-4 leading-tight">How your customers see you</h2>
+<p class="font-body opacity-90 leading-relaxed max-w-lg mb-8">
+                            Your shop profile is the first impression customers get. We've optimized the layout to highlight your unique brand story and high-quality product imagery.
+                        </p>
+<button class="flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 transition-colors rounded-xl font-bold font-body border border-white/20">
+<span class="material-symbols-outlined" data-icon="visibility">visibility</span>
+                            View Live Store
+                        </button>
+</div>
+<div class="relative z-10 md:w-1/3 w-full">
+<div class="bg-white/10 backdrop-blur-xl p-6 rounded-2xl border border-white/10 transform rotate-3 shadow-2xl">
+<div class="flex items-center gap-4 mb-6">
+<div class="w-12 h-12 rounded-lg bg-white overflow-hidden p-1">
+<img alt="Mini Logo Preview" class="w-full h-full object-contain" data-alt="Small detailed logo mark of a ceramic artist, minimalist and high contrast" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHA7hKha_9l7309iWNCPvyM4jI0BzzOtqZESQ9Zv-SEfG1SX_4Nfq2t9ayitwny4cRcBmmFUnJvV3NN0HN14pnmIzf-LIgfGaLxqbtaG8IGRlUvdtZ3AA4Y40DH9RLddu8RNzZ_YJ3E40w3IxTpmARCNqfCOYOWp4em2bDfqYyA5SMb7YYDcWSxoZsj5d2Ty8zFPuY5zjeDNlvNgx6ycHGzE7Ae1q19wd_gFHnq8ee-Mqc1iPKUu_jUP0YB2Jjo38G1RQFthP7nFs"/>
+</div>
+<div>
+<div class="h-3 w-24 bg-white/40 rounded-full mb-2"></div>
+<div class="h-2 w-16 bg-white/20 rounded-full"></div>
+</div>
+</div>
+<div class="space-y-3">
+<div class="h-2 w-full bg-white/10 rounded-full"></div>
+<div class="h-2 w-full bg-white/10 rounded-full"></div>
+<div class="h-2 w-4/5 bg-white/10 rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

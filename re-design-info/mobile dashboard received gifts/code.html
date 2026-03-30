@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GiftingPlatform - Creator Gifts</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-lowest": "#ffffff",
+              "surface-container-highest": "#ffd5b5",
+              "on-tertiary": "#fff1dd",
+              "secondary-fixed-dim": "#ffb374",
+              "on-secondary-fixed-variant": "#7c4200",
+              "on-primary-fixed-variant": "#542200",
+              "surface-container": "#ffe3cf",
+              "inverse-on-surface": "#c79266",
+              "on-secondary-fixed": "#522a00",
+              "primary-container": "#f9873e",
+              "primary": "#964300",
+              "surface-bright": "#fff4ef",
+              "surface-dim": "#ffcaa1",
+              "on-primary": "#fff0e9",
+              "secondary": "#8c4b00",
+              "primary-fixed": "#f9873e",
+              "on-background": "#492604",
+              "primary-fixed-dim": "#e97b32",
+              "secondary-fixed": "#ffc69a",
+              "on-surface": "#492604",
+              "primary-dim": "#843a00",
+              "on-tertiary-container": "#573e00",
+              "tertiary": "#775600",
+              "surface-tint": "#964300",
+              "error": "#b02500",
+              "secondary-dim": "#7a4100",
+              "on-tertiary-fixed-variant": "#624600",
+              "tertiary-container": "#febf2a",
+              "on-surface-variant": "#7d522b",
+              "surface": "#fff4ef",
+              "outline": "#9d6c44",
+              "on-primary-fixed": "#100300",
+              "inverse-surface": "#1b0a00",
+              "secondary-container": "#ffc69a",
+              "surface-container-high": "#ffdcc2",
+              "on-tertiary-fixed": "#3e2b00",
+              "outline-variant": "#d9a275",
+              "tertiary-fixed": "#febf2a",
+              "on-error": "#ffefec",
+              "error-dim": "#b92902",
+              "tertiary-fixed-dim": "#efb118",
+              "surface-container-low": "#ffede2",
+              "on-error-container": "#520c00",
+              "error-container": "#f95630",
+              "tertiary-dim": "#684b00",
+              "on-secondary": "#fff0e7",
+              "inverse-primary": "#f9873e",
+              "surface-variant": "#ffd5b5",
+              "background": "#fff4ef",
+              "on-primary-container": "#451b00",
+              "on-secondary-container": "#6e3a00"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .ease-spring {
+        transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body selection:bg-primary-container/30">
+<!-- TopAppBar Shell -->
+<header class="fixed top-0 w-full z-50 bg-[#fff4ef]/80 dark:bg-stone-900/80 backdrop-blur-md flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<span class="text-xl font-black text-[#492604] dark:text-[#fff4ef] font-headline">GiftingPlatform</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-[#7d522b] hover:bg-[#ffede2] rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant/20">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="professional portrait of a smiling young creator with warm lighting and a soft cream background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8Z2uuQGdCYIpcLr5OsIAYOywsSa3-dKMXO9T5Y5dF7L2UgdQ5VJ5F40319Qxos39WN-r395RsOdnRCVhFRTd0NSK2LUsBCHF7dRiOapGyzGEvTZX1tsVwzcSu3o6v33I5d4R6Gz-6Kzf0JhQoxEVz1fP_LKBz6azF59ZQK3GZxKskobvmu2tzZjoki75D7AmGxphZwULh8cMeq45CTPfiOl9C7OlDUPfgsxwsJ_t51eltQitqqh_DGYU9_TroMRWoG3oC5aAzdIs"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-20 pb-32 px-6 max-w-2xl mx-auto">
+<!-- Editorial Header -->
+<section class="mb-8">
+<span class="text-primary font-bold tracking-wider text-xs uppercase mb-2 block">Management</span>
+<h1 class="text-4xl font-headline font-extrabold text-on-surface leading-tight">Received Gifts</h1>
+<p class="text-on-surface-variant mt-2 text-sm leading-relaxed">Tracking your curation and community appreciation in real-time.</p>
+</section>
+<!-- Stats Bento Mini -->
+<div class="grid grid-cols-2 gap-4 mb-10">
+<div class="bg-surface-container-low p-5 rounded-2xl">
+<span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Total Value</span>
+<div class="text-2xl font-headline font-extrabold text-primary mt-1">$4,280</div>
+</div>
+<div class="bg-surface-container-low p-5 rounded-2xl">
+<span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Active Gifts</span>
+<div class="text-2xl font-headline font-extrabold text-primary mt-1">12</div>
+</div>
+</div>
+<!-- Gifts Feed -->
+<div class="space-y-4">
+<!-- Gift Card 1 -->
+<div class="bg-surface-container-lowest p-5 rounded-[2rem] flex items-center gap-4 group hover:bg-surface-container-lowest transition-all">
+<div class="w-20 h-20 rounded-3xl overflow-hidden flex-shrink-0">
+<img alt="Gift item" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="high-end luxury gift box wrapped in cream paper with a deep gold ribbon and wax seal on a marble surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCP3lYxSWwwunUU7tn0LarleBSHIfKhmokUTvEt2hCuqFbEspK5Vuit5-UOdfMmbaff3HlJfTedW3sdOmm7Ndod_XYW-VkIXErup7WBkfUOASrROAdDzjqnJeiHygaG1BFujuKmUcV-0qNPpJ-4pgXy7y3-oxbs3zqU_Pl2vVmWKGC2tAw1ZBAR8OE--y8ceaNuKQlZ0Qni2QnfUY4SX4nsciCqvyB8Q7t73PxFQ1inlM4MnW4nJuAWqHH9MWmVc9qDQ2mnJZkE-BM"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-bold text-on-surface text-base">The Artisan Bundle</h3>
+<p class="text-on-surface-variant text-xs mt-0.5">From: Sarah J.</p>
+</div>
+<span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-3 py-1 rounded-full uppercase">Arrived</span>
+</div>
+<div class="mt-3 flex justify-between items-end">
+<span class="text-xl font-headline font-black text-on-surface">$240</span>
+<button class="text-primary font-bold text-xs flex items-center gap-1 group/btn">
+                            Details
+                            <span class="material-symbols-outlined text-sm group-hover/btn:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Gift Card 2 -->
+<div class="bg-surface-container-lowest p-5 rounded-[2rem] flex items-center gap-4 group">
+<div class="w-20 h-20 rounded-3xl overflow-hidden flex-shrink-0">
+<img alt="Gift item" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="modern minimalist tech gadget in elegant white packaging with soft shadows and studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAkns49U18tIS-2gHt1yidxKBxQYLQoehY0x_wqTzUy_70EdQKaPL7eNgwRWOdMfxIq1B4uqxvCOl3OFVw48ErN0VtEeo9aTPyNMq4iXX5scSUjKiJK63DFQi7sIrdT16UHa2p09GEhbiTwOVklGx1E9qRYTdq1hmYRgETJXL3W25CYc1Vb49VT1pTtXngVv5iTVwnIQFyzpI3bhkaYt-7wC17H_wCol16sfoHxJMe54YDJz5OPO7NVnQ0VEo9COW09dUQQ5O9HGE"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-bold text-on-surface text-base">Pro Camera Kit</h3>
+<p class="text-on-surface-variant text-xs mt-0.5">From: MediaCorp</p>
+</div>
+<span class="bg-tertiary-container text-on-tertiary-container text-[10px] font-bold px-3 py-1 rounded-full uppercase">In Transit</span>
+</div>
+<div class="mt-3 flex justify-between items-end">
+<span class="text-xl font-headline font-black text-on-surface">$1,850</span>
+<button class="text-primary font-bold text-xs flex items-center gap-1 group/btn">
+                            Track
+                            <span class="material-symbols-outlined text-sm group-hover/btn:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Gift Card 3 -->
+<div class="bg-surface-container-lowest p-5 rounded-[2rem] flex items-center gap-4 group">
+<div class="w-20 h-20 rounded-3xl overflow-hidden flex-shrink-0">
+<img alt="Gift item" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="luxury candle and home fragrance set with dried flowers and artisanal ceramics in warm morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDz5_hsjhMTdLUAyxCKiYZW9M66_xUIVNAiRYsimvffR8eMLhW9BH6xAZbhN8vj0hnSF8V3pULryE0A6-J3CY_AejXsqnIHoqip_txn9qR-1golHcW934IeVpNT3GASektWzJiYdOVYYMa1KBQtKwqyjW_Fj-dcvssoT9sowd12G9TKDu3u1WtEgi8yoCuI6PalhsGnepYv_7izf6Q3P34YPDHQiUctG-VwydeQ5kemyu3FxsCfSbCX-stZsTZkiHzdPFO2V3K0YJA"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-bold text-on-surface text-base">Home Curator Set</h3>
+<p class="text-on-surface-variant text-xs mt-0.5">From: Anonymous</p>
+</div>
+<span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-3 py-1 rounded-full uppercase">Arrived</span>
+</div>
+<div class="mt-3 flex justify-between items-end">
+<span class="text-xl font-headline font-black text-on-surface">$120</span>
+<button class="text-primary font-bold text-xs flex items-center gap-1 group/btn">
+                            Details
+                            <span class="material-symbols-outlined text-sm group-hover/btn:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Gift Card 4 -->
+<div class="bg-surface-container-lowest p-5 rounded-[2rem] flex items-center gap-4 group opacity-75">
+<div class="w-20 h-20 rounded-3xl overflow-hidden flex-shrink-0 grayscale">
+<img alt="Gift item" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="black designer watch on a dark sleek background with professional product photography style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVDbx7HWypAJ1uLAAFfQfHbKz4EXx4Non7-OfEAbUuAffVZyN23AxY0OuNCbfMtDE8NgJJ3ZIxkLMC65LAI_H-W7SAPYZbXgChDsKcpdhhjII_AZllKAETw5HRYud13erU_QanAHZZqdKwasBivWb_1V8VWopdvpvcHRNXoBMWLFgX9VBkeXL17xy8v2m0zUJiIu_eYWHsPkjJ4f3h7ffxjN-hxwozUuydeW2pZHvySC-HSvBUIVELPqBgHABOnPEHiKtgYQuMuQg"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-bold text-on-surface text-base">Classic Timepiece</h3>
+<p class="text-on-surface-variant text-xs mt-0.5">From: David Lee</p>
+</div>
+<span class="bg-surface-variant text-on-surface-variant text-[10px] font-bold px-3 py-1 rounded-full uppercase">Declined</span>
+</div>
+<div class="mt-3 flex justify-between items-end">
+<span class="text-xl font-headline font-black text-on-surface">$450</span>
+<button class="text-on-surface-variant font-bold text-xs flex items-center gap-1">
+                            Archived
+                        </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar Shell -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pt-3 pb-8 md:hidden z-50 bg-[#fff4ef]/90 dark:bg-stone-900/90 backdrop-blur-xl rounded-t-[2.5rem] shadow-[0_-10px_40px_rgba(73,38,4,0.06)]">
+<!-- Home -->
+<a class="flex flex-col items-center justify-center text-[#7d522b] dark:text-stone-400 p-2 active:bg-[#ffede2] scale-90 active:scale-100 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-body text-[11px] font-semibold mt-1">Home</span>
+</a>
+<!-- Gifts (Active) -->
+<a class="flex flex-col items-center justify-center bg-[#964300] text-white rounded-2xl p-3 mb-1 shadow-lg shadow-primary/20 scale-100 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="redeem" style="font-variation-settings: 'FILL' 1;">redeem</span>
+<span class="font-body text-[11px] font-semibold mt-1">Gifts</span>
+</a>
+<!-- Campaigns -->
+<a class="flex flex-col items-center justify-center text-[#7d522b] dark:text-stone-400 p-2 active:bg-[#ffede2] scale-90 active:scale-100 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="campaign">campaign</span>
+<span class="font-body text-[11px] font-semibold mt-1">Campaigns</span>
+</a>
+<!-- Wallet -->
+<a class="flex flex-col items-center justify-center text-[#7d522b] dark:text-stone-400 p-2 active:bg-[#ffede2] scale-90 active:scale-100 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-body text-[11px] font-semibold mt-1">Wallet</span>
+</a>
+</nav>
+<!-- FAB Suppression: Not rendered here as per suppression rules for Detail/Management lists -->
+</body></html>

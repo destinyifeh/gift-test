@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Warm Curator Financial - Wallet Hub</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-high": "#ffdcc2",
+                        "on-secondary": "#fff0e7",
+                        "on-background": "#492604",
+                        "tertiary-fixed-dim": "#efb118",
+                        "tertiary-dim": "#684b00",
+                        "secondary-dim": "#7a4100",
+                        "background": "#fff4ef",
+                        "tertiary": "#775600",
+                        "surface-variant": "#ffd5b5",
+                        "tertiary-fixed": "#febf2a",
+                        "surface-bright": "#fff4ef",
+                        "on-primary-fixed": "#100300",
+                        "secondary": "#8c4b00",
+                        "on-surface-variant": "#7d522b",
+                        "on-primary-fixed-variant": "#542200",
+                        "outline-variant": "#d9a275",
+                        "on-tertiary-container": "#573e00",
+                        "on-tertiary-fixed-variant": "#624600",
+                        "on-primary": "#fff0e9",
+                        "secondary-fixed-dim": "#ffb374",
+                        "surface-dim": "#ffcaa1",
+                        "on-error": "#ffefec",
+                        "primary-fixed": "#f9873e",
+                        "on-secondary-container": "#6e3a00",
+                        "tertiary-container": "#febf2a",
+                        "error-container": "#f95630",
+                        "surface": "#fff4ef",
+                        "primary-fixed-dim": "#e97b32",
+                        "outline": "#9d6c44",
+                        "secondary-fixed": "#ffc69a",
+                        "inverse-on-surface": "#c79266",
+                        "secondary-container": "#ffc69a",
+                        "on-primary-container": "#451b00",
+                        "surface-container-highest": "#ffd5b5",
+                        "primary": "#964300",
+                        "on-secondary-fixed": "#522a00",
+                        "on-tertiary": "#fff1dd",
+                        "on-tertiary-fixed": "#3e2b00",
+                        "inverse-surface": "#1b0a00",
+                        "primary-dim": "#843a00",
+                        "surface-container-low": "#ffede2",
+                        "on-surface": "#492604",
+                        "on-error-container": "#520c00",
+                        "error": "#b02500",
+                        "error-dim": "#b92902",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#f9873e",
+                        "surface-container": "#ffe3cf",
+                        "primary-container": "#f9873e",
+                        "surface-tint": "#964300",
+                        "on-secondary-fixed-variant": "#7c4200"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        h1, h2, h3, .headline { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .tonal-layering-shadow {
+            box-shadow: 0 20px 40px rgba(73, 38, 4, 0.06);
+        }
+        .gradient-primary {
+            background: linear-gradient(135deg, #964300 0%, #f9873e 100%);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface flex min-h-screen">
+<!-- SideNavBar Component -->
+<aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-orange-100/50 dark:bg-stone-900 py-8 z-40 transition-all duration-300">
+<div class="px-6 mb-10">
+<h1 class="text-xl font-extrabold text-orange-900 dark:text-orange-100 tracking-tight">Financial Hub</h1>
+<p class="text-xs font-semibold text-orange-700/60 uppercase tracking-widest mt-1">The Warm Curator</p>
+</div>
+<nav class="flex-1 space-y-2">
+<!-- Dashboard (Inactive) -->
+<a class="flex items-center gap-3 px-6 py-3 text-orange-800/70 dark:text-stone-400 hover:bg-orange-200/30 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-medium">Dashboard</span>
+</a>
+<!-- Wallet (Active) -->
+<a class="flex items-center gap-3 px-6 py-3 text-orange-900 dark:text-orange-100 font-bold border-r-4 border-orange-600 dark:border-orange-500 bg-orange-200/50 dark:bg-stone-800 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+<span class="font-bold">Wallet</span>
+</a>
+<!-- Analytics (Inactive) -->
+<a class="flex items-center gap-3 px-6 py-3 text-orange-800/70 dark:text-stone-400 hover:bg-orange-200/30 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+<span class="font-medium">Analytics</span>
+</a>
+<!-- Settings (Inactive) -->
+<a class="flex items-center gap-3 px-6 py-3 text-orange-800/70 dark:text-stone-400 hover:bg-orange-200/30 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-medium">Settings</span>
+</a>
+<!-- Support (Inactive) -->
+<a class="flex items-center gap-3 px-6 py-3 text-orange-800/70 dark:text-stone-400 hover:bg-orange-200/30 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="contact_support">contact_support</span>
+<span class="font-medium">Support</span>
+</a>
+</nav>
+<div class="px-6 mt-auto">
+<button class="w-full gradient-primary text-on-primary py-3 rounded-xl font-bold flex items-center justify-center gap-2 mb-6 hover:scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                Add Funds
+            </button>
+<a class="flex items-center gap-3 px-4 py-3 text-orange-800/70 dark:text-stone-400 hover:bg-orange-200/30 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-medium">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 min-h-screen">
+<!-- TopAppBar Component -->
+<header class="fixed top-0 right-0 left-0 md:left-64 bg-orange-50/80 dark:bg-stone-950/80 backdrop-blur-md z-30">
+<div class="flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-4">
+<span class="md:hidden material-symbols-outlined text-orange-900" data-icon="menu">menu</span>
+<h2 class="text-xl font-bold tracking-tight text-orange-900 dark:text-orange-100 md:hidden">Warm Curator</h2>
+<div class="hidden md:block">
+<h2 class="text-lg font-bold text-on-surface">Wallet Overview</h2>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden sm:flex items-center bg-surface-container-low px-4 py-2 rounded-full">
+<span class="material-symbols-outlined text-on-surface-variant text-sm mr-2" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-48 placeholder-on-surface-variant/50" placeholder="Search transactions..." type="text"/>
+</div>
+<button class="p-2 text-orange-800/60 hover:bg-orange-100/50 rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-orange-200 border-2 border-surface-container-highest overflow-hidden">
+<img alt="User Profile" data-alt="close-up portrait of a professional man with a friendly expression in a modern office environment with warm lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqbEXQPBPey3n9iDOGVXcg9FVgggKfad_8qHO9nZMrcq4LdjDKHRGt5M4HYpuskZkJhIfxbs_rmvgdD-eRCds4IU5l8XVhKZKxrJzUyxS09mxNXo7frNpfQnIN4FhWYrB6b_YDYDJIvm7Z-ulbx9un2PJVMucs0z6AmOvXnaXLpYJWAy7d567z2MT46RgUWlbRdoACiX1rIDzTxKvaYEoI9BYfFCNftVTbzXN6__N08-OnV-FVoWbFZdqC6hUuBM0cDKKWKrdUut4"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Page Content -->
+<div class="pt-24 pb-12 px-6 md:px-10 max-w-7xl mx-auto">
+<!-- Hero Balance Section (Asymmetric Bento Grid) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10">
+<!-- Main Balance Card -->
+<div class="lg:col-span-8 bg-surface-container-lowest rounded-[2rem] p-8 tonal-layering-shadow flex flex-col justify-between relative overflow-hidden min-h-[320px]">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="text-on-surface-variant font-semibold text-sm tracking-wide uppercase">Available Balance</span>
+<span class="material-symbols-outlined text-sm text-primary" data-icon="verified_user" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+</div>
+<h3 class="text-5xl md:text-6xl font-extrabold text-on-surface tracking-tighter mb-4">GH₵20,352<span class="text-2xl text-on-surface-variant">.00</span></h3>
+<div class="flex gap-4">
+<span class="flex items-center gap-1 bg-secondary-container/30 px-3 py-1 rounded-full text-xs font-bold text-on-secondary-container">
+<span class="material-symbols-outlined text-sm" data-icon="trending_up">trending_up</span>
+                                +12.5% this month
+                            </span>
+</div>
+</div>
+<div class="flex flex-wrap gap-4 mt-8">
+<button class="gradient-primary text-on-primary px-8 py-4 rounded-xl font-bold flex items-center gap-2 hover:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="account_balance">account_balance</span>
+                            Withdraw
+                        </button>
+<button class="bg-surface-container-high text-primary px-8 py-4 rounded-xl font-bold flex items-center gap-2 hover:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+                            Transactions
+                        </button>
+<button class="bg-surface-container-low text-on-surface-variant px-6 py-4 rounded-xl font-bold flex items-center gap-2 hover:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="add_card">add_card</span>
+                            Add Bank
+                        </button>
+</div>
+</div>
+<!-- Platform Credit Card -->
+<div class="lg:col-span-4 bg-primary text-on-primary rounded-[2rem] p-8 tonal-layering-shadow flex flex-col justify-between relative overflow-hidden">
+<div class="absolute bottom-0 left-0 w-full h-1/2 bg-white/10 blur-2xl"></div>
+<div class="relative z-10">
+<span class="text-on-primary/70 font-semibold text-sm tracking-wide uppercase block mb-1">Platform Credit</span>
+<h4 class="text-3xl font-bold tracking-tight">GH₵1,240.50</h4>
+</div>
+<div class="relative z-10 mt-8">
+<p class="text-sm text-on-primary/80 mb-4 leading-relaxed">Your curated rewards and platform credits available for immediate use.</p>
+<button class="w-full bg-white/20 backdrop-blur-md py-3 rounded-xl font-bold text-sm hover:bg-white/30 transition-colors">
+                            Redeem Credit
+                        </button>
+</div>
+</div>
+</div>
+<!-- Stats & Quick Actions Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+<!-- Total Inflow -->
+<div class="bg-surface-container-low p-6 rounded-[1.5rem] flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="call_received">call_received</span>
+</div>
+<div>
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Total Inflow</p>
+<p class="text-xl font-extrabold text-on-surface tracking-tight">GH₵45,102</p>
+</div>
+</div>
+<!-- Pending -->
+<div class="bg-surface-container-low p-6 rounded-[1.5rem] flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-lowest flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined" data-icon="schedule">schedule</span>
+</div>
+<div>
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Pending</p>
+<p class="text-xl font-extrabold text-on-surface tracking-tight">GH₵2,450</p>
+</div>
+</div>
+<!-- Outflow -->
+<div class="bg-surface-container-low p-6 rounded-[1.5rem] flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-lowest flex items-center justify-center text-error">
+<span class="material-symbols-outlined" data-icon="call_made">call_made</span>
+</div>
+<div>
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Total Outflow</p>
+<p class="text-xl font-extrabold text-on-surface tracking-tight">GH₵22,200</p>
+</div>
+</div>
+<!-- Saving Goal -->
+<div class="bg-surface-container-low p-6 rounded-[1.5rem] flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-lowest flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" data-icon="savings">savings</span>
+</div>
+<div>
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Savings</p>
+<div class="flex items-center gap-2">
+<p class="text-xl font-extrabold text-on-surface tracking-tight">82%</p>
+<div class="h-1.5 w-12 bg-outline-variant/30 rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[82%]"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Transaction History & Card Management -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+<!-- Recent Transactions (List) -->
+<div class="lg:col-span-2 space-y-6">
+<div class="flex justify-between items-end mb-2">
+<h4 class="text-2xl font-bold tracking-tight">Recent Transactions</h4>
+<a class="text-primary font-bold text-sm hover:underline" href="#">View All History</a>
+</div>
+<div class="bg-surface-container-low rounded-[2rem] p-2">
+<div class="space-y-1">
+<!-- Transaction Item -->
+<div class="flex items-center justify-between p-6 bg-surface-container-lowest rounded-2xl hover:bg-white transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center text-orange-700">
+<span class="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Premium Subscription</p>
+<p class="text-xs text-on-surface-variant">Today • 2:45 PM</p>
+</div>
+</div>
+<p class="text-lg font-extrabold text-error">- GH₵120.00</p>
+</div>
+<!-- Transaction Item -->
+<div class="flex items-center justify-between p-6 bg-surface-container-lowest rounded-2xl hover:bg-white transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-700">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Client Payment - Project Alpha</p>
+<p class="text-xs text-on-surface-variant">Yesterday • 10:30 AM</p>
+</div>
+</div>
+<p class="text-lg font-extrabold text-green-700">+ GH₵4,200.00</p>
+</div>
+<!-- Transaction Item -->
+<div class="flex items-center justify-between p-6 bg-surface-container-lowest rounded-2xl hover:bg-white transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-700">
+<span class="material-symbols-outlined" data-icon="account_balance">account_balance</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Bank Transfer - Ecobank</p>
+<p class="text-xs text-on-surface-variant">Oct 24 • 4:15 PM</p>
+</div>
+</div>
+<p class="text-lg font-extrabold text-on-surface">- GH₵1,500.00</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Active Cards / Accounts Section -->
+<div class="space-y-6">
+<h4 class="text-2xl font-bold tracking-tight">Active Accounts</h4>
+<!-- Virtual Card Concept -->
+<div class="bg-surface-container-highest rounded-[1.5rem] p-6 relative overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent"></div>
+<div class="flex justify-between items-start relative z-10 mb-8">
+<span class="text-primary font-black italic">VISA</span>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="contactless">contactless</span>
+</div>
+<div class="relative z-10">
+<p class="text-xs font-bold text-on-surface-variant tracking-widest uppercase mb-1">Card Number</p>
+<p class="text-xl font-bold text-on-surface tracking-widest">**** **** **** 8842</p>
+</div>
+<div class="flex justify-between items-end mt-6 relative z-10">
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase">Card Holder</p>
+<p class="text-sm font-bold text-on-surface uppercase">Kojo Antwi</p>
+</div>
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase">Expires</p>
+<p class="text-sm font-bold text-on-surface">12/26</p>
+</div>
+</div>
+</div>
+<!-- Linked Bank Card -->
+<div class="bg-surface-container-low rounded-[1.5rem] p-6 border-2 border-dashed border-outline-variant/30 flex flex-col items-center justify-center gap-3 py-10 text-center hover:bg-surface-container-high transition-colors cursor-pointer group">
+<div class="w-12 h-12 rounded-full bg-white flex items-center justify-center text-outline transition-transform group-hover:scale-110">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Link New Bank</p>
+<p class="text-xs text-on-surface-variant px-4">Withdraw directly to your local bank account</p>
+</div>
+</div>
+<!-- Promo/Editorial card -->
+<div class="bg-secondary-container p-6 rounded-[1.5rem] relative overflow-hidden">
+<img alt="Editorial Promo" class="absolute inset-0 w-full h-full object-cover opacity-20" data-alt="vibrant modern co-working space with warm wood accents and soft atmospheric lighting for creative business professionals" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKyUt_bKigMZifl__2SCgbaF7uIW0wTVZV--vFyzgTKPhHD0qRFap9Aurc4tuiG7hLxMvgFYGEcDBqgDSkBUCSbcWA0HFvP9ObpBjhmZaBn9ZiIxTEIOqahcOA3jcyHes4HLn4OMdpDQV9vK7MMMMRWtnaZ92wTcbtn7Rl94oGrla-6kJJ11pXkjh45v_NfSN0S1EtrGmUgeycKpwv4Nvh6RoCktyNNvN2niKtXqPeezhCRZXm9s7vhTkJWQVrf2t68NFJ5E0F4fk"/>
+<div class="relative z-10">
+<h5 class="text-lg font-bold text-on-secondary-container leading-tight mb-2">Grow Your Curator Wealth</h5>
+<p class="text-xs text-on-secondary-container/80 mb-4">Invest your balance in curated high-yield assets starting at 12% APR.</p>
+<button class="bg-on-secondary-container text-white text-xs px-4 py-2 rounded-full font-bold">Learn More</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Contextual FAB - Mobile Only -->
+<button class="md:hidden fixed bottom-6 right-6 w-14 h-14 gradient-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center z-50">
+<span class="material-symbols-outlined" data-icon="add" style="font-variation-settings: 'wght' 600;">add</span>
+</button>
+</body></html>

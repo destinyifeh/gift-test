@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-fixed-dim": "#e97b32",
+              "surface-container": "#ffe3cf",
+              "primary": "#964300",
+              "on-primary-fixed": "#100300",
+              "outline-variant": "#d9a275",
+              "tertiary-container": "#febf2a",
+              "secondary-dim": "#7a4100",
+              "on-surface-variant": "#7d522b",
+              "tertiary": "#775600",
+              "on-secondary-container": "#6e3a00",
+              "on-primary-fixed-variant": "#542200",
+              "background": "#fff4ef",
+              "on-tertiary-fixed-variant": "#624600",
+              "inverse-on-surface": "#c79266",
+              "primary-container": "#f9873e",
+              "error-container": "#f95630",
+              "on-error-container": "#520c00",
+              "on-secondary": "#fff0e7",
+              "tertiary-dim": "#684b00",
+              "secondary": "#8c4b00",
+              "error-dim": "#b92902",
+              "surface-container-highest": "#ffd5b5",
+              "on-primary": "#fff0e9",
+              "on-error": "#ffefec",
+              "surface-tint": "#964300",
+              "outline": "#9d6c44",
+              "surface-container-low": "#ffede2",
+              "on-surface": "#492604",
+              "surface-container-lowest": "#ffffff",
+              "on-background": "#492604",
+              "on-tertiary": "#fff1dd",
+              "on-primary-container": "#451b00",
+              "on-secondary-fixed-variant": "#7c4200",
+              "surface-variant": "#ffd5b5",
+              "primary-fixed": "#f9873e",
+              "error": "#b02500",
+              "surface-dim": "#ffcaa1",
+              "on-tertiary-fixed": "#3e2b00",
+              "surface-bright": "#fff4ef",
+              "primary-dim": "#843a00",
+              "secondary-container": "#ffc69a",
+              "on-secondary-fixed": "#522a00",
+              "surface-container-high": "#ffdcc2",
+              "inverse-primary": "#f9873e",
+              "tertiary-fixed-dim": "#efb118",
+              "secondary-fixed": "#ffc69a",
+              "tertiary-fixed": "#febf2a",
+              "surface": "#fff4ef",
+              "secondary-fixed-dim": "#ffb374",
+              "on-tertiary-container": "#573e00",
+              "inverse-surface": "#1b0a00"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "3xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-header {
+        background: rgba(255, 244, 239, 0.8);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+      .glass-nav {
+        background: rgba(255, 244, 239, 0.9);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+      body {
+        -webkit-tap-highlight-color: transparent;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background font-body text-on-background antialiased pb-32">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-50 w-full glass-header flex justify-between items-center px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="close-up of a smiling local business owner in a warm sunlit boutique store interior" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZSQw12hwNppIfth-1rEZiI4QW6pOxQKYvdpdsIayoefUQjusfR7KLE6Mr2hnpjjHEQ8N749J0JakQpTcBbmAcYj5hi37RP2u_WMxuQdYv62tYE134EPTGn_enezOMOM89ZGQda5P2t7DUSewXm8IBantAtKdGKGDHPG_ry6_4M0Bv6WhPKyMTkPabkdFVpqclVr8mZY6Ij3L_UiimY-cl9HlCYRsdK6Y6NoTZ0ePnxHMx5ebit6YZHBFEZPfg5dRLMl4d_9duZ00"/>
+</div>
+<h1 class="font-headline font-bold text-lg tracking-tight text-on-background">Vendor Hub</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-orange-100/30 transition-colors">
+<span class="material-symbols-outlined text-orange-700">notifications</span>
+</button>
+</header>
+<main class="px-6 pt-4 space-y-8 max-w-2xl mx-auto">
+<!-- Header Section -->
+<section class="space-y-1">
+<h2 class="font-headline font-extrabold text-3xl text-on-background tracking-tight">Shop Details</h2>
+<p class="text-on-surface-variant font-medium">Manage your storefront presence and information.</p>
+</section>
+<!-- Logo Upload Section - Asymmetric Bento Style -->
+<section class="grid grid-cols-1 gap-4">
+<div class="bg-surface-container-lowest p-6 rounded-3xl relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary-container/10 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+<div class="relative z-10 flex flex-col md:flex-row items-center gap-6">
+<div class="relative group/avatar">
+<div class="w-32 h-32 rounded-3xl bg-surface-container-low flex items-center justify-center overflow-hidden border-4 border-surface-container-lowest shadow-sm">
+<img class="w-full h-full object-cover" data-alt="minimalist aesthetic coffee shop logo with warm terracotta tones on a clean white background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaikLW0geqjNgRp08sA8P8V_ybEzpG56qtaBNqkfZlyzkZS5Mt9DYFuXQddm7GYbrhrV9B8QlwTLC0qwS9eTzZoKcn8sY0CAYWQ-tQwEdNmD11ktN98dVop3vISinUOLVbsaJV-_VqTJxf6Mi1E7I_IgM1kAG7GIz0zdEWtvpKcJFKn294zok0o7bWwFlIwf1gI0g2LJBR0LTC2XpUp65jw5u1tRlDbfMlmhZmK_6Oykd3iQV_z-fAITmegxdcXF5NlKmyORksd-I"/>
+</div>
+<button class="absolute -bottom-2 -right-2 bg-primary text-on-primary w-10 h-10 rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[20px]">photo_camera</span>
+</button>
+</div>
+<div class="flex-1 text-center md:text-left">
+<h3 class="font-headline font-bold text-xl text-on-background">Shop Logo</h3>
+<p class="text-sm text-on-surface-variant mt-1 leading-relaxed">
+                            Upload a high-resolution logo for your storefront. Recommended size is 512x512px.
+                        </p>
+<div class="mt-4 flex flex-wrap justify-center md:justify-start gap-3">
+<button class="bg-primary-container/20 text-primary font-bold px-5 py-2 rounded-xl text-sm hover:bg-primary-container/30 transition-colors">Replace</button>
+<button class="text-on-surface-variant font-bold px-5 py-2 rounded-xl text-sm hover:bg-surface-container-low transition-colors">Remove</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Shop Information Form -->
+<section class="bg-surface-container-low p-1 rounded-[2rem]">
+<div class="bg-surface-container-lowest p-6 rounded-3xl space-y-6">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-primary">storefront</span>
+<h3 class="font-headline font-bold text-lg">General Information</h3>
+</div>
+<div class="space-y-5">
+<!-- Shop Name -->
+<div class="space-y-2">
+<label class="block font-label text-sm font-bold text-on-surface-variant ml-1">Shop Name</label>
+<input class="w-full bg-surface-container-low border-none rounded-2xl px-5 py-4 text-on-background font-semibold focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest transition-all" type="text" value="Artisan Brews &amp; Beans"/>
+</div>
+<!-- Shop Category -->
+<div class="space-y-2">
+<label class="block font-label text-sm font-bold text-on-surface-variant ml-1">Category</label>
+<div class="relative">
+<select class="w-full appearance-none bg-surface-container-low border-none rounded-2xl px-5 py-4 text-on-background font-semibold focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest transition-all">
+<option>Specialty Coffee &amp; Roastery</option>
+<option>Bakery &amp; Pastry</option>
+<option>Gourmet Foods</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+</div>
+</div>
+<!-- Description -->
+<div class="space-y-2">
+<label class="block font-label text-sm font-bold text-on-surface-variant ml-1">Shop Bio</label>
+<textarea class="w-full bg-surface-container-low border-none rounded-2xl px-5 py-4 text-on-background font-medium focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest transition-all resize-none" rows="4">Serving the finest hand-picked organic coffee beans sourced directly from small-scale farmers in Ethiopia and Colombia. Experience the art of brewing in every cup.</textarea>
+</div>
+</div>
+</div>
+</section>
+<!-- Address & Contact -->
+<section class="bg-surface-container-lowest p-6 rounded-3xl space-y-6">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">location_on</span>
+<h3 class="font-headline font-bold text-lg">Physical Address</h3>
+</div>
+<div class="grid grid-cols-1 gap-5">
+<div class="space-y-2">
+<label class="block font-label text-sm font-bold text-on-surface-variant ml-1">Street Address</label>
+<input class="w-full bg-surface-container-low border-none rounded-2xl px-5 py-4 text-on-background font-semibold focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest transition-all" placeholder="123 Artisan Lane" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-2">
+<label class="block font-label text-sm font-bold text-on-surface-variant ml-1">City</label>
+<input class="w-full bg-surface-container-low border-none rounded-2xl px-5 py-4 text-on-background font-semibold focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest transition-all" placeholder="Portland" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="block font-label text-sm font-bold text-on-surface-variant ml-1">ZIP Code</label>
+<input class="w-full bg-surface-container-low border-none rounded-2xl px-5 py-4 text-on-background font-semibold focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest transition-all" placeholder="97201" type="text"/>
+</div>
+</div>
+<!-- Map Preview - Asymmetric -->
+<div class="relative w-full h-48 rounded-2xl overflow-hidden mt-2 group">
+<img class="w-full h-full object-cover" data-alt="stylized map view of a city neighborhood with soft pastel orange and beige tones" data-location="Portland" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGGYqsxvEnE-PytayxPBSpKy5i3T0knN_51DdtUV23bMyzsKnvySHF0MddG8eoJRYM8iZUaSmRvn1yaAy5BaHxjzcKeM8144_XG_QZalDPGVB8hQlD0daptbGBmCLKC95wWY2n2aysCm-6szpgtZDdTgA31BybarbvxTa47J42Oanme3N2Z_SCXbHVbDPmcLerrsmZDgK3_P7B1u25wVjRCxU04W1JGHrET8fJlQan6JQcRnuzzr4yu1rgleOmRPGbzpUXo2GpLhg"/>
+<div class="absolute inset-0 bg-primary/10 group-hover:bg-transparent transition-colors"></div>
+<div class="absolute bottom-4 left-4 bg-surface-container-lowest px-4 py-2 rounded-xl shadow-lg flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">my_location</span>
+<span class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Update Location</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Save Button -->
+<button class="w-full bg-gradient-to-r from-primary to-primary-container py-5 rounded-2xl text-on-primary font-headline font-bold text-lg shadow-xl shadow-primary/20 active:scale-95 transition-transform">
+            Save Changes
+        </button>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 glass-nav flex justify-around items-center px-4 pb-8 pt-4 rounded-t-3xl shadow-[0_-20px_40px_rgba(73,38,4,0.06)] border-t-[0.5px] border-orange-200/20">
+<!-- Dashboard -->
+<a class="flex flex-col items-center justify-center text-[#7d522b] px-4 py-2 hover:bg-orange-50 transition-all active:scale-95" href="#">
+<span class="material-symbols-outlined mb-1">dashboard</span>
+<span class="font-label text-[11px] font-semibold tracking-wide uppercase">Dashboard</span>
+</a>
+<!-- Orders -->
+<a class="flex flex-col items-center justify-center text-[#7d522b] px-4 py-2 hover:bg-orange-50 transition-all active:scale-95" href="#">
+<span class="material-symbols-outlined mb-1">receipt_long</span>
+<span class="font-label text-[11px] font-semibold tracking-wide uppercase">Orders</span>
+</a>
+<!-- Inventory -->
+<a class="flex flex-col items-center justify-center text-[#7d522b] px-4 py-2 hover:bg-orange-50 transition-all active:scale-95" href="#">
+<span class="material-symbols-outlined mb-1">inventory_2</span>
+<span class="font-label text-[11px] font-semibold tracking-wide uppercase">Inventory</span>
+</a>
+<!-- Account - ACTIVE -->
+<a class="flex flex-col items-center justify-center bg-orange-100 text-orange-900 rounded-2xl px-4 py-2 transition-all active:scale-95" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label text-[11px] font-semibold tracking-wide uppercase">Account</span>
+</a>
+</nav>
+</body></html>

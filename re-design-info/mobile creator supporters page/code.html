@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Campaign Supporters</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-lowest": "#ffffff",
+              "surface-container-highest": "#ffd5b5",
+              "on-tertiary": "#fff1dd",
+              "secondary-fixed-dim": "#ffb374",
+              "on-secondary-fixed-variant": "#7c4200",
+              "on-primary-fixed-variant": "#542200",
+              "surface-container": "#ffe3cf",
+              "inverse-on-surface": "#c79266",
+              "on-secondary-fixed": "#522a00",
+              "primary-container": "#f9873e",
+              "primary": "#964300",
+              "surface-bright": "#fff4ef",
+              "surface-dim": "#ffcaa1",
+              "on-primary": "#fff0e9",
+              "secondary": "#8c4b00",
+              "primary-fixed": "#f9873e",
+              "on-background": "#492604",
+              "primary-fixed-dim": "#e97b32",
+              "secondary-fixed": "#ffc69a",
+              "on-surface": "#492604",
+              "primary-dim": "#843a00",
+              "on-tertiary-container": "#573e00",
+              "tertiary": "#775600",
+              "surface-tint": "#964300",
+              "error": "#b02500",
+              "secondary-dim": "#7a4100",
+              "on-tertiary-fixed-variant": "#624600",
+              "tertiary-container": "#febf2a",
+              "on-surface-variant": "#7d522b",
+              "surface": "#fff4ef",
+              "outline": "#9d6c44",
+              "on-primary-fixed": "#100300",
+              "inverse-surface": "#1b0a00",
+              "secondary-container": "#ffc69a",
+              "surface-container-high": "#ffdcc2",
+              "on-tertiary-fixed": "#3e2b00",
+              "outline-variant": "#d9a275",
+              "tertiary-fixed": "#febf2a",
+              "on-error": "#ffefec",
+              "error-dim": "#b92902",
+              "tertiary-fixed-dim": "#efb118",
+              "surface-container-low": "#ffede2",
+              "on-error-container": "#520c00",
+              "error-container": "#f95630",
+              "tertiary-dim": "#684b00",
+              "on-secondary": "#fff0e7",
+              "inverse-primary": "#f9873e",
+              "surface-variant": "#ffd5b5",
+              "background": "#fff4ef",
+              "on-primary-container": "#451b00",
+              "on-secondary-container": "#6e3a00"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fff4ef]/80 backdrop-blur-md flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[#964300]" data-icon="arrow_back">arrow_back</span>
+<h1 class="font-['Plus_Jakarta_Sans'] font-bold text-lg text-[#492604]">Campaign Supporters</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#7d522b] hover:bg-[#ffede2] transition-colors p-2 rounded-full" data-icon="search">search</span>
+<span class="material-symbols-outlined text-[#7d522b] hover:bg-[#ffede2] transition-colors p-2 rounded-full" data-icon="notifications">notifications</span>
+</div>
+</header>
+<main class="flex-1 pt-20 pb-28 px-4 max-w-md mx-auto w-full">
+<!-- Campaign Summary Card -->
+<section class="bg-surface-container-low rounded-3xl p-6 mb-8 relative overflow-hidden">
+<div class="relative z-10">
+<span class="inline-block px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-[10px] font-bold tracking-wider mb-4">ACTIVE CAMPAIGN</span>
+<h2 class="font-headline text-2xl font-extrabold text-on-surface mb-2 leading-tight">Holiday Joy Initiative</h2>
+<div class="flex items-baseline gap-2">
+<span class="font-headline text-3xl font-black text-primary">$12,450</span>
+<span class="text-on-surface-variant text-sm font-medium">raised of $15k</span>
+</div>
+<div class="w-full bg-surface-container-highest h-2 rounded-full mt-4">
+<div class="bg-gradient-to-r from-primary to-primary-container h-full w-[83%] rounded-full"></div>
+</div>
+</div>
+<!-- Decorative circle -->
+<div class="absolute -right-10 -bottom-10 w-40 h-40 bg-primary/5 rounded-full blur-3xl"></div>
+</section>
+<!-- Filter Chips (Horizontal Scroll) -->
+<div class="flex gap-2 overflow-x-auto hide-scrollbar mb-6 -mx-4 px-4">
+<button class="whitespace-nowrap px-5 py-2.5 bg-primary text-white rounded-full text-sm font-bold shadow-sm">All Time (124)</button>
+<button class="whitespace-nowrap px-5 py-2.5 bg-surface-container-lowest text-on-surface-variant rounded-full text-sm font-semibold hover:bg-surface-container-low transition-colors">Recent</button>
+<button class="whitespace-nowrap px-5 py-2.5 bg-surface-container-lowest text-on-surface-variant rounded-full text-sm font-semibold hover:bg-surface-container-low transition-colors">Top Donors</button>
+<button class="whitespace-nowrap px-5 py-2.5 bg-surface-container-lowest text-on-surface-variant rounded-full text-sm font-semibold hover:bg-surface-container-low transition-colors">Anonymous</button>
+</div>
+<!-- Supporters List -->
+<div class="space-y-3">
+<!-- Supporter Item 1 -->
+<div class="bg-surface-container-lowest p-4 rounded-2xl flex items-center justify-between group active:scale-95 transition-all duration-200">
+<div class="flex items-center gap-4">
+<div class="relative">
+<img alt="Elena Rose" class="w-12 h-12 rounded-full object-cover" data-alt="portrait of a woman with a warm smile in natural outdoor lighting, professional and friendly headshot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKmFGo82_AcJloMy7yeqCzFEhjeG-ps9ddgHRU_lRpmUhF1ysT2FcrHU3chS8ZdeqWwg7UPSeU89tKFKO6BPCM_85SftjhD_0MwOwd-JFpyuHR2zai8m7NM4GK3rDpsT-81lxzeUu7iEhGqfema9WYB3ftI5raWAn_As5OdLFToMfWxxuwKGdFA4PlnPwpYpUcbPm3zhYvz1pHgaD3RauAI64kUXu4vCiisFhNWoHF2C6phxCgzrsU2TvtAAwYvQ8IsT4ZpSlgInI"/>
+<div class="absolute -bottom-1 -right-1 bg-tertiary-container p-1 rounded-full border-2 border-white">
+<span class="material-symbols-outlined text-[10px] text-on-tertiary-container block" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<div>
+<h4 class="font-bold text-on-surface text-base">Elena Rose</h4>
+<p class="text-on-surface-variant text-xs font-medium">2 hours ago</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline font-extrabold text-primary text-lg">$500.00</p>
+<span class="inline-block px-2 py-0.5 bg-primary/10 text-primary rounded text-[10px] font-bold">TOP 5%</span>
+</div>
+</div>
+<!-- Supporter Item 2 -->
+<div class="bg-surface-container-lowest p-4 rounded-2xl flex items-center justify-between active:scale-95 transition-all">
+<div class="flex items-center gap-4">
+<img alt="Marcus Chen" class="w-12 h-12 rounded-full object-cover" data-alt="middle-aged man with kind expression, soft studio lighting, high-end portrait photography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC55XSCMFf5J_jZOz7uwATsY1db00C9B0Fcg0AmfHGEKtxCAzRCHarOYVzQYqY-bF2RJBJrBoXkkIK1xyKfLC4PvkBgKn9auM9tj3A5uVK1YPi0g4WjDar-uHKG7RN2hu4PLd9jkZLYW094XiNZ6moHF4nBZ3BaEyS7ZEeIRFbPkAfBTZ0MB0vDK4IgJwinUnIWHBIwGrWY0-zKVt-Ixzkr0Xkkhw_AaGzfwdrl9wTMOAfDAQLEZzxgs_0y89rdI-4fNFaJo6EvcXg"/>
+<div>
+<h4 class="font-bold text-on-surface text-base">Marcus Chen</h4>
+<p class="text-on-surface-variant text-xs font-medium">5 hours ago</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline font-extrabold text-on-surface text-lg">$150.00</p>
+</div>
+</div>
+<!-- Supporter Item 3 (Anonymous) -->
+<div class="bg-surface-container-low/50 p-4 rounded-2xl flex items-center justify-between border border-outline-variant/10">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="visibility_off">visibility_off</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface text-base italic">Anonymous Supporter</h4>
+<p class="text-on-surface-variant text-xs font-medium">Yesterday</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline font-extrabold text-on-surface text-lg">$2,000.00</p>
+<span class="text-[10px] text-on-surface-variant font-medium">Gift matched</span>
+</div>
+</div>
+<!-- Supporter Item 4 -->
+<div class="bg-surface-container-lowest p-4 rounded-2xl flex items-center justify-between active:scale-95 transition-all">
+<div class="flex items-center gap-4">
+<img alt="Sarah Jenkins" class="w-12 h-12 rounded-full object-cover" data-alt="young woman with creative aesthetic, soft focus background, natural daylight portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoF04z2eXKVrpibBgx_Lkt4USbGnj7LkGBG_SjNJx4Gm8-gkWrzBvynY1JmmZzdSr7_eohZtHo-kqpqkl2dVfvYH5bWvWumDcP2edbBgqwAbNsYzpkEUrv01dzNQlSq_NmuYBz9NVDhMp4hF_uwuEuu9KrwaSDd0-t6QUXtBzASpboVoVyigb8yg9sKNKvk9UJo6NWWPZZFtLWQT5iwXFF56queVsYIO2j4snAioiIrROhJ0ypkDuRm38Gii-kthrMdSieA6E0TQU"/>
+<div>
+<h4 class="font-bold text-on-surface text-base">Sarah Jenkins</h4>
+<p class="text-on-surface-variant text-xs font-medium">Yesterday</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline font-extrabold text-on-surface text-lg">$25.00</p>
+</div>
+</div>
+<!-- Supporter Item 5 -->
+<div class="bg-surface-container-lowest p-4 rounded-2xl flex items-center justify-between active:scale-95 transition-all">
+<div class="flex items-center gap-4">
+<img alt="David Miller" class="w-12 h-12 rounded-full object-cover" data-alt="portrait of a man smiling warmly, outdoor city park setting, soft morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7Wn6O5aQjehKK9lIoEIC29QZuPZUVYVmuBOeaBD_SsvZ5UBE52yl-uXrUxJZUvAEs0xD2jlXcwGeI72ZQHh1eRBedRrcUsMxViMPrRNGD3LX3_ztgnkhaPXM-SQIw-GuUpOfkxD3K_yF9qbQxuahiArwJ1IcJp1rZKLFpDt_zPtWysBWHS_vAezmhD430T23SEyoO3qPUQezcXfkU4oMZqX65_mJ15hWJT6XZvtPhlnyQxZEW4N_rDRvYR8SvP8XR-NIjpHz3yes"/>
+<div>
+<h4 class="font-bold text-on-surface text-base">David Miller</h4>
+<p class="text-on-surface-variant text-xs font-medium">Dec 12, 2023</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline font-extrabold text-on-surface text-lg">$75.00</p>
+</div>
+</div>
+<!-- Supporter Item 6 -->
+<div class="bg-surface-container-lowest p-4 rounded-2xl flex items-center justify-between active:scale-95 transition-all">
+<div class="flex items-center gap-4">
+<img alt="Linda Vo" class="w-12 h-12 rounded-full object-cover" data-alt="professional woman in corporate setting, confident expression, neutral studio background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDe6WQmKutpdcToe-Fp4CSWN6EmOjmagQlxOWP3cdAqSh0qpWPFxqQGnVRpbVwp77GrSerCxb_wKz4KEG4qlD1D_B8UuM0tEH_HxzQuDLsaPTvtmcBhqMaMRJQdV8OxjK1fquXAbteJJqxmalyz14g52-T69r4aZEaRx_3h_hJWpDvbztKGbd9jF6Uot5_Bjtmjz9CLXZ-D749lAt40EbOf1ofjMQ_zEPg-yeAWOKWJq4LZb-RHyvewkEE-IgT2x5PJ2tRCwsuEUBM"/>
+<div>
+<h4 class="font-bold text-on-surface text-base">Linda Vo</h4>
+<p class="text-on-surface-variant text-xs font-medium">Dec 11, 2023</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline font-extrabold text-on-surface text-lg">$300.00</p>
+</div>
+</div>
+</div>
+<!-- Load More Button -->
+<div class="mt-8 flex justify-center">
+<button class="bg-surface-container-high text-primary px-8 py-3 rounded-full font-bold text-sm hover:translate-y-[-2px] transition-transform">
+                Show more supporters
+            </button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pt-3 pb-6 bg-[#fff4ef]/90 backdrop-blur-xl shadow-[0_-10px_40px_rgba(73,38,4,0.06)] rounded-t-3xl md:hidden z-50">
+<div class="flex flex-col items-center justify-center text-[#7d522b] p-2 active:scale-90 transition-all">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Manrope'] text-[11px] font-semibold">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#7d522b] p-2 active:scale-90 transition-all">
+<span class="material-symbols-outlined" data-icon="redeem">redeem</span>
+<span class="font-['Manrope'] text-[11px] font-semibold">Gifts</span>
+</div>
+<!-- ACTIVE TAB: Campaigns -->
+<div class="flex flex-col items-center justify-center bg-[#964300] text-white rounded-2xl p-3 mb-1 scale-100 transition-all shadow-lg">
+<span class="material-symbols-outlined" data-icon="campaign" style="font-variation-settings: 'FILL' 1;">campaign</span>
+<span class="font-['Manrope'] text-[11px] font-semibold">Campaigns</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#7d522b] p-2 active:scale-90 transition-all">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-['Manrope'] text-[11px] font-semibold">Wallet</span>
+</div>
+</nav>
+<!-- FAB (Suppressed on details pages but kept for 'Campaign' main actions if needed) -->
+<button class="fixed bottom-24 right-6 w-14 h-14 bg-gradient-to-br from-primary to-primary-container text-white rounded-full flex items-center justify-center shadow-xl z-40 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-2xl" data-icon="add">add</span>
+</button>
+</body></html>

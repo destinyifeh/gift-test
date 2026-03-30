@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-high": "#ffdcc2",
+              "on-secondary": "#fff0e7",
+              "on-background": "#492604",
+              "tertiary-fixed-dim": "#efb118",
+              "tertiary-dim": "#684b00",
+              "secondary-dim": "#7a4100",
+              "background": "#fff4ef",
+              "tertiary": "#775600",
+              "surface-variant": "#ffd5b5",
+              "tertiary-fixed": "#febf2a",
+              "surface-bright": "#fff4ef",
+              "on-primary-fixed": "#100300",
+              "secondary": "#8c4b00",
+              "on-surface-variant": "#7d522b",
+              "on-primary-fixed-variant": "#542200",
+              "outline-variant": "#d9a275",
+              "on-tertiary-container": "#573e00",
+              "on-tertiary-fixed-variant": "#624600",
+              "on-primary": "#fff0e9",
+              "secondary-fixed-dim": "#ffb374",
+              "surface-dim": "#ffcaa1",
+              "on-error": "#ffefec",
+              "primary-fixed": "#f9873e",
+              "on-secondary-container": "#6e3a00",
+              "tertiary-container": "#febf2a",
+              "error-container": "#f95630",
+              "surface": "#fff4ef",
+              "primary-fixed-dim": "#e97b32",
+              "outline": "#9d6c44",
+              "secondary-fixed": "#ffc69a",
+              "inverse-on-surface": "#c79266",
+              "secondary-container": "#ffc69a",
+              "on-primary-container": "#451b00",
+              "surface-container-highest": "#ffd5b5",
+              "primary": "#964300",
+              "on-secondary-fixed": "#522a00",
+              "on-tertiary": "#fff1dd",
+              "on-tertiary-fixed": "#3e2b00",
+              "inverse-surface": "#1b0a00",
+              "primary-dim": "#843a00",
+              "surface-container-low": "#ffede2",
+              "on-surface": "#492604",
+              "on-error-container": "#520c00",
+              "error": "#b02500",
+              "error-dim": "#b92902",
+              "surface-container-lowest": "#ffffff",
+              "inverse-primary": "#f9873e",
+              "surface-container": "#ffe3cf",
+              "primary-container": "#f9873e",
+              "surface-tint": "#964300",
+              "on-secondary-fixed-variant": "#7c4200"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .spring-physics-bounce:active {
+        transform: scale(0.95);
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="bg-orange-50/80 dark:bg-stone-900/80 backdrop-blur-md fixed top-0 w-full z-50 flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="Close up portrait of a young professional woman with a warm smile, soft natural lighting, editorial photography style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBv01jbTGRPLYhjyaj5qAT65gorF7shoP454cAw_14jj5Cx1FniP8ytRtXCO_nMzgKPD4wdbxskCSVWXI1bZyUJ-FCP-6RTfLeUnhnuxgNxJNNKKcsXha5aNVw9y5-jw5RO5v6ZqyyaPmXD2tY9KSPomV_DBwvqPuWvjFo4paVgE1ZfmMx8dgEXUnIocJ91mKzE68XLXuDicohIXYLVMSPADcUkmshjSPpLf6PqUKJl5K3WS73KfoYKDBIDgIzD6oivg4nncmVxh7g"/>
+</div>
+<h1 class="font-['Plus_Jakarta_Sans'] font-black text-orange-950 dark:text-orange-50 text-lg">Financial Studio</h1>
+</div>
+<button class="text-orange-900 dark:text-orange-200 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="pt-24 px-6 space-y-8 max-w-md mx-auto">
+<!-- Profile Hero Section -->
+<section class="flex flex-col items-center text-center space-y-4">
+<div class="relative group">
+<div class="w-32 h-32 rounded-[2.5rem] overflow-hidden rotate-3 hover:rotate-0 transition-transform duration-500 shadow-xl bg-surface-container-lowest p-1">
+<img class="w-full h-full object-cover rounded-[2.2rem]" data-alt="Portrait of a woman against a soft cream background, warm sunlight filtering through, professional yet approachable aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvbVE9mkb9BOET3WZCFB_bK0I03NPX3A8a6WO4rk0gq4agu8zJgqoD1lHKv6_r480yM9AGselfahlhfkxL_NI7H9VgOhSxSEKS94lics6H0WflSaClIeRv5dGv1wTjkwrDZ-O8eiYBzjUJ8kbXmE4wKgj2AfgmAH5cgq9q4LU91BP2S3Ci1EDjHkzmyRnOmpa2plEhFiqN7Nl0zC0aTg0DLbpJq-QI8E5zYU1yJMI-EzqvJ0KEbW6PQNfxcYmEK3oPJiT5L3WOTnM"/>
+</div>
+<button class="absolute -bottom-2 -right-2 bg-primary p-3 rounded-full text-on-primary shadow-lg hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-sm" data-icon="edit">edit</span>
+</button>
+</div>
+<div>
+<h2 class="font-headline font-bold text-2xl text-on-surface">Elena Rodriguez</h2>
+<p class="font-label text-on-surface-variant text-sm tracking-wide">@elenar_studio</p>
+</div>
+</section>
+<!-- Profile Info Form -->
+<section class="bg-surface-container-low rounded-[2rem] p-6 space-y-6">
+<h3 class="font-headline font-bold text-lg text-on-surface px-1">Personal Details</h3>
+<div class="space-y-4">
+<!-- Field: Display Name -->
+<div class="space-y-1.5">
+<label class="block font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">Display Name</label>
+<input class="w-full bg-surface-container-lowest border-none rounded-xl px-4 py-3.5 text-on-surface font-medium focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-outline-variant" type="text" value="Elena Rodriguez"/>
+</div>
+<!-- Field: Username -->
+<div class="space-y-1.5">
+<label class="block font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">Username</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">@</span>
+<input class="w-full bg-surface-container-lowest border-none rounded-xl pl-9 pr-4 py-3.5 text-on-surface font-medium focus:ring-2 focus:ring-primary/20 outline-none transition-all" type="text" value="elenar_studio"/>
+</div>
+</div>
+<!-- Field: Country -->
+<div class="space-y-1.5">
+<label class="block font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">Country</label>
+<div class="relative">
+<select class="w-full bg-surface-container-lowest border-none rounded-xl px-4 py-3.5 text-on-surface font-medium focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none">
+<option>Spain</option>
+<option>United States</option>
+<option>United Kingdom</option>
+<option>Portugal</option>
+</select>
+<span class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant pointer-events-none" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<!-- Field: Email -->
+<div class="space-y-1.5">
+<label class="block font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">Email address</label>
+<input class="w-full bg-surface-container-lowest border-none rounded-xl px-4 py-3.5 text-on-surface font-medium focus:ring-2 focus:ring-primary/20 outline-none transition-all" type="email" value="elena.r@financialstudio.io"/>
+</div>
+</div>
+</section>
+<!-- Social Links Section -->
+<section class="space-y-4">
+<h3 class="font-headline font-bold text-lg text-on-surface px-1">Linked Accounts</h3>
+<div class="grid grid-cols-1 gap-3">
+<!-- Social Card: Twitter -->
+<div class="bg-surface-container-lowest p-4 rounded-2xl flex items-center justify-between group cursor-pointer hover:bg-surface transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="share">share</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Twitter / X</p>
+<p class="text-xs text-on-surface-variant">Connected as @elena_r</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline-variant group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</div>
+<!-- Social Card: Instagram -->
+<div class="bg-surface-container-lowest p-4 rounded-2xl flex items-center justify-between group cursor-pointer hover:bg-surface transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="photo_camera">photo_camera</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Instagram</p>
+<p class="text-xs text-on-surface-variant">Not connected</p>
+</div>
+</div>
+<button class="text-primary font-bold text-xs uppercase tracking-wider px-3 py-1 bg-primary-container/20 rounded-full">Link</button>
+</div>
+</div>
+</section>
+<!-- Security Action -->
+<button class="w-full py-4 px-6 bg-surface-container-highest/30 border-2 border-dashed border-outline-variant/30 rounded-2xl flex items-center justify-center gap-3 text-on-surface-variant font-bold hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined" data-icon="lock">lock</span>
+            Change Account Password
+        </button>
+<button class="w-full py-4 rounded-2xl bg-gradient-to-br from-primary to-primary-container text-on-primary font-bold text-lg shadow-xl shadow-primary/20 spring-physics-bounce">
+            Save Changes
+        </button>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 dark:bg-stone-950/80 backdrop-blur-md rounded-t-[1.5rem] z-50 shadow-[0_-10px_40px_rgba(73,38,4,0.06)]">
+<a class="flex flex-col items-center justify-center text-stone-500 dark:text-stone-400 px-5 py-2 hover:text-orange-700 dark:hover:text-orange-200 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-['Manrope'] text-[11px] font-semibold tracking-wide">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 dark:text-stone-400 px-5 py-2 hover:text-orange-700 dark:hover:text-orange-200 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-['Manrope'] text-[11px] font-semibold tracking-wide">Wallet</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 dark:text-stone-400 px-5 py-2 hover:text-orange-700 dark:hover:text-orange-200 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+<span class="font-['Manrope'] text-[11px] font-semibold tracking-wide">Analytics</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-orange-100 dark:bg-orange-900/30 text-orange-900 dark:text-orange-100 rounded-2xl px-5 py-2 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-['Manrope'] text-[11px] font-semibold tracking-wide">Settings</span>
+</a>
+</nav>
+</body></html>

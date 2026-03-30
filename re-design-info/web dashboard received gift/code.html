@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GiftingPlatform - Gifts Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-lowest": "#ffffff",
+              "surface-container-highest": "#ffd5b5",
+              "on-tertiary": "#fff1dd",
+              "secondary-fixed-dim": "#ffb374",
+              "on-secondary-fixed-variant": "#7c4200",
+              "on-primary-fixed-variant": "#542200",
+              "surface-container": "#ffe3cf",
+              "inverse-on-surface": "#c79266",
+              "on-secondary-fixed": "#522a00",
+              "primary-container": "#f9873e",
+              "primary": "#964300",
+              "surface-bright": "#fff4ef",
+              "surface-dim": "#ffcaa1",
+              "on-primary": "#fff0e9",
+              "secondary": "#8c4b00",
+              "primary-fixed": "#f9873e",
+              "on-background": "#492604",
+              "primary-fixed-dim": "#e97b32",
+              "secondary-fixed": "#ffc69a",
+              "on-surface": "#492604",
+              "primary-dim": "#843a00",
+              "on-tertiary-container": "#573e00",
+              "tertiary": "#775600",
+              "surface-tint": "#964300",
+              "error": "#b02500",
+              "secondary-dim": "#7a4100",
+              "on-tertiary-fixed-variant": "#624600",
+              "tertiary-container": "#febf2a",
+              "on-surface-variant": "#7d522b",
+              "surface": "#fff4ef",
+              "outline": "#9d6c44",
+              "on-primary-fixed": "#100300",
+              "inverse-surface": "#1b0a00",
+              "secondary-container": "#ffc69a",
+              "surface-container-high": "#ffdcc2",
+              "on-tertiary-fixed": "#3e2b00",
+              "outline-variant": "#d9a275",
+              "tertiary-fixed": "#febf2a",
+              "on-error": "#ffefec",
+              "error-dim": "#b92902",
+              "tertiary-fixed-dim": "#efb118",
+              "surface-container-low": "#ffede2",
+              "on-error-container": "#520c00",
+              "error-container": "#f95630",
+              "tertiary-dim": "#684b00",
+              "on-secondary": "#fff0e7",
+              "inverse-primary": "#f9873e",
+              "surface-variant": "#ffd5b5",
+              "background": "#fff4ef",
+              "on-primary-container": "#451b00",
+              "on-secondary-container": "#6e3a00"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .ease-spring { transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body min-h-screen">
+<!-- TopAppBar Shell -->
+<header class="bg-[#fff4ef]/80 dark:bg-stone-900/80 backdrop-blur-md fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-4">
+<span class="text-xl font-black text-[#492604] dark:text-[#fff4ef] font-headline">GiftingPlatform</span>
+</div>
+<div class="hidden md:flex items-center space-x-8">
+<nav class="flex items-center space-x-6">
+<a class="text-[#7d522b] dark:text-stone-400 font-['Plus_Jakarta_Sans'] font-bold text-lg hover:bg-[#ffede2] dark:hover:bg-stone-800 transition-colors px-3 py-1 rounded-lg" href="#">Overview</a>
+<a class="text-[#964300] font-bold border-b-2 border-[#964300] font-['Plus_Jakarta_Sans'] text-lg px-3 py-1" href="#">Gifts</a>
+<a class="text-[#7d522b] dark:text-stone-400 font-['Plus_Jakarta_Sans'] font-bold text-lg hover:bg-[#ffede2] dark:hover:bg-stone-800 transition-colors px-3 py-1 rounded-lg" href="#">Campaigns</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined p-2 rounded-full text-[#964300] hover:bg-[#ffede2] transition-colors" data-icon="notifications">notifications</button>
+<div class="h-8 w-8 rounded-full overflow-hidden border-2 border-primary/20">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="close-up portrait of a smiling professional woman with glowing skin and warm lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRgi84-8ZaAAi9YQOoqniWIHmzHGEYmJzZ94D3N1T6Yycu6s_viN1urQghHVVMVOHJ6fafVPB8yxwH-Ecrw9fqdpqvp06dDZnvXHjBRyyDMMkwRRkfHXHYgy5Jmqxg94SGeyycoteNZiumugWMIDYYhw3M_aM1gsrVfBnvWMooWJ9lyh4W2PVOjkVB6_8cpCrj8dKTvELoYLQI0vBAxgrYyFtIKQBlwSTHSBRV6VL3DrZiaQCJ4oUIIKbttttsN8c5B7JFVEC1VII"/>
+</div>
+</div>
+</header>
+<div class="flex">
+<!-- SideNavBar Shell -->
+<aside class="bg-[#ffede2] dark:bg-stone-900 h-screen w-64 hidden md:flex flex-col border-r-0 fixed left-0 top-0 pt-20 pb-8 z-40">
+<div class="text-2xl font-bold text-[#492604] dark:text-white px-4 mb-8 font-headline">The Curator</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 text-[#7d522b] dark:text-stone-400 mx-2 px-4 py-3 hover:bg-[#fff4ef]/50 hover:translate-x-1 transition-transform duration-200 rounded-xl font-medium text-sm font-body" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Overview</span>
+</a>
+<a class="flex items-center gap-3 bg-[#ffffff] dark:bg-stone-800 text-[#964300] font-bold rounded-xl mx-2 px-4 py-3 shadow-sm font-medium text-sm font-body" href="#">
+<span class="material-symbols-outlined" data-icon="redeem" style="font-variation-settings: 'FILL' 1;">redeem</span>
+<span>Gifts</span>
+</a>
+<a class="flex items-center gap-3 text-[#7d522b] dark:text-stone-400 mx-2 px-4 py-3 hover:bg-[#fff4ef]/50 hover:translate-x-1 transition-transform duration-200 rounded-xl font-medium text-sm font-body" href="#">
+<span class="material-symbols-outlined" data-icon="campaign">campaign</span>
+<span>Campaigns</span>
+</a>
+<a class="flex items-center gap-3 text-[#7d522b] dark:text-stone-400 mx-2 px-4 py-3 hover:bg-[#fff4ef]/50 hover:translate-x-1 transition-transform duration-200 rounded-xl font-medium text-sm font-body" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span>Wallet</span>
+</a>
+<a class="flex items-center gap-3 text-[#7d522b] dark:text-stone-400 mx-2 px-4 py-3 hover:bg-[#fff4ef]/50 hover:translate-x-1 transition-transform duration-200 rounded-xl font-medium text-sm font-body" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="px-4 mt-auto">
+<button class="w-full py-4 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-xl font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform active:scale-95">
+                    Create Gift
+                </button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 pt-24 pb-32 px-4 md:px-8 max-w-7xl mx-auto w-full">
+<!-- Editorial Header -->
+<section class="mb-12">
+<span class="text-primary font-bold tracking-widest text-xs uppercase font-label">Management Suite</span>
+<h1 class="text-4xl md:text-5xl font-black text-on-surface font-headline mt-2 mb-4 tracking-tight">Received Gifts</h1>
+<p class="text-on-surface-variant max-w-xl text-lg leading-relaxed">
+                    Review and curate your collection of received gift cards. Your fans and partners are showing their appreciation.
+                </p>
+</section>
+<!-- Stats Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+<div class="bg-surface-container-lowest p-6 rounded-2xl border-none flex flex-col justify-between group hover:bg-surface-container-low transition-colors duration-300">
+<div>
+<span class="material-symbols-outlined text-primary mb-4 p-2 bg-surface-container rounded-lg" data-icon="card_giftcard">card_giftcard</span>
+<h3 class="text-on-surface-variant font-label text-sm font-bold">Total Received</h3>
+</div>
+<p class="text-3xl font-black text-on-surface font-headline mt-4">128</p>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-2xl border-none flex flex-col justify-between group hover:bg-surface-container-low transition-colors duration-300">
+<div>
+<span class="material-symbols-outlined text-tertiary mb-4 p-2 bg-tertiary-container/20 rounded-lg" data-icon="payments">payments</span>
+<h3 class="text-on-surface-variant font-label text-sm font-bold">Total Value</h3>
+</div>
+<p class="text-3xl font-black text-on-surface font-headline mt-4">$4,250.00</p>
+</div>
+<div class="bg-primary text-on-primary p-6 rounded-2xl flex flex-col justify-between shadow-xl shadow-primary/10">
+<div>
+<span class="material-symbols-outlined mb-4 p-2 bg-primary-container rounded-lg" data-icon="auto_awesome" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<h3 class="text-primary-container font-label text-sm font-bold">New Today</h3>
+</div>
+<p class="text-3xl font-black font-headline mt-4">+12 Gifts</p>
+</div>
+</div>
+<!-- Gift List Container -->
+<div class="bg-surface-container-low rounded-3xl p-6 md:p-8">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+<h2 class="text-2xl font-black text-on-surface font-headline">Recent Gifts</h2>
+<div class="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">
+<button class="px-4 py-2 bg-surface-container-lowest text-primary text-xs font-bold rounded-full whitespace-nowrap">All Status</button>
+<button class="px-4 py-2 hover:bg-surface-container-lowest/50 text-on-surface-variant text-xs font-bold rounded-full whitespace-nowrap transition-colors">Pending</button>
+<button class="px-4 py-2 hover:bg-surface-container-lowest/50 text-on-surface-variant text-xs font-bold rounded-full whitespace-nowrap transition-colors">Redeemed</button>
+</div>
+</div>
+<div class="space-y-4">
+<!-- Gift Item 1 -->
+<div class="bg-surface-container-lowest rounded-2xl p-4 md:p-6 flex flex-col md:flex-row items-center gap-6 group hover:scale-[1.005] transition-all">
+<div class="h-16 w-16 rounded-xl overflow-hidden flex-shrink-0 bg-surface">
+<img alt="Starbucks Gift Card" class="w-full h-full object-cover" data-alt="close-up of a premium designer gift card with gold foil patterns and warm bokeh lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCg3-jRfm4yeNVcOFhI4dunkdrkHCB05VxDiBmAYYB0wmrLx8SG6cwSCicnb_pBHOrtu5PST_zcdiMhkFYoXwU2STJogDlcKWYIwtbJpXESzbNLCkzHunzEzvb7VfUvwwu8TkC7c9dufxtT7qjxIruKdY9m6G8LGeTPpXsCVJNF3PT_UboyLqVRQKshnVpjhqZL7PCY7fYUp6Ka2qtegakimAUvWtIrnKLoOJatPq5VFN8ZJS_zGsGhmr6f4eSt17Coa0yq89P2SS0"/>
+</div>
+<div class="flex-1 text-center md:text-left">
+<h4 class="text-lg font-bold text-on-surface font-headline">Starbucks Premium</h4>
+<p class="text-sm text-on-surface-variant font-body">From: <span class="text-primary font-bold">@alex_digital</span> • 2 hours ago</p>
+</div>
+<div class="flex flex-col items-center md:items-end gap-2">
+<span class="text-2xl font-black text-on-surface font-headline">$50.00</span>
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-black uppercase tracking-widest rounded-full">Received</span>
+</div>
+<button class="w-full md:w-auto px-6 py-3 bg-surface-container-high text-primary font-bold rounded-xl hover:bg-surface-container-highest transition-colors">Details</button>
+</div>
+<!-- Gift Item 2 -->
+<div class="bg-surface-container-lowest rounded-2xl p-4 md:p-6 flex flex-col md:flex-row items-center gap-6 group hover:scale-[1.005] transition-all">
+<div class="h-16 w-16 rounded-xl overflow-hidden flex-shrink-0 bg-surface">
+<img alt="Gaming Gift Card" class="w-full h-full object-cover" data-alt="modern neon gaming gift card on a dark surface with vibrant purple and cyan accents" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxq6lwqN7PdhU89a1M_ZYSKUzIGFlyb_59-vxgNsU1rdq4hGPRXgj3GMmEO8Gw-1HexbLxuALmeLg5thK4MKxX6FPii1dPUcQ3oDtWgdI0LlM7D5f22QvBOVBJ2XKFslnyACGl2sxd9-RQNt1UPLakvQ39YIPBvxTIDBfXrSeCoX7dkCvd2mVv5gSVfF97VMjPQHKXmODvkhQcAyH61uDiO-aANcGxaKye43v5pvcMO4fYSuH3ILpfstchzDb41j4fT0Ex-xzJqYU"/>
+</div>
+<div class="flex-1 text-center md:text-left">
+<h4 class="text-lg font-bold text-on-surface font-headline">Steam Digital Wallet</h4>
+<p class="text-sm text-on-surface-variant font-body">From: <span class="text-primary font-bold">Sarah Jenkins</span> • 5 hours ago</p>
+</div>
+<div class="flex flex-col items-center md:items-end gap-2">
+<span class="text-2xl font-black text-on-surface font-headline">$25.00</span>
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-black uppercase tracking-widest rounded-full">Received</span>
+</div>
+<button class="w-full md:w-auto px-6 py-3 bg-surface-container-high text-primary font-bold rounded-xl hover:bg-surface-container-highest transition-colors">Details</button>
+</div>
+<!-- Gift Item 3 -->
+<div class="bg-surface-container-lowest rounded-2xl p-4 md:p-6 flex flex-col md:flex-row items-center gap-6 group hover:scale-[1.005] transition-all">
+<div class="h-16 w-16 rounded-xl overflow-hidden flex-shrink-0 bg-surface">
+<img alt="Coffee Gift Card" class="w-full h-full object-cover" data-alt="aesthetic coffee cup with latte art on a warm wooden table with soft morning sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC2-aCpUuBW1k2PSWSIXa19kNOBFN-trvYvhDFdnlbZG2bnmjwRBff53v4ECUs2KpWPZaA_6u-KaA0P-ZIjZzYdmUe7mS2E1zbp7g9-w_2-7vvTmaspckzFzTYWFab0BFJkOrHnI-zuJENq1pT2xFro8rAWbjm6Jh6Jxf9APFITgmBQnEEPTsAXhZ-QorgDVqRIf-CZXK0z6U9jyIPOT4sYMAjlG0BBp1i3GnGcU1kxczw1gB7EHnNIyBvj7tZ7AGA8UFOejzjX3CA"/>
+</div>
+<div class="flex-1 text-center md:text-left">
+<h4 class="text-lg font-bold text-on-surface font-headline">Artisan Coffee Pass</h4>
+<p class="text-sm text-on-surface-variant font-body">From: <span class="text-primary font-bold">Fan Club #4</span> • Yesterday</p>
+</div>
+<div class="flex flex-col items-center md:items-end gap-2">
+<span class="text-2xl font-black text-on-surface font-headline">$15.00</span>
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-black uppercase tracking-widest rounded-full">Received</span>
+</div>
+<button class="w-full md:w-auto px-6 py-3 bg-surface-container-high text-primary font-bold rounded-xl hover:bg-surface-container-highest transition-colors">Details</button>
+</div>
+<!-- Gift Item 4 -->
+<div class="bg-surface-container-lowest rounded-2xl p-4 md:p-6 flex flex-col md:flex-row items-center gap-6 group hover:scale-[1.005] transition-all">
+<div class="h-16 w-16 rounded-xl overflow-hidden flex-shrink-0 bg-surface">
+<img alt="Amazon Gift Card" class="w-full h-full object-cover" data-alt="macro shot of a luxury shopping bag with ribbon in warm golden lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFJbpIJt3SZnpLiMCxIoBjKyDgQ-YRmGdIj7KLYy5S6KyF79mb7Tpgd0FPONqtyI0H5RimZuJZXt_VGN3q3gV3aTBNXWFZzVWPGtgaMe-sN4UFHCvSjL883xdizyt-ddgrM-rxoGngQbVK6JmOaWTPDFK3Io-2WXe5GfwybIw9F4j6tbd5Z-NYmYBPGVejHTZIgoVPOM-latS_bYCmDvRWgfZ770TPehQEV4Dk6GcCNdbaYoFmjPw5ntOAgCtGGcU-9AVx2QlBX3Q"/>
+</div>
+<div class="flex-1 text-center md:text-left">
+<h4 class="text-lg font-bold text-on-surface font-headline">Amazon Global Credit</h4>
+<p class="text-sm text-on-surface-variant font-body">From: <span class="text-primary font-bold">Secret Santa</span> • 2 days ago</p>
+</div>
+<div class="flex flex-col items-center md:items-end gap-2">
+<span class="text-2xl font-black text-on-surface font-headline">$100.00</span>
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-black uppercase tracking-widest rounded-full">Received</span>
+</div>
+<button class="w-full md:w-auto px-6 py-3 bg-surface-container-high text-primary font-bold rounded-xl hover:bg-surface-container-highest transition-colors">Details</button>
+</div>
+</div>
+<div class="mt-8 text-center">
+<button class="text-primary font-bold hover:underline flex items-center gap-2 mx-auto">
+                        View All History
+                        <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</main>
+</div>
+<!-- BottomNavBar Shell -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pt-3 pb-6 bg-[#fff4ef]/90 dark:bg-stone-900/90 backdrop-blur-xl rounded-t-3xl md:hidden z-50 shadow-[0_-10px_40px_rgba(73,38,4,0.06)]">
+<a class="flex flex-col items-center justify-center text-[#7d522b] dark:text-stone-400 p-2 active:bg-[#ffede2] transition-all scale-90 active:scale-100" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Manrope'] text-[11px] font-semibold">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#964300] text-white rounded-2xl p-3 mb-1 transition-all scale-90 active:scale-100" href="#">
+<span class="material-symbols-outlined" data-icon="redeem" style="font-variation-settings: 'FILL' 1;">redeem</span>
+<span class="font-['Manrope'] text-[11px] font-semibold">Gifts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#7d522b] dark:text-stone-400 p-2 active:bg-[#ffede2] transition-all scale-90 active:scale-100" href="#">
+<span class="material-symbols-outlined" data-icon="campaign">campaign</span>
+<span class="font-['Manrope'] text-[11px] font-semibold">Campaigns</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#7d522b] dark:text-stone-400 p-2 active:bg-[#ffede2] transition-all scale-90 active:scale-100" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-['Manrope'] text-[11px] font-semibold">Wallet</span>
+</a>
+</nav>
+</body></html>

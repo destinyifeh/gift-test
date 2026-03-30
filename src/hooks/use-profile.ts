@@ -34,6 +34,7 @@ export function useProfile() {
         avatar_url: profile?.avatar_url || '',
         bio: profile?.bio || '',
         is_creator: profile?.is_creator === true,
+        creator_plan: profile?.creator_plan || 'free',
         suggested_amounts: profile?.suggested_amounts || [5, 10, 25],
         social_links: profile?.social_links || {},
         theme_settings: profile?.theme_settings || {},
@@ -85,6 +86,7 @@ export function useProfileByUsername(username: string | null) {
         avatar_url: profile.avatar_url,
         bio: profile.bio,
         is_creator: profile.is_creator,
+        creator_plan: profile.creator_plan || 'free',
         suggested_amounts: profile.suggested_amounts || [5, 10, 25],
         social_links: profile.social_links || {},
         theme_settings: profile.theme_settings || {},
@@ -100,7 +102,7 @@ export function useProfileByUsername(username: string | null) {
       };
     },
     enabled: !!username,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 30, // 30 seconds
   });
 }
 

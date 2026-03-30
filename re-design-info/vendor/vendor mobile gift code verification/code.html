@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vendor Hub - Redemptions</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "tertiary-fixed": "#febf2a",
+              "on-tertiary-fixed": "#3e2b00",
+              "inverse-primary": "#f9873e",
+              "surface-container-low": "#ffede2",
+              "on-secondary-fixed-variant": "#7c4200",
+              "surface-container-lowest": "#ffffff",
+              "on-primary-fixed": "#100300",
+              "on-surface": "#492604",
+              "surface-bright": "#fff4ef",
+              "secondary-dim": "#7a4100",
+              "secondary-container": "#ffc69a",
+              "tertiary-dim": "#684b00",
+              "surface-variant": "#ffd5b5",
+              "secondary-fixed-dim": "#ffb374",
+              "tertiary-container": "#febf2a",
+              "error-dim": "#b92902",
+              "primary-fixed": "#f9873e",
+              "on-tertiary-fixed-variant": "#624600",
+              "inverse-on-surface": "#c79266",
+              "primary": "#964300",
+              "on-tertiary-container": "#573e00",
+              "surface-tint": "#964300",
+              "on-primary-fixed-variant": "#542200",
+              "surface": "#fff4ef",
+              "on-secondary-fixed": "#522a00",
+              "on-secondary": "#fff0e7",
+              "surface-container-high": "#ffdcc2",
+              "surface-container": "#ffe3cf",
+              "primary-dim": "#843a00",
+              "outline-variant": "#d9a275",
+              "on-primary": "#fff0e9",
+              "on-error": "#ffefec",
+              "surface-dim": "#ffcaa1",
+              "primary-fixed-dim": "#e97b32",
+              "primary-container": "#f9873e",
+              "on-error-container": "#520c00",
+              "on-background": "#492604",
+              "on-secondary-container": "#6e3a00",
+              "error": "#b02500",
+              "tertiary": "#775600",
+              "secondary-fixed": "#ffc69a",
+              "background": "#fff4ef",
+              "on-surface-variant": "#7d522b",
+              "on-tertiary": "#fff1dd",
+              "on-primary-container": "#451b00",
+              "outline": "#9d6c44",
+              "tertiary-fixed-dim": "#efb118",
+              "secondary": "#8c4b00",
+              "surface-container-highest": "#ffd5b5",
+              "inverse-surface": "#1b0a00",
+              "error-container": "#f95630"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "3xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bg-warm-gradient {
+            background: linear-gradient(135deg, #964300 0%, #f9873e 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface antialiased pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fff4ef]/80 dark:bg-stone-900/80 backdrop-blur-xl shadow-[0_4px_30px_rgba(73,38,4,0.03)]">
+<div class="flex justify-between items-center w-full px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden border-2 border-primary-container/20">
+<img class="w-full h-full object-cover" data-alt="Close-up portrait of a professional male business owner with a friendly and warm expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoZ0ZB-YeX3YNpTUYLCX7dJ2TrO_6oD47WWLa0ORYkuZ6P8uWVZ3hs-Aohr8GbV1vXLQySyuaAD7Xlk6PPVEzkKBQ9JnSsAuQl1h_EH9nNQtKnJBydeeZWtgwAmaEJ6xq0FlTjR6eGZBWYEG4cTETWHe9AUvcEe2mDhk_NY4hmyifR2mgvi9ddSkzGdO7r72i-69UGAp0v-2KBtJie1Lf6GSb99u2hq4eMXCuyue3ji8jgbj63Ci3NegBkAYUvdGL4Am8oGQIYRbg"/>
+</div>
+<h1 class="font-['Plus_Jakarta_Sans'] font-extrabold text-[#964300] dark:text-[#f9873e] text-xl tracking-tight">Vendor Hub</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-[#ffede2] dark:hover:bg-stone-800 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-[#964300] dark:text-[#f9873e]">notifications</span>
+</button>
+</div>
+</div>
+</header>
+<main class="mt-24 px-6 space-y-8">
+<!-- Hero Section: Scan Action -->
+<section class="space-y-6">
+<div class="bg-surface-container-low rounded-3xl p-8 text-center space-y-6 shadow-sm">
+<div class="space-y-2">
+<h2 class="font-headline font-bold text-2xl text-on-surface">Redeem Credits</h2>
+<p class="font-body text-on-surface-variant text-sm px-4">Instant validation for customer vouchers and loyalty rewards.</p>
+</div>
+<div class="flex flex-col items-center gap-4">
+<button class="w-full py-5 bg-warm-gradient text-on-primary rounded-2xl shadow-lg shadow-primary/20 flex items-center justify-center gap-3 active:scale-[0.98] transition-all group">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">qr_code_scanner</span>
+<span class="font-headline font-bold text-lg">Scan QR Code</span>
+</button>
+<div class="flex items-center w-full gap-4">
+<div class="h-[1px] flex-1 bg-outline-variant/30"></div>
+<span class="font-label text-xs uppercase tracking-widest text-on-surface-variant/60 font-semibold">or</span>
+<div class="h-[1px] flex-1 bg-outline-variant/30"></div>
+</div>
+<button class="w-full py-4 bg-surface-container-lowest text-primary rounded-2xl border border-outline-variant/10 font-bold active:scale-[0.98] transition-all">
+                        Enter Code Manually
+                    </button>
+</div>
+</div>
+</section>
+<!-- Insights Bento Grid -->
+<section class="grid grid-cols-2 gap-4">
+<div class="col-span-1 bg-surface-container-lowest p-5 rounded-3xl space-y-1">
+<p class="font-label text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Today</p>
+<p class="font-headline font-extrabold text-2xl text-on-surface">GH₵ 4,250</p>
+<p class="font-body text-[10px] text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">trending_up</span>
+                    +12% from yesterday
+                </p>
+</div>
+<div class="col-span-1 bg-surface-container-lowest p-5 rounded-3xl space-y-1">
+<p class="font-label text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Redeemed</p>
+<p class="font-headline font-extrabold text-2xl text-on-surface">14</p>
+<p class="font-body text-[10px] text-on-surface-variant/60">Vouchers processed</p>
+</div>
+</section>
+<!-- Recent Redemptions List -->
+<section class="space-y-4 pb-8">
+<div class="flex justify-between items-end px-1">
+<h3 class="font-headline font-bold text-xl text-on-surface">Recent Redemptions</h3>
+<button class="text-primary font-bold text-sm">View All</button>
+</div>
+<div class="space-y-3">
+<!-- Redemption Item 1 -->
+<div class="bg-surface-container-lowest p-4 rounded-2xl flex items-center justify-between group transition-all hover:bg-surface-bright">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-2xl bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-2xl">person</span>
+</div>
+<div>
+<p class="font-headline font-bold text-on-surface">Kofi Mensah</p>
+<p class="font-body text-xs text-on-surface-variant">2 mins ago • #RDM-8291</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline font-extrabold text-on-surface">GH₵ 350.00</p>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-secondary-container/30 text-on-secondary-container text-[10px] font-bold uppercase tracking-tighter">Success</span>
+</div>
+</div>
+<!-- Redemption Item 2 -->
+<div class="bg-surface-container-lowest p-4 rounded-2xl flex items-center justify-between group transition-all hover:bg-surface-bright">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-2xl bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-2xl">person</span>
+</div>
+<div>
+<p class="font-headline font-bold text-on-surface">Ama Serwaa</p>
+<p class="font-body text-xs text-on-surface-variant">15 mins ago • #RDM-8290</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline font-extrabold text-on-surface">GH₵ 1,200.00</p>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-secondary-container/30 text-on-secondary-container text-[10px] font-bold uppercase tracking-tighter">Success</span>
+</div>
+</div>
+<!-- Redemption Item 3 -->
+<div class="bg-surface-container-lowest p-4 rounded-2xl flex items-center justify-between group transition-all hover:bg-surface-bright">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-2xl bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-2xl">person</span>
+</div>
+<div>
+<p class="font-headline font-bold text-on-surface">Abena Osei</p>
+<p class="font-body text-xs text-on-surface-variant">1 hour ago • #RDM-8289</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline font-extrabold text-on-surface">GH₵ 45.00</p>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-secondary-container/30 text-on-secondary-container text-[10px] font-bold uppercase tracking-tighter">Success</span>
+</div>
+</div>
+<!-- Redemption Item 4 -->
+<div class="bg-surface-container-lowest p-4 rounded-2xl flex items-center justify-between group transition-all hover:bg-surface-bright">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-2xl bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-2xl">person</span>
+</div>
+<div>
+<p class="font-headline font-bold text-on-surface">Kwame Appiah</p>
+<p class="font-body text-xs text-on-surface-variant">2 hours ago • #RDM-8288</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline font-extrabold text-on-surface">GH₵ 180.00</p>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-secondary-container/30 text-on-secondary-container text-[10px] font-bold uppercase tracking-tighter">Success</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pt-3 pb-8 bg-[#ffffff] dark:bg-stone-950 rounded-t-[1.5rem] z-50 shadow-[0_-10px_40px_rgba(73,38,4,0.06)]">
+<!-- Overview Tab -->
+<a class="flex flex-col items-center justify-center text-[#7d522b] dark:text-stone-400 px-5 py-2 hover:opacity-80 transition-opacity active:scale-90 duration-300" href="#">
+<span class="material-symbols-outlined mb-1">dashboard</span>
+<span class="font-['Manrope'] text-[11px] font-semibold uppercase tracking-wider">Overview</span>
+</a>
+<!-- Redeem Tab (Active) -->
+<a class="flex flex-col items-center justify-center bg-[#ffede2] dark:bg-[#964300]/20 text-[#964300] dark:text-[#f9873e] rounded-2xl px-5 py-2 hover:opacity-80 transition-opacity active:scale-90 duration-300" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">payments</span>
+<span class="font-['Manrope'] text-[11px] font-semibold uppercase tracking-wider">Redeem</span>
+</a>
+<!-- Wallet Tab -->
+<a class="flex flex-col items-center justify-center text-[#7d522b] dark:text-stone-400 px-5 py-2 hover:opacity-80 transition-opacity active:scale-90 duration-300" href="#">
+<span class="material-symbols-outlined mb-1">account_balance_wallet</span>
+<span class="font-['Manrope'] text-[11px] font-semibold uppercase tracking-wider">Wallet</span>
+</a>
+</nav>
+</body></html>

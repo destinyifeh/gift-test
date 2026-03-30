@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Transaction History | Warm Curator Financial</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-high": "#ffdcc2",
+                        "on-secondary": "#fff0e7",
+                        "on-background": "#492604",
+                        "tertiary-fixed-dim": "#efb118",
+                        "tertiary-dim": "#684b00",
+                        "secondary-dim": "#7a4100",
+                        "background": "#fff4ef",
+                        "tertiary": "#775600",
+                        "surface-variant": "#ffd5b5",
+                        "tertiary-fixed": "#febf2a",
+                        "surface-bright": "#fff4ef",
+                        "on-primary-fixed": "#100300",
+                        "secondary": "#8c4b00",
+                        "on-surface-variant": "#7d522b",
+                        "on-primary-fixed-variant": "#542200",
+                        "outline-variant": "#d9a275",
+                        "on-tertiary-container": "#573e00",
+                        "on-tertiary-fixed-variant": "#624600",
+                        "on-primary": "#fff0e9",
+                        "secondary-fixed-dim": "#ffb374",
+                        "surface-dim": "#ffcaa1",
+                        "on-error": "#ffefec",
+                        "primary-fixed": "#f9873e",
+                        "on-secondary-container": "#6e3a00",
+                        "tertiary-container": "#febf2a",
+                        "error-container": "#f95630",
+                        "surface": "#fff4ef",
+                        "primary-fixed-dim": "#e97b32",
+                        "outline": "#9d6c44",
+                        "secondary-fixed": "#ffc69a",
+                        "inverse-on-surface": "#c79266",
+                        "secondary-container": "#ffc69a",
+                        "on-primary-container": "#451b00",
+                        "surface-container-highest": "#ffd5b5",
+                        "primary": "#964300",
+                        "on-secondary-fixed": "#522a00",
+                        "on-tertiary": "#fff1dd",
+                        "on-tertiary-fixed": "#3e2b00",
+                        "inverse-surface": "#1b0a00",
+                        "primary-dim": "#843a00",
+                        "surface-container-low": "#ffede2",
+                        "on-surface": "#492604",
+                        "on-error-container": "#520c00",
+                        "error": "#b02500",
+                        "error-dim": "#b92902",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#f9873e",
+                        "surface-container": "#ffe3cf",
+                        "primary-container": "#f9873e",
+                        "surface-tint": "#964300",
+                        "on-secondary-fixed-variant": "#7c4200"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; background-color: #fff4ef; color: #492604; }
+        .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-orange-50/80 dark:bg-stone-950/80 backdrop-blur-md flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-4">
+<span class="text-2xl font-bold tracking-tight text-orange-900 dark:text-orange-100 font-headline">Warm Curator Financial</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex gap-8 items-center">
+<a class="text-orange-800/60 dark:text-stone-400 hover:bg-orange-100/50 dark:hover:bg-stone-800 transition-colors px-3 py-2 rounded-lg text-sm font-medium" href="#">Dashboard</a>
+<a class="text-orange-900 dark:text-orange-100 font-bold px-3 py-2 rounded-lg text-sm" href="#">Wallet</a>
+<a class="text-orange-800/60 dark:text-stone-400 hover:bg-orange-100/50 dark:hover:bg-stone-800 transition-colors px-3 py-2 rounded-lg text-sm font-medium" href="#">Analytics</a>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2 rounded-full hover:bg-orange-100/50 transition-colors text-orange-700">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 rounded-full hover:bg-orange-100/50 transition-colors text-orange-700">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<!-- SideNavBar (Desktop Only) -->
+<aside class="hidden md:flex h-screen w-64 fixed left-0 top-0 bg-orange-100/50 dark:bg-stone-900 flex-col py-8 z-40">
+<div class="px-6 mb-12 mt-16">
+<h1 class="text-xl font-extrabold text-orange-900 dark:text-orange-100 font-headline">Financial Hub</h1>
+<p class="text-xs text-orange-800/70 font-medium">The Warm Curator</p>
+</div>
+<nav class="flex-1 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-6 py-3 text-orange-800/70 dark:text-stone-400 hover:bg-orange-200/30 transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-orange-700" data-icon="dashboard">dashboard</span>
+<span class="font-medium text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-orange-900 dark:text-orange-100 font-bold border-r-4 border-orange-600 dark:border-orange-500 bg-orange-200/50 dark:bg-stone-800 transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-orange-700" data-icon="account_balance_wallet" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+<span class="font-medium text-sm">Wallet</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-orange-800/70 dark:text-stone-400 hover:bg-orange-200/30 transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-orange-700" data-icon="insights">insights</span>
+<span class="font-medium text-sm">Analytics</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-orange-800/70 dark:text-stone-400 hover:bg-orange-200/30 transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-orange-700" data-icon="settings">settings</span>
+<span class="font-medium text-sm">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-orange-800/70 dark:text-stone-400 hover:bg-orange-200/30 transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-orange-700" data-icon="contact_support">contact_support</span>
+<span class="font-medium text-sm">Support</span>
+</a>
+</nav>
+<div class="px-6 mt-auto">
+<button class="w-full py-3 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-xl font-bold text-sm shadow-lg shadow-orange-900/10 hover:scale-95 transition-transform duration-200">
+                Add Funds
+            </button>
+<a class="flex items-center gap-3 mt-6 px-2 py-3 text-orange-800/70 hover:text-orange-900 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-medium text-sm">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 pt-24 min-h-screen px-6 md:px-12 pb-12">
+<div class="max-w-6xl mx-auto">
+<!-- Header Section -->
+<div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<h2 class="text-4xl font-extrabold text-on-background font-headline tracking-tight mb-2">Transaction History</h2>
+<p class="text-on-surface-variant font-medium">Curating your financial growth and contributions.</p>
+</div>
+<div class="flex gap-3">
+<button class="px-4 py-2 bg-surface-container-high text-primary rounded-full text-sm font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-lg" data-icon="filter_list">filter_list</span>
+                        Filter
+                    </button>
+<button class="px-4 py-2 bg-surface-container-high text-primary rounded-full text-sm font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-lg" data-icon="download">download</span>
+                        Export
+                    </button>
+</div>
+</div>
+<!-- Dashboard Summary (Asymmetric Grid) -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-12">
+<div class="md:col-span-8 bg-surface-container-low p-8 rounded-[2rem] relative overflow-hidden flex flex-col justify-between min-h-[240px]">
+<div class="z-10">
+<span class="label-md uppercase tracking-widest text-on-surface-variant font-bold opacity-60">Total Balance</span>
+<h3 class="text-5xl font-extrabold text-on-background mt-2 font-headline">$12,480.50</h3>
+</div>
+<div class="flex gap-4 z-10">
+<div class="bg-surface-container-lowest/60 backdrop-blur-sm p-4 rounded-2xl flex-1">
+<span class="text-xs font-bold text-on-surface-variant/70 uppercase">This Month</span>
+<p class="text-xl font-bold text-primary mt-1">+$2,140</p>
+</div>
+<div class="bg-surface-container-lowest/60 backdrop-blur-sm p-4 rounded-2xl flex-1">
+<span class="text-xs font-bold text-on-surface-variant/70 uppercase">Goal Progress</span>
+<p class="text-xl font-bold text-on-background mt-1">84%</p>
+</div>
+</div>
+<div class="absolute -right-12 -top-12 w-64 h-64 bg-primary-container/20 rounded-full blur-3xl"></div>
+</div>
+<div class="md:col-span-4 bg-primary text-on-primary p-8 rounded-[2rem] flex flex-col justify-between">
+<div>
+<span class="material-symbols-outlined text-4xl mb-4" data-icon="redeem" style="font-variation-settings: 'FILL' 1;">redeem</span>
+<h4 class="text-2xl font-bold font-headline leading-tight">Gift Card Central</h4>
+</div>
+<p class="text-on-primary/80 text-sm">Redeem your curated digital assets instantly.</p>
+<button class="mt-4 w-full py-3 bg-on-primary text-primary rounded-xl font-bold text-sm hover:bg-white transition-colors">
+                        Redeem Now
+                    </button>
+</div>
+</div>
+<!-- Transaction List -->
+<div class="bg-surface-container-low rounded-[2rem] p-4 md:p-8">
+<h5 class="text-xl font-bold font-headline mb-8 px-4 text-on-background">Recent Activity</h5>
+<div class="space-y-4">
+<!-- Transaction Item: Gift Card -->
+<div class="bg-surface-container-lowest hover:bg-white transition-all duration-300 p-5 rounded-2xl flex items-center gap-6 group">
+<div class="w-14 h-14 rounded-2xl bg-orange-100 flex items-center justify-center text-orange-700 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-2xl" data-icon="card_giftcard">card_giftcard</span>
+</div>
+<div class="flex-1">
+<h6 class="text-lg font-bold text-on-background">Starbucks Gift Card Claimed</h6>
+<p class="text-sm text-on-surface-variant font-medium">Digital Curated Reward • Oct 24, 2023</p>
+</div>
+<div class="text-right">
+<p class="text-xl font-bold font-headline text-error">-$25.00</p>
+<span class="inline-block px-3 py-1 bg-surface-container-high text-on-surface-variant text-[10px] font-bold rounded-full uppercase mt-1">Claimed</span>
+</div>
+</div>
+<!-- Transaction Item: Direct Support -->
+<div class="bg-surface-container-lowest hover:bg-white transition-all duration-300 p-5 rounded-2xl flex items-center gap-6 group">
+<div class="w-14 h-14 rounded-2xl bg-tertiary-container/30 flex items-center justify-center text-tertiary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-2xl" data-icon="favorite" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</div>
+<div class="flex-1">
+<h6 class="text-lg font-bold text-on-background">Community Support Credit</h6>
+<p class="text-sm text-on-surface-variant font-medium">Warm Curator Foundation • Oct 22, 2023</p>
+</div>
+<div class="text-right">
+<p class="text-xl font-bold font-headline text-primary">+$150.00</p>
+<span class="inline-block px-3 py-1 bg-tertiary-container text-on-tertiary-container text-[10px] font-bold rounded-full uppercase mt-1">Direct Support</span>
+</div>
+</div>
+<!-- Transaction Item: Monetary Gift -->
+<div class="bg-surface-container-lowest hover:bg-white transition-all duration-300 p-5 rounded-2xl flex items-center gap-6 group">
+<div class="w-14 h-14 rounded-2xl bg-primary-container/20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-2xl" data-icon="payments">payments</span>
+</div>
+<div class="flex-1">
+<h6 class="text-lg font-bold text-on-background">Birthday Contribution</h6>
+<p class="text-sm text-on-surface-variant font-medium">From: Julianna Smith • Oct 20, 2023</p>
+</div>
+<div class="text-right">
+<p class="text-xl font-bold font-headline text-primary">+$500.00</p>
+<span class="inline-block px-3 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-bold rounded-full uppercase mt-1">Gift</span>
+</div>
+</div>
+<!-- Transaction Item: Wallet Withdrawal -->
+<div class="bg-surface-container-lowest hover:bg-white transition-all duration-300 p-5 rounded-2xl flex items-center gap-6 group">
+<div class="w-14 h-14 rounded-2xl bg-stone-100 flex items-center justify-center text-stone-600 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-2xl" data-icon="account_balance">account_balance</span>
+</div>
+<div class="flex-1">
+<h6 class="text-lg font-bold text-on-background">Withdrawal to Chase Bank</h6>
+<p class="text-sm text-on-surface-variant font-medium">Transfer Reference #99821 • Oct 18, 2023</p>
+</div>
+<div class="text-right">
+<p class="text-xl font-bold font-headline text-error">-$1,200.00</p>
+<span class="inline-block px-3 py-1 bg-surface-container-high text-on-surface-variant text-[10px] font-bold rounded-full uppercase mt-1">Pending</span>
+</div>
+</div>
+<!-- Transaction Item: Direct Support -->
+<div class="bg-surface-container-lowest hover:bg-white transition-all duration-300 p-5 rounded-2xl flex items-center gap-6 group">
+<div class="w-14 h-14 rounded-2xl bg-tertiary-container/30 flex items-center justify-center text-tertiary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-2xl" data-icon="volunteer_activism">volunteer_activism</span>
+</div>
+<div class="flex-1">
+<h6 class="text-lg font-bold text-on-background">Educational Grant Payout</h6>
+<p class="text-sm text-on-surface-variant font-medium">Semester Support Fund • Oct 15, 2023</p>
+</div>
+<div class="text-right">
+<p class="text-xl font-bold font-headline text-primary">+$2,450.00</p>
+<span class="inline-block px-3 py-1 bg-tertiary-container text-on-tertiary-container text-[10px] font-bold rounded-full uppercase mt-1">Direct Support</span>
+</div>
+</div>
+</div>
+<!-- Load More Asymmetric Button -->
+<div class="mt-12 flex justify-center">
+<button class="group flex flex-col items-center gap-2">
+<span class="text-sm font-bold text-on-surface-variant/60 group-hover:text-primary transition-colors">Show older transactions</span>
+<div class="w-12 h-12 bg-surface-container-lowest rounded-full flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-all duration-300">
+<span class="material-symbols-outlined" data-icon="expand_more">expand_more</span>
+</div>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Visual Polish: Content Side Card (Editorial Feel) -->
+<div class="hidden xl:block fixed right-12 top-28 w-80">
+<div class="bg-surface-container-lowest rounded-[2rem] p-6 shadow-2xl shadow-orange-900/5 mb-6 border border-outline-variant/10">
+<img class="w-full h-40 object-cover rounded-2xl mb-4" data-alt="close-up of golden honey dripping into a white porcelain bowl with soft warm studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJdVm1yC9NYs99F2xLNRHADD-CNdfXQvw292Z2gjjc_6RbwuD1X-OaY0YiaTxgzHbr95zGg_7iw85Qjl7WLVTjYwW6CtUQpvhX9TsInvXfV8a6AziBQcJa9VZC_5OnBfnC-dW08Vg3VL8_K2RMKjc8RfbS6bgaDkd903tQ01Z34MA3E8MXjH_I8Ucd5jCND0F4CpiUb_1oHs3fhel6jkC3C9-hRIFnLEQsOZs2JhUx7MwXCPV8aNjt2s9YTMO9wT_Vuo_9v3VGoLU"/>
+<h5 class="text-lg font-bold font-headline mb-2">Curator's Tip</h5>
+<p class="text-sm text-on-surface-variant leading-relaxed mb-4">You've saved 12% more this month compared to your previous curated budget. Keep the momentum going!</p>
+<a class="text-primary text-sm font-bold flex items-center gap-1 group" href="#">
+                View Insights
+                <span class="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+<div class="bg-surface-container-low rounded-[2rem] p-6">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-primary" data-icon="auto_awesome">auto_awesome</span>
+<span class="font-bold text-sm uppercase tracking-tighter">New Perks Available</span>
+</div>
+<p class="text-xs text-on-surface-variant mb-4">Unlock curated experiences at your local boutique coffee shops with your new balance milestone.</p>
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-surface-container-low overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="professional portrait of a friendly young man with glasses smiling" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDoGgWx0r1_ltnIVjvbziwS5lxJgKtQYuc_ZQI3ZVgvEplfHLQXg2vm62T9n4f2DEWQZkdXYhNQr_oh8bzbgCP8-LHysy4Bqtwg-aCl0e88yTj4xJNpPNphCAdhnsS29GMkherIa4ojenl108KxqcOgftobwTWQaIrLMiQRaAJTIyVG_qaW7iOsrnvWo22OB74hj_a3lyRXndLY7bYp4i7zdEER-IobBTN2TT4TufZ-mt2giOxzm286ZJbTq_7WwFRmLvTzYvdYiY"/>
+</div>
+<div class="w-8 h-8 rounded-full border-2 border-surface-container-low overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="portrait of a woman with a bright smile in a sunlit office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDn6Wuh8Lv6kCxPVJkCPUXlUl3rAnZEwesdilCNAxkdhxxvWydtXy6dJ6gjYU6CkWGja-18zK7aV5Lqy2VoXEvLn47WDF6tknciWxwE8zDlPSy-0ZhcNY8qrhdHxQ4ZvB44Th_wlo9H7f3dH1zarpdQiF4TN6nq7KBZxrMVg4163mdzQySHdoMEOaASNValvG1NBh8B-RjlB46I55kU2K2FtcaTWu01oY0Uu0uqFoCfsAfE1spP6Lvys1WoCqWGU7aAxGarWzxud6A"/>
+</div>
+<div class="w-8 h-8 rounded-full border-2 border-surface-container-low bg-primary flex items-center justify-center text-[10px] text-on-primary font-bold">
+                    +42
+                </div>
+</div>
+</div>
+</div>
+</body></html>

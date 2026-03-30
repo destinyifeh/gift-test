@@ -73,9 +73,16 @@ const ResponsiveModalContent = ({
 }: ResponsiveModalContentProps) => {
   const isMobile = useIsMobile();
 
+  // Check if V2 styling is being used (contains --v2- CSS variables or v2- prefix)
+  const isV2 = className?.includes('--v2-') || className?.includes('v2-');
+
   if (isMobile) {
     return (
-      <DrawerContent className={cn('max-h-[90vh]', className)}>
+      <DrawerContent
+        className={cn(
+          'max-h-[90vh]',
+          className,
+        )}>
         {children}
       </DrawerContent>
     );
@@ -114,7 +121,7 @@ const ResponsiveModalFooter = ({
   if (isMobile) {
     return (
       <DrawerFooter
-        className={cn('pb-safe sticky bottom-0 bg-background', className)}
+        className={cn('pb-safe sticky bottom-0', className)}
         {...props}
       />
     );

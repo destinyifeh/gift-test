@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Analytics Overview - GiftingPlatform</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#ffd5b5",
+                        "on-tertiary": "#fff1dd",
+                        "secondary-fixed-dim": "#ffb374",
+                        "on-secondary-fixed-variant": "#7c4200",
+                        "on-primary-fixed-variant": "#542200",
+                        "surface-container": "#ffe3cf",
+                        "inverse-on-surface": "#c79266",
+                        "on-secondary-fixed": "#522a00",
+                        "primary-container": "#f9873e",
+                        "primary": "#964300",
+                        "surface-bright": "#fff4ef",
+                        "surface-dim": "#ffcaa1",
+                        "on-primary": "#fff0e9",
+                        "secondary": "#8c4b00",
+                        "primary-fixed": "#f9873e",
+                        "on-background": "#492604",
+                        "primary-fixed-dim": "#e97b32",
+                        "secondary-fixed": "#ffc69a",
+                        "on-surface": "#492604",
+                        "primary-dim": "#843a00",
+                        "on-tertiary-container": "#573e00",
+                        "tertiary": "#775600",
+                        "surface-tint": "#964300",
+                        "error": "#b02500",
+                        "secondary-dim": "#7a4100",
+                        "on-tertiary-fixed-variant": "#624600",
+                        "tertiary-container": "#febf2a",
+                        "on-surface-variant": "#7d522b",
+                        "surface": "#fff4ef",
+                        "outline": "#9d6c44",
+                        "on-primary-fixed": "#100300",
+                        "inverse-surface": "#1b0a00",
+                        "secondary-container": "#ffc69a",
+                        "surface-container-high": "#ffdcc2",
+                        "on-tertiary-fixed": "#3e2b00",
+                        "outline-variant": "#d9a275",
+                        "tertiary-fixed": "#febf2a",
+                        "on-error": "#ffefec",
+                        "error-dim": "#b92902",
+                        "tertiary-fixed-dim": "#efb118",
+                        "surface-container-low": "#ffede2",
+                        "on-error-container": "#520c00",
+                        "error-container": "#f95630",
+                        "tertiary-dim": "#684b00",
+                        "on-secondary": "#fff0e7",
+                        "inverse-primary": "#f9873e",
+                        "surface-variant": "#ffd5b5",
+                        "background": "#fff4ef",
+                        "on-primary-container": "#451b00",
+                        "on-secondary-container": "#6e3a00"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "3xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bg-primary-gradient {
+            background: linear-gradient(135deg, #964300 0%, #f9873e 100%);
+        }
+        .glass-header {
+            background: rgba(255, 244, 239, 0.8);
+            backdrop-filter: blur(20px);
+        }
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 glass-header flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-2">
+<span class="text-xl font-black text-[#492604] font-headline">GiftingPlatform</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-[#964300] hover:bg-[#ffede2] transition-colors p-2 rounded-full">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden border border-outline-variant/20">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="Close up portrait of a smiling woman with a warm, natural aesthetic and soft outdoor lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAH7K52Er77pi5pcn4O7HFH7Eapw3DxdLMZnxTgA7iocJbuN6w1H9m6lr8CaKSbEZYd1WdZ5zIZYgR9tTXvvGncr3J3qEpRnVJyPI_3Gmzt--hxq4rMmU1qmvpWhey6WKk_OJ_O8E2cUgas_1V4Jxd_94uK9L9MoWrnosOMfucQ6rg7KovsBjPSfZo94La9aryVx9GDJ3QB59-4fVDtmE-3V8EHTGF2XC7ESBX_ecxeBtMHNiHnB4tgR1trBt_4a-SsEI30l7zCuro"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar (Hidden on Mobile) -->
+<aside class="h-screen w-64 hidden md:flex flex-col border-r-0 fixed left-0 top-0 pt-20 pb-8 bg-[#ffede2] z-40">
+<div class="text-2xl font-bold text-[#492604] px-4 mb-8 font-headline">The Curator</div>
+<nav class="flex flex-col gap-1">
+<a class="bg-[#ffffff] text-[#964300] font-bold rounded-xl mx-2 px-4 py-3 shadow-sm flex items-center gap-3 transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Overview</span>
+</a>
+<a class="text-[#7d522b] mx-2 px-4 py-3 hover:bg-[#fff4ef]/50 flex items-center gap-3 transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="redeem">redeem</span>
+<span>Gifts</span>
+</a>
+<a class="text-[#7d522b] mx-2 px-4 py-3 hover:bg-[#fff4ef]/50 flex items-center gap-3 transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="campaign">campaign</span>
+<span>Campaigns</span>
+</a>
+<a class="text-[#7d522b] mx-2 px-4 py-3 hover:bg-[#fff4ef]/50 flex items-center gap-3 transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span>Wallet</span>
+</a>
+<a class="text-[#7d522b] mx-2 px-4 py-3 hover:bg-[#fff4ef]/50 flex items-center gap-3 transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-auto px-4">
+<button class="w-full bg-primary-gradient text-white font-bold py-4 rounded-2xl shadow-lg transition-transform active:scale-95">
+                Create Gift
+            </button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="pt-20 pb-28 px-6 md:ml-64 min-h-screen">
+<!-- Page Title & Period Selector -->
+<div class="flex flex-col gap-1 mb-8">
+<h1 class="text-3xl font-extrabold font-headline text-on-surface tracking-tight">Analytics</h1>
+<p class="text-on-surface-variant font-medium">Insights for the last 30 days</p>
+</div>
+<!-- High Level Metrics Bento -->
+<div class="grid grid-cols-2 gap-4 mb-8">
+<div class="col-span-2 bg-primary-gradient p-6 rounded-3xl text-white shadow-xl shadow-primary/10 relative overflow-hidden">
+<div class="relative z-10">
+<span class="text-white/80 text-sm font-semibold uppercase tracking-wider mb-1 block">Total Received</span>
+<div class="text-4xl font-black font-headline mb-2">$12,480.00</div>
+<div class="inline-flex items-center gap-1 bg-white/20 px-2 py-1 rounded-full text-xs font-bold">
+<span class="material-symbols-outlined text-[14px]" data-icon="trending_up">trending_up</span>
+                        +12.5%
+                    </div>
+</div>
+<div class="absolute -right-4 -bottom-4 opacity-10">
+<span class="material-symbols-outlined text-9xl" data-icon="payments">payments</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-3xl shadow-sm border border-outline-variant/10">
+<span class="text-on-surface-variant text-xs font-bold block mb-2">Supporters</span>
+<div class="text-2xl font-bold font-headline text-on-surface">842</div>
+<div class="text-secondary font-bold text-xs mt-1">+48 new</div>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-3xl shadow-sm border border-outline-variant/10">
+<span class="text-on-surface-variant text-xs font-bold block mb-2">Gifts Sent</span>
+<div class="text-2xl font-bold font-headline text-on-surface">1,204</div>
+<div class="text-secondary font-bold text-xs mt-1">98% Success</div>
+</div>
+</div>
+<!-- Activity Chart Section -->
+<section class="bg-surface-container-low p-6 rounded-3xl mb-8">
+<div class="flex justify-between items-end mb-6">
+<div>
+<h2 class="text-lg font-bold font-headline text-on-surface">Gift Activity</h2>
+<p class="text-on-surface-variant text-sm">Engagement over time</p>
+</div>
+<div class="flex gap-2">
+<div class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-primary shadow-sm cursor-pointer">
+<span class="material-symbols-outlined text-lg" data-icon="filter_list">filter_list</span>
+</div>
+</div>
+</div>
+<!-- Simplified Visual Chart for Mobile -->
+<div class="h-48 flex items-end justify-between gap-2 px-2">
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-surface-container-highest rounded-t-lg h-[40%]"></div>
+<span class="text-[10px] font-bold text-on-surface-variant">MON</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-surface-container-highest rounded-t-lg h-[65%]"></div>
+<span class="text-[10px] font-bold text-on-surface-variant">TUE</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-primary-gradient rounded-t-lg h-[90%] shadow-lg shadow-primary/20"></div>
+<span class="text-[10px] font-bold text-primary">WED</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-surface-container-highest rounded-t-lg h-[55%]"></div>
+<span class="text-[10px] font-bold text-on-surface-variant">THU</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-surface-container-highest rounded-t-lg h-[75%]"></div>
+<span class="text-[10px] font-bold text-on-surface-variant">FRI</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-surface-container-highest rounded-t-lg h-[30%]"></div>
+<span class="text-[10px] font-bold text-on-surface-variant">SAT</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-surface-container-highest rounded-t-lg h-[45%]"></div>
+<span class="text-[10px] font-bold text-on-surface-variant">SUN</span>
+</div>
+</div>
+</section>
+<!-- Top Campaigns Section (Asymmetric Layout) -->
+<section>
+<div class="flex justify-between items-center mb-4">
+<h2 class="text-xl font-bold font-headline text-on-surface">Top Campaigns</h2>
+<button class="text-primary font-bold text-sm">View All</button>
+</div>
+<div class="flex flex-col gap-4">
+<div class="bg-surface-container-lowest p-4 rounded-3xl flex items-center gap-4 shadow-sm border border-outline-variant/5">
+<div class="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0">
+<img alt="Campaign cover" class="w-full h-full object-cover" data-alt="Beautifully wrapped holiday gift boxes with satin ribbons and festive decorations in a warm interior" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfLo8w-MmiRPGRgwE7FxmMgO_wEmxT_Dco9Vx9tWVrMfHI42Bq2VT7CK54C0I1JwZ0bd23jEawpochqtC2RTBVhVnndeyNUwewFJdSvlO7VIzZFDRpO44FITpg6nvpG1NHuBSW61s4opoIPg7OgCilsaJx49gn2UeGDwBOkMpMnRP-LKBnS0rbibBq_FMmXuBTaXOxkDdFDAYWlTnqWK943wNjTjTDecxoEWIlkKLmNieaoI1yxMi3ZEu_uG6ZtuHSVJMj0x7Q-fQ"/>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-on-surface text-base">Holiday Joy 2024</h3>
+<p class="text-on-surface-variant text-xs mb-2">428 Gifts Sent</p>
+<div class="w-full bg-surface-container-low h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[85%] rounded-full"></div>
+</div>
+</div>
+<div class="text-right">
+<div class="text-primary font-black font-headline">$4.2k</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-3xl flex items-center gap-4 shadow-sm border border-outline-variant/5">
+<div class="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0">
+<img alt="Campaign cover" class="w-full h-full object-cover" data-alt="Modern office desk with corporate branded gift items like high-quality notebooks and pens" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAU6Bac4ur6XPWZhDDccXPxdNLxbY8-7hasOmQ2Em-NkpYAgEGLK40lBjucbOgU7NRNmA8f5behFceDkfK3P-5M53Xlipyrk9YqiHr-pR5CZ-a6nij4hcLZAPNPqf8b7KajToLmKQRhPvMKdcf2MyIx9op1A8AUCZQxjTnRteBqXLuEs-EePa6tbbKJSM0nxC4mW598MsnJYNrOogB4etKgfldOzbgiLPf1LNde0veyk708s1RrXm9vArl3yMeqOy2m6AqmopErt-4"/>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-on-surface text-base">Corporate Welcome</h3>
+<p class="text-on-surface-variant text-xs mb-2">156 Gifts Sent</p>
+<div class="w-full bg-surface-container-low h-1.5 rounded-full overflow-hidden">
+<div class="bg-secondary h-full w-[60%] rounded-full"></div>
+</div>
+</div>
+<div class="text-right">
+<div class="text-primary font-black font-headline">$2.8k</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pt-3 pb-6 md:hidden bg-[#fff4ef]/90 backdrop-blur-xl rounded-t-3xl shadow-[0_-10px_40px_rgba(73,38,4,0.06)] z-50">
+<a class="flex flex-col items-center justify-center text-[#7d522b] p-2 transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Manrope'] text-[11px] font-semibold">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#7d522b] p-2 transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="redeem">redeem</span>
+<span class="font-['Manrope'] text-[11px] font-semibold">Gifts</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#964300] text-white rounded-2xl p-3 mb-1 transition-all active:scale-100" href="#">
+<span class="material-symbols-outlined" data-icon="campaign" style="font-variation-settings: 'FILL' 1;">campaign</span>
+<span class="font-['Manrope'] text-[11px] font-semibold">Campaigns</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#7d522b] p-2 transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-['Manrope'] text-[11px] font-semibold">Wallet</span>
+</a>
+</nav>
+</body></html>

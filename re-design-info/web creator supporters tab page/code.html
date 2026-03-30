@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Supporters Dashboard | GiftingPlatform</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#ffd5b5",
+                        "on-tertiary": "#fff1dd",
+                        "secondary-fixed-dim": "#ffb374",
+                        "on-secondary-fixed-variant": "#7c4200",
+                        "on-primary-fixed-variant": "#542200",
+                        "surface-container": "#ffe3cf",
+                        "inverse-on-surface": "#c79266",
+                        "on-secondary-fixed": "#522a00",
+                        "primary-container": "#f9873e",
+                        "primary": "#964300",
+                        "surface-bright": "#fff4ef",
+                        "surface-dim": "#ffcaa1",
+                        "on-primary": "#fff0e9",
+                        "secondary": "#8c4b00",
+                        "primary-fixed": "#f9873e",
+                        "on-background": "#492604",
+                        "primary-fixed-dim": "#e97b32",
+                        "secondary-fixed": "#ffc69a",
+                        "on-surface": "#492604",
+                        "primary-dim": "#843a00",
+                        "on-tertiary-container": "#573e00",
+                        "tertiary": "#775600",
+                        "surface-tint": "#964300",
+                        "error": "#b02500",
+                        "secondary-dim": "#7a4100",
+                        "on-tertiary-fixed-variant": "#624600",
+                        "tertiary-container": "#febf2a",
+                        "on-surface-variant": "#7d522b",
+                        "surface": "#fff4ef",
+                        "outline": "#9d6c44",
+                        "on-primary-fixed": "#100300",
+                        "inverse-surface": "#1b0a00",
+                        "secondary-container": "#ffc69a",
+                        "surface-container-high": "#ffdcc2",
+                        "on-tertiary-fixed": "#3e2b00",
+                        "outline-variant": "#d9a275",
+                        "tertiary-fixed": "#febf2a",
+                        "on-error": "#ffefec",
+                        "error-dim": "#b92902",
+                        "tertiary-fixed-dim": "#efb118",
+                        "surface-container-low": "#ffede2",
+                        "on-error-container": "#520c00",
+                        "error-container": "#f95630",
+                        "tertiary-dim": "#684b00",
+                        "on-secondary": "#fff0e7",
+                        "inverse-primary": "#f9873e",
+                        "surface-variant": "#ffd5b5",
+                        "background": "#fff4ef",
+                        "on-primary-container": "#451b00",
+                        "on-secondary-container": "#6e3a00"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .ease-spring { transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fff4ef]/80 dark:bg-stone-900/80 backdrop-blur-md flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-4">
+<span class="text-xl font-black text-[#492604] dark:text-[#fff4ef] font-headline">GiftingPlatform</span>
+</div>
+<div class="hidden md:flex items-center space-x-8">
+<nav class="flex items-center space-x-6">
+<a class="text-[#7d522b] dark:text-stone-400 font-headline font-bold text-lg hover:bg-[#ffede2] transition-colors px-3 py-1 rounded-lg" href="#">Home</a>
+<a class="text-[#964300] font-bold border-b-2 border-[#964300] font-headline text-lg px-3 py-1" href="#">Campaigns</a>
+<a class="text-[#7d522b] dark:text-stone-400 font-headline font-bold text-lg hover:bg-[#ffede2] transition-colors px-3 py-1 rounded-lg" href="#">Wallet</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-[#ffede2] transition-colors">
+<span class="material-symbols-outlined text-[#964300]">notifications</span>
+</button>
+<div class="h-8 w-8 rounded-full overflow-hidden border-2 border-primary-container">
+<img alt="User profile" class="h-full w-full object-cover" data-alt="close-up portrait of a professional woman with a warm smile in a brightly lit modern office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuR9HdvEU7rU16V9GXCC3PAsQvzD0XSNkVLBwv4KrUzMMtZpMyZn7hVnbZ4J-nXpFw18FhLwC-VL-rSTUFX75sB-34M6J32dUbON4soFO-6hBxJ6_4TFCnQnxDEdVi4RY7YGOw6K_G23Te57y_i3zTZ3PCBd7wVHYyt2nMBSeyRPVdYBzziAEwTGBsiBGtp17S6Ww2Ul7vmhbpoAnzUtZLwARZfbSSPp0BIlFwXLaAj5JisXKpYuivwDJwXrRueMor0NcBFkxpPuk"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar (Desktop Only) -->
+<aside class="fixed left-0 top-0 pt-20 pb-8 flex flex-col h-screen w-64 hidden md:flex bg-[#ffede2] dark:bg-stone-900">
+<div class="text-2xl font-bold text-[#492604] dark:text-white px-4 mb-8 font-headline">The Curator</div>
+<p class="px-6 text-xs font-bold uppercase tracking-widest text-on-surface-variant/60 mb-4">Management</p>
+<nav class="flex-1 space-y-1">
+<a class="text-[#7d522b] dark:text-stone-400 mx-2 px-4 py-3 hover:bg-[#fff4ef]/50 flex items-center gap-3 transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-['Manrope'] font-medium text-sm">Overview</span>
+</a>
+<a class="text-[#7d522b] dark:text-stone-400 mx-2 px-4 py-3 hover:bg-[#fff4ef]/50 flex items-center gap-3 transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">redeem</span>
+<span class="font-['Manrope'] font-medium text-sm">Gifts</span>
+</a>
+<a class="bg-[#ffffff] dark:bg-stone-800 text-[#964300] font-bold rounded-xl mx-2 px-4 py-3 shadow-sm flex items-center gap-3" href="#">
+<span class="material-symbols-outlined">campaign</span>
+<span class="font-['Manrope'] font-medium text-sm">Campaigns</span>
+</a>
+<a class="text-[#7d522b] dark:text-stone-400 mx-2 px-4 py-3 hover:bg-[#fff4ef]/50 flex items-center gap-3 transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="font-['Manrope'] font-medium text-sm">Wallet</span>
+</a>
+<a class="text-[#7d522b] dark:text-stone-400 mx-2 px-4 py-3 hover:bg-[#fff4ef]/50 flex items-center gap-3 transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-['Manrope'] font-medium text-sm">Settings</span>
+</a>
+</nav>
+<div class="px-4 mt-auto">
+<button class="w-full bg-gradient-to-br from-primary to-primary-container text-on-primary py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/20 scale-95 hover:scale-100 transition-all duration-300">
+<span class="material-symbols-outlined">add</span>
+                Create Gift
+            </button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 pt-20 pb-24 px-4 md:px-8 max-w-7xl mx-auto">
+<!-- Header Section -->
+<div class="mb-10 mt-4">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<nav class="flex items-center gap-2 text-on-surface-variant text-sm mb-2">
+<span>Campaigns</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="text-primary font-bold">Supporters List</span>
+</nav>
+<h1 class="font-headline text-3xl md:text-4xl font-extrabold text-on-surface leading-tight">Project Supporters</h1>
+<p class="text-on-surface-variant mt-2 max-w-lg">Track and manage the generous individuals who have contributed to your active gifting campaigns.</p>
+</div>
+<div class="flex items-center gap-4">
+<div class="bg-surface-container-low px-6 py-4 rounded-2xl flex flex-col items-center">
+<span class="text-on-surface-variant text-xs font-bold uppercase tracking-wider">Total Supporters</span>
+<span class="text-on-surface text-3xl font-black font-headline">1,284</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Filters & Search Bento Area -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-8">
+<div class="md:col-span-8 bg-surface-container-low rounded-3xl p-2 flex items-center">
+<span class="material-symbols-outlined px-4 text-on-surface-variant">search</span>
+<input class="bg-transparent border-none focus:ring-0 w-full text-on-surface placeholder-on-surface-variant/50 font-medium" placeholder="Search by name, ID, or message..." type="text"/>
+</div>
+<div class="md:col-span-4 flex gap-2">
+<button class="flex-1 bg-surface-container-low hover:bg-surface-container-high transition-colors rounded-2xl px-4 py-2 flex items-center justify-center gap-2 text-on-surface-variant font-bold text-sm">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+                    Filter
+                </button>
+<button class="flex-1 bg-surface-container-low hover:bg-surface-container-high transition-colors rounded-2xl px-4 py-2 flex items-center justify-center gap-2 text-on-surface-variant font-bold text-sm">
+<span class="material-symbols-outlined text-sm">download</span>
+                    Export CSV
+                </button>
+</div>
+</div>
+<!-- Supporters List Canvas -->
+<div class="bg-surface-container-lowest rounded-[2rem] overflow-hidden shadow-sm">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low/50">
+<th class="px-8 py-5 text-on-surface-variant font-bold text-xs uppercase tracking-widest">Supporter</th>
+<th class="px-8 py-5 text-on-surface-variant font-bold text-xs uppercase tracking-widest">Support Message</th>
+<th class="px-8 py-5 text-on-surface-variant font-bold text-xs uppercase tracking-widest">Transaction ID</th>
+<th class="px-8 py-5 text-on-surface-variant font-bold text-xs uppercase tracking-widest text-right">Amount</th>
+<th class="px-8 py-5 text-on-surface-variant font-bold text-xs uppercase tracking-widest text-center">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-low">
+<!-- Supporter Row 1 -->
+<tr class="group hover:bg-surface-container-low/30 transition-colors">
+<td class="px-8 py-6">
+<div class="flex items-center gap-4">
+<div class="h-12 w-12 rounded-2xl bg-surface-container-high flex items-center justify-center overflow-hidden">
+<img alt="Supporter avatar" class="w-full h-full object-cover" data-alt="close-up of a smiling young man wearing glasses and a denim shirt in a sunlit outdoor garden" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvDQHOmYoOt0k-8Sh2qhXAI6M-0O02XMJrBv-bF0zs3B-BTVyS_Dp5s1socuHNGZlIOdRdp0Ug1HhW2bSxLsSVxsVumu1s-z6fBVDZZAi57VM0wc72PkVA6JwtcgdDbcl_mSHCSJjxC0Q92HTA2aZW_h_PSdgFyGio8FxTUPqXLMR6hgG8lClbRkvTNWU0JmyChKtghJbqVera7PdAZbVSh6GU-QeXJe_Y_t77Y5sKGJXNzNEPcGewFp4bljLIYjPTX6VXWnTHWcc"/>
+</div>
+<div>
+<div class="text-on-surface font-bold font-headline">Julian Schmidt</div>
+<div class="text-on-surface-variant text-xs">Supporter since Oct 24</div>
+</div>
+</div>
+</td>
+<td class="px-8 py-6">
+<p class="text-on-surface-variant text-sm italic max-w-xs truncate">"Keep up the incredible work! This project is truly changing lives in our community."</p>
+</td>
+<td class="px-8 py-6">
+<span class="font-mono text-xs text-on-surface-variant bg-surface-container-low px-2 py-1 rounded">#TXN-88219-B</span>
+</td>
+<td class="px-8 py-6 text-right">
+<span class="text-on-surface font-black text-lg font-headline">$250.00</span>
+</td>
+<td class="px-8 py-6 text-center">
+<button class="text-primary hover:bg-primary/10 p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Supporter Row 2 -->
+<tr class="group hover:bg-surface-container-low/30 transition-colors">
+<td class="px-8 py-6">
+<div class="flex items-center gap-4">
+<div class="h-12 w-12 rounded-2xl bg-tertiary-container/30 flex items-center justify-center text-tertiary-dim font-black font-headline">
+                                        EL
+                                    </div>
+<div>
+<div class="text-on-surface font-bold font-headline">Elena Lysenko</div>
+<div class="text-on-surface-variant text-xs">Supporter since Oct 22</div>
+</div>
+</div>
+</td>
+<td class="px-8 py-6">
+<p class="text-on-surface-variant text-sm italic max-w-xs truncate">"A small gift for a big cause. Happy to be part of this campaign."</p>
+</td>
+<td class="px-8 py-6">
+<span class="font-mono text-xs text-on-surface-variant bg-surface-container-low px-2 py-1 rounded">#TXN-44102-K</span>
+</td>
+<td class="px-8 py-6 text-right">
+<span class="text-on-surface font-black text-lg font-headline">$1,200.00</span>
+</td>
+<td class="px-8 py-6 text-center">
+<button class="text-primary hover:bg-primary/10 p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Supporter Row 3 -->
+<tr class="group hover:bg-surface-container-low/30 transition-colors">
+<td class="px-8 py-6">
+<div class="flex items-center gap-4">
+<div class="h-12 w-12 rounded-2xl bg-surface-container-high flex items-center justify-center overflow-hidden">
+<img alt="Supporter avatar" class="w-full h-full object-cover" data-alt="soft focus headshot of a middle-aged woman with silver hair and a serene expression in a bright minimalist interior" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbbVa6ksoKuxGkBtJNK-6on7sRxv9V0w9tYyZgI0KUKiBbJ-hd36_lE-xQwQ-R8y-GZ-HcgXJFXrsIDW3irigrqDevzcgo9jqFDBVQVuS5-HE7lNebzYzyx8nGsH0MuNOgoXXUpDNBc9ycEZYBidRrb89Y3zdyliZs5XD5R8MPWm7OFv8JDFj4UIadyphPJJYf5FWDnH7_OawYKt2twX5VFVmpN7z52lLfXaQx0-yk2GK_iy5Q5sNIo0j3fNzDUHlr7LsFKR1Cgcc"/>
+</div>
+<div>
+<div class="text-on-surface font-bold font-headline">Aria Montgomery</div>
+<div class="text-on-surface-variant text-xs">Supporter since Oct 21</div>
+</div>
+</div>
+</td>
+<td class="px-8 py-6">
+<p class="text-on-surface-variant text-sm italic max-w-xs truncate">—</p>
+</td>
+<td class="px-8 py-6">
+<span class="font-mono text-xs text-on-surface-variant bg-surface-container-low px-2 py-1 rounded">#TXN-09312-Z</span>
+</td>
+<td class="px-8 py-6 text-right">
+<span class="text-on-surface font-black text-lg font-headline">$50.00</span>
+</td>
+<td class="px-8 py-6 text-center">
+<button class="text-primary hover:bg-primary/10 p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Supporter Row 4 -->
+<tr class="group hover:bg-surface-container-low/30 transition-colors">
+<td class="px-8 py-6">
+<div class="flex items-center gap-4">
+<div class="h-12 w-12 rounded-2xl bg-secondary-container/40 flex items-center justify-center text-secondary font-black font-headline">
+                                        MT
+                                    </div>
+<div>
+<div class="text-on-surface font-bold font-headline">Marcus Thorne</div>
+<div class="text-on-surface-variant text-xs">Supporter since Oct 20</div>
+</div>
+</div>
+</td>
+<td class="px-8 py-6">
+<p class="text-on-surface-variant text-sm italic max-w-xs truncate">"Supporting from London. You guys are rockstars!"</p>
+</td>
+<td class="px-8 py-6">
+<span class="font-mono text-xs text-on-surface-variant bg-surface-container-low px-2 py-1 rounded">#TXN-77211-P</span>
+</td>
+<td class="px-8 py-6 text-right">
+<span class="text-on-surface font-black text-lg font-headline">$75.00</span>
+</td>
+<td class="px-8 py-6 text-center">
+<button class="text-primary hover:bg-primary/10 p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Supporter Row 5 -->
+<tr class="group hover:bg-surface-container-low/30 transition-colors">
+<td class="px-8 py-6">
+<div class="flex items-center gap-4">
+<div class="h-12 w-12 rounded-2xl bg-surface-container-high flex items-center justify-center overflow-hidden">
+<img alt="Supporter avatar" class="w-full h-full object-cover" data-alt="portrait of a creative professional woman with curly hair and stylish glasses in a colorful studio workshop" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmn9nKDv3Wh6uR0G7nlnhGwKYmUv8LOAublcdaKcwye1W_XDDbeTlSohlDu-CghtsFGOBrIOK2CjzYEDzyQPwXb0mzuxc4Ks15uSzwfhakYIzn829um-vk3quhycA3vU4DNheWZek1u-VWUBhRzi1-aaBMgWZi4__poPcdFae8Y80qrHZ4I01vG_kKI3XMj3NRLi6J9nLYxJ-DfqbmGDyAEhEZ9gNP2-M-wDCcBzyfurK4wYP291dpH92YLrOnyKwWHoyzl-nfItY"/>
+</div>
+<div>
+<div class="text-on-surface font-bold font-headline">Klara Chen</div>
+<div class="text-on-surface-variant text-xs">Supporter since Oct 19</div>
+</div>
+</div>
+</td>
+<td class="px-8 py-6">
+<p class="text-on-surface-variant text-sm italic max-w-xs truncate">"For the educational fund initiative."</p>
+</td>
+<td class="px-8 py-6">
+<span class="font-mono text-xs text-on-surface-variant bg-surface-container-low px-2 py-1 rounded">#TXN-31298-W</span>
+</td>
+<td class="px-8 py-6 text-right">
+<span class="text-on-surface font-black text-lg font-headline">$350.00</span>
+</td>
+<td class="px-8 py-6 text-center">
+<button class="text-primary hover:bg-primary/10 p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Canvas -->
+<div class="px-8 py-6 bg-surface-container-low/30 flex items-center justify-between border-t border-surface-container-low">
+<span class="text-on-surface-variant text-sm">Showing 1 to 5 of 1,284 supporters</span>
+<div class="flex items-center gap-2">
+<button class="h-10 w-10 flex items-center justify-center rounded-xl bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="h-10 px-4 flex items-center justify-center rounded-xl bg-primary text-on-primary font-bold shadow-md shadow-primary/20">1</button>
+<button class="h-10 px-4 flex items-center justify-center rounded-xl bg-surface-container-low text-on-surface-variant font-bold hover:bg-surface-container-high transition-colors">2</button>
+<button class="h-10 px-4 flex items-center justify-center rounded-xl bg-surface-container-low text-on-surface-variant font-bold hover:bg-surface-container-high transition-colors">3</button>
+<span class="px-2 text-on-surface-variant">...</span>
+<button class="h-10 px-4 flex items-center justify-center rounded-xl bg-surface-container-low text-on-surface-variant font-bold hover:bg-surface-container-high transition-colors">257</button>
+<button class="h-10 w-10 flex items-center justify-center rounded-xl bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pt-3 pb-6 md:hidden z-50 bg-[#fff4ef]/90 dark:bg-stone-900/90 backdrop-blur-xl rounded-t-3xl shadow-[0_-10px_40px_rgba(73,38,4,0.06)]">
+<a class="flex flex-col items-center justify-center text-[#7d522b] dark:text-stone-400 p-2 active:bg-[#ffede2] transition-all scale-90 active:scale-100" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-['Manrope'] text-[11px] font-semibold">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#7d522b] dark:text-stone-400 p-2 active:bg-[#ffede2] transition-all scale-90 active:scale-100" href="#">
+<span class="material-symbols-outlined">redeem</span>
+<span class="font-['Manrope'] text-[11px] font-semibold">Gifts</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#964300] text-white rounded-2xl p-3 mb-1 transition-all scale-90 active:scale-100" href="#">
+<span class="material-symbols-outlined">campaign</span>
+<span class="font-['Manrope'] text-[11px] font-semibold">Campaigns</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#7d522b] dark:text-stone-400 p-2 active:bg-[#ffede2] transition-all scale-90 active:scale-100" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="font-['Manrope'] text-[11px] font-semibold">Wallet</span>
+</a>
+</nav>
+</body></html>

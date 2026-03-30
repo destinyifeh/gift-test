@@ -243,9 +243,45 @@ export async function updateProfile(updates: {
   }
 
   revalidatePath('/dashboard');
+  revalidatePath('/v2/dashboard');
   if (currentUsername) {
     revalidatePath(`/u/${currentUsername}`);
+    revalidatePath(`/v2/u/${currentUsername}`);
   }
 
   return {success: true};
+}
+
+export async function uploadBannerImage(formData: FormData) {
+  const supabase = await createClient();
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {success: false, error: 'Not authenticated'};
+  }
+
+  const file = formData.get('file') as File;
+  if (!file) {
+    return {success: false, error: 'No file provided'};
+  }
+
+  const fileExt = file.name.split('.').pop();
+  const fileName = `banner-${user.id}-${Date.now()}.${fileExt}`;
+  const filePath = `${fileName}`;
+
+  const {error} = await supabase.storage
+    .from('campaign-images')
+    .upload(filePath, file);
+
+  if (error) {
+    return {success: false, error: error.message};
+  }
+
+  const {
+    data: {publicUrl},
+  } = supabase.storage.from('campaign-images').getPublicUrl(filePath);
+
+  return {success: true, url: publicUrl};
 }

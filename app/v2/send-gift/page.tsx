@@ -1,0 +1,690 @@
+'use client';
+
+import {V2RequireAuthUI} from '../components/V2RequireAuthUI';
+import {createClient} from '@/lib/server/supabase/client';
+import {cn} from '@/lib/utils';
+import Link from 'next/link';
+import {useRouter} from 'next/navigation';
+import {useEffect, useState} from 'react';
+import {toast} from 'sonner';
+
+type GiftType = 'money' | 'gift-card' | null;
+type DeliveryType = 'direct' | 'claim-link';
+type DeliveryTime = 'now' | 'schedule';
+
+export default function V2SendGiftPage() {
+  const router = useRouter();
+
+  // Form State
+  const [giftType, setGiftType] = useState<GiftType>(null);
+  const [amount, setAmount] = useState('');
+  const [giftId, setGiftId] = useState<number | null>(null);
+  const [message, setMessage] = useState('');
+
+  const [deliveryType, setDeliveryType] = useState<DeliveryType>('direct');
+  const [recipientEmail, setRecipientEmail] = useState('');
+  const [senderName, setSenderName] = useState('');
+  const [isAnonymous, setIsAnonymous] = useState(false);
+
+  const [deliveryTime, setDeliveryTime] = useState<DeliveryTime>('now');
+  const [scheduledFor, setScheduledFor] = useState('');
+
+  // Vendor gifts
+  const [vendorGifts, setVendorGifts] = useState<any[]>([]);
+  const [search, setSearch] = useState('');
+
+  // UI State
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [campaignSlug, setCampaignSlug] = useState('');
+  const [expandedSection, setExpandedSection] = useState<string | null>('gift');
+
+  // Fetch vendor gifts when gift-card is selected
+  useEffect(() => {
+    if (giftType === 'gift-card') {
+      const fetchGifts = async () => {
+        const supabase = createClient();
+        const {data} = await supabase
+          .from('vendor_gifts')
+          .select(
+            'id, name, price, profiles!vendor_gifts_vendor_id_fkey(shop_name, display_name)',
+          )
+          .eq('is_active', true);
+        if (data) setVendorGifts(data);
+      };
+      fetchGifts();
+    }
+  }, [giftType]);
+
+  // Handle constraints
+  useEffect(() => {
+    if (deliveryType === 'claim-link' && deliveryTime === 'schedule') {
+      setDeliveryTime('now');
+    }
+  }, [deliveryType, deliveryTime]);
+
+  const selectedGift = vendorGifts.find(g => g.id === giftId);
+
+  const canProceed = () => {
+    if (!giftType) return false;
+    if (giftType === 'money' && !amount) return false;
+    if (giftType === 'gift-card' && !giftId) return false;
+    if (deliveryType === 'direct' && !recipientEmail) return false;
+    if (deliveryTime === 'schedule' && !scheduledFor) return false;
+    return true;
+  };
+
+  const handleSendGift = async () => {
+    if (!canProceed()) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const supabase = createClient();
+      const {
+        data: {user},
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const {data: profile} = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('id', user.id)
+        .single();
+
+      let finalGoal = Number(amount);
+      if (giftType === 'gift-card' && giftId) {
+        const {data: vendorGift} = await supabase
+          .from('vendor_gifts')
+          .select('price')
+          .eq('id', giftId)
+          .single();
+        if (vendorGift) finalGoal = Number(vendorGift.price);
+      }
+
+      const payload = {
+        category: 'claimable',
+        title: giftType === 'money' ? 'Monetary Gift' : 'Gift Card',
+        claimable_type: giftType,
+        goal_amount: finalGoal,
+        currency: 'NGN',
+        claimable_gift_id: giftId || undefined,
+        recipient_email: deliveryType === 'direct' ? recipientEmail : null,
+        sender_email: profile?.email || user.email,
+        sender_name: senderName || undefined,
+        is_anonymous: isAnonymous,
+        message: message || undefined,
+        status: 'active',
+        scheduled_for:
+          deliveryTime === 'schedule' && scheduledFor
+            ? new Date(scheduledFor).toISOString()
+            : undefined,
+      };
+
+      const {createCampaign} = await import('@/lib/server/actions/campaigns');
+      const result = await createCampaign(payload as any);
+
+      if (result.success && result.data) {
+        if (result.data.authorization_url) {
+          window.location.href = result.data.authorization_url;
+        } else {
+          setCampaignSlug(result.data.campaign_short_id || '');
+          setSubmitted(true);
+        }
+      } else {
+        toast.error(result.error || 'Failed to initialize payment');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Something went wrong');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (submitted) {
+    return <V2SuccessScreen slug={campaignSlug} isClaimLink={deliveryType === 'claim-link'} />;
+  }
+
+  const toggleSection = (section: string) => {
+    setExpandedSection(expandedSection === section ? null : section);
+  };
+
+  const totalAmount = giftType === 'money' ? Number(amount) : Number(selectedGift?.price || 0);
+
+  return (
+    <V2RequireAuthUI redirectPath="/v2/send-gift">
+      <div className="min-h-screen bg-[var(--v2-background)]">
+        {/* Desktop Navigation */}
+        <nav className="hidden md:block fixed top-0 w-full z-50 v2-glass-nav">
+          <div className="flex justify-between items-center px-8 h-16 max-w-7xl mx-auto">
+            <Link href="/v2" className="text-xl font-extrabold text-[var(--v2-primary)] tracking-tight v2-headline">
+              Gifthance
+            </Link>
+            <div className="flex items-center gap-6">
+              <Link href="/v2/gift-shop" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] font-medium transition-colors">
+                Gift Shop
+              </Link>
+              <Link href="/v2/campaigns" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] font-medium transition-colors">
+                Campaigns
+              </Link>
+              <Link href="/v2/dashboard" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] font-medium transition-colors">
+                Dashboard
+              </Link>
+            </div>
+          </div>
+        </nav>
+
+        {/* Mobile Header */}
+        <header className="md:hidden fixed top-0 w-full z-50 v2-glass-nav h-14 flex items-center justify-between px-4">
+          <button onClick={() => router.back()} className="flex items-center gap-1 text-[var(--v2-primary)]">
+            <span className="v2-icon">arrow_back</span>
+          </button>
+          <h1 className="text-lg font-bold v2-headline text-[var(--v2-on-surface)]">Send Gift</h1>
+          <div className="w-10" />
+        </header>
+
+        {/* Main Content */}
+        <main className="pt-14 md:pt-24 pb-32 md:pb-16 px-4">
+          <div className="max-w-xl mx-auto">
+            {/* Header - Desktop only */}
+            <div className="hidden md:block mb-8">
+              <button
+                onClick={() => router.back()}
+                className="flex items-center gap-1 text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors mb-6">
+                <span className="v2-icon">arrow_back</span>
+                <span className="font-medium">Back</span>
+              </button>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-[var(--v2-primary)]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <span className="v2-icon text-3xl text-[var(--v2-primary)]" style={{fontVariationSettings: "'FILL' 1"}}>
+                    card_giftcard
+                  </span>
+                </div>
+                <h1 className="text-3xl font-extrabold v2-headline text-[var(--v2-on-surface)] tracking-tight">
+                  Send a Gift
+                </h1>
+                <p className="text-[var(--v2-on-surface-variant)] mt-2">
+                  Brighten someone's day with a thoughtful gift
+                </p>
+              </div>
+            </div>
+
+            {/* Form Sections */}
+            <div className="space-y-4">
+              {/* Section 1: Gift Type */}
+              <V2FormSection
+                title="Choose Gift Type"
+                icon="card_giftcard"
+                isExpanded={expandedSection === 'gift'}
+                onToggle={() => toggleSection('gift')}
+                isComplete={!!giftType}
+                summary={
+                  giftType === 'money'
+                    ? 'Money Gift'
+                    : giftType === 'gift-card'
+                      ? 'Vendor Gift Card'
+                      : undefined
+                }>
+                <div className="space-y-3">
+                  <V2ListItemRadio
+                    selected={giftType === 'gift-card'}
+                    onClick={() => setGiftType('gift-card')}
+                    icon="redeem"
+                    title="Gift Card"
+                    description="From verified vendors"
+                  />
+                  <V2ListItemRadio
+                    selected={giftType === 'money'}
+                    onClick={() => setGiftType('money')}
+                    icon="payments"
+                    title="Money"
+                    description="Flexible cash gift"
+                  />
+                </div>
+
+                {/* Amount Input for Money */}
+                {giftType === 'money' && (
+                  <div className="mt-4 space-y-2">
+                    <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider ml-1">
+                      Amount
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)] font-bold text-lg">
+                        ₦
+                      </span>
+                      <input
+                        type="number"
+                        placeholder="0.00"
+                        value={amount}
+                        onChange={e => setAmount(e.target.value)}
+                        className="w-full h-14 pl-10 pr-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-xl font-bold text-[var(--v2-on-surface)] focus:ring-2 focus:ring-[var(--v2-primary)]/20 focus:bg-[var(--v2-surface-container-lowest)] transition-all"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Gift Card Selection */}
+                {giftType === 'gift-card' && (
+                  <div className="mt-4 space-y-3">
+                    <div className="relative">
+                      <span className="v2-icon absolute left-3 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)]">
+                        search
+                      </span>
+                      <input
+                        placeholder="Search gift cards..."
+                        value={search}
+                        onChange={e => setSearch(e.target.value)}
+                        className="w-full h-11 pl-10 pr-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-[var(--v2-on-surface)] focus:ring-2 focus:ring-[var(--v2-primary)]/20 transition-all"
+                      />
+                    </div>
+                    <div className="max-h-[200px] overflow-y-auto space-y-2 v2-no-scrollbar">
+                      {vendorGifts
+                        .filter(g => !search || g.name.toLowerCase().includes(search.toLowerCase()))
+                        .map(g => (
+                          <button
+                            key={g.id}
+                            onClick={() => setGiftId(g.id)}
+                            className={cn(
+                              'w-full p-4 rounded-xl text-left flex items-center justify-between transition-all active:scale-[0.98]',
+                              giftId === g.id
+                                ? 'bg-[var(--v2-primary)]/10 ring-2 ring-[var(--v2-primary)]'
+                                : 'bg-[var(--v2-surface-container-low)] hover:bg-[var(--v2-surface-container-high)]',
+                            )}>
+                            <div>
+                              <p className="font-bold text-sm text-[var(--v2-on-surface)] capitalize">
+                                {g.name}
+                              </p>
+                              <p className="text-xs text-[var(--v2-on-surface-variant)] capitalize">
+                                {g.profiles?.shop_name || 'Vendor'}
+                              </p>
+                            </div>
+                            <span className="font-bold text-[var(--v2-primary)]">
+                              ₦{Number(g.price).toLocaleString()}
+                            </span>
+                          </button>
+                        ))}
+                      {vendorGifts.length === 0 && (
+                        <div className="text-center py-6">
+                          <span className="v2-icon text-3xl text-[var(--v2-on-surface-variant)]/40 mb-2">inventory_2</span>
+                          <p className="text-sm text-[var(--v2-on-surface-variant)]">
+                            Loading gift cards...
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </V2FormSection>
+
+              {/* Section 2: Delivery Method */}
+              <V2FormSection
+                title="Delivery Method"
+                icon="send"
+                isExpanded={expandedSection === 'delivery'}
+                onToggle={() => toggleSection('delivery')}
+                isComplete={deliveryType === 'claim-link' || (deliveryType === 'direct' && !!recipientEmail)}
+                summary={deliveryType === 'direct' ? recipientEmail || 'Send to email' : 'Create claim link'}>
+                <div className="space-y-3">
+                  <V2ListItemRadio
+                    selected={deliveryType === 'direct'}
+                    onClick={() => setDeliveryType('direct')}
+                    icon="mail"
+                    title="Send to Email"
+                    description="Deliver directly to recipient"
+                  />
+
+                  {deliveryType === 'direct' && (
+                    <div className="pl-4 border-l-2 border-[var(--v2-primary)]/20 ml-2">
+                      <input
+                        type="email"
+                        placeholder="recipient@email.com"
+                        value={recipientEmail}
+                        onChange={e => setRecipientEmail(e.target.value)}
+                        className="w-full h-12 px-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-[var(--v2-on-surface)] focus:ring-2 focus:ring-[var(--v2-primary)]/20 transition-all"
+                      />
+                    </div>
+                  )}
+
+                  <V2ListItemRadio
+                    selected={deliveryType === 'claim-link'}
+                    onClick={() => setDeliveryType('claim-link')}
+                    icon="link"
+                    title="Create Claim Link"
+                    description="Share a link for anyone to claim"
+                  />
+                </div>
+              </V2FormSection>
+
+              {/* Section 3: Schedule */}
+              <V2FormSection
+                title="When to Send"
+                icon="schedule"
+                isExpanded={expandedSection === 'schedule'}
+                onToggle={() => toggleSection('schedule')}
+                isComplete={deliveryTime === 'now' || !!scheduledFor}
+                summary={deliveryTime === 'now' ? 'Send immediately' : 'Scheduled'}>
+                <div className="space-y-3">
+                  <V2ListItemRadio
+                    selected={deliveryTime === 'now'}
+                    onClick={() => setDeliveryTime('now')}
+                    icon="bolt"
+                    title="Send Now"
+                    description="Deliver immediately"
+                  />
+                  <V2ListItemRadio
+                    selected={deliveryTime === 'schedule'}
+                    onClick={() => deliveryType !== 'claim-link' && setDeliveryTime('schedule')}
+                    icon="event"
+                    title="Schedule"
+                    description={deliveryType === 'claim-link' ? 'Not available for claim links' : 'Choose date and time'}
+                    disabled={deliveryType === 'claim-link'}
+                  />
+
+                  {deliveryTime === 'schedule' && (
+                    <div className="pl-4 border-l-2 border-[var(--v2-primary)]/20 ml-2">
+                      <input
+                        type="datetime-local"
+                        value={scheduledFor}
+                        onChange={e => setScheduledFor(e.target.value)}
+                        min={new Date().toISOString().slice(0, 16)}
+                        className="w-full h-12 px-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-[var(--v2-on-surface)] focus:ring-2 focus:ring-[var(--v2-primary)]/20 transition-all"
+                      />
+                    </div>
+                  )}
+                </div>
+              </V2FormSection>
+
+              {/* Section 4: Personal Touch */}
+              <V2FormSection
+                title="Personal Touch"
+                icon="favorite"
+                isExpanded={expandedSection === 'personal'}
+                onToggle={() => toggleSection('personal')}
+                optional
+                summary={message ? 'Message added' : 'Add a message'}>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider ml-1">
+                      Your Name (optional)
+                    </label>
+                    <input
+                      placeholder="E.g. John Doe"
+                      value={senderName}
+                      onChange={e => setSenderName(e.target.value)}
+                      className="w-full h-12 px-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-[var(--v2-on-surface)] focus:ring-2 focus:ring-[var(--v2-primary)]/20 transition-all"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider ml-1">
+                      Message (optional)
+                    </label>
+                    <textarea
+                      placeholder="Add a personal note..."
+                      value={message}
+                      onChange={e => setMessage(e.target.value)}
+                      rows={3}
+                      className="w-full px-4 py-3 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-[var(--v2-on-surface)] focus:ring-2 focus:ring-[var(--v2-primary)]/20 transition-all resize-none"
+                    />
+                  </div>
+
+                  <label className="flex items-center gap-3 p-4 rounded-xl bg-[var(--v2-surface-container-low)] cursor-pointer hover:bg-[var(--v2-surface-container-high)] transition-colors">
+                    <div
+                      className={cn(
+                        'w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-colors',
+                        isAnonymous
+                          ? 'bg-[var(--v2-primary)] border-[var(--v2-primary)]'
+                          : 'border-[var(--v2-outline-variant)]',
+                      )}>
+                      {isAnonymous && (
+                        <span className="v2-icon text-sm text-[var(--v2-on-primary)]">check</span>
+                      )}
+                    </div>
+                    <span className="font-medium text-[var(--v2-on-surface)]">Send anonymously</span>
+                  </label>
+                </div>
+              </V2FormSection>
+            </div>
+          </div>
+        </main>
+
+        {/* Sticky Footer CTA */}
+        <div className="fixed bottom-0 left-0 right-0 bg-[var(--v2-surface)]/95 backdrop-blur-xl border-t border-[var(--v2-outline-variant)]/10 p-4 pb-safe md:relative md:max-w-xl md:mx-auto md:mt-6 md:bg-transparent md:border-t-0 md:p-0 md:pb-8 z-40">
+          <div className="flex items-center gap-4">
+            {/* Price Summary */}
+            {totalAmount > 0 && (
+              <div className="flex-1">
+                <p className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">Total</p>
+                <p className="text-2xl font-extrabold v2-headline text-[var(--v2-on-surface)]">
+                  ₦{totalAmount.toLocaleString()}
+                </p>
+              </div>
+            )}
+
+            <button
+              onClick={handleSendGift}
+              disabled={!canProceed() || isSubmitting}
+              className={cn(
+                'flex-1 md:flex-none md:px-12 h-14 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-[var(--v2-primary)]/20 active:scale-[0.98] transition-all disabled:opacity-50',
+                !totalAmount && 'flex-1',
+              )}>
+              {isSubmitting ? (
+                <>
+                  <span className="v2-icon animate-spin">progress_activity</span>
+                  Processing...
+                </>
+              ) : (
+                <>
+                  Continue to Pay
+                  <span className="v2-icon">arrow_forward</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    </V2RequireAuthUI>
+  );
+}
+
+// V2 Form Section Component
+function V2FormSection({
+  title,
+  icon,
+  isExpanded,
+  onToggle,
+  isComplete,
+  optional,
+  summary,
+  children,
+}: {
+  title: string;
+  icon: string;
+  isExpanded: boolean;
+  onToggle: () => void;
+  isComplete?: boolean;
+  optional?: boolean;
+  summary?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={cn(
+        'rounded-2xl overflow-hidden transition-all',
+        isExpanded
+          ? 'bg-[var(--v2-surface-container-lowest)] ring-2 ring-[var(--v2-primary)]/20'
+          : 'bg-[var(--v2-surface-container-low)]',
+      )}>
+      <button onClick={onToggle} className="w-full p-4 flex items-center justify-between text-left">
+        <div className="flex items-center gap-3">
+          <div
+            className={cn(
+              'w-10 h-10 rounded-xl flex items-center justify-center',
+              isComplete
+                ? 'bg-[var(--v2-primary)]/10 text-[var(--v2-primary)]'
+                : 'bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface-variant)]',
+            )}>
+            <span className="v2-icon" style={isComplete ? {fontVariationSettings: "'FILL' 1"} : undefined}>
+              {isComplete ? 'check_circle' : icon}
+            </span>
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-[var(--v2-on-surface)]">{title}</span>
+              {optional && (
+                <span className="text-[10px] uppercase tracking-wider text-[var(--v2-on-surface-variant)] bg-[var(--v2-surface-container-high)] px-2 py-0.5 rounded-full font-bold">
+                  Optional
+                </span>
+              )}
+            </div>
+            {!isExpanded && summary && (
+              <p className="text-xs text-[var(--v2-on-surface-variant)] mt-0.5">{summary}</p>
+            )}
+          </div>
+        </div>
+        <span
+          className={cn(
+            'v2-icon text-[var(--v2-on-surface-variant)] transition-transform',
+            isExpanded && 'rotate-180',
+          )}>
+          expand_more
+        </span>
+      </button>
+
+      {isExpanded && <div className="px-4 pb-4">{children}</div>}
+    </div>
+  );
+}
+
+// V2 List Item Radio Component
+function V2ListItemRadio({
+  selected,
+  onClick,
+  icon,
+  title,
+  description,
+  disabled,
+}: {
+  selected: boolean;
+  onClick: () => void;
+  icon: string;
+  title: string;
+  description: string;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={cn(
+        'w-full flex items-center gap-3 p-4 rounded-xl transition-all active:scale-[0.98] min-h-[60px]',
+        selected
+          ? 'bg-[var(--v2-primary)]/10 ring-2 ring-[var(--v2-primary)]'
+          : disabled
+            ? 'bg-[var(--v2-surface-container-high)]/50 opacity-50 cursor-not-allowed'
+            : 'bg-[var(--v2-surface-container-low)] hover:bg-[var(--v2-surface-container-high)]',
+      )}>
+      <div
+        className={cn(
+          'w-10 h-10 rounded-xl flex items-center justify-center shrink-0',
+          selected ? 'bg-[var(--v2-primary)] text-[var(--v2-on-primary)]' : 'bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface-variant)]',
+        )}>
+        <span className="v2-icon">{icon}</span>
+      </div>
+      <div className="flex-1 text-left min-w-0">
+        <p className={cn('font-bold text-sm', selected ? 'text-[var(--v2-primary)]' : 'text-[var(--v2-on-surface)]')}>
+          {title}
+        </p>
+        <p className="text-xs text-[var(--v2-on-surface-variant)] truncate">{description}</p>
+      </div>
+      <div
+        className={cn(
+          'w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors',
+          selected ? 'border-[var(--v2-primary)] bg-[var(--v2-primary)]' : 'border-[var(--v2-outline-variant)]',
+        )}>
+        {selected && <div className="w-2 h-2 rounded-full bg-[var(--v2-on-primary)]" />}
+      </div>
+    </button>
+  );
+}
+
+// V2 Success Screen
+function V2SuccessScreen({slug, isClaimLink}: {slug: string; isClaimLink: boolean}) {
+  const [copied, setCopied] = useState(false);
+  const [origin, setOrigin] = useState('');
+
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
+
+  const claimUrl = `${origin}/v2/claim/${slug}`;
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(claimUrl);
+    setCopied(true);
+    toast.success('Link copied!');
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="min-h-screen bg-[var(--v2-background)] flex items-center justify-center p-4">
+      <div className="max-w-md w-full text-center">
+        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <span className="v2-icon text-4xl text-green-600" style={{fontVariationSettings: "'FILL' 1"}}>
+            check_circle
+          </span>
+        </div>
+
+        <h1 className="text-2xl font-extrabold v2-headline text-[var(--v2-on-surface)] mb-2">
+          Gift Created!
+        </h1>
+        <p className="text-[var(--v2-on-surface-variant)] mb-8">
+          {isClaimLink
+            ? 'Share the link below for someone to claim this gift'
+            : 'The recipient will be notified via email'}
+        </p>
+
+        {isClaimLink && (
+          <div className="bg-[var(--v2-surface-container-low)] rounded-2xl p-4 mb-8">
+            <label className="text-xs font-bold uppercase tracking-wider text-[var(--v2-on-surface-variant)] block mb-2">
+              Claim Link
+            </label>
+            <div className="flex items-center gap-2">
+              <div className="flex-1 bg-[var(--v2-surface-container-lowest)] rounded-xl px-4 py-3 overflow-hidden">
+                <p className="font-mono text-sm text-[var(--v2-on-surface)] truncate">{claimUrl}</p>
+              </div>
+              <button
+                onClick={handleCopy}
+                className={cn(
+                  'shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-colors',
+                  copied
+                    ? 'bg-green-500 text-white'
+                    : 'bg-[var(--v2-primary)]/10 text-[var(--v2-primary)] hover:bg-[var(--v2-primary)]/20',
+                )}>
+                <span className="v2-icon">{copied ? 'check' : 'content_copy'}</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Link href="/v2/send-gift" className="flex-1">
+            <button
+              onClick={() => window.location.reload()}
+              className="w-full h-12 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-xl flex items-center justify-center gap-2">
+              <span className="v2-icon">add</span>
+              Send Another
+            </button>
+          </Link>
+          <Link href="/v2/dashboard" className="flex-1">
+            <button className="w-full h-12 bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] font-bold rounded-xl hover:bg-[var(--v2-surface-container-high)] transition-colors">
+              Dashboard
+            </button>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}

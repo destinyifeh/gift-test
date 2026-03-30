@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-fixed-dim": "#e97b32",
+              "surface-container": "#ffe3cf",
+              "primary": "#964300",
+              "on-primary-fixed": "#100300",
+              "outline-variant": "#d9a275",
+              "tertiary-container": "#febf2a",
+              "secondary-dim": "#7a4100",
+              "on-surface-variant": "#7d522b",
+              "tertiary": "#775600",
+              "on-secondary-container": "#6e3a00",
+              "on-primary-fixed-variant": "#542200",
+              "background": "#fff4ef",
+              "on-tertiary-fixed-variant": "#624600",
+              "inverse-on-surface": "#c79266",
+              "primary-container": "#f9873e",
+              "error-container": "#f95630",
+              "on-error-container": "#520c00",
+              "on-secondary": "#fff0e7",
+              "tertiary-dim": "#684b00",
+              "secondary": "#8c4b00",
+              "error-dim": "#b92902",
+              "surface-container-highest": "#ffd5b5",
+              "on-primary": "#fff0e9",
+              "on-error": "#ffefec",
+              "surface-tint": "#964300",
+              "outline": "#9d6c44",
+              "surface-container-low": "#ffede2",
+              "on-surface": "#492604",
+              "surface-container-lowest": "#ffffff",
+              "on-background": "#492604",
+              "on-tertiary": "#fff1dd",
+              "on-primary-container": "#451b00",
+              "on-secondary-fixed-variant": "#7c4200",
+              "surface-variant": "#ffd5b5",
+              "primary-fixed": "#f9873e",
+              "error": "#b02500",
+              "surface-dim": "#ffcaa1",
+              "on-tertiary-fixed": "#3e2b00",
+              "surface-bright": "#fff4ef",
+              "primary-dim": "#843a00",
+              "secondary-container": "#ffc69a",
+              "on-secondary-fixed": "#522a00",
+              "surface-container-high": "#ffdcc2",
+              "inverse-primary": "#f9873e",
+              "tertiary-fixed-dim": "#efb118",
+              "secondary-fixed": "#ffc69a",
+              "tertiary-fixed": "#febf2a",
+              "surface": "#fff4ef",
+              "secondary-fixed-dim": "#ffb374",
+              "on-tertiary-container": "#573e00",
+              "inverse-surface": "#1b0a00"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface antialiased min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center px-6 py-4 sticky top-0 z-50 w-full bg-[#fff4ef]/80 backdrop-blur-[20px]">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container">
+<img class="w-full h-full object-cover" data-alt="close-up of a smiling artisan business owner in a sunlit wooden workshop studio" src="https://lh3.googleusercontent.com/aida-public/AB6AXuATId2UxKiRyXp0P5J2nYAQWlY3KJRMf0PTNmblv_V5rg0KHsYtFwsPGZgj4Ggw29tmxBZWPsBJGMl8-MLTFgWhdhX9HSRtZJ-6BAE2Bbjx_KiXdLCbARiOIR7wnHjtN0UZvynXFDAaA_P1kiBRPAU9DyGQarcvtGPUaUrjjnlHyC6Oc6_kB3kigMiQBK4ATpJicR1gCyYbbh6hOIE7UsBAJDRNsWXPCYgTJ0a5uAFKAgwgZgX1z-jarCWCnNOaDSbdlCX8iHh4a9M"/>
+</div>
+<h1 class="font-headline font-bold text-lg tracking-tight text-[#492604]">Vendor Hub</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-orange-100/30 transition-colors">
+<span class="material-symbols-outlined text-orange-700">notifications</span>
+</button>
+</header>
+<main class="px-6 space-y-8 mt-4">
+<!-- Quick Stats Bento -->
+<section class="grid grid-cols-2 gap-4">
+<div class="col-span-2 bg-surface-container-lowest p-6 rounded-xl space-y-2">
+<span class="font-label text-sm font-semibold uppercase tracking-wider text-on-surface-variant">Total Inventory Value</span>
+<div class="flex items-baseline gap-2">
+<span class="font-body font-bold text-3xl text-on-surface">$24,850.00</span>
+<span class="text-primary font-bold text-sm">+12%</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-4 rounded-xl flex flex-col justify-between">
+<span class="material-symbols-outlined text-primary mb-2">inventory_2</span>
+<div>
+<span class="block font-body font-bold text-xl">142</span>
+<span class="text-xs font-label text-on-surface-variant">Active Products</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-4 rounded-xl flex flex-col justify-between">
+<span class="material-symbols-outlined text-primary mb-2">trending_up</span>
+<div>
+<span class="block font-body font-bold text-xl">18</span>
+<span class="text-xs font-label text-on-surface-variant">New this Month</span>
+</div>
+</div>
+</section>
+<!-- Search & Filter Area -->
+<section class="space-y-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-xl">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-xl py-4 pl-12 pr-4 focus:ring-1 focus:ring-primary focus:bg-surface-container-lowest text-on-surface placeholder-on-surface-variant/50 transition-all" placeholder="Search inventory..." type="text"/>
+</div>
+<div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+<span class="px-5 py-2 bg-primary text-on-primary rounded-full text-sm font-semibold whitespace-nowrap">All Items</span>
+<span class="px-5 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-sm font-semibold whitespace-nowrap">High Stock</span>
+<span class="px-5 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-sm font-semibold whitespace-nowrap">Low Stock</span>
+<span class="px-5 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-sm font-semibold whitespace-nowrap">Out of Stock</span>
+</div>
+</section>
+<!-- Product Management Cards -->
+<section class="space-y-6 pb-12">
+<div class="flex items-center justify-between">
+<h2 class="font-headline font-bold text-xl tracking-tight text-on-surface">Inventory List</h2>
+<span class="text-sm font-label text-primary font-bold">Sort by: Recent</span>
+</div>
+<!-- Product Card 1 -->
+<div class="bg-surface-container-lowest rounded-[1.5rem] overflow-hidden group">
+<div class="relative h-56 w-full">
+<img class="w-full h-full object-cover" data-alt="aesthetic close-up of amber organic honey in a glass jar with a wooden dipper in soft morning sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCaUDLqgKFn4_kV3N5zn9j3KcXTuw0Jo7GThRQ4yxX6vOqMhgX-7nPV6CdopiREWRGBucMCKwBE073DbEW9ohbg3kwWBYm7sgi198aK43eavPKYUusZjGCSNCYlkRhKPM6i28rfyl8bNhySadpqh5iC-0W-qCOWvR8YIq6OElAqc_WaU5xJvNFPHb3GhJl2C04S9_uXjY9KzOIttfPz2y8S98b0B1cmyC16to1yUnVAg_xd_AfaGzdclPKYwOYtSzqtKLSdbi9BiUM"/>
+<div class="absolute top-4 left-4">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md">Active</span>
+</div>
+<div class="absolute bottom-4 right-4 bg-surface-container-lowest/90 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-sm">
+<span class="font-body font-bold text-primary">$18.50</span>
+</div>
+</div>
+<div class="p-5 space-y-4">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-body font-bold text-lg text-on-surface">Artisan Organic Honey</h3>
+<p class="text-sm text-on-surface-variant">Batch #4492 • 500g Glass Jar</p>
+</div>
+<button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container-low">
+<span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+</button>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-surface-container-low">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">inventory</span>
+<span class="text-sm font-medium text-on-surface">42 units in stock</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">visibility</span>
+<span class="text-sm font-medium text-on-surface">1.2k views</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Product Card 2 (Low Stock Warning) -->
+<div class="bg-surface-container-lowest rounded-[1.5rem] overflow-hidden group">
+<div class="relative h-56 w-full">
+<img class="w-full h-full object-cover" data-alt="minimalist handcrafted white ceramic vase with textured surface on a plain beige pedestal with soft shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUYixM7NHnQ8wfwZpnfP8DIew_jNt_eX5GeBF7NWLizDTBVPW4ov055delTL5DhwrvDRv0HIfirUpxm0y2hlci3KleuQ_bqLAhb3phMQkMAydp8kbu3MKcr_-mJPRjSf-B1FZfkiGz4QnJKf4tpACr6Qrgzjtv0DX00tDpQjFd6pzT-A8AOkdDdMUqJqhyA64CbSgGyMZn1kN1i6VAfuG8IYIRBpFSzA2bWTHsaHwn5eW5JNYmZa1BQmv6pj83rXzx0cf_Ta_xN_s"/>
+<div class="absolute top-4 left-4 flex gap-2">
+<span class="px-3 py-1 bg-error-container text-on-error-container rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md">Low Stock</span>
+</div>
+<div class="absolute bottom-4 right-4 bg-surface-container-lowest/90 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-sm">
+<span class="font-body font-bold text-primary">$45.00</span>
+</div>
+</div>
+<div class="p-5 space-y-4">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-body font-bold text-lg text-on-surface">Hand-thrown Minimalist Vase</h3>
+<p class="text-sm text-on-surface-variant">Batch #102 • Matte White Finish</p>
+</div>
+<button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container-low">
+<span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+</button>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-surface-container-low">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-error text-sm">warning</span>
+<span class="text-sm font-bold text-error">3 units left</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">shopping_cart</span>
+<span class="text-sm font-medium text-on-surface">15 sold (30d)</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="bg-surface-container-lowest rounded-[1.5rem] overflow-hidden group">
+<div class="relative h-56 w-full">
+<img class="w-full h-full object-cover" data-alt="stack of artisanal lavender soap bars tied with twine and a sprig of dried lavender on a rustic wooden table" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzyFVqXLB57pIaeG71VF_kAqNrqey_U51uNNgfmBrTTxDK4HKFUa63h0fqXuWd7O9rv6sPCLX6NcXje_Iogo43mAeKZT_9iIUjCEp8Eupb8-FPzbkuKAfDc6NSdCpa5O54vI5EECoyk6XzynQ9kDFrLJ7cJrbZb14-DzvIkjIf8y2J9oJPIgRHPvj20AMWVFjWl8F4zyavw5i7eoYtySr-ho6eVpIheUZMb2N98aYJri0Fr1gCLqfNDUwmDZ3-A7m7xNt2L04rOg8"/>
+<div class="absolute top-4 left-4">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md">Active</span>
+</div>
+<div class="absolute bottom-4 right-4 bg-surface-container-lowest/90 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-sm">
+<span class="font-body font-bold text-primary">$12.00</span>
+</div>
+</div>
+<div class="p-5 space-y-4">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-body font-bold text-lg text-on-surface">Cold Pressed Lavender Soap</h3>
+<p class="text-sm text-on-surface-variant">Bundle • All-natural Ingredients</p>
+</div>
+<button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container-low">
+<span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+</button>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-surface-container-low">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">inventory</span>
+<span class="text-sm font-medium text-on-surface">88 units in stock</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">visibility</span>
+<span class="text-sm font-medium text-on-surface">450 views</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Action Button -->
+<button class="fixed right-6 bottom-24 w-16 h-16 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-2xl shadow-[0_12px_24px_rgba(150,67,0,0.3)] flex items-center justify-center z-40 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-safe pt-2 border-t-[0.5px] border-orange-200/20 bg-[#fff4ef]/90 backdrop-blur-[20px] shadow-[0_-20px_40px_rgba(73,38,4,0.06)] rounded-t-[1.5rem]">
+<a class="flex flex-col items-center justify-center text-[#7d522b] px-4 py-2 hover:bg-orange-50 transition-all" href="#">
+<span class="material-symbols-outlined mb-1">dashboard</span>
+<span class="font-['Manrope'] text-[11px] font-semibold tracking-wide uppercase">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#7d522b] px-4 py-2 hover:bg-orange-50 transition-all" href="#">
+<span class="material-symbols-outlined mb-1">receipt_long</span>
+<span class="font-['Manrope'] text-[11px] font-semibold tracking-wide uppercase">Orders</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-orange-100 text-orange-900 rounded-2xl px-4 py-2 transition-all" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+<span class="font-['Manrope'] text-[11px] font-bold tracking-wide uppercase text-[#964300]">Inventory</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#7d522b] px-4 py-2 hover:bg-orange-50 transition-all" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-['Manrope'] text-[11px] font-semibold tracking-wide uppercase">Account</span>
+</a>
+</nav>
+</body></html>

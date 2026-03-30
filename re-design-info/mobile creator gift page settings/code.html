@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Creator Profile Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-lowest": "#ffffff",
+              "surface-container-highest": "#ffd5b5",
+              "on-tertiary": "#fff1dd",
+              "secondary-fixed-dim": "#ffb374",
+              "on-secondary-fixed-variant": "#7c4200",
+              "on-primary-fixed-variant": "#542200",
+              "surface-container": "#ffe3cf",
+              "inverse-on-surface": "#c79266",
+              "on-secondary-fixed": "#522a00",
+              "primary-container": "#f9873e",
+              "primary": "#964300",
+              "surface-bright": "#fff4ef",
+              "surface-dim": "#ffcaa1",
+              "on-primary": "#fff0e9",
+              "secondary": "#8c4b00",
+              "primary-fixed": "#f9873e",
+              "on-background": "#492604",
+              "primary-fixed-dim": "#e97b32",
+              "secondary-fixed": "#ffc69a",
+              "on-surface": "#492604",
+              "primary-dim": "#843a00",
+              "on-tertiary-container": "#573e00",
+              "tertiary": "#775600",
+              "surface-tint": "#964300",
+              "error": "#b02500",
+              "secondary-dim": "#7a4100",
+              "on-tertiary-fixed-variant": "#624600",
+              "tertiary-container": "#febf2a",
+              "on-surface-variant": "#7d522b",
+              "surface": "#fff4ef",
+              "outline": "#9d6c44",
+              "on-primary-fixed": "#100300",
+              "inverse-surface": "#1b0a00",
+              "secondary-container": "#ffc69a",
+              "surface-container-high": "#ffdcc2",
+              "on-tertiary-fixed": "#3e2b00",
+              "outline-variant": "#d9a275",
+              "tertiary-fixed": "#febf2a",
+              "on-error": "#ffefec",
+              "error-dim": "#b92902",
+              "tertiary-fixed-dim": "#efb118",
+              "surface-container-low": "#ffede2",
+              "on-error-container": "#520c00",
+              "error-container": "#f95630",
+              "tertiary-dim": "#684b00",
+              "on-secondary": "#fff0e7",
+              "inverse-primary": "#f9873e",
+              "surface-variant": "#ffd5b5",
+              "background": "#fff4ef",
+              "on-primary-container": "#451b00",
+              "on-secondary-container": "#6e3a00"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        -webkit-tap-highlight-color: transparent;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface antialiased pb-32">
+<!-- Top AppBar (JSON Driven) -->
+<header class="bg-[#fff4ef]/80 dark:bg-stone-900/80 backdrop-blur-md fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary cursor-pointer">arrow_back</span>
+<h1 class="font-['Plus_Jakarta_Sans'] font-bold text-lg text-on-surface">Creator Profile</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#964300]" data-icon="notifications">notifications</span>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden">
+<img alt="User profile" data-alt="Close-up portrait of a professional creator in a brightly lit home studio with soft bokeh background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIk0Lam1qNb65wDNKk7P5zW428UlTFgkVZTZIYMPXeKZRNj1m6F8SniOSyz7AHKAlx2jj3CxoHQkxjydFwzEPreFkAdwyu9jPGteFuWpejozujSLb-cxFoZSdoRPSL1Dbzjo3QhUGqQo4TLhqLfPdpmnkHpEP2rma6-HdEHLe7P_ygAHBF9UoHE-ZFmYbjDvrFVGfpbePvKum62DLxB5p0C_61sadwgV-NGSxMCfIufOladz8D7r296lZr6QS0m24c32JvYNLdXww"/>
+</div>
+</div>
+</header>
+<main class="pt-20 px-4 space-y-6">
+<!-- Hero Profile Section -->
+<section class="relative h-48 rounded-3xl overflow-hidden mb-12">
+<img alt="Profile Header" class="w-full h-full object-cover" data-alt="Modern minimalist aesthetic workspace with terracotta ceramic vases and warm sunlight filtering through linen curtains" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBCHSxP1lQ0opztLiYgHpxSkIXz2HYrfUAKaUPIv_0DO0PdPMpcb8Nt53s0W4WRMWo8r-sHAzsW0fUrnhv_ofrZf3XZ5QndH85gk4S9nXprScP6nJPRc0Y85perYfuycs4RMOoKPsTaKrHDrL03gqvomncj3QuNsd1IrHNciGlkQMGAVfnDwdI1k2yoG7_FOdu7vm8VWnC18s_q9n9opPuu4Lp1J8N8KikX_Zl0XN4jA7vuEYmRYzd9Fa57LrfdoAsDc8MdIPjvqo"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+<div class="absolute -bottom-8 left-6 flex items-end gap-4">
+<div class="w-24 h-24 rounded-2xl border-4 border-surface overflow-hidden bg-white shadow-lg">
+<img alt="Avatar" class="w-full h-full object-cover" data-alt="Smiling woman with curly hair wearing a terracotta knit sweater against a warm beige background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZBmmq3wx4YLO2NqO0honzAgjw6nAhX-h5IjZziViNVTRqGg134GZPfpl-kHO2OK6v5GtZ6tfULHTlaR2cJK2z3IsRJEted-eaUeWdQOusF2rWLIU-T9o6sMDPyPtA6Ui7-3w6iVRxkT_gZ7xMrs0AwvvatHQ1O0wlNActvxsdrBDImIaxQcvU576chvoeWxD_tZuxgEpmDqG3D0h1ngp4ZCXJ3HxpTrAnPFoNn3aaQewi8eJjYtlo318j-kvV6kw32MQY4ZtIrrw"/>
+</div>
+<div class="mb-4">
+<h2 class="font-headline font-bold text-xl text-white">Elena Curator</h2>
+<p class="font-label text-sm text-white/90">@the_artisan_soul</p>
+</div>
+</div>
+</section>
+<!-- Profile Bio Area -->
+<section class="bg-surface-container-lowest p-6 rounded-[2rem] space-y-4">
+<label class="font-label text-sm font-bold text-on-surface-variant px-1">Creator Bio</label>
+<textarea class="w-full bg-surface-container-low border-none rounded-2xl p-4 text-on-surface placeholder-on-surface-variant/50 focus:ring-2 focus:ring-primary/20 min-h-[120px] resize-none font-body" placeholder="Tell your supporters about your creative journey..."></textarea>
+<div class="flex justify-end">
+<p class="text-[10px] font-label text-on-surface-variant">240 / 500 characters</p>
+</div>
+</section>
+<!-- Support Tiers / Amounts -->
+<section class="space-y-4">
+<div class="px-2 flex justify-between items-center">
+<h3 class="font-headline font-bold text-lg text-on-surface">Support Tiers</h3>
+<span class="material-symbols-outlined text-primary" data-icon="add_circle">add_circle</span>
+</div>
+<div class="grid grid-cols-3 gap-3">
+<button class="flex flex-col items-center justify-center p-4 bg-surface-container-lowest rounded-2xl border-2 border-primary ring-offset-2 ring-primary/10">
+<span class="font-headline font-extrabold text-primary text-xl">$5</span>
+<span class="font-label text-[10px] text-on-surface-variant mt-1 uppercase tracking-wider">Tonic</span>
+</button>
+<button class="flex flex-col items-center justify-center p-4 bg-surface-container-lowest rounded-2xl hover:bg-surface-container-low transition-colors">
+<span class="font-headline font-extrabold text-on-surface text-xl">$15</span>
+<span class="font-label text-[10px] text-on-surface-variant mt-1 uppercase tracking-wider">Studio</span>
+</button>
+<button class="flex flex-col items-center justify-center p-4 bg-surface-container-lowest rounded-2xl hover:bg-surface-container-low transition-colors">
+<span class="font-headline font-extrabold text-on-surface text-xl">$50</span>
+<span class="font-label text-[10px] text-on-surface-variant mt-1 uppercase tracking-wider">Patron</span>
+</button>
+</div>
+</section>
+<!-- Settings Toggles -->
+<section class="bg-surface-container-low rounded-[2rem] overflow-hidden">
+<div class="p-6 space-y-6">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="visibility">visibility</span>
+</div>
+<div>
+<p class="font-body font-semibold text-on-surface">Public Visibility</p>
+<p class="font-label text-xs text-on-surface-variant">Allow everyone to see your profile</p>
+</div>
+</div>
+<div class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="redeem">redeem</span>
+</div>
+<div>
+<p class="font-body font-semibold text-on-surface">Accepting Gifts</p>
+<p class="font-label text-xs text-on-surface-variant">Enable supporters to send physical gifts</p>
+</div>
+</div>
+<div class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="alternate_email">alternate_email</span>
+</div>
+<div>
+<p class="font-body font-semibold text-on-surface">DM Notifications</p>
+<p class="font-label text-xs text-on-surface-variant">Email alerts for new supporter messages</p>
+</div>
+</div>
+<div class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Action Button -->
+<button class="w-full h-14 bg-gradient-to-r from-primary to-primary-container text-on-primary font-headline font-bold rounded-2xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2">
+<span>Save Changes</span>
+<span class="material-symbols-outlined" data-icon="check_circle">check_circle</span>
+</button>
+</main>
+<!-- Bottom Navigation (JSON Driven) -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pt-3 pb-6 bg-[#fff4ef]/90 dark:bg-stone-900/90 backdrop-blur-xl rounded-t-3xl md:hidden z-50 shadow-[0_-10px_40px_rgba(73,38,4,0.06)]">
+<div class="flex flex-col items-center justify-center text-[#7d522b] dark:text-stone-400 p-2 active:bg-[#ffede2] transition-all scale-90 active:scale-100">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Manrope'] text-[11px] font-semibold mt-1">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#7d522b] dark:text-stone-400 p-2 active:bg-[#ffede2] transition-all scale-90 active:scale-100">
+<span class="material-symbols-outlined" data-icon="redeem">redeem</span>
+<span class="font-['Manrope'] text-[11px] font-semibold mt-1">Gifts</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#7d522b] dark:text-stone-400 p-2 active:bg-[#ffede2] transition-all scale-90 active:scale-100">
+<span class="material-symbols-outlined" data-icon="campaign">campaign</span>
+<span class="font-['Manrope'] text-[11px] font-semibold mt-1">Campaigns</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#7d522b] dark:text-stone-400 p-2 active:bg-[#ffede2] transition-all scale-90 active:scale-100">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-['Manrope'] text-[11px] font-semibold mt-1">Wallet</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-[#964300] text-white rounded-2xl p-3 mb-1 transition-all">
+<span class="material-symbols-outlined" data-icon="settings" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="font-['Manrope'] text-[11px] font-semibold">Settings</span>
+</div>
+</nav>
+</body></html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vendor QR Code Verification</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-fixed-dim": "#e97b32",
+                        "surface-container": "#ffe3cf",
+                        "primary": "#964300",
+                        "on-primary-fixed": "#100300",
+                        "outline-variant": "#d9a275",
+                        "tertiary-container": "#febf2a",
+                        "secondary-dim": "#7a4100",
+                        "on-surface-variant": "#7d522b",
+                        "tertiary": "#775600",
+                        "on-secondary-container": "#6e3a00",
+                        "on-primary-fixed-variant": "#542200",
+                        "background": "#fff4ef",
+                        "on-tertiary-fixed-variant": "#624600",
+                        "inverse-on-surface": "#c79266",
+                        "primary-container": "#f9873e",
+                        "error-container": "#f95630",
+                        "on-error-container": "#520c00",
+                        "on-secondary": "#fff0e7",
+                        "tertiary-dim": "#684b00",
+                        "secondary": "#8c4b00",
+                        "error-dim": "#b92902",
+                        "surface-container-highest": "#ffd5b5",
+                        "on-primary": "#fff0e9",
+                        "on-error": "#ffefec",
+                        "surface-tint": "#964300",
+                        "outline": "#9d6c44",
+                        "surface-container-low": "#ffede2",
+                        "on-surface": "#492604",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#492604",
+                        "on-tertiary": "#fff1dd",
+                        "on-primary-container": "#451b00",
+                        "on-secondary-fixed-variant": "#7c4200",
+                        "surface-variant": "#ffd5b5",
+                        "primary-fixed": "#f9873e",
+                        "error": "#b02500",
+                        "surface-dim": "#ffcaa1",
+                        "on-tertiary-fixed": "#3e2b00",
+                        "surface-bright": "#fff4ef",
+                        "primary-dim": "#843a00",
+                        "secondary-container": "#ffc69a",
+                        "on-secondary-fixed": "#522a00",
+                        "surface-container-high": "#ffdcc2",
+                        "inverse-primary": "#f9873e",
+                        "tertiary-fixed-dim": "#efb118",
+                        "secondary-fixed": "#ffc69a",
+                        "tertiary-fixed": "#febf2a",
+                        "surface": "#fff4ef",
+                        "secondary-fixed-dim": "#ffb374",
+                        "on-tertiary-container": "#573e00",
+                        "inverse-surface": "#1b0a00"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        body {
+            font-family: 'Manrope', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .editorial-shadow {
+            box-shadow: 0 20px 40px rgba(73, 38, 4, 0.06);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- SideNavBar (Authority Source: JSON) -->
+<aside class="h-screen w-64 fixed left-0 top-0 flex flex-col py-8 px-4 bg-[#ffede2] dark:bg-orange-950/20 z-50">
+<div class="mb-12 px-4">
+<h1 class="text-2xl font-bold text-[#492604] dark:text-[#fff4ef] tracking-tight font-headline">Vendor Portal</h1>
+<p class="text-[#7d522b] dark:text-[#d9a275] text-xs font-label">Premium Merchant</p>
+</div>
+<nav class="flex-grow space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#fff4ef] dark:hover:bg-orange-900/30 transition-colors text-[#7d522b] dark:text-[#d9a275] font-['Plus_Jakarta_Sans'] font-semibold text-sm" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#964300] dark:text-[#f9873e] font-bold border-r-4 border-[#964300] bg-[#fff4ef] dark:bg-orange-900/30 font-['Plus_Jakarta_Sans'] text-sm" href="#">
+<span class="material-symbols-outlined">store</span>
+<span>Shop Details</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#fff4ef] dark:hover:bg-orange-900/30 transition-colors text-[#7d522b] dark:text-[#d9a275] font-['Plus_Jakarta_Sans'] font-semibold text-sm" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span>Inventory</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#fff4ef] dark:hover:bg-orange-900/30 transition-colors text-[#7d522b] dark:text-[#d9a275] font-['Plus_Jakarta_Sans'] font-semibold text-sm" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span>Finances</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#fff4ef] dark:hover:bg-orange-900/30 transition-colors text-[#7d522b] dark:text-[#d9a275] font-['Plus_Jakarta_Sans'] font-semibold text-sm" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-auto px-4">
+<button class="w-full py-4 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary font-bold shadow-lg flex items-center justify-center gap-2 scale-100 active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined">add</span>
+<span>Add Product</span>
+</button>
+</div>
+</aside>
+<!-- TopNavBar (Authority Source: JSON) -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 flex justify-between items-center px-8 bg-[#ffffff]/80 dark:bg-[#492604]/80 backdrop-blur-md z-40">
+<div class="flex items-center flex-grow max-w-md">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-full text-sm focus:ring-1 ring-[#d9a275]/15 font-body" placeholder="Search gift codes..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex gap-4">
+<button class="text-on-surface-variant hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+</div>
+<div class="flex items-center gap-3 border-l pl-6 border-outline-variant/20">
+<img alt="User Avatar" class="w-8 h-8 rounded-full bg-surface-container-high" data-alt="professional portrait of a confident artisan vendor in a warm sunlit workshop wearing a linen apron" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSGZqo2igmvG5nVt15ilWqWUmfwYb6xdRz5279b53Ie5Rlp-q7EYdh0myF9GBZOLIy98vYm1ftLvupJrIWKxmg4UEFTL9TEhpoXz3BN9vfQoXcXnOsqwqH9iVX3bjPPkpgE5zz1OaJBi1zOXpnLBvRYy33OocTuj1T3uW0QJD9rRhTfydvxMS-m0Cym7zHJNBGrBNiflWwILKaG6sUgPefsobmUb-Uk76AJVcd7GWcyq3WCwaYi6VcbRApXWtMsbHE4kqZdd6R2zw"/>
+<span class="text-sm font-semibold font-body text-on-surface">Artisan Bakery</span>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-24 pb-12 px-12 min-h-screen">
+<div class="max-w-6xl mx-auto">
+<!-- Page Header -->
+<div class="mb-10">
+<h2 class="text-4xl font-headline font-extrabold text-on-surface tracking-tight mb-2">Verify Gift Voucher</h2>
+<p class="text-on-surface-variant text-lg">Enter the unique gift code or scan the customer's QR code to proceed with redemption.</p>
+</div>
+<!-- Bento Layout for Verification -->
+<div class="grid grid-cols-12 gap-6 items-start">
+<!-- Verification Input Section (Main Card) -->
+<div class="col-span-12 lg:col-span-7 bg-surface-container-lowest rounded-[2rem] p-10 editorial-shadow">
+<div class="mb-8">
+<label class="block text-sm font-label font-bold text-primary uppercase tracking-widest mb-4">Manual Entry</label>
+<div class="relative">
+<input class="w-full text-2xl font-headline font-bold py-6 px-8 bg-surface-container-low border-none rounded-2xl focus:ring-2 ring-primary/20 focus:bg-white transition-all text-on-surface placeholder:text-outline-variant/50" placeholder="Enter 12-digit Gift Code (e.g., GIFT-4923-991)" type="text"/>
+<div class="absolute right-4 top-1/2 -translate-y-1/2">
+<span class="material-symbols-outlined text-primary-container text-4xl" style="font-variation-settings: 'FILL' 1;">qr_code_scanner</span>
+</div>
+</div>
+</div>
+<button class="w-full py-6 rounded-2xl bg-gradient-to-r from-primary to-primary-container text-on-primary text-xl font-bold editorial-shadow hover:opacity-90 transition-opacity flex items-center justify-center gap-3">
+<span class="material-symbols-outlined">verified</span>
+                        Verify &amp; Redeem
+                    </button>
+<!-- Success State Placeholder (Visible but quiet) -->
+<div class="mt-8 p-6 bg-secondary-container/30 border-2 border-dashed border-secondary-container rounded-2xl flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined">info</span>
+</div>
+<div>
+<p class="font-bold text-on-surface tracking-tight">Ready for verification</p>
+<p class="text-on-surface-variant text-sm">Results will appear here once a valid code is submitted.</p>
+</div>
+</div>
+</div>
+<!-- Secondary Info Section -->
+<div class="col-span-12 lg:col-span-5 space-y-6">
+<!-- Scan Preview / Branding -->
+<div class="bg-surface-container-low rounded-[2rem] p-8 overflow-hidden relative group">
+<div class="relative z-10">
+<h3 class="text-xl font-headline font-bold text-on-surface mb-2">Live Scanner</h3>
+<p class="text-on-surface-variant text-sm mb-6">Position the QR code within the frame for instant detection.</p>
+<div class="aspect-square bg-on-surface/5 rounded-2xl border-4 border-white/40 flex items-center justify-center relative overflow-hidden">
+<img alt="QR Scanner View" class="w-full h-full object-cover mix-blend-overlay opacity-40" data-alt="abstract tech pattern with glowing orange lines and dark coffee tones suggesting a high-tech digital scanning interface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAG7gl_clr5N6PHKmkgHJWzD7r8h7n6xaKIyR4j2VItsaVM9zfy-5YMyntshZDBYbfgiwBzFDLTlkJnYU19EKXA4ReeHmtfhGATN-bEBNBugRqAZUL9DSGst6PJb18_UOJwcrISIP8KWX05_HZidksQLezswrstdlGa15Ds_5kh5DX9J-FaX1BhUnb_uj4CKeSdJCP7s2E5dt0khlmFQR8ijWiIQibeUlfL_wuxulIRlKeTfFrJkgKD8B1H96UnKgMW9ZXw6L9CcqI"/>
+<div class="absolute inset-0 border-[40px] border-surface-container-low opacity-60"></div>
+<div class="w-48 h-48 border-2 border-primary-container rounded-3xl animate-pulse relative">
+<div class="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-primary"></div>
+<div class="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-primary"></div>
+<div class="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-primary"></div>
+<div class="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-primary"></div>
+</div>
+</div>
+</div>
+<!-- Background texture deco -->
+<div class="absolute -bottom-10 -right-10 w-40 h-40 bg-primary/5 rounded-full blur-3xl"></div>
+</div>
+<!-- Guidelines Card -->
+<div class="bg-surface-container-lowest rounded-[2rem] p-8 editorial-shadow">
+<h3 class="text-lg font-headline font-bold text-on-surface mb-4">Redemption Guide</h3>
+<ul class="space-y-4">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-lg">check_circle</span>
+<span class="text-sm text-on-surface-variant leading-relaxed">Ensure the gift voucher has not expired (checked against live DB).</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-lg">check_circle</span>
+<span class="text-sm text-on-surface-variant leading-relaxed">Partial redemptions are supported for multi-use credit cards.</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-lg">check_circle</span>
+<span class="text-sm text-on-surface-variant leading-relaxed">Verification is permanent and cannot be reversed after redemption.</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<!-- Recent Activity Tonal Layer -->
+<section class="mt-12 bg-surface-container-low rounded-[2rem] p-10">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h3 class="text-2xl font-headline font-bold text-on-surface">Recent Redemptions</h3>
+<p class="text-on-surface-variant text-sm">Activity from the last 24 hours</p>
+</div>
+<button class="text-primary font-bold text-sm flex items-center gap-1 hover:underline">
+                        View Full History <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Transaction Card 1 -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary-container/50 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">receipt_long</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">#GF-9921</p>
+<p class="text-xs text-on-surface-variant font-label">2 mins ago</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-lg font-headline font-extrabold text-on-surface">$50.00</p>
+<span class="px-2 py-0.5 bg-secondary-container text-on-secondary-container text-[10px] font-bold rounded-full uppercase">Success</span>
+</div>
+</div>
+<!-- Transaction Card 2 -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary-container/50 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">receipt_long</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">#GF-8842</p>
+<p class="text-xs text-on-surface-variant font-label">15 mins ago</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-lg font-headline font-extrabold text-on-surface">$120.00</p>
+<span class="px-2 py-0.5 bg-secondary-container text-on-secondary-container text-[10px] font-bold rounded-full uppercase">Success</span>
+</div>
+</div>
+<!-- Transaction Card 3 -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-error-container/20 flex items-center justify-center text-error">
+<span class="material-symbols-outlined">error_outline</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">#GF-INVALID</p>
+<p class="text-xs text-on-surface-variant font-label">1 hour ago</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-lg font-headline font-extrabold text-on-surface-variant">--</p>
+<span class="px-2 py-0.5 bg-error-container text-on-error-container text-[10px] font-bold rounded-full uppercase">Failed</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Floating Help Button (Contextual) -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-on-surface text-surface rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">support_agent</span>
+</button>
+</body></html>

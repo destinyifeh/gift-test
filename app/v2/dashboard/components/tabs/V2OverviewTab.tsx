@@ -1,0 +1,321 @@
+'use client';
+
+import {useProfile} from '@/hooks/use-profile';
+import {getCurrencyByCountry} from '@/lib/constants/currencies';
+import {fetchDashboardAnalytics, fetchUnclaimedGifts} from '@/lib/server/actions/analytics';
+import {updateCreatorStatus} from '@/lib/server/actions/auth';
+import {useUserStore} from '@/lib/store/useUserStore';
+import {formatCurrency} from '@/lib/utils/currency';
+import {useQuery} from '@tanstack/react-query';
+import Link from 'next/link';
+import {toast} from 'sonner';
+import {SelectedSection} from '../dashboard-config';
+
+interface V2OverviewTabProps {
+  creatorEnabled: boolean;
+  setCreatorEnabled: (enabled: boolean) => void;
+  setSection: (section: SelectedSection) => void;
+}
+
+export function V2OverviewTab({creatorEnabled, setCreatorEnabled, setSection}: V2OverviewTabProps) {
+  const user = useUserStore(state => state.user);
+
+  const handleEnableCreator = async () => {
+    const result = await updateCreatorStatus(true);
+    if (result.success) {
+      setCreatorEnabled(true);
+      setSection('gift-page');
+      toast.success('Gift page enabled!');
+    } else {
+      toast.error(result.error || 'Failed to enable gift page');
+    }
+  };
+
+  const {data: analyticsRes, isLoading} = useQuery({
+    queryKey: ['dashboard-analytics'],
+    queryFn: () => fetchDashboardAnalytics(),
+  });
+
+  const {data: unclaimedRes} = useQuery({
+    queryKey: ['unclaimed-gifts'],
+    queryFn: () => fetchUnclaimedGifts(),
+  });
+
+  const {data: userProfile} = useProfile();
+
+  const unclaimedGifts = unclaimedRes?.data || [];
+  const profile = userProfile || null;
+  const userCurrency = getCurrencyByCountry(profile?.country);
+
+  const analytics = analyticsRes?.data || {
+    giftsSent: 0,
+    giftsReceived: 0,
+    totalGiven: 0,
+    campaignsCount: 0,
+    recentActivity: {sent: [], received: []},
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[300px]">
+        <span className="v2-icon text-4xl text-[var(--v2-primary)] animate-spin mb-3">
+          progress_activity
+        </span>
+        <p className="text-sm text-[var(--v2-on-surface-variant)]">Loading dashboard...</p>
+      </div>
+    );
+  }
+
+  const statusColorMap: Record<string, string> = {
+    delivered: 'bg-[var(--v2-secondary-container)] text-[var(--v2-on-secondary-container)]',
+    pending: 'bg-[var(--v2-tertiary-container)] text-[var(--v2-on-tertiary-container)]',
+    claimed: 'bg-[var(--v2-secondary-container)] text-[var(--v2-on-secondary-container)]',
+    unclaimed: 'bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface-variant)]',
+    sent: 'bg-[var(--v2-primary-container)] text-[var(--v2-on-primary-container)]',
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Greeting Section - Mobile */}
+      <section className="md:hidden">
+        <p className="text-[var(--v2-on-surface-variant)] font-medium mb-1">Welcome back,</p>
+        <h1 className="text-3xl font-extrabold v2-headline tracking-tight text-[var(--v2-on-surface)]">
+          {user?.display_name || 'Friend'}
+        </h1>
+      </section>
+
+      {/* Desktop Header */}
+      <section className="hidden md:block">
+        <p className="text-xs text-[var(--v2-on-surface-variant)] uppercase tracking-wider mb-1">
+          Dashboard Overview
+        </p>
+        <h1 className="text-3xl md:text-4xl font-extrabold v2-headline text-[var(--v2-on-surface)] tracking-tight">
+          Welcome back, {user?.display_name?.split(' ')[0] || 'Friend'}
+        </h1>
+        <p className="text-[var(--v2-on-surface-variant)] mt-1">
+          Here's what's happening with your gifts today.
+        </p>
+      </section>
+
+      {/* Pending Gift Banner */}
+      {unclaimedGifts.length > 0 && (
+        <div className="relative overflow-hidden rounded-2xl md:rounded-3xl p-5 md:p-6 v2-hero-gradient shadow-lg shadow-[var(--v2-primary)]/20">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16" />
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center text-white shrink-0">
+                <span className="v2-icon text-3xl animate-bounce">card_giftcard</span>
+              </div>
+              <div className="text-white">
+                <h3 className="text-lg font-bold v2-headline">
+                  {unclaimedGifts.length} unclaimed gift{unclaimedGifts.length > 1 ? 's' : ''}!
+                </h3>
+                <p className="text-white/80 text-sm">Sent to your email. Claim now!</p>
+              </div>
+            </div>
+            <Link
+              href={`/v2/claim/${unclaimedGifts[0].gift_code}`}
+              className="w-full sm:w-auto px-6 h-12 bg-white text-[var(--v2-primary)] font-bold rounded-xl flex items-center justify-center gap-2 transition-transform active:scale-[0.98] shadow-lg">
+              <span className="v2-icon">redeem</span>
+              Claim Now
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Stats Grid - Bento Style */}
+      <div className="grid grid-cols-2 gap-3 md:gap-4">
+        {/* Total Given - Large/Wide */}
+        <div className="col-span-2 p-6 rounded-3xl v2-gradient-primary text-white shadow-xl shadow-[var(--v2-primary)]/10 relative overflow-hidden">
+          <div className="relative z-10">
+            <p className="text-white/80 font-medium mb-1 text-sm">Total Given</p>
+            <h2 className="text-4xl font-extrabold v2-headline">
+              {formatCurrency(analytics.totalGiven, userCurrency)}
+            </h2>
+          </div>
+          <span className="v2-icon absolute -right-4 -bottom-4 text-white/10 text-[120px]">redeem</span>
+        </div>
+
+        {/* Gifts Sent */}
+        <div className="p-4 md:p-5 rounded-[1.25rem] md:rounded-3xl bg-[var(--v2-surface-container-lowest)] border border-[var(--v2-outline-variant)]/10 shadow-sm">
+          <div className="w-10 h-10 rounded-full bg-[var(--v2-secondary-container)]/30 flex items-center justify-center mb-3">
+            <span className="v2-icon text-[var(--v2-secondary)]">outbox</span>
+          </div>
+          <p className="text-[var(--v2-on-surface-variant)] text-xs md:text-sm font-medium">Gifts Sent</p>
+          <p className="text-xl md:text-2xl font-bold v2-headline text-[var(--v2-on-surface)]">
+            {analytics.giftsSent}
+          </p>
+        </div>
+
+        {/* Gifts Received */}
+        <div className="p-4 md:p-5 rounded-[1.25rem] md:rounded-3xl bg-[var(--v2-surface-container-lowest)] border border-[var(--v2-outline-variant)]/10 shadow-sm">
+          <div className="w-10 h-10 rounded-full bg-[var(--v2-tertiary-container)]/20 flex items-center justify-center mb-3">
+            <span className="v2-icon text-[var(--v2-tertiary)]">move_to_inbox</span>
+          </div>
+          <p className="text-[var(--v2-on-surface-variant)] text-xs md:text-sm font-medium">Received</p>
+          <p className="text-xl md:text-2xl font-bold v2-headline text-[var(--v2-on-surface)]">
+            {analytics.giftsReceived}
+          </p>
+        </div>
+      </div>
+
+      {/* Active Campaigns - Editorial Glass Style */}
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-bold v2-headline text-[var(--v2-on-surface)]">Active Campaigns</h3>
+          <button className="text-[var(--v2-primary)] font-bold text-sm">View all</button>
+        </div>
+        <div className="relative group cursor-pointer">
+          <div className="absolute inset-0 bg-[var(--v2-primary)]/5 rounded-3xl transform group-active:scale-[0.98] transition-transform" />
+          <div className="relative p-5 md:p-6 rounded-3xl bg-[var(--v2-surface-container-low)] border border-[var(--v2-outline-variant)]/5">
+            {analytics.campaignsCount > 0 ? (
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--v2-on-surface-variant)]">
+                    Active Campaigns
+                  </p>
+                  <h3 className="v2-headline text-3xl md:text-4xl font-black mt-2 text-[var(--v2-on-surface)]">
+                    {analytics.campaignsCount}
+                  </h3>
+                  <p className="font-bold text-sm mt-1 flex items-center gap-1 text-[var(--v2-primary)]">
+                    View all <span className="v2-icon text-sm">arrow_forward</span>
+                  </p>
+                </div>
+                <span className="v2-icon text-5xl md:text-6xl text-[var(--v2-on-surface-variant)]/20">
+                  campaign
+                </span>
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <span className="v2-icon text-4xl text-[var(--v2-on-surface-variant)]/30 mb-2">
+                  campaign
+                </span>
+                <p className="text-[var(--v2-on-surface-variant)] text-sm">No active campaigns</p>
+                <Link
+                  href="/v2/create-campaign"
+                  className="inline-flex items-center gap-1 text-[var(--v2-primary)] font-bold text-sm mt-2">
+                  Start one <span className="v2-icon text-sm">arrow_forward</span>
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Quick Action Card */}
+      <Link href="/v2/send-gift" className="block">
+        <div className="p-5 rounded-3xl bg-[var(--v2-surface-container-lowest)] border-2 border-dashed border-[var(--v2-outline-variant)]/30 flex items-center gap-4 active:scale-[0.98] transition-transform">
+          <div className="w-14 h-14 rounded-2xl v2-gradient-primary flex items-center justify-center text-[var(--v2-on-primary)]">
+            <span className="v2-icon text-2xl">add</span>
+          </div>
+          <div className="flex-1">
+            <h4 className="v2-headline font-bold text-[var(--v2-on-surface)]">Send a Gift</h4>
+            <p className="text-sm text-[var(--v2-on-surface-variant)]">Brighten someone's day</p>
+          </div>
+          <span className="v2-icon text-[var(--v2-on-surface-variant)]">arrow_forward</span>
+        </div>
+      </Link>
+
+      {/* Recent Activity */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-bold v2-headline text-[var(--v2-on-surface)]">
+            Recent Activity
+          </h3>
+          <span className="v2-icon text-[var(--v2-on-surface-variant)]">history</span>
+        </div>
+
+        {analytics.recentActivity.sent.length === 0 &&
+        analytics.recentActivity.received.length === 0 ? (
+          <div className="text-center py-8 rounded-2xl border border-dashed border-[var(--v2-outline-variant)]/30 bg-[var(--v2-surface-container-low)]">
+            <span className="v2-icon text-4xl text-[var(--v2-on-surface-variant)]/50 mb-2">
+              inbox
+            </span>
+            <p className="text-sm text-[var(--v2-on-surface-variant)]">No recent activity found.</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {analytics.recentActivity.sent.map((g: any) => (
+              <div
+                key={g.id}
+                className="flex items-center justify-between p-4 rounded-2xl bg-[var(--v2-surface-container-low)]/50">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[var(--v2-primary)]/10 flex items-center justify-center">
+                    <span className="v2-icon text-[var(--v2-primary)]">send</span>
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm text-[var(--v2-on-surface)]">{g.name}</p>
+                    <p className="text-xs text-[var(--v2-on-surface-variant)]">
+                      {g.giftCategory ? `${g.giftCategory} • ` : ''}
+                      {g.date}
+                    </p>
+                  </div>
+                </div>
+                <span
+                  className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
+                    statusColorMap[g.status] || statusColorMap.pending
+                  }`}>
+                  {g.status}
+                </span>
+              </div>
+            ))}
+            {analytics.recentActivity.received.map((g: any) => (
+              <div
+                key={g.id}
+                className="flex items-center justify-between p-4 rounded-2xl bg-[var(--v2-surface-container-low)]/50">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[var(--v2-secondary)]/10 flex items-center justify-center">
+                    <span className="v2-icon text-[var(--v2-secondary)]">card_giftcard</span>
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm text-[var(--v2-on-surface)]">{g.name}</p>
+                    <p className="text-xs text-[var(--v2-on-surface-variant)]">
+                      {g.type ? `${g.type.replace('-', ' ')} • ` : ''}
+                      {g.date}
+                    </p>
+                  </div>
+                </div>
+                <span
+                  className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
+                    statusColorMap[g.status] || statusColorMap.pending
+                  }`}>
+                  {g.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Creator CTA */}
+      {!creatorEnabled && (
+        <div className="p-5 rounded-3xl bg-gradient-to-r from-[var(--v2-primary)]/10 to-[var(--v2-secondary)]/10 border border-[var(--v2-primary)]/20">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-[var(--v2-primary)]/20 flex items-center justify-center">
+                <span
+                  className="v2-icon text-2xl text-[var(--v2-primary)]"
+                  style={{fontVariationSettings: "'FILL' 1"}}>
+                  auto_awesome
+                </span>
+              </div>
+              <div>
+                <h3 className="font-bold text-[var(--v2-on-surface)] v2-headline">
+                  Enable Your Gift Page
+                </h3>
+                <p className="text-sm text-[var(--v2-on-surface-variant)]">
+                  Let people send you gifts at gifthance.com/{user?.username || 'username'}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={handleEnableCreator}
+              className="w-full sm:w-auto px-6 h-12 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-xl flex items-center justify-center gap-2 transition-transform active:scale-[0.98] shadow-lg shadow-[var(--v2-primary)]/20">
+              Enable Now
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

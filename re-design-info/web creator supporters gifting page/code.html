@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "outline": "#9d6c44",
+            "on-primary-container": "#451b00",
+            "secondary-fixed-dim": "#ffb374",
+            "surface-dim": "#ffcaa1",
+            "on-tertiary-fixed": "#3e2b00",
+            "surface-container-low": "#ffede2",
+            "on-error": "#ffefec",
+            "secondary-fixed": "#ffc69a",
+            "secondary-dim": "#7a4100",
+            "surface-container-highest": "#ffd5b5",
+            "on-primary": "#fff0e9",
+            "error-container": "#f95630",
+            "primary-fixed-dim": "#e97b32",
+            "tertiary-container": "#febf2a",
+            "tertiary-dim": "#684b00",
+            "on-secondary": "#fff0e7",
+            "surface-container": "#ffe3cf",
+            "on-surface": "#492604",
+            "on-tertiary-fixed-variant": "#624600",
+            "surface-bright": "#fff4ef",
+            "surface": "#fff4ef",
+            "primary": "#964300",
+            "on-secondary-fixed-variant": "#7c4200",
+            "on-primary-fixed-variant": "#542200",
+            "on-surface-variant": "#7d522b",
+            "surface-variant": "#ffd5b5",
+            "surface-tint": "#964300",
+            "background": "#fff4ef",
+            "inverse-on-surface": "#c79266",
+            "surface-container-high": "#ffdcc2",
+            "on-secondary-container": "#6e3a00",
+            "tertiary": "#775600",
+            "error": "#b02500",
+            "on-background": "#492604",
+            "primary-dim": "#843a00",
+            "surface-container-lowest": "#ffffff",
+            "on-tertiary": "#fff1dd",
+            "error-dim": "#b92902",
+            "on-error-container": "#520c00",
+            "secondary": "#8c4b00",
+            "tertiary-fixed": "#febf2a",
+            "inverse-surface": "#1b0a00",
+            "on-secondary-fixed": "#522a00",
+            "primary-container": "#f9873e",
+            "inverse-primary": "#f9873e",
+            "on-tertiary-container": "#573e00",
+            "on-primary-fixed": "#100300",
+            "tertiary-fixed-dim": "#efb118",
+            "primary-fixed": "#f9873e",
+            "secondary-container": "#ffc69a",
+            "outline-variant": "#d9a275"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Manrope"],
+            "label": ["Manrope"]
+          },
+          borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .tonal-shift {
+      transition: background-color 0.3s ease;
+    }
+    .glass-header {
+      background: rgba(255, 244, 239, 0.8);
+      backdrop-filter: blur(20px);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top Navigation Shell -->
+<nav class="fixed top-0 w-full z-50 glass-header shadow-[0_20px_40px_rgba(73,38,4,0.06)]">
+<div class="flex justify-between items-center px-8 h-20 max-w-screen-2xl mx-auto">
+<div class="text-2xl font-headline font-extrabold text-primary tracking-tight">CreatorSpace</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200" href="#">Explore</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200" href="#">Feed</a>
+<a class="text-primary font-bold border-b-2 border-primary pb-1" href="#">Creators</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200" href="#">Library</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="hidden md:block bg-gradient-to-br from-primary to-primary-container text-on-primary px-6 py-2.5 rounded-xl font-bold text-sm shadow-sm active:scale-95 transition-all">Support</button>
+<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden">
+<img alt="Creator Profile Avatar" data-alt="Close-up professional headshot of a creative professional with a warm smile, soft natural studio lighting, neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfHA5OXmmFnAz2qISgApRrIrn2PS1gP85Ynd7g-Pm7vGvpodpRH-MYx_39hQeZqrCPr8RLPPMPyi8zr9UAS6IMFmWCydtyv96TyFsfOY6MhHApgEAdpYG6_DFxScLpEVDMLzlBReRYTxiMyz4B9VnA66-wppYfTsL5sFokMwAp4gDR-y4tCUnB3ICpzrI3JR8SSz7uT8LphN14x4Mk33uh3VRWDbAyLNLalL0FLo5n0VAn-xDcDp5WzUKY0E3uF41mCFKMM2Xh1z8"/>
+</div>
+</div>
+</div>
+</nav>
+<!-- Side Navigation Shell (Desktop Only) -->
+<aside class="h-screen w-64 fixed left-0 top-0 pt-24 pb-8 bg-surface-container-low hidden lg:flex flex-col px-4 gap-2">
+<div class="px-4 py-6 mb-4">
+<div class="w-16 h-16 rounded-2xl bg-surface-container-highest mb-4 overflow-hidden">
+<img alt="Creator Profile Picture" data-alt="Portrait of Alex Rivers, a digital artist with artistic glasses, warm lighting, creative studio environment background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTmUgk1HWOA8aoWdulnR3yxI5yUCeYSQsGZ6vsLK2ya8U2M3svZkGXTQuYQdAA8f6Wz7mws3KlFPwr9TQS4IFqUmRryEyva1SDNw8j8OF7sQ1Y9XrAo83TKdJ6iToCfJJZlBFZVJKgzd9N1IyndhtYzgKGnwuV0U_HyKEmYTqevbrUZbqO7F5r-RwfSxPuV8J7MkyubCJuO8oCXALvuz_FaX3Br3DtM6oqOC8_ECnSzr6xEdWedWq-MdqL7LqexKyFFX8d4_Kf0LE"/>
+</div>
+<h3 class="font-headline font-bold text-on-surface text-lg">Alex Rivers</h3>
+<p class="font-label text-xs text-on-surface-variant">Digital Artist &amp; Curator</p>
+</div>
+<nav class="flex-grow flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 text-primary font-bold border-r-4 border-primary bg-surface-container-lowest rounded-l-full" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label text-sm uppercase tracking-wide">Overview</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-l-full transition-all" href="#">
+<span class="material-symbols-outlined">article</span>
+<span class="font-label text-sm uppercase tracking-wide">Posts</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-l-full transition-all" href="#">
+<span class="material-symbols-outlined">shopping_bag</span>
+<span class="font-label text-sm uppercase tracking-wide">Shop</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-l-full transition-all" href="#">
+<span class="material-symbols-outlined">card_membership</span>
+<span class="font-label text-sm uppercase tracking-wide">Membership</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-l-full transition-all" href="#">
+<span class="material-symbols-outlined">info</span>
+<span class="font-label text-sm uppercase tracking-wide">About</span>
+</a>
+</nav>
+<div class="mt-auto flex flex-col gap-1">
+<button class="mx-4 mb-6 bg-primary text-on-primary py-3 rounded-xl font-bold text-sm shadow-md">Follow Creator</button>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label text-xs uppercase tracking-wider">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label text-xs uppercase tracking-wider">Help</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="lg:ml-64 pt-24 pb-32 px-4 md:px-8 max-w-7xl mx-auto">
+<!-- Hero Header -->
+<header class="relative mb-12 rounded-[2rem] overflow-hidden h-[300px] bg-surface-container-highest">
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10"></div>
+<img class="w-full h-full object-cover" data-alt="Abstract digital painting with warm earthy tones, fluid shapes, and subtle golden textures mimicking modern editorial art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCc6dUxwH0e3og0r9ynSZqyPrVrvXMgIPIyhqfJr6jp7MJlxaUj3mpw98woIvQP1YubcV7zl7enRJvey61nmlK-sbDaZkbkTS4spXMH5W7WPhG2V9-QlPLc_MrPe-ZdbgAqdU1vVTEElYP1mX8NZV3jyu1N3Ce-g6ypreQuV8EXEk9Er6kcHepJzPS8MMqB6fkn-6XjfzBcYPjCsePtfd5cf7nfdxuYx3MdCoJ3vcoWvN3p79rl6s01BIUGG6E4Aqy7bUyVx_Qk9yc"/>
+<div class="absolute bottom-8 left-8 z-20 flex items-end gap-6">
+<div class="w-32 h-32 rounded-3xl border-4 border-surface-bright shadow-xl overflow-hidden bg-surface">
+<img alt="Creator Profile Picture" data-alt="Alex Rivers digital artist avatar, high contrast portrait with warm rim lighting and artistic blur background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7VnWlv5HGVFaZv3lVOCErUp1vkWTl0Ujaxa2GOzezNkYeXkrHEy_DCoHsxYGt7QMz6UTES0UCQiD5n-oW0FDce2RbDfXj79iKwEAmCY_fEwFPQ4WZkFhNw-kx4KIpkHbOo8LB3P8QoZCn8GOGcW-7zB8YyftGzDn1ppciCmXj47qIk0bdn9ZzW6yJRlZyowirbNNYkFnqiebAf-F5rriHKDaLZjbt-S6uzjwYmsO1FnKdZYL9Rty0mwcjW1XEAAo738ZovJuIYZE"/>
+</div>
+<div class="mb-2">
+<h1 class="font-headline text-4xl font-extrabold text-white tracking-tight">Alex Rivers</h1>
+<p class="text-white/90 font-medium">Digital Artist &amp; Curator</p>
+</div>
+</div>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Column: Bio & Stats -->
+<div class="lg:col-span-7 flex flex-col gap-8">
+<!-- Bio Card -->
+<section class="bg-surface-container-lowest p-8 rounded-[2rem] shadow-[0_20px_40px_rgba(73,38,4,0.04)]">
+<h2 class="font-headline text-xl font-bold mb-4 text-on-surface">About</h2>
+<p class="text-on-surface-variant leading-relaxed text-lg">
+            Exploring the intersection of technology and organic textures. I create daily digital art pieces and curate collections that celebrate the warmth of human creativity in a digital age. Join me on this journey of visual storytelling.
+          </p>
+<!-- Stats Bento -->
+<div class="grid grid-cols-3 gap-4 mt-8">
+<div class="bg-surface-container-low p-6 rounded-2xl text-center">
+<span class="block font-headline text-2xl font-extrabold text-primary">12.4K</span>
+<span class="font-label text-xs uppercase tracking-widest text-on-surface-variant">Followers</span>
+</div>
+<div class="bg-surface-container-low p-6 rounded-2xl text-center">
+<span class="block font-headline text-2xl font-extrabold text-primary">850+</span>
+<span class="font-label text-xs uppercase tracking-widest text-on-surface-variant">Gifts</span>
+</div>
+<div class="bg-surface-container-low p-6 rounded-2xl text-center">
+<span class="block font-headline text-2xl font-extrabold text-primary">42</span>
+<span class="font-label text-xs uppercase tracking-widest text-on-surface-variant">Projects</span>
+</div>
+</div>
+</section>
+<!-- Recent Supporters List -->
+<section class="bg-surface-container-low p-8 rounded-[2rem]">
+<h2 class="font-headline text-xl font-bold mb-6 text-on-surface">Recent Supporters</h2>
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-2xl">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center font-bold text-on-secondary-container">JS</div>
+<div>
+<h4 class="font-bold text-on-surface">Jordan Smith</h4>
+<p class="text-sm text-on-surface-variant">"Love the new series!"</p>
+</div>
+</div>
+<span class="bg-secondary-container text-on-secondary-container px-4 py-1 rounded-full text-sm font-bold">$25.00</span>
+</div>
+<div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-2xl">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center font-bold text-on-surface">EM</div>
+<div>
+<h4 class="font-bold text-on-surface">Elena Markova</h4>
+<p class="text-sm text-on-surface-variant">"Incredible textures as always."</p>
+</div>
+</div>
+<span class="bg-secondary-container text-on-secondary-container px-4 py-1 rounded-full text-sm font-bold">$10.00</span>
+</div>
+<div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-2xl">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center font-bold text-on-primary-container">RH</div>
+<div>
+<h4 class="font-bold text-on-surface">Riley Hayes</h4>
+<p class="text-sm text-on-surface-variant">"Keep up the great work Alex!"</p>
+</div>
+</div>
+<span class="bg-secondary-container text-on-secondary-container px-4 py-1 rounded-full text-sm font-bold">$50.00</span>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Support Module -->
+<aside class="lg:col-span-5">
+<div class="sticky top-28 bg-surface-container-lowest p-8 rounded-[2rem] shadow-[0_30px_60px_rgba(73,38,4,0.1)] border border-outline-variant/10">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<h2 class="font-headline text-2xl font-bold text-on-surface">Support Alex</h2>
+</div>
+<!-- Preset Amounts -->
+<div class="grid grid-cols-2 gap-3 mb-6">
+<button class="flex flex-col items-center justify-center py-6 rounded-2xl bg-surface-container-low hover:bg-surface-container-high transition-colors group">
+<span class="text-on-surface-variant font-label text-xs uppercase tracking-widest mb-1 group-hover:text-primary">Small Gift</span>
+<span class="font-headline text-2xl font-extrabold text-on-surface">$5</span>
+</button>
+<button class="flex flex-col items-center justify-center py-6 rounded-2xl bg-surface-container-low hover:bg-surface-container-high transition-colors group">
+<span class="text-on-surface-variant font-label text-xs uppercase tracking-widest mb-1 group-hover:text-primary">Supporter</span>
+<span class="font-headline text-2xl font-extrabold text-on-surface">$10</span>
+</button>
+<button class="flex flex-col items-center justify-center py-6 rounded-2xl border-2 border-primary bg-surface-container-lowest transition-colors group">
+<span class="text-primary font-label text-xs uppercase tracking-widest mb-1">Fan Choice</span>
+<span class="font-headline text-2xl font-extrabold text-primary">$25</span>
+</button>
+<button class="flex flex-col items-center justify-center py-6 rounded-2xl bg-surface-container-low hover:bg-surface-container-high transition-colors group">
+<span class="text-on-surface-variant font-label text-xs uppercase tracking-widest mb-1 group-hover:text-primary">Patron</span>
+<span class="font-headline text-2xl font-extrabold text-on-surface">$50</span>
+</button>
+</div>
+<!-- Custom Amount -->
+<div class="mb-6">
+<label class="block font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2 ml-1">Custom Amount</label>
+<div class="relative group">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-on-surface">$</span>
+<input class="w-full bg-surface-container-low border-none rounded-xl py-4 pl-8 pr-4 focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-all font-bold text-lg" placeholder="0.00" type="number"/>
+</div>
+</div>
+<!-- Message Input -->
+<div class="mb-8">
+<label class="block font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2 ml-1">Support Message</label>
+<textarea class="w-full bg-surface-container-low border-none rounded-xl p-4 focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-all text-on-surface resize-none" placeholder="Write a message to Alex..." rows="3"></textarea>
+</div>
+<!-- CTA Button -->
+<button class="w-full bg-gradient-to-br from-primary to-primary-container text-on-primary py-5 rounded-2xl font-headline font-extrabold text-lg shadow-lg shadow-primary/20 active:scale-95 transition-all">
+            Send Gift
+          </button>
+<p class="text-center text-xs text-on-surface-variant mt-4 font-medium">
+            100% of your gift goes directly to the creator.
+          </p>
+</div>
+</aside>
+</div>
+</main>
+<!-- Mobile Navigation Shell -->
+<div class="lg:hidden fixed bottom-0 left-0 w-full glass-header flex justify-around items-center px-4 pb-6 pt-3 z-50 rounded-t-[1.5rem] shadow-[0_-10px_30px_rgba(73,38,4,0.08)]">
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-6 py-2" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label text-[10px] font-medium uppercase tracking-wider">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-6 py-2" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="font-label text-[10px] font-medium uppercase tracking-wider">Search</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-6 py-2" href="#">
+<span class="material-symbols-outlined">favorite</span>
+<span class="font-label text-[10px] font-medium uppercase tracking-wider">Activity</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-surface-container-low text-primary rounded-2xl px-6 py-2" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label text-[10px] font-medium uppercase tracking-wider">Profile</span>
+</a>
+</div>
+</body></html>

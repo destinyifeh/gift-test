@@ -269,16 +269,24 @@ export async function verifyVoucherCode(code: string) {
     }
   }
 
+  // CHECK: If the gift has already been redeemed
+  if (campaign.status === 'redeemed') {
+    return {
+      success: true,
+      data: campaign,
+    };
+  }
+
   // CHECK: If the gift hasn't been claimed yet, it shouldn't be redeemed
   if (
     campaign.status === 'active' ||
+    campaign.status === 'pending' ||
     !campaign.user_id ||
-    campaign.user_id === campaign.profiles.id
+    campaign.user_id === campaign.profiles?.id
   ) {
     return {
-      success: false,
-      error:
-        'This gift card is yet to be claimed by the recipient. Redemption is only possible after the gift has been claimed.',
+      success: true,
+      data: campaign,
     };
   }
 

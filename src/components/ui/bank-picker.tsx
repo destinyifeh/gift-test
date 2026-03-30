@@ -27,6 +27,7 @@ interface BankPickerProps {
   placeholder?: string;
   disabled?: boolean;
   className?: string;
+  variant?: 'default' | 'v2';
 }
 
 export function BankPicker({
@@ -37,24 +38,35 @@ export function BankPicker({
   placeholder = 'Select bank',
   disabled = false,
   className,
+  variant = 'default',
 }: BankPickerProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
 
+  // Deduplicate banks by code to prevent multiple selections
+  const uniqueBanks = useMemo(() => {
+    const seen = new Set<string>();
+    return banks.filter(bank => {
+      if (!bank.code || seen.has(bank.code)) return false;
+      seen.add(bank.code);
+      return true;
+    });
+  }, [banks]);
+
   const selectedBank = useMemo(
-    () => banks.find(b => b.code === value),
-    [banks, value],
+    () => uniqueBanks.find(b => b.code === value),
+    [uniqueBanks, value],
   );
 
   const filteredBanks = useMemo(() => {
-    if (!search.trim()) return banks;
+    if (!search.trim()) return uniqueBanks;
     const query = search.toLowerCase();
-    return banks.filter(
+    return uniqueBanks.filter(
       b =>
         b.name.toLowerCase().includes(query) ||
         b.code.toLowerCase().includes(query),
     );
-  }, [banks, search]);
+  }, [uniqueBanks, search]);
 
   // Reset search when modal closes
   useEffect(() => {
@@ -68,25 +80,51 @@ export function BankPicker({
     setOpen(false);
   };
 
+  const isV2 = variant === 'v2';
+
   return (
     <>
-      <Button
-        type="button"
-        variant="outline"
-        onClick={() => !disabled && setOpen(true)}
-        disabled={disabled || isLoading}
-        className={cn(
-          'w-full h-11 justify-start font-normal',
-          !selectedBank && 'text-muted-foreground',
-          className,
-        )}>
-        {isLoading ? (
-          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-        ) : (
-          <Building className="w-4 h-4 mr-2 text-muted-foreground" />
-        )}
-        {selectedBank ? selectedBank.name : placeholder}
-      </Button>
+      {isV2 ? (
+        <button
+          type="button"
+          onClick={() => !disabled && setOpen(true)}
+          disabled={disabled || isLoading}
+          className={cn(
+            'w-full h-12 px-4 rounded-xl bg-[var(--v2-surface-container-low)] text-left flex items-center gap-2 transition-colors hover:bg-[var(--v2-surface-container-high)] focus:ring-2 focus:ring-[var(--v2-primary)]',
+            !selectedBank && 'text-[var(--v2-on-surface-variant)]',
+            selectedBank && 'text-[var(--v2-on-surface)]',
+            (disabled || isLoading) && 'opacity-50 cursor-not-allowed',
+            className,
+          )}>
+          {isLoading ? (
+            <span className="v2-icon text-lg animate-spin text-[var(--v2-on-surface-variant)]">progress_activity</span>
+          ) : (
+            <span className="v2-icon text-lg text-[var(--v2-on-surface-variant)]">account_balance</span>
+          )}
+          <span className="flex-1 truncate font-medium">
+            {selectedBank ? selectedBank.name : placeholder}
+          </span>
+          <span className="v2-icon text-lg text-[var(--v2-on-surface-variant)]">expand_more</span>
+        </button>
+      ) : (
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => !disabled && setOpen(true)}
+          disabled={disabled || isLoading}
+          className={cn(
+            'w-full h-11 justify-start font-normal',
+            !selectedBank && 'text-muted-foreground',
+            className,
+          )}>
+          {isLoading ? (
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          ) : (
+            <Building className="w-4 h-4 mr-2 text-muted-foreground" />
+          )}
+          {selectedBank ? selectedBank.name : placeholder}
+        </Button>
+      )}
 
       <ResponsiveModal open={open} onOpenChange={setOpen}>
         <ResponsiveModalContent className="sm:max-w-md">
@@ -123,11 +161,11 @@ export function BankPicker({
                 </div>
               ) : (
                 <div className="space-y-1">
-                  {filteredBanks.map(bank => {
-                    const isSelected = bank.code === value;
+                  {filteredBanks.map((bank, index) => {
+                    const isSelected = value && bank.code === value;
                     return (
                       <button
-                        key={bank.id}
+                        key={`${bank.code}-${bank.id || index}`}
                         type="button"
                         onClick={() => handleSelect(bank)}
                         className={cn(

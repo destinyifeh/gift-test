@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Analytics Dashboard - GiftingPlatform</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#ffd5b5",
+                        "on-tertiary": "#fff1dd",
+                        "secondary-fixed-dim": "#ffb374",
+                        "on-secondary-fixed-variant": "#7c4200",
+                        "on-primary-fixed-variant": "#542200",
+                        "surface-container": "#ffe3cf",
+                        "inverse-on-surface": "#c79266",
+                        "on-secondary-fixed": "#522a00",
+                        "primary-container": "#f9873e",
+                        "primary": "#964300",
+                        "surface-bright": "#fff4ef",
+                        "surface-dim": "#ffcaa1",
+                        "on-primary": "#fff0e9",
+                        "secondary": "#8c4b00",
+                        "primary-fixed": "#f9873e",
+                        "on-background": "#492604",
+                        "primary-fixed-dim": "#e97b32",
+                        "secondary-fixed": "#ffc69a",
+                        "on-surface": "#492604",
+                        "primary-dim": "#843a00",
+                        "on-tertiary-container": "#573e00",
+                        "tertiary": "#775600",
+                        "surface-tint": "#964300",
+                        "error": "#b02500",
+                        "secondary-dim": "#7a4100",
+                        "on-tertiary-fixed-variant": "#624600",
+                        "tertiary-container": "#febf2a",
+                        "on-surface-variant": "#7d522b",
+                        "surface": "#fff4ef",
+                        "outline": "#9d6c44",
+                        "on-primary-fixed": "#100300",
+                        "inverse-surface": "#1b0a00",
+                        "secondary-container": "#ffc69a",
+                        "surface-container-high": "#ffdcc2",
+                        "on-tertiary-fixed": "#3e2b00",
+                        "outline-variant": "#d9a275",
+                        "tertiary-fixed": "#febf2a",
+                        "on-error": "#ffefec",
+                        "error-dim": "#b92902",
+                        "tertiary-fixed-dim": "#efb118",
+                        "surface-container-low": "#ffede2",
+                        "on-error-container": "#520c00",
+                        "error-container": "#f95630",
+                        "tertiary-dim": "#684b00",
+                        "on-secondary": "#fff0e7",
+                        "inverse-primary": "#f9873e",
+                        "surface-variant": "#ffd5b5",
+                        "background": "#fff4ef",
+                        "on-primary-container": "#451b00",
+                        "on-secondary-container": "#6e3a00"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #964300 0%, #f9873e 100%);
+        }
+        @media (max-width: 768px) {
+            .hide-on-mobile { display: none; }
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fff4ef]/80 backdrop-blur-md flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-4">
+<span class="text-xl font-black text-[#492604] dark:text-[#fff4ef] font-headline">GiftingPlatform</span>
+</div>
+<div class="hidden md:flex items-center gap-8">
+<nav class="flex gap-6">
+<a class="text-[#964300] font-bold border-b-2 border-[#964300] py-1 font-headline text-lg" href="#">Overview</a>
+<a class="text-[#7d522b] hover:bg-[#ffede2] transition-colors py-1 font-headline text-lg" href="#">Gifts</a>
+<a class="text-[#7d522b] hover:bg-[#ffede2] transition-colors py-1 font-headline text-lg" href="#">Campaigns</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-[#964300] hover:bg-[#ffede2] rounded-full transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-surface-container-highest overflow-hidden">
+<img alt="User profile" class="h-full w-full object-cover" data-alt="Close-up portrait of a professional man with a friendly expression, soft natural studio lighting, warm color tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxWoJTZCiJVudO7g1iFdMe0rFNYlPTmCm5tnyWkXy2Iu5PAR5F4FJFVZptx_q32g7C0NYqKdPCixVMAfeCSJi7WHoKKY8g9nQ53cVqcQhifUkNndI2cKx_jpxxX8WlRSY0G_EgT1UYbhnkNPLZWFCgEoC0l4eAfhrRSpJRBF2F7HvcK1fe3yRcafZbiXebHq8mI1rlo528k7zVgHkxCcqsPX6IDF54cj7-J5ID6YE7l3UlkLgcpPe2oZ8P3yKjSoIiBs-tjLdSkzE"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar (Desktop Only) -->
+<aside class="fixed left-0 top-0 pt-20 pb-8 h-screen w-64 hidden md:flex flex-col bg-[#ffede2] z-40">
+<div class="text-2xl font-bold text-[#492604] px-4 mb-2 font-headline">The Curator</div>
+<div class="text-xs text-on-surface-variant px-4 mb-8 font-label uppercase tracking-widest">Gifting Dashboard</div>
+<nav class="flex-1 space-y-1">
+<a class="bg-[#ffffff] text-[#964300] font-bold rounded-xl mx-2 px-4 py-3 shadow-sm flex items-center gap-3 transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-medium text-sm">Overview</span>
+</a>
+<a class="text-[#7d522b] mx-2 px-4 py-3 hover:bg-[#fff4ef]/50 flex items-center gap-3 transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">redeem</span>
+<span class="font-medium text-sm">Gifts</span>
+</a>
+<a class="text-[#7d522b] mx-2 px-4 py-3 hover:bg-[#fff4ef]/50 flex items-center gap-3 transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">campaign</span>
+<span class="font-medium text-sm">Campaigns</span>
+</a>
+<a class="text-[#7d522b] mx-2 px-4 py-3 hover:bg-[#fff4ef]/50 flex items-center gap-3 transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="font-medium text-sm">Wallet</span>
+</a>
+<a class="text-[#7d522b] mx-2 px-4 py-3 hover:bg-[#fff4ef]/50 flex items-center gap-3 transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-medium text-sm">Settings</span>
+</a>
+</nav>
+<div class="px-4 mt-auto">
+<button class="w-full bg-gradient-primary text-on-primary py-4 rounded-xl font-bold shadow-lg shadow-primary/20 flex items-center justify-center gap-2 transition-transform active:scale-95">
+<span class="material-symbols-outlined">add</span>
+<span>Create Gift</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="pt-24 pb-32 md:pb-8 md:pl-72 px-6">
+<header class="mb-10">
+<h1 class="text-4xl md:text-5xl font-extrabold font-headline text-on-surface tracking-tight mb-2">Analytics</h1>
+<p class="text-on-surface-variant font-body">Real-time performance of your curated gifting campaigns.</p>
+</header>
+<!-- Bento Grid Metrics -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+<!-- Metric 1 -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl flex flex-col justify-between min-h-[160px]">
+<div class="flex justify-between items-start">
+<span class="text-on-surface-variant font-label font-bold text-sm">Total Received</span>
+<span class="p-2 bg-surface-container text-primary rounded-xl material-symbols-outlined">payments</span>
+</div>
+<div>
+<div class="text-3xl font-black font-headline text-primary">$12,480.00</div>
+<div class="flex items-center gap-1 mt-1">
+<span class="text-secondary font-bold text-sm">+14%</span>
+<span class="text-on-surface-variant text-xs font-label">vs last month</span>
+</div>
+</div>
+</div>
+<!-- Metric 2 -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl flex flex-col justify-between min-h-[160px]">
+<div class="flex justify-between items-start">
+<span class="text-on-surface-variant font-label font-bold text-sm">Supporter Count</span>
+<span class="p-2 bg-surface-container text-primary rounded-xl material-symbols-outlined">group</span>
+</div>
+<div>
+<div class="text-3xl font-black font-headline text-on-surface">842</div>
+<div class="flex items-center gap-1 mt-1">
+<span class="text-secondary font-bold text-sm">+8%</span>
+<span class="text-on-surface-variant text-xs font-label">new this week</span>
+</div>
+</div>
+</div>
+<!-- Metric 3 -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl flex flex-col justify-between min-h-[160px]">
+<div class="flex justify-between items-start">
+<span class="text-on-surface-variant font-label font-bold text-sm">Page Views</span>
+<span class="p-2 bg-surface-container text-primary rounded-xl material-symbols-outlined">visibility</span>
+</div>
+<div>
+<div class="text-3xl font-black font-headline text-on-surface">15.2k</div>
+<div class="flex items-center gap-1 mt-1">
+<span class="text-secondary font-bold text-sm">+22%</span>
+<span class="text-on-surface-variant text-xs font-label">organic growth</span>
+</div>
+</div>
+</div>
+<!-- Metric 4 -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl flex flex-col justify-between min-h-[160px]">
+<div class="flex justify-between items-start">
+<span class="text-on-surface-variant font-label font-bold text-sm">Conversion Rate</span>
+<span class="p-2 bg-surface-container text-primary rounded-xl material-symbols-outlined">auto_graph</span>
+</div>
+<div>
+<div class="text-3xl font-black font-headline text-on-surface">5.4%</div>
+<div class="flex items-center gap-1 mt-1">
+<span class="text-secondary font-bold text-sm">+1.2%</span>
+<span class="text-on-surface-variant text-xs font-label">optimized</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Activity Trends Chart (Asymmetric Layout) -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="lg:col-span-2 bg-surface-container-lowest p-8 rounded-3xl">
+<div class="flex justify-between items-center mb-10">
+<div>
+<h2 class="text-2xl font-bold font-headline text-on-surface">Last 7 Days</h2>
+<p class="text-on-surface-variant text-sm">Gifting activity and interaction trends</p>
+</div>
+<div class="flex gap-2">
+<button class="px-4 py-2 bg-surface-container-low text-on-surface-variant rounded-full text-sm font-bold">Week</button>
+<button class="px-4 py-2 text-on-surface-variant hover:bg-surface-container-low rounded-full text-sm font-bold transition-colors">Month</button>
+</div>
+</div>
+<!-- Custom SVG Bar Chart for Visual Fidelity -->
+<div class="h-64 flex items-end justify-between gap-4 px-2">
+<div class="flex-1 flex flex-col items-center gap-4 group">
+<div class="w-full bg-surface-container-high rounded-t-xl group-hover:bg-primary-container transition-colors" style="height: 60%;"></div>
+<span class="text-xs font-label font-bold text-on-surface-variant">Mon</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-4 group">
+<div class="w-full bg-surface-container-high rounded-t-xl group-hover:bg-primary-container transition-colors" style="height: 45%;"></div>
+<span class="text-xs font-label font-bold text-on-surface-variant">Tue</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-4 group">
+<div class="w-full bg-surface-container-high rounded-t-xl group-hover:bg-primary-container transition-colors" style="height: 85%;"></div>
+<span class="text-xs font-label font-bold text-on-surface-variant">Wed</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-4 group">
+<div class="w-full bg-primary rounded-t-xl shadow-lg shadow-primary/20" style="height: 100%;"></div>
+<span class="text-xs font-label font-bold text-primary">Thu</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-4 group">
+<div class="w-full bg-surface-container-high rounded-t-xl group-hover:bg-primary-container transition-colors" style="height: 55%;"></div>
+<span class="text-xs font-label font-bold text-on-surface-variant">Fri</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-4 group">
+<div class="w-full bg-surface-container-high rounded-t-xl group-hover:bg-primary-container transition-colors" style="height: 70%;"></div>
+<span class="text-xs font-label font-bold text-on-surface-variant">Sat</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-4 group">
+<div class="w-full bg-surface-container-high rounded-t-xl group-hover:bg-primary-container transition-colors" style="height: 40%;"></div>
+<span class="text-xs font-label font-bold text-on-surface-variant">Sun</span>
+</div>
+</div>
+</div>
+<div class="lg:col-span-1 space-y-6">
+<!-- Top Gifts Card -->
+<div class="bg-surface-container-low p-6 rounded-3xl">
+<h3 class="font-headline font-bold text-lg mb-6">Top Gifting Tiers</h3>
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-tertiary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-tertiary-container" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="font-medium text-sm">Premium Curator</span>
+</div>
+<span class="font-bold text-primary">$450</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-outline">favorite</span>
+</div>
+<span class="font-medium text-sm">Monthly Fan</span>
+</div>
+<span class="font-bold text-primary">$120</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-outline">coffee</span>
+</div>
+<span class="font-medium text-sm">Quick Support</span>
+</div>
+<span class="font-bold text-primary">$45</span>
+</div>
+</div>
+</div>
+<!-- Recent Supporter Card -->
+<div class="bg-primary text-on-primary p-6 rounded-3xl flex flex-col items-center text-center">
+<div class="relative mb-4">
+<img alt="Recent supporter" class="w-20 h-20 rounded-full border-4 border-on-primary object-cover" data-alt="Softly lit cinematic portrait of a creative woman looking thoughtfully into distance, warm afternoon sunlight background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCwdUAwHNNDgJqODZK1OhI8bSVd5bQYqzghZyf4hkCyq07aEaplCytUJltI50fUW4fj5mZSt_xSUwBotmUpolYR_k6WFfptn51RMYZPHDxJiz44iJQEYMRaLcptO8cLddeifGEE5eN78lX6lNUmZJj9I151-aUUi9c42Vt7T1oFmbcd1q7tNK2ho1y86uaTQJjhhE5JTmFbRFpruwew-ecOJBAtfYWToRduozhQ8EcwX8BF_hvXQn3jsnAYvT5BzgAXOhzlrb9VKw"/>
+<div class="absolute -bottom-2 -right-2 bg-secondary rounded-full p-1 border-2 border-primary">
+<span class="material-symbols-outlined text-xs">verified</span>
+</div>
+</div>
+<h4 class="font-headline font-bold">New Platinum Supporter</h4>
+<p class="text-on-primary/80 text-sm mb-4">Elena just gifted $250.00 to your "Summer Art Series" campaign.</p>
+<button class="w-full bg-on-primary text-primary font-bold py-2 rounded-xl text-sm hover:bg-surface-container-lowest transition-colors">
+                        Send Thank You
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pt-3 pb-6 bg-[#fff4ef]/90 backdrop-blur-xl rounded-t-3xl shadow-[0_-10px_40px_rgba(73,38,4,0.06)] md:hidden z-50">
+<a class="flex flex-col items-center justify-center bg-[#964300] text-white rounded-2xl p-3 mb-1 scale-90 active:scale-100 transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-['Manrope'] text-[11px] font-semibold">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#7d522b] p-2 active:bg-[#ffede2] scale-90 active:scale-100 transition-all" href="#">
+<span class="material-symbols-outlined">redeem</span>
+<span class="font-['Manrope'] text-[11px] font-semibold">Gifts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#7d522b] p-2 active:bg-[#ffede2] scale-90 active:scale-100 transition-all" href="#">
+<span class="material-symbols-outlined">campaign</span>
+<span class="font-['Manrope'] text-[11px] font-semibold">Campaigns</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#7d522b] p-2 active:bg-[#ffede2] scale-90 active:scale-100 transition-all" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="font-['Manrope'] text-[11px] font-semibold">Wallet</span>
+</a>
+</nav>
+</body></html>
