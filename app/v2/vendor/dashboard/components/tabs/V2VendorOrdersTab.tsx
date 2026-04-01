@@ -4,15 +4,24 @@ import {useProfile} from '@/hooks/use-profile';
 import {useVendorOrders} from '@/hooks/use-vendor';
 import {getCurrencyByCountry} from '@/lib/currencies';
 import {formatCurrency} from '@/lib/utils/currency';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 
 type OrderStatus = 'all' | 'active' | 'claimed' | 'redeemed';
 
-export function V2VendorOrdersTab() {
+interface V2VendorOrdersTabProps {
+  searchQuery?: string;
+}
+
+export function V2VendorOrdersTab({searchQuery = ''}: V2VendorOrdersTabProps) {
   const {data: profile} = useProfile();
   const {data: orders = [], isLoading} = useVendorOrders();
   const [statusFilter, setStatusFilter] = useState<OrderStatus>('all');
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(searchQuery);
+
+  // Sync with parent search query
+  useEffect(() => {
+    if (searchQuery) setSearch(searchQuery);
+  }, [searchQuery]);
 
   const currency = getCurrencyByCountry(profile?.country || 'Nigeria');
 

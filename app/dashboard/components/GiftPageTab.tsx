@@ -359,8 +359,8 @@ export function GiftPageTab({creatorPlan, setCreatorPlan}: GiftPageTabProps) {
       <SettingsSection title="Gift Options" icon={<Eye className="w-4 h-4" />}>
         <div className="flex items-center justify-between py-2">
           <div>
-            <p className="font-medium text-foreground text-sm">Accept money gifts</p>
-            <p className="text-xs text-muted-foreground">People can send you money directly</p>
+            <p className="font-medium text-foreground text-sm">Accept cash gifts</p>
+            <p className="text-xs text-muted-foreground">People can send you cash directly</p>
           </div>
           <Switch checked={acceptMoney} onCheckedChange={setAcceptMoney} />
         </div>

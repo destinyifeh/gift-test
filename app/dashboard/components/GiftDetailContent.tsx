@@ -70,7 +70,7 @@ export function GiftDetailContent({
           <Gift className="w-32 h-32 rotate-12" />
         </div>
         <Badge variant="outline" className="bg-white/20 border-white/30 text-white mb-3">
-          {selectedGift.claimable_type === 'money' ? 'Monetary Gift' : 'Gift Card'}
+          {selectedGift.claimable_type === 'money' ? 'Cash Gift' : 'Gift Card'}
         </Badge>
         <h2 className="text-xl font-bold tracking-tight text-white mb-1">
           {selectedGift.name}

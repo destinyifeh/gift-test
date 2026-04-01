@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@700;800;900&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-dim": "#824b00",
+              "on-surface-variant": "#656461",
+              "on-tertiary-container": "#513d00",
+              "surface-dim": "#e5e2dc",
+              "tertiary-fixed-dim": "#e3b213",
+              "on-primary-fixed": "#0f0400",
+              "surface-tint": "#9d4f00",
+              "on-primary": "#ffffff",
+              "secondary": "#935600",
+              "surface": "#fffcf7",
+              "surface-container-highest": "#eae8e2",
+              "on-error-container": "#520c00",
+              "tertiary": "#7d6000",
+              "error": "#be2d06",
+              "primary-dim": "#8b4500",
+              "primary-container": "#f68a2f",
+              "on-surface": "#383835",
+              "surface-variant": "#eae8e2",
+              "error-dim": "#b92902",
+              "surface-container": "#f6f3ee",
+              "surface-container-high": "#f0eee8",
+              "outline": "#82807c",
+              "on-secondary-container": "#6a3c00",
+              "tertiary-container": "#f2c026",
+              "surface-bright": "#fffcf7",
+              "error-container": "#f95630",
+              "inverse-primary": "#f68a2f",
+              "secondary-container": "#ffc791",
+              "primary-fixed": "#f68a2f",
+              "outline-variant": "#bbb9b4",
+              "tertiary-dim": "#6e5500",
+              "primary-fixed-dim": "#e57d21",
+              "on-tertiary-fixed": "#392a00",
+              "inverse-surface": "#0e0e0c",
+              "background": "#fffcf7",
+              "surface-container-lowest": "#ffffff",
+              "on-primary-fixed-variant": "#502500",
+              "on-error": "#ffffff",
+              "primary": "#9d4f00",
+              "on-primary-container": "#421e00",
+              "surface-container-low": "#fcf9f4",
+              "secondary-fixed-dim": "#ffb466",
+              "on-background": "#383835",
+              "tertiary-fixed": "#f2c026",
+              "inverse-on-surface": "#9e9d98",
+              "on-tertiary": "#ffffff",
+              "secondary-fixed": "#ffc791",
+              "on-secondary": "#ffffff",
+              "on-secondary-fixed": "#4f2c00",
+              "on-tertiary-fixed-variant": "#5c4600",
+              "on-secondary-fixed-variant": "#774500"
+            },
+            fontFamily: {
+              "headline": ["Epilogue"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface min-h-screen pb-24">
+<!-- TopNavBar (Mobile Adaptation) -->
+<nav class="sticky top-0 z-40 bg-[#f6f3ee] dark:bg-stone-900/50 backdrop-blur-md flex justify-between items-center w-full px-6 py-4">
+<div class="flex flex-col">
+<span class="text-2xl font-black text-[#9d4f00] dark:text-orange-500 tracking-tight font-headline">Gifthance</span>
+<span class="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant">Editorial Admin</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2 rounded-full hover:bg-orange-50 transition-colors text-[#9d4f00] active:scale-95 duration-150">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full overflow-hidden bg-primary-container/20">
+<img alt="Admin User Profile" class="w-full h-full object-cover" data-alt="Close up professional portrait of a woman with a warm smile and confident gaze in a minimalist studio setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTyreW1c8tlbNU35giQJOW32JpCdLPYB7mZu2UgeK53YpYVabGd7tD7P86BUA85xV6E-HwvdqOWYw0X_Y-R95nVg1NOdDuCsZSedDaoAEZLR7BN-zgh88yrCl19XDvDMT4xwVzrCJ02qzjBJ_u2n-nvM9zC1SKMZuKVXNObRcq_WMemVd0MIuqpB0LTGm096GFDCx0FR4ZNHpz_UrmC5zcUZr6lShZTNvprYttJKIN2weYDUknycWijpElbuaCb4M3OFxCrMdXX8c"/>
+</div>
+</div>
+</nav>
+<main class="px-6 py-4 space-y-8">
+<!-- Page Title -->
+<header class="space-y-1">
+<h1 class="text-3xl font-black font-headline text-on-surface leading-tight">Reports &amp; Logs</h1>
+<p class="text-on-surface-variant text-sm font-medium">Performance insights for the last 30 days.</p>
+</header>
+<!-- Horizontal Scrollable Power Metrics -->
+<section class="overflow-x-auto flex gap-4 hide-scrollbar -mx-6 px-6">
+<!-- Power Metric Card -->
+<div class="min-w-[280px] bg-primary-container p-8 rounded-xl shadow-lg shadow-orange-500/10 flex flex-col justify-between aspect-[4/3] relative overflow-hidden">
+<div class="absolute -right-4 -top-4 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+<div class="space-y-1">
+<span class="text-on-primary-container/80 text-xs font-bold uppercase tracking-wider">Total Revenue</span>
+<h2 class="text-4xl font-black font-headline text-on-primary-container">$124,802</h2>
+</div>
+<div class="flex items-center gap-2 bg-on-primary-container/10 self-start px-3 py-1 rounded-full">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">trending_up</span>
+<span class="text-xs font-bold text-on-primary-container">+14.2%</span>
+</div>
+</div>
+<div class="min-w-[280px] bg-surface-container-high p-8 rounded-xl flex flex-col justify-between aspect-[4/3]">
+<div class="space-y-1">
+<span class="text-on-surface-variant text-xs font-bold uppercase tracking-wider font-label">Active Campaigns</span>
+<h2 class="text-4xl font-black font-headline text-on-surface">42</h2>
+</div>
+<div class="flex items-center gap-2 bg-primary/10 self-start px-3 py-1 rounded-full">
+<span class="material-symbols-outlined text-sm text-primary">campaign</span>
+<span class="text-xs font-bold text-primary">8 new this week</span>
+</div>
+</div>
+<div class="min-w-[280px] bg-surface-container-high p-8 rounded-xl flex flex-col justify-between aspect-[4/3]">
+<div class="space-y-1">
+<span class="text-on-surface-variant text-xs font-bold uppercase tracking-wider font-label">Gift Redemption</span>
+<h2 class="text-4xl font-black font-headline text-on-surface">92%</h2>
+</div>
+<div class="flex items-center gap-2 bg-green-100 self-start px-3 py-1 rounded-full">
+<span class="material-symbols-outlined text-sm text-green-700" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-xs font-bold text-green-700">Optimal</span>
+</div>
+</div>
+</section>
+<!-- Revenue Trend - Simplified Chart Visual -->
+<section class="space-y-4">
+<div class="flex justify-between items-end">
+<h3 class="text-xl font-bold font-headline">Revenue Trend</h3>
+<span class="text-xs font-bold text-primary px-3 py-1 bg-primary/10 rounded-full">Monthly</span>
+</div>
+<div class="w-full h-48 bg-surface-container-lowest rounded-xl p-6 flex flex-col justify-end">
+<div class="flex items-end justify-between h-full gap-2">
+<div class="w-full bg-surface-container rounded-t-lg transition-all hover:bg-primary-container/40" style="height: 40%;"></div>
+<div class="w-full bg-surface-container rounded-t-lg transition-all hover:bg-primary-container/40" style="height: 65%;"></div>
+<div class="w-full bg-surface-container rounded-t-lg transition-all hover:bg-primary-container/40" style="height: 50%;"></div>
+<div class="w-full bg-surface-container rounded-t-lg transition-all hover:bg-primary-container/40" style="height: 85%;"></div>
+<div class="w-full bg-primary-container rounded-t-lg shadow-lg shadow-orange-500/20" style="height: 100%;"></div>
+<div class="w-full bg-surface-container rounded-t-lg transition-all hover:bg-primary-container/40" style="height: 70%;"></div>
+<div class="w-full bg-surface-container rounded-t-lg transition-all hover:bg-primary-container/40" style="height: 90%;"></div>
+</div>
+<div class="flex justify-between mt-4 text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-tighter">
+<span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+</div>
+</div>
+</section>
+<!-- Top Creators List -->
+<section class="space-y-4">
+<div class="flex justify-between items-center">
+<h3 class="text-xl font-bold font-headline">Top Creators</h3>
+<button class="text-xs font-bold text-primary">View All</button>
+</div>
+<div class="space-y-3">
+<!-- Creator Row -->
+<div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg transition-all hover:bg-white active:scale-[0.98]">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full overflow-hidden">
+<img alt="Creator Profile" class="w-full h-full object-cover" data-alt="Vibrant portrait of a young digital artist with colorful studio lighting and creative accessories" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDX-f2RLHfKv34LJT9CcIXxuRfojw8w-KmSOEpKUz0S81Hq1h8REj2bMYJpcW5tkPV8stpLKytHR3IHxVhVolugt_CHqBciJcmJYuYYwG6-dz4QjL6Kx4zcrWs6vQ8ks7cmP521mfLe0bn1NztUSmFYzCD32WEogU-UpJRgqDILQkq-8KEzLvs6QzkneL_NYX9OsgjzMyzNTZxpo5qflMirqPKCd9af9CBOeLOcNEapB-x0kXjecxdobaJVtK3TJhKhWfaXrcl7JSU"/>
+</div>
+<div>
+<p class="font-bold text-on-surface">Alex Rivera</p>
+<p class="text-xs text-on-surface-variant font-medium">Digital Arts Campaign</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-black text-on-surface">$12,400</p>
+<p class="text-[10px] font-bold text-green-600 uppercase">Top 1%</p>
+</div>
+</div>
+<!-- Creator Row -->
+<div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg transition-all hover:bg-white active:scale-[0.98]">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full overflow-hidden">
+<img alt="Creator Profile" class="w-full h-full object-cover" data-alt="Close up of a lifestyle influencer in a bright modern kitchen, softly lit with natural morning sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmWvQz-Br0OcpZX75MhxYovodsghNGhJKY_R7gPieGj05XOhwiq_l6RjfD_T_U-fsz1ec6W2Y-2iqAt5GgGro4lqbNSBtDf34X2USL6JXtUS6aRBCEgacFmC0IU9kze-16VKDCSbe_VyC60XAWuhbQZn2UBh-OmXNGdguegtTPtsgOY4QrXEz0OZ0uiTUtxmBUR9NLp-MBUlUVzNlJN1NcWHjXTi-hxXgp5w-4schlgDBBVv7jMF6m74Co8-xfy-joyD2ocutWPtA"/>
+</div>
+<div>
+<p class="font-bold text-on-surface">Sarah Chen</p>
+<p class="text-xs text-on-surface-variant font-medium">Eco-Gift Initiative</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-black text-on-surface">$9,850</p>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase">Stable</p>
+</div>
+</div>
+<!-- Creator Row -->
+<div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg transition-all hover:bg-white active:scale-[0.98]">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full overflow-hidden">
+<img alt="Creator Profile" class="w-full h-full object-cover" data-alt="Portrait of a young tech entrepreneur in a modern office with sleek tech equipment and glass walls" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRTDQoayRTqa9ng7VfeBJMS0LHHd753y3_SVx1fyVF27oZZpqqIjopLpJWY_3NcC8lF1YJCPLAaRr2fLvA3eFCazmcx8UgcUESUR0RcothJDqxzm-pAmBFYmN4-K7pMObxW8mGPwH6gWe-8TOnLTm9Z9cBOf6QyeREyYdMmyta0HNpQsjoXeFXS3XNLisCmrqEe7B1KhhZhBu7IsUp3NRuJHWRAs5Nt5xQet5ClnGs4fktOcvbsTtAsxRIamcgF8Sl6LcX-92LvSQ"/>
+</div>
+<div>
+<p class="font-bold text-on-surface">Marcus T.</p>
+<p class="text-xs text-on-surface-variant font-medium">Tech Gear 2024</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-black text-on-surface">$8,200</p>
+<p class="text-[10px] font-bold text-primary uppercase">Trending</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Active Campaigns Vertical List -->
+<section class="space-y-4">
+<h3 class="text-xl font-bold font-headline">Hot Campaigns</h3>
+<div class="space-y-4">
+<div class="relative w-full aspect-[16/9] rounded-xl overflow-hidden group">
+<img alt="Campaign Banner" class="w-full h-full object-cover" data-alt="Festive celebration background with colorful confetti and elegant gift boxes in soft focus" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBL2GTUwjFG6U4aKl-71dSCu5d1wL_WbvJ70WP4aOwS0cL9T-T-WxRbj9LaVjs_DDsOC0gvCZIdLp-5frR73-soLvLksHfAnespBjs1SSJJydCLxgFtYuZxjUhN4dEZbza2HxAtiZDKr0yOe9eJrbIC3nllMie_sFsPoLnRbEf1ULCwZnmKoOXraivq41UNvGb-sQrLoAAkLZ6wTjnFa1E2kfmGV4hJBRbUS3bhKMCO175-Kab4laKFfAiAxZwIZ3G5mAKfRh3g9R8"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6">
+<span class="bg-primary px-2 py-1 rounded text-[10px] font-bold text-white self-start mb-2 uppercase tracking-widest">Active Now</span>
+<h4 class="text-white font-headline font-black text-xl">Summer Joy 2024</h4>
+<div class="flex justify-between items-center mt-2">
+<p class="text-white/80 text-xs font-medium">1,200 Gifts Sent</p>
+<div class="flex -space-x-2">
+<img alt="u1" class="w-6 h-6 rounded-full border-2 border-black" data-alt="Portrait of a user avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAouvHLUwY9EvJ8zNlbapTrHVfL-CIz_dEF9JSo8s1oxbbJfmYuqyokS8XOxfxU8hxWdiRoRvxmChvrRSWN97aypkFeAa0jojeWwTt091YeheFralSaDMklOnyZFUP7PNmTS0kuKNAH8aDcIOemg9Si5dxvR5Z8ESPwZbP-fButdGfRHKha_NL0QlEB9TMDDDGbQIUd3Yro80ztvzJupq11eDi_a48aeNXvtNcFZs890Xop_-oEHHiOXLoIwDcMr1_IzSOg54n9bR8"/>
+<img alt="u2" class="w-6 h-6 rounded-full border-2 border-black" data-alt="Portrait of a user avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6IYV13hG4uxIQz206iJWxyV9KbTiQ6uyf-T8ufUPx8xdFZKe5tvlCVY8oipMU9k4VJAoQBMXwVuZCH1HBZ132bfg1UW4fs_T8bHawIKxJJ-hHnxk6pwUYpqrX0LP-8SBztvIRnLz0rntdl278meId8owUJ7mV97UUYPXRKY90wXazGWKMnjq7kcoL9FXY4rvq6j_SIZ6pIVuuEx95E6YzrcSRA-LEFS5_Thpb5Gpth-kVkDSIqx9LRkg5QBTBisvpc-vcS531k10"/>
+<div class="w-6 h-6 rounded-full bg-primary-container border-2 border-black flex items-center justify-center text-[8px] font-bold text-on-primary-container">+4k</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (The Anchor) -->
+<nav class="fixed bottom-0 left-0 right-0 bg-[#f6f3ee] dark:bg-stone-900 px-6 py-4 flex justify-between items-center z-50 rounded-t-xl shadow-[0_-8px_32px_rgba(56,56,53,0.06)] md:hidden">
+<a class="flex flex-col items-center gap-1 transition-all duration-300 text-[#383835] dark:text-stone-400 hover:text-[#9d4f00]" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-bold font-label">Dashboard</span>
+</a>
+<a class="flex flex-col items-center gap-1 transition-all duration-300 text-[#383835] dark:text-stone-400 hover:text-[#9d4f00]" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="text-[10px] font-bold font-label">Users</span>
+</a>
+<a class="flex flex-col items-center gap-1 transition-all duration-300 text-[#383835] dark:text-stone-400 hover:text-[#9d4f00]" href="#">
+<span class="material-symbols-outlined">campaign</span>
+<span class="text-[10px] font-bold font-label">Campaigns</span>
+</a>
+<a class="flex flex-col items-center gap-1 transition-all duration-300 text-[#383835] dark:text-stone-400 hover:text-[#9d4f00]" href="#">
+<span class="material-symbols-outlined">redeem</span>
+<span class="text-[10px] font-bold font-label">Gifts</span>
+</a>
+<a class="flex flex-col items-center gap-1 transition-all duration-300 bg-gradient-to-r from-[#9d4f00] to-[#f68a2f] text-white rounded-full shadow-lg shadow-orange-500/20 px-4 py-2 translate-y-[-4px]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
+<span class="text-[10px] font-bold font-label">Reports</span>
+</a>
+</nav>
+</body></html>

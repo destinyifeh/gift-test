@@ -299,7 +299,7 @@ function V2DashboardContent() {
         </header>
 
         {/* Tab Content */}
-        <div className="p-4 md:p-6 max-w-4xl">
+        <div className="p-4 md:p-8 max-w-6xl mx-auto">
           {section === 'overview' && (
             <V2OverviewTab
               creatorEnabled={isEffectivelyCreator}

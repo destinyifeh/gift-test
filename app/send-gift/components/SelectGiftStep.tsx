@@ -16,7 +16,7 @@ export function SelectGiftStep({giftType, setGiftType}: SelectGiftStepProps) {
           Choose a Gift Type
         </h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          Send a specific vendor gift card, or let them decide with a monetary gift.
+          Send a specific vendor gift card, or let them decide with a cash gift.
         </p>
       </div>
 
@@ -52,7 +52,7 @@ export function SelectGiftStep({giftType, setGiftType}: SelectGiftStepProps) {
             <CreditCard className="w-8 h-8" />
           </div>
           <div className="text-center">
-            <h3 className="font-bold text-foreground">Money Gift</h3>
+            <h3 className="font-bold text-foreground">Cash Gift</h3>
             <p className="text-xs text-muted-foreground mt-1">Flexible cash gift they can use anywhere.</p>
           </div>
         </motion.button>

@@ -101,7 +101,7 @@ export async function claimGiftByCode(code: string) {
       type: isMoney ? TX_CREATOR_SUPPORT : TX_RECEIPT, // creator_support contributes to balance in this system
       status: 'success',
       reference: `claim-${code}-${Date.now()}`,
-      description: `Claimed ${isMoney ? 'monetary gift' : 'gift card'}: ${code}`,
+      description: `Claimed ${isMoney ? 'cash gift' : 'gift card'}: ${code}`,
     })
     .select()
     .single();
@@ -121,7 +121,7 @@ export async function claimGiftByCode(code: string) {
         currency: gift.currency || 'NGN',
         donor_name: (gift as any).sender_name || 'A Friend',
         donor_email: (gift as any).sender_email || '',
-        message: (gift as any).message || 'Claimed monetary gift',
+        message: (gift as any).message || 'Claimed cash gift',
       });
 
     if (supportError) {

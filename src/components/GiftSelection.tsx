@@ -100,8 +100,8 @@ const GiftSelection = ({
 
         {campaignTitle && (
           <div className="flex items-center gap-2 py-4 mb-2 text-sm font-bold text-foreground border-b border-border/50">
-            <CreditCard className="w-5 h-5 text-primary" /> Monetary
-            Contribution
+            <CreditCard className="w-5 h-5 text-primary" /> Cash
+            Gift
           </div>
         )}
 

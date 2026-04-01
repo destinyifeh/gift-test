@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gifthance Admin Dashboard</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@700;800;900&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-dim": "#824b00",
+              "surface-container-low": "#fcf9f4",
+              "tertiary-dim": "#6e5500",
+              "primary-fixed": "#f68a2f",
+              "tertiary-container": "#f2c026",
+              "primary": "#9d4f00",
+              "on-secondary-fixed": "#4f2c00",
+              "surface-tint": "#9d4f00",
+              "background": "#fffcf7",
+              "primary-dim": "#8b4500",
+              "inverse-surface": "#0e0e0c",
+              "surface-container": "#f6f3ee",
+              "inverse-on-surface": "#9e9d98",
+              "outline-variant": "#bbb9b4",
+              "on-tertiary-fixed-variant": "#5c4600",
+              "on-background": "#383835",
+              "on-secondary-container": "#6a3c00",
+              "on-secondary": "#ffffff",
+              "inverse-primary": "#f68a2f",
+              "on-primary": "#ffffff",
+              "secondary-fixed": "#ffc791",
+              "secondary": "#935600",
+              "on-primary-fixed": "#0f0400",
+              "on-tertiary-fixed": "#392a00",
+              "error-container": "#f95630",
+              "error-dim": "#b92902",
+              "primary-fixed-dim": "#e57d21",
+              "on-surface": "#383835",
+              "outline": "#82807c",
+              "tertiary-fixed": "#f2c026",
+              "error": "#be2d06",
+              "on-primary-container": "#421e00",
+              "surface": "#fffcf7",
+              "surface-container-lowest": "#ffffff",
+              "on-error-container": "#520c00",
+              "surface-container-highest": "#eae8e2",
+              "tertiary-fixed-dim": "#e3b213",
+              "primary-container": "#f68a2f",
+              "surface-dim": "#e5e2dc",
+              "on-tertiary-container": "#513d00",
+              "surface-variant": "#eae8e2",
+              "on-primary-fixed-variant": "#502500",
+              "on-secondary-fixed-variant": "#774500",
+              "surface-container-high": "#f0eee8",
+              "surface-bright": "#fffcf7",
+              "secondary-container": "#ffc791",
+              "tertiary": "#7d6000",
+              "on-tertiary": "#ffffff",
+              "secondary-fixed-dim": "#ffb466",
+              "on-error": "#ffffff",
+              "on-surface-variant": "#656461"
+            },
+            fontFamily: {
+              "headline": ["Epilogue"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body selection:bg-primary-container/30">
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 w-full h-20 z-40 bg-white/80 backdrop-blur-xl flex justify-between items-center px-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-gradient-to-br from-primary to-primary-container rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">redeem</span>
+</div>
+<h1 class="text-xl font-headline font-black text-on-surface tracking-tight">Gifthance</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container text-on-surface hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container/20">
+<img alt="Rita Obade" class="w-full h-full object-cover" data-alt="Close up portrait of a professional woman with a warm smile, soft natural lighting, high-end editorial photography style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7Y0lX--XtWy7Bx98sGEHCuxPm6-SfCVhspVMlrsF25Y7qcMiizYq1UIt55Tfiuv70veG7gnYZ3YaDAsMy1_isA1oGEDwOAP7Jg9otofedIsVfesgATa5ya30CnuiwGWoujopVsUUZfHkCcnbMhYhBKYzlakfQRNtu8FPOeXIRTIhHVCE48zTHPGn00qbKaPcW3cIiNpqLYgE_aS4nYjkoYi518XTUF6Jvgr2hTUaEHyAD3Xnf4_cT5oT7gighoJ-0vldV8WeIMuo"/>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6">
+<!-- Search Bar Section -->
+<section class="mb-8">
+<div class="relative group">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline">search</span>
+<input class="w-full bg-surface-container border-none rounded-full py-4 pl-12 pr-6 text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary-container/20 transition-all font-medium" placeholder="Search campaigns or users..." type="text"/>
+</div>
+</section>
+<!-- Welcome Message -->
+<section class="mb-8">
+<p class="text-sm font-label font-bold text-primary uppercase tracking-widest mb-1">Editorial Admin</p>
+<h2 class="text-3xl font-headline font-extrabold text-on-surface">Hello, Rita</h2>
+</section>
+<!-- Quick Stats Bento-ish Stack -->
+<section class="grid grid-cols-1 gap-4 mb-10">
+<!-- Power Metric -->
+<div class="bg-primary-container rounded-xl p-6 shadow-2xl shadow-primary-container/20 relative overflow-hidden group">
+<div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+<span class="material-symbols-outlined text-9xl">payments</span>
+</div>
+<div class="flex justify-between items-start mb-4">
+<span class="bg-white/20 p-2 rounded-lg text-white material-symbols-outlined">trending_up</span>
+<span class="text-white/80 font-bold text-xs uppercase tracking-tighter bg-white/10 px-2 py-1 rounded">+12.4%</span>
+</div>
+<p class="text-white/80 font-medium text-sm">Total Revenue</p>
+<p class="text-white text-4xl font-headline font-black mt-1">$48,290</p>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm">
+<div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center mb-3">
+<span class="material-symbols-outlined">storefront</span>
+</div>
+<p class="text-on-surface-variant text-xs font-bold uppercase tracking-tight">Vendors</p>
+<p class="text-2xl font-headline font-bold text-on-surface mt-1">124</p>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm">
+<div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center mb-3">
+<span class="material-symbols-outlined">featured_seasonal_and_gifts</span>
+</div>
+<p class="text-on-surface-variant text-xs font-bold uppercase tracking-tight">Gifts</p>
+<p class="text-2xl font-headline font-bold text-on-surface mt-1">852</p>
+</div>
+</div>
+<div class="bg-surface-container rounded-xl p-5 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-on-surface text-white rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">verified</span>
+</div>
+<div>
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-tighter">Approvals Pending</p>
+<p class="text-xl font-headline font-bold">14 Items</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</div>
+</section>
+<!-- System Growth Chart Section -->
+<section class="mb-10">
+<div class="flex justify-between items-end mb-6">
+<h3 class="text-xl font-headline font-bold">System Growth</h3>
+<span class="text-xs font-bold text-primary uppercase">Last 7 Days</span>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-6 overflow-hidden">
+<div class="flex items-end justify-between h-40 gap-2 overflow-x-auto hide-scrollbar">
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-primary/10 rounded-t-full h-[40%]"></div>
+<span class="text-[10px] font-bold text-on-surface-variant">M</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-primary/10 rounded-t-full h-[60%]"></div>
+<span class="text-[10px] font-bold text-on-surface-variant">T</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-primary-container rounded-t-full h-[85%]"></div>
+<span class="text-[10px] font-bold text-on-surface">W</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-primary/10 rounded-t-full h-[55%]"></div>
+<span class="text-[10px] font-bold text-on-surface-variant">T</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-primary/10 rounded-t-full h-[70%]"></div>
+<span class="text-[10px] font-bold text-on-surface-variant">F</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-primary/10 rounded-t-full h-[45%]"></div>
+<span class="text-[10px] font-bold text-on-surface-variant">S</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-primary/10 rounded-t-full h-[30%]"></div>
+<span class="text-[10px] font-bold text-on-surface-variant">S</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Recent Activity -->
+<section class="mb-12">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-xl font-headline font-bold text-on-surface">Recent Activity</h3>
+<button class="text-sm font-bold text-primary">View All</button>
+</div>
+<div class="space-y-4">
+<div class="bg-surface-container-lowest p-4 rounded-xl flex items-center gap-4">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-container shrink-0">
+<img alt="Marcus Lane" class="w-full h-full object-cover" data-alt="Candid portrait of a young man smiling in a trendy cafe environment, soft bokeh background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqzZHgeWWS4y8XDZD1WSSCAmgK7pggfQSDFL2bpXcaCoS-U27fw7e8ZzQ-ISiOOb0AX3TBH9LrBNMXmZOvrHGgp6A9AHwlIg9nDJV1ocobGAyriyNB2m8AoZPU6k1beKH8hOUk0g9f97stBB5lCjIToOXbCc47562kE_-WLwR2imk9Cc_IISo9j01BXL0oGzK40YQxSaT-LbQTaOjQ1O4MZA8s-NaoxV4R0wIKgrKrkMU7xk1qsv_ggXpKlJM-2bZwymMCHO4aMN0"/>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold">Marcus Lane</p>
+<p class="text-xs text-on-surface-variant">Purchased 'Luxury Spa Kit'</p>
+</div>
+<p class="text-[10px] font-bold text-outline">2m ago</p>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl flex items-center gap-4">
+<div class="w-12 h-12 rounded-full flex items-center justify-center bg-error/10 text-error shrink-0">
+<span class="material-symbols-outlined">campaign</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold">New Campaign</p>
+<p class="text-xs text-on-surface-variant">'Holiday Joy' launched by Marketing</p>
+</div>
+<p class="text-[10px] font-bold text-outline">14m ago</p>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl flex items-center gap-4">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-container shrink-0">
+<img alt="David Chen" class="w-full h-full object-cover" data-alt="Close up portrait of a man with spectacles in a modern office setting, professional headshot style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzdqAOZNbqFsxwSjK5dukEzrLr1ZrpJSwhr4k3svsMH_STDfhRpCS5f7CD82VEeneQB9XEtft6LxrgTvk8p_I-eYmeKVphVB-iSVZSH5khME85dcapBilhYbLViNG5QUcXBKkw_l76hhBMBxgkfyM9HyZPXJPN-73gXW3BkWLzD-ZbUfWOb0dYZxdpH75Hj6Sm-AdwT3m_JvGnYMY4OdCDcWxEyZJlIQTSTFsxjKtL73X2WdwjCrJKbUTj10z9qswuFd3EXKUrp3Y"/>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold">David Chen</p>
+<p class="text-xs text-on-surface-variant">Vendor application approved</p>
+</div>
+<p class="text-[10px] font-bold text-outline">1h ago</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Action Button -->
+<div class="fixed bottom-28 right-6 z-50">
+<button class="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary-container text-white shadow-2xl shadow-primary-container/40 flex items-center justify-center group active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+</div>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full h-20 z-50 bg-white shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)] rounded-t-[3rem] flex justify-around items-center px-6 pb-4 md:hidden">
+<!-- Home / Dashboard Active -->
+<a class="flex flex-col items-center justify-center bg-gradient-to-br from-[#9d4f00] to-[#f68a2f] text-white rounded-full w-12 h-12 mb-6 shadow-lg shadow-[#f68a2f]/40 scale-110 transition-transform duration-300" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="sr-only">Dashboard</span>
+</a>
+<!-- Users -->
+<a class="flex flex-col items-center justify-center text-[#383835]/40 active:bg-[#f6f3ee] transition-colors" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Users</span>
+</a>
+<!-- Campaigns -->
+<a class="flex flex-col items-center justify-center text-[#383835]/40 active:bg-[#f6f3ee] transition-colors" href="#">
+<span class="material-symbols-outlined">campaign</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Campaigns</span>
+</a>
+<!-- Gifts -->
+<a class="flex flex-col items-center justify-center text-[#383835]/40 active:bg-[#f6f3ee] transition-colors" href="#">
+<span class="material-symbols-outlined">redeem</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Gifts</span>
+</a>
+<!-- Menu -->
+<a class="flex flex-col items-center justify-center text-[#383835]/40 active:bg-[#f6f3ee] transition-colors" href="#">
+<span class="material-symbols-outlined">menu</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Menu</span>
+</a>
+</nav>
+</body></html>

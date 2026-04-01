@@ -106,7 +106,7 @@ export default function V2SendGiftPage() {
 
       const payload = {
         category: 'claimable',
-        title: giftType === 'money' ? 'Monetary Gift' : 'Gift Card',
+        title: giftType === 'money' ? 'Cash Gift' : 'Gift Card',
         claimable_type: giftType,
         goal_amount: finalGoal,
         currency: 'NGN',
@@ -222,7 +222,7 @@ export default function V2SendGiftPage() {
                 isComplete={!!giftType}
                 summary={
                   giftType === 'money'
-                    ? 'Money Gift'
+                    ? 'Cash Gift'
                     : giftType === 'gift-card'
                       ? 'Vendor Gift Card'
                       : undefined

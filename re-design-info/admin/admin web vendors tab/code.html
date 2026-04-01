@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;700;800;900&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-dim": "#8b4500",
+              "on-secondary": "#ffffff",
+              "tertiary": "#7d6000",
+              "on-tertiary-container": "#513d00",
+              "secondary-fixed": "#ffc791",
+              "on-primary-container": "#421e00",
+              "on-surface": "#383835",
+              "primary": "#9d4f00",
+              "on-primary-fixed-variant": "#502500",
+              "on-secondary-container": "#6a3c00",
+              "background": "#fffcf7",
+              "secondary-dim": "#824b00",
+              "on-tertiary-fixed": "#392a00",
+              "surface-tint": "#9d4f00",
+              "primary-fixed-dim": "#e57d21",
+              "tertiary-fixed": "#f2c026",
+              "surface-dim": "#e5e2dc",
+              "tertiary-container": "#f2c026",
+              "surface-variant": "#eae8e2",
+              "outline": "#82807c",
+              "primary-fixed": "#f68a2f",
+              "error-container": "#f95630",
+              "surface-bright": "#fffcf7",
+              "secondary-fixed-dim": "#ffb466",
+              "surface-container-highest": "#eae8e2",
+              "on-surface-variant": "#656461",
+              "tertiary-dim": "#6e5500",
+              "outline-variant": "#bbb9b4",
+              "on-error-container": "#520c00",
+              "inverse-primary": "#f68a2f",
+              "surface": "#fffcf7",
+              "surface-container": "#f6f3ee",
+              "on-secondary-fixed-variant": "#774500",
+              "on-secondary-fixed": "#4f2c00",
+              "surface-container-high": "#f0eee8",
+              "secondary": "#935600",
+              "primary-container": "#f68a2f",
+              "on-tertiary-fixed-variant": "#5c4600",
+              "error": "#be2d06",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary": "#ffffff",
+              "on-primary-fixed": "#0f0400",
+              "on-primary": "#ffffff",
+              "surface-container-low": "#fcf9f4",
+              "tertiary-fixed-dim": "#e3b213",
+              "error-dim": "#b92902",
+              "on-error": "#ffffff",
+              "inverse-on-surface": "#9e9d98",
+              "on-background": "#383835",
+              "inverse-surface": "#0e0e0c",
+              "secondary-container": "#ffc791"
+            },
+            fontFamily: {
+              "headline": ["Epilogue"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        body {
+            background-color: #fffcf7;
+            color: #383835;
+            font-family: 'Manrope', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-0 border-r-0 bg-[#f6f3ee] dark:bg-[#1a1a19] flex flex-col h-full py-8 px-6 z-50">
+<div class="mb-10 flex items-center gap-3">
+<div class="w-10 h-10 bg-gradient-to-br from-primary to-primary-fixed rounded-xl flex items-center justify-center text-white">
+<span class="material-symbols-outlined" data-icon="redeem">redeem</span>
+</div>
+<div>
+<h1 class="text-2xl font-black text-[#383835] dark:text-[#fffcf7] font-['Epilogue'] tracking-tighter">Gifthance</h1>
+<p class="text-[10px] font-bold uppercase tracking-widest text-[#383835]/40 dark:text-[#fffcf7]/40">Editorial Admin</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 py-3 px-4 rounded-xl text-[#383835]/60 dark:text-[#fffcf7]/60 font-medium font-['Epilogue'] font-bold text-sm tracking-tight hover:bg-[#fffcf7]/50 dark:hover:bg-white/5 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform" data-icon="dashboard">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 py-3 px-4 rounded-xl text-[#383835]/60 dark:text-[#fffcf7]/60 font-medium font-['Epilogue'] font-bold text-sm tracking-tight hover:bg-[#fffcf7]/50 dark:hover:bg-white/5 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform" data-icon="group">group</span>
+                Users
+            </a>
+<a class="flex items-center gap-3 py-3 px-4 rounded-xl text-[#383835]/60 dark:text-[#fffcf7]/60 font-medium font-['Epilogue'] font-bold text-sm tracking-tight hover:bg-[#fffcf7]/50 dark:hover:bg-white/5 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform" data-icon="campaign">campaign</span>
+                Campaigns
+            </a>
+<a class="flex items-center gap-3 py-3 px-4 rounded-xl text-[#383835]/60 dark:text-[#fffcf7]/60 font-medium font-['Epilogue'] font-bold text-sm tracking-tight hover:bg-[#fffcf7]/50 dark:hover:bg-white/5 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform" data-icon="redeem">redeem</span>
+                Gifts
+            </a>
+<a class="flex items-center gap-3 py-3 px-4 rounded-xl text-[#9d4f00] dark:text-[#f68a2f] font-extrabold font-['Epilogue'] text-sm tracking-tight bg-white/60 dark:bg-white/5 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform" data-icon="storefront" style="font-variation-settings: 'FILL' 1;">storefront</span>
+                Vendors
+            </a>
+<a class="flex items-center gap-3 py-3 px-4 rounded-xl text-[#383835]/60 dark:text-[#fffcf7]/60 font-medium font-['Epilogue'] font-bold text-sm tracking-tight hover:bg-[#fffcf7]/50 dark:hover:bg-white/5 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform" data-icon="receipt_long">receipt_long</span>
+                Transactions
+            </a>
+<a class="flex items-center gap-3 py-3 px-4 rounded-xl text-[#383835]/60 dark:text-[#fffcf7]/60 font-medium font-['Epilogue'] font-bold text-sm tracking-tight hover:bg-[#fffcf7]/50 dark:hover:bg-white/5 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform" data-icon="account_balance_wallet">account_balance_wallet</span>
+                Wallets
+            </a>
+<a class="flex items-center gap-3 py-3 px-4 rounded-xl text-[#383835]/60 dark:text-[#fffcf7]/60 font-medium font-['Epilogue'] font-bold text-sm tracking-tight hover:bg-[#fffcf7]/50 dark:hover:bg-white/5 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform" data-icon="settings">settings</span>
+                Settings
+            </a>
+</nav>
+<div class="mt-auto">
+<button class="w-full bg-gradient-to-r from-primary to-primary-fixed text-white py-4 px-6 rounded-2xl font-['Epilogue'] font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-primary-fixed/20 active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                New Campaign
+            </button>
+</div>
+</aside>
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-20 z-40 bg-white/80 dark:bg-[#383835]/80 backdrop-blur-xl flex justify-between items-center px-10">
+<div class="flex-1 max-w-xl">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50" data-icon="search">search</span>
+<input class="w-full bg-surface-container border-none rounded-full py-2.5 pl-12 pr-6 text-sm font-['Manrope'] focus:ring-2 focus:ring-[#f68a2f]/20 transition-all" placeholder="Search vendors, categories or transactions..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors relative">
+<span class="material-symbols-outlined text-on-surface" data-icon="notifications">notifications</span>
+<span class="absolute top-2.5 right-2.5 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<div class="h-8 w-[1px] bg-outline-variant/20"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-sm font-bold font-['Manrope']">Rita Obade</p>
+<p class="text-[10px] text-on-surface-variant font-medium">Support Admin</p>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden ring-2 ring-white shadow-sm">
+<img alt="Rita Obade, Support Admin" class="w-full h-full object-cover" data-alt="professional portrait of a young woman with a confident smile, wearing minimalist business attire, soft studio lighting, clean background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXJHeePzmTtfZsE7hI5UTU3hNurdI4yPUgpgudAEC1MrKXMfORX8LF-xds4-VF_CbdncWrh-MOCcpEylaJ4Lr7VBsLp4S-Sdy7Rdpi8kz35Q8vWqnE5Fm0DhNELxQrslTDNrpeT0O84AsAZSr7zKs_FX2mNHdWIdrxTAtzw5KPfCzaPN-EnkrD1hbnV9gqxrxs6xM8--u6PK01Yv3UnQUdKqemResGqOIyMDu-EptK0vJeHVaYcTPGh4hU7n8DLclO3LDYIYnFxqA"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-64 pt-28 px-10 pb-10 min-h-screen">
+<!-- Page Header -->
+<div class="flex justify-between items-end mb-10">
+<div>
+<nav class="flex items-center gap-2 mb-2">
+<span class="text-xs font-bold text-on-surface-variant/40 tracking-widest uppercase font-['Manrope']">Dashboard</span>
+<span class="material-symbols-outlined text-xs text-on-surface-variant/40" data-icon="chevron_right">chevron_right</span>
+<span class="text-xs font-bold text-primary tracking-widest uppercase font-['Manrope']">Vendors</span>
+</nav>
+<h2 class="text-4xl font-black font-['Epilogue'] tracking-tight">Vendor Directory</h2>
+<p class="text-on-surface-variant font-['Manrope'] mt-1">Manage and curate your ecosystem of gifting partners.</p>
+</div>
+<div class="flex gap-4">
+<button class="bg-surface-container-high px-6 py-3 rounded-full font-['Manrope'] font-bold text-sm flex items-center gap-2 hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="ios_share">ios_share</span>
+                    Export CSV
+                </button>
+<button class="bg-primary text-white px-8 py-3 rounded-full font-['Manrope'] font-bold text-sm flex items-center gap-2 shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-lg" data-icon="add">add</span>
+                    Add New Vendor
+                </button>
+</div>
+</div>
+<!-- Bento Stats -->
+<div class="grid grid-cols-4 gap-6 mb-10">
+<div class="bg-white p-8 rounded-xl shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 bg-surface-container rounded-2xl flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="storefront">storefront</span>
+</div>
+<span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full">+12%</span>
+</div>
+<div class="mt-6">
+<p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/60">Total Active Vendors</p>
+<h3 class="text-3xl font-black font-['Epilogue'] mt-1">1,284</h3>
+</div>
+</div>
+<div class="bg-primary-container p-8 rounded-xl shadow-lg shadow-primary-container/20 flex flex-col justify-between text-on-primary-container">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+</div>
+<span class="text-xs font-bold bg-white/20 px-2 py-1 rounded-full">+24%</span>
+</div>
+<div class="mt-6">
+<p class="text-[10px] font-bold uppercase tracking-widest opacity-70">Total Vendor Sales</p>
+<h3 class="text-3xl font-black font-['Epilogue'] mt-1">GHC 4.2M</h3>
+</div>
+</div>
+<div class="bg-white p-8 rounded-xl shadow-sm flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 bg-surface-container rounded-2xl flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span>
+</div>
+</div>
+<div class="mt-6">
+<p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/60">Monthly Orders</p>
+<h3 class="text-3xl font-black font-['Epilogue'] mt-1">12,490</h3>
+</div>
+</div>
+<div class="bg-white p-8 rounded-xl shadow-sm flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 bg-surface-container rounded-2xl flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="stars">stars</span>
+</div>
+</div>
+<div class="mt-6">
+<p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/60">Avg. Vendor Rating</p>
+<h3 class="text-3xl font-black font-['Epilogue'] mt-1">4.82</h3>
+</div>
+</div>
+</div>
+<!-- Table Section -->
+<div class="bg-white rounded-xl shadow-sm overflow-hidden border border-surface-container">
+<div class="p-8 border-b border-surface-container flex justify-between items-center">
+<h3 class="text-xl font-black font-['Epilogue']">All Vendors</h3>
+<div class="flex gap-2">
+<button class="p-2 rounded-lg hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined" data-icon="filter_list">filter_list</span>
+</button>
+<button class="p-2 rounded-lg hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-surface-container-low">
+<th class="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/60">Vendor</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/60">Category</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/60">Orders</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/60">Total Sales</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/60">Status</th>
+<th class="px-8 py-4 text-right"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container">
+<!-- Vendor Row 1 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-8 py-5">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center text-primary font-bold overflow-hidden">
+<img alt="Java Kingdom" class="w-full h-full object-cover" data-alt="minimalist cafe interior with warm lighting and wooden furniture, artisan coffee cups on counter, elegant branding" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB17VxVXDuPbsM6pSZZsbTZcNQGXOIPSvFngVKiwSA6XvL4MLR1tPs_P0su8ZcXZqhieu-wcCZ1krsbxaB26aPq1SC52UeaU4UXTll6FZHVBMK5GlRUPcn8v0gZpAUOPpN3SQguj6iGGz2a6JMcOhm-Fzo7tNuAZxPOam-wAWZ7xBb9p3HXCS5_fOMq7ReIt8tAG1LSNmJ4ZQQxFMvdGHY6l1gAeULtI7h3xPvP2Z2O5y5UDJtnqymPukdJKqjb6WlU3wEEzmrC5F4"/>
+</div>
+<div>
+<p class="font-bold font-['Manrope'] text-sm">Java Kingdom</p>
+<p class="text-xs text-on-surface-variant">Accra Mall Branch</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="bg-surface-container px-3 py-1 rounded-full text-xs font-semibold text-on-surface-variant">Food &amp; Beverages</span>
+</td>
+<td class="px-6 py-5">
+<p class="text-sm font-bold">1,402</p>
+</td>
+<td class="px-6 py-5">
+<p class="text-sm font-black text-primary">GHC 84,200.00</p>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center gap-1.5 bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">
+<span class="w-1.5 h-1.5 bg-green-600 rounded-full"></span>
+                                    Active
+                                </span>
+</td>
+<td class="px-8 py-5 text-right">
+<button class="text-on-surface-variant/40 hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+</td>
+</tr>
+<!-- Vendor Row 2 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-8 py-5">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center text-purple-700 font-bold overflow-hidden">
+<img alt="Bloom Florals" class="w-full h-full object-cover" data-alt="vibrant flower shop display with exotic bouquets, soft daylight, artistic arrangements, colorful and elegant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIvh_9COyg9PmBsOVI1WdqwvgL7nDW_S5Os92lC1j0MvsjHOqx2Z14p2OMHV0n_a2AtuZOLkfZTj7vdk0070eTx1f1IgxpwxSu5d4viar_v_5QH7CdcNeruYlc6jW8VxoSSXp2NMnkr9jRGRG3ouzR1pdSid-8D01FkL66BLq2aRB7jdv3QkwSJrWx-YkXTky8WHtHfFeBz37y_JidAotEY0-1ys-Xx6APatF6v5NiaSPkCAqSKy1s517C3AUsRIkysOWslmE07oY"/>
+</div>
+<div>
+<p class="font-bold font-['Manrope'] text-sm">Bloom Florals</p>
+<p class="text-xs text-on-surface-variant">Airport Residential</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="bg-surface-container px-3 py-1 rounded-full text-xs font-semibold text-on-surface-variant">Lifestyle</span>
+</td>
+<td class="px-6 py-5">
+<p class="text-sm font-bold">892</p>
+</td>
+<td class="px-6 py-5">
+<p class="text-sm font-black text-primary">GHC 126,500.00</p>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center gap-1.5 bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">
+<span class="w-1.5 h-1.5 bg-green-600 rounded-full"></span>
+                                    Active
+                                </span>
+</td>
+<td class="px-8 py-5 text-right">
+<button class="text-on-surface-variant/40 hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+</td>
+</tr>
+<!-- Vendor Row 3 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-8 py-5">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center text-blue-700 font-bold overflow-hidden text-lg">
+<span class="material-symbols-outlined" data-icon="devices">devices</span>
+</div>
+<div>
+<p class="font-bold font-['Manrope'] text-sm">Tech World</p>
+<p class="text-xs text-on-surface-variant">Osu Branch</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="bg-surface-container px-3 py-1 rounded-full text-xs font-semibold text-on-surface-variant">Electronics</span>
+</td>
+<td class="px-6 py-5">
+<p class="text-sm font-bold">420</p>
+</td>
+<td class="px-6 py-5">
+<p class="text-sm font-black text-primary">GHC 410,000.00</p>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center gap-1.5 bg-surface-container text-on-surface-variant px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">
+<span class="w-1.5 h-1.5 bg-outline-variant rounded-full"></span>
+                                    Suspended
+                                </span>
+</td>
+<td class="px-8 py-5 text-right">
+<button class="text-on-surface-variant/40 hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+</td>
+</tr>
+<!-- Vendor Row 4 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-8 py-5">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-pink-100 flex items-center justify-center text-pink-700 font-bold overflow-hidden">
+<img alt="Silk &amp; Petals" class="w-full h-full object-cover" data-alt="luxury fashion boutique interior with silk fabrics on mannequins, soft ambient lighting, high-end retail atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPjR849-r58ILbR41v7xyusiU_Y_tbT2X8iT47rZfyPmLygY8MbQ6jXmG8gQLOgN6zV4iE4R2HXvkkm31jBuuIZRhBsG3o17get4UDxFMIc_ms0Yn_-5fMQ0qWOb1h4Jqp9sWiI479F23nwFwNrlOl3JskWVBhhOoj1EdpmcoHchCtq0taRfh1A6CJG--v23gh3fdsPd9XAJ5gdiOL8xYHa8q1dK5RZkocNq2pNfDFE3nGWKqZLmvf3euwXuGV8Fm6O1NR7FqyyJI"/>
+</div>
+<div>
+<p class="font-bold font-['Manrope'] text-sm">Silk &amp; Petals</p>
+<p class="text-xs text-on-surface-variant">East Legon</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="bg-surface-container px-3 py-1 rounded-full text-xs font-semibold text-on-surface-variant">Fashion</span>
+</td>
+<td class="px-6 py-5">
+<p class="text-sm font-bold">2,110</p>
+</td>
+<td class="px-6 py-5">
+<p class="text-sm font-black text-primary">GHC 562,300.00</p>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center gap-1.5 bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">
+<span class="w-1.5 h-1.5 bg-green-600 rounded-full"></span>
+                                    Active
+                                </span>
+</td>
+<td class="px-8 py-5 text-right">
+<button class="text-on-surface-variant/40 hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-8 bg-surface-container-low flex justify-between items-center">
+<p class="text-sm text-on-surface-variant font-medium">Showing 1 to 4 of 1,284 vendors</p>
+<div class="flex gap-2">
+<button class="w-10 h-10 rounded-full border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:bg-white transition-colors">
+<span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm shadow-lg shadow-primary/20">1</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm hover:bg-white transition-colors">2</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm hover:bg-white transition-colors">3</button>
+<button class="w-10 h-10 rounded-full border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:bg-white transition-colors">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Contextual FAB (Suppressing as per mandate for Details/Settings/Directory screens) -->
+</body></html>

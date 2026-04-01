@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@700;800;900&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-dim": "#824b00",
+              "on-surface-variant": "#656461",
+              "on-tertiary-container": "#513d00",
+              "surface-dim": "#e5e2dc",
+              "tertiary-fixed-dim": "#e3b213",
+              "on-primary-fixed": "#0f0400",
+              "surface-tint": "#9d4f00",
+              "on-primary": "#ffffff",
+              "secondary": "#935600",
+              "surface": "#fffcf7",
+              "surface-container-highest": "#eae8e2",
+              "on-error-container": "#520c00",
+              "tertiary": "#7d6000",
+              "error": "#be2d06",
+              "primary-dim": "#8b4500",
+              "primary-container": "#f68a2f",
+              "on-surface": "#383835",
+              "surface-variant": "#eae8e2",
+              "error-dim": "#b92902",
+              "surface-container": "#f6f3ee",
+              "surface-container-high": "#f0eee8",
+              "outline": "#82807c",
+              "on-secondary-container": "#6a3c00",
+              "tertiary-container": "#f2c026",
+              "surface-bright": "#fffcf7",
+              "error-container": "#f95630",
+              "inverse-primary": "#f68a2f",
+              "secondary-container": "#ffc791",
+              "primary-fixed": "#f68a2f",
+              "outline-variant": "#bbb9b4",
+              "tertiary-dim": "#6e5500",
+              "primary-fixed-dim": "#e57d21",
+              "on-tertiary-fixed": "#392a00",
+              "inverse-surface": "#0e0e0c",
+              "background": "#fffcf7",
+              "surface-container-lowest": "#ffffff",
+              "on-primary-fixed-variant": "#502500",
+              "on-error": "#ffffff",
+              "primary": "#9d4f00",
+              "on-primary-container": "#421e00",
+              "surface-container-low": "#fcf9f4",
+              "secondary-fixed-dim": "#ffb466",
+              "on-background": "#383835",
+              "tertiary-fixed": "#f2c026",
+              "inverse-on-surface": "#9e9d98",
+              "on-tertiary": "#ffffff",
+              "secondary-fixed": "#ffc791",
+              "on-secondary": "#ffffff",
+              "on-secondary-fixed": "#4f2c00",
+              "on-tertiary-fixed-variant": "#5c4600",
+              "on-secondary-fixed-variant": "#774500"
+            },
+            fontFamily: {
+              "headline": ["Epilogue"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #fffcf7;
+            font-family: 'Manrope', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .editorial-shadow {
+            box-shadow: 0 20px 40px -15px rgba(56, 56, 53, 0.08);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface">
+<!-- Top Navigation Shell -->
+<header class="sticky top-0 z-40 bg-[#f6f3ee] dark:bg-stone-900/50 backdrop-blur-md">
+<div class="flex justify-between items-center w-full px-6 py-4 max-w-[1600px] mx-auto">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-xl" data-icon="history">history</span>
+</div>
+<h1 class="font-headline font-black text-xl text-primary tracking-tight">Gifthance</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-orange-50 transition-colors">
+<span class="material-symbols-outlined text-on-surface" data-icon="notifications">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/10">
+<img alt="Admin Profile" class="w-full h-full object-cover" data-alt="professional portrait of a creative director in a minimalist studio setting with soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4eOXdQmU-2JRaHKTrBgjjlTF3vPm_mDnIj2xe71CLskppQvSP06sUwmeO2VW5Y84_k5XcoNbCXhIypNM1Y7k572RdPMMZhvkxd93-fvjk4uzFfTumRtjQE2P4dejBPr58Pa2nSPouE4kB5KK4qU6M_pxlsrkf0U6fEXm3-hY7-iqH1W3otVa5X8xysHGwlFTUVZhVaHLmM_s6Oc6zELHKIpg9oR-A8VWmddz3ri9O6bXEAIJ5XQPK_yyyaCQjF7TbjZ0RE7_hNjY"/>
+</div>
+</div>
+</div>
+</header>
+<main class="px-6 pt-6 pb-32 max-w-md mx-auto">
+<!-- Editorial Header -->
+<div class="mb-8">
+<h2 class="font-headline text-3xl font-extrabold text-on-surface mb-2">Audit Logs</h2>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed">System-wide transparency and activity tracking for the Editorial desk.</p>
+</div>
+<!-- Search & Filter Bar (Glassmorphism inspired) -->
+<div class="bg-surface-container-low rounded-xl p-2 flex items-center gap-3 mb-8 border border-surface-container-highest/30">
+<div class="pl-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-xl" data-icon="search">search</span>
+</div>
+<input class="bg-transparent border-none focus:ring-0 text-sm font-body w-full placeholder:text-outline" placeholder="Search activity..." type="text"/>
+<button class="bg-surface-container-highest p-2 rounded-lg text-on-surface">
+<span class="material-symbols-outlined text-xl" data-icon="tune">tune</span>
+</button>
+</div>
+<!-- Logs Content -->
+<div class="space-y-4">
+<!-- Section Label -->
+<div class="flex items-center justify-between px-2 mb-4">
+<span class="font-headline text-xs uppercase tracking-widest text-outline-variant font-bold">Today</span>
+<span class="text-[10px] font-bold text-primary px-2 py-0.5 bg-orange-50 rounded-full uppercase">8 New</span>
+</div>
+<!-- Log Card 1 -->
+<div class="bg-surface-container-lowest rounded-lg p-5 editorial-shadow flex gap-4 items-start border border-surface-container-high/50">
+<div class="w-12 h-12 shrink-0 rounded-full bg-orange-50 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="campaign" style="font-variation-settings: 'FILL' 1;">campaign</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<p class="text-sm font-bold text-on-surface font-headline leading-tight">Campaign Launched</p>
+<span class="text-[10px] text-outline-variant font-medium">10:45 AM</span>
+</div>
+<p class="text-xs text-on-surface-variant font-body mb-3">Summer '24 Electronics Reward Tier published by <span class="text-primary font-semibold underline decoration-primary/20">Sarah Jenkins</span>.</p>
+<div class="flex items-center gap-2">
+<span class="text-[10px] bg-surface-container rounded-full px-2 py-1 text-on-surface-variant font-bold">#CAM-8902</span>
+<span class="text-[10px] bg-green-50 text-green-700 rounded-full px-2 py-1 font-bold">SUCCESS</span>
+</div>
+</div>
+</div>
+<!-- Log Card 2 -->
+<div class="bg-surface-container-lowest rounded-lg p-5 editorial-shadow flex gap-4 items-start border border-surface-container-high/50">
+<div class="w-12 h-12 shrink-0 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" data-icon="shield_person" style="font-variation-settings: 'FILL' 1;">shield_person</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<p class="text-sm font-bold text-on-surface font-headline leading-tight">Permission Change</p>
+<span class="text-[10px] text-outline-variant font-medium">09:12 AM</span>
+</div>
+<p class="text-xs text-on-surface-variant font-body mb-3">System Admin updated role for <span class="text-primary font-semibold underline decoration-primary/20">Marcus Thorne</span> from Editor to Super-User.</p>
+<div class="flex items-center gap-2">
+<span class="text-[10px] bg-surface-container rounded-full px-2 py-1 text-on-surface-variant font-bold">#USR-4411</span>
+<span class="text-[10px] bg-secondary-container text-on-secondary-fixed-variant rounded-full px-2 py-1 font-bold">SECURITY</span>
+</div>
+</div>
+</div>
+<!-- Section Label -->
+<div class="flex items-center justify-between px-2 pt-4 mb-4">
+<span class="font-headline text-xs uppercase tracking-widest text-outline-variant font-bold">Yesterday</span>
+</div>
+<!-- Log Card 3 -->
+<div class="bg-surface-container-lowest rounded-lg p-5 editorial-shadow flex gap-4 items-start border border-surface-container-high/50">
+<div class="w-12 h-12 shrink-0 rounded-full bg-error-container/10 flex items-center justify-center text-error">
+<span class="material-symbols-outlined" data-icon="report" style="font-variation-settings: 'FILL' 1;">report</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<p class="text-sm font-bold text-on-surface font-headline leading-tight">Failed Gift Issuance</p>
+<span class="text-[10px] text-outline-variant font-medium">11:58 PM</span>
+</div>
+<p class="text-xs text-on-surface-variant font-body mb-3">Automated retry failed for Batch <span class="text-primary font-semibold">#GFT-991</span>. API Connection Timeout.</p>
+<div class="flex items-center gap-2">
+<span class="text-[10px] bg-error-container/20 text-error rounded-full px-2 py-1 font-bold">CRITICAL ERROR</span>
+</div>
+</div>
+</div>
+<!-- Log Card 4 -->
+<div class="bg-surface-container-lowest rounded-lg p-5 editorial-shadow flex gap-4 items-start border border-surface-container-high/50">
+<div class="w-12 h-12 shrink-0 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="settings_suggest" style="font-variation-settings: 'FILL' 1;">settings_suggest</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<p class="text-sm font-bold text-on-surface font-headline leading-tight">Global Config Update</p>
+<span class="text-[10px] text-outline-variant font-medium">04:30 PM</span>
+</div>
+<p class="text-xs text-on-surface-variant font-body mb-3">Newsletter delivery frequency changed to <span class="text-primary font-semibold">Weekly</span> by System Automation.</p>
+<div class="flex items-center gap-2">
+<span class="text-[10px] bg-surface-container rounded-full px-2 py-1 text-on-surface-variant font-bold">SYSTEM</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Navigation Shell: Mobile Bottom Bar -->
+<nav class="fixed bottom-0 left-0 right-0 bg-[#f6f3ee] dark:bg-stone-900 border-none shadow-[0_-8px_32px_rgba(56,56,53,0.06)] px-6 py-4 flex justify-between items-center z-50 rounded-t-xl md:hidden">
+<!-- Dashboard Tab -->
+<button class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-all active:scale-95 duration-150">
+<span class="material-symbols-outlined text-2xl" data-icon="dashboard">dashboard</span>
+<span class="text-[10px] font-bold font-label tracking-tight">Dashboard</span>
+</button>
+<!-- Users Tab -->
+<button class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-all active:scale-95 duration-150">
+<span class="material-symbols-outlined text-2xl" data-icon="group">group</span>
+<span class="text-[10px] font-bold font-label tracking-tight">Users</span>
+</button>
+<!-- Campaigns Tab -->
+<button class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-all active:scale-95 duration-150">
+<span class="material-symbols-outlined text-2xl" data-icon="campaign">campaign</span>
+<span class="text-[10px] font-bold font-label tracking-tight">Campaigns</span>
+</button>
+<!-- Reports/Logs Tab (ACTIVE) -->
+<button class="flex flex-col items-center gap-1 text-primary transition-all active:scale-95 duration-150 relative">
+<span class="material-symbols-outlined text-2xl" data-icon="analytics" style="font-variation-settings: 'FILL' 1;">analytics</span>
+<span class="text-[10px] font-black font-label tracking-tight">Reports</span>
+<div class="absolute -top-1 right-0 w-1.5 h-1.5 bg-primary rounded-full"></div>
+</button>
+<!-- Settings Tab -->
+<button class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-all active:scale-95 duration-150">
+<span class="material-symbols-outlined text-2xl" data-icon="settings">settings</span>
+<span class="text-[10px] font-bold font-label tracking-tight">Settings</span>
+</button>
+</nav>
+<!-- Dynamic FAB for Mobile Context -->
+<button class="fixed right-6 bottom-28 w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-container text-white flex items-center justify-center editorial-shadow active:scale-90 transition-all z-40">
+<span class="material-symbols-outlined text-2xl" data-icon="download">download</span>
+</button>
+</body></html>

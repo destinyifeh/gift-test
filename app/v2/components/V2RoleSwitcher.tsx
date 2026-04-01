@@ -14,19 +14,13 @@ const roleConfigs = [
   {
     id: 'vendor',
     label: 'Vendor Dashboard',
-    path: '/vendor',
+    path: '/v2/vendor/dashboard',
     icon: 'storefront',
-  },
-  {
-    id: 'partner',
-    label: 'Partner Dashboard',
-    path: '/partner',
-    icon: 'group',
   },
   {
     id: 'admin',
     label: 'Admin Dashboard',
-    path: '/admin',
+    path: '/v2/admin',
     icon: 'shield',
   },
 ];

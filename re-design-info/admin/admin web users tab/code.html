@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;700;800;900&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary-dim": "#824b00",
+                        "surface-container-low": "#fcf9f4",
+                        "tertiary-dim": "#6e5500",
+                        "primary-fixed": "#f68a2f",
+                        "tertiary-container": "#f2c026",
+                        "primary": "#9d4f00",
+                        "on-secondary-fixed": "#4f2c00",
+                        "surface-tint": "#9d4f00",
+                        "background": "#fffcf7",
+                        "primary-dim": "#8b4500",
+                        "inverse-surface": "#0e0e0c",
+                        "surface-container": "#f6f3ee",
+                        "inverse-on-surface": "#9e9d98",
+                        "outline-variant": "#bbb9b4",
+                        "on-tertiary-fixed-variant": "#5c4600",
+                        "on-background": "#383835",
+                        "on-secondary-container": "#6a3c00",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#f68a2f",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed": "#ffc791",
+                        "secondary": "#935600",
+                        "on-primary-fixed": "#0f0400",
+                        "on-tertiary-fixed": "#392a00",
+                        "error-container": "#f95630",
+                        "error-dim": "#b92902",
+                        "primary-fixed-dim": "#e57d21",
+                        "on-surface": "#383835",
+                        "outline": "#82807c",
+                        "tertiary-fixed": "#f2c026",
+                        "error": "#be2d06",
+                        "on-primary-container": "#421e00",
+                        "surface": "#fffcf7",
+                        "surface-container-lowest": "#ffffff",
+                        "on-error-container": "#520c00",
+                        "surface-container-highest": "#eae8e2",
+                        "tertiary-fixed-dim": "#e3b213",
+                        "primary-container": "#f68a2f",
+                        "surface-dim": "#e5e2dc",
+                        "on-tertiary-container": "#513d00",
+                        "surface-variant": "#eae8e2",
+                        "on-primary-fixed-variant": "#502500",
+                        "on-secondary-fixed-variant": "#774500",
+                        "surface-container-high": "#f0eee8",
+                        "surface-bright": "#fffcf7",
+                        "secondary-container": "#ffc791",
+                        "tertiary": "#7d6000",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed-dim": "#ffb466",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#656461"
+                    },
+                    fontFamily: {
+                        "headline": ["Epilogue"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        body {
+            background-color: #fffcf7;
+            color: #383835;
+            font-family: 'Manrope', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen">
+<!-- SideNavBar Component -->
+<aside class="h-screen w-64 fixed left-0 top-0 border-r-0 bg-[#f6f3ee] flex flex-col py-8 px-6 z-50">
+<div class="mb-10 px-2">
+<h1 class="text-2xl font-black text-[#383835]">Gifthance</h1>
+<p class="font-['Epilogue'] font-bold text-sm tracking-tight text-[#383835]/60">Editorial Admin</p>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-full text-[#383835]/60 font-medium hover:bg-[#fffcf7]/50 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-['Epilogue'] font-bold text-sm tracking-tight">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-full text-[#9d4f00] font-extrabold hover:bg-[#fffcf7]/50 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="group" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-['Epilogue'] font-bold text-sm tracking-tight">Users</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-full text-[#383835]/60 font-medium hover:bg-[#fffcf7]/50 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="campaign">campaign</span>
+<span class="font-['Epilogue'] font-bold text-sm tracking-tight">Campaigns</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-full text-[#383835]/60 font-medium hover:bg-[#fffcf7]/50 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="redeem">redeem</span>
+<span class="font-['Epilogue'] font-bold text-sm tracking-tight">Gifts</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-full text-[#383835]/60 font-medium hover:bg-[#fffcf7]/50 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-['Epilogue'] font-bold text-sm tracking-tight">Settings</span>
+</a>
+</nav>
+<div class="mt-auto">
+<button class="w-full py-4 px-6 bg-gradient-to-br from-[#9d4f00] to-[#f68a2f] text-white rounded-full font-bold text-sm shadow-lg shadow-[#f68a2f]/20 active:scale-95 duration-200 transition-transform">
+                New Campaign
+            </button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen">
+<!-- TopNavBar Component -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-20 z-40 bg-white/80 backdrop-blur-xl flex justify-between items-center px-10">
+<div class="flex items-center flex-1 max-w-xl">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container border-none rounded-full py-2.5 pl-12 pr-4 text-sm focus:ring-2 focus:ring-[#f68a2f]/20 transition-all outline-none" placeholder="Search users, roles, or status..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="relative hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined text-on-surface">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-primary rounded-full"></span>
+</button>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="font-['Manrope'] font-bold text-sm text-on-surface">Rita Obade</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Support Admin</p>
+</div>
+<img alt="Rita Obade" class="w-10 h-10 rounded-full object-cover ring-2 ring-surface-container-highest" data-alt="professional portrait of a confident woman with short hair smiling warmly in a bright corporate office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3MONMbS7yixoBtWe5ruM_AorE9eeXapgHBMP909NrSuIAQWzjSLwRTGh1uvF6pIrfvENaUUiiwcf631sOglDQv7Gje6Tkjn5nbyHXOulp4npVs47oZKofKNTLDBFfqHk92obrdHVTBvLNunVx3EtJFhiMUQ76HWNeC7g2nMtlVUxrAS3HidNcdrUI5cEkUmeYBCffCkv4xEuN_pw41_mshZmqPjORAw5C4RcqQHHEzo3jEA8Pqb22o6hN4QPTUySYaSCCblBPQ-M"/>
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<div class="pt-28 pb-12 px-10 max-w-7xl mx-auto">
+<!-- Page Header Actions -->
+<div class="flex justify-between items-end mb-10">
+<div>
+<h2 class="font-headline text-4xl font-extrabold text-on-surface tracking-tight">Users</h2>
+<p class="text-on-surface-variant mt-2 font-medium">Manage your community and editorial contributors.</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-6 py-3 bg-surface-container-high rounded-full text-on-surface font-bold text-sm transition-all hover:bg-surface-container-highest">
+<span class="material-symbols-outlined text-lg" data-icon="filter_list">filter_list</span>
+                        Filters
+                    </button>
+<button class="flex items-center gap-2 px-6 py-3 bg-surface-container-high rounded-full text-on-surface font-bold text-sm transition-all hover:bg-surface-container-highest">
+<span class="material-symbols-outlined text-lg" data-icon="file_download">file_download</span>
+                        Export
+                    </button>
+</div>
+</div>
+<!-- Table Container (Editorial Card Aesthetic) -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0_32px_48px_-12px_rgba(56,56,53,0.04)] overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container/30 border-none">
+<th class="px-8 py-6 font-headline font-bold text-xs uppercase tracking-[0.15em] text-on-surface-variant">User</th>
+<th class="px-8 py-6 font-headline font-bold text-xs uppercase tracking-[0.15em] text-on-surface-variant">Roles</th>
+<th class="px-8 py-6 font-headline font-bold text-xs uppercase tracking-[0.15em] text-on-surface-variant">Joined</th>
+<th class="px-8 py-6 font-headline font-bold text-xs uppercase tracking-[0.15em] text-on-surface-variant">Status</th>
+<th class="px-8 py-6 font-headline font-bold text-xs uppercase tracking-[0.15em] text-on-surface-variant text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container/50">
+<!-- User Row 1 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-8 py-6">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-2xl bg-primary-container/10 flex items-center justify-center font-bold text-primary">PD</div>
+<div>
+<p class="font-bold text-on-surface">Pascal Dum</p>
+<p class="text-xs text-on-surface-variant">pascal.dum@example.com</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-6">
+<span class="px-3 py-1 bg-surface-container-highest rounded-full text-[10px] font-extrabold uppercase tracking-wider text-on-surface">User</span>
+</td>
+<td class="px-8 py-6 text-sm text-on-surface-variant font-medium">Oct 12, 2023</td>
+<td class="px-8 py-6">
+<span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-[10px] font-extrabold uppercase tracking-wider">Active</span>
+</td>
+<td class="px-8 py-6 text-right">
+<button class="p-2 rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- User Row 2 -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-8 py-6">
+<div class="flex items-center gap-4">
+<img alt="Rita Obade" class="w-12 h-12 rounded-2xl object-cover" data-alt="close-up of a smiling professional woman with glowing skin and short dark hair against a soft pastel background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGTSLGuNH9lf641yFD9d0S68AHTsZTg-jCk0aF5BtQH8mliH02a2iaLTswFNAbxu1ed3NTZHfRTPizGgYSS2bZbwSDCY3KL5kC6bpFGj3HxxebG_2PKmqtjYaqSDKh5WU10k-SoS3KzmutRb-9QIhiZ6z6kXJUfmGs_2Sj8hW1YHMgWV23p7VIGPMG6d_82DSquwVKBrHbAY1ypwBHRA401ULhyjv1uPYC8PwH8-bYk0QVHqHpXOPBxhRU-bwWveZCcrqKKT_bA0I"/>
+<div>
+<p class="font-bold text-on-surface">Rita Obade</p>
+<p class="text-xs text-on-surface-variant">rita.obade@gifthance.com</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-6">
+<div class="flex flex-wrap gap-1.5 max-w-[200px]">
+<span class="px-3 py-1 bg-surface-container-highest rounded-full text-[10px] font-extrabold uppercase tracking-wider text-on-surface">User</span>
+<span class="px-3 py-1 bg-primary-container/20 rounded-full text-[10px] font-extrabold uppercase tracking-wider text-primary">Admin</span>
+<span class="px-3 py-1 bg-tertiary-container/20 rounded-full text-[10px] font-extrabold uppercase tracking-wider text-tertiary-dim">Vendor</span>
+</div>
+</td>
+<td class="px-8 py-6 text-sm text-on-surface-variant font-medium">Jan 05, 2023</td>
+<td class="px-8 py-6">
+<span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-[10px] font-extrabold uppercase tracking-wider">Active</span>
+</td>
+<td class="px-8 py-6 text-right">
+<button class="p-2 rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- User Row 3 -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-8 py-6">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-2xl bg-surface-container flex items-center justify-center font-bold text-on-surface-variant">DI</div>
+<div>
+<p class="font-bold text-on-surface">Destiny Ifeh</p>
+<p class="text-xs text-on-surface-variant">destiny.ifeh@vendor.net</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-6">
+<div class="flex gap-1.5">
+<span class="px-3 py-1 bg-surface-container-highest rounded-full text-[10px] font-extrabold uppercase tracking-wider text-on-surface">User</span>
+<span class="px-3 py-1 bg-tertiary-container/20 rounded-full text-[10px] font-extrabold uppercase tracking-wider text-tertiary-dim">Vendor</span>
+</div>
+</td>
+<td class="px-8 py-6 text-sm text-on-surface-variant font-medium">Nov 22, 2023</td>
+<td class="px-8 py-6">
+<span class="px-3 py-1 bg-red-100 text-red-600 rounded-full text-[10px] font-extrabold uppercase tracking-wider">Suspended</span>
+</td>
+<td class="px-8 py-6 text-right">
+<button class="p-2 rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- User Row 4 (Extra for visual depth) -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-8 py-6">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-2xl bg-secondary-container/20 flex items-center justify-center font-bold text-secondary">AM</div>
+<div>
+<p class="font-bold text-on-surface">Amara Miller</p>
+<p class="text-xs text-on-surface-variant">amara@creative.co</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-6">
+<span class="px-3 py-1 bg-surface-container-highest rounded-full text-[10px] font-extrabold uppercase tracking-wider text-on-surface">User</span>
+</td>
+<td class="px-8 py-6 text-sm text-on-surface-variant font-medium">Dec 01, 2023</td>
+<td class="px-8 py-6">
+<span class="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-[10px] font-extrabold uppercase tracking-wider">Pending</span>
+</td>
+<td class="px-8 py-6 text-right">
+<button class="p-2 rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+<!-- Pagination -->
+<div class="px-8 py-6 flex items-center justify-between bg-surface-container-low/50">
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Showing 4 of 1,240 users</p>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-primary text-white font-bold text-xs">1</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container hover:bg-surface-container-highest transition-colors font-bold text-xs">2</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container hover:bg-surface-container-highest transition-colors font-bold text-xs">3</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Stats Overview Cards (Asymmetric Bento Element) -->
+<div class="grid grid-cols-12 gap-6 mt-8">
+<div class="col-span-8 p-10 bg-primary-container rounded-xl text-white relative overflow-hidden flex flex-col justify-between min-h-[200px]">
+<div class="relative z-10">
+<p class="font-headline font-bold text-xs uppercase tracking-[0.2em] opacity-80 mb-2">Platform Growth</p>
+<h3 class="font-headline text-3xl font-black">+24% New Registrations</h3>
+</div>
+<div class="relative z-10 flex gap-10 mt-6">
+<div>
+<p class="text-3xl font-black">42.1k</p>
+<p class="text-[10px] uppercase font-bold tracking-widest opacity-80">Total Users</p>
+</div>
+<div>
+<p class="text-3xl font-black">1.2k</p>
+<p class="text-[10px] uppercase font-bold tracking-widest opacity-80">Weekly Growth</p>
+</div>
+</div>
+<!-- Decorative Element -->
+<div class="absolute -right-10 -bottom-10 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+<span class="material-symbols-outlined absolute top-10 right-10 text-white/20 text-8xl" data-icon="trending_up">trending_up</span>
+</div>
+<div class="col-span-4 p-10 bg-surface-container-highest rounded-xl flex flex-col justify-center items-center text-center">
+<span class="material-symbols-outlined text-5xl text-primary mb-4" data-icon="verified_user">verified_user</span>
+<h4 class="font-headline font-extrabold text-xl text-on-surface">Vendor Verification</h4>
+<p class="text-on-surface-variant text-sm mt-2 mb-6">12 new vendors are waiting for administrative review.</p>
+<button class="px-8 py-3 bg-on-surface text-white rounded-full font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-opacity">
+                        Review Now
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar Component (Hidden on Desktop) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-6 pb-4 bg-white md:hidden h-20 rounded-t-[3rem] shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)]">
+<a class="flex flex-col items-center justify-center text-[#383835]/40" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-gradient-to-br from-[#9d4f00] to-[#f68a2f] text-white rounded-full w-12 h-12 mb-6 shadow-lg shadow-[#f68a2f]/40 scale-110" href="#">
+<span class="material-symbols-outlined" data-icon="group" style="font-variation-settings: 'FILL' 1;">group</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#383835]/40" href="#">
+<span class="material-symbols-outlined" data-icon="campaign">campaign</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Ads</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#383835]/40" href="#">
+<span class="material-symbols-outlined" data-icon="redeem">redeem</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Gifts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#383835]/40" href="#">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Menu</span>
+</a>
+</nav>
+</body></html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;700;800;900&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-dim": "#8b4500",
+              "on-secondary": "#ffffff",
+              "tertiary": "#7d6000",
+              "on-tertiary-container": "#513d00",
+              "secondary-fixed": "#ffc791",
+              "on-primary-container": "#421e00",
+              "on-surface": "#383835",
+              "primary": "#9d4f00",
+              "on-primary-fixed-variant": "#502500",
+              "on-secondary-container": "#6a3c00",
+              "background": "#fffcf7",
+              "secondary-dim": "#824b00",
+              "on-tertiary-fixed": "#392a00",
+              "surface-tint": "#9d4f00",
+              "primary-fixed-dim": "#e57d21",
+              "tertiary-fixed": "#f2c026",
+              "surface-dim": "#e5e2dc",
+              "tertiary-container": "#f2c026",
+              "surface-variant": "#eae8e2",
+              "outline": "#82807c",
+              "primary-fixed": "#f68a2f",
+              "error-container": "#f95630",
+              "surface-bright": "#fffcf7",
+              "secondary-fixed-dim": "#ffb466",
+              "surface-container-highest": "#eae8e2",
+              "on-surface-variant": "#656461",
+              "tertiary-dim": "#6e5500",
+              "outline-variant": "#bbb9b4",
+              "on-error-container": "#520c00",
+              "inverse-primary": "#f68a2f",
+              "surface": "#fffcf7",
+              "surface-container": "#f6f3ee",
+              "on-secondary-fixed-variant": "#774500",
+              "on-secondary-fixed": "#4f2c00",
+              "surface-container-high": "#f0eee8",
+              "secondary": "#935600",
+              "primary-container": "#f68a2f",
+              "on-tertiary-fixed-variant": "#5c4600",
+              "error": "#be2d06",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary": "#ffffff",
+              "on-primary-fixed": "#0f0400",
+              "on-primary": "#ffffff",
+              "surface-container-low": "#fcf9f4",
+              "tertiary-fixed-dim": "#e3b213",
+              "error-dim": "#b92902",
+              "on-error": "#ffffff",
+              "inverse-on-surface": "#9e9d98",
+              "on-background": "#383835",
+              "inverse-surface": "#0e0e0c",
+              "secondary-container": "#ffc791"
+            },
+            fontFamily: {
+              "headline": ["Epilogue"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #fffcf7;
+            font-family: 'Manrope', sans-serif;
+            color: #383835;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background min-h-screen pb-24">
+<!-- TopAppBar Component -->
+<header class="fixed top-0 right-0 w-full h-20 z-40 bg-white/80 dark:bg-[#383835]/80 backdrop-blur-xl flex justify-between items-center px-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-container flex items-center justify-center">
+<span class="text-white font-black text-xs font-headline">G</span>
+</div>
+<h1 class="font-headline font-black text-[#383835] dark:text-[#fffcf7] text-xl tracking-tight">Gifthance</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:opacity-80 transition-opacity text-[#9d4f00] dark:text-[#f68a2f]">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</header>
+<!-- Side Navigation (Web) -->
+<nav class="h-screen w-64 fixed left-0 top-0 border-r-0 hidden md:flex flex-col h-full py-8 px-6 bg-[#f6f3ee] dark:bg-[#1a1a19]">
+<div class="flex items-center gap-4 mb-12">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest overflow-hidden">
+<img alt="Gifthance Logo" class="w-full h-full object-cover" data-alt="A stylized minimalist brand logo for an editorial admin dashboard with clean lines and premium aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtOIOAq0IcuR0Y-tbQGvFWyNnYpnSM6DcBYHv6BsuwEcBnNbwSj6bqXupksgZW7-AQhSwWgq7UibWuRAD0IkcnVW6jCB3ArcvZz2wt2rJaKPc2DspcEj2Hl2pHID3o0AfTAZk0C5jmJ_tWoGiRB8rRl68_UK_ItmdzODYFbgGk9hAueeqa3uk4UmjJbqh9-po7dDljXDJkm1cEgrt-BWztAW63xMP6c9r-xuIpYdaM5dgt6P-YuDJU7fE_nM7b-HMj_oZz9OxGhG0"/>
+</div>
+<div>
+<p class="font-headline font-black text-[#383835] dark:text-[#fffcf7] text-lg">Gifthance</p>
+<p class="font-body text-xs text-on-surface/60">Editorial Admin</p>
+</div>
+</div>
+<div class="space-y-2">
+<a class="flex items-center gap-4 py-3 px-4 text-[#383835]/60 dark:text-[#fffcf7]/60 font-medium font-headline text-sm tracking-tight hover:bg-[#fffcf7]/50 dark:hover:bg-white/5 transition-colors rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:scale-95 duration-200" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-4 py-3 px-4 text-[#9d4f00] dark:text-[#f68a2f] font-extrabold font-headline text-sm tracking-tight bg-white/50 rounded-xl" href="#">
+<span class="material-symbols-outlined" data-icon="group" style="font-variation-settings: 'FILL' 1;">group</span>
+<span>Users</span>
+</a>
+<a class="flex items-center gap-4 py-3 px-4 text-[#383835]/60 dark:text-[#fffcf7]/60 font-medium font-headline text-sm tracking-tight hover:bg-[#fffcf7]/50 dark:hover:bg-white/5 transition-colors rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:scale-95 duration-200" data-icon="campaign">campaign</span>
+<span>Campaigns</span>
+</a>
+<a class="flex items-center gap-4 py-3 px-4 text-[#383835]/60 dark:text-[#fffcf7]/60 font-medium font-headline text-sm tracking-tight hover:bg-[#fffcf7]/50 dark:hover:bg-white/5 transition-colors rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:scale-95 duration-200" data-icon="redeem">redeem</span>
+<span>Gifts</span>
+</a>
+<a class="flex items-center gap-4 py-3 px-4 text-[#383835]/60 dark:text-[#fffcf7]/60 font-medium font-headline text-sm tracking-tight hover:bg-[#fffcf7]/50 dark:hover:bg-white/5 transition-colors rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:scale-95 duration-200" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="pt-24 px-6 max-w-2xl mx-auto md:ml-72 md:mr-12">
+<!-- Search and Filter Header -->
+<header class="mb-8">
+<h2 class="font-headline font-bold text-2xl text-on-surface mb-6">Subscriptions</h2>
+<div class="relative group">
+<div class="absolute inset-y-0 left-5 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-on-surface/40" data-icon="search">search</span>
+</div>
+<input class="w-full bg-surface-container border-none rounded-xl py-4 pl-14 pr-6 font-body text-sm focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-on-surface/40" placeholder="Search subscribers..." type="text"/>
+</div>
+</header>
+<!-- Bento Grid / Cards Section -->
+<div class="space-y-6">
+<!-- Subscriber Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_20px_40px_-15px_rgba(56,56,53,0.05)] flex items-center justify-between group hover:translate-y-[-2px] transition-transform duration-300">
+<div class="flex items-center gap-5">
+<div class="relative">
+<img alt="Julianne Moore" class="w-16 h-16 rounded-lg object-cover" data-alt="Portrait of a young professional woman with warm smiling expression in an editorial photography style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmXBMaArs6eInn7x0mK8B2rVPx61LcGxlcxg2Vv-YxRJ_nYJUTEtpl3ttTUCoe5dJFng3qPO-V4rguxiBAyYF6T7IKnx5j2hSocGzgfApy25sTzqAzeeKpdHepk2EBeWrpq-r-vjh9qqW7FJOXKJ-7MkhhiQ2YWrwghd5LfwCupa8KktFwGfUprK1sGPFDNx6KEhSMTcCHRnSEjA3nXLzphtsZ5iMIqYK2N_YA9eECFKEfLSCN9rVW2wN55f19N1j7xIL-CYkN6q4"/>
+<div class="absolute -bottom-1 -right-1 w-6 h-6 bg-primary-container rounded-full flex items-center justify-center border-2 border-white">
+<span class="material-symbols-outlined text-[12px] text-white" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<div>
+<h3 class="font-headline font-bold text-on-surface text-lg">Julianne Moore</h3>
+<p class="font-body text-sm text-on-surface/60 font-semibold tracking-wide">PRO PLAN</p>
+</div>
+</div>
+<div class="text-right">
+<span class="inline-flex items-center px-4 py-1.5 rounded-full bg-primary-container/10 text-primary font-body text-[10px] font-bold uppercase tracking-widest mb-2">Active</span>
+<p class="font-headline font-bold text-primary">$49.00/mo</p>
+</div>
+</div>
+<!-- Subscriber Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_20px_40px_-15px_rgba(56,56,53,0.05)] flex items-center justify-between group hover:translate-y-[-2px] transition-transform duration-300">
+<div class="flex items-center gap-5">
+<div class="relative">
+<img alt="Marcus Holloway" class="w-16 h-16 rounded-lg object-cover" data-alt="Close-up portrait of a tech-savvy young man with glasses and a friendly gaze in soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZeAl7MzvBWwa1ztM94MI4TalHc3Vnm711Ahy6ybGkHePWWpFOe9AWJY8toOJ_cTjAjp25PLa8OrbKCuuZqTQ5qAeQvpwZUYTfySXkujlCNmi56YGwb3OGl6XkQaqYTBNqV3cmMczp56hmM-Dth4_BPQpaUONaJC4rI2bF4sDRs3d_YGPsBOOoFyHSzP2UePZgrexO9umRXN5GLPgWyUPVu9vAjNHmgvLQ0orOKUODUS4VVchN-38T4J8pJrQ5in9i1Luw6w6CsLY"/>
+</div>
+<div>
+<h3 class="font-headline font-bold text-on-surface text-lg">Marcus Holloway</h3>
+<p class="font-body text-sm text-on-surface/60 font-semibold tracking-wide">BASIC PLAN</p>
+</div>
+</div>
+<div class="text-right">
+<span class="inline-flex items-center px-4 py-1.5 rounded-full bg-outline-variant/20 text-on-surface-variant font-body text-[10px] font-bold uppercase tracking-widest mb-2">Pending</span>
+<p class="font-headline font-bold text-on-surface">$19.00/mo</p>
+</div>
+</div>
+<!-- Analytics Injected Bento Card -->
+<div class="bg-primary-container rounded-xl p-8 text-white relative overflow-hidden shadow-2xl shadow-primary-container/20">
+<div class="relative z-10">
+<p class="font-body text-xs font-extrabold uppercase tracking-[0.2em] mb-2 opacity-80">Total Subscriptions</p>
+<h4 class="font-headline font-black text-5xl mb-6">1,284</h4>
+<div class="flex items-center gap-4">
+<div class="bg-white/20 backdrop-blur-md px-4 py-2 rounded-full">
+<span class="font-body text-sm font-bold">+12% this month</span>
+</div>
+<button class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined" data-icon="trending_up">trending_up</span>
+</button>
+</div>
+</div>
+<!-- Abstract Grainy Gradient Overlays -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+<div class="absolute bottom-0 left-0 w-32 h-32 bg-primary-dim/30 rounded-full -ml-10 -mb-10 blur-2xl"></div>
+</div>
+<!-- Subscriber Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_20px_40px_-15px_rgba(56,56,53,0.05)] flex items-center justify-between group hover:translate-y-[-2px] transition-transform duration-300">
+<div class="flex items-center gap-5">
+<div class="relative">
+<img alt="Elena Rodriguez" class="w-16 h-16 rounded-lg object-cover" data-alt="Portrait of a modern entrepreneur woman looking confident with warm natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAT4qeNtws3Cevi-7MIohXcc4Y7D1LfPIto1TKilm2W8RY6EUNK8jPMIMlb6Vgwpn9yNO7mxoxPYFX3RvizlS6s0Xf9WkADhswsegYXWgUL6lg7eW7zg0OnuovP_kJwtiICmT_kdfLbBU9bbSmKrXiJ2I8eXssRYobLptsQz8q887arW5Zci7Ur7JMLNQoMZcWeBoPKnzkWcN8qEXzgdpebhjtVHutxor01iez_hb31rPnWPPZd-5qAB-I0PDQoX17Vk9TFgtEUBJ4"/>
+<div class="absolute -bottom-1 -right-1 w-6 h-6 bg-primary-container rounded-full flex items-center justify-center border-2 border-white">
+<span class="material-symbols-outlined text-[12px] text-white" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<div>
+<h3 class="font-headline font-bold text-on-surface text-lg">Elena Rodriguez</h3>
+<p class="font-body text-sm text-on-surface/60 font-semibold tracking-wide">PRO PLAN</p>
+</div>
+</div>
+<div class="text-right">
+<span class="inline-flex items-center px-4 py-1.5 rounded-full bg-primary-container/10 text-primary font-body text-[10px] font-bold uppercase tracking-widest mb-2">Active</span>
+<p class="font-headline font-bold text-primary">$49.00/mo</p>
+</div>
+</div>
+<!-- Subscriber Card 4 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_20px_40px_-15px_rgba(56,56,53,0.05)] flex items-center justify-between group hover:translate-y-[-2px] transition-transform duration-300">
+<div class="flex items-center gap-5">
+<div class="relative">
+<img alt="Sarah Chen" class="w-16 h-16 rounded-lg object-cover" data-alt="Headshot of a creative professional woman with a minimalist modern background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDemDyeO9WtI_F_XxLEZSptLETBhMUi8QL8ZA9fYuEGBq3R86H00ZtZa_CwHtJR1VmxXTMSv7zRqiglC1zCpN-rpG5iw0ufEBqktcaTmRHAumLY90UlyTQ43_rvhahVJ6W-fVttq5XXzStMKJKoNFLV9DugqIwpwXZO3Ny-sCf7bDm64Fv9LIqb0w-c-3rqEvny1cypfS_Y7gz_6vTEqDOHx_2zTXYADRws_-xmOHb1Fkq-vI5ZzF40LmvA_EpPYcTE7NXsmkdOxio"/>
+</div>
+<div>
+<h3 class="font-headline font-bold text-on-surface text-lg">Sarah Chen</h3>
+<p class="font-body text-sm text-on-surface/60 font-semibold tracking-wide">BASIC PLAN</p>
+</div>
+</div>
+<div class="text-right">
+<span class="inline-flex items-center px-4 py-1.5 rounded-full bg-error-container/10 text-error font-body text-[10px] font-bold uppercase tracking-widest mb-2">Cancelled</span>
+<p class="font-headline font-bold text-on-surface-variant line-through">$19.00/mo</p>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar Component -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-6 pb-4 bg-white dark:bg-[#383835] h-20 rounded-t-[3rem] shadow-2xl md:hidden">
+<a class="flex flex-col items-center justify-center text-[#383835]/40 dark:text-[#fffcf7]/40 active:bg-[#f6f3ee] transition-transform duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-gradient-to-br from-[#9d4f00] to-[#f68a2f] text-white rounded-full w-12 h-12 mb-6 shadow-lg shadow-[#f68a2f]/40 scale-110 transition-transform duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="group" style="font-variation-settings: 'FILL' 1;">group</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#383835]/40 dark:text-[#fffcf7]/40 active:bg-[#f6f3ee] transition-transform duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="campaign">campaign</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Campaigns</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#383835]/40 dark:text-[#fffcf7]/40 active:bg-[#f6f3ee] transition-transform duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="redeem">redeem</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Gifts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#383835]/40 dark:text-[#fffcf7]/40 active:bg-[#f6f3ee] transition-transform duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Menu</span>
+</a>
+</nav>
+</body></html>

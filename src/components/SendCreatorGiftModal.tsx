@@ -306,7 +306,7 @@ const SendCreatorGiftModal = ({
                       Summary
                     </p>
                     <p className="font-bold text-lg">
-                      Monetary Support
+                      Cash Gift
                     </p>
                   </div>
                   <p className="text-2xl font-bold text-primary">

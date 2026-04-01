@@ -305,7 +305,7 @@ export async function fetchSentGiftsList({
           ? 'Prepaid Gift Card'
           : t.campaigns.category === 'claimable' ||
               t.campaigns.category === 'gift-received'
-            ? 'Claimable Monetary Gift'
+            ? 'Claimable Cash Gift'
             : 'Campaign Contribution'
         : 'Direct Support',
       date: new Date(t.created_at).toLocaleDateString(),
@@ -339,49 +339,46 @@ export async function fetchMyGiftsList({
   if (!user) return {success: false, data: []};
 
   try {
-    const {data: allCampaigns} = await supabase
+    // Fetch campaigns with basic fields first
+    const {data: allCampaigns, error: campaignsError} = await supabase
       .from('campaigns')
       .select(
-        'id, title, goal_amount, currency, created_at, gift_code, sender_name, status, vendor_rating, claimable_gift_id, recipient_email, user_id, claimable_type, message',
+        'id, title, goal_amount, currency, created_at, gift_code, sender_name, status, vendor_rating, claimable_gift_id, recipient_email, user_id, claimable_type, message'
       )
       .or(`user_id.eq.${user.id},recipient_email.eq.${user.email}`);
 
     const campaigns = allCampaigns || [];
 
+    // Get unique claimable_gift_ids to fetch vendor info
     const giftIds = campaigns
-      .map(c => Number(c.claimable_gift_id))
-      .filter(id => !isNaN(id) && id > 0);
+      .map(c => c.claimable_gift_id)
+      .filter((id): id is number => id !== null && id !== undefined && Number(id) > 0)
+      .map(id => Number(id));
 
-    const shopsMap: Record<number, any> = {};
+    // Fetch vendor gift info with profiles
+    const vendorMap: Record<number, any> = {};
     if (giftIds.length > 0) {
-      // Use the standard supabase client since RLS is public for these tables
-      const {data: giftsInfo} = await supabase
+      const {data: vendorGifts, error: vendorError} = await supabase
         .from('vendor_gifts')
         .select(`
-          id, 
-          vendor_id, 
+          id, name, image_url, vendor_id,
           profiles!vendor_gifts_vendor_id_fkey(
-            shop_name, 
-            shop_slug, 
-            shop_address, 
-            shop_hours, 
-            shop_logo_url, 
-            display_name,
-            username
+            shop_name, shop_slug, shop_address, shop_logo_url, display_name, username
           )
         `)
         .in('id', giftIds);
 
-      if (giftsInfo) {
-        giftsInfo.forEach((gInfo: any) => {
-          const profile = Array.isArray(gInfo.profiles) ? gInfo.profiles[0] : gInfo.profiles;
-          shopsMap[gInfo.id] = {
-            name: profile?.shop_name || profile?.display_name || profile?.username || 'Partner Shop',
-            slug: profile?.shop_slug || profile?.username || '',
-            address: profile?.shop_address,
-            hours: profile?.shop_hours,
-            logo: profile?.shop_logo_url,
-            vendorId: gInfo.vendor_id
+      if (vendorGifts) {
+        vendorGifts.forEach((vg: any) => {
+          const profile = Array.isArray(vg.profiles) ? vg.profiles[0] : vg.profiles;
+          vendorMap[Number(vg.id)] = {
+            name: vg.name,
+            imageUrl: vg.image_url,
+            vendorId: vg.vendor_id,
+            shopName: profile?.shop_name || profile?.display_name || profile?.username,
+            shopSlug: profile?.shop_slug || profile?.username,
+            shopAddress: profile?.shop_address,
+            shopLogo: profile?.shop_logo_url,
           };
         });
       }
@@ -389,48 +386,50 @@ export async function fetchMyGiftsList({
 
     const voucherGifts = (campaigns || [])
       .filter(c => {
-        const isClaimed = c.status === 'claimed' || c.status === 'redeemed';
-        const isMonetary = c.claimable_type === 'money';
-
         // Include unclaimed/pending gifts too so they show up in "My Gifts"
         if (c.gift_code === null) return false;
-        
+
         // Ensure user is the intended recipient if not yet claimed
         if (c.status === 'active' && c.recipient_email !== user.email && c.user_id !== user.id) return false;
 
         return true;
       })
-      .map((c: any) => ({
-        id: 'gift-' + c.id,
-        name: c.title || (c.claimable_type === 'money' ? 'Monetary Gift' : 'Gift Card'),
-        sender: c.sender_name || 'A Friend',
-        date: new Date(c.created_at).toLocaleDateString(),
-        timestamp: new Date(c.created_at).getTime(),
-        amount: Number(c.goal_amount),
-        currency: c.currency || 'NGN',
-        status:
-          c.status === 'redeemed'
-            ? 'redeemed'
-            : c.status === 'claimed'
-              ? 'claimed'
-              : c.status === 'active' 
-                ? 'pending-claim'
-                : 'unclaimed',
-        code: c.gift_code,
-        rating: c.vendor_rating || 0,
-        type: 'gift',
-        claimable_type: c.claimable_type,
-        claimable_gift_id: c.claimable_gift_id,
-        gift_code: c.gift_code,
-        vendorId: c.claimable_gift_id ? shopsMap[c.claimable_gift_id]?.vendorId : undefined,
-        vendorShopName: c.claimable_gift_id ? shopsMap[c.claimable_gift_id]?.name : undefined,
-        vendorShopSlug: c.claimable_gift_id ? shopsMap[c.claimable_gift_id]?.slug : undefined,
-        vendorAddress: c.claimable_gift_id ? shopsMap[c.claimable_gift_id]?.address : undefined,
-        vendorHours: c.claimable_gift_id ? shopsMap[c.claimable_gift_id]?.hours : undefined,
-        vendorLogo: c.claimable_gift_id ? shopsMap[c.claimable_gift_id]?.logo : undefined,
-        vendorSlug: c.claimable_gift_id ? shopsMap[c.claimable_gift_id]?.slug : undefined,
-        message: c.message,
-      }));
+      .map((c: any) => {
+        // Get vendor info from vendorMap using claimable_gift_id
+        const vendorInfo = c.claimable_gift_id ? vendorMap[Number(c.claimable_gift_id)] : null;
+
+        return {
+          id: 'gift-' + c.id,
+          name: c.title || vendorInfo?.name || (c.claimable_type === 'money' ? 'Cash Gift' : 'Gift Card'),
+          sender: c.sender_name || 'A Friend',
+          date: new Date(c.created_at).toLocaleDateString(),
+          timestamp: new Date(c.created_at).getTime(),
+          amount: Number(c.goal_amount),
+          currency: c.currency || 'NGN',
+          status:
+            c.status === 'redeemed'
+              ? 'redeemed'
+              : c.status === 'claimed'
+                ? 'claimed'
+                : c.status === 'active'
+                  ? 'pending-claim'
+                  : 'unclaimed',
+          code: c.gift_code,
+          rating: c.vendor_rating || 0,
+          type: 'gift',
+          claimable_type: c.claimable_type,
+          claimable_gift_id: c.claimable_gift_id,
+          gift_code: c.gift_code,
+          imageUrl: vendorInfo?.imageUrl,
+          vendorId: vendorInfo?.vendorId,
+          vendorShopName: vendorInfo?.shopName,
+          vendorShopSlug: vendorInfo?.shopSlug,
+          vendorAddress: vendorInfo?.shopAddress,
+          vendorLogo: vendorInfo?.shopLogo,
+          vendorSlug: vendorInfo?.shopSlug,
+          message: c.message,
+        };
+      });
 
     const paginated = voucherGifts
       .sort((a, b) => b.timestamp - a.timestamp)

@@ -19,6 +19,7 @@ import {
 } from './components/tabs';
 import {V2VendorBottomTabBar} from './components/V2VendorBottomTabBar';
 import {V2VendorMobileMenu} from './components/V2VendorMobileMenu';
+import {V2RoleSwitcher} from '../../components/V2RoleSwitcher';
 
 type VendorSection = 'dashboard' | 'shop' | 'inventory' | 'orders' | 'codes' | 'wallet' | 'settings';
 
@@ -74,6 +75,7 @@ function V2VendorDashboardContent() {
   const initialTab = (searchParams.get('tab') as VendorSection) || 'dashboard';
   const [section, setSection] = useState<VendorSection>(initialTab);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Update URL when section changes
   useEffect(() => {
@@ -117,6 +119,7 @@ function V2VendorDashboardContent() {
           </h1>
         </div>
         <div className="flex items-center gap-2">
+          <V2RoleSwitcher />
           <button className="w-10 h-10 rounded-xl bg-[var(--v2-primary)]/10 flex items-center justify-center relative">
             <span className="v2-icon text-[var(--v2-primary)]">notifications</span>
           </button>
@@ -207,13 +210,16 @@ function V2VendorDashboardContent() {
                 search
               </span>
               <input
-                className="w-full bg-[var(--v2-surface-container-low)] border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-1 ring-[var(--v2-outline-variant)]/15 transition-all"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full bg-[var(--v2-surface-container-low)] border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-1 ring-[var(--v2-outline-variant)]/15 transition-all outline-none"
                 placeholder="Search orders, products..."
                 type="text"
               />
             </div>
           </div>
-          <div className="flex items-center gap-6 text-[var(--v2-primary)]">
+          <div className="flex items-center gap-4 text-[var(--v2-primary)]">
+            <V2RoleSwitcher />
             <button className="hover:opacity-80 transition-opacity flex items-center gap-1">
               <span className="v2-icon">notifications</span>
             </button>
@@ -238,8 +244,8 @@ function V2VendorDashboardContent() {
         <div className="p-4 md:p-8 max-w-6xl mx-auto">
           {section === 'dashboard' && <V2VendorOverviewTab setSection={handleSectionChange} />}
           {section === 'shop' && <V2VendorShopTab />}
-          {section === 'inventory' && <V2VendorInventoryTab />}
-          {section === 'orders' && <V2VendorOrdersTab />}
+          {section === 'inventory' && <V2VendorInventoryTab searchQuery={searchQuery} />}
+          {section === 'orders' && <V2VendorOrdersTab searchQuery={searchQuery} />}
           {section === 'codes' && <V2VendorCodesTab />}
           {section === 'wallet' && <V2VendorWalletTab />}
           {section === 'settings' && <V2VendorSettingsTab />}

@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gifthance Admin - Subscriptions</title>
+<!-- Google Fonts: Epilogue & Manrope -->
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;700;800;900&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-dim": "#8b4500",
+              "on-secondary": "#ffffff",
+              "tertiary": "#7d6000",
+              "on-tertiary-container": "#513d00",
+              "secondary-fixed": "#ffc791",
+              "on-primary-container": "#421e00",
+              "on-surface": "#383835",
+              "primary": "#9d4f00",
+              "on-primary-fixed-variant": "#502500",
+              "on-secondary-container": "#6a3c00",
+              "background": "#fffcf7",
+              "secondary-dim": "#824b00",
+              "on-tertiary-fixed": "#392a00",
+              "surface-tint": "#9d4f00",
+              "primary-fixed-dim": "#e57d21",
+              "tertiary-fixed": "#f2c026",
+              "surface-dim": "#e5e2dc",
+              "tertiary-container": "#f2c026",
+              "surface-variant": "#eae8e2",
+              "outline": "#82807c",
+              "primary-fixed": "#f68a2f",
+              "error-container": "#f95630",
+              "surface-bright": "#fffcf7",
+              "secondary-fixed-dim": "#ffb466",
+              "surface-container-highest": "#eae8e2",
+              "on-surface-variant": "#656461",
+              "tertiary-dim": "#6e5500",
+              "outline-variant": "#bbb9b4",
+              "on-error-container": "#520c00",
+              "inverse-primary": "#f68a2f",
+              "surface": "#fffcf7",
+              "surface-container": "#f6f3ee",
+              "on-secondary-fixed-variant": "#774500",
+              "on-secondary-fixed": "#4f2c00",
+              "surface-container-high": "#f0eee8",
+              "secondary": "#935600",
+              "primary-container": "#f68a2f",
+              "on-tertiary-fixed-variant": "#5c4600",
+              "error": "#be2d06",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary": "#ffffff",
+              "on-primary-fixed": "#0f0400",
+              "on-primary": "#ffffff",
+              "surface-container-low": "#fcf9f4",
+              "tertiary-fixed-dim": "#e3b213",
+              "error-dim": "#b92902",
+              "on-error": "#ffffff",
+              "inverse-on-surface": "#9e9d98",
+              "on-background": "#383835",
+              "inverse-surface": "#0e0e0c",
+              "secondary-container": "#ffc791"
+            },
+            fontFamily: {
+              "headline": ["Epilogue"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      body {
+        font-family: 'Manrope', sans-serif;
+        background-color: #fffcf7;
+      }
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .editorial-shadow {
+        box-shadow: 0 32px 64px -12px rgba(56, 56, 53, 0.06);
+      }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- SideNavBar Component -->
+<aside class="h-screen w-64 fixed left-0 top-0 border-r-0 bg-[#f6f3ee] flex flex-col py-8 px-6 z-50">
+<div class="mb-10 px-2">
+<h1 class="text-2xl font-black text-[#383835] font-['Epilogue'] tracking-tight">Gifthance</h1>
+<p class="text-[10px] font-bold uppercase tracking-widest text-[#383835]/40 mt-1">Editorial Admin</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors hover:bg-[#fffcf7]/50 text-[#383835]/60 font-medium font-['Epilogue'] text-sm" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors hover:bg-[#fffcf7]/50 text-[#383835]/60 font-medium font-['Epilogue'] text-sm" href="#">
+<span class="material-symbols-outlined">group</span>
+<span>Users</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors hover:bg-[#fffcf7]/50 text-[#383835]/60 font-medium font-['Epilogue'] text-sm" href="#">
+<span class="material-symbols-outlined">campaign</span>
+<span>Campaigns</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors hover:bg-[#fffcf7]/50 text-[#383835]/60 font-medium font-['Epilogue'] text-sm" href="#">
+<span class="material-symbols-outlined">redeem</span>
+<span>Gifts</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors hover:bg-[#fffcf7]/50 text-[#383835]/60 font-medium font-['Epilogue'] text-sm" href="#">
+<span class="material-symbols-outlined">card_giftcard</span>
+<span>Claimable Gifts</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors hover:bg-[#fffcf7]/50 text-[#383835]/60 font-medium font-['Epilogue'] text-sm" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span>Transactions</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors hover:bg-[#fffcf7]/50 text-[#383835]/60 font-medium font-['Epilogue'] text-sm" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span>Wallets</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors hover:bg-[#fffcf7]/50 text-[#383835]/60 font-medium font-['Epilogue'] text-sm" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span>Withdrawals</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors hover:bg-[#fffcf7]/50 text-[#383835]/60 font-medium font-['Epilogue'] text-sm" href="#">
+<span class="material-symbols-outlined">storefront</span>
+<span>Vendors</span>
+</a>
+<!-- Active State: Subscriptions -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors bg-white/40 text-[#9d4f00] font-extrabold font-['Epilogue'] text-sm scale-95 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">subscriptions</span>
+<span>Subscriptions</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors hover:bg-[#fffcf7]/50 text-[#383835]/60 font-medium font-['Epilogue'] text-sm" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-8">
+<button class="w-full bg-gradient-to-br from-[#9d4f00] to-[#f68a2f] text-white font-bold py-4 rounded-full flex items-center justify-center gap-2 shadow-lg shadow-[#f68a2f]/20 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-lg">add</span>
+<span class="font-['Epilogue'] text-sm">New Campaign</span>
+</button>
+</div>
+</aside>
+<!-- TopNavBar Component -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-20 z-40 bg-white/80 backdrop-blur-xl flex justify-between items-center px-10">
+<div class="flex items-center w-1/2">
+<div class="relative w-full max-w-md group focus-within:ring-2 focus-within:ring-[#f68a2f]/20 rounded-full transition-all">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">search</span>
+<input class="w-full pl-12 pr-6 py-3 bg-surface-container border-none rounded-full font-['Manrope'] text-sm focus:ring-0 focus:bg-surface-container-highest transition-colors" placeholder="Search subscriptions, users..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="p-2 text-on-surface-variant hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="flex items-center gap-4 bg-surface-container py-1.5 pl-1.5 pr-4 rounded-full">
+<img alt="Rita Obade, Support Admin" class="w-9 h-9 rounded-full object-cover border-2 border-white" data-alt="professional headshot of a smiling woman with dark hair, soft studio lighting, high-end editorial portrait style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVkz9zSg9CosWS36mliXjsVmKmGOYf9qGSfxhUYyv1PlgGPtXX19X4sVLjCjxwKcocxQW14o_K2gS2tytvZUwfIBAsL8LPzny1Yh5qCwuNQ1OAm3kzciNOvwtL-D97YZKvGG1qFzNJlgdcGa-htjQvcrYrxsVamWguoKdSy0VsKAp9Izm77tMEw3Kne4CucacadOJacTK6YlDd4gEeAaRcuedsJNYrwm1GIF0tcLLPSsyFYnOf4P35jTu2r2qOKOFc1puj5olJ3i4"/>
+<div class="flex flex-col">
+<span class="text-sm font-bold font-['Manrope'] leading-none">Rita Obade</span>
+<span class="text-[10px] text-on-surface-variant uppercase font-bold tracking-tighter">Support Admin</span>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-28 pb-12 px-10 min-h-screen">
+<div class="max-w-7xl mx-auto">
+<!-- Page Header -->
+<div class="flex justify-between items-end mb-10">
+<div>
+<h2 class="text-4xl font-black font-headline text-on-surface tracking-tight">Subscriptions</h2>
+<p class="text-on-surface-variant mt-2 font-body max-w-md">Manage and monitor recurring memberships, plan allocations, and renewal cycles across your user base.</p>
+</div>
+<div class="flex gap-4">
+<button class="flex items-center gap-2 px-6 py-3 bg-surface-container-high hover:bg-surface-container-highest transition-colors rounded-full font-label font-bold text-sm text-on-surface">
+<span class="material-symbols-outlined text-xl">filter_list</span>
+<span>Filter</span>
+</button>
+<button class="flex items-center gap-2 px-6 py-3 bg-primary text-white hover:opacity-90 transition-opacity rounded-full font-label font-bold text-sm shadow-xl shadow-primary/10">
+<span class="material-symbols-outlined text-xl">file_download</span>
+<span>Export CSV</span>
+</button>
+</div>
+</div>
+<!-- Dashboard Stats Row (Asymmetric Bento Style) -->
+<div class="grid grid-cols-12 gap-6 mb-10">
+<div class="col-span-12 md:col-span-4 bg-primary-container p-8 rounded-xl editorial-shadow relative overflow-hidden group">
+<div class="relative z-10">
+<p class="text-on-primary-container/80 font-bold uppercase tracking-widest text-xs mb-1">Active Subscribers</p>
+<h3 class="text-5xl font-black font-headline text-on-primary-container leading-none">12,482</h3>
+<div class="mt-6 flex items-center gap-2 text-on-primary-container/90 bg-white/20 w-fit px-3 py-1 rounded-full text-xs font-bold">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+<span>+12.4% this month</span>
+</div>
+</div>
+<span class="material-symbols-outlined absolute -right-6 -bottom-6 text-9xl text-white/10 rotate-12 group-hover:rotate-0 transition-transform duration-500">loyalty</span>
+</div>
+<div class="col-span-12 md:col-span-8 grid grid-cols-2 gap-6">
+<div class="bg-surface-container-lowest p-8 rounded-xl editorial-shadow border border-outline-variant/10">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-on-surface-variant font-bold uppercase tracking-widest text-[10px] mb-1">Monthly Revenue</p>
+<h3 class="text-3xl font-black font-headline text-on-surface leading-none">$84,200</h3>
+</div>
+<div class="p-3 bg-surface-container rounded-2xl">
+<span class="material-symbols-outlined text-primary text-2xl">payments</span>
+</div>
+</div>
+<div class="mt-8 h-1 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-3/4 rounded-full"></div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-8 rounded-xl editorial-shadow border border-outline-variant/10">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-on-surface-variant font-bold uppercase tracking-widest text-[10px] mb-1">Churn Rate</p>
+<h3 class="text-3xl font-black font-headline text-on-surface leading-none">2.4%</h3>
+</div>
+<div class="p-3 bg-surface-container rounded-2xl">
+<span class="material-symbols-outlined text-error text-2xl">heart_broken</span>
+</div>
+</div>
+<div class="mt-8 flex gap-2">
+<div class="h-8 w-1/3 bg-surface-container rounded-md"></div>
+<div class="h-8 w-1/2 bg-surface-container rounded-md"></div>
+<div class="h-8 w-1/6 bg-surface-container-highest rounded-md"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Subscriptions Table Container -->
+<div class="bg-surface-container-lowest rounded-xl editorial-shadow overflow-hidden">
+<div class="px-10 py-8 flex justify-between items-center border-b border-surface-container">
+<h4 class="text-xl font-black font-headline text-on-surface">Recent Subscriptions</h4>
+<div class="flex items-center gap-3">
+<div class="flex rounded-full bg-surface-container p-1">
+<button class="px-6 py-2 rounded-full text-xs font-bold font-label bg-white text-on-surface shadow-sm transition-all">All</button>
+<button class="px-6 py-2 rounded-full text-xs font-bold font-label text-on-surface-variant hover:text-on-surface transition-all">Active</button>
+<button class="px-6 py-2 rounded-full text-xs font-bold font-label text-on-surface-variant hover:text-on-surface transition-all">Trial</button>
+</div>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-surface-container/30">
+<th class="px-10 py-5 text-[11px] font-black uppercase tracking-[0.2em] text-on-surface-variant">User</th>
+<th class="px-10 py-5 text-[11px] font-black uppercase tracking-[0.2em] text-on-surface-variant">Plan</th>
+<th class="px-10 py-5 text-[11px] font-black uppercase tracking-[0.2em] text-on-surface-variant">Status</th>
+<th class="px-10 py-5 text-[11px] font-black uppercase tracking-[0.2em] text-on-surface-variant text-center">Auto-renew</th>
+<th class="px-10 py-5 text-[11px] font-black uppercase tracking-[0.2em] text-on-surface-variant">Expires</th>
+<th class="px-10 py-5 text-[11px] font-black uppercase tracking-[0.2em] text-on-surface-variant text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container/50">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-10 py-6">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-[#f2c026] flex items-center justify-center text-white font-black text-xs">MA</div>
+<div>
+<p class="font-bold text-on-surface text-sm">Marcus Aurelius</p>
+<p class="text-xs text-on-surface-variant">marcus@philosophy.co</p>
+</div>
+</div>
+</td>
+<td class="px-10 py-6">
+<span class="px-4 py-1.5 rounded-full bg-primary/5 text-primary text-[11px] font-extrabold font-label uppercase tracking-widest">Premium Plus</span>
+</td>
+<td class="px-10 py-6">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#d1fae5] text-[#065f46] text-xs font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-[#065f46]"></span>
+                                        Active
+                                    </span>
+</td>
+<td class="px-10 py-6 text-center">
+<span class="text-sm font-bold text-on-surface">Yes</span>
+</td>
+<td class="px-10 py-6">
+<p class="text-sm font-bold text-on-surface">Oct 24, 2024</p>
+<p class="text-[10px] text-on-surface-variant font-medium">Automatic renewal</p>
+</td>
+<td class="px-10 py-6 text-right">
+<button class="p-2 hover:bg-surface-container rounded-full transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-10 py-6">
+<div class="flex items-center gap-4">
+<img alt="Sarah Jenkins" class="w-10 h-10 rounded-full object-cover" data-alt="close-up portrait of a woman with red hair and glasses, warm natural lighting, professional minimal studio background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiQ936TzLkxnlp9abF7uPkxdcUa2DqbC3t1edXSZ2ULIYyf1KeOMB2W0B3wFe1i2gQQVnGDuiaOp8ueZHNlVeNhWe0N4VlU_V1Po-tuH6qHbBETFwM-GyMNpYFVpO7e-K0zPR8x4dHc3gOK9SxxasY_3kgGl8D6c4se7D4wpoJUSkCNfDPuSGgiaGF5k0fYb23b0NzDFYu64UG8lW2n0Jyp8RdBtYcyvaehHD3Sy8e-vjewCdW-7Txd-MBHXNemapXuwXYbDjEm5A"/>
+<div>
+<p class="font-bold text-on-surface text-sm">Sarah Jenkins</p>
+<p class="text-xs text-on-surface-variant">s.jenkins@agency.io</p>
+</div>
+</div>
+</td>
+<td class="px-10 py-6">
+<span class="px-4 py-1.5 rounded-full bg-secondary/5 text-secondary text-[11px] font-extrabold font-label uppercase tracking-widest">Standard Tier</span>
+</td>
+<td class="px-10 py-6">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#d1fae5] text-[#065f46] text-xs font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-[#065f46]"></span>
+                                        Active
+                                    </span>
+</td>
+<td class="px-10 py-6 text-center">
+<span class="text-sm font-bold text-on-surface">No</span>
+</td>
+<td class="px-10 py-6">
+<p class="text-sm font-bold text-on-surface">Sep 12, 2024</p>
+<p class="text-[10px] text-error font-medium uppercase tracking-tighter italic">Pending expiry</p>
+</td>
+<td class="px-10 py-6 text-right">
+<button class="p-2 hover:bg-surface-container rounded-full transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-10 py-6">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-[#f68a2f] flex items-center justify-center text-white font-black text-xs">BK</div>
+<div>
+<p class="font-bold text-on-surface text-sm">Brian Kalu</p>
+<p class="text-xs text-on-surface-variant">bkalu@startup.com</p>
+</div>
+</div>
+</td>
+<td class="px-10 py-6">
+<span class="px-4 py-1.5 rounded-full bg-primary/5 text-primary text-[11px] font-extrabold font-label uppercase tracking-widest">Enterprise</span>
+</td>
+<td class="px-10 py-6">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#d1fae5] text-[#065f46] text-xs font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-[#065f46]"></span>
+                                        Active
+                                    </span>
+</td>
+<td class="px-10 py-6 text-center">
+<span class="text-sm font-bold text-on-surface">Yes</span>
+</td>
+<td class="px-10 py-6">
+<p class="text-sm font-bold text-on-surface">Jan 05, 2025</p>
+<p class="text-[10px] text-on-surface-variant font-medium">Automatic renewal</p>
+</td>
+<td class="px-10 py-6 text-right">
+<button class="p-2 hover:bg-surface-container rounded-full transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-10 py-6">
+<div class="flex items-center gap-4">
+<img alt="Lydia Frost" class="w-10 h-10 rounded-full object-cover" data-alt="professional portrait of a woman with braided hair, soft side lighting, elegant minimal aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_99WFA6aLl8_FT9kwPcVlmxtkchJuE0Co5DgnKeYzRxjkoplIoSH7oDgm7TDoPC2BoGUjqEut7PX90CSRtc32cBb2Kssw79MVvKB3bVCEbPpfrzvtq559_QoTsmKQBTc1prwdS8EtGxwK00R8vQnKQy33wGi7IbcqWLXRsPouyRUQNmuogKvYIzlNCzkjlKrEkzdomyDQmazBPdkzqEcayreS36PWaKxLxq2Q7rU_0DudKrBPppT42yZg6ut_zjX01h_itQvH5Pk"/>
+<div>
+<p class="font-bold text-on-surface text-sm">Lydia Frost</p>
+<p class="text-xs text-on-surface-variant">lydia@frost.design</p>
+</div>
+</div>
+</td>
+<td class="px-10 py-6">
+<span class="px-4 py-1.5 rounded-full bg-primary/5 text-primary text-[11px] font-extrabold font-label uppercase tracking-widest">Premium Plus</span>
+</td>
+<td class="px-10 py-6">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-error-container/20 text-error text-xs font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+                                        Past Due
+                                    </span>
+</td>
+<td class="px-10 py-6 text-center">
+<span class="text-sm font-bold text-on-surface">Yes</span>
+</td>
+<td class="px-10 py-6">
+<p class="text-sm font-bold text-on-surface">Aug 20, 2024</p>
+<p class="text-[10px] text-error font-extrabold uppercase tracking-tighter italic">Payment Failed</p>
+</td>
+<td class="px-10 py-6 text-right">
+<button class="p-2 hover:bg-surface-container rounded-full transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer Pagination -->
+<div class="px-10 py-8 border-t border-surface-container flex justify-between items-center">
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Showing 4 of 1,240 subscribers</p>
+<div class="flex gap-2">
+<button class="w-10 h-10 rounded-full border border-surface-container flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="px-4 h-10 rounded-full bg-primary text-white text-xs font-bold">1</button>
+<button class="px-4 h-10 rounded-full hover:bg-surface-container text-xs font-bold transition-all">2</button>
+<button class="px-4 h-10 rounded-full hover:bg-surface-container text-xs font-bold transition-all">3</button>
+<button class="w-10 h-10 rounded-full border border-surface-container flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Visible only on small screens as per logic) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 bg-white flex justify-around items-center px-6 pb-4 h-20 rounded-t-[3rem] shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)]">
+<div class="flex flex-col items-center justify-center text-[#383835]/40">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-bold uppercase tracking-widest font-['Manrope'] mt-1">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#383835]/40">
+<span class="material-symbols-outlined">group</span>
+<span class="text-[10px] font-bold uppercase tracking-widest font-['Manrope'] mt-1">Users</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-gradient-to-br from-[#9d4f00] to-[#f68a2f] text-white rounded-full w-12 h-12 mb-6 shadow-lg shadow-[#f68a2f]/40 transition-transform duration-300 scale-110">
+<span class="material-symbols-outlined">subscriptions</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#383835]/40">
+<span class="material-symbols-outlined">redeem</span>
+<span class="text-[10px] font-bold uppercase tracking-widest font-['Manrope'] mt-1">Gifts</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#383835]/40">
+<span class="material-symbols-outlined">menu</span>
+<span class="text-[10px] font-bold uppercase tracking-widest font-['Manrope'] mt-1">Menu</span>
+</div>
+</nav>
+</body></html>

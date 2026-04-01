@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;700;800;900&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-dim": "#824b00",
+              "on-surface-variant": "#656461",
+              "on-tertiary-container": "#513d00",
+              "surface-dim": "#e5e2dc",
+              "tertiary-fixed-dim": "#e3b213",
+              "on-primary-fixed": "#0f0400",
+              "surface-tint": "#9d4f00",
+              "on-primary": "#ffffff",
+              "secondary": "#935600",
+              "surface": "#fffcf7",
+              "surface-container-highest": "#eae8e2",
+              "on-error-container": "#520c00",
+              "tertiary": "#7d6000",
+              "error": "#be2d06",
+              "primary-dim": "#8b4500",
+              "primary-container": "#f68a2f",
+              "on-surface": "#383835",
+              "surface-variant": "#eae8e2",
+              "error-dim": "#b92902",
+              "surface-container": "#f6f3ee",
+              "surface-container-high": "#f0eee8",
+              "outline": "#82807c",
+              "on-secondary-container": "#6a3c00",
+              "tertiary-container": "#f2c026",
+              "surface-bright": "#fffcf7",
+              "error-container": "#f95630",
+              "inverse-primary": "#f68a2f",
+              "secondary-container": "#ffc791",
+              "primary": "#9d4f00",
+              "on-primary-container": "#421e00",
+              "surface-container-low": "#fcf9f4",
+              "secondary-fixed-dim": "#ffb466",
+              "on-background": "#383835",
+              "tertiary-fixed": "#f2c026",
+              "inverse-on-surface": "#9e9d98",
+              "on-tertiary": "#ffffff",
+              "secondary-fixed": "#ffc791",
+              "on-secondary": "#ffffff",
+              "on-secondary-fixed": "#4f2c00",
+              "on-tertiary-fixed-variant": "#5c4600",
+              "on-secondary-fixed-variant": "#774500"
+            },
+            fontFamily: {
+              "headline": ["Epilogue"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #fffcf7;
+            color: #383835;
+        }
+        .editorial-shadow {
+            box-shadow: 0 32px 48px -20px rgba(56, 56, 53, 0.06);
+        }
+    </style>
+</head>
+<body class="font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- SideNavBar Shell -->
+<aside class="bg-[#f6f3ee] h-screen w-72 rounded-r-[3rem] fixed left-0 top-0 overflow-hidden shadow-[32px_0_48px_-20px_rgba(56,56,53,0.04)] z-50 flex flex-col h-full py-10 gap-8">
+<div class="px-8 flex flex-col gap-1">
+<h1 class="font-headline font-bold text-xl text-[#383835] tracking-tight">Gifthance</h1>
+<p class="font-label text-xs font-semibold tracking-wide text-on-surface-variant uppercase">Editorial Admin</p>
+</div>
+<nav class="flex-grow flex flex-col gap-2">
+<a class="text-[#383835] hover:text-[#9d4f00] hover:bg-[#fffcf7] mx-4 my-1 px-6 py-3 rounded-full transition-all duration-300 font-label text-sm font-semibold tracking-wide flex items-center gap-3" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="text-[#383835] hover:text-[#9d4f00] hover:bg-[#fffcf7] mx-4 my-1 px-6 py-3 rounded-full transition-all duration-300 font-label text-sm font-semibold tracking-wide flex items-center gap-3" href="#">
+<span class="material-symbols-outlined">group</span>
+                Users
+            </a>
+<a class="text-[#383835] hover:text-[#9d4f00] hover:bg-[#fffcf7] mx-4 my-1 px-6 py-3 rounded-full transition-all duration-300 font-label text-sm font-semibold tracking-wide flex items-center gap-3" href="#">
+<span class="material-symbols-outlined">campaign</span>
+                Campaigns
+            </a>
+<a class="text-[#383835] hover:text-[#9d4f00] hover:bg-[#fffcf7] mx-4 my-1 px-6 py-3 rounded-full transition-all duration-300 font-label text-sm font-semibold tracking-wide flex items-center gap-3" href="#">
+<span class="material-symbols-outlined">redeem</span>
+                Gifts
+            </a>
+<a class="bg-gradient-to-r from-[#9d4f00] to-[#f68a2f] text-white rounded-full shadow-lg shadow-orange-500/20 mx-4 my-1 px-6 py-3 font-label text-sm font-semibold tracking-wide flex items-center gap-3 translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined">analytics</span>
+                Reports &amp; Logs
+            </a>
+</nav>
+<div class="px-8 mb-4">
+<button class="w-full bg-primary-container text-on-primary-container font-bold py-4 rounded-xl shadow-lg hover:brightness-105 transition-all active:scale-95">
+                Create New Campaign
+            </button>
+</div>
+<footer class="flex flex-col gap-2 border-t border-outline-variant/10 pt-6">
+<a class="text-[#383835] hover:text-[#9d4f00] hover:bg-[#fffcf7] mx-4 px-6 py-3 rounded-full transition-all duration-300 font-label text-sm font-semibold flex items-center gap-3" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+<a class="text-error hover:bg-error-container/10 mx-4 px-6 py-3 rounded-full transition-all duration-300 font-label text-sm font-semibold flex items-center gap-3" href="#">
+<span class="material-symbols-outlined">logout</span>
+                Logout
+            </a>
+</footer>
+</aside>
+<!-- Main Content Shell -->
+<main class="ml-72 min-h-screen">
+<!-- TopAppBar -->
+<header class="bg-[#f6f3ee]/80 backdrop-blur-md sticky top-0 z-40 w-full px-8 py-4 flex justify-between items-center max-w-[1600px] mx-auto">
+<div class="flex items-center gap-8">
+<h2 class="font-headline font-black text-2xl text-[#9d4f00] tracking-tight">Reports &amp; Analytics</h2>
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="bg-surface-container-lowest border-none rounded-full pl-12 pr-6 py-2 w-64 focus:ring-2 focus:ring-primary-fixed text-sm" placeholder="Search reports..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-orange-50 transition-colors text-primary relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-[#f6f3ee]"></span>
+</button>
+<button class="px-4 py-2 font-label text-sm font-semibold text-primary hover:bg-orange-50 rounded-full transition-colors">
+                    Support
+                </button>
+<div class="w-10 h-10 rounded-full bg-primary-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Professional male administrator headshot with warm lighting and a neutral gray background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDAasmo-ogRE6fTu6Dogbr9cRwLJmuzVA7DT7QraJNgnAoP12e9vgDHlh_2XszHNrm2oPn3sujllTx7ZyN8kSzyg_8p1K8DbgFn-A2jbHmOrfYNBH_tSgrVi-kWA_Y2Vz1JF-XY3nF2oPuOFjAv1rF_M-aE2Cv2qS1OZCKyUkavMnnPDDMVE7Nm_1rAzLKp08g36h6BvqHzHZbEL_-NF23Mh6avZN0-uitWROFGRYcTJfbSEgzAP0eNQc656m4OnJAGZSdxdZQCEkY"/>
+</div>
+</div>
+</header>
+<!-- Editorial Content Grid -->
+<div class="p-8 max-w-[1600px] mx-auto space-y-10">
+<!-- Quick Metrics - Bento Style -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+<!-- Power Metric Card -->
+<div class="bg-primary-container text-on-primary-container rounded-xl p-8 editorial-shadow flex flex-col justify-between h-56 relative overflow-hidden group">
+<div class="z-10">
+<p class="font-label text-sm font-bold opacity-80 uppercase tracking-widest">Total Revenue</p>
+<h3 class="font-headline text-5xl font-black mt-2 tracking-tighter">$842.5k</h3>
+</div>
+<div class="flex items-center gap-2 z-10">
+<span class="material-symbols-outlined text-on-primary-container">trending_up</span>
+<span class="font-bold text-lg">+12.4%</span>
+<span class="opacity-70 text-sm font-medium">vs last month</span>
+</div>
+<!-- Decorative Background Texture -->
+<div class="absolute -right-10 -bottom-10 opacity-20 group-hover:scale-110 transition-transform duration-700">
+<span class="material-symbols-outlined text-[12rem]" style="font-variation-settings: 'FILL' 1;">payments</span>
+</div>
+</div>
+<!-- Secondary Metric -->
+<div class="bg-surface-container-lowest rounded-xl p-8 editorial-shadow flex flex-col justify-between h-56">
+<div>
+<p class="font-label text-sm font-bold text-outline uppercase tracking-widest">Active Campaigns</p>
+<h3 class="font-headline text-4xl font-bold text-on-surface mt-2">1,204</h3>
+</div>
+<div class="h-16 flex items-end gap-1">
+<div class="w-full bg-surface-container h-8 rounded-t-sm"></div>
+<div class="w-full bg-surface-container h-12 rounded-t-sm"></div>
+<div class="w-full bg-primary-fixed-dim h-10 rounded-t-sm"></div>
+<div class="w-full bg-primary h-16 rounded-t-sm"></div>
+<div class="w-full bg-secondary-container h-14 rounded-t-sm"></div>
+</div>
+</div>
+<!-- Metric Card -->
+<div class="bg-surface-container-lowest rounded-xl p-8 editorial-shadow flex flex-col justify-between h-56">
+<div>
+<p class="font-label text-sm font-bold text-outline uppercase tracking-widest">Global Users</p>
+<h3 class="font-headline text-4xl font-bold text-on-surface mt-2">48.2k</h3>
+</div>
+<div class="flex -space-x-3">
+<img class="w-10 h-10 rounded-full border-4 border-surface ring-2 ring-primary/5" data-alt="Portrait of young woman with natural light and minimalist background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIZtfWjNi7HCF4tkqHkLeFdTkDB4qK8tHWC4213tV_feJATXJEJUbKoRx5Q0-YdKi9KbXaV1WSSfbQIApoCHFnU3y5XL__09N2MeeycG7m4rlLNx7r1vvL8on4e883BMagFhDL9OQzCLRegNwKzi_AMh1k2iyqOpuCi9bzwcERllO8eyJNyUp-PEikUlNrefYOvnG4fa5IF6nNjzhxjG3ICxdroVfDPZBOf8nL48u5C2bLlAnftdUtkiolMnjsmwLIS5PShWs6UxE"/>
+<img class="w-10 h-10 rounded-full border-4 border-surface" data-alt="Candid portrait of smiling young man with urban background in soft focus" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCd9KYHYCQ1TJv-TQSYklA1VVe49DMDhQBcdwsDOaWH6L45GpfGy_v1moIhJg4EEmc1I0xlSI4SEWermUGedmGwzPwBUwZM3kCS4yz9EGI_VEAKIt30mPLSABsEIwZonitEH3ku7uaZCxTwDB-YQKzN4OhKiIS23uy9asAsxe6WC_o4-YCGoAvaLIDAJkze8PsT1C4wwRfzybBBLrLUODZtqk49d4wbuTA2470W8bLwHHurLoCtcT5ax9tlavGlFSMIpLhwG4j0U5o"/>
+<img class="w-10 h-10 rounded-full border-4 border-surface" data-alt="Business professional headshot with warm professional studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAeczTJzO-b7QUdoAL6bltt_AUq-qSbKBHuRipnXL67rP09CdpSSYpucbcEfukTTLamEzGBWcVz4M02DvXMJSt_Hrlx-3UxfGdkmzAOMeqpOT6b4QoqVtVxna35d0N5Bu6WFWMZ3JXwtarok2Q13wk3e3xdndN1ki59RttpOOS5bHuugTlvRHHTmoDLBagiQVy_-Rg7-C3XeZBpf4IKUc_WCcp-AvadsbBE2eaNtDZdkDldYxBylSVIigZopYdMKmkn4FPiMOEJSmo"/>
+<div class="w-10 h-10 rounded-full border-4 border-surface bg-secondary-container flex items-center justify-center text-[10px] font-black">+2k</div>
+</div>
+</div>
+<!-- Metric Card -->
+<div class="bg-surface-container-lowest rounded-xl p-8 editorial-shadow flex flex-col justify-between h-56">
+<div>
+<p class="font-label text-sm font-bold text-outline uppercase tracking-widest">Growth Index</p>
+<h3 class="font-headline text-4xl font-bold text-on-surface mt-2">94.8</h3>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex-grow bg-surface-container h-3 rounded-full overflow-hidden">
+<div class="bg-gradient-to-r from-secondary-fixed-dim to-primary w-[94%] h-full rounded-full"></div>
+</div>
+<span class="font-bold text-primary">Top Tier</span>
+</div>
+</div>
+</section>
+<!-- Major Insights Row -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Main Chart Canvas -->
+<div class="lg:col-span-2 bg-surface-container-lowest rounded-xl p-10 editorial-shadow">
+<div class="flex justify-between items-start mb-12">
+<div>
+<h4 class="font-headline text-2xl font-bold text-on-surface">Revenue Trend</h4>
+<p class="text-on-surface-variant font-medium mt-1">Net performance across the last 6 months</p>
+</div>
+<div class="flex bg-surface-container p-1 rounded-full">
+<button class="px-6 py-2 bg-white rounded-full shadow-sm text-sm font-bold">Monthly</button>
+<button class="px-6 py-2 text-sm font-semibold text-outline">Quarterly</button>
+</div>
+</div>
+<!-- Custom Bar Chart (Styled) -->
+<div class="flex items-end justify-between h-80 gap-6 px-4">
+<div class="flex flex-col items-center gap-4 w-full">
+<div class="w-full bg-surface-container-high rounded-t-xl h-[40%] group relative">
+<div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-on-surface text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">$42k</div>
+</div>
+<span class="text-xs font-bold text-outline">JAN</span>
+</div>
+<div class="flex flex-col items-center gap-4 w-full">
+<div class="w-full bg-surface-container-high rounded-t-xl h-[55%]"></div>
+<span class="text-xs font-bold text-outline">FEB</span>
+</div>
+<div class="flex flex-col items-center gap-4 w-full">
+<div class="w-full bg-primary-container/20 rounded-t-xl h-[85%] border-t-4 border-primary-container"></div>
+<span class="text-xs font-bold text-primary">MAR</span>
+</div>
+<div class="flex flex-col items-center gap-4 w-full">
+<div class="w-full bg-surface-container-high rounded-t-xl h-[45%]"></div>
+<span class="text-xs font-bold text-outline">APR</span>
+</div>
+<div class="flex flex-col items-center gap-4 w-full">
+<div class="w-full bg-surface-container-high rounded-t-xl h-[70%]"></div>
+<span class="text-xs font-bold text-outline">MAY</span>
+</div>
+<div class="flex flex-col items-center gap-4 w-full">
+<div class="w-full bg-secondary-container/40 rounded-t-xl h-[95%] border-t-4 border-secondary-fixed-dim"></div>
+<span class="text-xs font-bold text-on-secondary-fixed">JUN</span>
+</div>
+</div>
+</div>
+<!-- Top Creators Sidebar-Style List -->
+<div class="bg-surface-container rounded-xl p-8 flex flex-col">
+<h4 class="font-headline text-2xl font-bold text-on-surface mb-8">Top Creators</h4>
+<div class="space-y-6">
+<div class="flex items-center gap-4 group cursor-pointer hover:bg-white p-3 -mx-3 rounded-2xl transition-all">
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-primary-fixed shadow-md">
+<img class="w-full h-full object-cover" data-alt="Portrait of a creative professional male with short beard and sophisticated studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxEcMETOTZlUJY-RNSL-LkajmW8_EXnxftCZ4Lns5hOGUVUVQNMQePipqRSgZfX7wT0Y5KaIiwfFk5we4oAu959Eh3fuZzEHKuE2yKQMGvmnUb1kOrNLoFJ7CG53fNxL8sTKxdSE0vSL6a9sj3HY6hJiHOVVZaSxAOMrcdHf-DweribOKUwj4tkI7EusiEWKSOGEt8vJzmZ4eCtE9mQOggGrPQAgmlwXrsWHqfkRiPsT8Sm-Jc8pxUoeSIjFNTjTSEvyxdGlAaeMY"/>
+</div>
+<div class="flex-grow">
+<p class="font-bold text-sm text-on-surface">Elena Rodriguez</p>
+<p class="text-xs text-on-surface-variant">@creative_elena</p>
+</div>
+<div class="text-right">
+<p class="font-bold text-sm text-primary">$14,200</p>
+<p class="text-[10px] font-black text-secondary tracking-widest">GOLD</p>
+</div>
+</div>
+<div class="flex items-center gap-4 group cursor-pointer hover:bg-white p-3 -mx-3 rounded-2xl transition-all">
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-surface-variant">
+<img class="w-full h-full object-cover" data-alt="Happy young woman with expressive face and bright daylight background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDu7sm9roOvapHlUGaLrG6xHqlu0xMcgrycP5WHlyevIonZ80nhKkfHFm7wjKfIL0uwnvhhn3e1kWi_iV_uXLdw558t2oNr4Eoi3gIVHf-rgrpYY0Sgay9t_PpB-Rcch3P5Ix5HxNgh2b3Rucp2olepb0RDSiXVjzr2Je9VJX1QZjJmN40Vmh_grZZnIHQKQGJZItk4m1Qbl4_YhSBjlJIYJCZRJP1cVMeBCKJv_kHtN7ME0IAUvwP2IJ_40wlgTZT7UDp5DqixdY8"/>
+</div>
+<div class="flex-grow">
+<p class="font-bold text-sm text-on-surface">James T. Kirk</p>
+<p class="text-xs text-on-surface-variant">@trek_gifts</p>
+</div>
+<div class="text-right">
+<p class="font-bold text-sm text-on-surface">$9,850</p>
+<p class="text-[10px] font-black text-outline tracking-widest">SILVER</p>
+</div>
+</div>
+<div class="flex items-center gap-4 group cursor-pointer hover:bg-white p-3 -mx-3 rounded-2xl transition-all">
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-surface-variant">
+<img class="w-full h-full object-cover" data-alt="Intelligent looking woman with glasses in a professional indoor setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwdPxKwF9gykA30a9nYz3ABeAZySPV5JTC1v8j6mLOQnc85gBhjqt77MTczc7hj5doqriRZ--VPG2X8LNI41Qqs4lLLM7-wgEnaesjDuS6mwR6Gkslg95yxu4poO5HtjHqFiB3wFPjnmx3OY_K1p9JIe_igsr9cVJhNlBXfRLINVQaHO81uyhMJmWcmTDeZbTaD1n_T-k0RCISL5XXXHgSmXVFG9MgZlrpL361cwWDuup2AEqDknDi4fgKWG01Oj8TgjxhO3QAEzE"/>
+</div>
+<div class="flex-grow">
+<p class="font-bold text-sm text-on-surface">Amina Chen</p>
+<p class="text-xs text-on-surface-variant">@nina_chen</p>
+</div>
+<div class="text-right">
+<p class="font-bold text-sm text-on-surface">$8,100</p>
+<p class="text-[10px] font-black text-outline tracking-widest">SILVER</p>
+</div>
+</div>
+</div>
+<button class="mt-auto pt-8 font-bold text-primary flex items-center gap-2 hover:gap-4 transition-all group">
+                        View all creators 
+                        <span class="material-symbols-outlined text-lg">arrow_forward</span>
+</button>
+</div>
+</section>
+<!-- Bottom Section - Asymmetric Grid -->
+<section class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+<!-- Performance Distribution Card -->
+<div class="bg-surface-container rounded-xl p-8 editorial-shadow">
+<h5 class="font-headline font-bold text-lg mb-6">Device Usage</h5>
+<div class="relative w-40 h-40 mx-auto mb-8">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<circle class="text-surface-container-highest" cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" stroke-width="12"></circle>
+<circle class="text-primary" cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="62.8" stroke-width="12"></circle>
+<circle class="text-secondary-container" cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="180" stroke-width="12"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center flex-col">
+<span class="text-2xl font-black">72%</span>
+<span class="text-[10px] text-outline font-bold uppercase">Mobile</span>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex items-center justify-between text-xs">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<span class="font-semibold">Mobile</span>
+</div>
+<span class="font-black text-on-surface">72%</span>
+</div>
+<div class="flex items-center justify-between text-xs">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-secondary-container"></div>
+<span class="font-semibold">Desktop</span>
+</div>
+<span class="font-black text-on-surface">24%</span>
+</div>
+<div class="flex items-center justify-between text-xs">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-surface-container-highest"></div>
+<span class="font-semibold">Tablet</span>
+</div>
+<span class="font-black text-on-surface">4%</span>
+</div>
+</div>
+</div>
+<!-- High Performing Campaigns List -->
+<div class="lg:col-span-3 bg-surface-container-lowest rounded-xl p-8 editorial-shadow">
+<div class="flex justify-between items-center mb-8">
+<h4 class="font-headline text-2xl font-bold text-on-surface">Top Campaigns</h4>
+<button class="bg-surface-container-high text-on-surface font-bold px-6 py-2 rounded-full text-xs hover:bg-surface-container-highest transition-colors">Export CSV</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="text-[10px] font-black text-outline uppercase tracking-[0.2em] border-b border-surface-container">
+<th class="pb-4">Campaign Name</th>
+<th class="pb-4">Status</th>
+<th class="pb-4">Conversion</th>
+<th class="pb-4">Total Revenue</th>
+<th class="pb-4 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container">
+<tr class="group hover:bg-surface-container/30 transition-colors">
+<td class="py-6 pr-4">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-orange-100 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">celebration</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Summer Solstice Bash</p>
+<p class="text-xs text-on-surface-variant">Started Jun 12, 2024</p>
+</div>
+</div>
+</td>
+<td class="py-6">
+<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-black tracking-wide uppercase">Active</span>
+</td>
+<td class="py-6">
+<div class="flex items-center gap-2">
+<span class="font-bold text-sm">8.2%</span>
+<span class="text-xs text-green-600 font-bold">↑ 1.2%</span>
+</div>
+</td>
+<td class="py-6">
+<p class="font-black text-on-surface">$128,400</p>
+</td>
+<td class="py-6 text-right">
+<button class="p-2 hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined text-outline">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="group hover:bg-surface-container/30 transition-colors">
+<td class="py-6 pr-4">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center text-blue-400">
+<span class="material-symbols-outlined">auto_awesome</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Tech Founders Gala</p>
+<p class="text-xs text-on-surface-variant">Started May 05, 2024</p>
+</div>
+</div>
+</td>
+<td class="py-6">
+<span class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-[10px] font-black tracking-wide uppercase">Ending Soon</span>
+</td>
+<td class="py-6">
+<div class="flex items-center gap-2">
+<span class="font-bold text-sm">6.5%</span>
+<span class="text-xs text-error font-bold">↓ 0.4%</span>
+</div>
+</td>
+<td class="py-6">
+<p class="font-black text-on-surface">$92,150</p>
+</td>
+<td class="py-6 text-right">
+<button class="p-2 hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined text-outline">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Contextual FAB (Only for Main Screens) -->
+<button class="fixed bottom-10 right-10 w-16 h-16 bg-primary text-white rounded-full editorial-shadow flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50 group">
+<span class="material-symbols-outlined text-3xl">add</span>
+<span class="absolute right-20 bg-on-surface text-white px-4 py-2 rounded-xl text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-xl">New Report</span>
+</button>
+</body></html>

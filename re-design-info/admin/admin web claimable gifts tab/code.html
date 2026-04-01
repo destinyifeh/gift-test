@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gifthance | Claimable Gifts</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;700;800;900&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-dim": "#8b4500",
+              "on-secondary": "#ffffff",
+              "tertiary": "#7d6000",
+              "on-tertiary-container": "#513d00",
+              "secondary-fixed": "#ffc791",
+              "on-primary-container": "#421e00",
+              "on-surface": "#383835",
+              "primary": "#9d4f00",
+              "on-primary-fixed-variant": "#502500",
+              "on-secondary-container": "#6a3c00",
+              "background": "#fffcf7",
+              "secondary-dim": "#824b00",
+              "on-tertiary-fixed": "#392a00",
+              "surface-tint": "#9d4f00",
+              "primary-fixed-dim": "#e57d21",
+              "tertiary-fixed": "#f2c026",
+              "surface-dim": "#e5e2dc",
+              "tertiary-container": "#f2c026",
+              "surface-variant": "#eae8e2",
+              "outline": "#82807c",
+              "primary-fixed": "#f68a2f",
+              "error-container": "#f95630",
+              "surface-bright": "#fffcf7",
+              "secondary-fixed-dim": "#ffb466",
+              "surface-container-highest": "#eae8e2",
+              "on-surface-variant": "#656461",
+              "tertiary-dim": "#6e5500",
+              "outline-variant": "#bbb9b4",
+              "on-error-container": "#520c00",
+              "inverse-primary": "#f68a2f",
+              "surface": "#fffcf7",
+              "surface-container": "#f6f3ee",
+              "on-secondary-fixed-variant": "#774500",
+              "on-secondary-fixed": "#4f2c00",
+              "surface-container-high": "#f0eee8",
+              "secondary": "#935600",
+              "primary-container": "#f68a2f",
+              "on-tertiary-fixed-variant": "#5c4600",
+              "error": "#be2d06",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary": "#ffffff",
+              "on-primary-fixed": "#0f0400",
+              "on-primary": "#ffffff",
+              "surface-container-low": "#fcf9f4",
+              "tertiary-fixed-dim": "#e3b213",
+              "error-dim": "#b92902",
+              "on-error": "#ffffff",
+              "inverse-on-surface": "#9e9d98",
+              "on-background": "#383835",
+              "inverse-surface": "#0e0e0c",
+              "secondary-container": "#ffc791"
+            },
+            fontFamily: {
+              "headline": ["Epilogue"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+        }
+        body {
+            background-color: #fffcf7;
+            color: #383835;
+            overflow-x: hidden;
+        }
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f6f3ee; }
+        ::-webkit-scrollbar-thumb { background: #e5e2dc; border-radius: 10px; }
+    </style>
+</head>
+<body class="font-body selection:bg-primary-container/30">
+<!-- Side Navigation Bar -->
+<aside class="h-screen w-64 fixed left-0 top-0 border-r-0 bg-[#f6f3ee] dark:bg-[#1a1a19] flex flex-col py-8 px-6 z-50">
+<div class="mb-10 flex items-center gap-3">
+<div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center text-white shadow-lg shadow-primary-container/20">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">redeem</span>
+</div>
+<div>
+<h1 class="text-2xl font-black text-[#383835] dark:text-[#fffcf7] font-headline tracking-tighter">Gifthance</h1>
+<p class="text-[10px] uppercase tracking-[0.2em] font-bold text-primary/60">Editorial Admin</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1 overflow-y-auto pr-2 custom-scrollbar">
+<!-- Dashboard -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-['Epilogue'] font-medium text-sm tracking-tight text-[#383835]/60 hover:bg-[#fffcf7]/50 transition-colors group" href="#">
+<span class="material-symbols-outlined text-xl">dashboard</span>
+                Dashboard
+            </a>
+<!-- Users -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-['Epilogue'] font-medium text-sm tracking-tight text-[#383835]/60 hover:bg-[#fffcf7]/50 transition-colors group" href="#">
+<span class="material-symbols-outlined text-xl">group</span>
+                Users
+            </a>
+<!-- Campaigns -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-['Epilogue'] font-medium text-sm tracking-tight text-[#383835]/60 hover:bg-[#fffcf7]/50 transition-colors group" href="#">
+<span class="material-symbols-outlined text-xl">campaign</span>
+                Campaigns
+            </a>
+<!-- Gifts -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-['Epilogue'] font-medium text-sm tracking-tight text-[#383835]/60 hover:bg-[#fffcf7]/50 transition-colors group" href="#">
+<span class="material-symbols-outlined text-xl">redeem</span>
+                Gifts
+            </a>
+<!-- Claimable Gifts (Active) -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-['Epilogue'] font-extrabold text-sm tracking-tight text-[#9d4f00] bg-white shadow-sm transition-colors group" href="#">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">card_giftcard</span>
+                Claimable Gifts
+            </a>
+<!-- Transactions -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-['Epilogue'] font-medium text-sm tracking-tight text-[#383835]/60 hover:bg-[#fffcf7]/50 transition-colors group" href="#">
+<span class="material-symbols-outlined text-xl">receipt_long</span>
+                Transactions
+            </a>
+<!-- Wallets -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-['Epilogue'] font-medium text-sm tracking-tight text-[#383835]/60 hover:bg-[#fffcf7]/50 transition-colors group" href="#">
+<span class="material-symbols-outlined text-xl">account_balance_wallet</span>
+                Wallets
+            </a>
+<!-- Withdrawals -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-['Epilogue'] font-medium text-sm tracking-tight text-[#383835]/60 hover:bg-[#fffcf7]/50 transition-colors group" href="#">
+<span class="material-symbols-outlined text-xl">payments</span>
+                Withdrawals
+            </a>
+<!-- Vendors -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-['Epilogue'] font-medium text-sm tracking-tight text-[#383835]/60 hover:bg-[#fffcf7]/50 transition-colors group" href="#">
+<span class="material-symbols-outlined text-xl">storefront</span>
+                Vendors
+            </a>
+<!-- Subscriptions -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-['Epilogue'] font-medium text-sm tracking-tight text-[#383835]/60 hover:bg-[#fffcf7]/50 transition-colors group" href="#">
+<span class="material-symbols-outlined text-xl">subscriptions</span>
+                Subscriptions
+            </a>
+<!-- Settings -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-['Epilogue'] font-medium text-sm tracking-tight text-[#383835]/60 hover:bg-[#fffcf7]/50 transition-colors group" href="#">
+<span class="material-symbols-outlined text-xl">settings</span>
+                Settings
+            </a>
+</nav>
+<div class="mt-8">
+<button class="w-full bg-gradient-to-br from-primary to-primary-container text-white font-headline font-bold py-4 px-4 rounded-full flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
+<span class="material-symbols-outlined">add_circle</span>
+                New Campaign
+            </button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen bg-background relative">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-20 bg-white/80 dark:bg-[#383835]/80 backdrop-blur-xl flex justify-between items-center px-10 z-40 transition-all">
+<div class="flex-1 max-w-xl">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full bg-surface-container border-none h-11 pl-12 pr-4 rounded-full font-body text-sm focus:ring-2 focus:ring-primary-container/20 transition-all placeholder:text-outline/60" placeholder="Search claimable gifts, codes or users..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="relative w-10 h-10 flex items-center justify-center text-on-surface hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<div class="h-8 w-[1px] bg-outline-variant/30"></div>
+<div class="flex items-center gap-3 group cursor-pointer">
+<div class="text-right">
+<p class="font-body font-bold text-sm text-on-surface">Rita Obade</p>
+<p class="text-[10px] text-outline font-medium">Support Admin</p>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container/20 group-hover:border-primary-container transition-colors">
+<img alt="Rita Obade, Support Admin" class="w-full h-full object-cover" data-alt="professional portrait of a confident woman in business casual attire with a warm friendly smile and neutral studio background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDudG3f0nt7JyFF70AFlptkiuHL_zXOzWTzOfPbMImDmmVP803mx-lpi1sPBJmsdB9gC-ADD6cB1W150l0S0_dKly11PlH2CnK28fd8GPwYWh182PHn6iTv2CLAj2tcTqq6Af-e197kfYV5o35UXX0vvG26cZZzmP7I71B7E377XK4BSmsKb7clAB1uVjYS8OmJq2rkrgsZpgaHf8FVDe9UqZwjOGgei8kYeO4gaTFp_4ItjEHPoN3SJFzCOoNowwi8Cw5DsSY0vHc"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Page Content -->
+<div class="pt-28 pb-12 px-10">
+<!-- Breadcrumbs & Title -->
+<div class="mb-8 flex items-end justify-between">
+<div>
+<div class="flex items-center gap-2 text-outline text-xs font-bold uppercase tracking-widest mb-2">
+<span>Gifthance</span>
+<span class="material-symbols-outlined text-[10px]">chevron_right</span>
+<span class="text-primary">Gifts</span>
+</div>
+<h2 class="text-4xl font-black font-headline text-on-surface tracking-tight">Claimable Gifts</h2>
+</div>
+<div class="flex gap-3">
+<button class="bg-surface-container-high px-6 py-2.5 rounded-full font-body font-bold text-sm text-on-surface flex items-center gap-2 hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-lg">filter_list</span>
+                        Filters
+                    </button>
+<button class="bg-surface-container-high px-6 py-2.5 rounded-full font-body font-bold text-sm text-on-surface flex items-center gap-2 hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-lg">ios_share</span>
+                        Export
+                    </button>
+</div>
+</div>
+<!-- Dashboard Stats Bento Grid -->
+<div class="grid grid-cols-4 gap-6 mb-10">
+<div class="col-span-1 bg-surface-container-lowest p-6 rounded-xl border-none shadow-[0_20px_50px_-20px_rgba(56,56,53,0.05)]">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4">
+<span class="material-symbols-outlined">inventory_2</span>
+</div>
+<p class="text-outline text-xs font-bold uppercase tracking-wider mb-1">Total Available</p>
+<h3 class="text-2xl font-black font-headline text-on-surface">1,284</h3>
+</div>
+<div class="col-span-1 bg-primary-container p-6 rounded-xl border-none shadow-[0_20px_50px_-20px_rgba(246,138,47,0.3)]">
+<div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white mb-4">
+<span class="material-symbols-outlined">pending_actions</span>
+</div>
+<p class="text-white/80 text-xs font-bold uppercase tracking-wider mb-1">Pending Claims</p>
+<h3 class="text-2xl font-black font-headline text-white">459</h3>
+</div>
+<div class="col-span-1 bg-surface-container-lowest p-6 rounded-xl border-none shadow-[0_20px_50px_-20px_rgba(56,56,53,0.05)]">
+<div class="w-12 h-12 rounded-full bg-secondary-fixed-dim/20 flex items-center justify-center text-secondary mb-4">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<p class="text-outline text-xs font-bold uppercase tracking-wider mb-1">Successfully Redeemed</p>
+<h3 class="text-2xl font-black font-headline text-on-surface">8,920</h3>
+</div>
+<div class="col-span-1 bg-surface-container-lowest p-6 rounded-xl border-none shadow-[0_20px_50px_-20px_rgba(56,56,53,0.05)]">
+<div class="w-12 h-12 rounded-full bg-error-container/10 flex items-center justify-center text-error mb-4">
+<span class="material-symbols-outlined">event_busy</span>
+</div>
+<p class="text-outline text-xs font-bold uppercase tracking-wider mb-1">Expired This Month</p>
+<h3 class="text-2xl font-black font-headline text-on-surface">24</h3>
+</div>
+</div>
+<!-- Table Section -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0_40px_80px_-40px_rgba(56,56,53,0.1)] overflow-hidden">
+<div class="p-8 border-b border-surface-container-high flex items-center justify-between">
+<h3 class="font-headline font-bold text-xl text-on-surface">Inventory Records</h3>
+<div class="flex items-center gap-4">
+<div class="flex bg-surface-container p-1 rounded-full">
+<button class="px-4 py-1.5 rounded-full text-xs font-bold bg-white text-primary shadow-sm">All Gifts</button>
+<button class="px-4 py-1.5 rounded-full text-xs font-bold text-outline hover:text-on-surface transition-colors">Claimed</button>
+<button class="px-4 py-1.5 rounded-full text-xs font-bold text-outline hover:text-on-surface transition-colors">Redeemed</button>
+</div>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container/30">
+<th class="px-8 py-5 text-[10px] uppercase tracking-[0.15em] font-black text-outline">Code / Item ID</th>
+<th class="px-6 py-5 text-[10px] uppercase tracking-[0.15em] font-black text-outline">Vendor</th>
+<th class="px-6 py-5 text-[10px] uppercase tracking-[0.15em] font-black text-outline">Product Details</th>
+<th class="px-6 py-5 text-[10px] uppercase tracking-[0.15em] font-black text-outline">Amount</th>
+<th class="px-6 py-5 text-[10px] uppercase tracking-[0.15em] font-black text-outline text-center">Status</th>
+<th class="px-8 py-5 text-[10px] uppercase tracking-[0.15em] font-black text-outline text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-high">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container/10 transition-colors group">
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-sm text-outline">qr_code_2</span>
+</div>
+<span class="font-headline font-bold text-sm text-on-surface">#GFH-9283-XK</span>
+</div>
+</td>
+<td class="px-6 py-6">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full overflow-hidden bg-surface-container">
+<img alt="Amazon Logo" class="w-full h-full object-contain" data-alt="minimalist orange amazon arrow logo on white background circle crop" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmU0ynCHWARmtWmEnN34KCHx4KO1FUQRc4ofX_tO1UiJPAI3E10toS656ptWdheecsV7PGoQiOyqLtteyPRAmn1OHh6OzZIxrg-WHyYWjmvs3U6EVN3m5WSLy3jMoX56jQPmUyRdfXqFaJWas9nGWMWk8UxtEAZnhNAd07vjSjajHD8SsldFlBGc1Fr7QskBq3BErvbDPczJb2z_VdcOnjcqWhUiAWf8YjaaDe-mU6XBDCF-jsa7fMdOV3KHvuNIIHPx-Ne68fEU4"/>
+</div>
+<span class="text-sm font-semibold">Amazon UK</span>
+</div>
+</td>
+<td class="px-6 py-6">
+<div>
+<p class="text-sm font-bold text-on-surface">Kindle E-Reader 2024</p>
+<p class="text-xs text-outline font-medium">Electronics • Gift Voucher</p>
+</div>
+</td>
+<td class="px-6 py-6">
+<span class="font-headline font-black text-primary">£89.00</span>
+</td>
+<td class="px-6 py-6 text-center">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-secondary-container/30 text-secondary text-[10px] font-black uppercase tracking-wider">
+                                        Claimed
+                                    </span>
+</td>
+<td class="px-8 py-6 text-right">
+<button class="p-2 text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container/10 transition-colors group">
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-sm text-outline">qr_code_2</span>
+</div>
+<span class="font-headline font-bold text-sm text-on-surface">#GFH-1102-BQ</span>
+</div>
+</td>
+<td class="px-6 py-6">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full overflow-hidden bg-surface-container">
+<img alt="Starbucks Logo" class="w-full h-full object-contain" data-alt="iconic circular green starbucks siren logo on white background circle crop" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGX0G1V3jtL2n8-uibbjQBoZ9jrxxzqt9xmSd9KEITjUS9d9jPoPHrvTh5-jGmwHPAvvVXeTPgyx-1XfAnt9VogWLupH32qibb5ym-ALMS5HZo-6CjxuRNHIlqKSNU4sPH4i_nymj88j02NeKYM7hDFPUlfr-BV4nKcHV6L5O8A4zmRvIB87JmGEhfQKyUr1jmCc5l3tNqu8mzRxgdhBg23t6P1lWeMthB0nyiJwRv1M4Gr68RS-qFqEo1Act3HsK9_w5-H0k2bsM"/>
+</div>
+<span class="text-sm font-semibold">Starbucks</span>
+</div>
+</td>
+<td class="px-6 py-6">
+<div>
+<p class="text-sm font-bold text-on-surface">Premium Roast Bundle</p>
+<p class="text-xs text-outline font-medium">Food &amp; Beverage • Digital</p>
+</div>
+</td>
+<td class="px-6 py-6">
+<span class="font-headline font-black text-primary">£25.00</span>
+</td>
+<td class="px-6 py-6 text-center">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-primary-container/10 text-primary-container text-[10px] font-black uppercase tracking-wider">
+                                        Redeemed
+                                    </span>
+</td>
+<td class="px-8 py-6 text-right">
+<button class="p-2 text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container/10 transition-colors group">
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-sm text-outline">qr_code_2</span>
+</div>
+<span class="font-headline font-bold text-sm text-on-surface">#GFH-5541-ZZ</span>
+</div>
+</td>
+<td class="px-6 py-6">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full overflow-hidden bg-surface-container">
+<img alt="Nike Logo" class="w-full h-full object-contain" data-alt="minimalist black nike swoosh logo on white background circle crop" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYyBD4drxSMkaIMavWLwxVU3-pX_YgVtWPv9rXBU2QIoKhYQ8sQdyTkaXCRCTB3eFwFBRCnGvtkDDgZnbzexxZ_zvw-Ppe7KPsMo9TnSu2f-7QDLRI8jmq1XZ8Skz7j86IrHXnKHGwWWQ-0HY2DhRypKip7z_YMWRps6ElxOOrmVH7GVVoGq3o24zaF_4z9Zav50mf12F9jSNs3wvd5sKyji24ZkdyD3kzxNloeIqCYy9wHHbrxTsxvWQnRqd3YMQtLpomVV73KVU"/>
+</div>
+<span class="text-sm font-semibold">Nike</span>
+</div>
+</td>
+<td class="px-6 py-6">
+<div>
+<p class="text-sm font-bold text-on-surface">Air Max Voucher</p>
+<p class="text-xs text-outline font-medium">Apparel • Physical Pickup</p>
+</div>
+</td>
+<td class="px-6 py-6">
+<span class="font-headline font-black text-primary">£120.00</span>
+</td>
+<td class="px-6 py-6 text-center">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-secondary-container/30 text-secondary text-[10px] font-black uppercase tracking-wider">
+                                        Claimed
+                                    </span>
+</td>
+<td class="px-8 py-6 text-right">
+<button class="p-2 text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container/10 transition-colors group">
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-sm text-outline">qr_code_2</span>
+</div>
+<span class="font-headline font-bold text-sm text-on-surface">#GFH-0012-LM</span>
+</div>
+</td>
+<td class="px-6 py-6">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full overflow-hidden bg-surface-container">
+<img alt="Apple Logo" class="w-full h-full object-contain" data-alt="minimalist grey apple logo on white background circle crop" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPAvBHNJKByGWdoD8WJdgEXb8W-ocXypBIjYZRn3A-IAFrz2mShMlQnysjNVqbuN6G4Hab0KsFCw3vZ_ib9VeN0Q5vxkqwMDaPjfHiw-QW-0HIIh76lF6K2DgzBwCgaaEso8d_qw-mOpukL0cjGFPomPtmJYtSAqrRkwjPt-fS7GzPwEHDE3Q2DkrxAFu8KqSKJqDQR3Ou79Sg7MII7h0ALJchipIW6MaRe3JjPICLFxqhkyBS7Ygg07Gj7YJQ9_WjjZgECnO27EM"/>
+</div>
+<span class="text-sm font-semibold">Apple Store</span>
+</div>
+</td>
+<td class="px-6 py-6">
+<div>
+<p class="text-sm font-bold text-on-surface">Music Subscription (Annual)</p>
+<p class="text-xs text-outline font-medium">Digital • Subscription</p>
+</div>
+</td>
+<td class="px-6 py-6">
+<span class="font-headline font-black text-primary">£99.00</span>
+</td>
+<td class="px-6 py-6 text-center">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-primary-container/10 text-primary-container text-[10px] font-black uppercase tracking-wider">
+                                        Redeemed
+                                    </span>
+</td>
+<td class="px-8 py-6 text-right">
+<button class="p-2 text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-8 border-t border-surface-container-high flex items-center justify-between">
+<p class="text-sm text-outline font-medium">Showing 1 to 4 of 1,284 entries</p>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-outline hover:bg-surface-container transition-colors disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center bg-primary text-white font-bold text-sm shadow-md shadow-primary/20">1</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface font-bold text-sm hover:bg-surface-container transition-colors">2</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface font-bold text-sm hover:bg-surface-container transition-colors">3</button>
+<span class="px-2 text-outline">...</span>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface font-bold text-sm hover:bg-surface-container transition-colors">321</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-outline hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Contextual Help / Sidebar Asymmetry -->
+<div class="mt-10 flex gap-6">
+<div class="flex-1 bg-gradient-to-r from-[#9d4f00] to-[#f68a2f] p-1 rounded-xl">
+<div class="bg-white/95 backdrop-blur rounded-[calc(0.75rem-1px)] p-8 h-full flex items-center justify-between">
+<div class="max-w-md">
+<h4 class="font-headline font-black text-2xl text-on-surface mb-2">Need to bulk import gifts?</h4>
+<p class="text-outline text-sm font-medium mb-6">Our system now supports direct CSV uploads for high-volume gift distribution. Secure, fast, and tracked.</p>
+<button class="bg-on-surface text-white px-8 py-3 rounded-full font-headline font-bold text-sm hover:opacity-90 active:scale-95 transition-all">Download Template</button>
+</div>
+<div class="hidden lg:block w-48 h-48 opacity-10">
+<span class="material-symbols-outlined text-[12rem]">cloud_upload</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Nav (Mobile Only Suppressed via Design System) -->
+<nav class="fixed bottom-0 w-full h-20 rounded-t-xl md:hidden bg-white dark:bg-[#383835] z-50 flex justify-around items-center px-6 pb-4 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)]">
+<div class="flex flex-col items-center justify-center text-[#383835]/40 dark:text-[#fffcf7]/40">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-bold uppercase tracking-widest mt-1">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#383835]/40 dark:text-[#fffcf7]/40">
+<span class="material-symbols-outlined">group</span>
+<span class="text-[10px] font-bold uppercase tracking-widest mt-1">Users</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-gradient-to-br from-[#9d4f00] to-[#f68a2f] text-white rounded-full w-12 h-12 mb-6 shadow-lg shadow-[#f68a2f]/40 scale-110 transition-transform">
+<span class="material-symbols-outlined">card_giftcard</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#383835]/40 dark:text-[#fffcf7]/40">
+<span class="material-symbols-outlined">redeem</span>
+<span class="text-[10px] font-bold uppercase tracking-widest mt-1">Gifts</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#383835]/40 dark:text-[#fffcf7]/40">
+<span class="material-symbols-outlined">menu</span>
+<span class="text-[10px] font-bold uppercase tracking-widest mt-1">Menu</span>
+</div>
+</nav>
+</body></html>

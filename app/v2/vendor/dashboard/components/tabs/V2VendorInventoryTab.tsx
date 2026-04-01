@@ -17,7 +17,7 @@ import {
 } from '@/lib/server/actions/vendor';
 import {formatCurrency} from '@/lib/utils/currency';
 import {useQueryClient} from '@tanstack/react-query';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {toast} from 'sonner';
 
 type FilterType = 'all' | 'active' | 'draft' | 'low';
@@ -44,13 +44,22 @@ const initialFormData: ProductFormData = {
   stock_quantity: '',
 };
 
-export function V2VendorInventoryTab() {
+interface V2VendorInventoryTabProps {
+  searchQuery?: string;
+}
+
+export function V2VendorInventoryTab({searchQuery = ''}: V2VendorInventoryTabProps) {
   const {data: profile} = useProfile();
   const queryClient = useQueryClient();
   const {data: products = [], isLoading} = useVendorProducts(profile?.id, true);
 
   const [filter, setFilter] = useState<FilterType>('all');
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(searchQuery);
+
+  // Sync with parent search query
+  useEffect(() => {
+    if (searchQuery) setSearch(searchQuery);
+  }, [searchQuery]);
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [productForm, setProductForm] = useState<ProductFormData>(initialFormData);

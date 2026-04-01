@@ -380,7 +380,7 @@ export async function fetchAdminShopGifts({
 
     let query = supabase
       .from('campaigns')
-      .select('*, profiles!campaigns_user_id_fkey(username, display_name, country)')
+      .select('*, profiles!campaigns_user_id_fkey(username, display_name, country, shop_name, shop_address, shop_logo_url)')
       .not('gift_code', 'is', null) // Only show shop gifts (gift cards, prepaid items)
       .order('created_at', {ascending: false})
       .range(from, to);

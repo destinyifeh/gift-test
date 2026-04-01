@@ -791,71 +791,135 @@ export function V2MyGiftsTab() {
                   </div>
                 )}
 
-                {/* Store Information - Always show for all gifts including redeemed */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <span className="v2-icon text-sm text-[var(--v2-on-surface-variant)]">storefront</span>
-                    <span className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
-                      Store Information
-                    </span>
-                  </div>
-
-                  {/* Vendor/Shop Name */}
-                  <div className="p-4 rounded-xl bg-[var(--v2-surface-container-low)] flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[var(--v2-secondary)]/10 flex items-center justify-center flex-shrink-0">
-                      <span className="v2-icon text-[var(--v2-secondary)]">store</span>
+                {/* Store Information - Only show for gift cards with vendor info */}
+                {selectedGift.claimable_type !== 'money' && selectedGift.vendorShopName && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <span className="v2-icon text-sm text-[var(--v2-on-surface-variant)]">storefront</span>
+                      <span className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
+                        Store Information
+                      </span>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase">Vendor</p>
-                      <p className="text-sm font-medium text-[var(--v2-on-surface)] truncate">
-                        {selectedGift.vendor || selectedGift.shopName || selectedGift.storeName || selectedGift.name || 'Vendor Shop'}
+
+                    {/* Vendor/Shop Name */}
+                    <div className="p-4 rounded-xl bg-[var(--v2-surface-container-low)] flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-[var(--v2-secondary)]/10 flex items-center justify-center flex-shrink-0">
+                        <span className="v2-icon text-[var(--v2-secondary)]">store</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase">Vendor</p>
+                        <p className="text-sm font-medium text-[var(--v2-on-surface)] truncate">
+                          {selectedGift.vendorShopName}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Location/Address */}
+                    {selectedGift.vendorAddress && (
+                      <div className="p-4 rounded-xl bg-[var(--v2-surface-container-low)] flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-[var(--v2-primary)]/10 flex items-center justify-center flex-shrink-0">
+                          <span className="v2-icon text-[var(--v2-primary)]">location_on</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase">Location</p>
+                          <p className="text-sm text-[var(--v2-on-surface)] truncate">
+                            {selectedGift.vendorAddress}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Direction & Visit Store Buttons */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        onClick={() => {
+                          if (selectedGift.vendorAddress) {
+                            window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedGift.vendorAddress)}`, '_blank');
+                          } else {
+                            toast.error('No address available for directions');
+                          }
+                        }}
+                        disabled={!selectedGift.vendorAddress}
+                        className="h-11 v2-hero-gradient text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-transform active:scale-[0.98] disabled:opacity-50">
+                        <span className="v2-icon">directions</span>
+                        Directions
+                      </button>
+                      <button
+                        onClick={() => {
+                          const slug = selectedGift.vendorShopSlug || selectedGift.vendorSlug;
+                          if (slug) {
+                            window.open(`/v2/gift-shop/${slug}`, '_blank');
+                          } else {
+                            toast.error('Store page not available');
+                          }
+                        }}
+                        className="h-11 bg-[var(--v2-surface-container-lowest)] text-[var(--v2-on-surface)] font-bold rounded-xl flex items-center justify-center gap-2 border border-[var(--v2-outline-variant)]/20 hover:bg-[var(--v2-surface-container-high)] transition-colors">
+                        <span className="v2-icon">storefront</span>
+                        Visit Store
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Gift Card without vendor info fallback */}
+                {selectedGift.claimable_type !== 'money' && !selectedGift.vendorShopName && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <span className="v2-icon text-sm text-[var(--v2-on-surface-variant)]">card_giftcard</span>
+                      <span className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
+                        Gift Card Details
+                      </span>
+                    </div>
+
+                    <div className="p-4 rounded-xl bg-[var(--v2-surface-container-low)] flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-[var(--v2-primary)]/10 flex items-center justify-center flex-shrink-0">
+                        <span className="v2-icon text-[var(--v2-primary)]">redeem</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase">Type</p>
+                        <p className="text-sm font-medium text-[var(--v2-on-surface)]">
+                          Digital Gift Card
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-xl bg-[var(--v2-primary)]/5 border border-[var(--v2-primary)]/20">
+                      <p className="text-sm text-[var(--v2-on-surface-variant)]">
+                        Use the gift code above to redeem this gift card at the vendor&apos;s location or online store.
                       </p>
                     </div>
                   </div>
+                )}
 
-                  {/* Location/Address */}
-                  <div className="p-4 rounded-xl bg-[var(--v2-surface-container-low)] flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[var(--v2-primary)]/10 flex items-center justify-center flex-shrink-0">
-                      <span className="v2-icon text-[var(--v2-primary)]">location_on</span>
+                {/* Cash Gift Info - Show for money gifts */}
+                {selectedGift.claimable_type === 'money' && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <span className="v2-icon text-sm text-[var(--v2-on-surface-variant)]">payments</span>
+                      <span className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
+                        Cash Gift Details
+                      </span>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase">Location</p>
-                      <p className="text-sm text-[var(--v2-on-surface)] truncate">
-                        {selectedGift.storeAddress || selectedGift.address || selectedGift.location || 'No Address Provided'}
+
+                    <div className="p-4 rounded-xl bg-[var(--v2-surface-container-low)] flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-[var(--v2-primary)]/10 flex items-center justify-center flex-shrink-0">
+                        <span className="v2-icon text-[var(--v2-primary)]">account_balance_wallet</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase">Type</p>
+                        <p className="text-sm font-medium text-[var(--v2-on-surface)]">
+                          Flexible Cash Gift
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-xl bg-[var(--v2-secondary)]/5 border border-[var(--v2-secondary)]/20">
+                      <p className="text-sm text-[var(--v2-on-surface-variant)]">
+                        This cash gift has been added to your wallet balance. You can withdraw it to your bank account or use it for purchases.
                       </p>
                     </div>
                   </div>
-
-                  {/* Direction & Visit Store Buttons */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      onClick={() => {
-                        const address = selectedGift.storeAddress || selectedGift.address || selectedGift.location;
-                        if (address) {
-                          window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`, '_blank');
-                        } else {
-                          toast.error('No address available for directions');
-                        }
-                      }}
-                      className="h-11 v2-hero-gradient text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-transform active:scale-[0.98]">
-                      <span className="v2-icon">directions</span>
-                      Directions
-                    </button>
-                    <button
-                      onClick={() => {
-                        const shopUrl = selectedGift.shopUrl || selectedGift.storeUrl || selectedGift.vendorUrl || selectedGift.website;
-                        if (shopUrl) {
-                          window.open(shopUrl, '_blank');
-                        } else {
-                          toast.error('No store website available');
-                        }
-                      }}
-                      className="h-11 bg-[var(--v2-surface-container-lowest)] text-[var(--v2-on-surface)] font-bold rounded-xl flex items-center justify-center gap-2 border border-[var(--v2-outline-variant)]/20 hover:bg-[var(--v2-surface-container-high)] transition-colors">
-                      <span className="v2-icon">storefront</span>
-                      Visit Store
-                    </button>
-                  </div>
-                </div>
+                )}
 
                 {/* Gift Info */}
                 <div className="space-y-2">

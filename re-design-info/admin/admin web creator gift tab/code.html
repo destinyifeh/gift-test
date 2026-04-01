@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;700;800;900&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-dim": "#824b00",
+              "surface-container-low": "#fcf9f4",
+              "tertiary-dim": "#6e5500",
+              "primary-fixed": "#f68a2f",
+              "tertiary-container": "#f2c026",
+              "primary": "#9d4f00",
+              "on-secondary-fixed": "#4f2c00",
+              "surface-tint": "#9d4f00",
+              "background": "#fffcf7",
+              "primary-dim": "#8b4500",
+              "inverse-surface": "#0e0e0c",
+              "surface-container": "#f6f3ee",
+              "inverse-on-surface": "#9e9d98",
+              "outline-variant": "#bbb9b4",
+              "on-tertiary-fixed-variant": "#5c4600",
+              "on-background": "#383835",
+              "on-secondary-container": "#6a3c00",
+              "on-secondary": "#ffffff",
+              "inverse-primary": "#f68a2f",
+              "on-primary": "#ffffff",
+              "secondary-fixed": "#ffc791",
+              "secondary": "#935600",
+              "on-primary-fixed": "#0f0400",
+              "on-tertiary-fixed": "#392a00",
+              "error-container": "#f95630",
+              "error-dim": "#b92902",
+              "primary-fixed-dim": "#e57d21",
+              "on-surface": "#383835",
+              "outline": "#82807c",
+              "tertiary-fixed": "#f2c026",
+              "error": "#be2d06",
+              "on-primary-container": "#421e00",
+              "surface": "#fffcf7",
+              "surface-container-lowest": "#ffffff",
+              "on-error-container": "#520c00",
+              "surface-container-highest": "#eae8e2",
+              "tertiary-fixed-dim": "#e3b213",
+              "primary-container": "#f68a2f",
+              "surface-dim": "#e5e2dc",
+              "on-tertiary-container": "#513d00",
+              "surface-variant": "#eae8e2",
+              "on-primary-fixed-variant": "#502500",
+              "on-secondary-fixed-variant": "#774500",
+              "surface-container-high": "#f0eee8",
+              "surface-bright": "#fffcf7",
+              "secondary-container": "#ffc791",
+              "tertiary": "#7d6000",
+              "on-tertiary": "#ffffff",
+              "secondary-fixed-dim": "#ffb466",
+              "on-error": "#ffffff",
+              "on-surface-variant": "#656461"
+            },
+            fontFamily: {
+              "headline": ["Epilogue"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #fffcf7;
+            font-family: 'Manrope', sans-serif;
+        }
+    </style>
+</head>
+<body class="text-on-surface">
+<!-- SideNavBar Shell -->
+<aside class="h-screen w-64 fixed left-0 top-0 border-r-0 bg-[#f6f3ee] dark:bg-[#1a1a19] flex flex-col py-8 px-6 z-50 overflow-y-auto">
+<div class="mb-10 flex items-center gap-3">
+<div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">redeem</span>
+</div>
+<div>
+<h1 class="text-2xl font-black text-[#383835] dark:text-[#fffcf7] font-headline">Gifthance</h1>
+<p class="text-[10px] font-bold uppercase tracking-wider text-[#383835]/40 dark:text-[#fffcf7]/40">Editorial Admin</p>
+</div>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-4 py-3 px-4 rounded-xl transition-colors text-[#383835]/60 dark:text-[#fffcf7]/60 font-medium hover:bg-[#fffcf7]/50 dark:hover:bg-white/5 font-headline text-sm tracking-tight group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-4 py-3 px-4 rounded-xl transition-colors text-[#383835]/60 dark:text-[#fffcf7]/60 font-medium hover:bg-[#fffcf7]/50 dark:hover:bg-white/5 font-headline text-sm tracking-tight group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">group</span>
+<span>Users</span>
+</a>
+<a class="flex items-center gap-4 py-3 px-4 rounded-xl transition-colors text-[#383835]/60 dark:text-[#fffcf7]/60 font-medium hover:bg-[#fffcf7]/50 dark:hover:bg-white/5 font-headline text-sm tracking-tight group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">campaign</span>
+<span>Campaigns</span>
+</a>
+<!-- Active State for Gifts -->
+<a class="flex items-center gap-4 py-3 px-4 rounded-xl transition-colors text-[#9d4f00] dark:text-[#f68a2f] font-extrabold bg-[#fffcf7] dark:bg-white/10 font-headline text-sm tracking-tight shadow-sm" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">redeem</span>
+<span>Gifts</span>
+</a>
+<a class="flex items-center gap-4 py-3 px-4 rounded-xl transition-colors text-[#383835]/60 dark:text-[#fffcf7]/60 font-medium hover:bg-[#fffcf7]/50 dark:hover:bg-white/5 font-headline text-sm tracking-tight group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-auto">
+<button class="w-full bg-gradient-to-br from-primary to-primary-container text-white py-4 px-6 rounded-full font-bold shadow-lg shadow-primary-container/20 flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95">
+<span class="material-symbols-outlined text-sm">add</span>
+<span class="font-headline tracking-tight">New Campaign</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 min-h-screen pb-20">
+<!-- TopNavBar Shell -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-20 z-40 bg-white/80 dark:bg-[#383835]/80 backdrop-blur-xl flex justify-between items-center px-10">
+<div class="flex items-center gap-6 w-1/2">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full bg-surface-container border-none rounded-full py-3 pl-12 pr-6 text-sm focus:ring-2 focus:ring-primary-container/20 transition-all font-body" placeholder="Search gifts or recipients..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="relative w-10 h-10 flex items-center justify-center text-on-surface hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-white"></span>
+</button>
+<div class="flex items-center gap-3 pl-4 border-l border-outline-variant/30">
+<div class="text-right hidden xl:block">
+<p class="text-sm font-bold font-body text-on-surface">Rita Obade</p>
+<p class="text-[10px] text-outline font-medium">Support Admin</p>
+</div>
+<img alt="Rita Obade, Support Admin" class="w-10 h-10 rounded-full object-cover ring-2 ring-primary-container/10" data-alt="professional portrait of a smiling woman with braided hair wearing a stylish neutral blazer in a bright modern office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRdrGZuuu3IdFE03EwGUEgr4swn7G2D4rweUnZ-6Vn4UTJxdM705ctcewExYeE17eud4HYcxeArwmfYyMPpg6tYeBdW_jDRoJR5Uv1xiOZLfNmHMxcZZYHrJ0gn14HvAo4yaw0fdMOXs2iGqU-svhPCFCk0j_Wo_Pspym0Sgm8H6q-ec0J2FSrccRZFlmwfD6FEfsiCIJiVAEVnzPWk3wtcyp_bWjp7V84tPW0K__KJ5J-xyEqeRYO4OteBqZ-jub-Xh8UElxfKI8"/>
+</div>
+</div>
+</header>
+<!-- Page Header & Actions -->
+<section class="mt-20 px-10 pt-10 pb-6">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h2 class="text-4xl font-black font-headline tracking-tight text-on-surface mb-2">Creator Gifts</h2>
+<p class="text-outline font-body">Review and manage recent digital distributions to creators.</p>
+</div>
+<div class="flex gap-4">
+<div class="relative inline-block">
+<select class="appearance-none bg-surface-container-high border-none rounded-full py-3 pl-6 pr-12 text-sm font-bold font-body text-on-surface focus:ring-2 focus:ring-primary-container/20 transition-all cursor-pointer">
+<option>All Types</option>
+<option>Gift Card</option>
+<option>Money</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-outline">expand_more</span>
+</div>
+<button class="flex items-center gap-2 bg-surface-container-high hover:bg-surface-container-highest transition-colors text-on-surface font-bold font-body px-6 py-3 rounded-full">
+<span class="material-symbols-outlined text-[20px]">ios_share</span>
+<span>Export</span>
+</button>
+</div>
+</div>
+<!-- Bento Stats Grid -->
+<div class="grid grid-cols-4 gap-6 mb-10">
+<div class="col-span-1 bg-surface-container p-6 rounded-xl">
+<p class="text-[10px] font-bold uppercase tracking-widest text-outline mb-4">Total Distributed</p>
+<h3 class="text-3xl font-black font-headline text-on-surface">$124,500</h3>
+<div class="mt-4 flex items-center gap-1 text-primary text-xs font-bold">
+<span class="material-symbols-outlined text-xs">trending_up</span>
+<span>12% from last month</span>
+</div>
+</div>
+<div class="col-span-1 bg-primary-container/10 p-6 rounded-xl border border-primary-container/20">
+<p class="text-[10px] font-bold uppercase tracking-widest text-primary mb-4">Active Campaigns</p>
+<h3 class="text-3xl font-black font-headline text-primary">18</h3>
+<div class="mt-4 flex items-center gap-1 text-primary/70 text-xs font-bold">
+<span class="material-symbols-outlined text-xs">auto_awesome</span>
+<span>4 ending soon</span>
+</div>
+</div>
+<div class="col-span-2 bg-surface-container-lowest p-6 rounded-xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] flex justify-between items-center">
+<div>
+<p class="text-[10px] font-bold uppercase tracking-widest text-outline mb-4">Top Recipient Reach</p>
+<div class="flex -space-x-3">
+<img class="w-10 h-10 rounded-full border-4 border-white object-cover" data-alt="close-up of a smiling young man with curly hair in a sunny park" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBH7qFihl86wO2Ogaj2b3oWNUVzesFA_fGesIbntDnjjH3i98dD3ZmML9dy0gkM2QfR8bIieJOyYmkozOSYSzYu2kpey6xPCwf35u5Ps5ZUMc1TpS6WqNmn1asai3wYUwmAAqnjxXZKMdpP0h0Q2EopzduL2MfuT3-xN9qTQoXEvo5D3i3Kgm4Lnnz3BosQ9Abv4nVpoD2i0iLUDhD7XDQH0RnVXeUhFdWvCuDcMd-xGVykcb1wfk5FDPH7IoHbxndjeZfirYbJaVw"/>
+<img class="w-10 h-10 rounded-full border-4 border-white object-cover" data-alt="portrait of a confident woman with short hair wearing trendy sunglasses outdoors" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXotFbiNAIamPuVm_tc0sRk0Se9xGU971_qDHzsNPWkFDdw14E1B44Gb90_mOnIspApCbqEaHyU6YWablUrjLewWwhPIDEuR9X_a9wP__RxYs7E-CtnDbuqtX24v32ngAtXnV1yeGJQXezyaNOKEdwBgzo6inGlQg4Va5LvoI1ulbWJTk7Dgfrf8Ju0W8_IrQb3SzkYlWqeqWzwsvR1kM6CkdM0u0MEQNDfeo1mmAZQ87v5PKQNLYkcPjzfzKGNGqLcfs4SodK-kM"/>
+<img class="w-10 h-10 rounded-full border-4 border-white object-cover" data-alt="headshot of a man with a beard smiling warmly in a professional setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0KsUYUgsZrbf0JVGOAubs064BEWh2y9VhNV3-W7mCWGglHFbizVg5yUIND4AiJikhUDzOpX7-KSGJbLmCWiZq-3gt1HNHVLcqSAD_olSIptRjpHkSrIPKiDUZWMc8-N9eOpw-qPcTA78mtxUw7-fHZ18q9Gxq21QROMJZCFO467XeeB109XBbw5MuX58e3_q_2DYOAtPUCTbsz350G0m4S5vcN4ZTOl2KmHNQVqOhXi3DpeUldovW3PYXphD-IuJflZT9t5oFfe4"/>
+<div class="w-10 h-10 rounded-full border-4 border-white bg-surface-container-highest flex items-center justify-center text-[10px] font-black text-outline">+142</div>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-on-surface">Digital Credits</p>
+<p class="text-2xl font-black font-headline text-secondary">85.4%</p>
+</div>
+</div>
+</div>
+<!-- Table Container -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0_30px_60px_-15px_rgba(56,56,53,0.08)] overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container/50 border-b border-surface-container">
+<th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-outline">ID</th>
+<th class="px-6 py-5 text-[10px] font-bold uppercase tracking-widest text-outline">Sender</th>
+<th class="px-6 py-5 text-[10px] font-bold uppercase tracking-widest text-outline">Recipient</th>
+<th class="px-6 py-5 text-[10px] font-bold uppercase tracking-widest text-outline">Type</th>
+<th class="px-6 py-5 text-[10px] font-bold uppercase tracking-widest text-outline">Amount</th>
+<th class="px-6 py-5 text-[10px] font-bold uppercase tracking-widest text-outline">Status</th>
+<th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-outline text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container/30">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container/20 transition-colors group">
+<td class="px-8 py-5 font-headline font-bold text-sm text-outline">#GF-9821</td>
+<td class="px-6 py-5 font-body font-bold text-on-surface">Nike Global</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<img class="w-8 h-8 rounded-full object-cover" data-alt="headshot of a young creator in a denim jacket against a neutral studio background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBR7NuU0SLmJ57MoOJOm9DPdZE6xDvMPgTwe-xRmNZGebnzOATIkXEBnqH_sBDdT8b0n1XlOCyrAffEJsxHGzZF81qElWhb4ZeyW3sAUy-SKRUTlsjzM9Kg5Awhxti3BHxRc17qwpm4weYqsKJ-NFFRqgcgUio9Uwm9YPv3YzgI67LyM79Wbs1hr7fLC8bpSKbvQVxJrihfIvNEoVs4ZgM5AAl9-dH7fcTv3ewUsjuCmUiNrxxsqom-Xv9aNfQ4MRkO5-wUwVFcHKU"/>
+<span class="font-body font-bold text-on-surface">Alex Rivera</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="bg-primary-container/10 text-primary-container text-[10px] font-black tracking-widest px-3 py-1 rounded-full uppercase">Gift Card</span>
+</td>
+<td class="px-6 py-5 font-headline font-extrabold text-on-surface">$500.00</td>
+<td class="px-6 py-5">
+<span class="bg-green-100 text-green-700 text-[10px] font-black tracking-widest px-3 py-1 rounded-full uppercase flex items-center gap-1 w-fit">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                    Success
+                                </span>
+</td>
+<td class="px-8 py-5 text-right">
+<button class="text-outline hover:text-on-surface transition-colors p-1">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container/20 transition-colors group">
+<td class="px-8 py-5 font-headline font-bold text-sm text-outline">#GF-9820</td>
+<td class="px-6 py-5 font-body font-bold text-on-surface">Red Bull Media</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<img class="w-8 h-8 rounded-full object-cover" data-alt="professional woman in glasses smiling at the camera in a creative office" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOXfhsKa1SuyKF57piGBawJdI0pHadWRR7WKNm09_zG4EuxSoSFbDB51SCKXVeluS5u44PxV5U76E161nEnUYXb4wgQC3joM_u0pKvY2KyskiJP8LLoUcqBOffzU-8JrMvlGF2jfspFzUyT7FWzRN0QEOtsSD9P_mo6dAkwxScHtU6rUymuasNL1Jx4eQo_1CWetxR7VxiBzas2fZi_KNfkVXTsaD3o5Y3Z7AbIBK1hTzDUJUvJaPBer3t-yju88h7xSV4kgKck64"/>
+<span class="font-body font-bold text-on-surface">Sarah Chen</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="bg-secondary-container/30 text-secondary text-[10px] font-black tracking-widest px-3 py-1 rounded-full uppercase">Money</span>
+</td>
+<td class="px-6 py-5 font-headline font-extrabold text-on-surface">$2,450.00</td>
+<td class="px-6 py-5">
+<span class="bg-green-100 text-green-700 text-[10px] font-black tracking-widest px-3 py-1 rounded-full uppercase flex items-center gap-1 w-fit">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                    Success
+                                </span>
+</td>
+<td class="px-8 py-5 text-right">
+<button class="text-outline hover:text-on-surface transition-colors p-1">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container/20 transition-colors group">
+<td class="px-8 py-5 font-headline font-bold text-sm text-outline">#GF-9819</td>
+<td class="px-6 py-5 font-body font-bold text-on-surface">Adobe Labs</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<img class="w-8 h-8 rounded-full object-cover" data-alt="close-up of a man with a gentle expression against a blurred urban background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxlguXTO07UvExrJHMrmSQZFiLYKMKrAKZCWUd6ZQMws1yB9wzTrU4C2m-o5wV_Isl6AE3a3BhkXAffCuybujR4UhIlsKmwsczKlFh9t5MPIz9wf2Fl42TELAmx_odQKP0LL8skOIC3-awdiMo9pJjv2tj9B4UqX7qquagGZmsY0ZOoK5UVUfPMu8gb3dD2ngxz7APGiojmYL2Xcnw3X4t3YUHaLo0tApcvt--j5KTftcIOVGAKYWNJV1s3dP-4uxJskDf_AW_9Dc"/>
+<span class="font-body font-bold text-on-surface">Marcus Thorne</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="bg-primary-container/10 text-primary-container text-[10px] font-black tracking-widest px-3 py-1 rounded-full uppercase">Gift Card</span>
+</td>
+<td class="px-6 py-5 font-headline font-extrabold text-on-surface">$100.00</td>
+<td class="px-6 py-5">
+<span class="bg-error-container/10 text-error text-[10px] font-black tracking-widest px-3 py-1 rounded-full uppercase flex items-center gap-1 w-fit">
+<span class="w-1.5 h-1.5 rounded-full bg-error animate-pulse"></span>
+                                    Pending
+                                </span>
+</td>
+<td class="px-8 py-5 text-right">
+<button class="text-outline hover:text-on-surface transition-colors p-1">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container/20 transition-colors group">
+<td class="px-8 py-5 font-headline font-bold text-sm text-outline">#GF-9818</td>
+<td class="px-6 py-5 font-body font-bold text-on-surface">Spotify Ent.</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<img class="w-8 h-8 rounded-full object-cover" data-alt="headshot of a man wearing a turtleneck in a modern minimalist space" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBK1vpewEEgcPErWG7AYlDnBjloBH9bP_2pLfw8JPMXSJpPYtd7JiGmZh70heYkjzqfe6_8SJxr-Ri-5MpU-OFNBfnadKoP6VukEpkcxDPVbGmvCJCwhqwRlju1o-R7X7SeYbCVGqngjSgaI6GrmgE8Zja9MHgpOentd-MEa_v1KEByqerecdT79odl_jY5F8rDjumnfLUTcT3yNAfpzPQnT90SmTiRqb8PRORbYMMEg5FPtAuXRE-hpm-Hx9Eg1v3FMIBFO9BBPZg"/>
+<span class="font-body font-bold text-on-surface">Leo Kim</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="bg-secondary-container/30 text-secondary text-[10px] font-black tracking-widest px-3 py-1 rounded-full uppercase">Money</span>
+</td>
+<td class="px-6 py-5 font-headline font-extrabold text-on-surface">$7,500.00</td>
+<td class="px-6 py-5">
+<span class="bg-green-100 text-green-700 text-[10px] font-black tracking-widest px-3 py-1 rounded-full uppercase flex items-center gap-1 w-fit">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                    Success
+                                </span>
+</td>
+<td class="px-8 py-5 text-right">
+<button class="text-outline hover:text-on-surface transition-colors p-1">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-surface-container/20 transition-colors group">
+<td class="px-8 py-5 font-headline font-bold text-sm text-outline">#GF-9817</td>
+<td class="px-6 py-5 font-body font-bold text-on-surface">Samsung UK</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<img class="w-8 h-8 rounded-full object-cover" data-alt="natural portrait of a young woman with freckles looking thoughtfully into the distance" src="https://lh3.googleusercontent.com/aida-public/AB6AXuANriiF_VFvmfR7LqGoONJwKYeJIZojZVCovhsAKH6goSW-FTgzHAKz_KMlLJje6BlTGCOl0ZGap8vN9VfI2GNDkUe_KMb7hEUrBqH31lzjP2TgSwWJnbie1MFwaLATZl92JNX9PZvJ7gLWs_EEMJwwXThhPSMm0VPuGVRMP1XGH6MJbIJ8IfJR0WsYEUpmtQ7mmb84XW5NtpzhKcFdB0Ojqc1D8LtlmbCyxnI4Vcv9hYcPl2DHGmOeCzuZjRMNZbwCoqNeNlaq1Wo"/>
+<span class="font-body font-bold text-on-surface">Eliza Brooks</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="bg-primary-container/10 text-primary-container text-[10px] font-black tracking-widest px-3 py-1 rounded-full uppercase">Gift Card</span>
+</td>
+<td class="px-6 py-5 font-headline font-extrabold text-on-surface">$250.00</td>
+<td class="px-6 py-5">
+<span class="bg-green-100 text-green-700 text-[10px] font-black tracking-widest px-3 py-1 rounded-full uppercase flex items-center gap-1 w-fit">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                    Success
+                                </span>
+</td>
+<td class="px-8 py-5 text-right">
+<button class="text-outline hover:text-on-surface transition-colors p-1">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+<!-- Table Footer -->
+<div class="px-8 py-6 flex justify-between items-center border-t border-surface-container">
+<p class="text-sm font-medium text-outline">Showing 5 of 1,240 gifts</p>
+<div class="flex gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-full border border-surface-container hover:bg-surface-container text-outline transition-all">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-primary text-white font-bold font-body">1</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container font-bold font-body">2</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container font-bold font-body">3</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full border border-surface-container hover:bg-surface-container text-outline transition-all">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Contextual FAB Suppression (Suppressed for Table view per logic) -->
+</body></html>

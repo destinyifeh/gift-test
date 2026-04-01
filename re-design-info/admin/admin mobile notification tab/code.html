@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@700;800;900&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary-dim": "#824b00",
+                        "on-surface-variant": "#656461",
+                        "on-tertiary-container": "#513d00",
+                        "surface-dim": "#e5e2dc",
+                        "tertiary-fixed-dim": "#e3b213",
+                        "on-primary-fixed": "#0f0400",
+                        "surface-tint": "#9d4f00",
+                        "on-primary": "#ffffff",
+                        "secondary": "#935600",
+                        "surface": "#fffcf7",
+                        "surface-container-highest": "#eae8e2",
+                        "on-error-container": "#520c00",
+                        "tertiary": "#7d6000",
+                        "error": "#be2d06",
+                        "primary-dim": "#8b4500",
+                        "primary-container": "#f68a2f",
+                        "on-surface": "#383835",
+                        "surface-variant": "#eae8e2",
+                        "error-dim": "#b92902",
+                        "surface-container": "#f6f3ee",
+                        "surface-container-high": "#f0eee8",
+                        "outline": "#82807c",
+                        "on-secondary-container": "#6a3c00",
+                        "tertiary-container": "#f2c026",
+                        "surface-bright": "#fffcf7",
+                        "error-container": "#f95630",
+                        "inverse-primary": "#f68a2f",
+                        "secondary-container": "#ffc791",
+                        "primary-fixed": "#f68a2f",
+                        "outline-variant": "#bbb9b4",
+                        "tertiary-dim": "#6e5500",
+                        "primary-fixed-dim": "#e57d21",
+                        "on-tertiary-fixed": "#392a00",
+                        "inverse-surface": "#0e0e0c",
+                        "background": "#fffcf7",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#502500",
+                        "on-error": "#ffffff",
+                        "primary": "#9d4f00",
+                        "on-primary-container": "#421e00",
+                        "surface-container-low": "#fcf9f4",
+                        "secondary-fixed-dim": "#ffb466",
+                        "on-background": "#383835",
+                        "tertiary-fixed": "#f2c026",
+                        "inverse-on-surface": "#9e9d98",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed": "#ffc791",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed": "#4f2c00",
+                        "on-tertiary-fixed-variant": "#5c4600",
+                        "on-secondary-fixed-variant": "#774500"
+                    },
+                    fontFamily: {
+                        "headline": ["Epilogue"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface antialiased min-h-screen pb-32">
+<!-- TopNavBar (Mobile Adaptation) -->
+<header class="bg-[#f6f3ee] dark:bg-stone-900/50 backdrop-blur-md sticky top-0 z-40 flex justify-between items-center w-full px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="bg-primary-container rounded-lg p-2 flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container">notifications</span>
+</div>
+<h1 class="font-headline font-black text-xl text-[#9d4f00] tracking-tight">Notifications</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#383835]">search</span>
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-highest">
+<img alt="Admin User Profile" class="w-full h-full object-cover" data-alt="professional portrait of a high-end digital administrator in a minimalist office setting with soft warm lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoG011YPWQp4W-aTe9YPQ9gws2ttqXqpDpYshigPSIQa-DRFi6OqeVtXQToZmZhEYZAe35Xqn88u2BTc-beao9i5S1jXW7fXHaoQBekdbQttA47ajfUvHC7d6Cv-arkALBYklv35W7gg2pwWUlshyPpX3IpzZCGOs47TJiH0fQrHMxS97zZMHQV6XhIBJYcKQljaZ-aO4P1eP5SA1zqCd4JwFVsZAJm3ZciW6rC5BHUI9ZcDlXxyCDoINBAadQ34fANLXKv1hDI1Y"/>
+</div>
+</div>
+</header>
+<main class="px-6 pt-6 space-y-8 max-w-md mx-auto">
+<!-- Platform Announcement Form Section -->
+<section class="space-y-6">
+<div class="flex items-center justify-between">
+<h2 class="font-headline text-lg font-bold text-[#383835]">Send Announcement</h2>
+<span class="bg-primary/10 text-primary text-xs font-bold px-3 py-1 rounded-full">New Broadcast</span>
+</div>
+<div class="bg-surface-container rounded-xl p-6 space-y-5">
+<!-- Single Column Stacked Form -->
+<div class="space-y-4">
+<div class="space-y-2">
+<label class="text-sm font-semibold text-on-surface-variant px-1">Announcement Title</label>
+<input class="w-full bg-surface-container-lowest border-none rounded-xl px-4 py-3 text-on-surface focus:ring-2 focus:ring-primary-fixed transition-all placeholder:text-outline-variant" placeholder="e.g. System Maintenance Update" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-sm font-semibold text-on-surface-variant px-1">Recipient Segment</label>
+<select class="w-full bg-surface-container-lowest border-none rounded-xl px-4 py-3 text-on-surface focus:ring-2 focus:ring-primary-fixed transition-all">
+<option>All Users</option>
+<option>Premium Subscribers</option>
+<option>Regional Managers</option>
+<option>New Signups (Last 7 Days)</option>
+</select>
+</div>
+<div class="space-y-2">
+<label class="text-sm font-semibold text-on-surface-variant px-1">Message Content</label>
+<textarea class="w-full bg-surface-container-lowest border-none rounded-xl px-4 py-3 text-on-surface focus:ring-2 focus:ring-primary-fixed transition-all placeholder:text-outline-variant resize-none" placeholder="Type your platform-wide message here..." rows="4"></textarea>
+</div>
+<div class="flex items-center gap-3 py-2">
+<div class="w-10 h-6 bg-primary rounded-full relative">
+<div class="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></div>
+</div>
+<span class="text-sm font-medium text-on-surface">Push notification alert</span>
+</div>
+</div>
+<button class="w-full bg-gradient-to-r from-primary to-primary-container text-on-primary font-bold py-4 rounded-full shadow-lg shadow-orange-500/20 active:scale-95 transition-all">
+                    Broadcast Announcement
+                </button>
+</div>
+</section>
+<!-- Notification Feed -->
+<section class="space-y-6">
+<div class="flex items-center justify-between">
+<h2 class="font-headline text-lg font-bold text-[#383835]">Recent Alerts</h2>
+<button class="text-sm font-bold text-primary">Mark all read</button>
+</div>
+<div class="space-y-4">
+<!-- Notification Item 1 -->
+<div class="bg-surface-container-low rounded-xl p-4 flex gap-4 border-l-4 border-primary">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex-shrink-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-container">campaign</span>
+</div>
+<div class="flex-1 space-y-1">
+<div class="flex justify-between items-start">
+<p class="font-bold text-sm text-on-surface leading-tight">Holiday Campaign Live</p>
+<span class="text-[10px] text-on-surface-variant font-medium">2m ago</span>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed">The 'Winter Joy' campaign has been successfully deployed to 4,500 users.</p>
+</div>
+</div>
+<!-- Notification Item 2 -->
+<div class="bg-surface-container-low rounded-xl p-4 flex gap-4 border-l-4 border-error">
+<div class="w-12 h-12 rounded-full bg-error-container/20 flex-shrink-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-error">report</span>
+</div>
+<div class="flex-1 space-y-1">
+<div class="flex justify-between items-start">
+<p class="font-bold text-sm text-on-surface leading-tight">API Latency Spike</p>
+<span class="text-[10px] text-on-surface-variant font-medium">45m ago</span>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed">System detected a 15% increase in gift redemption latency in the EU region.</p>
+</div>
+</div>
+<!-- Notification Item 3 -->
+<div class="bg-surface-container-low rounded-xl p-4 flex gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest flex-shrink-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">group</span>
+</div>
+<div class="flex-1 space-y-1">
+<div class="flex justify-between items-start">
+<p class="font-bold text-sm text-on-surface leading-tight">New Admin Registered</p>
+<span class="text-[10px] text-on-surface-variant font-medium">2h ago</span>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed">Sarah Jenkins (Editorial Team) has completed the onboarding process.</p>
+</div>
+</div>
+<!-- Notification Item 4 -->
+<div class="bg-surface-container-low rounded-xl p-4 flex gap-4">
+<div class="w-12 h-12 rounded-full bg-tertiary-container/30 flex-shrink-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary">redeem</span>
+</div>
+<div class="flex-1 space-y-1">
+<div class="flex justify-between items-start">
+<p class="font-bold text-sm text-on-surface leading-tight">Gift Catalog Updated</p>
+<span class="text-[10px] text-on-surface-variant font-medium">5h ago</span>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed">12 new premium digital gift cards were added to the 'Luxury' collection.</p>
+</div>
+</div>
+</div>
+<button class="w-full py-4 text-sm font-bold text-on-surface-variant hover:bg-surface-container rounded-xl transition-all">
+                Load previous notifications
+            </button>
+</section>
+</main>
+<!-- BottomNavBar (Mobile-Specific) -->
+<nav class="fixed bottom-0 left-0 right-0 bg-[#f6f3ee] dark:bg-stone-900 border-none px-6 py-4 flex justify-between items-center z-50 rounded-t-3xl shadow-[0_-8px_24px_-12px_rgba(56,56,53,0.15)]">
+<div class="flex flex-col items-center gap-1 text-[#383835] dark:text-stone-400">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-bold">Dash</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-[#383835] dark:text-stone-400">
+<span class="material-symbols-outlined">campaign</span>
+<span class="text-[10px] font-bold">Campaigns</span>
+</div>
+<!-- Active Notifications Tab -->
+<div class="flex flex-col items-center gap-1 text-[#9d4f00] relative">
+<div class="absolute -top-2 w-1 h-1 bg-[#9d4f00] rounded-full"></div>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">notifications</span>
+<span class="text-[10px] font-bold">Alerts</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-[#383835] dark:text-stone-400">
+<span class="material-symbols-outlined">redeem</span>
+<span class="text-[10px] font-bold">Gifts</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-[#383835] dark:text-stone-400">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[10px] font-bold">Settings</span>
+</div>
+</nav>
+<!-- Contextual FAB (Hidden on this transactional/detail page as per rules, but included if needed elsewhere) -->
+<!-- Suppressed based on "The UX Goal" rule for task-focused screens -->
+</body></html>

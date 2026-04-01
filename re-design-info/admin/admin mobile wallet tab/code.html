@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gifthance - Wallets</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;700;800;900&amp;family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-dim": "#8b4500",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#7d6000",
+                        "on-tertiary-container": "#513d00",
+                        "secondary-fixed": "#ffc791",
+                        "on-primary-container": "#421e00",
+                        "on-surface": "#383835",
+                        "primary": "#9d4f00",
+                        "on-primary-fixed-variant": "#502500",
+                        "on-secondary-container": "#6a3c00",
+                        "background": "#fffcf7",
+                        "secondary-dim": "#824b00",
+                        "on-tertiary-fixed": "#392a00",
+                        "surface-tint": "#9d4f00",
+                        "primary-fixed-dim": "#e57d21",
+                        "tertiary-fixed": "#f2c026",
+                        "surface-dim": "#e5e2dc",
+                        "tertiary-container": "#f2c026",
+                        "surface-variant": "#eae8e2",
+                        "outline": "#82807c",
+                        "primary-fixed": "#f68a2f",
+                        "error-container": "#f95630",
+                        "surface-bright": "#fffcf7",
+                        "secondary-fixed-dim": "#ffb466",
+                        "surface-container-highest": "#eae8e2",
+                        "on-surface-variant": "#656461",
+                        "tertiary-dim": "#6e5500",
+                        "outline-variant": "#bbb9b4",
+                        "on-error-container": "#520c00",
+                        "inverse-primary": "#f68a2f",
+                        "surface": "#fffcf7",
+                        "surface-container": "#f6f3ee",
+                        "on-secondary-fixed-variant": "#774500",
+                        "on-secondary-fixed": "#4f2c00",
+                        "surface-container-high": "#f0eee8",
+                        "secondary": "#935600",
+                        "primary-container": "#f68a2f",
+                        "on-tertiary-fixed-variant": "#5c4600",
+                        "error": "#be2d06",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed": "#0f0400",
+                        "on-primary": "#ffffff",
+                        "surface-container-low": "#fcf9f4",
+                        "tertiary-fixed-dim": "#e3b213",
+                        "error-dim": "#b92902",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#9e9d98",
+                        "on-background": "#383835",
+                        "inverse-surface": "#0e0e0c",
+                        "secondary-container": "#ffc791"
+                    },
+                    fontFamily: {
+                        "headline": ["Epilogue"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #fffcf7;
+            font-family: 'Manrope', sans-serif;
+            color: #383835;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface antialiased">
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 w-full h-20 z-40 bg-white/80 dark:bg-[#383835]/80 backdrop-blur-xl flex justify-between items-center px-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-container flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="vibrant abstract minimal logo for a gift fintech brand using warm orange and earth tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0yWa9KcaGLYJ5Kv75Yvnq00AV4LnzGl9C63yA27D2myfs8IkccUaSdSXp3GPnqPJhy2ykkPxbi73X9lFHztkB8p-65A31oWoD6eNjKOzZ_t9V9rA6dXPlu4LNlttRXdvbqQ3omNXwgLKs7rloicG8A659Ih2s5nC4dV0mhLxeG7Kgk8V6087nXSusR6tzx_3cuMudlmCMZnGp5VO8oR5rwXhw0wTXEo-5KUz61Tl3ha3mxY6FAN5KyAfXG_ad5wB8Nr8aYmYCCS0"/>
+</div>
+<span class="font-['Epilogue'] font-black text-xl text-[#383835] dark:text-[#fffcf7]">Gifthance</span>
+</div>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-[#9d4f00] dark:text-[#f68a2f] hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-md mx-auto">
+<!-- Search & Filter Section -->
+<section class="mb-8">
+<div class="relative w-full group">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50" data-icon="search">search</span>
+<input class="w-full pl-12 pr-4 py-4 bg-surface-container rounded-xl border-none focus:ring-2 focus:ring-primary-container/20 font-body text-sm placeholder:text-on-surface-variant/40" placeholder="Search wallets..." type="text"/>
+</div>
+<div class="flex items-center gap-2 mt-4 overflow-x-auto no-scrollbar">
+<button class="px-5 py-2 bg-primary text-white rounded-full text-xs font-bold whitespace-nowrap">All Wallets</button>
+<button class="px-5 py-2 bg-surface-container text-on-surface-variant rounded-full text-xs font-bold whitespace-nowrap">Active</button>
+<button class="px-5 py-2 bg-surface-container text-on-surface-variant rounded-full text-xs font-bold whitespace-nowrap">Pending</button>
+<button class="px-5 py-2 bg-surface-container text-on-surface-variant rounded-full text-xs font-bold whitespace-nowrap">Closed</button>
+</div>
+</section>
+<!-- Stats Overview (Asymmetric) -->
+<section class="mb-8 grid grid-cols-2 gap-4">
+<div class="bg-primary-container p-6 rounded-xl flex flex-col justify-between h-40 shadow-lg shadow-primary-container/20">
+<span class="material-symbols-outlined text-white" data-icon="account_balance_wallet">account_balance_wallet</span>
+<div>
+<h3 class="text-white/70 text-[10px] font-bold uppercase tracking-wider">Total Value</h3>
+<p class="text-white text-2xl font-['Epilogue'] font-black">$42.8k</p>
+</div>
+</div>
+<div class="bg-surface-container-high p-6 rounded-xl flex flex-col justify-between h-40">
+<span class="material-symbols-outlined text-primary" data-icon="trending_up">trending_up</span>
+<div>
+<h3 class="text-on-surface-variant text-[10px] font-bold uppercase tracking-wider">Active Users</h3>
+<p class="text-on-surface text-2xl font-['Epilogue'] font-black">1,204</p>
+</div>
+</div>
+</section>
+<!-- Wallet List -->
+<section class="space-y-4">
+<h2 class="font-['Epilogue'] font-bold text-lg mb-4 flex items-center justify-between">
+                User Wallets
+                <span class="text-xs font-body font-normal text-on-surface-variant">Showing 48 wallets</span>
+</h2>
+<!-- Wallet Card 1 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl flex flex-col gap-4 shadow-sm group hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-surface-container">
+<img class="w-full h-full object-cover" data-alt="professional headshot of a middle-aged man with a friendly expression in a modern office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcUlzb6rqwMx2DGBI0VK7nluGI_yhG6uKc_GEfSvfXXaIKQX6mKPNM6LMY38IKtmYlru6JyJ96CLjjy3_hO_WAjkQTUPTzfyGnsLUNwii8IVnLS_RORMMk2-jXURMslsktj4Yhf4lJQ4tHJic0fimKVRo7QL8E9bkBpqQG75Juines35Q74NWmn5k7rXieOjPToLadGgbRgR13Ew0xXQAxwkj4ulTI6e3GNI-cg957ji2Bv_eMwQzXUp0FJTakci8PYGsf5GTShnw"/>
+</div>
+<div>
+<h4 class="font-['Epilogue'] font-bold text-on-surface">Alex Rivera</h4>
+<p class="text-xs text-on-surface-variant">ID: GF-90210</p>
+</div>
+</div>
+<span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-[10px] font-bold uppercase tracking-tighter">Active</span>
+</div>
+<div class="pt-2 flex justify-between items-end border-t border-surface-container">
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Balance</p>
+<p class="text-xl font-['Epilogue'] font-black text-primary">$1,240.50</p>
+</div>
+<button class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:bg-primary hover:text-white transition-colors">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Wallet Card 2 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl flex flex-col gap-4 shadow-sm group hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-surface-container">
+<img class="w-full h-full object-cover" data-alt="warm portrait of a creative professional woman smiling confidently with soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuDkP9-j_PaXUCCL7dn9lkyzH3IAVhact6y1TtbULgI-71dZ1hG_ED1QnpBvOcBtzg5HoKYgnZAnv5Iufp5dv61ofKo2QiTwFS_yx69L65lNvK-RziVv9E3pz2cJDjwy3VMVHOMH_G0rSgvETEhyxdKhxULDKwJwgSgMfYPKyw0vg9uCZ_1r-81pe9Jt_q0g6BBI3wtmmARtS63hU7U5Wlwk4XfbuQohDxVTZZKLENvpOHBhJCNbRqqW8PEZbB6TjVfy3OgS0djn8"/>
+</div>
+<div>
+<h4 class="font-['Epilogue'] font-bold text-on-surface">Sarah Chen</h4>
+<p class="text-xs text-on-surface-variant">ID: GF-88321</p>
+</div>
+</div>
+<span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-[10px] font-bold uppercase tracking-tighter">Active</span>
+</div>
+<div class="pt-2 flex justify-between items-end border-t border-surface-container">
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Balance</p>
+<p class="text-xl font-['Epilogue'] font-black text-primary">$4,812.20</p>
+</div>
+<button class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:bg-primary hover:text-white transition-colors">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Wallet Card 3 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl flex flex-col gap-4 shadow-sm group hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-surface-container">
+<img class="w-full h-full object-cover" data-alt="close-up portrait of a young man with glasses, looking thoughtful, cinematic lighting in a library setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbUIYQLbCuOxn-PS_Spc3qYoPeRvT50oEMSMjTwtNGNB1FX-5ezbhIZUmtY7YGeybYsEs1mg_nRMm6Te8ZdkfvyPFyRzVmxlVsNKuXsrQD2a1AIE98XQEI8pROlvADfevEqby29c5ejHxVJm40Fi5TiNxkBnIfWX6LQFB9qnQzD-MEEQlzJWmW3WizUHfXGyGLEMlAQA2dJ-ZeeFzl38kRS35Qz69DuHa9dYSK-n6P0RQNVP8Ld5ljI_h138pXp9VGZn-TqzpOl44"/>
+</div>
+<div>
+<h4 class="font-['Epilogue'] font-bold text-on-surface">Jordan Smyth</h4>
+<p class="text-xs text-on-surface-variant">ID: GF-11029</p>
+</div>
+</div>
+<span class="px-3 py-1 bg-primary-container/10 text-primary-container rounded-full text-[10px] font-bold uppercase tracking-tighter">Pending</span>
+</div>
+<div class="pt-2 flex justify-between items-end border-t border-surface-container">
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Balance</p>
+<p class="text-xl font-['Epilogue'] font-black text-primary">$0.00</p>
+</div>
+<button class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:bg-primary hover:text-white transition-colors">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Wallet Card 4 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl flex flex-col gap-4 shadow-sm group hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-surface-container">
+<img class="w-full h-full object-cover" data-alt="portrait of a confident woman entrepreneur in a minimalist studio setting with warm beige tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAO8QE1sYYDKurbWhCCeCff25jQ_m9ySqlTLOdALhV-v82HjzJ6OA-Qr-GUT1EDA11qVyJzfO72DzE-uwrZ6Cg_0vJoMqSczWC-9BVcXXur2DZGNDtPth5emJPRBI_Vh5XN9XhQmjAYEwXaVYe3Ds4PXY2lDmZ7cKVXYFPktVl5A4JOyCNTAf0U-tascDmhXmGm5_N8gQBUKL6MRcAuAl_7JYFKZfULbJyZ9F9DuK5t9lO-meAZU0K4guT7ytb7oZ0rrpSnFlRBGKk"/>
+</div>
+<div>
+<h4 class="font-['Epilogue'] font-bold text-on-surface">Elena Rodriguez</h4>
+<p class="text-xs text-on-surface-variant">ID: GF-77402</p>
+</div>
+</div>
+<span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-[10px] font-bold uppercase tracking-tighter">Active</span>
+</div>
+<div class="pt-2 flex justify-between items-end border-t border-surface-container">
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Balance</p>
+<p class="text-xl font-['Epilogue'] font-black text-primary">$2,150.75</p>
+</div>
+<button class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:bg-primary hover:text-white transition-colors">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-6 pb-4 bg-white dark:bg-[#383835] h-20 rounded-t-[3rem] md:hidden shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)]">
+<a class="flex flex-col items-center justify-center text-[#383835]/40 dark:text-[#fffcf7]/40 active:bg-[#f6f3ee]" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-gradient-to-br from-[#9d4f00] to-[#f68a2f] text-white rounded-full w-12 h-12 mb-6 shadow-lg shadow-[#f68a2f]/40 scale-110 transition-transform duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<!-- This item is active based on the Wallets screen intent mapping to Users -->
+</a>
+<a class="flex flex-col items-center justify-center text-[#383835]/40 dark:text-[#fffcf7]/40 active:bg-[#f6f3ee]" href="#">
+<span class="material-symbols-outlined" data-icon="campaign">campaign</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Campaigns</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#383835]/40 dark:text-[#fffcf7]/40 active:bg-[#f6f3ee]" href="#">
+<span class="material-symbols-outlined" data-icon="redeem">redeem</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Gifts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#383835]/40 dark:text-[#fffcf7]/40 active:bg-[#f6f3ee]" href="#">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Menu</span>
+</a>
+</nav>
+<!-- FAB -->
+<button class="fixed right-6 bottom-24 w-14 h-14 bg-primary rounded-full flex items-center justify-center text-white shadow-xl shadow-primary/30 z-30 active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+</body></html>
