@@ -13,6 +13,7 @@ import {toast} from 'sonner';
 import {SelectedSection, sectionTitles, sectionIcons} from './components/dashboard-config';
 import {V2BottomTabBar} from './components/V2BottomTabBar';
 import {V2RoleSwitcher} from '../components/V2RoleSwitcher';
+import {V2NotificationsPanel} from '../components/V2NotificationsPanel';
 import {V2MobileMenu} from './components/V2MobileMenu';
 import {
   V2OverviewTab,
@@ -158,12 +159,7 @@ function V2DashboardContent() {
           </span>
         </Link>
         <div className="flex items-center gap-2">
-          <button
-            className="w-10 h-10 rounded-xl bg-[var(--v2-primary)]/10 flex items-center justify-center relative">
-            <span className="v2-icon text-[var(--v2-primary)]">notifications</span>
-            {/* Notification dot */}
-            <span className="absolute top-2 right-2 w-2 h-2 bg-[var(--v2-error)] rounded-full" />
-          </button>
+          <V2NotificationsPanel />
           <button
             onClick={() => setMobileMenuOpen(true)}
             className="w-10 h-10 rounded-xl bg-[var(--v2-surface-container-high)] flex items-center justify-center">
@@ -295,6 +291,7 @@ function V2DashboardContent() {
               className="h-10 px-4 text-[var(--v2-on-surface-variant)] font-medium text-sm rounded-xl flex items-center gap-2 hover:bg-[var(--v2-surface-container-low)] transition-colors">
               Campaigns
             </Link>
+            <V2NotificationsPanel />
           </div>
         </header>
 

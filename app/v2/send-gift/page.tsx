@@ -7,10 +7,14 @@ import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {useEffect, useState} from 'react';
 import {toast} from 'sonner';
+import {CountryPhoneInput, formatE164} from '@/components/CountryPhoneInput';
 
-type GiftType = 'money' | 'gift-card' | null;
+type GiftType = 'money' | 'gift-card' | 'flex-card' | null;
 type DeliveryType = 'direct' | 'claim-link';
+type DeliveryMethod = 'email' | 'whatsapp';
 type DeliveryTime = 'now' | 'schedule';
+
+const WHATSAPP_FEE = 100; // Flat fee in NGN
 
 export default function V2SendGiftPage() {
   const router = useRouter();
@@ -22,7 +26,11 @@ export default function V2SendGiftPage() {
   const [message, setMessage] = useState('');
 
   const [deliveryType, setDeliveryType] = useState<DeliveryType>('direct');
+  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>('email');
   const [recipientEmail, setRecipientEmail] = useState('');
+  const [recipientPhone, setRecipientPhone] = useState('');
+  const [recipientCountryCode, setRecipientCountryCode] = useState('+234');
+  const [isPhoneValid, setIsPhoneValid] = useState(false);
   const [senderName, setSenderName] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
 
@@ -61,15 +69,28 @@ export default function V2SendGiftPage() {
     if (deliveryType === 'claim-link' && deliveryTime === 'schedule') {
       setDeliveryTime('now');
     }
+    // Reset delivery method fields when switching delivery type
+    if (deliveryType === 'claim-link') {
+      setDeliveryMethod('email');
+    }
   }, [deliveryType, deliveryTime]);
 
   const selectedGift = vendorGifts.find(g => g.id === giftId);
+
+  // Flex Card amount presets
+  const flexCardPresets = [1000, 3000, 5000, 10000];
+  const [flexCardAmount, setFlexCardAmount] = useState<number | null>(null);
+  const [customFlexAmount, setCustomFlexAmount] = useState('');
 
   const canProceed = () => {
     if (!giftType) return false;
     if (giftType === 'money' && !amount) return false;
     if (giftType === 'gift-card' && !giftId) return false;
-    if (deliveryType === 'direct' && !recipientEmail) return false;
+    if (giftType === 'flex-card' && !flexCardAmount && !customFlexAmount) return false;
+    if (deliveryType === 'direct') {
+      if (deliveryMethod === 'email' && !recipientEmail) return false;
+      if (deliveryMethod === 'whatsapp' && (!recipientPhone || !isPhoneValid)) return false;
+    }
     if (deliveryTime === 'schedule' && !scheduledFor) return false;
     return true;
   };
@@ -103,6 +124,36 @@ export default function V2SendGiftPage() {
           .single();
         if (vendorGift) finalGoal = Number(vendorGift.price);
       }
+      if (giftType === 'flex-card') {
+        finalGoal = flexCardAmount || Number(customFlexAmount);
+      }
+
+      // Calculate total with WhatsApp fee if applicable
+      const whatsappFee = deliveryType === 'direct' && deliveryMethod === 'whatsapp' ? WHATSAPP_FEE : 0;
+
+      // Handle Flex Card creation separately
+      if (giftType === 'flex-card') {
+        const {createFlexCard} = await import('@/lib/server/actions/flex-cards');
+        const flexResult = await createFlexCard({
+          initial_amount: finalGoal,
+          recipient_email: deliveryType === 'direct' && deliveryMethod === 'email' ? recipientEmail : undefined,
+          recipient_phone: deliveryType === 'direct' && deliveryMethod === 'whatsapp'
+            ? formatE164(recipientPhone, recipientCountryCode)
+            : undefined,
+          delivery_method: deliveryType === 'direct' ? deliveryMethod : 'email',
+          sender_name: senderName || undefined,
+          message: message || undefined,
+        });
+
+        if (flexResult.success && flexResult.data) {
+          setCampaignSlug(flexResult.data.code);
+          setSubmitted(true);
+        } else {
+          toast.error(flexResult.error || 'Failed to create Flex Card');
+        }
+        setIsSubmitting(false);
+        return;
+      }
 
       const payload = {
         category: 'claimable',
@@ -111,7 +162,7 @@ export default function V2SendGiftPage() {
         goal_amount: finalGoal,
         currency: 'NGN',
         claimable_gift_id: giftId || undefined,
-        recipient_email: deliveryType === 'direct' ? recipientEmail : null,
+        recipient_email: deliveryType === 'direct' && deliveryMethod === 'email' ? recipientEmail : null,
         sender_email: profile?.email || user.email,
         sender_name: senderName || undefined,
         is_anonymous: isAnonymous,
@@ -121,6 +172,15 @@ export default function V2SendGiftPage() {
           deliveryTime === 'schedule' && scheduledFor
             ? new Date(scheduledFor).toISOString()
             : undefined,
+        // WhatsApp delivery fields
+        delivery_method: deliveryType === 'direct' ? deliveryMethod : 'email',
+        recipient_phone: deliveryType === 'direct' && deliveryMethod === 'whatsapp'
+          ? formatE164(recipientPhone, recipientCountryCode)
+          : null,
+        recipient_country_code: deliveryType === 'direct' && deliveryMethod === 'whatsapp'
+          ? recipientCountryCode
+          : null,
+        whatsapp_fee: whatsappFee,
       };
 
       const {createCampaign} = await import('@/lib/server/actions/campaigns');
@@ -151,7 +211,13 @@ export default function V2SendGiftPage() {
     setExpandedSection(expandedSection === section ? null : section);
   };
 
-  const totalAmount = giftType === 'money' ? Number(amount) : Number(selectedGift?.price || 0);
+  const baseAmount = giftType === 'money'
+    ? Number(amount)
+    : giftType === 'flex-card'
+      ? (flexCardAmount || Number(customFlexAmount) || 0)
+      : Number(selectedGift?.price || 0);
+  const whatsappDeliveryFee = deliveryType === 'direct' && deliveryMethod === 'whatsapp' ? WHATSAPP_FEE : 0;
+  const totalAmount = baseAmount + whatsappDeliveryFee;
 
   return (
     <V2RequireAuthUI redirectPath="/v2/send-gift">
@@ -225,9 +291,19 @@ export default function V2SendGiftPage() {
                     ? 'Cash Gift'
                     : giftType === 'gift-card'
                       ? 'Vendor Gift Card'
-                      : undefined
+                      : giftType === 'flex-card'
+                        ? 'Gifthance Flex Card'
+                        : undefined
                 }>
                 <div className="space-y-3">
+                  {/* Flex Card - Featured */}
+                  <V2ListItemRadio
+                    selected={giftType === 'flex-card'}
+                    onClick={() => setGiftType('flex-card')}
+                    icon="card_giftcard"
+                    title="Gifthance Flex"
+                    description="Balance card - use anywhere"
+                  />
                   <V2ListItemRadio
                     selected={giftType === 'gift-card'}
                     onClick={() => setGiftType('gift-card')}
@@ -243,6 +319,62 @@ export default function V2SendGiftPage() {
                     description="Flexible cash gift"
                   />
                 </div>
+
+                {/* Flex Card Amount Selection */}
+                {giftType === 'flex-card' && (
+                  <div className="mt-4 space-y-3">
+                    <div className="bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl p-4 text-white">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="v2-icon">card_giftcard</span>
+                        <span className="font-bold">Gifthance Flex Card</span>
+                      </div>
+                      <p className="text-sm text-white/80">
+                        A balance-based gift card that can be used at any vendor, with partial redemptions allowed.
+                      </p>
+                    </div>
+
+                    <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider ml-1">
+                      Select Amount
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {flexCardPresets.map(preset => (
+                        <button
+                          key={preset}
+                          onClick={() => {
+                            setFlexCardAmount(preset);
+                            setCustomFlexAmount('');
+                          }}
+                          className={cn(
+                            'p-4 rounded-xl font-bold text-lg transition-all',
+                            flexCardAmount === preset && !customFlexAmount
+                              ? 'bg-[var(--v2-primary)] text-[var(--v2-on-primary)]'
+                              : 'bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] hover:bg-[var(--v2-surface-container-high)]',
+                          )}>
+                          ₦{preset.toLocaleString()}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="relative">
+                      <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider ml-1 block mb-2">
+                        Or enter custom amount
+                      </label>
+                      <span className="absolute left-4 bottom-4 text-[var(--v2-on-surface-variant)] font-bold text-lg">
+                        ₦
+                      </span>
+                      <input
+                        type="number"
+                        placeholder="Custom amount"
+                        value={customFlexAmount}
+                        onChange={e => {
+                          setCustomFlexAmount(e.target.value);
+                          setFlexCardAmount(null);
+                        }}
+                        className="w-full h-14 pl-10 pr-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-xl font-bold text-[var(--v2-on-surface)] focus:ring-2 focus:ring-[var(--v2-primary)]/20 transition-all"
+                      />
+                    </div>
+                  </div>
+                )}
 
                 {/* Amount Input for Money */}
                 {giftType === 'money' && (
@@ -324,26 +456,89 @@ export default function V2SendGiftPage() {
                 icon="send"
                 isExpanded={expandedSection === 'delivery'}
                 onToggle={() => toggleSection('delivery')}
-                isComplete={deliveryType === 'claim-link' || (deliveryType === 'direct' && !!recipientEmail)}
-                summary={deliveryType === 'direct' ? recipientEmail || 'Send to email' : 'Create claim link'}>
+                isComplete={
+                  deliveryType === 'claim-link' ||
+                  (deliveryType === 'direct' && deliveryMethod === 'email' && !!recipientEmail) ||
+                  (deliveryType === 'direct' && deliveryMethod === 'whatsapp' && isPhoneValid)
+                }
+                summary={
+                  deliveryType === 'claim-link'
+                    ? 'Create claim link'
+                    : deliveryMethod === 'whatsapp'
+                      ? recipientPhone ? `WhatsApp: ${recipientCountryCode} ${recipientPhone}` : 'Send via WhatsApp'
+                      : recipientEmail || 'Send to email'
+                }>
                 <div className="space-y-3">
                   <V2ListItemRadio
                     selected={deliveryType === 'direct'}
                     onClick={() => setDeliveryType('direct')}
-                    icon="mail"
-                    title="Send to Email"
-                    description="Deliver directly to recipient"
+                    icon="person"
+                    title="Send to Someone"
+                    description="Deliver directly via email or WhatsApp"
                   />
 
                   {deliveryType === 'direct' && (
-                    <div className="pl-4 border-l-2 border-[var(--v2-primary)]/20 ml-2">
-                      <input
-                        type="email"
-                        placeholder="recipient@email.com"
-                        value={recipientEmail}
-                        onChange={e => setRecipientEmail(e.target.value)}
-                        className="w-full h-12 px-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-[var(--v2-on-surface)] focus:ring-2 focus:ring-[var(--v2-primary)]/20 transition-all"
-                      />
+                    <div className="pl-4 border-l-2 border-[var(--v2-primary)]/20 ml-2 space-y-3">
+                      {/* Email/WhatsApp Toggle */}
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setDeliveryMethod('email')}
+                          className={cn(
+                            'flex-1 py-2.5 px-4 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-all',
+                            deliveryMethod === 'email'
+                              ? 'bg-[var(--v2-primary)] text-[var(--v2-on-primary)]'
+                              : 'bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface-variant)] hover:bg-[var(--v2-surface-container-highest)]',
+                          )}>
+                          <span className="v2-icon text-lg">mail</span>
+                          Email
+                        </button>
+                        <button
+                          onClick={() => setDeliveryMethod('whatsapp')}
+                          className={cn(
+                            'flex-1 py-2.5 px-4 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-all',
+                            deliveryMethod === 'whatsapp'
+                              ? 'bg-[#25D366] text-white'
+                              : 'bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface-variant)] hover:bg-[var(--v2-surface-container-highest)]',
+                          )}>
+                          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                          </svg>
+                          WhatsApp
+                        </button>
+                      </div>
+
+                      {/* Email Input */}
+                      {deliveryMethod === 'email' && (
+                        <input
+                          type="email"
+                          placeholder="recipient@email.com"
+                          value={recipientEmail}
+                          onChange={e => setRecipientEmail(e.target.value)}
+                          className="w-full h-12 px-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-[var(--v2-on-surface)] focus:ring-2 focus:ring-[var(--v2-primary)]/20 transition-all"
+                        />
+                      )}
+
+                      {/* WhatsApp Phone Input */}
+                      {deliveryMethod === 'whatsapp' && (
+                        <div className="space-y-2">
+                          <CountryPhoneInput
+                            value={recipientPhone}
+                            countryCode={recipientCountryCode}
+                            onChange={(phone, code, isValid) => {
+                              setRecipientPhone(phone);
+                              setRecipientCountryCode(code);
+                              setIsPhoneValid(isValid);
+                            }}
+                            placeholder="Phone number"
+                          />
+                          <div className="flex items-center gap-2 p-3 rounded-xl bg-[#25D366]/10 text-[#25D366]">
+                            <span className="v2-icon text-lg">info</span>
+                            <span className="text-xs font-medium">
+                              +₦{WHATSAPP_FEE.toLocaleString()} WhatsApp delivery fee
+                            </span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -460,6 +655,11 @@ export default function V2SendGiftPage() {
                 <p className="text-2xl font-extrabold v2-headline text-[var(--v2-on-surface)]">
                   ₦{totalAmount.toLocaleString()}
                 </p>
+                {whatsappDeliveryFee > 0 && (
+                  <p className="text-xs text-[#25D366] font-medium">
+                    incl. ₦{whatsappDeliveryFee} WhatsApp fee
+                  </p>
+                )}
               </div>
             )}
 

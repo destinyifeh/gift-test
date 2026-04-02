@@ -23,8 +23,11 @@ import {
 } from '@/lib/server/actions/transactions';
 import {formatCurrency} from '@/lib/utils/currency';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
-import {useEffect, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import {toast} from 'sonner';
+
+type VendorTransactionFilter = 'all' | 'sales' | 'flex_redemptions' | 'withdrawals';
+type DateFilter = 'all' | 'week' | 'month' | '3months';
 
 export function V2VendorWalletTab() {
   const queryClient = useQueryClient();
@@ -45,6 +48,10 @@ export function V2VendorWalletTab() {
     accountNumber: '',
     holderName: '',
   });
+
+  // Transaction filtering
+  const [transactionFilter, setTransactionFilter] = useState<VendorTransactionFilter>('all');
+  const [dateFilter, setDateFilter] = useState<DateFilter>('all');
 
   const {data: walletProfile, isLoading} = useQuery({
     queryKey: ['wallet-profile'],
@@ -81,6 +88,63 @@ export function V2VendorWalletTab() {
   const totalRevenue = vendorStats?.totalSales || 0;
   const pendingAmount = vendorStats?.pending || 0;
   const vendorTransactions = vendorStats?.transactions || [];
+
+  // Filter transactions based on type and date
+  const filteredTransactions = useMemo(() => {
+    let transactions = vendorTransactions.map((t: any) => ({
+      id: `vendor-${t.id}`,
+      description: t.desc,
+      amount: t.amount,
+      date: t.date,
+      type: t.type || 'sale',
+      rawDate: t.rawDate || t.date,
+    }));
+
+    // Filter by type
+    if (transactionFilter === 'sales') {
+      transactions = transactions.filter((t: any) =>
+        t.type === 'sale' || t.type === 'redemption' || !t.description?.toLowerCase().includes('flex')
+      );
+    } else if (transactionFilter === 'flex_redemptions') {
+      transactions = transactions.filter((t: any) =>
+        t.type === 'flex_redemption' || t.description?.toLowerCase().includes('flex')
+      );
+    } else if (transactionFilter === 'withdrawals') {
+      transactions = transactions.filter((t: any) =>
+        t.type === 'withdrawal' || t.type === 'payout'
+      );
+    }
+
+    // Filter by date
+    if (dateFilter !== 'all') {
+      const now = new Date();
+      let cutoffDate: Date;
+
+      if (dateFilter === 'week') {
+        cutoffDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      } else if (dateFilter === 'month') {
+        cutoffDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      } else {
+        cutoffDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+      }
+
+      transactions = transactions.filter((t: any) => {
+        const transactionDate = new Date(t.rawDate || t.date);
+        return transactionDate >= cutoffDate;
+      });
+    }
+
+    return transactions.sort((a: any, b: any) =>
+      new Date(b.rawDate || b.date || 0).getTime() - new Date(a.rawDate || a.date || 0).getTime()
+    );
+  }, [vendorTransactions, transactionFilter, dateFilter]);
+
+  // Calculate stats
+  const flexRedemptionTotal = useMemo(() => {
+    return vendorTransactions
+      .filter((t: any) => t.type === 'flex_redemption' || t.desc?.toLowerCase().includes('flex'))
+      .reduce((sum: number, t: any) => sum + (t.amount || 0), 0);
+  }, [vendorTransactions]);
 
   const handleResolveAccount = async () => {
     if (bankForm.accountNumber.length !== 10 || !bankForm.bankCode) return;
@@ -650,60 +714,146 @@ export function V2VendorWalletTab() {
 
       {/* Transactions Modal */}
       <ResponsiveModal open={activeModal === 'transactions'} onOpenChange={() => setActiveModal(null)}>
-        <ResponsiveModalContent className="max-h-[80vh]">
+        <ResponsiveModalContent className="max-h-[80vh] md:max-w-[600px]">
           <ResponsiveModalHeader>
-            <ResponsiveModalTitle>Redemption History</ResponsiveModalTitle>
+            <ResponsiveModalTitle>Transaction History</ResponsiveModalTitle>
           </ResponsiveModalHeader>
-          <div className="p-6 overflow-y-auto max-h-[60vh]">
-            {(() => {
-              // Only show successful redemption transactions
-              const redemptionTransactions = vendorTransactions.map((t: any) => ({
-                id: `vendor-${t.id}`,
-                description: t.desc,
-                amount: t.amount,
-                date: t.date,
-                type: 'credit',
-              })).sort((a: any, b: any) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
+          <div className="p-4 md:p-6 space-y-4">
+            {/* Filters */}
+            <div className="space-y-3">
+              {/* Type Filter */}
+              <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0">
+                {([
+                  {id: 'all', label: 'All', icon: 'list'},
+                  {id: 'sales', label: 'Sales', icon: 'shopping_bag'},
+                  {id: 'flex_redemptions', label: 'Flex Cards', icon: 'credit_card'},
+                  {id: 'withdrawals', label: 'Withdrawals', icon: 'account_balance'},
+                ] as const).map(filter => (
+                  <button
+                    key={filter.id}
+                    onClick={() => setTransactionFilter(filter.id)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-colors ${
+                      transactionFilter === filter.id
+                        ? 'bg-[var(--v2-primary)] text-white'
+                        : 'bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface-variant)] hover:bg-[var(--v2-surface-container-high)]'
+                    }`}>
+                    <span className="v2-icon text-sm">{filter.icon}</span>
+                    {filter.label}
+                  </button>
+                ))}
+              </div>
 
-              if (redemptionTransactions.length === 0) {
-                return (
-                  <div className="flex flex-col items-center justify-center py-12">
-                    <span className="v2-icon text-4xl text-[var(--v2-on-surface-variant)]/30 mb-3">
-                      receipt_long
-                    </span>
-                    <p className="text-[var(--v2-on-surface-variant)]">No redemptions yet</p>
-                    <p className="text-xs text-[var(--v2-on-surface-variant)]/70 mt-1">
-                      Successful redemptions will appear here
-                    </p>
-                  </div>
-                );
-              }
+              {/* Date Filter */}
+              <div className="flex gap-2">
+                {([
+                  {id: 'all', label: 'All Time'},
+                  {id: 'week', label: '7 Days'},
+                  {id: 'month', label: '30 Days'},
+                  {id: '3months', label: '90 Days'},
+                ] as const).map(filter => (
+                  <button
+                    key={filter.id}
+                    onClick={() => setDateFilter(filter.id)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                      dateFilter === filter.id
+                        ? 'bg-[var(--v2-secondary-container)] text-[var(--v2-on-secondary-container)]'
+                        : 'bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface-variant)] hover:bg-[var(--v2-surface-container-high)]'
+                    }`}>
+                    {filter.label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-              return (
-                <div className="space-y-3">
-                  {redemptionTransactions.map((t: any) => (
-                    <div
-                      key={t.id}
-                      className="flex items-center justify-between p-4 rounded-xl bg-[var(--v2-surface-container-low)]">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full flex items-center justify-center bg-[var(--v2-secondary-container)]/30 text-[var(--v2-secondary)]">
-                          <span className="v2-icon">check_circle</span>
-                        </div>
-                        <div>
-                          <p className="font-bold text-sm text-[var(--v2-on-surface)]">
-                            {t.description}
-                          </p>
-                          <p className="text-xs text-[var(--v2-on-surface-variant)]">{t.date}</p>
-                        </div>
-                      </div>
-                      <span className="font-bold text-[var(--v2-secondary)]">
-                        +{formatCurrency(t.amount, userCurrency)}
-                      </span>
-                    </div>
-                  ))}
+            {/* Transaction Summary */}
+            {transactionFilter === 'all' && (
+              <div className="grid grid-cols-3 gap-2">
+                <div className="bg-[var(--v2-surface-container-low)] p-3 rounded-xl text-center">
+                  <p className="text-xs text-[var(--v2-on-surface-variant)]">Total Revenue</p>
+                  <p className="font-bold text-sm text-[var(--v2-on-surface)]">
+                    {formatCurrency(totalRevenue, userCurrency)}
+                  </p>
                 </div>
-              );
-            })()}
+                <div className="bg-[var(--v2-surface-container-low)] p-3 rounded-xl text-center">
+                  <p className="text-xs text-[var(--v2-on-surface-variant)]">Flex Cards</p>
+                  <p className="font-bold text-sm text-purple-600">
+                    {formatCurrency(flexRedemptionTotal, userCurrency)}
+                  </p>
+                </div>
+                <div className="bg-[var(--v2-surface-container-low)] p-3 rounded-xl text-center">
+                  <p className="text-xs text-[var(--v2-on-surface-variant)]">Orders</p>
+                  <p className="font-bold text-sm text-[var(--v2-on-surface)]">
+                    {vendorStats?.ordersCount || 0}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Transaction List */}
+            <div className="overflow-y-auto max-h-[40vh]">
+              {filteredTransactions.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <span className="v2-icon text-4xl text-[var(--v2-on-surface-variant)]/30 mb-3">
+                    receipt_long
+                  </span>
+                  <p className="text-[var(--v2-on-surface-variant)]">No transactions found</p>
+                  <p className="text-xs text-[var(--v2-on-surface-variant)]/70 mt-1">
+                    {transactionFilter !== 'all' || dateFilter !== 'all'
+                      ? 'Try adjusting your filters'
+                      : 'Your transactions will appear here'}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {filteredTransactions.map((t: any) => {
+                    const isFlexRedemption = t.type === 'flex_redemption' || t.description?.toLowerCase().includes('flex');
+                    const isWithdrawal = t.type === 'withdrawal' || t.type === 'payout';
+
+                    const getIcon = () => {
+                      if (isFlexRedemption) return 'credit_card';
+                      if (isWithdrawal) return 'account_balance';
+                      return 'check_circle';
+                    };
+
+                    const getIconStyle = () => {
+                      if (isFlexRedemption) return 'bg-purple-100 text-purple-700';
+                      if (isWithdrawal) return 'bg-orange-100 text-orange-700';
+                      return 'bg-[var(--v2-secondary-container)]/30 text-[var(--v2-secondary)]';
+                    };
+
+                    const getTypeLabel = () => {
+                      if (isFlexRedemption) return 'Flex Card Redemption';
+                      if (isWithdrawal) return 'Withdrawal';
+                      return 'Sale';
+                    };
+
+                    return (
+                      <div
+                        key={t.id}
+                        className="flex items-center justify-between p-4 rounded-xl bg-[var(--v2-surface-container-low)]">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${getIconStyle()}`}>
+                            <span className="v2-icon">{getIcon()}</span>
+                          </div>
+                          <div>
+                            <p className="font-bold text-sm text-[var(--v2-on-surface)]">
+                              {t.description}
+                            </p>
+                            <p className="text-xs text-[var(--v2-on-surface-variant)]">
+                              {t.date} • {getTypeLabel()}
+                            </p>
+                          </div>
+                        </div>
+                        <span className={`font-bold ${isWithdrawal ? 'text-[var(--v2-error)]' : 'text-[var(--v2-secondary)]'}`}>
+                          {isWithdrawal ? '-' : '+'}
+                          {formatCurrency(t.amount, userCurrency)}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         </ResponsiveModalContent>
       </ResponsiveModal>

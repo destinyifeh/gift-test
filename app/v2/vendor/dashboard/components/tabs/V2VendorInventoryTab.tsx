@@ -7,6 +7,7 @@ import {
   ResponsiveModalTitle,
 } from '@/components/ui/responsive-modal';
 import {useProfile} from '@/hooks/use-profile';
+import {useVendorPromotions} from '@/hooks/use-promotions';
 import {useVendorProducts} from '@/hooks/use-vendor';
 import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
 import {
@@ -27,7 +28,7 @@ interface ProductFormData {
   price: string;
   description: string;
   status: string;
-  image_url: string;
+  images: string[];
   category: string;
   type: string;
   stock_quantity: string;
@@ -38,20 +39,32 @@ const initialFormData: ProductFormData = {
   price: '',
   description: '',
   status: 'active',
-  image_url: '',
+  images: [],
   category: 'all',
   type: 'digital',
   stock_quantity: '',
 };
 
+const MAX_IMAGES = 3;
+
 interface V2VendorInventoryTabProps {
   searchQuery?: string;
+  onBoostProduct?: (productId: number) => void;
 }
 
-export function V2VendorInventoryTab({searchQuery = ''}: V2VendorInventoryTabProps) {
+export function V2VendorInventoryTab({searchQuery = '', onBoostProduct}: V2VendorInventoryTabProps) {
   const {data: profile} = useProfile();
   const queryClient = useQueryClient();
   const {data: products = [], isLoading} = useVendorProducts(profile?.id, true);
+  const {data: promotions = []} = useVendorPromotions();
+
+  // Get product promotion status map
+  const productPromotionStatus = new Map<number, 'pending_approval' | 'active'>();
+  promotions.forEach((p) => {
+    if (p.status === 'pending_approval' || p.status === 'active') {
+      productPromotionStatus.set(p.product_id, p.status);
+    }
+  });
 
   const [filter, setFilter] = useState<FilterType>('all');
   const [search, setSearch] = useState(searchQuery);
@@ -63,7 +76,7 @@ export function V2VendorInventoryTab({searchQuery = ''}: V2VendorInventoryTabPro
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [productForm, setProductForm] = useState<ProductFormData>(initialFormData);
-  const [uploading, setUploading] = useState(false);
+  const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
@@ -99,6 +112,7 @@ export function V2VendorInventoryTab({searchQuery = ''}: V2VendorInventoryTabPro
   const lowStockCount = products.filter(
     (p: any) => p.stock_quantity !== null && p.stock_quantity > 0 && p.stock_quantity <= 5
   ).length;
+  const totalUnitsSold = products.reduce((sum: number, p: any) => sum + (p.units_sold || 0), 0);
 
   const getStockStatus = (product: any) => {
     if (product.status === 'draft') return {label: 'Draft', color: 'bg-gray-100 text-gray-800'};
@@ -109,6 +123,22 @@ export function V2VendorInventoryTab({searchQuery = ''}: V2VendorInventoryTabPro
     return {label: 'Active', color: 'bg-emerald-100 text-emerald-800'};
   };
 
+  // Get primary image from product (first image from images array or fallback to image_url)
+  const getPrimaryImage = (product: any): string | null => {
+    if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+      return product.images[0];
+    }
+    return product.image_url || null;
+  };
+
+  // Get image count for display
+  const getImageCount = (product: any): number => {
+    if (product.images && Array.isArray(product.images)) {
+      return product.images.length;
+    }
+    return product.image_url ? 1 : 0;
+  };
+
   const resetForm = () => {
     setProductForm(initialFormData);
     setEditingProduct(null);
@@ -117,12 +147,19 @@ export function V2VendorInventoryTab({searchQuery = ''}: V2VendorInventoryTabPro
   const handleOpenModal = (product?: any) => {
     if (product) {
       setEditingProduct(product);
+      // Parse images - support both single image_url and images array
+      let images: string[] = [];
+      if (product.images && Array.isArray(product.images)) {
+        images = product.images;
+      } else if (product.image_url) {
+        images = [product.image_url];
+      }
       setProductForm({
         name: product.name || '',
         price: String(product.price || ''),
         description: product.description || '',
         status: product.status || 'active',
-        image_url: product.image_url || '',
+        images,
         category: product.category || 'all',
         type: product.type || 'digital',
         stock_quantity: product.stock_quantity !== null ? String(product.stock_quantity) : '',
@@ -138,7 +175,7 @@ export function V2VendorInventoryTab({searchQuery = ''}: V2VendorInventoryTabPro
     resetForm();
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -147,33 +184,47 @@ export function V2VendorInventoryTab({searchQuery = ''}: V2VendorInventoryTabPro
       return;
     }
 
-    setUploading(true);
-
-    // Delete old image if exists
-    if (productForm.image_url) {
-      await deleteVendorProductImage(productForm.image_url);
+    if (productForm.images.length >= MAX_IMAGES && index >= productForm.images.length) {
+      toast.error(`Maximum ${MAX_IMAGES} images allowed`);
+      return;
     }
+
+    setUploadingIndex(index);
 
     const formData = new FormData();
     formData.append('file', file);
 
     const result = await uploadVendorProductImage(formData);
-    setUploading(false);
+    setUploadingIndex(null);
 
     if (result.success && result.url) {
-      setProductForm({...productForm, image_url: result.url});
+      const newImages = [...productForm.images];
+      if (index < newImages.length) {
+        // Replace existing image - delete old one first
+        await deleteVendorProductImage(newImages[index]);
+        newImages[index] = result.url;
+      } else {
+        // Add new image
+        newImages.push(result.url);
+      }
+      setProductForm({...productForm, images: newImages});
       toast.success('Image uploaded');
     } else {
       toast.error(result.error || 'Upload failed');
     }
+
+    // Reset file input
+    e.target.value = '';
   };
 
-  const handleRemoveImage = async () => {
-    if (productForm.image_url) {
-      setUploading(true);
-      await deleteVendorProductImage(productForm.image_url);
-      setUploading(false);
-      setProductForm({...productForm, image_url: ''});
+  const handleRemoveImage = async (index: number) => {
+    const imageUrl = productForm.images[index];
+    if (imageUrl) {
+      setUploadingIndex(index);
+      await deleteVendorProductImage(imageUrl);
+      setUploadingIndex(null);
+      const newImages = productForm.images.filter((_, i) => i !== index);
+      setProductForm({...productForm, images: newImages});
       toast.success('Image removed');
     }
   };
@@ -190,6 +241,9 @@ export function V2VendorInventoryTab({searchQuery = ''}: V2VendorInventoryTabPro
       id: editingProduct?.id,
       price: Number(productForm.price),
       stock_quantity: productForm.stock_quantity ? Number(productForm.stock_quantity) : null,
+      // Store images array and keep image_url as first image for backward compatibility
+      image_url: productForm.images[0] || null,
+      images: productForm.images,
     };
 
     const result = await manageVendorProduct(payload);
@@ -315,13 +369,13 @@ export function V2VendorInventoryTab({searchQuery = ''}: V2VendorInventoryTabPro
         </div>
 
         <div className="bg-[var(--v2-surface-container-lowest)] p-4 md:p-5 rounded-2xl">
-          <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center mb-3">
-            <span className="v2-icon text-amber-600">warning</span>
+          <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mb-3">
+            <span className="v2-icon text-purple-600">shopping_cart</span>
           </div>
           <p className="text-2xl md:text-3xl font-extrabold v2-headline text-[var(--v2-on-surface)]">
-            {lowStockCount}
+            {totalUnitsSold}
           </p>
-          <p className="text-xs text-[var(--v2-on-surface-variant)] font-medium">Low Stock</p>
+          <p className="text-xs text-[var(--v2-on-surface-variant)] font-medium">Units Sold</p>
         </div>
       </div>
 
@@ -403,10 +457,10 @@ export function V2VendorInventoryTab({searchQuery = ''}: V2VendorInventoryTabPro
                         className="hover:bg-[var(--v2-surface-container-low)] transition-colors border-b border-[var(--v2-outline-variant)]/5 last:border-0">
                         <td className="py-4 px-6">
                           <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-xl overflow-hidden bg-[var(--v2-surface-container)] flex-shrink-0">
-                              {product.image_url ? (
+                            <div className="w-14 h-14 rounded-xl overflow-hidden bg-[var(--v2-surface-container)] flex-shrink-0 relative">
+                              {getPrimaryImage(product) ? (
                                 <img
-                                  src={product.image_url}
+                                  src={getPrimaryImage(product)!}
                                   alt={product.name}
                                   className="w-full h-full object-cover"
                                 />
@@ -416,6 +470,11 @@ export function V2VendorInventoryTab({searchQuery = ''}: V2VendorInventoryTabPro
                                     image
                                   </span>
                                 </div>
+                              )}
+                              {getImageCount(product) > 1 && (
+                                <span className="absolute bottom-0.5 right-0.5 px-1 py-0.5 bg-black/60 text-white text-[9px] font-bold rounded">
+                                  +{getImageCount(product) - 1}
+                                </span>
                               )}
                             </div>
                             <div>
@@ -444,11 +503,32 @@ export function V2VendorInventoryTab({searchQuery = ''}: V2VendorInventoryTabPro
                         </td>
                         <td className="py-4 px-4 text-center">
                           <p className="text-sm font-semibold text-[var(--v2-on-surface)]">
-                            {product.sold || 0}
+                            {product.units_sold || 0}
                           </p>
                         </td>
                         <td className="py-4 px-6 text-right">
                           <div className="flex items-center justify-end gap-1">
+                            {onBoostProduct && product.status === 'active' && !productPromotionStatus.has(product.id) && (
+                              <button
+                                onClick={() => onBoostProduct(product.id)}
+                                className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold flex items-center gap-1 hover:opacity-90 transition-opacity"
+                                title="Boost">
+                                <span className="v2-icon text-sm">rocket_launch</span>
+                                Boost
+                              </button>
+                            )}
+                            {productPromotionStatus.get(product.id) === 'pending_approval' && (
+                              <span className="px-3 py-1.5 rounded-lg bg-amber-100 text-amber-700 text-xs font-bold flex items-center gap-1">
+                                <span className="v2-icon text-sm">hourglass_top</span>
+                                Pending
+                              </span>
+                            )}
+                            {productPromotionStatus.get(product.id) === 'active' && (
+                              <span className="px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 text-xs font-bold flex items-center gap-1">
+                                <span className="v2-icon text-sm">campaign</span>
+                                Boosted
+                              </span>
+                            )}
                             <button
                               onClick={() => handleOpenModal(product)}
                               className="p-2 rounded-lg hover:bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface-variant)] transition-colors"
@@ -492,9 +572,9 @@ export function V2VendorInventoryTab({searchQuery = ''}: V2VendorInventoryTabPro
                   className="bg-[var(--v2-surface-container-lowest)] rounded-2xl overflow-hidden">
                   {/* Image */}
                   <div className="relative h-40 w-full">
-                    {product.image_url ? (
+                    {getPrimaryImage(product) ? (
                       <img
-                        src={product.image_url}
+                        src={getPrimaryImage(product)!}
                         alt={product.name}
                         className="w-full h-full object-cover"
                       />
@@ -511,6 +591,12 @@ export function V2VendorInventoryTab({searchQuery = ''}: V2VendorInventoryTabPro
                         {status.label}
                       </span>
                     </div>
+                    {getImageCount(product) > 1 && (
+                      <div className="absolute top-3 right-3 px-2 py-1 bg-black/60 backdrop-blur-sm text-white text-xs font-bold rounded-lg flex items-center gap-1">
+                        <span className="v2-icon text-xs">photo_library</span>
+                        {getImageCount(product)}
+                      </div>
+                    )}
                     <div className="absolute bottom-3 right-3 bg-[var(--v2-surface-container-lowest)]/90 backdrop-blur-md px-3 py-1.5 rounded-xl">
                       <span className="font-bold text-[var(--v2-primary)]">
                         {formatCurrency(product.price, currency)}
@@ -523,11 +609,36 @@ export function V2VendorInventoryTab({searchQuery = ''}: V2VendorInventoryTabPro
                     <div className="flex items-start justify-between mb-3">
                       <div>
                         <h3 className="font-bold text-lg text-[var(--v2-on-surface)]">{product.name}</h3>
-                        <p className="text-xs text-[var(--v2-on-surface-variant)]">
-                          {product.sold || 0} sold
-                        </p>
+                        <div className="flex items-center gap-3 text-xs text-[var(--v2-on-surface-variant)]">
+                          <span>{product.units_sold || 0} sold</span>
+                          {product.stock_quantity !== null && (
+                            <span>{product.stock_quantity} in stock</span>
+                          )}
+                        </div>
                       </div>
                     </div>
+
+                    {/* Boost Button for Mobile */}
+                    {onBoostProduct && product.status === 'active' && !productPromotionStatus.has(product.id) && (
+                      <button
+                        onClick={() => onBoostProduct(product.id)}
+                        className="w-full mb-3 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold text-sm flex items-center justify-center gap-2">
+                        <span className="v2-icon text-sm">rocket_launch</span>
+                        Boost This Product
+                      </button>
+                    )}
+                    {productPromotionStatus.get(product.id) === 'pending_approval' && (
+                      <div className="w-full mb-3 py-2.5 rounded-xl bg-amber-100 text-amber-700 font-bold text-sm flex items-center justify-center gap-2">
+                        <span className="v2-icon text-sm">hourglass_top</span>
+                        Awaiting Approval
+                      </div>
+                    )}
+                    {productPromotionStatus.get(product.id) === 'active' && (
+                      <div className="w-full mb-3 py-2.5 rounded-xl bg-emerald-100 text-emerald-700 font-bold text-sm flex items-center justify-center gap-2">
+                        <span className="v2-icon text-sm">campaign</span>
+                        Promotion Active
+                      </div>
+                    )}
 
                     <div className="flex items-center gap-2 pt-3 border-t border-[var(--v2-outline-variant)]/10">
                       <button
@@ -577,56 +688,96 @@ export function V2VendorInventoryTab({searchQuery = ''}: V2VendorInventoryTabPro
           </ResponsiveModalHeader>
 
           <div className="p-6 space-y-5 overflow-y-auto max-h-[60vh]">
-            {/* Image Upload */}
+            {/* Image Upload - Multiple Images */}
             <div>
               <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)] mb-2">
-                Product Image
+                Product Images ({productForm.images.length}/{MAX_IMAGES})
               </label>
-              <div className="flex items-center gap-4">
-                <div className="w-20 h-20 rounded-xl border-2 border-dashed border-[var(--v2-outline-variant)]/30 flex items-center justify-center overflow-hidden bg-[var(--v2-surface-container-low)] relative group">
-                  {uploading ? (
-                    <span className="v2-icon text-2xl text-[var(--v2-primary)] animate-spin">
-                      progress_activity
-                    </span>
-                  ) : productForm.image_url ? (
-                    <>
-                      <img
-                        src={productForm.image_url}
-                        alt="Preview"
-                        className="w-full h-full object-cover"
-                      />
-                      <button
-                        onClick={handleRemoveImage}
-                        className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <span className="v2-icon text-white">delete</span>
-                      </button>
-                    </>
-                  ) : (
-                    <span className="v2-icon text-2xl text-[var(--v2-on-surface-variant)]/30">
-                      add_photo_alternate
-                    </span>
-                  )}
-                </div>
-                <div className="flex-1">
+              <p className="text-xs text-[var(--v2-on-surface-variant)] mb-3">
+                Upload up to {MAX_IMAGES} images. First image will be the main display image.
+              </p>
+              <div className="grid grid-cols-3 gap-3">
+                {/* Existing images */}
+                {productForm.images.map((imageUrl, index) => (
+                  <div
+                    key={index}
+                    className="aspect-square rounded-xl border-2 border-[var(--v2-outline-variant)]/30 overflow-hidden bg-[var(--v2-surface-container-low)] relative group">
+                    {uploadingIndex === index ? (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <span className="v2-icon text-2xl text-[var(--v2-primary)] animate-spin">
+                          progress_activity
+                        </span>
+                      </div>
+                    ) : (
+                      <>
+                        <img
+                          src={imageUrl}
+                          alt={`Product ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                        {index === 0 && (
+                          <span className="absolute top-1 left-1 px-1.5 py-0.5 bg-[var(--v2-primary)] text-[var(--v2-on-primary)] text-[10px] font-bold rounded">
+                            Main
+                          </span>
+                        )}
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <label
+                            htmlFor={`product-image-${index}`}
+                            className="p-2 bg-white/20 rounded-lg cursor-pointer hover:bg-white/30 transition-colors">
+                            <span className="v2-icon text-white text-sm">edit</span>
+                          </label>
+                          <input
+                            type="file"
+                            id={`product-image-${index}`}
+                            className="hidden"
+                            accept="image/*"
+                            onChange={e => handleImageUpload(e, index)}
+                            disabled={uploadingIndex !== null}
+                          />
+                          <button
+                            onClick={() => handleRemoveImage(index)}
+                            className="p-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors">
+                            <span className="v2-icon text-white text-sm">delete</span>
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))}
+
+                {/* Add more images slot */}
+                {productForm.images.length < MAX_IMAGES && (
                   <label
-                    htmlFor="product-image"
-                    className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--v2-primary)]/10 text-[var(--v2-primary)] cursor-pointer hover:bg-[var(--v2-primary)]/20 transition-colors text-sm font-medium ${
-                      uploading ? 'opacity-50 cursor-not-allowed' : ''
+                    htmlFor="product-image-new"
+                    className={`aspect-square rounded-xl border-2 border-dashed border-[var(--v2-outline-variant)]/30 flex flex-col items-center justify-center bg-[var(--v2-surface-container-low)] cursor-pointer hover:bg-[var(--v2-surface-container)] hover:border-[var(--v2-primary)]/30 transition-colors ${
+                      uploadingIndex !== null ? 'opacity-50 cursor-not-allowed' : ''
                     }`}>
-                    <span className="v2-icon text-sm">upload</span>
-                    {uploading ? 'Uploading...' : productForm.image_url ? 'Change' : 'Upload'}
+                    {uploadingIndex === productForm.images.length ? (
+                      <span className="v2-icon text-2xl text-[var(--v2-primary)] animate-spin">
+                        progress_activity
+                      </span>
+                    ) : (
+                      <>
+                        <span className="v2-icon text-2xl text-[var(--v2-on-surface-variant)]/50 mb-1">
+                          add_photo_alternate
+                        </span>
+                        <span className="text-[10px] text-[var(--v2-on-surface-variant)]/50 font-medium">
+                          Add Image
+                        </span>
+                      </>
+                    )}
                   </label>
-                  <input
-                    type="file"
-                    id="product-image"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    disabled={uploading}
-                  />
-                  <p className="text-xs text-[var(--v2-on-surface-variant)] mt-1">Max 2MB (JPG, PNG)</p>
-                </div>
+                )}
+                <input
+                  type="file"
+                  id="product-image-new"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={e => handleImageUpload(e, productForm.images.length)}
+                  disabled={uploadingIndex !== null || productForm.images.length >= MAX_IMAGES}
+                />
               </div>
+              <p className="text-xs text-[var(--v2-on-surface-variant)] mt-2">Max 2MB per image (JPG, PNG)</p>
             </div>
 
             {/* Name */}

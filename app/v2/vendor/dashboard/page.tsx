@@ -16,12 +16,15 @@ import {
   V2VendorWalletTab,
   V2VendorOrdersTab,
   V2VendorSettingsTab,
+  V2VendorPromotionsTab,
 } from './components/tabs';
+import {BoostProductModal} from './components/BoostProductModal';
 import {V2VendorBottomTabBar} from './components/V2VendorBottomTabBar';
 import {V2VendorMobileMenu} from './components/V2VendorMobileMenu';
 import {V2RoleSwitcher} from '../../components/V2RoleSwitcher';
+import {V2NotificationsPanel} from '../../components/V2NotificationsPanel';
 
-type VendorSection = 'dashboard' | 'shop' | 'inventory' | 'orders' | 'codes' | 'wallet' | 'settings';
+type VendorSection = 'dashboard' | 'shop' | 'inventory' | 'orders' | 'codes' | 'wallet' | 'promotions' | 'settings';
 
 const sectionTitles: Record<VendorSection, string> = {
   dashboard: 'Dashboard',
@@ -30,6 +33,7 @@ const sectionTitles: Record<VendorSection, string> = {
   orders: 'Orders',
   codes: 'Gift Codes',
   wallet: 'Wallet',
+  promotions: 'Promotions',
   settings: 'Settings',
 };
 
@@ -41,6 +45,7 @@ const navItems: {id: VendorSection; label: string; icon: string}[] = [
   {id: 'orders', label: 'Orders', icon: 'shopping_bag'},
   {id: 'codes', label: 'Verify Codes', icon: 'qr_code_scanner'},
   {id: 'wallet', label: 'Finances', icon: 'payments'},
+  {id: 'promotions', label: 'Promotions', icon: 'campaign'},
   {id: 'settings', label: 'Settings', icon: 'settings'},
 ];
 
@@ -75,7 +80,10 @@ function V2VendorDashboardContent() {
   const initialTab = (searchParams.get('tab') as VendorSection) || 'dashboard';
   const [section, setSection] = useState<VendorSection>(initialTab);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [boostModalOpen, setBoostModalOpen] = useState(false);
+  const [boostProductId, setBoostProductId] = useState<number | null>(null);
 
   // Update URL when section changes
   useEffect(() => {
@@ -120,9 +128,7 @@ function V2VendorDashboardContent() {
         </div>
         <div className="flex items-center gap-2">
           <V2RoleSwitcher />
-          <button className="w-10 h-10 rounded-xl bg-[var(--v2-primary)]/10 flex items-center justify-center relative">
-            <span className="v2-icon text-[var(--v2-primary)]">notifications</span>
-          </button>
+          <V2NotificationsPanel />
           <button
             onClick={() => setMobileMenuOpen(true)}
             className="w-10 h-10 rounded-xl bg-[var(--v2-surface-container-high)] flex items-center justify-center">
@@ -220,9 +226,7 @@ function V2VendorDashboardContent() {
           </div>
           <div className="flex items-center gap-4 text-[var(--v2-primary)]">
             <V2RoleSwitcher />
-            <button className="hover:opacity-80 transition-opacity flex items-center gap-1">
-              <span className="v2-icon">notifications</span>
-            </button>
+            <V2NotificationsPanel />
             <button className="hover:opacity-80 transition-opacity flex items-center gap-1">
               <span className="v2-icon">help_outline</span>
             </button>
@@ -244,10 +248,25 @@ function V2VendorDashboardContent() {
         <div className="p-4 md:p-8 max-w-6xl mx-auto">
           {section === 'dashboard' && <V2VendorOverviewTab setSection={handleSectionChange} />}
           {section === 'shop' && <V2VendorShopTab />}
-          {section === 'inventory' && <V2VendorInventoryTab searchQuery={searchQuery} />}
+          {section === 'inventory' && (
+            <V2VendorInventoryTab
+              searchQuery={searchQuery}
+              onBoostProduct={(productId) => {
+                // Pre-select the product and open the boost modal
+                setBoostProductId(productId);
+                setBoostModalOpen(true);
+              }}
+            />
+          )}
           {section === 'orders' && <V2VendorOrdersTab searchQuery={searchQuery} />}
           {section === 'codes' && <V2VendorCodesTab />}
           {section === 'wallet' && <V2VendorWalletTab />}
+          {section === 'promotions' && (
+            <V2VendorPromotionsTab onBoostProduct={() => {
+              setBoostProductId(null); // No preselection from promotions tab
+              setBoostModalOpen(true);
+            }} />
+          )}
           {section === 'settings' && <V2VendorSettingsTab />}
         </div>
       </main>
@@ -256,6 +275,28 @@ function V2VendorDashboardContent() {
       {isMobile && (
         <V2VendorBottomTabBar activeSection={section} onNavigate={handleSectionChange} />
       )}
+
+      {/* Boost Product Modal */}
+      <BoostProductModal
+        open={boostModalOpen}
+        onOpenChange={(open) => {
+          setBoostModalOpen(open);
+          if (!open) {
+            // Clear preselection when modal closes
+            setBoostProductId(null);
+          }
+        }}
+        preselectedProductId={boostProductId}
+        onSuccess={() => {
+          // Clear preselection and refresh promotions tab if currently viewing
+          setBoostProductId(null);
+          if (section === 'promotions') {
+            // The tab will auto-refresh on mount
+            setSection('dashboard');
+            setTimeout(() => setSection('promotions'), 100);
+          }
+        }}
+      />
     </div>
   );
 }

@@ -4,9 +4,10 @@ import {
   fetchVendorProductById,
   fetchVendorProductBySlugs,
   fetchVendorProducts,
+  fetchVendorProductsPaginated,
   fetchVendorWallet,
 } from '@/lib/server/actions/vendor';
-import {useQuery} from '@tanstack/react-query';
+import {useInfiniteQuery, useQuery} from '@tanstack/react-query';
 
 export function useVendorProducts(vendorId?: string, includeDrafts = false) {
   return useQuery({
@@ -18,6 +19,44 @@ export function useVendorProducts(vendorId?: string, includeDrafts = false) {
       }
       return result.data;
     },
+  });
+}
+
+/**
+ * Infinite scroll hook for vendor products (gift shop).
+ * Supports category filtering and search.
+ */
+export function useInfiniteVendorProducts(options: {
+  category?: string;
+  search?: string;
+  vendorId?: string;
+  limit?: number;
+}) {
+  const {category, search, vendorId, limit = 12} = options;
+
+  return useInfiniteQuery({
+    queryKey: ['vendor-products-infinite', category, search, vendorId, limit],
+    initialPageParam: 1,
+    queryFn: async ({pageParam = 1}) => {
+      const result = await fetchVendorProductsPaginated({
+        page: pageParam,
+        limit,
+        category: category !== 'All Gifts' ? category : undefined,
+        search: search || undefined,
+        vendorId,
+      });
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result;
+    },
+    getNextPageParam: lastPage => {
+      if (lastPage.pagination?.hasMore) {
+        return (lastPage.pagination?.page || 1) + 1;
+      }
+      return undefined;
+    },
+    staleTime: 1000 * 60, // 1 minute
   });
 }
 

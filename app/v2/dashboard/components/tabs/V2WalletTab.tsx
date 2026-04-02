@@ -22,8 +22,14 @@ import {
 } from '@/lib/server/actions/transactions';
 import {formatCurrency} from '@/lib/utils/currency';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
-import {useEffect, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import {toast} from 'sonner';
+import {fetchUserFlexCards} from '@/lib/server/actions/flex-cards';
+import type {FlexCard} from '@/lib/server/actions/flex-cards';
+import {FlexCardComponent} from '../../../components/FlexCard';
+
+type TransactionFilter = 'all' | 'gifts' | 'flex_card' | 'withdrawals';
+type DateFilter = 'all' | 'week' | 'month' | '3months';
 
 export function V2WalletTab() {
   const queryClient = useQueryClient();
@@ -41,6 +47,14 @@ export function V2WalletTab() {
     accountNumber: '',
     holderName: '',
   });
+
+  // Transaction filtering
+  const [transactionFilter, setTransactionFilter] = useState<TransactionFilter>('all');
+  const [dateFilter, setDateFilter] = useState<DateFilter>('all');
+
+  // Flex cards
+  const [flexCards, setFlexCards] = useState<FlexCard[]>([]);
+  const [isLoadingFlexCards, setIsLoadingFlexCards] = useState(false);
 
   const {data: walletProfile, isLoading} = useQuery({
     queryKey: ['wallet-profile'],
@@ -62,6 +76,25 @@ export function V2WalletTab() {
     }
   }, [profile, hasSetDefaultCountry]);
 
+  // Load flex cards
+  useEffect(() => {
+    async function loadFlexCards() {
+      if (!profile?.id) return;
+      setIsLoadingFlexCards(true);
+      try {
+        const result = await fetchUserFlexCards();
+        if (result.success && result.data) {
+          setFlexCards(result.data);
+        }
+      } catch {
+        // Silently fail, flex cards are optional
+      } finally {
+        setIsLoadingFlexCards(false);
+      }
+    }
+    loadFlexCards();
+  }, [profile?.id]);
+
   const banks = banksData?.data || [];
   const wallet = walletProfile?.data || {
     balance: 0,
@@ -70,6 +103,53 @@ export function V2WalletTab() {
     accounts: [],
     transactions: [],
   };
+
+  // Filter transactions based on type and date
+  const filteredTransactions = useMemo(() => {
+    let transactions = wallet.transactions || [];
+
+    // Filter by type
+    if (transactionFilter === 'gifts') {
+      transactions = transactions.filter((t: any) =>
+        ['receipt', 'creator_support', 'campaign_contribution'].includes(t.type)
+      );
+    } else if (transactionFilter === 'flex_card') {
+      transactions = transactions.filter((t: any) =>
+        t.type === 'flex_card' || t.description?.toLowerCase().includes('flex')
+      );
+    } else if (transactionFilter === 'withdrawals') {
+      transactions = transactions.filter((t: any) =>
+        t.type === 'withdrawal' || t.type === 'payout'
+      );
+    }
+
+    // Filter by date
+    if (dateFilter !== 'all') {
+      const now = new Date();
+      let cutoffDate: Date;
+
+      if (dateFilter === 'week') {
+        cutoffDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      } else if (dateFilter === 'month') {
+        cutoffDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      } else {
+        cutoffDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+      }
+
+      transactions = transactions.filter((t: any) =>
+        new Date(t.created_at) >= cutoffDate
+      );
+    }
+
+    return transactions;
+  }, [wallet.transactions, transactionFilter, dateFilter]);
+
+  // Calculate flex card total balance
+  const totalFlexCardBalance = useMemo(() => {
+    return flexCards
+      .filter(card => card.status === 'active' || card.status === 'partially_used')
+      .reduce((sum, card) => sum + (card.current_balance || 0), 0);
+  }, [flexCards]);
 
   const userCurrency = getCurrencyByCountry(profile?.country);
   const currencySymbol = getCurrencySymbol(userCurrency);
@@ -330,6 +410,40 @@ export function V2WalletTab() {
 
       </div>
 
+      {/* Flex Cards Section */}
+      {flexCards.length > 0 && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h4 className="text-lg md:text-xl font-bold tracking-tight v2-headline text-[var(--v2-on-surface)]">
+              My Flex Cards
+            </h4>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-[var(--v2-on-surface-variant)]">
+                Total Balance:
+              </span>
+              <span className="font-bold text-[var(--v2-primary)]">
+                {formatCurrency(totalFlexCardBalance, userCurrency)}
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {flexCards
+              .filter(card => card.status === 'active' || card.status === 'partially_used')
+              .slice(0, 3)
+              .map(card => (
+                <FlexCardComponent key={card.id} card={card} variant="compact" />
+              ))}
+          </div>
+
+          {flexCards.filter(c => c.status === 'active' || c.status === 'partially_used').length > 3 && (
+            <button className="w-full py-3 text-center text-[var(--v2-primary)] font-bold text-sm hover:underline">
+              View all {flexCards.filter(c => c.status === 'active' || c.status === 'partially_used').length} Flex Cards
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Recent Activity Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Transactions List */}
@@ -357,39 +471,54 @@ export function V2WalletTab() {
               <div className="space-y-1">
                 {wallet.transactions.slice(0, 5).map((t: any) => {
                   const isInflow = ['receipt', 'creator_support'].includes(t.type);
+                  const isFlexCard = t.type === 'flex_card' || t.description?.toLowerCase().includes('flex');
+                  const isWithdrawal = t.type === 'withdrawal' || t.type === 'payout';
+
+                  const getIcon = () => {
+                    if (isFlexCard) return 'credit_card';
+                    if (isWithdrawal) return 'account_balance';
+                    if (isInflow) return 'payments';
+                    return 'shopping_bag';
+                  };
+
+                  const getIconStyle = () => {
+                    if (isFlexCard) return 'bg-purple-100 text-purple-700';
+                    if (isWithdrawal) return 'bg-orange-100 text-orange-700';
+                    if (isInflow) return 'bg-green-100 text-green-700';
+                    return 'bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface-variant)]';
+                  };
+
+                  const getTypeLabel = () => {
+                    if (isFlexCard) return 'Flex Card';
+                    if (isWithdrawal) return 'Withdrawal';
+                    if (t.type === 'creator_support') return 'Gift Received';
+                    if (t.type === 'campaign_contribution') return 'Contribution';
+                    return t.type;
+                  };
+
                   return (
                     <div
                       key={t.id}
                       className="flex items-center justify-between p-4 md:p-5 bg-[var(--v2-surface-container-lowest)] rounded-2xl hover:bg-white transition-colors">
                       <div className="flex items-center gap-3 md:gap-4">
                         <div
-                          className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center ${
-                            isInflow
-                              ? 'bg-green-100 text-green-700'
-                              : 'bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface-variant)]'
-                          }`}>
-                          <span className="v2-icon">
-                            {isInflow ? 'payments' : 'shopping_bag'}
-                          </span>
+                          className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center ${getIconStyle()}`}>
+                          <span className="v2-icon">{getIcon()}</span>
                         </div>
                         <div>
                           <p className="font-bold text-sm md:text-base text-[var(--v2-on-surface)]">
                             {t.description || 'Transaction'}
                           </p>
                           <p className="text-xs text-[var(--v2-on-surface-variant)]">
-                            {new Date(t.created_at).toLocaleDateString()} •{' '}
-                            {new Date(t.created_at).toLocaleTimeString([], {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
+                            {new Date(t.created_at).toLocaleDateString()} • {getTypeLabel()}
                           </p>
                         </div>
                       </div>
                       <p
                         className={`text-base md:text-lg font-extrabold ${
-                          isInflow ? 'text-green-700' : 'text-[var(--v2-error)]'
+                          isInflow && !isWithdrawal ? 'text-green-700' : 'text-[var(--v2-error)]'
                         }`}>
-                        {isInflow ? '+' : '-'}
+                        {isInflow && !isWithdrawal ? '+' : '-'}
                         {formatCurrency(Math.abs(t.amount / 100), userCurrency)}
                       </p>
                     </div>
@@ -683,59 +812,126 @@ export function V2WalletTab() {
             </ResponsiveModalTitle>
           </ResponsiveModalHeader>
 
-          <div className="p-4 md:p-6 overflow-y-auto max-h-[70vh]">
-            {wallet.transactions.length === 0 ? (
-              <div className="text-center py-12">
-                <span className="v2-icon text-4xl text-[var(--v2-on-surface-variant)]/50 mb-2">
-                  receipt_long
-                </span>
-                <p className="text-[var(--v2-on-surface-variant)]">No transactions yet</p>
+          <div className="p-4 md:p-6 space-y-4">
+            {/* Filters */}
+            <div className="space-y-3">
+              {/* Type Filter */}
+              <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0">
+                {([
+                  {id: 'all', label: 'All', icon: 'list'},
+                  {id: 'gifts', label: 'Gifts', icon: 'redeem'},
+                  {id: 'flex_card', label: 'Flex Card', icon: 'credit_card'},
+                  {id: 'withdrawals', label: 'Withdrawals', icon: 'account_balance'},
+                ] as const).map(filter => (
+                  <button
+                    key={filter.id}
+                    onClick={() => setTransactionFilter(filter.id)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-colors ${
+                      transactionFilter === filter.id
+                        ? 'bg-[var(--v2-primary)] text-white'
+                        : 'bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface-variant)] hover:bg-[var(--v2-surface-container-high)]'
+                    }`}>
+                    <span className="v2-icon text-sm">{filter.icon}</span>
+                    {filter.label}
+                  </button>
+                ))}
               </div>
-            ) : (
-              <div className="space-y-2">
-                {wallet.transactions.map((t: any) => {
-                  const isInflow = ['receipt', 'creator_support'].includes(t.type);
-                  return (
-                    <div
-                      key={t.id}
-                      className="flex items-center justify-between p-4 rounded-2xl bg-[var(--v2-surface-container-low)]">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                            isInflow
-                              ? 'bg-green-100 text-green-700'
-                              : 'bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface-variant)]'
+
+              {/* Date Filter */}
+              <div className="flex gap-2">
+                {([
+                  {id: 'all', label: 'All Time'},
+                  {id: 'week', label: '7 Days'},
+                  {id: 'month', label: '30 Days'},
+                  {id: '3months', label: '90 Days'},
+                ] as const).map(filter => (
+                  <button
+                    key={filter.id}
+                    onClick={() => setDateFilter(filter.id)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                      dateFilter === filter.id
+                        ? 'bg-[var(--v2-secondary-container)] text-[var(--v2-on-secondary-container)]'
+                        : 'bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface-variant)] hover:bg-[var(--v2-surface-container-high)]'
+                    }`}>
+                    {filter.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Transaction List */}
+            <div className="overflow-y-auto max-h-[50vh]">
+              {filteredTransactions.length === 0 ? (
+                <div className="text-center py-12">
+                  <span className="v2-icon text-4xl text-[var(--v2-on-surface-variant)]/50 mb-2">
+                    receipt_long
+                  </span>
+                  <p className="text-[var(--v2-on-surface-variant)]">No transactions found</p>
+                  <p className="text-xs text-[var(--v2-on-surface-variant)]/70 mt-1">
+                    {transactionFilter !== 'all' || dateFilter !== 'all'
+                      ? 'Try adjusting your filters'
+                      : 'Your transactions will appear here'}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {filteredTransactions.map((t: any) => {
+                    const isInflow = ['receipt', 'creator_support'].includes(t.type);
+                    const isFlexCard = t.type === 'flex_card' || t.description?.toLowerCase().includes('flex');
+                    const isWithdrawal = t.type === 'withdrawal' || t.type === 'payout';
+
+                    const getIcon = () => {
+                      if (isFlexCard) return 'credit_card';
+                      if (isWithdrawal) return 'account_balance';
+                      if (isInflow) return 'payments';
+                      return 'shopping_bag';
+                    };
+
+                    const getIconStyle = () => {
+                      if (isFlexCard) return 'bg-purple-100 text-purple-700';
+                      if (isWithdrawal) return 'bg-orange-100 text-orange-700';
+                      if (isInflow) return 'bg-green-100 text-green-700';
+                      return 'bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface-variant)]';
+                    };
+
+                    const getTypeLabel = () => {
+                      if (isFlexCard) return 'Flex Card';
+                      if (isWithdrawal) return 'Withdrawal';
+                      if (t.type === 'creator_support') return 'Gift Received';
+                      if (t.type === 'campaign_contribution') return 'Contribution';
+                      return t.type;
+                    };
+
+                    return (
+                      <div
+                        key={t.id}
+                        className="flex items-center justify-between p-4 rounded-2xl bg-[var(--v2-surface-container-low)]">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${getIconStyle()}`}>
+                            <span className="v2-icon">{getIcon()}</span>
+                          </div>
+                          <div>
+                            <p className="font-bold text-sm text-[var(--v2-on-surface)]">
+                              {t.description || 'Transaction'}
+                            </p>
+                            <p className="text-xs text-[var(--v2-on-surface-variant)]">
+                              {new Date(t.created_at).toLocaleDateString()} • {getTypeLabel()}
+                            </p>
+                          </div>
+                        </div>
+                        <span
+                          className={`font-bold text-sm ${
+                            isInflow && !isWithdrawal ? 'text-green-700' : 'text-[var(--v2-error)]'
                           }`}>
-                          <span className="v2-icon">
-                            {isInflow ? 'payments' : 'shopping_bag'}
-                          </span>
-                        </div>
-                        <div>
-                          <p className="font-bold text-sm text-[var(--v2-on-surface)]">
-                            {t.description}
-                          </p>
-                          <p className="text-xs text-[var(--v2-on-surface-variant)]">
-                            {new Date(t.created_at).toLocaleDateString()} •{' '}
-                            {t.type === 'creator_support'
-                              ? 'Personal Gift'
-                              : t.type === 'campaign_contribution'
-                                ? 'Contribution'
-                                : t.type}
-                          </p>
-                        </div>
+                          {isInflow && !isWithdrawal ? '+' : '-'}
+                          {formatCurrency(Math.abs(t.amount / 100), userCurrency)}
+                        </span>
                       </div>
-                      <span
-                        className={`font-bold text-sm ${
-                          isInflow ? 'text-green-700' : 'text-[var(--v2-error)]'
-                        }`}>
-                        {isInflow ? '+' : '-'}
-                        {formatCurrency(Math.abs(t.amount / 100), userCurrency)}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         </ResponsiveModalContent>
       </ResponsiveModal>

@@ -64,6 +64,113 @@ export async function fetchVendorProducts(
 }
 
 /**
+ * Fetch products with pagination for the gift shop.
+ * Supports filtering by category and search query.
+ */
+export async function fetchVendorProductsPaginated(options: {
+  page?: number;
+  limit?: number;
+  category?: string;
+  search?: string;
+  vendorId?: string;
+}) {
+  const {
+    page = 1,
+    limit = 12,
+    category,
+    search,
+    vendorId,
+  } = options;
+
+  const supabase = await createClient();
+  const offset = (page - 1) * limit;
+
+  // Build query
+  let query = supabase
+    .from('vendor_gifts')
+    .select(
+      '*, profiles!vendor_gifts_vendor_id_fkey(display_name, country, shop_slug, shop_name, shop_logo_url)',
+      { count: 'exact' }
+    )
+    .eq('status', 'active');
+
+  if (vendorId) {
+    query = query.eq('vendor_id', vendorId);
+  }
+
+  if (category && category !== 'All Gifts') {
+    query = query.ilike('category', category);
+  }
+
+  if (search) {
+    query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
+  }
+
+  const {data, error, count} = await query
+    .order('created_at', {ascending: false})
+    .range(offset, offset + limit - 1);
+
+  if (error) {
+    console.error('Error fetching paginated products:', error);
+    return {success: false, error: error.message};
+  }
+
+  const totalCount = count || 0;
+  const totalPages = Math.ceil(totalCount / limit);
+  const hasMore = page < totalPages;
+
+  // Fetch 'sold' counts
+  if (data && data.length > 0) {
+    const productIds = data.map((p: any) => p.id);
+    const {data: soldCounts} = await supabase
+      .from('campaigns')
+      .select('claimable_gift_id')
+      .in('claimable_gift_id', productIds);
+
+    const soldMap = new Map();
+    if (soldCounts) {
+      for (const row of soldCounts) {
+        if (row.claimable_gift_id) {
+          soldMap.set(
+            row.claimable_gift_id,
+            (soldMap.get(row.claimable_gift_id) || 0) + 1,
+          );
+        }
+      }
+    }
+
+    const dataWithSold = data.map((p: any) => ({
+      ...p,
+      sold: soldMap.get(p.id) || 0,
+    }));
+
+    return {
+      success: true,
+      data: dataWithSold,
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages,
+        hasMore,
+      },
+    };
+  }
+
+  return {
+    success: true,
+    data: [],
+    pagination: {
+      page,
+      limit,
+      totalCount: 0,
+      totalPages: 0,
+      hasMore: false,
+    },
+  };
+}
+
+/**
  * Fetch a single vendor product by ID.
  */
 export async function fetchVendorProductById(productId: string | number) {

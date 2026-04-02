@@ -6,6 +6,33 @@ import {createClient} from '../supabase/server';
 import {sendGiftEmail} from './email';
 import {fetchVendorProductById} from './vendor';
 
+// Mock WhatsApp message sending function
+// TODO: Replace with Twilio/WhatsApp Business API integration
+async function sendWhatsAppMessage(params: {
+  to: string;
+  senderName: string;
+  giftName: string;
+  giftAmount: number;
+  message?: string;
+  claimUrl: string;
+}) {
+  // Mock implementation - just log for now
+  console.log('=== WhatsApp Message (Mock) ===');
+  console.log(`To: ${params.to}`);
+  console.log(`From: ${params.senderName}`);
+  console.log(`Gift: ${params.giftName}`);
+  console.log(`Amount: ₦${params.giftAmount.toLocaleString()}`);
+  console.log(`Message: ${params.message || 'No message'}`);
+  console.log(`Claim URL: ${params.claimUrl}`);
+  console.log('===============================');
+
+  // In production, this would be:
+  // const message = `Hey! ${params.senderName} sent you a gift on Gifthance!\n\n${params.message || ''}\n\nClaim your gift: ${params.claimUrl}\n\nDon't share this link with anyone else.`;
+  // await twilioClient.messages.create({ body: message, to: params.to, from: 'whatsapp:+...' });
+
+  return {success: true};
+}
+
 export async function createCampaign(data: {
   category: string;
   title: string;
@@ -25,6 +52,11 @@ export async function createCampaign(data: {
   gift_code?: string;
   currency?: string;
   payment_reference?: string;
+  // WhatsApp delivery fields
+  delivery_method?: 'email' | 'whatsapp';
+  recipient_phone?: string;
+  recipient_country_code?: string;
+  whatsapp_fee?: number;
 }) {
   const supabase = await createClient();
   const {
@@ -38,15 +70,32 @@ export async function createCampaign(data: {
   const campaign_short_id = generateShortId();
   const campaign_slug = generateSlug(data.title);
 
+  // Prepare insert data with WhatsApp fields
+  const insertData: any = {
+    ...data,
+    user_id: user.id,
+    campaign_short_id,
+    campaign_slug,
+    status: 'active',
+  };
+
+  // Include WhatsApp delivery fields if present
+  if (data.delivery_method) {
+    insertData.delivery_method = data.delivery_method;
+  }
+  if (data.recipient_phone) {
+    insertData.recipient_phone = data.recipient_phone;
+  }
+  if (data.recipient_country_code) {
+    insertData.recipient_country_code = data.recipient_country_code;
+  }
+  if (data.whatsapp_fee) {
+    insertData.whatsapp_fee = data.whatsapp_fee;
+  }
+
   const {data: campaign, error} = await supabase
     .from('campaigns')
-    .insert({
-      ...data,
-      user_id: user.id,
-      campaign_short_id,
-      campaign_slug,
-      status: 'active',
-    })
+    .insert(insertData)
     .select()
     .single();
 
@@ -80,8 +129,8 @@ export async function createCampaign(data: {
 
   revalidatePath('/dashboard');
 
-  // Handle Email Sending for Claimable Gifts
-  if (data.category === 'claimable' && data.recipient_email && data.gift_code) {
+  // Handle Email/WhatsApp Sending for Claimable Gifts
+  if (data.category === 'claimable' && data.gift_code) {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
     const claimUrl = `${siteUrl}/claim/${data.gift_code}`;
 
@@ -108,15 +157,29 @@ export async function createCampaign(data: {
 
     const finalSenderName = data.sender_name || senderName;
 
-    await sendGiftEmail({
-      to: data.recipient_email,
-      senderName: finalSenderName,
-      vendorShopName,
-      giftName: data.title || 'Gift',
-      giftAmount: data.goal_amount || 0,
-      message: data.description,
-      claimUrl,
-    });
+    // Send via WhatsApp if delivery_method is whatsapp
+    if (data.delivery_method === 'whatsapp' && data.recipient_phone) {
+      await sendWhatsAppMessage({
+        to: data.recipient_phone,
+        senderName: finalSenderName,
+        giftName: data.title || 'Gift',
+        giftAmount: data.goal_amount || 0,
+        message: data.description,
+        claimUrl,
+      });
+    }
+    // Send via Email if delivery_method is email (or default)
+    else if (data.recipient_email) {
+      await sendGiftEmail({
+        to: data.recipient_email,
+        senderName: finalSenderName,
+        vendorShopName,
+        giftName: data.title || 'Gift',
+        giftAmount: data.goal_amount || 0,
+        message: data.description,
+        claimUrl,
+      });
+    }
   }
 
   return {success: true, data: campaign};

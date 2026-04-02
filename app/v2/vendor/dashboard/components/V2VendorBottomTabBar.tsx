@@ -1,6 +1,6 @@
 'use client';
 
-type VendorSection = 'dashboard' | 'shop' | 'inventory' | 'orders' | 'codes' | 'wallet' | 'settings';
+type VendorSection = 'dashboard' | 'shop' | 'inventory' | 'orders' | 'codes' | 'wallet' | 'promotions' | 'settings';
 
 interface V2VendorBottomTabBarProps {
   activeSection: VendorSection;

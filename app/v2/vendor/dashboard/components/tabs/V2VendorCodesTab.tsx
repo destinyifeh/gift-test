@@ -10,11 +10,24 @@ import {useProfile} from '@/hooks/use-profile';
 import {useVendorWallet} from '@/hooks/use-vendor';
 import {getCurrencyByCountry} from '@/lib/currencies';
 import {verifyVoucherCode, redeemVoucherCode} from '@/lib/server/actions/vendor';
+import {lookupFlexCardForRedemption, redeemFlexCard} from '@/lib/server/actions/flex-cards';
 import {formatCurrency} from '@/lib/utils/currency';
 import {useQueryClient} from '@tanstack/react-query';
 import {useEffect, useRef, useState} from 'react';
 import {toast} from 'sonner';
 import jsQR from 'jsqr';
+
+type CodeType = 'gift' | 'flex_card' | null;
+
+interface FlexCardResult {
+  id: number;
+  code: string;
+  balance: number;
+  currency: string;
+  status: string;
+  userName: string;
+  userAvatar?: string;
+}
 
 interface VerificationResult {
   success: boolean;
@@ -41,6 +54,9 @@ export function V2VendorCodesTab() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [isRedeeming, setIsRedeeming] = useState(false);
   const [verificationResult, setVerificationResult] = useState<VerificationResult | null>(null);
+  const [flexCardResult, setFlexCardResult] = useState<FlexCardResult | null>(null);
+  const [codeType, setCodeType] = useState<CodeType>(null);
+  const [flexRedeemAmount, setFlexRedeemAmount] = useState('');
   const [showScanner, setShowScanner] = useState(false);
   const [hasCamera, setHasCamera] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
@@ -187,15 +203,43 @@ export function V2VendorCodesTab() {
 
   const handleVerifyCode = async (code: string) => {
     if (!code.trim()) {
-      toast.error('Please enter a gift code');
+      toast.error('Please enter a code');
       return;
     }
 
     setIsVerifying(true);
     setVerificationResult(null);
+    setFlexCardResult(null);
+    setCodeType(null);
+    setFlexRedeemAmount('');
+
+    const trimmedCode = code.trim().toUpperCase();
 
     try {
-      const result = await verifyVoucherCode(code.trim());
+      // Check if it's a Flex Card (starts with FLEX-)
+      if (trimmedCode.startsWith('FLEX-')) {
+        const result = await lookupFlexCardForRedemption(trimmedCode);
+
+        if (!result.success) {
+          setCodeType('flex_card');
+          setVerificationResult({
+            success: false,
+            message: result.error || 'Flex card not found or is invalid',
+          });
+          toast.error(result.error || 'Invalid flex card');
+          return;
+        }
+
+        // Valid Flex Card found
+        setCodeType('flex_card');
+        setFlexCardResult(result.data!);
+        toast.success('Flex Card verified!');
+        return;
+      }
+
+      // Otherwise, it's a regular gift code
+      setCodeType('gift');
+      const result = await verifyVoucherCode(trimmedCode);
 
       if (!result.success) {
         setVerificationResult({
@@ -238,7 +282,7 @@ export function V2VendorCodesTab() {
     } catch (error) {
       setVerificationResult({
         success: false,
-        message: 'Error verifying gift code. Please try again.',
+        message: 'Error verifying code. Please try again.',
       });
       toast.error('Verification failed');
     } finally {
@@ -266,6 +310,7 @@ export function V2VendorCodesTab() {
       toast.success('Gift redeemed successfully!');
       setGiftCode('');
       setVerificationResult(null);
+      setCodeType(null);
 
       // Refresh vendor wallet to update transactions
       queryClient.invalidateQueries({queryKey: ['vendor-wallet']});
@@ -276,15 +321,65 @@ export function V2VendorCodesTab() {
     }
   };
 
+  const handleFlexCardRedeem = async () => {
+    if (!flexCardResult || !flexRedeemAmount || !profile?.id) return;
+
+    const amount = parseFloat(flexRedeemAmount);
+    if (isNaN(amount) || amount <= 0) {
+      toast.error('Please enter a valid amount');
+      return;
+    }
+
+    if (amount > flexCardResult.balance) {
+      toast.error(`Amount exceeds available balance of ${formatCurrency(flexCardResult.balance, flexCardResult.currency)}`);
+      return;
+    }
+
+    setIsRedeeming(true);
+    try {
+      const result = await redeemFlexCard({
+        code: flexCardResult.code,
+        amount,
+        vendorId: profile.id,
+        description: `Purchase at ${profile.shop_name || profile.display_name}`,
+      });
+
+      if (!result.success) {
+        toast.error(result.error || 'Failed to redeem flex card');
+        return;
+      }
+
+      toast.success(`Successfully redeemed ${formatCurrency(amount, flexCardResult.currency)}!`);
+
+      // Show remaining balance
+      if (result.data?.newBalance && result.data.newBalance > 0) {
+        toast.info(`Remaining balance: ${formatCurrency(result.data.newBalance, flexCardResult.currency)}`);
+      }
+
+      // Reset state
+      setGiftCode('');
+      setFlexCardResult(null);
+      setFlexRedeemAmount('');
+      setCodeType(null);
+
+      // Refresh vendor wallet
+      queryClient.invalidateQueries({queryKey: ['vendor-wallet']});
+    } catch (error) {
+      toast.error('Failed to redeem flex card');
+    } finally {
+      setIsRedeeming(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="mb-8">
         <h2 className="text-3xl md:text-4xl font-extrabold v2-headline tracking-tight text-[var(--v2-on-surface)] mb-2">
-          Verify Gift Code
+          Verify & Redeem
         </h2>
         <p className="text-[var(--v2-on-surface-variant)] text-base md:text-lg">
-          Enter the unique gift code or scan the customer's QR code to proceed with redemption.
+          Enter a gift code or Flex Card code (FLEX-XXXX), or scan QR to verify and redeem.
         </p>
       </div>
 
@@ -336,8 +431,110 @@ export function V2VendorCodesTab() {
             )}
           </button>
 
-          {/* Result State */}
-          {verificationResult && (
+          {/* Flex Card Result */}
+          {codeType === 'flex_card' && flexCardResult && (
+            <div className="mt-6 md:mt-8 p-5 md:p-6 rounded-2xl bg-purple-50 border-2 border-purple-200">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 bg-purple-100 text-purple-700">
+                  <span className="v2-icon">credit_card</span>
+                </div>
+                <div className="flex-1">
+                  <p className="font-bold text-[var(--v2-on-surface)] tracking-tight">
+                    Flex Card Verified!
+                  </p>
+                  <p className="text-[var(--v2-on-surface-variant)] text-sm">
+                    Ready for partial or full redemption
+                  </p>
+                </div>
+              </div>
+
+              {/* Flex Card Details */}
+              <div className="bg-white rounded-xl p-4 mb-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-[var(--v2-on-surface-variant)]">Available Balance</span>
+                  <span className="text-2xl font-extrabold text-purple-700">
+                    {formatCurrency(flexCardResult.balance, flexCardResult.currency)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-[var(--v2-on-surface-variant)]">Cardholder</span>
+                  <div className="flex items-center gap-2">
+                    {flexCardResult.userAvatar && (
+                      <img
+                        src={flexCardResult.userAvatar}
+                        alt=""
+                        className="w-6 h-6 rounded-full object-cover"
+                      />
+                    )}
+                    <span className="font-bold text-[var(--v2-on-surface)]">
+                      {flexCardResult.userName}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-[var(--v2-on-surface-variant)]">Status</span>
+                  <span className={`px-2 py-0.5 text-xs font-bold rounded-full uppercase ${
+                    flexCardResult.status === 'active'
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-amber-100 text-amber-800'
+                  }`}>
+                    {flexCardResult.status === 'partially_used' ? 'Partially Used' : flexCardResult.status}
+                  </span>
+                </div>
+              </div>
+
+              {/* Amount Input */}
+              <div className="space-y-2 mb-4">
+                <label className="text-sm font-bold text-[var(--v2-on-surface-variant)]">
+                  Amount to Charge
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)] font-bold">
+                    ₦
+                  </span>
+                  <input
+                    type="number"
+                    value={flexRedeemAmount}
+                    onChange={e => setFlexRedeemAmount(e.target.value)}
+                    placeholder="0.00"
+                    max={flexCardResult.balance}
+                    className="w-full h-14 pl-10 pr-4 text-xl font-bold bg-white rounded-xl border-2 border-purple-200 focus:border-purple-400 focus:ring-0 outline-none"
+                  />
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-[var(--v2-on-surface-variant)]">
+                    Max: {formatCurrency(flexCardResult.balance, flexCardResult.currency)}
+                  </span>
+                  <button
+                    onClick={() => setFlexRedeemAmount(flexCardResult.balance.toString())}
+                    className="text-purple-600 font-bold hover:underline">
+                    Use Full Balance
+                  </button>
+                </div>
+              </div>
+
+              {/* Redeem Button */}
+              <button
+                onClick={handleFlexCardRedeem}
+                disabled={isRedeeming || !flexRedeemAmount || parseFloat(flexRedeemAmount) <= 0 || parseFloat(flexRedeemAmount) > flexCardResult.balance}
+                className="w-full px-6 py-4 bg-purple-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 hover:bg-purple-700 transition-colors">
+                {isRedeeming ? (
+                  <>
+                    <span className="v2-icon animate-spin">progress_activity</span>
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <span className="v2-icon">credit_card</span>
+                    Charge {flexRedeemAmount ? formatCurrency(parseFloat(flexRedeemAmount) || 0, 'NGN') : 'Flex Card'}
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* Gift Code Result State */}
+          {codeType === 'gift' && verificationResult && (
             <div
               className={`mt-6 md:mt-8 p-5 md:p-6 rounded-2xl ${
                 verificationResult.success
@@ -427,18 +624,30 @@ export function V2VendorCodesTab() {
           )}
 
           {/* Default State */}
-          {!verificationResult && (
-            <div className="mt-6 md:mt-8 p-5 md:p-6 bg-[var(--v2-secondary-container)]/30 border-2 border-dashed border-[var(--v2-secondary-container)] rounded-2xl flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-[var(--v2-secondary-container)] flex items-center justify-center text-[var(--v2-on-secondary-container)]">
-                <span className="v2-icon">info</span>
+          {!verificationResult && !flexCardResult && (
+            <div className="mt-6 md:mt-8 p-5 md:p-6 bg-[var(--v2-secondary-container)]/30 border-2 border-dashed border-[var(--v2-secondary-container)] rounded-2xl">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 rounded-full bg-[var(--v2-secondary-container)] flex items-center justify-center text-[var(--v2-on-secondary-container)]">
+                  <span className="v2-icon">info</span>
+                </div>
+                <div>
+                  <p className="font-bold text-[var(--v2-on-surface)] tracking-tight">
+                    Ready for verification
+                  </p>
+                  <p className="text-[var(--v2-on-surface-variant)] text-sm">
+                    Enter a code or scan QR to verify and redeem.
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="font-bold text-[var(--v2-on-surface)] tracking-tight">
-                  Ready for verification
-                </p>
-                <p className="text-[var(--v2-on-surface-variant)] text-sm">
-                  Enter a code or scan QR to verify and redeem.
-                </p>
+              <div className="flex flex-wrap gap-2">
+                <span className="px-3 py-1.5 bg-white rounded-full text-xs font-bold text-[var(--v2-on-surface-variant)] flex items-center gap-1.5">
+                  <span className="v2-icon text-sm">redeem</span>
+                  Gift Codes
+                </span>
+                <span className="px-3 py-1.5 bg-purple-100 rounded-full text-xs font-bold text-purple-700 flex items-center gap-1.5">
+                  <span className="v2-icon text-sm">credit_card</span>
+                  Flex Cards (FLEX-XXXX)
+                </span>
               </div>
             </div>
           )}
@@ -476,17 +685,23 @@ export function V2VendorCodesTab() {
               <li className="flex items-start gap-3">
                 <span className="v2-icon text-[var(--v2-secondary)] text-lg">check_circle</span>
                 <span className="text-sm text-[var(--v2-on-surface-variant)] leading-relaxed">
-                  Gift must be <strong>claimed</strong> by recipient before redemption.
+                  <strong>Gift Codes:</strong> Must be claimed by recipient before redemption.
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="v2-icon text-purple-600 text-lg">check_circle</span>
+                <span className="text-sm text-[var(--v2-on-surface-variant)] leading-relaxed">
+                  <strong>Flex Cards:</strong> Support partial redemption. Enter exact purchase amount.
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="v2-icon text-[var(--v2-secondary)] text-lg">check_circle</span>
                 <span className="text-sm text-[var(--v2-on-surface-variant)] leading-relaxed">
-                  Verify the gift amount matches customer's purchase.
+                  Verify the amount matches customer's purchase before confirming.
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="v2-icon text-[var(--v2-secondary)] text-lg">check_circle</span>
+                <span className="v2-icon text-amber-600 text-lg">warning</span>
                 <span className="text-sm text-[var(--v2-on-surface-variant)] leading-relaxed">
                   Redemption is permanent and cannot be reversed.
                 </span>

@@ -882,20 +882,28 @@ export async function recordCreatorGift({
 export async function recordShopGiftPurchase({
   reference,
   recipientEmail,
+  recipientPhone,
+  recipientCountryCode,
+  deliveryMethod = 'email',
   senderName,
   message,
   giftId,
   giftName,
   expectedAmount,
+  whatsappFee = 0,
   currency,
 }: {
   reference: string;
-  recipientEmail: string;
+  recipientEmail?: string;
+  recipientPhone?: string;
+  recipientCountryCode?: string;
+  deliveryMethod?: 'email' | 'whatsapp';
   senderName: string;
   message?: string;
   giftId: number;
   giftName: string;
   expectedAmount: number;
+  whatsappFee?: number;
   currency: string;
 }) {
   const supabase = await createClient();
@@ -963,21 +971,31 @@ export async function recordShopGiftPurchase({
     // We are setting user_id to vendor_id so they can see it as "Pending Claim"
     // Use admin client to bypass RLS for guest/non-owner purchases
     const admin = createAdminClient();
+
+    // Log WhatsApp delivery info (DB columns not yet added)
+    if (deliveryMethod === 'whatsapp') {
+      console.log('WhatsApp delivery details:', {
+        recipientPhone,
+        recipientCountryCode,
+        whatsappFee,
+      });
+    }
+
     const {error: campaignError} = await admin.from('campaigns').insert({
       user_id: gift.vendor_id,
       title: giftName,
       campaign_short_id: `gift-${giftCode.toLowerCase()}-${Date.now()}`,
       campaign_slug: 'prepaid-gift',
       status: 'active',
-      goal_amount: expectedAmount,
-      current_amount: expectedAmount,
+      goal_amount: expectedAmount - whatsappFee, // Store actual gift amount without fee
+      current_amount: expectedAmount - whatsappFee,
       claimable_type: 'gift-card',
       claimable_gift_id: giftId,
       gift_code: giftCode,
       currency: currency,
       category: 'other',
       visibility: 'private',
-      recipient_email: recipientEmail,
+      recipient_email: recipientEmail || recipientPhone || null, // Temporarily store phone in email field if WhatsApp
       sender_name: senderName,
       message: message,
     });
@@ -1005,25 +1023,38 @@ export async function recordShopGiftPurchase({
       },
     });
 
-    // 6. Send Email!
+    // 6. Send Email or WhatsApp!
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
     const claimUrl = `${siteUrl}/claim/${giftCode}`;
 
-    // Import the sendGiftEmail action dynamically to avoid circular or early execution if needed
-    // or just import it at top.
-    const {sendGiftEmail} = await import('./email');
+    if (deliveryMethod === 'whatsapp' && recipientPhone) {
+      // TODO: Integrate with WhatsApp Business API (Twilio/Meta)
+      // For now, log the WhatsApp message that would be sent
+      console.log('WhatsApp delivery requested for:', {
+        phone: recipientPhone,
+        senderName,
+        giftName,
+        giftAmount: expectedAmount - whatsappFee,
+        message,
+        claimUrl,
+      });
+      // Mock: In production, call WhatsApp API here
+      // await sendWhatsAppMessage({ phone: recipientPhone, ... });
+    } else if (recipientEmail) {
+      // Send Email
+      const {sendGiftEmail} = await import('./email');
+      console.log('Sending gift email for:', giftName);
 
-    console.log('Sending gift email for:', giftName);
-
-    await sendGiftEmail({
-      to: recipientEmail,
-      senderName,
-      vendorShopName,
-      giftName,
-      giftAmount: expectedAmount,
-      message,
-      claimUrl,
-    });
+      await sendGiftEmail({
+        to: recipientEmail,
+        senderName,
+        vendorShopName,
+        giftName,
+        giftAmount: expectedAmount - whatsappFee,
+        message,
+        claimUrl,
+      });
+    }
 
     return {success: true, giftCode};
   } catch (err: any) {

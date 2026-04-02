@@ -29,6 +29,7 @@ import {
   V2AdminWalletsTab,
   V2AdminWithdrawalsTab,
   V2AdminVendorsTab,
+  V2AdminPromotionsTab,
   V2AdminSubscriptionsTab,
   V2AdminReportsTab,
   V2AdminModerationTab,
@@ -37,6 +38,7 @@ import {
   V2AdminRolesTab,
   V2AdminLogsTab,
 } from './components/tabs';
+import {V2NotificationsPanel} from '../components/V2NotificationsPanel';
 
 function AdminLoadingFallback() {
   return (
@@ -389,10 +391,7 @@ function V2AdminContent() {
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          <button className="w-10 h-10 rounded-full flex items-center justify-center bg-[var(--v2-surface-container)] relative">
-            <span className="v2-icon text-[var(--v2-on-surface)]">notifications</span>
-            <span className="absolute top-2 right-2 w-2 h-2 bg-[var(--v2-primary)] rounded-full" />
-          </button>
+          <V2NotificationsPanel />
           <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-[var(--v2-primary-container)]/20">
             {profile?.avatar_url ? (
               <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
@@ -447,10 +446,7 @@ function V2AdminContent() {
             </div>
           </div>
           <div className="flex items-center gap-6">
-            <button className="relative p-2 text-[var(--v2-on-surface)]/70 hover:opacity-80 transition-opacity">
-              <span className="v2-icon">notifications</span>
-              <span className="absolute top-1 right-1 w-2 h-2 bg-[var(--v2-error)] rounded-full" />
-            </button>
+            <V2NotificationsPanel />
             <div className="flex items-center gap-3 pl-4 border-l border-[var(--v2-outline-variant)]/20">
               <div className="text-right">
                 <p className="text-sm font-bold text-[var(--v2-on-surface)]">{adminName}</p>
@@ -534,6 +530,12 @@ function V2AdminContent() {
               searchQuery={searchQuery}
               addLog={addLog}
               setViewDetailsModal={setViewDetailsModal}
+            />
+          )}
+          {section === 'promotions' && (
+            <V2AdminPromotionsTab
+              searchQuery={searchQuery}
+              addLog={addLog}
             />
           )}
           {section === 'subscriptions' && (
