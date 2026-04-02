@@ -13,6 +13,10 @@ export function getPrimaryImage(product: any): string | null {
 }
 
 function getProductHref(product: any): string {
+  // External promotions (like Flex Card) have their own redirect URL
+  if (product.isExternal && product.redirect_url) {
+    return product.redirect_url;
+  }
   return `/v2/gift-shop/${product.profiles?.shop_slug || product.vendor_id}/${product.slug || product.id}`;
 }
 

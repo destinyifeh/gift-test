@@ -10,8 +10,10 @@ import {InfiniteScroll} from '@/components/ui/infinite-scroll';
 import {fetchMyGiftsList} from '@/lib/server/actions/analytics';
 import {convertGiftToCredit} from '@/lib/server/actions/platform-credits';
 import {rateVoucherGift} from '@/lib/server/actions/ratings';
+import {fetchUserFlexCards, FlexCard as FlexCardType} from '@/lib/server/actions/flex-cards';
+import {FlexCardListItem, FlexCardModal} from '../../../components/FlexCard';
 import {formatCurrency} from '@/lib/utils/currency';
-import {useInfiniteQuery} from '@tanstack/react-query';
+import {useInfiniteQuery, useQuery} from '@tanstack/react-query';
 import {useState} from 'react';
 import {toast} from 'sonner';
 import {QRCodeSVG} from 'qrcode.react';
@@ -70,6 +72,15 @@ export function V2MyGiftsTab() {
   const [sortOption, setSortOption] = useState<SortOption>('recent');
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const [selectedFlexCard, setSelectedFlexCard] = useState<FlexCardType | null>(null);
+
+  // Fetch Flex Cards (received)
+  const {data: flexCardsRes, isLoading: flexCardsLoading} = useQuery({
+    queryKey: ['my-flex-cards'],
+    queryFn: () => fetchUserFlexCards({type: 'received'}),
+  });
+
+  const flexCards = flexCardsRes?.data || [];
 
   const handleRate = async (giftId: string | number, rating: number) => {
     setRatings(prev => ({...prev, [giftId]: rating}));
@@ -503,6 +514,52 @@ export function V2MyGiftsTab() {
             </div>
           </div>
         </div>
+
+        {/* Flex Cards Section */}
+        {flexCards.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
+                  <span className="v2-icon text-white">credit_card</span>
+                </div>
+                <div>
+                  <h3 className="font-bold text-[var(--v2-on-surface)]">Flex Cards</h3>
+                  <p className="text-xs text-[var(--v2-on-surface-variant)]">
+                    {flexCards.length} card{flexCards.length !== 1 ? 's' : ''} • Use at any vendor
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-lg font-bold text-emerald-500">
+                  {formatCurrency(
+                    flexCards.reduce((sum, c) => sum + c.current_balance, 0),
+                    'NGN'
+                  )}
+                </p>
+                <p className="text-[10px] text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
+                  Total Balance
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {flexCards.map((card) => (
+                <FlexCardListItem
+                  key={card.id}
+                  code={card.code}
+                  initialAmount={card.initial_amount}
+                  currentBalance={card.current_balance}
+                  currency={card.currency}
+                  status={card.status}
+                  senderName={card.sender?.display_name || card.sender_name || undefined}
+                  createdAt={card.created_at}
+                  onClick={() => setSelectedFlexCard(card)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Gifts List */}
         <div className="space-y-4">
@@ -1009,6 +1066,26 @@ export function V2MyGiftsTab() {
           </div>
         </ResponsiveModalContent>
       </ResponsiveModal>
+
+      {/* Flex Card Modal */}
+      {selectedFlexCard && (
+        <FlexCardModal
+          card={{
+            id: selectedFlexCard.id,
+            code: selectedFlexCard.code,
+            initial_amount: selectedFlexCard.initial_amount,
+            current_balance: selectedFlexCard.current_balance,
+            currency: selectedFlexCard.currency,
+            status: selectedFlexCard.status,
+            sender_name: selectedFlexCard.sender_name,
+            message: selectedFlexCard.message,
+            created_at: selectedFlexCard.created_at,
+            sender: selectedFlexCard.sender,
+          }}
+          open={!!selectedFlexCard}
+          onClose={() => setSelectedFlexCard(null)}
+        />
+      )}
     </>
   );
 }

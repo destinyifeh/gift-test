@@ -1,8 +1,10 @@
 import {
   fetchPromotedProducts,
   fetchVendorPromotions,
+  fetchExternalPromotions,
   type Promotion,
   type PromotionStatus,
+  type ExternalPromotion,
 } from '@/lib/server/actions/promotions';
 import type {PromotionPlacement} from '@/lib/utils/promotions';
 import {useQuery} from '@tanstack/react-query';
@@ -38,5 +40,22 @@ export function useVendorPromotions(status?: PromotionStatus) {
       return result.data as Promotion[];
     },
     staleTime: 1000 * 30, // 30 seconds
+  });
+}
+
+/**
+ * Fetch external promotions for public display (admin-created items like Flex Card).
+ */
+export function useExternalPromotions(placement?: PromotionPlacement) {
+  return useQuery({
+    queryKey: ['external-promotions', placement],
+    queryFn: async () => {
+      const result = await fetchExternalPromotions(placement);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result.data as ExternalPromotion[];
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }

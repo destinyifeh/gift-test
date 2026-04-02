@@ -20,18 +20,30 @@ export function useMyCampaigns() {
   });
 }
 
-export function usePublicCampaigns() {
+export function usePublicCampaigns(options?: {
+  category?: string;
+  search?: string;
+  sort?: 'all' | 'trending' | 'recent';
+}) {
+  const {category, search, sort} = options || {};
+
   return useInfiniteQuery({
-    queryKey: ['public-campaigns'],
+    queryKey: ['public-campaigns', category, search, sort],
     initialPageParam: 0,
     queryFn: async ({pageParam = 0}) => {
-      const result = await getAllPublicCampaigns({pageParam});
+      const result = await getAllPublicCampaigns({
+        pageParam,
+        category: category !== 'All' ? category : undefined,
+        search: search || undefined,
+        sort,
+      });
       if (!result.success) {
         throw new Error(result.error);
       }
       return result;
     },
     getNextPageParam: lastPage => lastPage.nextPage,
+    staleTime: 1000 * 60, // 1 minute
   });
 }
 

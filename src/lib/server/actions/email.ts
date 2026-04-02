@@ -106,3 +106,38 @@ export async function sendThankYouEmail({
     return {success: false, error: err.message};
   }
 }
+
+/**
+ * Generic email sending function for custom HTML emails.
+ */
+export async function sendEmail({
+  to,
+  subject,
+  html,
+}: {
+  to: string;
+  subject: string;
+  html: string;
+}) {
+  try {
+    const {data, error} = await resend.emails.send({
+      from: 'Gifthance <gifts@discussday.com>',
+      to: [to],
+      subject,
+      html,
+    });
+
+    if (error) {
+      console.error('Send email error:', error);
+      if (error.message.includes('onboarding')) {
+        return {success: true, warning: 'Onboarding domain restriction'};
+      }
+      return {success: false, error: error.message};
+    }
+
+    return {success: true, data};
+  } catch (err: any) {
+    console.error('Email action error:', err);
+    return {success: false, error: err.message};
+  }
+}

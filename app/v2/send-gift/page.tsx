@@ -52,12 +52,15 @@ export default function V2SendGiftPage() {
     if (giftType === 'gift-card') {
       const fetchGifts = async () => {
         const supabase = createClient();
-        const {data} = await supabase
+        const {data, error} = await supabase
           .from('vendor_gifts')
           .select(
-            'id, name, price, profiles!vendor_gifts_vendor_id_fkey(shop_name, display_name)',
+            'id, name, price, image_url, profiles!vendor_gifts_vendor_id_fkey(shop_name, display_name)',
           )
-          .eq('is_active', true);
+          .eq('status', 'active');
+        if (error) {
+          console.error('Error fetching vendor gifts:', error);
+        }
         if (data) setVendorGifts(data);
       };
       fetchGifts();
@@ -101,6 +104,11 @@ export default function V2SendGiftPage() {
       return;
     }
 
+    if (!process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY) {
+      toast.error('Payment gateway not configured. Please contact support.');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const supabase = createClient();
@@ -114,6 +122,13 @@ export default function V2SendGiftPage() {
         .select('email')
         .eq('id', user.id)
         .single();
+
+      const userEmail = profile?.email || user.email;
+      if (!userEmail) {
+        toast.error('Unable to get your email for payment');
+        setIsSubmitting(false);
+        return;
+      }
 
       let finalGoal = Number(amount);
       if (giftType === 'gift-card' && giftId) {
@@ -130,75 +145,117 @@ export default function V2SendGiftPage() {
 
       // Calculate total with WhatsApp fee if applicable
       const whatsappFee = deliveryType === 'direct' && deliveryMethod === 'whatsapp' ? WHATSAPP_FEE : 0;
+      const totalAmount = finalGoal + whatsappFee;
 
-      // Handle Flex Card creation separately
-      if (giftType === 'flex-card') {
-        const {createFlexCard} = await import('@/lib/server/actions/flex-cards');
-        const flexResult = await createFlexCard({
-          initial_amount: finalGoal,
-          recipient_email: deliveryType === 'direct' && deliveryMethod === 'email' ? recipientEmail : undefined,
-          recipient_phone: deliveryType === 'direct' && deliveryMethod === 'whatsapp'
-            ? formatE164(recipientPhone, recipientCountryCode)
-            : undefined,
-          delivery_method: deliveryType === 'direct' ? deliveryMethod : 'email',
-          sender_name: senderName || undefined,
-          message: message || undefined,
-        });
+      // Generate a unique gift code for claiming
+      const giftCode = `GFT-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
 
-        if (flexResult.success && flexResult.data) {
-          setCampaignSlug(flexResult.data.code);
-          setSubmitted(true);
-        } else {
-          toast.error(flexResult.error || 'Failed to create Flex Card');
-        }
-        setIsSubmitting(false);
-        return;
-      }
+      // Initialize Paystack payment
+      const PaystackPop = (await import('@paystack/inline-js')).default;
+      const paystack = new (PaystackPop as any)();
 
-      const payload = {
-        category: 'claimable',
-        title: giftType === 'money' ? 'Cash Gift' : 'Gift Card',
-        claimable_type: giftType,
-        goal_amount: finalGoal,
+      paystack.newTransaction({
+        key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY as string,
+        email: userEmail,
+        amount: Math.round(totalAmount * 100), // Convert to kobo
         currency: 'NGN',
-        claimable_gift_id: giftId || undefined,
-        recipient_email: deliveryType === 'direct' && deliveryMethod === 'email' ? recipientEmail : null,
-        sender_email: profile?.email || user.email,
-        sender_name: senderName || undefined,
-        is_anonymous: isAnonymous,
-        message: message || undefined,
-        status: 'active',
-        scheduled_for:
-          deliveryTime === 'schedule' && scheduledFor
-            ? new Date(scheduledFor).toISOString()
-            : undefined,
-        // WhatsApp delivery fields
-        delivery_method: deliveryType === 'direct' ? deliveryMethod : 'email',
-        recipient_phone: deliveryType === 'direct' && deliveryMethod === 'whatsapp'
-          ? formatE164(recipientPhone, recipientCountryCode)
-          : null,
-        recipient_country_code: deliveryType === 'direct' && deliveryMethod === 'whatsapp'
-          ? recipientCountryCode
-          : null,
-        whatsapp_fee: whatsappFee,
-      };
+        metadata: {
+          gift_type: giftType,
+          gift_id: giftId,
+          recipient_email: deliveryType === 'direct' && deliveryMethod === 'email' ? recipientEmail : null,
+          recipient_phone: deliveryType === 'direct' && deliveryMethod === 'whatsapp' ? recipientPhone : null,
+          custom_fields: [
+            {
+              display_name: 'Gift Type',
+              variable_name: 'gift_type',
+              value: giftType,
+            },
+          ],
+        },
+        onSuccess: async (response: {reference: string}) => {
+          // Payment successful, now create the campaign/gift
+          try {
+            // Handle Flex Card creation
+            if (giftType === 'flex-card') {
+              const {createFlexCard} = await import('@/lib/server/actions/flex-cards');
+              const flexResult = await createFlexCard({
+                initial_amount: finalGoal,
+                recipient_email: deliveryType === 'direct' && deliveryMethod === 'email' ? recipientEmail : undefined,
+                recipient_phone: deliveryType === 'direct' && deliveryMethod === 'whatsapp'
+                  ? formatE164(recipientPhone, recipientCountryCode)
+                  : undefined,
+                delivery_method: deliveryType === 'direct' ? deliveryMethod : 'email',
+                sender_name: senderName || undefined,
+                message: message || undefined,
+              });
 
-      const {createCampaign} = await import('@/lib/server/actions/campaigns');
-      const result = await createCampaign(payload as any);
+              if (flexResult.success && flexResult.data) {
+                setCampaignSlug(flexResult.data.code);
+                setSubmitted(true);
+              } else {
+                toast.error(flexResult.error || 'Payment successful but failed to create Flex Card. Please contact support.');
+              }
+              setIsSubmitting(false);
+              return;
+            }
 
-      if (result.success && result.data) {
-        if (result.data.authorization_url) {
-          window.location.href = result.data.authorization_url;
-        } else {
-          setCampaignSlug(result.data.campaign_short_id || '');
-          setSubmitted(true);
-        }
-      } else {
-        toast.error(result.error || 'Failed to initialize payment');
-      }
+            // Create campaign for money/gift-card
+            const payload = {
+              category: 'claimable',
+              title: giftType === 'money' ? 'Cash Gift' : 'Gift Card',
+              claimable_type: giftType,
+              goal_amount: finalGoal,
+              currency: 'NGN',
+              claimable_gift_id: giftId || undefined,
+              recipient_email: deliveryType === 'direct' && deliveryMethod === 'email' ? recipientEmail : null,
+              sender_email: userEmail,
+              sender_name: senderName || undefined,
+              is_anonymous: isAnonymous,
+              message: message || undefined,
+              status: 'active',
+              gift_code: giftCode,
+              payment_reference: response.reference,
+              scheduled_for:
+                deliveryTime === 'schedule' && scheduledFor
+                  ? new Date(scheduledFor).toISOString()
+                  : undefined,
+              delivery_method: deliveryType === 'direct' ? deliveryMethod : 'email',
+              recipient_phone: deliveryType === 'direct' && deliveryMethod === 'whatsapp'
+                ? formatE164(recipientPhone, recipientCountryCode)
+                : null,
+              recipient_country_code: deliveryType === 'direct' && deliveryMethod === 'whatsapp'
+                ? recipientCountryCode
+                : null,
+              whatsapp_fee: whatsappFee,
+            };
+
+            const {createCampaign} = await import('@/lib/server/actions/campaigns');
+            const result = await createCampaign(payload as any);
+
+            if (result.success && result.data) {
+              setCampaignSlug(deliveryType === 'claim-link' ? giftCode : (result.data.campaign_short_id || ''));
+              setSubmitted(true);
+              toast.success('Gift sent successfully!');
+            } else {
+              toast.error(result.error || 'Payment successful but failed to create gift. Please contact support.');
+            }
+          } catch (err: any) {
+            toast.error(err.message || 'Payment successful but an error occurred. Please contact support.');
+          }
+          setIsSubmitting(false);
+        },
+        onCancel: () => {
+          toast.info('Payment cancelled');
+          setIsSubmitting(false);
+        },
+        onError: (error: any) => {
+          console.error('Paystack error:', error);
+          toast.error('Payment failed. Please try again.');
+          setIsSubmitting(false);
+        },
+      });
     } catch (err: any) {
       toast.error(err.message || 'Something went wrong');
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -439,10 +496,15 @@ export default function V2SendGiftPage() {
                         ))}
                       {vendorGifts.length === 0 && (
                         <div className="text-center py-6">
-                          <span className="v2-icon text-3xl text-[var(--v2-on-surface-variant)]/40 mb-2">inventory_2</span>
+                          <span className="v2-icon text-3xl text-[var(--v2-on-surface-variant)]/40 block mb-2">inventory_2</span>
                           <p className="text-sm text-[var(--v2-on-surface-variant)]">
-                            Loading gift cards...
+                            No gift cards available
                           </p>
+                          <Link
+                            href="/v2/gift-shop"
+                            className="text-xs text-[var(--v2-primary)] font-medium mt-1 inline-block">
+                            Browse Gift Shop
+                          </Link>
                         </div>
                       )}
                     </div>

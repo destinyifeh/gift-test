@@ -277,15 +277,33 @@ export function V2AdminPromotionsTab({searchQuery = '', addLog}: V2AdminPromotio
             Manage vendor promotions and external advertisements
           </p>
         </div>
-        <button
-          onClick={() => {
-            resetExternalForm();
-            setExternalModal({open: true, mode: 'create', data: null});
-          }}
-          className="h-12 px-6 v2-hero-gradient text-white font-bold rounded-xl flex items-center gap-2 shadow-lg">
-          <span className="v2-icon">add</span>
-          Add External Promotion
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              setExternalForm({
+                title: 'Gifthance Flex Card',
+                description: 'A reloadable gift card that can be used at any Gifthance vendor. Send any amount and let them choose!',
+                image_url: '',
+                price: '',
+                redirect_url: '/v2/send-gift?type=flex',
+                placement: 'featured',
+              });
+              setExternalModal({open: true, mode: 'create', data: null});
+            }}
+            className="h-12 px-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold rounded-xl flex items-center gap-2 shadow-lg hover:from-orange-600 hover:to-amber-600 transition-colors">
+            <span className="v2-icon">credit_card</span>
+            Add Flex Card
+          </button>
+          <button
+            onClick={() => {
+              resetExternalForm();
+              setExternalModal({open: true, mode: 'create', data: null});
+            }}
+            className="h-12 px-6 v2-hero-gradient text-white font-bold rounded-xl flex items-center gap-2 shadow-lg">
+            <span className="v2-icon">add</span>
+            Add External
+          </button>
+        </div>
       </div>
 
       {/* Stats Cards */}

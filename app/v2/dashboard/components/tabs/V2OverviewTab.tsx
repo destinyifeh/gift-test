@@ -44,8 +44,15 @@ export function V2OverviewTab({creatorEnabled, setCreatorEnabled, setSection}: V
   const {data: userProfile} = useProfile();
 
   const unclaimedGifts = unclaimedRes?.data || [];
+  const unclaimedFlexCards = unclaimedRes?.flexCards || [];
   const profile = userProfile || null;
   const userCurrency = getCurrencyByCountry(profile?.country);
+
+  // Categorize and count pending claims
+  const flexCardCount = unclaimedFlexCards.length;
+  const moneyGiftCount = unclaimedGifts.filter((g: any) => g.claimable_type === 'money').length;
+  const vendorGiftCount = unclaimedGifts.filter((g: any) => g.claimable_type === 'gift-card').length;
+  const totalPendingClaims = flexCardCount + unclaimedGifts.length;
 
   const analytics = analyticsRes?.data || {
     giftsSent: 0,
@@ -97,27 +104,62 @@ export function V2OverviewTab({creatorEnabled, setCreatorEnabled, setSection}: V
         </p>
       </section>
 
-      {/* Pending Gift Banner */}
-      {unclaimedGifts.length > 0 && (
-        <div className="relative overflow-hidden rounded-2xl md:rounded-3xl p-5 md:p-6 v2-hero-gradient shadow-lg shadow-[var(--v2-primary)]/20">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16" />
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center text-white shrink-0">
-                <span className="v2-icon text-3xl animate-bounce">card_giftcard</span>
-              </div>
-              <div className="text-white">
-                <h3 className="text-lg font-bold v2-headline">
-                  {unclaimedGifts.length} unclaimed gift{unclaimedGifts.length > 1 ? 's' : ''}!
-                </h3>
-                <p className="text-white/80 text-sm">Sent to your email. Claim now!</p>
+      {/* Unified Pending Claims Banner */}
+      {totalPendingClaims > 0 && (
+        <div className="relative overflow-hidden rounded-2xl md:rounded-3xl p-5 md:p-6 bg-gradient-to-br from-[var(--v2-primary)] via-[var(--v2-primary)] to-orange-600 shadow-lg shadow-[var(--v2-primary)]/25">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/10" />
+          <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20" />
+
+          <div className="relative z-10">
+            {/* Header with total count */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
+                  <span className="v2-icon text-2xl text-white animate-bounce">redeem</span>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white v2-headline">
+                    {totalPendingClaims} Gift{totalPendingClaims > 1 ? 's' : ''} Waiting!
+                  </h3>
+                  <p className="text-white/70 text-sm">Claim your gifts now</p>
+                </div>
               </div>
             </div>
+
+            {/* Breakdown by type */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              {flexCardCount > 0 && (
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-500/30 rounded-full">
+                  <span className="v2-icon text-sm text-amber-100">account_balance_wallet</span>
+                  <span className="text-sm font-semibold text-white">
+                    {flexCardCount} Flex Card{flexCardCount > 1 ? 's' : ''}
+                  </span>
+                </div>
+              )}
+              {vendorGiftCount > 0 && (
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-purple-500/30 rounded-full">
+                  <span className="v2-icon text-sm text-purple-100">card_giftcard</span>
+                  <span className="text-sm font-semibold text-white">
+                    {vendorGiftCount} Gift Card{vendorGiftCount > 1 ? 's' : ''}
+                  </span>
+                </div>
+              )}
+              {moneyGiftCount > 0 && (
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/30 rounded-full">
+                  <span className="v2-icon text-sm text-emerald-100">payments</span>
+                  <span className="text-sm font-semibold text-white">
+                    {moneyGiftCount} Cash Gift{moneyGiftCount > 1 ? 's' : ''}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Claim button - goes to unified claim page */}
             <Link
-              href={`/v2/claim/${unclaimedGifts[0].gift_code}`}
-              className="w-full sm:w-auto px-6 h-12 bg-white text-[var(--v2-primary)] font-bold rounded-xl flex items-center justify-center gap-2 transition-transform active:scale-[0.98] shadow-lg">
-              <span className="v2-icon">redeem</span>
-              Claim Now
+              href="/v2/claims"
+              className="w-full sm:w-auto px-6 h-12 bg-white text-[var(--v2-primary)] font-bold rounded-xl flex items-center justify-center gap-2 transition-transform active:scale-[0.98] shadow-lg hover:shadow-xl">
+              <span className="v2-icon">arrow_forward</span>
+              View & Claim All
             </Link>
           </div>
         </div>

@@ -805,6 +805,7 @@ export async function fetchCreatorAnalytics({username}: {username: string}) {
 /**
  * Fetches gifts sent to the user's email that haven't been claimed yet.
  * Uses the admin client to bypass RLS for email-based discovery.
+ * Includes both regular gifts (from campaigns) and Flex Cards.
  */
 export async function fetchUnclaimedGifts() {
   const supabase = await createClient();
@@ -812,23 +813,38 @@ export async function fetchUnclaimedGifts() {
     data: {user},
   } = await supabase.auth.getUser();
 
-  if (!user?.email) return {success: false, data: []};
+  if (!user?.email) return {success: false, data: [], flexCards: []};
 
   try {
     const admin = createAdminClient();
+
+    // Fetch unclaimed regular gifts (money or vendor gift cards)
     const {data: unclaimed, error} = await admin
       .from('campaigns')
-      .select('id, title, gift_code, sender_name, status')
+      .select('id, title, gift_code, sender_name, status, claimable_type, goal_amount, currency')
       .ilike('recipient_email', user.email.trim())
       .not('gift_code', 'is', null)
       .eq('status', 'active');
 
+    // Fetch unclaimed Flex Cards
+    const {data: unclaimedFlexCards, error: flexError} = await admin
+      .from('flex_cards')
+      .select('id, code, claim_token, initial_amount, currency, sender_name, status')
+      .ilike('recipient_email', user.email.trim())
+      .is('user_id', null) // Not yet claimed
+      .eq('status', 'active');
+
+    if (flexError) {
+      console.error('Error fetching unclaimed flex cards:', flexError);
+    }
+
     return {
       success: true,
       data: unclaimed || [],
+      flexCards: unclaimedFlexCards || [],
     };
   } catch (err: any) {
     console.error('fetchUnclaimedGifts Error:', err);
-    return {success: false, error: err.message, data: []};
+    return {success: false, error: err.message, data: [], flexCards: []};
   }
 }

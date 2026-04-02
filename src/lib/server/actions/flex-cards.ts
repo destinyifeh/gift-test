@@ -3,6 +3,11 @@
 import {revalidatePath} from 'next/cache';
 import {createClient} from '../supabase/server';
 import {generateShortId} from '@/lib/utils/slugs';
+import {Resend} from 'resend';
+import FlexCardEmail from '@/components/emails/FlexCardEmail';
+import React from 'react';
+
+const resend = new Resend(process.env.NEXT_PUBLIC_RESEND_API_KEY);
 
 export interface FlexCardCreateData {
   initial_amount: number;
@@ -22,6 +27,7 @@ export interface FlexCard {
   current_balance: number;
   currency: string;
   code: string;
+  claim_token: string;
   status: 'active' | 'partially_used' | 'redeemed';
   sender_name: string | null;
   recipient_email: string | null;
@@ -63,6 +69,17 @@ function generateFlexCardCode(): string {
   return `${prefix}-${code}`;
 }
 
+// Generate a unique claim token (used for URLs to keep code private)
+function generateClaimToken(): string {
+  // Generate a longer, URL-safe token
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  let token = '';
+  for (let i = 0; i < 16; i++) {
+    token += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return token;
+}
+
 // Create a new flex card
 export async function createFlexCard(data: FlexCardCreateData) {
   const supabase = await createClient();
@@ -75,6 +92,7 @@ export async function createFlexCard(data: FlexCardCreateData) {
   }
 
   const code = generateFlexCardCode();
+  const claimToken = generateClaimToken();
 
   const {data: flexCard, error} = await supabase
     .from('flex_cards')
@@ -84,6 +102,7 @@ export async function createFlexCard(data: FlexCardCreateData) {
       current_balance: data.initial_amount,
       currency: data.currency || 'NGN',
       code,
+      claim_token: claimToken,
       status: 'active',
       sender_name: data.sender_name,
       recipient_email: data.recipient_email,
@@ -101,14 +120,53 @@ export async function createFlexCard(data: FlexCardCreateData) {
 
   revalidatePath('/v2/dashboard');
 
-  // TODO: Send notification via email or WhatsApp based on delivery_method
-  // For now, just log the creation
-  console.log('=== Flex Card Created ===');
-  console.log(`Code: ${code}`);
-  console.log(`Amount: ₦${data.initial_amount.toLocaleString()}`);
-  console.log(`Delivery: ${data.delivery_method || 'email'}`);
-  console.log(`To: ${data.recipient_email || data.recipient_phone}`);
-  console.log('========================');
+  // Send notification based on delivery method
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  // Use claim_token for URL (keeps the actual code private)
+  const claimUrl = `${siteUrl}/v2/claim/flex/${claimToken}`;
+
+  // Get sender profile for name
+  const {data: senderProfile} = await supabase
+    .from('profiles')
+    .select('display_name')
+    .eq('id', user.id)
+    .single();
+
+  const senderName = data.sender_name || senderProfile?.display_name || 'Someone';
+
+  if (data.delivery_method === 'email' && data.recipient_email) {
+    try {
+      const {error: emailError} = await resend.emails.send({
+        from: 'Gifthance <gifts@discussday.com>',
+        to: [data.recipient_email],
+        subject: `🎁 You've received a Gifthance Flex Card from ${senderName}!`,
+        react: React.createElement(FlexCardEmail, {
+          senderName,
+          amount: data.initial_amount,
+          message: data.message,
+          claimUrl,
+          code,
+          currencySymbol: data.currency === 'USD' ? '$' : '₦',
+        }),
+      });
+
+      if (emailError) {
+        console.error('Flex Card email error:', emailError);
+      } else {
+        console.log(`Flex Card email sent to ${data.recipient_email}`);
+      }
+    } catch (err) {
+      console.error('Error sending Flex Card email:', err);
+    }
+  } else if (data.delivery_method === 'whatsapp' && data.recipient_phone) {
+    // TODO: Integrate WhatsApp Business API / Twilio
+    console.log('=== WhatsApp Flex Card Notification (Mock) ===');
+    console.log(`To: ${data.recipient_phone}`);
+    console.log(`From: ${senderName}`);
+    console.log(`Amount: ₦${data.initial_amount.toLocaleString()}`);
+    console.log(`Claim URL: ${claimUrl}`);
+    console.log('=============================================');
+  }
 
   return {success: true, data: flexCard};
 }
@@ -151,7 +209,7 @@ export async function fetchUserFlexCards(options?: {type?: 'sent' | 'received'})
   return {success: true, data: data as FlexCard[]};
 }
 
-// Fetch a flex card by its code (for claiming/redeeming)
+// Fetch a flex card by its code (for vendor redemption)
 export async function fetchFlexCardByCode(code: string) {
   const supabase = await createClient();
 
@@ -172,7 +230,28 @@ export async function fetchFlexCardByCode(code: string) {
   return {success: true, data: data as FlexCard};
 }
 
-// Claim a flex card (assign it to the current user)
+// Fetch a flex card by its claim token (for claim pages - keeps code private)
+export async function fetchFlexCardByClaimToken(claimToken: string) {
+  const supabase = await createClient();
+
+  const {data, error} = await supabase
+    .from('flex_cards')
+    .select(`
+      *,
+      sender:profiles!flex_cards_sender_id_fkey(display_name, username, avatar_url)
+    `)
+    .eq('claim_token', claimToken)
+    .single();
+
+  if (error) {
+    console.error('Error fetching flex card by claim token:', error);
+    return {success: false, error: 'Flex card not found'};
+  }
+
+  return {success: true, data: data as FlexCard};
+}
+
+// Claim a flex card by code (legacy - for direct code entry)
 export async function claimFlexCard(code: string) {
   const supabase = await createClient();
   const {
@@ -188,6 +267,57 @@ export async function claimFlexCard(code: string) {
     .from('flex_cards')
     .select('*')
     .eq('code', code.toUpperCase())
+    .single();
+
+  if (fetchError || !flexCard) {
+    return {success: false, error: 'Flex card not found'};
+  }
+
+  if (flexCard.user_id) {
+    return {success: false, error: 'This flex card has already been claimed'};
+  }
+
+  if (flexCard.status === 'redeemed') {
+    return {success: false, error: 'This flex card has been fully redeemed'};
+  }
+
+  // Claim the card
+  const {data: updatedCard, error: updateError} = await supabase
+    .from('flex_cards')
+    .update({
+      user_id: user.id,
+      claimed_at: new Date().toISOString(),
+    })
+    .eq('id', flexCard.id)
+    .select()
+    .single();
+
+  if (updateError) {
+    console.error('Error claiming flex card:', updateError);
+    return {success: false, error: updateError.message};
+  }
+
+  revalidatePath('/v2/dashboard');
+
+  return {success: true, data: updatedCard};
+}
+
+// Claim a flex card by claim token (used from claim URLs)
+export async function claimFlexCardByToken(claimToken: string) {
+  const supabase = await createClient();
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {success: false, error: 'Not authenticated'};
+  }
+
+  // First, verify the card exists and is not already claimed
+  const {data: flexCard, error: fetchError} = await supabase
+    .from('flex_cards')
+    .select('*')
+    .eq('claim_token', claimToken)
     .single();
 
   if (fetchError || !flexCard) {

@@ -4,6 +4,7 @@ import {useEffect, useState, useMemo, useCallback} from 'react';
 import {useAuth} from '@/hooks/use-auth';
 import {useInfiniteVendorProducts} from '@/hooks/use-vendor';
 import {usePromotedProducts} from '@/hooks/use-promotions';
+import {useExternalPromotions} from '@/hooks/use-promotions';
 import {InfiniteScroll} from '@/components/ui/infinite-scroll';
 
 import {
@@ -62,6 +63,10 @@ export default function V2GiftShopPage() {
   const {data: newArrivals} = usePromotedProducts('new_arrivals');
   const {data: sponsoredPromos} = usePromotedProducts('sponsored');
 
+  // External promotions (admin-created items like Flex Card)
+  const {data: externalFeatured} = useExternalPromotions('featured');
+  const {data: externalNewArrivals} = useExternalPromotions('new_arrivals');
+
   // Flatten paginated products
   const baseProducts = useMemo(() => {
     if (!productsData?.pages) return [];
@@ -91,30 +96,58 @@ export default function V2GiftShopPage() {
 
   // Get all featured and new arrival promoted products
   const featuredProducts = useMemo(() => {
-    if (!featuredPromos || featuredPromos.length === 0) return [];
-    return featuredPromos
+    const vendorFeatured = (featuredPromos || [])
       .map(promo => ({
         ...promo.vendor_gifts,
-        // Ensure vendor_id is always present (fallback to promotion's vendor_id)
         vendor_id: promo.vendor_gifts?.vendor_id || promo.vendor_id,
         isSponsored: true,
         promotion_id: promo.id,
+        isExternal: false,
       }))
       .filter(p => p.id);
-  }, [featuredPromos]);
+
+    // Add external featured items (like Flex Card)
+    const externalItems = (externalFeatured || []).map(ext => ({
+      id: `external-${ext.id}`,
+      name: ext.title,
+      description: ext.description,
+      image_url: ext.image_url,
+      price: ext.price,
+      redirect_url: ext.redirect_url,
+      isSponsored: true,
+      isExternal: true,
+      external_id: ext.id,
+    }));
+
+    return [...externalItems, ...vendorFeatured];
+  }, [featuredPromos, externalFeatured]);
 
   const newArrivalProducts = useMemo(() => {
-    if (!newArrivals || newArrivals.length === 0) return [];
-    return newArrivals
+    const vendorNewArrivals = (newArrivals || [])
       .map(promo => ({
         ...promo.vendor_gifts,
-        // Ensure vendor_id is always present (fallback to promotion's vendor_id)
         vendor_id: promo.vendor_gifts?.vendor_id || promo.vendor_id,
         isSponsored: true,
         promotion_id: promo.id,
+        isExternal: false,
       }))
       .filter(p => p.id);
-  }, [newArrivals]);
+
+    // Add external new arrival items
+    const externalItems = (externalNewArrivals || []).map(ext => ({
+      id: `external-${ext.id}`,
+      name: ext.title,
+      description: ext.description,
+      image_url: ext.image_url,
+      price: ext.price,
+      redirect_url: ext.redirect_url,
+      isSponsored: true,
+      isExternal: true,
+      external_id: ext.id,
+    }));
+
+    return [...externalItems, ...vendorNewArrivals];
+  }, [newArrivals, externalNewArrivals]);
 
   // Fallback to regular products if no promotions
   const featuredItem = featuredProducts[0] || baseProducts[0];

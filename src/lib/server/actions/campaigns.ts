@@ -225,7 +225,7 @@ export async function getCampaignBySlug(slug: string) {
   const {data, error} = await supabase
     .from('campaigns')
     .select(
-      '*, profiles!campaigns_user_id_fkey(id, username, display_name, avatar_url), contributions(*)',
+      '*, profiles!campaigns_user_id_fkey(id, username, display_name, avatar_url), contributions(id, amount, created_at, donor_name, is_anonymous)',
     )
     .eq('campaign_short_id', slug)
     .order('created_at', {foreignTable: 'contributions', ascending: false})
@@ -297,30 +297,69 @@ export async function uploadCampaignImage(formData: FormData) {
 }
 export async function getAllPublicCampaigns({
   pageParam = 0,
-}: {pageParam?: number} = {}) {
+  category,
+  search,
+  sort = 'recent',
+}: {
+  pageParam?: number;
+  category?: string;
+  search?: string;
+  sort?: 'all' | 'trending' | 'recent';
+} = {}) {
   const limit = 12;
   const from = pageParam * limit;
   const to = from + limit - 1;
   const supabase = await createClient();
 
-  const {data, error} = await supabase
+  let query = supabase
     .from('campaigns')
     .select(
-      '*, profiles!campaigns_user_id_fkey(id, username, display_name, avatar_url), contributions(id)',
+      '*, profiles!campaigns_user_id_fkey(id, username, display_name, avatar_url), contributions(id, amount)',
+      {count: 'exact'}
     )
     .eq('visibility', 'public')
     .eq('status', 'active')
-    .is('gift_code', null)
-    .order('created_at', {ascending: false})
-    .range(from, to);
+    .is('gift_code', null);
+
+  // Apply category filter
+  if (category && category !== 'All') {
+    query = query.ilike('category', category);
+  }
+
+  // Apply search filter
+  if (search && search.trim().length > 0) {
+    query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
+  }
+
+  // Apply sorting
+  if (sort === 'trending') {
+    // Sort by number of contributions (approximated by goal_amount for now)
+    query = query.order('goal_amount', {ascending: false});
+  } else {
+    // Default to recent
+    query = query.order('created_at', {ascending: false});
+  }
+
+  const {data, error, count} = await query.range(from, to);
 
   if (error) {
     return {success: false, error: error.message};
   }
 
+  const totalCount = count || 0;
+  const totalPages = Math.ceil(totalCount / limit);
+  const hasMore = pageParam + 1 < totalPages;
+
   return {
     success: true,
     data,
-    nextPage: data?.length === limit ? pageParam + 1 : undefined,
+    nextPage: hasMore ? pageParam + 1 : undefined,
+    pagination: {
+      page: pageParam,
+      limit,
+      totalCount,
+      totalPages,
+      hasMore,
+    },
   };
 }
