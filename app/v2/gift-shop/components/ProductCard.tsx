@@ -13,11 +13,20 @@ export function getPrimaryImage(product: any): string | null {
 }
 
 function getProductHref(product: any): string {
+  // Featured items (admin-managed internal awareness items)
+  if (product.isFeaturedItem && product.redirect_url) {
+    return product.redirect_url;
+  }
   // External promotions (like Flex Card) have their own redirect URL
   if (product.isExternal && product.redirect_url) {
     return product.redirect_url;
   }
   return `/v2/gift-shop/${product.profiles?.shop_slug || product.vendor_id}/${product.slug || product.id}`;
+}
+
+// Check if product is a featured item (not a regular product)
+function isFeaturedItemType(product: any): boolean {
+  return product.isFeaturedItem === true;
 }
 
 interface ProductCardProps {
@@ -43,19 +52,39 @@ function SponsoredLabel({className, light}: {className?: string; light?: boolean
 }
 
 /**
+ * Featured Item Label - For admin-managed featured content
+ */
+function FeaturedItemLabel({className, light, text = 'Featured'}: {className?: string; light?: boolean; text?: string}) {
+  return (
+    <span className={cn(
+      "text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full",
+      light
+        ? "text-white bg-[var(--v2-primary)]/80 backdrop-blur-sm"
+        : "bg-[var(--v2-tertiary-container)] text-[var(--v2-on-tertiary-container)]",
+      className
+    )}>
+      {text}
+    </span>
+  );
+}
+
+/**
  * Hero Feature Card - Large card with image background overlay
  */
-export function HeroFeatureCard({product, isSponsored}: ProductCardProps) {
+export function HeroFeatureCard({product, isSponsored, showDots, dotsElement}: ProductCardProps & {showDots?: boolean; dotsElement?: React.ReactNode}) {
   if (!product) return null;
+
+  const isFeatured = isFeaturedItemType(product);
+  const ctaText = product.cta_text || 'Send as Gift';
 
   return (
     <Link
       href={getProductHref(product)}
-      className="block bg-[var(--v2-surface-container-lowest)] rounded-[2rem] overflow-hidden group relative min-h-[500px] flex items-end"
+      className="block bg-[var(--v2-surface-container-lowest)] rounded-[2rem] overflow-hidden group relative aspect-[16/9]"
     >
       {getPrimaryImage(product) ? (
         <img
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
           src={getPrimaryImage(product)!}
           alt={product.name}
         />
@@ -63,25 +92,35 @@ export function HeroFeatureCard({product, isSponsored}: ProductCardProps) {
         <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-[var(--v2-primary-container)] to-[var(--v2-secondary-container)]" />
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-[var(--v2-on-background)]/80 via-[var(--v2-on-background)]/20 to-transparent" />
-      <div className="relative p-10 w-full">
-        <div className="flex items-center gap-2 mb-4">
-          {isSponsored ? (
+      <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 md:p-10">
+        <div className="flex items-center gap-2 mb-3 sm:mb-4">
+          {isSponsored && !isFeatured ? (
             <SponsoredLabel light />
           ) : (
-            <span className="bg-[var(--v2-tertiary-container)] text-[var(--v2-on-tertiary-container)] px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
-              Featured
-            </span>
+            <FeaturedItemLabel light />
           )}
         </div>
-        <h2 className="font-headline text-4xl font-bold text-white mb-4 tracking-tight capitalize">
+        {product.subtitle && (
+          <p className="text-white/60 text-xs sm:text-sm font-medium uppercase tracking-widest mb-1 sm:mb-2">{product.subtitle}</p>
+        )}
+        <h2 className="font-headline text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2 sm:mb-3 tracking-tight capitalize">
           {product.name || 'The Heritage Collection'}
         </h2>
-        <p className="text-white/80 max-w-md mb-8 font-medium">
-          {product.description || 'A timeless selection of handcrafted leather goods and vintage stationery for the discerning professional.'}
-        </p>
-        <span className="bg-gradient-to-br from-[var(--v2-primary)] to-[var(--v2-primary-container)] text-[var(--v2-on-primary)] px-8 py-4 rounded-xl font-bold text-sm tracking-wide shadow-xl shadow-[var(--v2-primary)]/20 hover:scale-[1.02] active:scale-95 transition-all inline-block">
-          Send as Gift
-        </span>
+        {product.description && (
+          <p className="text-white/80 max-w-md mb-3 sm:mb-6 font-medium text-xs sm:text-sm md:text-base line-clamp-2">
+            {product.description}
+          </p>
+        )}
+        <div className="flex items-center justify-between">
+          <span className="bg-gradient-to-br from-[var(--v2-primary)] to-[var(--v2-primary-container)] text-[var(--v2-on-primary)] px-5 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 rounded-xl font-bold text-xs sm:text-sm tracking-wide shadow-xl shadow-[var(--v2-primary)]/20 hover:scale-[1.02] active:scale-95 transition-all inline-block">
+            {ctaText}
+          </span>
+          {dotsElement && (
+            <div className="flex items-center">
+              {dotsElement}
+            </div>
+          )}
+        </div>
       </div>
     </Link>
   );
@@ -195,6 +234,9 @@ export function WideProductCard({product, isSponsored}: ProductCardProps) {
 export function NewArrivalCard({product, isSponsored}: ProductCardProps) {
   if (!product) return null;
 
+  const isFeatured = isFeaturedItemType(product);
+  const showPrice = !isFeatured && product.price;
+
   return (
     <Link
       href={getProductHref(product)}
@@ -210,18 +252,29 @@ export function NewArrivalCard({product, isSponsored}: ProductCardProps) {
         <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-[var(--v2-surface-container)] to-[var(--v2-surface-container-high)]" />
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-[var(--v2-on-background)]/70 via-transparent to-transparent" />
-      {isSponsored && (
+      {isSponsored && !isFeatured && (
         <div className="absolute top-4 left-4">
           <SponsoredLabel light />
         </div>
       )}
       <div className="absolute bottom-8 left-8 right-8">
         <span className="bg-[var(--v2-on-primary-fixed-variant)] text-[var(--v2-on-primary)] text-[10px] font-bold px-2 py-1 rounded mb-3 inline-block uppercase tracking-tighter">
-          New Arrival
+          {isFeatured ? 'New' : 'New Arrival'}
         </span>
+        {product.subtitle && (
+          <p className="text-white/60 text-xs font-medium uppercase tracking-widest mb-1">{product.subtitle}</p>
+        )}
         <h3 className="text-white font-headline text-2xl font-bold capitalize">{product.name}</h3>
-        <p className="text-white/70 text-sm mb-4 line-clamp-1">{product.description}</p>
-        <span className="text-white text-xl font-bold">{formatCurrency(product.price, 'NGN')}</span>
+        {product.description && (
+          <p className="text-white/70 text-sm mb-4 line-clamp-2">{product.description}</p>
+        )}
+        {showPrice ? (
+          <span className="text-white text-xl font-bold">{formatCurrency(product.price, 'NGN')}</span>
+        ) : isFeatured && product.cta_text ? (
+          <span className="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg font-bold text-sm inline-block">
+            {product.cta_text}
+          </span>
+        ) : null}
       </div>
     </Link>
   );
@@ -262,9 +315,11 @@ export function StandardProductCard({product, isSponsored}: ProductCardProps) {
       <h3 className="font-headline text-2xl font-bold text-[var(--v2-on-background)] mb-2 capitalize">
         {product.name}
       </h3>
-      <p className="text-[var(--v2-on-surface-variant)] text-sm leading-relaxed mb-6 line-clamp-2">
-        {product.description}
-      </p>
+      {product.description && (
+        <p className="text-[var(--v2-on-surface-variant)] text-sm leading-relaxed mb-6 line-clamp-2">
+          {product.description}
+        </p>
+      )}
       <div className="mt-auto flex items-center justify-between">
         <span className="text-xl font-bold font-headline text-[var(--v2-secondary)]">
           {formatCurrency(product.price, 'NGN')}
@@ -285,43 +340,51 @@ export function StandardProductCard({product, isSponsored}: ProductCardProps) {
 /**
  * Mobile Featured Card - Large card for mobile
  */
-export function MobileFeaturedCard({product, isSponsored}: ProductCardProps) {
+export function MobileFeaturedCard({product, isSponsored, dotsElement}: ProductCardProps & {dotsElement?: React.ReactNode}) {
   if (!product) return null;
 
+  const isFeatured = isFeaturedItemType(product);
+  const ctaText = product.cta_text || 'Send Gift';
+  const showPrice = !isFeatured && product.price;
+
   return (
-    <div className="col-span-2 bg-[var(--v2-surface-container-lowest)] rounded-3xl overflow-hidden shadow-sm">
-      <div className="relative h-56 w-full">
+    <Link
+      href={getProductHref(product)}
+      className="col-span-2 bg-[var(--v2-surface-container-lowest)] rounded-3xl overflow-hidden shadow-sm block"
+    >
+      <div className="relative aspect-[16/9] w-full">
         {getPrimaryImage(product) ? (
-          <img className="w-full h-full object-cover" src={getPrimaryImage(product)!} alt={product.name} />
+          <img className="absolute inset-0 w-full h-full object-cover object-center" src={getPrimaryImage(product)!} alt={product.name} />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-[var(--v2-primary-container)] to-[var(--v2-secondary-container)]" />
+          <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-[var(--v2-primary-container)] to-[var(--v2-secondary-container)]" />
         )}
-        <div className="absolute top-4 left-4 right-4 flex justify-between items-start">
-          {isSponsored && <SponsoredLabel />}
-          {!isSponsored && (
-            <div className="bg-[var(--v2-tertiary-container)] text-[var(--v2-on-tertiary-container)] px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase">
-              Featured
-            </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <div className="absolute top-3 left-3">
+          {isSponsored && !isFeatured ? (
+            <SponsoredLabel />
+          ) : (
+            <FeaturedItemLabel />
           )}
         </div>
-      </div>
-      <div className="p-5">
-        <div className="flex justify-between items-start mb-1">
-          <h3 className="font-headline font-bold text-lg leading-tight capitalize">{product.name}</h3>
-          <span className="font-body font-extrabold text-[var(--v2-primary)] text-lg">
-            {formatCurrency(product.price, 'NGN')}
-          </span>
+        {/* Content overlay at bottom */}
+        <div className="absolute bottom-0 left-0 right-0 p-4">
+          {product.subtitle && (
+            <p className="text-white/70 text-xs font-medium mb-1">{product.subtitle}</p>
+          )}
+          <h3 className="font-headline font-bold text-lg text-white leading-tight capitalize mb-2">{product.name}</h3>
+          {product.description && (
+            <p className="text-white/80 text-xs mb-3 line-clamp-2">{product.description}</p>
+          )}
+          <div className="flex items-center justify-between">
+            <span className="bg-gradient-to-br from-[var(--v2-primary)] to-[var(--v2-primary-container)] text-[var(--v2-on-primary)] px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-1">
+              <span className="v2-icon text-sm">{isFeatured ? 'arrow_forward' : 'redeem'}</span>
+              {ctaText}
+            </span>
+            {dotsElement}
+          </div>
         </div>
-        <p className="text-[var(--v2-on-surface-variant)] text-sm mb-4 line-clamp-2">{product.description}</p>
-        <Link
-          href={getProductHref(product)}
-          className="w-full py-3 bg-gradient-to-br from-[var(--v2-primary)] to-[var(--v2-primary-container)] text-[var(--v2-on-primary)] rounded-xl font-bold flex items-center justify-center gap-2"
-        >
-          <span className="v2-icon text-lg">redeem</span>
-          Send Gift
-        </Link>
       </div>
-    </div>
+    </Link>
   );
 }
 

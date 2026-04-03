@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import {useAuth} from '@/hooks/use-auth';
+import {GifthanceLogo} from '@/components/GifthanceLogo';
 
 export function CampaignDetailDesktopNav() {
   const {isLoggedIn} = useAuth();
@@ -9,12 +10,7 @@ export function CampaignDetailDesktopNav() {
   return (
     <nav className="hidden md:block fixed top-0 w-full z-50 v2-glass-nav shadow-sm">
       <div className="flex justify-between items-center px-8 h-20 max-w-7xl mx-auto">
-        <Link
-          href="/v2"
-          className="text-2xl font-black text-[var(--v2-primary)] v2-headline tracking-tight"
-        >
-          Gifthance
-        </Link>
+        <GifthanceLogo size="md" />
         <div className="flex items-center space-x-8 v2-headline font-bold tracking-tight">
           <Link
             href="/v2/gift-shop"

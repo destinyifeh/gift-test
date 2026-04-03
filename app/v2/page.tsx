@@ -4,6 +4,9 @@ import Link from 'next/link';
 import {useEffect, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import {createClient} from '@/lib/server/supabase/client';
+import {GifthanceLogo} from '@/components/GifthanceLogo';
+import {getTopCampaignsByAmountRaised} from '@/lib/server/actions/campaigns';
+import {formatCurrency} from '@/lib/utils/currency';
 
 // Category data
 const categories = [
@@ -25,39 +28,6 @@ const categories = [
   },
 ];
 
-// Trending campaigns
-const campaigns = [
-  {
-    id: 1,
-    title: 'New Tech Lab for Oakwood High',
-    category: 'Education',
-    description: 'Helping underprivileged students access the tools they need for a brighter future in technology.',
-    raised: 12450,
-    goal: 16600,
-    daysLeft: 12,
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBOXKQUumXc7w60zBd_0nKFg3OnoBWRSUpxyKeLyfdv5TNotsOyaXqYamvRAAYdMwZ2rb-dMUzCUQEWXksZ9XVN5HRqiARneQ6tFOt0dl1rSjr-XBIXQCUoRUrULYu57JzukKFmQI6q4S5FPw3LdQFtMzI4K_LmKORSR1Zw4wcMJz15GE4kkXn1_ojAMfE0cqe0HImikWlyeNLNejtshS2udR0lriEs9U7gxklFNnUSckCqKaolodVMPnvzEc04ivEMd-ksPDPtvMQ',
-  },
-  {
-    id: 2,
-    title: 'Pure Water Initiative: Kenya',
-    category: 'Health',
-    description: 'Installing sustainable filtration systems for three rural villages to prevent waterborne illnesses.',
-    raised: 8900,
-    goal: 9674,
-    daysLeft: 5,
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB96L-0krUC9Wgr-rI3hfDmNHRvAA8w5ddVHW0fMSD8SzTKE8h81XO9j7gird13By9jpsDi3Pj-ICvZYUDyC7OFo9AOhJN0zr-L6HsJCOVq_aWJ5mblnZ3k0SwoS2MSHhzT-YJD6lx-nBJJB7kVdcha1qm3JlBgYExIIpM7VxRuAtgXFGERI3hpTDoY3pQlL4LshCasXl2mauyhDCxzvCBLXpj8Iqrnz-jNn2sxTPxNB8cirSPmWJE6SFjhKlYN0WDP_eviLxVCM6M',
-  },
-  {
-    id: 3,
-    title: 'Second Chance Pet Haven',
-    category: 'Animals',
-    description: 'Expanding our local shelter to house 50 more animals and provide specialized medical care.',
-    raised: 4200,
-    goal: 9333,
-    daysLeft: 21,
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC-GGMiz0Wh0Ba9f8T-Ya8qCfE4rHOt4KrVsq0o7pHsvEpGdnm-ZwxcQjCbhse9aS7q5jdlNYhmzP3fib5PfTkki1LhZDBC7zyds2ucE6EqT8Rlqt-6HP1zP9i1pdG8IdRN0cyk4Lg_aTANMFtjiwGFqoe3GbmAODio2L1sqdQsv3bz8vzNfst6vzmLoYbKtfbSgLemFO3JPkbp2YXgALBgfD9bGSqALLfFds46_hpsaPdgG0vzcoiZFHTm3QA3BoSK2C8pcdETYk0',
-  },
-];
 
 // FAQ data
 const faqs = [
@@ -81,6 +51,20 @@ export default function V2LandingPage() {
   const [isChecking, setIsChecking] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [topCampaigns, setTopCampaigns] = useState<any[]>([]);
+  const [loadingCampaigns, setLoadingCampaigns] = useState(true);
+
+  // Fetch top campaigns by amount raised
+  useEffect(() => {
+    async function fetchTopCampaigns() {
+      const result = await getTopCampaignsByAmountRaised(6);
+      if (result.success && result.data) {
+        setTopCampaigns(result.data);
+      }
+      setLoadingCampaigns(false);
+    }
+    fetchTopCampaigns();
+  }, []);
 
   // Check if user is logged in and redirect to dashboard
   useEffect(() => {
@@ -112,9 +96,7 @@ export default function V2LandingPage() {
       {/* Navigation - Desktop */}
       <nav className="fixed top-0 w-full z-50 v2-glass-nav hidden md:block">
         <div className="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
-          <div className="text-2xl font-bold tracking-tight text-orange-950 v2-headline">
-            Gifthance
-          </div>
+          <GifthanceLogo size="md" />
           <div className="flex items-center gap-8">
             <Link href="/v2/gift-shop" className="text-orange-800/70 hover:text-orange-600 transition-colors duration-300">
               Gift Shop
@@ -147,9 +129,7 @@ export default function V2LandingPage() {
             >
               <span className="v2-icon text-[var(--v2-primary)]">{mobileMenuOpen ? 'close' : 'menu'}</span>
             </button>
-            <Link href="/v2" className="text-xl font-extrabold text-[var(--v2-primary)] tracking-tighter v2-headline">
-              Gifthance
-            </Link>
+            <GifthanceLogo size="sm" />
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -292,13 +272,13 @@ export default function V2LandingPage() {
               </div>
             </div>
             {/* Overlay Card - Desktop */}
-            <div className="absolute -bottom-6 -left-6 bg-[var(--v2-surface-container-lowest)] p-6 rounded-2xl shadow-xl hidden md:flex items-center gap-4 border border-[var(--v2-outline-variant)]/10">
-              <div className="w-12 h-12 rounded-full bg-[var(--v2-secondary-container)] flex items-center justify-center text-[var(--v2-on-secondary-container)]">
+            <div className="absolute -bottom-6 -left-6 bg-white/20 backdrop-blur-xl p-6 rounded-2xl shadow-xl hidden md:flex items-center gap-4 border border-white/30">
+              <div className="w-12 h-12 rounded-full bg-[var(--v2-primary-container)] flex items-center justify-center text-[var(--v2-on-primary-container)]">
                 <span className="v2-icon" style={{fontVariationSettings: "'FILL' 1"}}>volunteer_activism</span>
               </div>
               <div>
-                <div className="text-sm text-[var(--v2-on-surface-variant)] uppercase tracking-widest">Trusted by</div>
-                <div className="text-xl v2-headline font-bold text-[var(--v2-on-surface)]">10,000+ happy gifters</div>
+                <div className="text-sm text-white/80 uppercase tracking-widest">Trusted by</div>
+                <div className="text-xl v2-headline font-bold text-white">10,000+ happy gifters</div>
               </div>
             </div>
           </div>
@@ -439,60 +419,104 @@ export default function V2LandingPage() {
             </Link>
           </div>
 
-          {/* Mobile Horizontal Scroll - Same card design as desktop */}
+          {/* Mobile Horizontal Scroll */}
           <div className="flex overflow-x-auto v2-no-scrollbar gap-4 pb-4 -mx-6 px-6 md:hidden snap-x snap-mandatory">
-            {campaigns.map((campaign) => (
-              <Link key={campaign.id} href={`/v2/campaigns/${campaign.id}`} className="flex-shrink-0 w-72 snap-start">
-                <div className="bg-[var(--v2-surface-container-lowest)] rounded-2xl overflow-hidden shadow-sm border border-[var(--v2-outline-variant)]/10 h-full">
-                  <img alt={campaign.title} className="w-full h-40 object-cover" src={campaign.image} />
-                  <div className="p-4 space-y-3">
-                    <div className="flex justify-between items-start">
-                      <span className="px-2 py-0.5 bg-[var(--v2-tertiary-container)] text-[var(--v2-on-tertiary-container)] rounded-full text-[10px] font-bold uppercase tracking-wider">{campaign.category}</span>
-                      <span className="text-[var(--v2-on-surface-variant)] text-xs font-medium">{campaign.daysLeft} days left</span>
-                    </div>
-                    <h4 className="text-base v2-headline font-bold text-[var(--v2-on-background)] line-clamp-2">{campaign.title}</h4>
-                    <p className="text-[var(--v2-on-surface-variant)] line-clamp-2 text-xs">{campaign.description}</p>
-                    <div className="space-y-1.5">
-                      <div className="flex justify-between text-xs">
-                        <span className="font-bold text-[var(--v2-primary)]">${campaign.raised.toLocaleString()} raised</span>
-                        <span className="text-[var(--v2-on-surface-variant)]">{Math.round((campaign.raised / campaign.goal) * 100)}%</span>
+            {loadingCampaigns ? (
+              <div className="flex-shrink-0 w-72 h-64 bg-[var(--v2-surface-container-low)] rounded-2xl animate-pulse" />
+            ) : topCampaigns.length === 0 ? (
+              <p className="text-[var(--v2-on-surface-variant)] text-sm py-8">No campaigns yet</p>
+            ) : (
+              topCampaigns.map((campaign: any) => {
+                const raised = campaign.totalRaised / 100; // Convert from kobo
+                const goal = campaign.goal_amount || 1;
+                const percent = Math.min(Math.round((raised / goal) * 100), 100);
+                return (
+                  <Link
+                    key={campaign.id}
+                    href={`/v2/campaigns/${campaign.campaign_short_id}/${campaign.campaign_slug}`}
+                    className="flex-shrink-0 w-72 snap-start"
+                  >
+                    <div className="bg-[var(--v2-surface-container-lowest)] rounded-2xl overflow-hidden shadow-sm border border-[var(--v2-outline-variant)]/10 h-full">
+                      {campaign.image_url ? (
+                        <img alt={campaign.title} className="w-full h-40 object-cover" src={campaign.image_url} />
+                      ) : (
+                        <div className="w-full h-40 bg-gradient-to-br from-[var(--v2-primary-container)] to-[var(--v2-secondary-container)] flex items-center justify-center">
+                          <span className="v2-icon text-4xl text-[var(--v2-on-primary-container)]/50">volunteer_activism</span>
+                        </div>
+                      )}
+                      <div className="p-4 space-y-3">
+                        <div className="flex justify-between items-start">
+                          <span className="px-2 py-0.5 bg-[var(--v2-tertiary-container)] text-[var(--v2-on-tertiary-container)] rounded-full text-[10px] font-bold uppercase tracking-wider">{campaign.category}</span>
+                        </div>
+                        <h4 className="text-base v2-headline font-bold text-[var(--v2-on-background)] line-clamp-2">{campaign.title}</h4>
+                        <p className="text-[var(--v2-on-surface-variant)] line-clamp-2 text-xs">{campaign.description}</p>
+                        <div className="space-y-1.5">
+                          <div className="flex justify-between text-xs">
+                            <span className="font-bold text-[var(--v2-primary)]">{formatCurrency(raised, campaign.currency || 'NGN')} raised</span>
+                            <span className="text-[var(--v2-on-surface-variant)]">{percent}%</span>
+                          </div>
+                          <div className="w-full bg-[var(--v2-surface-container)] h-1.5 rounded-full overflow-hidden">
+                            <div className="bg-[var(--v2-primary)] h-full rounded-full" style={{width: `${percent}%`}}></div>
+                          </div>
+                        </div>
+                        <button className="w-full py-2.5 bg-[var(--v2-surface-container-low)] text-[var(--v2-primary)] rounded-xl font-bold text-sm active:scale-[0.98] transition-all">Contribute</button>
                       </div>
-                      <div className="w-full bg-[var(--v2-surface-container)] h-1.5 rounded-full overflow-hidden">
-                        <div className="bg-[var(--v2-primary)] h-full rounded-full" style={{width: `${Math.round((campaign.raised / campaign.goal) * 100)}%`}}></div>
-                      </div>
                     </div>
-                    <button className="w-full py-2.5 bg-[var(--v2-surface-container-low)] text-[var(--v2-primary)] rounded-xl font-bold text-sm active:scale-[0.98] transition-all">Contribute</button>
-                  </div>
-                </div>
-              </Link>
-            ))}
+                  </Link>
+                );
+              })
+            )}
           </div>
 
           {/* Desktop Grid */}
           <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-8">
-            {campaigns.map((campaign) => (
-              <div key={campaign.id} className="bg-[var(--v2-surface-container-lowest)] rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-[var(--v2-outline-variant)]/10">
-                <img alt={campaign.title} className="w-full h-56 object-cover" src={campaign.image} />
-                <div className="p-6 space-y-4">
-                  <div className="flex justify-between items-start">
-                    <span className="px-3 py-1 bg-[var(--v2-tertiary-container)] text-[var(--v2-on-tertiary-container)] rounded-full text-xs font-bold uppercase tracking-wider">{campaign.category}</span>
-                    <span className="text-[var(--v2-on-surface-variant)] text-sm font-medium">{campaign.daysLeft} days left</span>
-                  </div>
-                  <h4 className="text-xl v2-headline font-bold text-[var(--v2-on-background)]">{campaign.title}</h4>
-                  <p className="text-[var(--v2-on-surface-variant)] line-clamp-2 text-sm">{campaign.description}</p>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="font-bold text-[var(--v2-primary)]">${campaign.raised.toLocaleString()} raised</span>
-                      <span className="text-[var(--v2-on-surface-variant)]">{Math.round((campaign.raised / campaign.goal) * 100)}%</span>
+            {loadingCampaigns ? (
+              <>
+                <div className="h-96 bg-[var(--v2-surface-container-low)] rounded-3xl animate-pulse" />
+                <div className="h-96 bg-[var(--v2-surface-container-low)] rounded-3xl animate-pulse" />
+                <div className="h-96 bg-[var(--v2-surface-container-low)] rounded-3xl animate-pulse" />
+              </>
+            ) : topCampaigns.length === 0 ? (
+              <p className="col-span-3 text-center text-[var(--v2-on-surface-variant)] py-12">No campaigns yet. Be the first to create one!</p>
+            ) : (
+              topCampaigns.map((campaign: any) => {
+                const raised = campaign.totalRaised / 100; // Convert from kobo
+                const goal = campaign.goal_amount || 1;
+                const percent = Math.min(Math.round((raised / goal) * 100), 100);
+                return (
+                  <Link
+                    key={campaign.id}
+                    href={`/v2/campaigns/${campaign.campaign_short_id}/${campaign.campaign_slug}`}
+                    className="bg-[var(--v2-surface-container-lowest)] rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-[var(--v2-outline-variant)]/10"
+                  >
+                    {campaign.image_url ? (
+                      <img alt={campaign.title} className="w-full h-56 object-cover" src={campaign.image_url} />
+                    ) : (
+                      <div className="w-full h-56 bg-gradient-to-br from-[var(--v2-primary-container)] to-[var(--v2-secondary-container)] flex items-center justify-center">
+                        <span className="v2-icon text-6xl text-[var(--v2-on-primary-container)]/50">volunteer_activism</span>
+                      </div>
+                    )}
+                    <div className="p-6 space-y-4">
+                      <div className="flex justify-between items-start">
+                        <span className="px-3 py-1 bg-[var(--v2-tertiary-container)] text-[var(--v2-on-tertiary-container)] rounded-full text-xs font-bold uppercase tracking-wider">{campaign.category}</span>
+                      </div>
+                      <h4 className="text-xl v2-headline font-bold text-[var(--v2-on-background)]">{campaign.title}</h4>
+                      <p className="text-[var(--v2-on-surface-variant)] line-clamp-2 text-sm">{campaign.description}</p>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="font-bold text-[var(--v2-primary)]">{formatCurrency(raised, campaign.currency || 'NGN')} raised</span>
+                          <span className="text-[var(--v2-on-surface-variant)]">{percent}%</span>
+                        </div>
+                        <div className="w-full bg-[var(--v2-surface-container)] h-2 rounded-full overflow-hidden">
+                          <div className="bg-[var(--v2-primary)] h-full rounded-full" style={{width: `${percent}%`}}></div>
+                        </div>
+                      </div>
+                      <button className="w-full py-3 bg-[var(--v2-surface-container-low)] text-[var(--v2-primary)] rounded-xl font-bold hover:bg-[var(--v2-primary-container)] hover:text-[var(--v2-on-primary-container)] transition-all">Contribute</button>
                     </div>
-                    <div className="w-full bg-[var(--v2-surface-container)] h-2 rounded-full overflow-hidden">
-                      <div className="bg-[var(--v2-primary)] h-full rounded-full" style={{width: `${Math.round((campaign.raised / campaign.goal) * 100)}%`}}></div>
-                    </div>
-                  </div>
-                  <button className="w-full py-3 bg-[var(--v2-surface-container-low)] text-[var(--v2-primary)] rounded-xl font-bold hover:bg-[var(--v2-primary-container)] hover:text-[var(--v2-on-primary-container)] transition-all">Contribute</button>
-                </div>
-              </div>
-            ))}
+                  </Link>
+                );
+              })
+            )}
           </div>
         </section>
 
@@ -558,7 +582,7 @@ export default function V2LandingPage() {
       <footer className="bg-stone-100 mt-16 md:mt-24">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 px-6 md:px-8 py-12 md:py-16 max-w-7xl mx-auto">
           <div className="space-y-6 text-center md:text-left">
-            <div className="text-lg md:text-xl font-bold text-orange-950 v2-headline">Gifthance</div>
+            <GifthanceLogo size="sm" />
             <p className="text-stone-600 text-sm leading-relaxed">Make every gift count <br/> Join others who are making giving simple and meaningful.</p>
             <div className="flex gap-4 justify-center md:justify-start">
               {['public', 'mail', 'share'].map((icon) => (

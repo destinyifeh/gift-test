@@ -17,9 +17,11 @@ import {
   createExternalPromotion,
   updateExternalPromotion,
   deleteExternalPromotion,
+  uploadPromotionImage,
   type Promotion,
   type ExternalPromotion,
 } from '@/lib/server/actions/promotions';
+import {ImageUpload} from '@/components/ui/image-upload';
 import {PROMOTION_PRICING, type PromotionPlacement} from '@/lib/utils/promotions';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {useState} from 'react';
@@ -738,14 +740,13 @@ export function V2AdminPromotionsTab({searchQuery = '', addLog}: V2AdminPromotio
 
             <div>
               <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)] mb-2">
-                Image URL
+                Image
               </label>
-              <input
-                type="url"
+              <ImageUpload
                 value={externalForm.image_url}
-                onChange={(e) => setExternalForm({...externalForm, image_url: e.target.value})}
-                placeholder="https://example.com/image.jpg"
-                className="w-full h-12 px-4 bg-[var(--v2-surface-container-low)] rounded-xl"
+                onChange={url => setExternalForm({...externalForm, image_url: url})}
+                onUpload={uploadPromotionImage}
+                placeholder="Click to upload or drag and drop"
               />
             </div>
 

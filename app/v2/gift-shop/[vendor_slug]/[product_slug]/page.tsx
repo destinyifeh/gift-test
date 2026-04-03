@@ -358,7 +358,7 @@ export default function V2ProductDetailsPage({
             {/* Vendor Info Card */}
             <div className="p-6 rounded-3xl bg-[var(--v2-surface-container-lowest)] border border-[var(--v2-outline-variant)]/15 space-y-4">
               <h3 className="v2-headline font-bold text-[var(--v2-on-surface)]">
-                About the Curator
+                About the Vendor
               </h3>
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 rounded-full overflow-hidden bg-[var(--v2-surface-container)] flex items-center justify-center">
@@ -488,7 +488,7 @@ export default function V2ProductDetailsPage({
                   You might also like
                 </h2>
                 <p className="text-[var(--v2-on-surface-variant)] mt-1 hidden md:block">
-                  Curated recommendations for your preferences
+                  Based on your current selection
                 </p>
               </div>
               <Link

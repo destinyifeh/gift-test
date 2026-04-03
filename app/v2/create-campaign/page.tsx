@@ -691,7 +691,7 @@ function SuccessScreen({title, slug}: {title: string; slug: string}) {
     setOrigin(window.location.origin);
   }, []);
 
-  const campaignLink = `${origin}/campaign/${slug}/${generateSlug(title)}`;
+  const campaignLink = `${origin}/campaigns/${slug}/${generateSlug(title)}`;
 
   const handleShare = async () => {
     if (navigator.share) {

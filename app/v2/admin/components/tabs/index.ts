@@ -7,6 +7,7 @@ export {V2AdminTransactionsTab} from './V2AdminTransactionsTab';
 export {V2AdminWalletsTab} from './V2AdminWalletsTab';
 export {V2AdminWithdrawalsTab} from './V2AdminWithdrawalsTab';
 export {V2AdminVendorsTab} from './V2AdminVendorsTab';
+export {V2AdminFeaturedTab} from './V2AdminFeaturedTab';
 export {V2AdminPromotionsTab} from './V2AdminPromotionsTab';
 export {V2AdminSubscriptionsTab} from './V2AdminSubscriptionsTab';
 export {V2AdminReportsTab} from './V2AdminReportsTab';

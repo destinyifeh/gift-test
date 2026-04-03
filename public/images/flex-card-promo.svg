@@ -1,0 +1,107 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#FFF7ED"/>
+
+  <!-- Decorative Background Elements -->
+  <circle cx="100" cy="100" r="200" fill="#FDBA74" fill-opacity="0.3"/>
+  <circle cx="1100" cy="530" r="250" fill="#FB923C" fill-opacity="0.2"/>
+  <circle cx="600" cy="50" r="150" fill="#FED7AA" fill-opacity="0.4"/>
+
+  <!-- Card Container with Shadow -->
+  <defs>
+    <linearGradient id="promoCardGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#D97706"/>
+      <stop offset="50%" style="stop-color:#B45309"/>
+      <stop offset="100%" style="stop-color:#92400E"/>
+    </linearGradient>
+    <linearGradient id="logoGradient" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" style="stop-color:#FCD34D"/>
+      <stop offset="100%" style="stop-color:#B45309"/>
+    </linearGradient>
+    <filter id="cardShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="20" stdDeviation="40" flood-color="#92400E" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Main Card (tilted) -->
+  <g transform="translate(620, 120) rotate(8)">
+    <rect width="480" height="300" rx="24" fill="url(#promoCardGradient)" filter="url(#cardShadow)"/>
+
+    <!-- Logo Icon next to Gifthance on card (no background) -->
+    <g transform="translate(35, 32)">
+      <!-- Gift box icon - outline style -->
+      <g stroke="white" stroke-width="1.8" fill="none">
+        <rect x="6" y="15" width="22" height="14" rx="2"/>
+        <rect x="4" y="9" width="26" height="8" rx="2"/>
+        <line x1="17" y1="9" x2="17" y2="29"/>
+        <path d="M17 9c-2.5-4-8-4-8 0s5.5 0 8 0"/>
+        <path d="M17 9c2.5-4 8-4 8 0s-5.5 0-8 0"/>
+      </g>
+    </g>
+
+    <!-- Gifthance Text on card -->
+    <text x="75" y="58" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="600" fill="white">Gifthance</text>
+
+    <!-- FLEX CARD subtitle on card -->
+    <text x="75" y="80" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="500" fill="white" fill-opacity="0.8" letter-spacing="2">FLEX CARD</text>
+
+    <!-- ACTIVE Badge -->
+    <rect x="350" y="35" width="90" height="32" rx="16" fill="white" fill-opacity="0.25"/>
+    <text x="395" y="57" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="white" text-anchor="middle" letter-spacing="1">ACTIVE</text>
+
+    <!-- AVAILABLE BALANCE Label -->
+    <text x="40" y="140" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="500" fill="white" fill-opacity="0.7" letter-spacing="1">AVAILABLE BALANCE</text>
+
+    <!-- Balance Amount -->
+    <text x="40" y="185" font-family="system-ui, -apple-system, sans-serif" font-size="48" font-weight="700" fill="white">&#8358;3,000</text>
+
+    <!-- Card number -->
+    <text x="40" y="260" font-family="monospace" font-size="16" font-weight="600" fill="white" fill-opacity="0.9" letter-spacing="2">FLEX-&#x2022;&#x2022;&#x2022;&#x2022;XSPV</text>
+
+    <!-- Tap to flip -->
+    <text x="360" y="258" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="400" fill="white" fill-opacity="0.6">Tap to flip</text>
+
+    <!-- Flip icon -->
+    <g transform="translate(428, 245)" stroke="white" stroke-opacity="0.6" stroke-width="1.2" fill="none">
+      <path d="M0 5a5 5 0 1 1 1.2 3.3"/>
+      <path d="M0 2.5v3h3"/>
+    </g>
+  </g>
+
+  <!-- Text Content -->
+  <g>
+    <!-- Logo Icon with background next to Gifthance heading (same line) -->
+    <g transform="translate(80, 133)">
+      <rect width="48" height="48" rx="12" fill="url(#logoGradient)"/>
+      <!-- Gift box icon - outline style -->
+      <g stroke="white" stroke-width="1.8" fill="none">
+        <rect x="12" y="22" width="24" height="16" rx="2"/>
+        <rect x="10" y="15" width="28" height="9" rx="2"/>
+        <line x1="24" y1="15" x2="24" y2="38"/>
+        <path d="M24 15c-3-4.5-9-4.5-9 0s6 0 9 0"/>
+        <path d="M24 15c3-4.5 9-4.5 9 0s-6 0-9 0"/>
+      </g>
+    </g>
+
+    <!-- Main Heading - Gifthance on same line as logo -->
+    <text x="140" y="172" font-family="system-ui, -apple-system, sans-serif" font-size="52" font-weight="900" fill="#9A3412">Gifthance</text>
+    <text x="80" y="240" font-family="system-ui, -apple-system, sans-serif" font-size="52" font-weight="900" fill="#EA580C">Flex Card</text>
+
+    <!-- Subheading -->
+    <text x="80" y="295" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="600" fill="#78350F">The Universal Gift Card</text>
+
+    <!-- Description -->
+    <text x="80" y="350" font-family="system-ui, -apple-system, sans-serif" font-size="17" fill="#A16207">Send any amount and let them choose</text>
+    <text x="80" y="378" font-family="system-ui, -apple-system, sans-serif" font-size="17" fill="#A16207">what they really want!</text>
+
+    <!-- Features -->
+    <g fill="#EA580C">
+      <circle cx="92" cy="435" r="5"/>
+      <text x="112" y="441" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="500" fill="#78350F">Works at any Gifthance vendor</text>
+    </g>
+    <g fill="#EA580C">
+      <circle cx="92" cy="475" r="5"/>
+      <text x="112" y="481" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="500" fill="#78350F">No expiration date</text>
+    </g>
+  </g>
+</svg>

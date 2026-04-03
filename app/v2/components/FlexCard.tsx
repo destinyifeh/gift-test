@@ -4,6 +4,7 @@ import {useState} from 'react';
 import {cn} from '@/lib/utils';
 import {formatCurrency} from '@/lib/utils/currency';
 import {QRCodeSVG} from 'qrcode.react';
+import {Gift} from 'lucide-react';
 
 export type FlexCardStatus = 'active' | 'partially_used' | 'redeemed';
 
@@ -25,7 +26,7 @@ export interface FlexCardProps {
 
 function maskCode(code: string): string {
   if (code.length <= 8) return code;
-  return `${code.slice(0, 5)}••••${code.slice(-4)}`;
+  return `FLEX-••••${code.slice(-4).toUpperCase()}`;
 }
 
 export function FlexCard({
@@ -115,19 +116,20 @@ export function FlexCard({
               {/* Subtle highlight overlay */}
               <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/10" />
 
-              {/* Decorative icon - top right */}
-              <div className="absolute right-5 top-5 opacity-30">
-                <span className="v2-icon text-4xl text-white">account_balance_wallet</span>
-              </div>
-
               {/* Header */}
               <div className="flex justify-between items-start relative z-10">
                 <div>
-                  <div className="font-black text-white tracking-tight text-base">Gifthance</div>
-                  <div className="text-[10px] font-bold text-white/60 uppercase tracking-[0.2em] mt-0.5">Flex Card</div>
+                  <div className="flex items-center gap-2">
+                    {/* Logo Icon */}
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center border-[1.5px] border-white/60">
+                      <Gift className="w-4 h-4 text-white/80" strokeWidth={1.5} />
+                    </div>
+                    <div className="font-bold text-white tracking-tight text-lg">Gifthance</div>
+                  </div>
+                  <div className="text-[10px] font-bold text-white/60 uppercase tracking-[0.2em] mt-1 ml-9">Flex Card</div>
                 </div>
                 <div className={cn(
-                  'px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider',
+                  'px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider',
                   status === 'active' && 'bg-white/20 text-white',
                   status === 'partially_used' && 'bg-white/30 text-white',
                   status === 'redeemed' && 'bg-white/10 text-white/60'
@@ -155,13 +157,13 @@ export function FlexCard({
               <div className="flex justify-between items-end relative z-10">
                 <button
                   onClick={handleCodeReveal}
-                  className="font-mono tracking-wider text-white/70 hover:text-white transition-colors text-sm"
+                  className="font-mono tracking-widest text-white/90 hover:text-white transition-colors text-sm font-semibold"
                 >
                   {showFullCode ? code : maskCode(code)}
                 </button>
-                <div className="flex items-center gap-1 text-white/50">
-                  <span className="text-[10px] font-medium">Tap to flip</span>
-                  <span className="v2-icon text-xs">sync</span>
+                <div className="flex items-center gap-1.5 text-white/50">
+                  <span className="text-[11px] font-medium">Tap to flip</span>
+                  <span className="v2-icon text-sm">refresh</span>
                 </div>
               </div>
             </div>

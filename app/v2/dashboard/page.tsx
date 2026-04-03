@@ -15,6 +15,7 @@ import {V2BottomTabBar} from './components/V2BottomTabBar';
 import {V2RoleSwitcher} from '../components/V2RoleSwitcher';
 import {V2NotificationsPanel} from '../components/V2NotificationsPanel';
 import {V2MobileMenu} from './components/V2MobileMenu';
+import {GifthanceLogo} from '@/components/GifthanceLogo';
 import {
   V2OverviewTab,
   V2SentGiftsTab,
@@ -148,16 +149,7 @@ function V2DashboardContent() {
     <div className="min-h-screen bg-[var(--v2-background)]">
       {/* Mobile Top Bar */}
       <header className="md:hidden fixed top-0 z-50 w-full px-4 h-14 flex justify-between items-center v2-glass-nav">
-        <Link href="/v2" className="flex items-center gap-2">
-          <span
-            className="v2-icon text-2xl text-[var(--v2-primary)]"
-            style={{fontVariationSettings: "'FILL' 1"}}>
-            card_giftcard
-          </span>
-          <span className="text-[var(--v2-primary)] font-extrabold tracking-tighter v2-headline text-lg">
-            Gifthance
-          </span>
-        </Link>
+        <GifthanceLogo size="sm" />
         <div className="flex items-center gap-2">
           <V2NotificationsPanel />
           <button
@@ -173,16 +165,9 @@ function V2DashboardContent() {
 
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex fixed left-0 top-0 h-full py-6 px-4 w-64 flex-col bg-[var(--v2-surface-container-low)] z-30 border-r border-[var(--v2-outline-variant)]/10">
-        <Link href="/v2" className="flex items-center gap-2 px-4 mb-4">
-          <span
-            className="v2-icon text-2xl text-[var(--v2-primary)]"
-            style={{fontVariationSettings: "'FILL' 1"}}>
-            card_giftcard
-          </span>
-          <span className="text-xl font-black text-[var(--v2-on-surface)] tracking-tight">
-            Gifthance
-          </span>
-        </Link>
+        <div className="px-4 mb-4">
+          <GifthanceLogo size="md" />
+        </div>
 
         <V2RoleSwitcher />
 

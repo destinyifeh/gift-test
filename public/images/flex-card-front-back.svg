@@ -1,0 +1,146 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#FFF7ED"/>
+
+  <!-- Decorative Background Elements -->
+  <circle cx="50" cy="50" r="150" fill="#FDBA74" fill-opacity="0.3"/>
+  <circle cx="1150" cy="580" r="200" fill="#FB923C" fill-opacity="0.2"/>
+
+  <defs>
+    <linearGradient id="cardGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#D97706"/>
+      <stop offset="50%" style="stop-color:#B45309"/>
+      <stop offset="100%" style="stop-color:#92400E"/>
+    </linearGradient>
+    <filter id="cardShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="15" stdDeviation="30" flood-color="#92400E" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- FRONT CARD (Left) -->
+  <g transform="translate(60, 90)">
+    <rect width="480" height="300" rx="24" fill="url(#cardGradient)" filter="url(#cardShadow)"/>
+
+    <!-- Logo Icon next to Gifthance (no background) -->
+    <g transform="translate(35, 32)">
+      <g stroke="white" stroke-width="1.8" fill="none">
+        <rect x="6" y="15" width="22" height="14" rx="2"/>
+        <rect x="4" y="9" width="26" height="8" rx="2"/>
+        <line x1="17" y1="9" x2="17" y2="29"/>
+        <path d="M17 9c-2.5-4-8-4-8 0s5.5 0 8 0"/>
+        <path d="M17 9c2.5-4 8-4 8 0s-5.5 0-8 0"/>
+      </g>
+    </g>
+
+    <!-- Gifthance Text -->
+    <text x="75" y="58" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="600" fill="white">Gifthance</text>
+    <text x="75" y="80" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="500" fill="white" fill-opacity="0.8" letter-spacing="2">FLEX CARD</text>
+
+    <!-- ACTIVE Badge -->
+    <rect x="350" y="35" width="90" height="32" rx="16" fill="white" fill-opacity="0.25"/>
+    <text x="395" y="57" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="white" text-anchor="middle" letter-spacing="1">ACTIVE</text>
+
+    <!-- AVAILABLE BALANCE -->
+    <text x="40" y="140" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="500" fill="white" fill-opacity="0.7" letter-spacing="1">AVAILABLE BALANCE</text>
+    <text x="40" y="185" font-family="system-ui, -apple-system, sans-serif" font-size="48" font-weight="700" fill="white">&#8358;3,000</text>
+
+    <!-- Card number -->
+    <text x="40" y="260" font-family="monospace" font-size="16" font-weight="600" fill="white" fill-opacity="0.9" letter-spacing="2">FLEX-&#x2022;&#x2022;&#x2022;&#x2022;XSPV</text>
+
+    <!-- Tap to flip -->
+    <text x="360" y="258" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="400" fill="white" fill-opacity="0.6">Tap to flip</text>
+    <g transform="translate(428, 245)" stroke="white" stroke-opacity="0.6" stroke-width="1.2" fill="none">
+      <path d="M0 5a5 5 0 1 1 1.2 3.3"/>
+      <path d="M0 2.5v3h3"/>
+    </g>
+
+    <!-- FRONT Label -->
+    <text x="240" y="330" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#9A3412" text-anchor="middle">FRONT</text>
+  </g>
+
+  <!-- BACK CARD (Right) -->
+  <g transform="translate(660, 90)">
+    <rect width="480" height="300" rx="24" fill="url(#cardGradient)" filter="url(#cardShadow)"/>
+
+    <!-- SCAN TO REDEEM -->
+    <text x="240" y="45" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600" fill="white" fill-opacity="0.7" text-anchor="middle" letter-spacing="2">SCAN TO REDEEM</text>
+
+    <!-- QR Code placeholder (white rounded rectangle) -->
+    <rect x="150" y="60" width="180" height="180" rx="16" fill="white"/>
+
+    <!-- QR Code pattern (simplified representation) -->
+    <g fill="#1a1a1a">
+      <!-- Corner squares -->
+      <rect x="165" y="75" width="40" height="40"/>
+      <rect x="170" y="80" width="30" height="30" fill="white"/>
+      <rect x="175" y="85" width="20" height="20"/>
+
+      <rect x="275" y="75" width="40" height="40"/>
+      <rect x="280" y="80" width="30" height="30" fill="white"/>
+      <rect x="285" y="85" width="20" height="20"/>
+
+      <rect x="165" y="185" width="40" height="40"/>
+      <rect x="170" y="190" width="30" height="30" fill="white"/>
+      <rect x="175" y="195" width="20" height="20"/>
+
+      <!-- Random QR pattern -->
+      <rect x="220" y="75" width="10" height="10"/>
+      <rect x="235" y="75" width="10" height="10"/>
+      <rect x="250" y="75" width="10" height="10"/>
+      <rect x="220" y="90" width="10" height="10"/>
+      <rect x="250" y="90" width="10" height="10"/>
+      <rect x="220" y="105" width="10" height="10"/>
+      <rect x="235" y="105" width="10" height="10"/>
+
+      <rect x="165" y="130" width="10" height="10"/>
+      <rect x="180" y="130" width="10" height="10"/>
+      <rect x="165" y="145" width="10" height="10"/>
+      <rect x="195" y="145" width="10" height="10"/>
+      <rect x="165" y="160" width="10" height="10"/>
+      <rect x="180" y="160" width="10" height="10"/>
+
+      <rect x="220" y="130" width="10" height="10"/>
+      <rect x="235" y="130" width="10" height="10"/>
+      <rect x="250" y="130" width="10" height="10"/>
+      <rect x="265" y="130" width="10" height="10"/>
+      <rect x="220" y="145" width="10" height="10"/>
+      <rect x="265" y="145" width="10" height="10"/>
+      <rect x="220" y="160" width="10" height="10"/>
+      <rect x="235" y="160" width="10" height="10"/>
+      <rect x="265" y="160" width="10" height="10"/>
+
+      <rect x="290" y="130" width="10" height="10"/>
+      <rect x="305" y="130" width="10" height="10"/>
+      <rect x="290" y="145" width="10" height="10"/>
+      <rect x="290" y="160" width="10" height="10"/>
+      <rect x="305" y="160" width="10" height="10"/>
+
+      <rect x="220" y="185" width="10" height="10"/>
+      <rect x="235" y="185" width="10" height="10"/>
+      <rect x="265" y="185" width="10" height="10"/>
+      <rect x="220" y="200" width="10" height="10"/>
+      <rect x="250" y="200" width="10" height="10"/>
+      <rect x="265" y="200" width="10" height="10"/>
+      <rect x="290" y="200" width="10" height="10"/>
+      <rect x="305" y="200" width="10" height="10"/>
+      <rect x="220" y="215" width="10" height="10"/>
+      <rect x="235" y="215" width="10" height="10"/>
+      <rect x="250" y="215" width="10" height="10"/>
+      <rect x="265" y="215" width="10" height="10"/>
+      <rect x="290" y="215" width="10" height="10"/>
+    </g>
+
+    <!-- Card Code -->
+    <text x="240" y="265" font-family="monospace" font-size="18" font-weight="700" fill="white" text-anchor="middle" letter-spacing="2">FLEX-0RHXSPV</text>
+
+    <!-- Tap to flip back -->
+    <text x="240" y="290" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="400" fill="white" fill-opacity="0.5" text-anchor="middle">Tap to flip back</text>
+
+    <!-- BACK Label -->
+    <text x="240" y="330" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#9A3412" text-anchor="middle">BACK</text>
+  </g>
+
+  <!-- Title -->
+  <text x="600" y="470" font-family="system-ui, -apple-system, sans-serif" font-size="36" font-weight="900" fill="#9A3412" text-anchor="middle">Gifthance Flex Card</text>
+  <text x="600" y="510" font-family="system-ui, -apple-system, sans-serif" font-size="18" fill="#A16207" text-anchor="middle">The Universal Gift Card - Use at any participating vendor</text>
+</svg>

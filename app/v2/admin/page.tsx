@@ -29,6 +29,7 @@ import {
   V2AdminWalletsTab,
   V2AdminWithdrawalsTab,
   V2AdminVendorsTab,
+  V2AdminFeaturedTab,
   V2AdminPromotionsTab,
   V2AdminSubscriptionsTab,
   V2AdminReportsTab,
@@ -530,6 +531,12 @@ function V2AdminContent() {
               searchQuery={searchQuery}
               addLog={addLog}
               setViewDetailsModal={setViewDetailsModal}
+            />
+          )}
+          {section === 'featured' && (
+            <V2AdminFeaturedTab
+              searchQuery={searchQuery}
+              addLog={addLog}
             />
           )}
           {section === 'promotions' && (

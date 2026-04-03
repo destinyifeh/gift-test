@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import {useState} from 'react';
+import {GifthanceLogo} from '@/components/GifthanceLogo';
 
 interface GiftShopNavProps {
   isLoggedIn: boolean;
@@ -14,9 +15,7 @@ export function GiftShopDesktopNav({isLoggedIn, searchQuery, onSearchChange}: Gi
     <nav className="fixed top-0 w-full z-50 bg-orange-50/80 backdrop-blur-xl hidden md:block">
       <div className="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
         <div className="flex items-center gap-12">
-          <Link href="/v2" className="text-2xl font-bold text-orange-900 tracking-tighter font-headline">
-            Gifthance
-          </Link>
+          <GifthanceLogo size="md" />
           <div className="hidden md:flex items-center gap-8 text-sm font-semibold tracking-tight">
             <Link
               href="/v2/gift-shop"
@@ -76,9 +75,7 @@ export function GiftShopMobileNav({isLoggedIn}: GiftShopMobileNavProps) {
   return (
     <nav className="fixed top-0 w-full z-50 bg-orange-50/80 backdrop-blur-xl md:hidden">
       <div className="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto">
-        <Link href="/v2" className="text-2xl font-bold text-orange-900 tracking-tighter font-headline">
-          Gifthance
-        </Link>
+        <GifthanceLogo size="md" />
         <div className="flex items-center gap-3">
           <Link href={isLoggedIn ? '/v2/dashboard' : '/v2/login'} className="p-2 text-orange-700">
             <span className="v2-icon text-2xl">account_circle</span>

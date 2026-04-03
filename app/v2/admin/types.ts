@@ -9,6 +9,7 @@ export type AdminSection =
   | 'wallets'
   | 'withdrawals'
   | 'vendors'
+  | 'featured'
   | 'promotions'
   | 'subscriptions'
   | 'reports'
@@ -28,6 +29,7 @@ export const adminNavItems: {id: AdminSection; label: string; icon: string}[] = 
   {id: 'wallets', label: 'Wallets', icon: 'account_balance_wallet'},
   {id: 'withdrawals', label: 'Withdrawals', icon: 'payments'},
   {id: 'vendors', label: 'Vendors', icon: 'storefront'},
+  {id: 'featured', label: 'Featured Items', icon: 'featured_play_list'},
   {id: 'promotions', label: 'Promotions', icon: 'rocket_launch'},
   {id: 'subscriptions', label: 'Subscriptions', icon: 'workspace_premium'},
   {id: 'reports', label: 'Reports', icon: 'analytics'},
@@ -48,6 +50,7 @@ export const sectionTitles: Record<AdminSection, string> = {
   wallets: 'Wallet Management',
   withdrawals: 'Withdrawals',
   vendors: 'Vendor Directory',
+  featured: 'Featured Items',
   promotions: 'Promotions',
   subscriptions: 'Subscriptions',
   reports: 'Analytics & Reports',

@@ -295,6 +295,43 @@ export async function uploadCampaignImage(formData: FormData) {
 
   return {success: true, url: publicUrl};
 }
+// Get top public campaigns by amount raised (for landing page "Trending")
+export async function getTopCampaignsByAmountRaised(limit: number = 6) {
+  const supabase = await createClient();
+
+  const {data, error} = await supabase
+    .from('campaigns')
+    .select(
+      '*, profiles!campaigns_user_id_fkey(id, username, display_name, avatar_url), contributions(id, amount)'
+    )
+    .eq('visibility', 'public')
+    .eq('status', 'active')
+    .is('gift_code', null)
+    .order('current_amount', {ascending: false})
+    .limit(limit);
+
+  if (error) {
+    return {success: false, error: error.message};
+  }
+
+  // Calculate total raised from contributions for each campaign
+  const campaignsWithRaised = (data || []).map(campaign => {
+    const totalRaised = campaign.contributions?.reduce(
+      (sum: number, c: any) => sum + (c.amount || 0),
+      0
+    ) || campaign.current_amount || 0;
+    return {
+      ...campaign,
+      totalRaised,
+    };
+  });
+
+  // Sort by total raised descending
+  campaignsWithRaised.sort((a, b) => b.totalRaised - a.totalRaised);
+
+  return {success: true, data: campaignsWithRaised};
+}
+
 export async function getAllPublicCampaigns({
   pageParam = 0,
   category,

@@ -5,6 +5,7 @@ import {signOut} from '@/lib/server/actions/auth';
 import {fetchFlexCardByClaimToken, claimFlexCardByToken} from '@/lib/server/actions/flex-cards';
 import {FlexCard, FlexCardModal} from '../../../components/FlexCard';
 import {formatCurrency} from '@/lib/utils/currency';
+import {GifthanceLogo} from '@/components/GifthanceLogo';
 import Link from 'next/link';
 import {useParams, useRouter} from 'next/navigation';
 import {useEffect, useState} from 'react';
@@ -396,17 +397,7 @@ export default function ClaimFlexCardPage() {
 function Header() {
   return (
     <header className="flex items-center justify-center py-6 px-4">
-      <Link href="/v2" className="inline-flex items-center gap-2">
-        <span
-          className="v2-icon text-3xl text-[var(--v2-primary)]"
-          style={{fontVariationSettings: "'FILL' 1"}}
-        >
-          card_giftcard
-        </span>
-        <span className="text-xl font-bold v2-headline text-[var(--v2-on-surface)]">
-          Gifthance
-        </span>
-      </Link>
+      <GifthanceLogo size="md" href="/v2" />
     </header>
   );
 }

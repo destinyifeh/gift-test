@@ -2,6 +2,12 @@
 
 import Link from 'next/link';
 import {formatCurrency} from '@/lib/utils/currency';
+import {generateSlug} from '@/lib/utils/slugs';
+
+function getCampaignUrl(campaign: Campaign): string {
+  const slug = campaign.campaign_slug || generateSlug(campaign.title);
+  return `/v2/campaigns/${campaign.campaign_short_id}/${slug}`;
+}
 
 export interface Campaign {
   id: number;
@@ -67,7 +73,7 @@ export function DesktopCampaignCard({campaign}: CampaignCardProps) {
   const organizerName = campaign.profiles?.display_name || campaign.profiles?.username || 'Anonymous';
 
   return (
-    <Link href={`/v2/campaigns/${campaign.campaign_short_id}`}>
+    <Link href={getCampaignUrl(campaign)}>
       <article className="bg-[var(--v2-surface-container-lowest)] rounded-[2rem] overflow-hidden group hover:shadow-xl transition-all duration-300">
         <div className="relative h-64 overflow-hidden">
           {campaign.image_url ? (
@@ -172,7 +178,7 @@ export function MobileCampaignCard({campaign}: CampaignCardProps) {
   const currency = campaign.currency || 'NGN';
 
   return (
-    <Link href={`/v2/campaigns/${campaign.campaign_short_id}`}>
+    <Link href={getCampaignUrl(campaign)}>
       <article className="bg-[var(--v2-surface-container-lowest)] rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(73,38,4,0.05)] flex flex-col group">
         <div className="relative h-56 overflow-hidden">
           {campaign.image_url ? (

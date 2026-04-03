@@ -20,7 +20,7 @@ import {
 } from './components';
 
 interface PageProps {
-  params: Promise<{slug: string}>;
+  params: Promise<{shortId: string; slug: string}>;
 }
 
 function getDaysLeft(endDate?: string | null): number | null {
@@ -37,9 +37,9 @@ function getRaisedAmount(contributions?: {amount?: number}[]): number {
 }
 
 export default function CampaignDetailsPage({params}: PageProps) {
-  const {slug} = use(params);
+  const {shortId} = use(params);
 
-  const {data: campaign, isLoading, isError, error} = useCampaign(slug);
+  const {data: campaign, isLoading, isError, error} = useCampaign(shortId);
 
   // Calculate derived values
   const raised = useMemo(() => getRaisedAmount(campaign?.contributions), [campaign?.contributions]);

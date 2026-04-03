@@ -13,6 +13,13 @@ import {useInfiniteQuery, useQueryClient} from '@tanstack/react-query';
 import Link from 'next/link';
 import {useState} from 'react';
 import {toast} from 'sonner';
+import {generateSlug} from '@/lib/utils/slugs';
+
+function getCampaignUrl(c: any): string {
+  const shortId = c.shortId || c.campaign_short_id || c.id;
+  const slug = c.slug || c.campaign_slug || generateSlug(c.name || c.title || '');
+  return `/v2/campaigns/${shortId}/${slug}`;
+}
 
 const statusConfig: Record<string, {bg: string; text: string; label: string}> = {
   active: {
@@ -391,7 +398,7 @@ export function V2MyCampaignsTab() {
                   {/* Actions */}
                   <div className="flex gap-2 pt-4">
                     <Link
-                      href={`/v2/campaigns/${c.slug || c.id}`}
+                      href={getCampaignUrl(c)}
                       className="flex-1 h-10 bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] font-bold text-sm rounded-xl flex items-center justify-center gap-1.5 hover:bg-[var(--v2-surface-container-high)] transition-colors">
                       View
                     </Link>
@@ -403,7 +410,7 @@ export function V2MyCampaignsTab() {
                     <button
                       onClick={() => {
                         navigator.clipboard.writeText(
-                          `${window.location.origin}/v2/campaigns/${c.slug || c.id}`
+                          `${window.location.origin}${getCampaignUrl(c)}`
                         );
                         toast.success('Link copied!');
                       }}
@@ -493,7 +500,7 @@ export function V2MyCampaignsTab() {
               {/* Actions */}
               <div className="flex gap-2 mt-4">
                 <Link
-                  href={`/v2/campaigns/${c.slug || c.id}`}
+                  href={getCampaignUrl(c)}
                   className="flex-1 h-10 bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface)] font-bold text-sm rounded-xl flex items-center justify-center gap-1.5">
                   <span className="v2-icon text-lg">visibility</span>
                   View
@@ -507,7 +514,7 @@ export function V2MyCampaignsTab() {
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(
-                      `${window.location.origin}/v2/campaigns/${c.slug || c.id}`
+                      `${window.location.origin}${getCampaignUrl(c)}`
                     );
                     toast.success('Link copied!');
                   }}

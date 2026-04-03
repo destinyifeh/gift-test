@@ -5,6 +5,7 @@ import {useAuth} from '@/hooks/use-auth';
 import {useInfiniteVendorProducts} from '@/hooks/use-vendor';
 import {usePromotedProducts} from '@/hooks/use-promotions';
 import {useExternalPromotions} from '@/hooks/use-promotions';
+import {useFeaturedItems} from '@/hooks/use-featured-items';
 import {InfiniteScroll} from '@/components/ui/infinite-scroll';
 
 import {
@@ -67,6 +68,10 @@ export default function V2GiftShopPage() {
   const {data: externalFeatured} = useExternalPromotions('featured');
   const {data: externalNewArrivals} = useExternalPromotions('new_arrivals');
 
+  // Admin-managed featured items (internal awareness items)
+  const {data: adminFeaturedItems} = useFeaturedItems('featured');
+  const {data: adminNewArrivalsItems} = useFeaturedItems('new_arrivals');
+
   // Flatten paginated products
   const baseProducts = useMemo(() => {
     if (!productsData?.pages) return [];
@@ -103,10 +108,11 @@ export default function V2GiftShopPage() {
         isSponsored: true,
         promotion_id: promo.id,
         isExternal: false,
+        isFeaturedItem: false,
       }))
       .filter(p => p.id);
 
-    // Add external featured items (like Flex Card)
+    // Add external featured items (like Flex Card from promotions)
     const externalItems = (externalFeatured || []).map(ext => ({
       id: `external-${ext.id}`,
       name: ext.title,
@@ -116,11 +122,27 @@ export default function V2GiftShopPage() {
       redirect_url: ext.redirect_url,
       isSponsored: true,
       isExternal: true,
+      isFeaturedItem: false,
       external_id: ext.id,
     }));
 
-    return [...externalItems, ...vendorFeatured];
-  }, [featuredPromos, externalFeatured]);
+    // Add admin-managed featured items (internal awareness)
+    const adminItems = (adminFeaturedItems || []).map(item => ({
+      id: `featured-${item.id}`,
+      name: item.title,
+      subtitle: item.subtitle,
+      description: item.description,
+      image_url: item.image_url,
+      cta_text: item.cta_text,
+      redirect_url: item.cta_url,
+      isSponsored: false,
+      isExternal: false,
+      isFeaturedItem: true,
+      featured_id: item.id,
+    }));
+
+    return [...adminItems, ...externalItems, ...vendorFeatured];
+  }, [featuredPromos, externalFeatured, adminFeaturedItems]);
 
   const newArrivalProducts = useMemo(() => {
     const vendorNewArrivals = (newArrivals || [])
@@ -130,6 +152,7 @@ export default function V2GiftShopPage() {
         isSponsored: true,
         promotion_id: promo.id,
         isExternal: false,
+        isFeaturedItem: false,
       }))
       .filter(p => p.id);
 
@@ -143,11 +166,27 @@ export default function V2GiftShopPage() {
       redirect_url: ext.redirect_url,
       isSponsored: true,
       isExternal: true,
+      isFeaturedItem: false,
       external_id: ext.id,
     }));
 
-    return [...externalItems, ...vendorNewArrivals];
-  }, [newArrivals, externalNewArrivals]);
+    // Add admin-managed new arrival items (internal awareness)
+    const adminItems = (adminNewArrivalsItems || []).map(item => ({
+      id: `featured-${item.id}`,
+      name: item.title,
+      subtitle: item.subtitle,
+      description: item.description,
+      image_url: item.image_url,
+      cta_text: item.cta_text,
+      redirect_url: item.cta_url,
+      isSponsored: false,
+      isExternal: false,
+      isFeaturedItem: true,
+      featured_id: item.id,
+    }));
+
+    return [...adminItems, ...externalItems, ...vendorNewArrivals];
+  }, [newArrivals, externalNewArrivals, adminNewArrivalsItems]);
 
   // Fallback to regular products if no promotions
   const featuredItem = featuredProducts[0] || baseProducts[0];

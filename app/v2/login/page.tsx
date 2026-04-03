@@ -10,6 +10,7 @@ import {useRouter, useSearchParams} from 'next/navigation';
 import {Suspense, useState} from 'react';
 import {useForm} from 'react-hook-form';
 import {toast} from 'sonner';
+import {GifthanceLogo} from '@/components/GifthanceLogo';
 
 function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -68,17 +69,7 @@ function LoginForm() {
     <div className="min-h-screen bg-[var(--v2-background)]">
       {/* Header */}
       <header className="flex items-center justify-center py-6 px-4 md:py-8">
-        <Link href="/v2" className="inline-flex items-center gap-2">
-          <span
-            className="v2-icon text-3xl text-[var(--v2-primary)]"
-            style={{fontVariationSettings: "'FILL' 1"}}
-          >
-            card_giftcard
-          </span>
-          <span className="text-xl md:text-2xl font-black v2-headline text-[var(--v2-on-surface)] tracking-tight">
-            Gifthance
-          </span>
-        </Link>
+        <GifthanceLogo size="lg" />
       </header>
 
       {/* Main Content */}

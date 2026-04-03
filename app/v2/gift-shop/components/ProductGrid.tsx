@@ -142,7 +142,7 @@ export function DesktopProductGrid({
     <div className="grid grid-cols-12 gap-6">
       {/* Hero Feature Card with Carousel */}
       <div
-        className="col-span-12 lg:col-span-8 relative"
+        className="col-span-12 lg:col-span-8"
         onMouseEnter={featuredCarousel.pause}
         onMouseLeave={featuredCarousel.resume}
       >
@@ -150,15 +150,15 @@ export function DesktopProductGrid({
           <HeroFeatureCard
             product={currentFeatured}
             isSponsored={hasFeaturedPromo}
+            dotsElement={allFeatured.length > 1 ? (
+              <CarouselDots
+                count={allFeatured.length}
+                activeIndex={featuredCarousel.activeIndex}
+                onDotClick={featuredCarousel.goTo}
+              />
+            ) : undefined}
           />
         )}
-        {/* Carousel Dots */}
-        <CarouselDots
-          count={allFeatured.length}
-          activeIndex={featuredCarousel.activeIndex}
-          onDotClick={featuredCarousel.goTo}
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10"
-        />
       </div>
 
       {/* Small Square Card 1 */}
@@ -247,7 +247,7 @@ export function MobileProductGrid({
     <div className="grid grid-cols-2 gap-4">
       {/* Featured Large Card with Carousel */}
       <div
-        className="col-span-2 relative"
+        className="col-span-2"
         onTouchStart={featuredCarousel.pause}
         onTouchEnd={() => setTimeout(featuredCarousel.resume, 3000)}
       >
@@ -255,15 +255,13 @@ export function MobileProductGrid({
           <MobileFeaturedCard
             product={currentFeatured}
             isSponsored={hasFeaturedPromo}
-          />
-        )}
-        {/* Carousel Dots */}
-        {allFeatured.length > 1 && (
-          <CarouselDots
-            count={allFeatured.length}
-            activeIndex={featuredCarousel.activeIndex}
-            onDotClick={featuredCarousel.goTo}
-            className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10"
+            dotsElement={allFeatured.length > 1 ? (
+              <CarouselDots
+                count={allFeatured.length}
+                activeIndex={featuredCarousel.activeIndex}
+                onDotClick={featuredCarousel.goTo}
+              />
+            ) : undefined}
           />
         )}
       </div>

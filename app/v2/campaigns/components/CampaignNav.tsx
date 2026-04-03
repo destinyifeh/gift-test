@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import {useState} from 'react';
+import {GifthanceLogo} from '@/components/GifthanceLogo';
 
 interface CampaignNavProps {
   isLoggedIn: boolean;
@@ -14,9 +15,7 @@ export function CampaignDesktopNav({isLoggedIn, searchQuery, onSearchChange}: Ca
     <nav className="hidden md:block fixed top-0 w-full z-50 v2-glass-nav">
       <div className="flex justify-between items-center h-16 px-8 max-w-7xl mx-auto">
         <div className="flex items-center gap-12">
-          <Link href="/v2" className="text-2xl font-bold text-[var(--v2-primary)] tracking-tighter v2-headline">
-            Gifthance
-          </Link>
+          <GifthanceLogo size="md" />
           <div className="flex items-center gap-8 text-sm font-semibold">
             <Link href="/v2/gift-shop" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors">
               Gift Shop
@@ -69,9 +68,7 @@ export function CampaignMobileNav({isLoggedIn}: CampaignNavProps) {
   return (
     <nav className="md:hidden fixed top-0 w-full z-50 v2-glass-nav">
       <div className="flex justify-between items-center h-14 px-4">
-        <Link href="/v2" className="text-xl font-bold text-[var(--v2-primary)] tracking-tighter v2-headline">
-          Gifthance
-        </Link>
+        <GifthanceLogo size="sm" />
         <div className="flex items-center gap-2">
           {isLoggedIn ? (
             <Link href="/v2/dashboard" className="p-2 text-[var(--v2-primary)]">
