@@ -26,14 +26,14 @@ import {useEffect, useMemo, useState} from 'react';
 import {toast} from 'sonner';
 import {fetchUserFlexCards} from '@/lib/server/actions/flex-cards';
 import type {FlexCard} from '@/lib/server/actions/flex-cards';
-import {FlexCardComponent} from '../../../components/FlexCard';
+import {FlexCardComponent, FlexCardModal} from '../../../components/FlexCard';
 
 type TransactionFilter = 'all' | 'gifts' | 'flex_card' | 'withdrawals';
 type DateFilter = 'all' | 'week' | 'month' | '3months';
 
 export function V2WalletTab() {
   const queryClient = useQueryClient();
-  const [activeModal, setActiveModal] = useState<'withdraw' | 'bank' | 'transactions' | null>(null);
+  const [activeModal, setActiveModal] = useState<'withdraw' | 'bank' | 'transactions' | 'flex_cards' | null>(null);
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('Nigeria');
   const [withdrawBank, setWithdrawBank] = useState('');
@@ -55,6 +55,7 @@ export function V2WalletTab() {
   // Flex cards
   const [flexCards, setFlexCards] = useState<FlexCard[]>([]);
   const [isLoadingFlexCards, setIsLoadingFlexCards] = useState(false);
+  const [selectedFlexCard, setSelectedFlexCard] = useState<FlexCard | null>(null);
 
   const {data: walletProfile, isLoading} = useQuery({
     queryKey: ['wallet-profile'],
@@ -427,18 +428,37 @@ export function V2WalletTab() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {flexCards
-              .filter(card => card.status === 'active' || card.status === 'partially_used')
-              .slice(0, 3)
-              .map(card => (
-                <FlexCardComponent key={card.id} card={card} variant="compact" />
-              ))}
-          </div>
+          {flexCards.filter(card => card.status === 'active' || card.status === 'partially_used').length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {flexCards
+                .filter(card => card.status === 'active' || card.status === 'partially_used')
+                .slice(0, 3)
+                .map(card => (
+                  <FlexCardComponent 
+                    key={card.id} 
+                    card={card} 
+                    variant="compact" 
+                    onClick={() => setSelectedFlexCard(card)}
+                  />
+                ))}
+            </div>
+          ) : (
+            <div className="bg-[var(--v2-surface-container-low)] rounded-2xl p-6 text-center border-2 border-dashed border-[var(--v2-outline-variant)]/20">
+              <span className="v2-icon text-3xl text-[var(--v2-on-surface-variant)]/30 mb-2">credit_card</span>
+              <p className="text-sm text-[var(--v2-on-surface-variant)]">No active flex cards</p>
+              <button 
+                onClick={() => setActiveModal('flex_cards')}
+                className="mt-2 text-[var(--v2-primary)] font-bold text-sm hover:underline">
+                View card history
+              </button>
+            </div>
+          )}
 
-          {flexCards.filter(c => c.status === 'active' || c.status === 'partially_used').length > 3 && (
-            <button className="w-full py-3 text-center text-[var(--v2-primary)] font-bold text-sm hover:underline">
-              View all {flexCards.filter(c => c.status === 'active' || c.status === 'partially_used').length} Flex Cards
+          {flexCards.length > 3 && flexCards.filter(card => card.status === 'active' || card.status === 'partially_used').length > 0 && (
+            <button
+              onClick={() => setActiveModal('flex_cards')}
+              className="w-full py-3 text-center text-[var(--v2-primary)] font-bold text-sm hover:underline">
+              View all {flexCards.length} Flex Cards
             </button>
           )}
         </div>
@@ -935,6 +955,61 @@ export function V2WalletTab() {
           </div>
         </ResponsiveModalContent>
       </ResponsiveModal>
+      {/* Flex Cards Modal */}
+      <ResponsiveModal
+        open={activeModal === 'flex_cards'}
+        onOpenChange={open => !open && setActiveModal(null)}>
+        <ResponsiveModalContent className="bg-[var(--v2-surface)] md:max-w-[700px]">
+          <ResponsiveModalHeader className="border-b border-[var(--v2-outline-variant)]/10">
+            <ResponsiveModalTitle className="text-xl font-bold v2-headline text-[var(--v2-on-surface)]">
+              All Flex Cards
+            </ResponsiveModalTitle>
+          </ResponsiveModalHeader>
+
+          <div className="p-4 md:p-6 space-y-6 overflow-y-auto max-h-[70vh]">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-[var(--v2-on-surface-variant)]">
+                You have {flexCards.length} flex cards in total
+              </p>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-[var(--v2-on-surface-variant)]">Total Balance:</span>
+                <span className="font-bold text-[var(--v2-primary)]">
+                  {formatCurrency(totalFlexCardBalance, userCurrency)}
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {flexCards.map(card => (
+                <FlexCardComponent 
+                  key={card.id} 
+                  card={card} 
+                  variant="compact" 
+                  onClick={() => setSelectedFlexCard(card)}
+                />
+              ))}
+            </div>
+
+            {flexCards.length === 0 && (
+              <div className="text-center py-12">
+                <span className="v2-icon text-4xl text-[var(--v2-on-surface-variant)]/50 mb-2">
+                  credit_card
+                </span>
+                <p className="text-[var(--v2-on-surface-variant)]">No flex cards found</p>
+              </div>
+            )}
+          </div>
+        </ResponsiveModalContent>
+      </ResponsiveModal>
+
+      {/* Single Flex Card Detail Modal */}
+      {selectedFlexCard && (
+        <FlexCardModal
+          card={selectedFlexCard}
+          open={!!selectedFlexCard}
+          onClose={() => setSelectedFlexCard(null)}
+        />
+      )}
     </div>
   );
 }
