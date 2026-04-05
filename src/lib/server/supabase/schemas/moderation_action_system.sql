@@ -15,7 +15,22 @@ ALTER TABLE public.creator_support
 ADD COLUMN IF NOT EXISTS is_flagged BOOLEAN DEFAULT FALSE,
 ADD COLUMN IF NOT EXISTS flag_reason TEXT;
 
--- 4. CREATE MODERATION TICKET ENGINE
+-- 4. CREATE MODERATION ENGINE
+CREATE TABLE IF NOT EXISTS public.moderation_reports (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    target_type TEXT NOT NULL CHECK (target_type IN ('user', 'campaign', 'gift', 'vendor')),
+    target_id TEXT NOT NULL,
+    target_name TEXT,
+    reporter_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+    reporter_username TEXT DEFAULT 'anonymous',
+    reason TEXT NOT NULL,
+    status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'resolved', 'dismissed')),
+    resolution_notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Legacy/Internal tickets engine (optional)
 CREATE TABLE IF NOT EXISTS public.moderation_tickets (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     target_type TEXT NOT NULL CHECK (target_type IN ('user', 'campaign', 'gift', 'wallet')),

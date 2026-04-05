@@ -73,36 +73,49 @@ export function V2ContributionsModal({
             return (
               <div
                 key={contribution.id}
-                className="flex items-center justify-between p-4 bg-[var(--v2-surface-container-low)] rounded-2xl hover:bg-[var(--v2-surface-container)] transition-colors"
+                className="flex flex-col p-4 bg-[var(--v2-surface-container-low)] rounded-2xl hover:bg-[var(--v2-surface-container)] transition-colors gap-3"
               >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full overflow-hidden bg-[var(--v2-surface-container-high)] flex items-center justify-center">
-                    {avatarUrl ? (
-                      <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
-                    ) : (
-                      <span
-                        className="v2-icon text-[var(--v2-on-surface-variant)]"
-                        style={contribution.is_anonymous ? {fontVariationSettings: "'FILL' 1"} : undefined}
-                      >
-                        person
-                      </span>
-                    )}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full overflow-hidden bg-[var(--v2-surface-container-high)] flex items-center justify-center border border-[var(--v2-outline-variant)]/10">
+                      {avatarUrl ? (
+                        <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span
+                          className="v2-icon text-[var(--v2-on-surface-variant)]"
+                          style={contribution.is_anonymous ? {fontVariationSettings: "'FILL' 1"} : undefined}
+                        >
+                          person
+                        </span>
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-bold text-[var(--v2-on-surface)]">{name}</p>
+                      <p className="text-[10px] text-[var(--v2-on-surface-variant)] uppercase font-bold tracking-tighter">
+                        {getTimeAgo(contribution.created_at)}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-bold text-[var(--v2-on-surface)]">{name}</p>
-                    <p className="text-[10px] text-[var(--v2-on-surface-variant)] uppercase font-bold tracking-tighter">
-                      {getTimeAgo(contribution.created_at)}
+                  <div className="text-right">
+                    <p className="text-lg v2-headline font-black text-[var(--v2-primary)]">
+                      {contribution.hide_amount 
+                        ? <span className="text-xs font-bold uppercase tracking-tight opacity-50">Hidden</span>
+                        : formatCurrency(contribution.amount, currency)
+                      }
+                    </p>
+                    <p className="text-[10px] text-[var(--v2-on-surface-variant)] font-bold uppercase tracking-widest leading-none">
+                      Gifted
                     </p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-lg v2-headline font-black text-[var(--v2-primary)]">
-                    {formatCurrency(contribution.amount, currency)}
-                  </p>
-                  <p className="text-[10px] text-[var(--v2-on-surface-variant)] font-bold uppercase tracking-widest leading-none">
-                    Gifted
-                  </p>
-                </div>
+
+                {contribution.message && (
+                  <div className="px-4 py-3 rounded-xl bg-[var(--v2-surface-container-high)]/30 border border-[var(--v2-outline-variant)]/10">
+                    <p className="text-sm text-[var(--v2-on-surface-variant)] italic leading-relaxed">
+                      "{contribution.message}"
+                    </p>
+                  </div>
+                )}
               </div>
             );
           })}

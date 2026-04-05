@@ -225,7 +225,7 @@ export async function getCampaignBySlug(slug: string) {
   const {data, error} = await supabase
     .from('campaigns')
     .select(
-      '*, profiles!campaigns_user_id_fkey(id, username, display_name, avatar_url), contributions(id, amount, created_at, donor_name, is_anonymous)',
+      '*, profiles!campaigns_user_id_fkey(id, username, display_name, avatar_url), contributions(id, amount, created_at, donor_name, is_anonymous, hide_amount, message)',
     )
     .eq('campaign_short_id', slug)
     .order('created_at', {foreignTable: 'contributions', ascending: false})
