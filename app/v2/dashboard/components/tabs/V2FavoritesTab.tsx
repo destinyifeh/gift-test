@@ -102,7 +102,11 @@ export function V2FavoritesTab() {
         {favoritesList.map((fav: any) => (
           <Link
             key={fav.favoriteId}
-            href={`/v2/gift-shop/${fav.id}`}
+            href={
+              fav.shopSlug && fav.slug 
+                ? `/v2/gift-shop/${fav.shopSlug}/${fav.slug}`
+                : `/v2/gift-shop/${fav.id}`
+            }
             className="group bg-[var(--v2-surface-container-lowest)] rounded-[1.5rem] overflow-hidden shadow-sm hover:shadow-lg transition-all">
             {/* Image */}
             <div className="aspect-[4/3] bg-[var(--v2-surface-container-low)] relative overflow-hidden">
@@ -152,7 +156,11 @@ export function V2FavoritesTab() {
         {favoritesList.map((fav: any) => (
           <Link
             key={fav.favoriteId}
-            href={`/v2/gift-shop/${fav.id}`}
+            href={
+              fav.shopSlug && fav.slug 
+                ? `/v2/gift-shop/${fav.shopSlug}/${fav.slug}`
+                : `/v2/gift-shop/${fav.id}`
+            }
             className="flex items-center gap-4 p-4 rounded-[1.5rem] bg-[var(--v2-surface-container-lowest)] active:scale-[0.98] transition-transform">
             {/* Image */}
             <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-[var(--v2-surface-container-low)] flex items-center justify-center">

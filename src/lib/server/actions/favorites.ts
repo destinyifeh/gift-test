@@ -85,6 +85,7 @@ export async function fetchUserFavorites() {
   const flattened = (data || []).map((f: any) => ({
     favoriteId: f.id,
     ...f.vendor_gifts,
+    shopSlug: f.vendor_gifts.profiles?.shop_slug,
     vendor:
       f.vendor_gifts.profiles?.shop_name ||
       f.vendor_gifts.profiles?.display_name ||
