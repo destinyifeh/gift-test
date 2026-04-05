@@ -282,9 +282,14 @@ export function V2OverviewTab({creatorEnabled, setCreatorEnabled, setSection}: V
                 key={g.id}
                 className="flex items-center justify-between p-4 rounded-2xl bg-[var(--v2-surface-container-low)]/50">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[var(--v2-primary)]/10 flex items-center justify-center">
-                    <span className="v2-icon text-[var(--v2-primary)]">send</span>
-                  </div>
+                  {(() => {
+                    const isRedemption = g.type === 'gift_redemption' || g.type === 'flex_card_redemption';
+                    return (
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isRedemption ? 'bg-purple-100 text-purple-700' : 'bg-[var(--v2-primary)]/10 text-[var(--v2-primary)]'}`}>
+                        <span className="v2-icon">{isRedemption ? 'shopping_bag' : 'send'}</span>
+                      </div>
+                    );
+                  })()}
                   <div>
                     <p className="font-bold text-sm text-[var(--v2-on-surface)]">{g.name}</p>
                     <p className="text-xs text-[var(--v2-on-surface-variant)]">

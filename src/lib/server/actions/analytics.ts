@@ -20,22 +20,27 @@ export async function fetchDashboardAnalytics() {
   }
 
   try {
-    // 1. Fetch Gifts Sent & Total Given (Outbound transactions)
+    // 1. Fetch Gifts Sent & Total Given (Outbound activities including redemptions)
     const {data: outTxs} = await supabase
       .from('transactions')
       .select(
         'id, amount, status, created_at, description, type, user_id, campaigns(category, claimable_type)',
       )
       .eq('user_id', user.id)
-      .in('type', [TX_CAMPAIGN_CONTRIBUTION])
+      .in('type', [
+        TX_CAMPAIGN_CONTRIBUTION,
+        'gift_redemption',
+        'flex_card_redemption'
+      ])
       .order('created_at', {ascending: false})
-      .limit(5);
+      .limit(10);
 
     const giftsSentCount = (outTxs || []).filter(
-      t => t.status === 'success',
+      t => t.status === 'success' && t.type === TX_CAMPAIGN_CONTRIBUTION,
     ).length;
+    
     const totalGivenKobo = (outTxs || []).reduce((acc, t) => {
-      if (t.status === 'success') return acc + Number(t.amount);
+      if (t.status === 'success' && t.type === TX_CAMPAIGN_CONTRIBUTION) return acc + Number(t.amount);
       return acc;
     }, 0);
 
@@ -93,7 +98,7 @@ export async function fetchDashboardAnalytics() {
 
     // 5. Fetch campaign donations to their campaigns
     let campaignRecent: any[] = [];
-    let campaignCount = 0;
+    let campaignTotalCount = 0;
     if (campaignIds.length > 0) {
       const {data: inboundContribs} = await supabase
         .from('contributions')
@@ -102,7 +107,7 @@ export async function fetchDashboardAnalytics() {
         .order('created_at', {ascending: false})
         .limit(5);
 
-      campaignCount = inboundContribs?.length || 0;
+      campaignTotalCount = inboundContribs?.length || 0;
       campaignRecent = (inboundContribs || []).slice(0, 5).map(c => ({
         id: c.id,
         name: `Donor: ${c.donor_name}`,
@@ -116,7 +121,7 @@ export async function fetchDashboardAnalytics() {
     const giftsReceivedCount =
       (directSupport?.length || 0) +
       (vendorGiftCampaigns?.length || 0) +
-      campaignCount;
+      campaignTotalCount;
 
     const recentReceived = [
       ...directRecent,
@@ -126,16 +131,62 @@ export async function fetchDashboardAnalytics() {
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, 5);
 
-    const recentSent = (outTxs || []).slice(0, 5).map(t => ({
-      id: t.id,
-      name:
-        t.description ||
-        (t.type === TX_CAMPAIGN_CONTRIBUTION
-          ? 'Campaign Contribution'
-          : 'Direct Gift'),
-      date: new Date(t.created_at).toLocaleDateString(),
-      status: t.status,
-    }));
+    const recentSent = (outTxs || []).map(t => {
+      let label = t.description;
+      if (!label) {
+        if (t.type === TX_CAMPAIGN_CONTRIBUTION) label = 'Campaign Contribution';
+        else if (t.type === 'gift_redemption') label = 'Gift Redeemed';
+        else if (t.type === 'flex_card_redemption') label = 'Flex Card Spent';
+        else label = 'Direct Gift';
+      }
+      
+      return {
+        id: t.id,
+        name: label,
+        date: new Date(t.created_at).toLocaleDateString(),
+        status: t.status,
+        type: t.type as any,
+        timestamp: new Date(t.created_at).getTime()
+      };
+    });
+
+    // 6. Merge Flex Card Transactions (for cards owned by this user)
+    const {data: cards} = await supabase
+      .from('flex_cards')
+      .select('id, code')
+      .or(`user_id.eq.${user.id},sender_id.eq.${user.id}`);
+    
+    const cardIds = (cards || []).map(c => c.id);
+    const cardMap = new Map((cards || []).map(c => [c.id, c.code]));
+
+    if (cardIds.length > 0) {
+      const {data: flexCardTxs} = await supabase
+        .from('flex_card_transactions')
+        .select('*, vendor:profiles!flex_card_transactions_vendor_id_fkey(shop_name, display_name)')
+        .in('flex_card_id', cardIds)
+        .order('created_at', {ascending: false})
+        .limit(5);
+
+      (flexCardTxs || []).forEach(ftx => {
+        const cardCode = cardMap.get(ftx.flex_card_id);
+        // Avoid duplicates if already in outTxs
+        const exists = recentSent.some(t => t.type === 'flex_card_redemption' && t.id.toString().includes(ftx.id.toString()));
+        if (!exists) {
+          recentSent.push({
+            id: `fc-tx-${ftx.id}`,
+            name: ftx.description || `Spent with Flex Card ${cardCode || ''}`,
+            date: new Date(ftx.created_at).toLocaleDateString(),
+            status: 'success',
+            type: 'flex_card_redemption' as any,
+            timestamp: new Date(ftx.created_at).getTime()
+          });
+        }
+      });
+    }
+
+    // Final sort and slice for sent/recent activities
+    recentSent.sort((a, b) => b.timestamp - a.timestamp);
+    const finalSent = recentSent.slice(0, 5);
 
     return {
       success: true,
@@ -145,7 +196,7 @@ export async function fetchDashboardAnalytics() {
         totalGiven: totalGivenKobo / 100,
         campaignsCount: campaignsCount || 0,
         recentActivity: {
-          sent: recentSent,
+          sent: finalSent,
           received: recentReceived,
         },
       },
