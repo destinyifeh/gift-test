@@ -438,6 +438,8 @@ export function V2VendorCodesTab() {
             <div className={`mt-6 md:mt-8 p-5 md:p-6 rounded-2xl ${
               flexCardResult
                 ? 'bg-purple-50 border-2 border-purple-200'
+                : verificationResult?.message?.includes('fully redeemed')
+                ? 'bg-amber-50 border-2 border-amber-200'
                 : 'bg-red-50 border-2 border-dashed border-red-200'
             }`}>
               {flexCardResult ? (
@@ -498,12 +500,16 @@ export function V2VendorCodesTab() {
                 </div>
               ) : (
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0">
-                    <span className="v2-icon">error</span>
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${verificationResult?.message?.includes('fully redeemed') ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-600'}`}>
+                    <span className="v2-icon">{verificationResult?.message?.includes('fully redeemed') ? 'task_alt' : 'error'}</span>
                   </div>
                   <div>
-                    <p className="font-bold text-red-700 tracking-tight">Flex Card Error</p>
-                    <p className="text-red-600/70 text-sm">{verificationResult?.message}</p>
+                    <p className={`font-bold tracking-tight ${verificationResult?.message?.includes('fully redeemed') ? 'text-amber-800' : 'text-red-700'}`}>
+                      {verificationResult?.message?.includes('fully redeemed') ? 'Already Redeemed' : 'Flex Card Error'}
+                    </p>
+                    <p className={`text-sm ${verificationResult?.message?.includes('fully redeemed') ? 'text-amber-700/80' : 'text-red-600/70'}`}>
+                      {verificationResult?.message}
+                    </p>
                   </div>
                 </div>
               )}
