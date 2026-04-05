@@ -147,13 +147,15 @@ export default function V2ProductDetailsPage({
               Send Gift
             </Link>
           </div>
-          <button className="v2-icon text-[var(--v2-primary)]">
-            account_circle
-          </button>
+          <Link 
+            href="/v2/dashboard"
+            className="p-2 text-[var(--v2-primary)] hover:opacity-80 transition-all active:scale-95"
+          >
+            <span className="v2-icon text-2xl">account_circle</span>
+          </Link>
         </div>
       </nav>
 
-      {/* Mobile Header */}
       <header className="md:hidden fixed top-0 w-full z-50 v2-glass-nav flex items-center justify-between px-6 h-16">
         <Link href="/v2/gift-shop">
           <span className="v2-icon text-[var(--v2-primary)]">arrow_back</span>
@@ -161,8 +163,8 @@ export default function V2ProductDetailsPage({
         <h1 className="v2-headline text-lg font-bold text-[var(--v2-primary)]">
           Gift Details
         </h1>
-        <button onClick={onShare}>
-          <span className="v2-icon text-[var(--v2-primary)]">share</span>
+        <button onClick={onShare} className="p-2 text-[var(--v2-primary)]">
+          <span className="v2-icon">share</span>
         </button>
       </header>
 
