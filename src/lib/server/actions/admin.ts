@@ -288,7 +288,7 @@ export async function fetchAdminSubscriptions({
     let query = adminDb
       .from('profiles')
       .select('*')
-      .filter('theme_settings->>plan', 'eq', 'pro')
+      .eq('theme_settings->plan', 'pro')
       .order('updated_at', {ascending: false})
       .range(from, to);
 
@@ -442,23 +442,106 @@ export async function fetchAdminTransactions({
 
     const adminDb = createAdminClient();
 
+    // 1. Fetch from transactions table (standard gifts, withdrawals, etc)
     let query = adminDb
       .from('transactions')
       .select(
-        '*, sender_profile:profiles!transactions_sender_id_fkey(username), recipient_profile:profiles!transactions_recipient_id_fkey(username)',
+        '*, user:profiles!transactions_user_id_fkey(username, display_name)',
       )
       .order('created_at', {ascending: false})
       .range(from, to);
 
-    const {data, error} = await query;
-    if (error) throw error;
+    if (search) {
+      query = query.or(`description.ilike.%${search}%,reference.ilike.%${search}%`);
+    }
+
+    const {data: mainTxs, error: mainError} = await query;
+    if (mainError) throw mainError;
+
+    // 2. Fetch from creator_support (tips/direct gifts)
+    let supportQuery = adminDb
+      .from('creator_support')
+      .select('*, user:profiles!user_id(username, display_name)')
+      .order('created_at', {ascending: false})
+      .limit(limit);
+
+    if (search) {
+      supportQuery = supportQuery.or(`donor_name.ilike.%${search}%,gift_name.ilike.%${search}%,message.ilike.%${search}%`);
+    }
+
+    const {data: supportTxs, error: supportError} = await supportQuery;
+    if (supportError) throw supportError;
+
+    // 3. Fetch from flex_card_transactions (vendor sales)
+    let flexQuery = adminDb
+      .from('flex_card_transactions')
+      .select('*, flex_card:flex_cards(code), user:profiles!flex_card_transactions_vendor_id_fkey(username, display_name, shop_name)')
+      .order('created_at', {ascending: false})
+      .limit(limit);
+
+    if (search) {
+       flexQuery = flexQuery.or(`description.ilike.%${search}%`);
+    }
+
+    const {data: flexTxs, error: flexError} = await flexQuery;
+    if (flexError) throw flexError;
+
+    // Combine and format
+    const allTxs: any[] = [];
+
+    // Add main transactions
+    (mainTxs || []).forEach(tx => {
+      allTxs.push({
+        id: tx.id,
+        amount: Number(tx.amount) / 100, // standard is usually in kobo internally for transactions table
+        type: tx.type || 'transaction',
+        status: tx.status || 'success',
+        reference: tx.reference,
+        created_at: tx.created_at,
+        user: tx.user,
+        description: tx.description
+      });
+    });
+
+    // Add support transactions
+    (supportTxs || []).forEach(tx => {
+      allTxs.push({
+        id: `support-${tx.id}`,
+        amount: Number(tx.amount), 
+        type: 'donation',
+        status: tx.status || 'success',
+        reference: tx.reference || `SUP-${tx.id}`,
+        created_at: tx.created_at,
+        user: tx.user,
+        description: tx.gift_name ? `Gift: ${tx.gift_name}` : 'Direct Support'
+      });
+    });
+
+    // Add flex card redemptions
+    (flexTxs || []).forEach(tx => {
+      allTxs.push({
+        id: `flex-${tx.id}`,
+        amount: Number(tx.amount),
+        type: 'purchase',
+        status: 'success',
+        reference: tx.flex_card?.code || `FLEX-${tx.id}`,
+        created_at: tx.created_at,
+        user: tx.user,
+        description: tx.description || 'Flex Card Purchase'
+      });
+    });
+
+    // Sort by date and slice
+    allTxs.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    const finalData = allTxs.slice(0, limit);
 
     return {
       success: true,
-      data,
-      nextPage: data?.length === limit ? pageParam + 1 : undefined,
+      data: finalData,
+      nextPage: mainTxs?.length === limit ? pageParam + 1 : undefined,
     };
   } catch (error: any) {
+    console.error('Error fetching admin transactions:', error);
     return {success: false, error: error.message};
   }
 }
