@@ -60,3 +60,15 @@ export function useCampaign(slug: string) {
     enabled: !!slug,
   });
 }
+
+import {fetchCampaignContributions} from '@/lib/server/actions/analytics';
+
+export function useCampaignContributions(slug: string) {
+  return useInfiniteQuery({
+    queryKey: ['campaign-contributions', slug],
+    initialPageParam: 0,
+    queryFn: ({pageParam}) => fetchCampaignContributions({slug, pageParam}),
+    getNextPageParam: (lastPage: any) => lastPage.nextPage,
+    enabled: !!slug,
+  });
+}

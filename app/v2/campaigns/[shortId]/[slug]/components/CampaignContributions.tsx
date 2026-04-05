@@ -9,6 +9,8 @@ export interface Contribution {
   created_at: string;
   donor_name?: string;
   is_anonymous?: boolean;
+  hide_amount?: boolean;
+  message?: string;
   profiles?: {
     display_name?: string;
     avatar_url?: string;
@@ -80,36 +82,48 @@ export function CampaignContributions({contributions, currency, onViewAll}: Cont
             return (
               <div
                 key={contribution.id}
-                className="flex items-center justify-between p-4 bg-[var(--v2-surface-container-lowest)] md:bg-[var(--v2-surface-container-low)] rounded-xl md:rounded-2xl hover:bg-[var(--v2-surface-container)] transition-colors"
+                className="flex flex-col p-4 bg-[var(--v2-surface-container-lowest)] md:bg-[var(--v2-surface-container-low)] rounded-xl md:rounded-2xl hover:bg-[var(--v2-surface-container)] transition-colors gap-3"
               >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full overflow-hidden bg-[var(--v2-surface-container)] flex items-center justify-center">
-                    {avatarUrl ? (
-                      <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
-                    ) : (
-                      <span
-                        className="v2-icon text-[var(--v2-on-surface-variant)]"
-                        style={contribution.is_anonymous ? {fontVariationSettings: "'FILL' 1"} : undefined}
-                      >
-                        person
-                      </span>
-                    )}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full overflow-hidden bg-[var(--v2-surface-container)] flex items-center justify-center">
+                      {avatarUrl ? (
+                        <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span
+                          className="v2-icon text-[var(--v2-on-surface-variant)]"
+                          style={contribution.is_anonymous ? {fontVariationSettings: "'FILL' 1"} : undefined}
+                        >
+                          person
+                        </span>
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-bold text-[var(--v2-on-surface)]">{name}</p>
+                      <p className="text-xs text-[var(--v2-on-surface-variant)]">
+                        {getTimeAgo(contribution.created_at)}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-bold text-[var(--v2-on-surface)]">{name}</p>
-                    <p className="text-xs text-[var(--v2-on-surface-variant)]">
-                      {getTimeAgo(contribution.created_at)}
+                  <div className="text-right">
+                    <p className="text-lg v2-headline font-bold text-[var(--v2-primary)] md:text-[var(--v2-on-surface)]">
+                      {contribution.hide_amount 
+                        ? <span className="text-xs font-bold uppercase tracking-tight opacity-50">Amount Hidden</span>
+                        : formatCurrency(contribution.amount, currency)
+                      }
+                    </p>
+                    <p className="hidden md:block text-[10px] text-[var(--v2-on-surface-variant)] font-bold uppercase tracking-wider">
+                      GIFTED
                     </p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-lg v2-headline font-bold text-[var(--v2-primary)] md:text-[var(--v2-on-surface)]">
-                    {formatCurrency(contribution.amount, currency)}
-                  </p>
-                  <p className="hidden md:block text-[10px] text-[var(--v2-on-surface-variant)] font-bold uppercase tracking-wider">
-                    GIFTED
-                  </p>
-                </div>
+                {contribution.message && (
+                   <div className="mt-1 px-4 py-3 rounded-xl bg-[var(--v2-surface-container-high)]/30 border border-[var(--v2-outline-variant)]/10">
+                      <p className="text-sm text-[var(--v2-on-surface-variant)] italic leading-relaxed">
+                        "{contribution.message}"
+                      </p>
+                   </div>
+                )}
               </div>
             );
           })}

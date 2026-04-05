@@ -1,7 +1,7 @@
 'use client';
 
 import {use, useMemo} from 'react';
-import {useCampaign} from '@/hooks/use-campaigns';
+import {useCampaign, useCampaignContributions} from '@/hooks/use-campaigns';
 
 import {
   CampaignDetailDesktopNav,
@@ -17,6 +17,7 @@ import {
   CampaignDetailFooter,
   CampaignDetailLoading,
   CampaignDetailError,
+  V2ContributionsModal,
 } from './components';
 import {useState} from 'react';
 import {V2ReportModal} from '@/components/modals/V2ReportModal';
@@ -43,8 +44,16 @@ export default function CampaignDetailsPage({params}: PageProps) {
   const {shortId} = use(params);
 
   const {data: campaign, isLoading, isError, error} = useCampaign(shortId);
+  const {
+    data: contributionsData,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useCampaignContributions(shortId);
+  
   const [showGiftModal, setShowGiftModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [showContributionsModal, setShowContributionsModal] = useState(false);
 
   // Calculate derived values
   const raised = useMemo(() => getRaisedAmount(campaign?.contributions), [campaign?.contributions]);
@@ -125,9 +134,10 @@ export default function CampaignDetailsPage({params}: PageProps) {
               <CampaignStory description={campaign.description} />
 
               {/* Recent Contributions */}
-              <CampaignContributions
+               <CampaignContributions
                 contributions={campaign.contributions || []}
                 currency={currency}
+                onViewAll={() => setShowContributionsModal(true)}
               />
 
               {/* Mobile Verified Card */}
@@ -177,6 +187,16 @@ export default function CampaignDetailsPage({params}: PageProps) {
         targetId={campaign.id}
         targetType="campaign"
         targetName={campaign.title}
+      />
+
+       <V2ContributionsModal
+        open={showContributionsModal}
+        onOpenChange={setShowContributionsModal}
+        contributions={contributionsData?.pages.flatMap(page => page.data) || []}
+        currency={campaign.currency || 'NGN'}
+        hasMore={!!hasNextPage}
+        isLoading={isFetchingNextPage}
+        onLoadMore={fetchNextPage}
       />
     </div>
   );

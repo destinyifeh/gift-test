@@ -6,3 +6,4 @@ export * from './CampaignContributions';
 export * from './CampaignSidebar';
 export * from './CampaignDetailFooter';
 export * from './LoadingStates';
+export * from './V2ContributionsModal';
