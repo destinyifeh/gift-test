@@ -30,7 +30,8 @@ export async function fetchDashboardAnalytics() {
       .in('type', [
         TX_CAMPAIGN_CONTRIBUTION,
         'gift_redemption',
-        'flex_card_redemption'
+        'flex_card_redemption',
+        'gift_sent'
       ])
       .order('created_at', {ascending: false})
       .limit(10);
@@ -150,26 +151,25 @@ export async function fetchDashboardAnalytics() {
       };
     });
 
-    // 6. Merge Flex Card Transactions (for cards owned by this user)
-    const {data: cards} = await supabase
+    // 6. Merge Flex Card Transactions (only owners see spending)
+    const {data: recCards} = await supabase
       .from('flex_cards')
       .select('id, code')
-      .or(`user_id.eq.${user.id},sender_id.eq.${user.id}`);
+      .eq('user_id', user.id);
     
-    const cardIds = (cards || []).map(c => c.id);
-    const cardMap = new Map((cards || []).map(c => [c.id, c.code]));
+    if (recCards && recCards.length > 0) {
+      const recCardIds = recCards.map(c => c.id);
+      const recCardMap = new Map(recCards.map(c => [c.id, c.code]));
 
-    if (cardIds.length > 0) {
       const {data: flexCardTxs} = await supabase
         .from('flex_card_transactions')
         .select('*, vendor:profiles!flex_card_transactions_vendor_id_fkey(shop_name, display_name)')
-        .in('flex_card_id', cardIds)
+        .in('flex_card_id', recCardIds)
         .order('created_at', {ascending: false})
         .limit(5);
 
       (flexCardTxs || []).forEach(ftx => {
-        const cardCode = cardMap.get(ftx.flex_card_id);
-        // Avoid duplicates if already in outTxs
+        const cardCode = recCardMap.get(ftx.flex_card_id);
         const exists = recentSent.some(t => t.type === 'flex_card_redemption' && t.id.toString().includes(ftx.id.toString()));
         if (!exists) {
           recentSent.push({
@@ -183,6 +183,26 @@ export async function fetchDashboardAnalytics() {
         }
       });
     }
+
+    // 7. Add Synthesized "Flex Card Sent" events for sender's history if missing from outTxs
+    const {data: sentCards} = await supabase
+       .from('flex_cards')
+       .select('id, code, initial_amount, created_at')
+       .eq('sender_id', user.id);
+
+    (sentCards || []).forEach(card => {
+       const exists = recentSent.some(t => (t.type === 'gift_sent' || t.type === 'flex_card') && t.name?.includes(card.code));
+       if (!exists) {
+          recentSent.push({
+            id: `fc-sent-${card.id}`,
+            name: `Sent Flex Card ${card.code}`,
+            date: new Date(card.created_at).toLocaleDateString(),
+            status: 'success',
+            type: 'gift_sent' as any,
+            timestamp: new Date(card.created_at).getTime()
+          });
+       }
+    });
 
     // Final sort and slice for sent/recent activities
     recentSent.sort((a, b) => b.timestamp - a.timestamp);

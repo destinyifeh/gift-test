@@ -83,7 +83,7 @@ export function V2WalletTab() {
       if (!profile?.id) return;
       setIsLoadingFlexCards(true);
       try {
-        const result = await fetchUserFlexCards();
+        const result = await fetchUserFlexCards({ type: 'received' });
         if (result.success && result.data) {
           setFlexCards(result.data);
         }

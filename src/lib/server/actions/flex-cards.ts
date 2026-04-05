@@ -169,6 +169,17 @@ export async function createFlexCard(data: FlexCardCreateData) {
     console.log('=============================================');
   }
 
+  // Record in main transactions table for sender's history
+  const adminSupabase = createAdminClient();
+  await adminSupabase.from('transactions').insert({
+    user_id: user.id,
+    amount: Math.round(data.initial_amount * 100),
+    type: 'gift_sent',
+    status: 'success',
+    reference: `FLEX-${code}`,
+    description: `Sent Flex Card ${code}`,
+  });
+
   return {success: true, data: flexCard};
 }
 

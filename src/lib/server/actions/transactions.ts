@@ -263,43 +263,61 @@ export async function fetchWalletProfile() {
         .is('gift_code', null),
     ]);
 
-  // 1. Get user's flex card IDs and codes (for both sent and received)
+  // 1. Get user's flex card IDs where they are the recipient OR sender
   const {data: cards} = await supabase
     .from('flex_cards')
-    .select('id, code')
+    .select('id, code, user_id, sender_id, initial_amount, created_at')
     .or(`user_id.eq.${user.id},sender_id.eq.${user.id}`);
   
-  const cardIds = (cards || []).map(c => c.id);
+  const receivedCardIds = (cards || []).filter(c => c.user_id === user.id).map(c => c.id);
+  const sentCards = (cards || []).filter(c => c.sender_id === user.id);
   const cardMap = new Map((cards || []).map(c => [c.id, c.code]));
 
-  // 2. Get transactions for these flex cards
+  // 2. Get spending transactions for received flex cards (only recipients see spending)
   let flexCardTransactions: any[] = [];
-  if (cardIds.length > 0) {
+  if (receivedCardIds.length > 0) {
     const {data: flexCardTxs} = await supabase
       .from('flex_card_transactions')
       .select('*, vendor:profiles!flex_card_transactions_vendor_id_fkey(shop_name, display_name)')
-      .in('flex_card_id', cardIds);
+      .in('flex_card_id', receivedCardIds);
     if (flexCardTxs) flexCardTransactions = flexCardTxs;
   }
 
-  // 3. Merge flex card transactions into the main list if not already there
+  // 3. Merge transactions into the main list
   const mergedTxs = [...(txs || [])];
   
+  // Add spending transactions for recipient
   flexCardTransactions.forEach(ftx => {
     const cardCode = cardMap.get(ftx.flex_card_id);
-    // Avoid double counting if already present in main transactions table
     const exists = txs?.some((t: any) => t.type === 'flex_card_redemption' && t.reference?.includes(cardCode || 'UNKNOWN_CODE'));
     
     if (!exists) {
       mergedTxs.push({
         id: `fc-tx-${ftx.id}`,
         user_id: user.id,
-        amount: ftx.amount * 100, // already in unit currency, kobo is x100
+        amount: ftx.amount * 100,
         type: 'flex_card_redemption',
         status: 'success',
         created_at: ftx.created_at,
         description: ftx.description || `Spent with Flex Card ${cardCode || ''}`,
         metadata: { flex_card_id: ftx.flex_card_id, vendor: ftx.vendor }
+      } as any);
+    }
+  });
+
+  // Add "Flex Card Sent" entry for sender if not in main transactions
+  sentCards.forEach(card => {
+    const exists = txs?.some((t: any) => (t.type === 'gift_sent' || t.type === 'flex_card') && t.reference?.includes(card.code));
+    if (!exists) {
+      mergedTxs.push({
+        id: `fc-sent-${card.id}`,
+        user_id: user.id,
+        amount: card.initial_amount * 100,
+        type: 'gift_sent',
+        status: 'success',
+        created_at: card.created_at,
+        description: `Sent Flex Card ${card.code}`,
+        metadata: { flex_card_id: card.id }
       } as any);
     }
   });
