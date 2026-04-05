@@ -75,6 +75,8 @@ export function V2AdminSubscriptionsTab({
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    isError,
+    refetch,
   } = useInfiniteQuery({
     queryKey: ['admin-subscriptions', searchQuery],
     queryFn: ({pageParam = 0}) => fetchAdminSubscriptions({search: searchQuery, pageParam}),
@@ -217,6 +219,24 @@ export function V2AdminSubscriptionsTab({
     if (daysLeft <= 7) return 'expiring';
     return 'active';
   };
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16">
+        <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-4">
+           <span className="v2-icon text-4xl text-red-600">error</span>
+        </div>
+        <h3 className="text-xl font-bold v2-headline">Failed to load subscriptions</h3>
+        <p className="text-sm text-[var(--v2-on-surface-variant)] mt-2">There was an error connecting to the database.</p>
+        <button 
+           onClick={() => refetch()}
+           className="mt-6 px-8 py-2.5 v2-hero-gradient text-white rounded-full font-bold text-sm shadow-lg shadow-[var(--v2-primary)]/20"
+        >
+           Retry
+        </button>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

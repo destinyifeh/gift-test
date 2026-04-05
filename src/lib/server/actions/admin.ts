@@ -288,7 +288,7 @@ export async function fetchAdminSubscriptions({
     let query = adminDb
       .from('profiles')
       .select('*')
-      .eq('theme_settings->plan', 'pro')
+      .contains('theme_settings', {plan: 'pro'})
       .order('updated_at', {ascending: false})
       .range(from, to);
 
@@ -296,8 +296,14 @@ export async function fetchAdminSubscriptions({
       query = query.or(`username.ilike.%${search}%,display_name.ilike.%${search}%,email.ilike.%${search}%`);
     }
 
-    const {data, error} = await query;
-    if (error) throw error;
+    const {data, error, count} = await query;
+    
+    if (error) {
+      console.error('Database error in fetchAdminSubscriptions:', error);
+      throw error;
+    }
+
+    console.log(`Found ${data?.length || 0} subscriptions (Total: ${count})`);
 
     const formattedData = data?.map(d => ({
       ...d,

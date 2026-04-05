@@ -185,6 +185,48 @@ function ViewDetailsContent({data, title}: {data: any; title: string}) {
     );
   }
 
+  // Transaction Details
+  if (title.toLowerCase().includes('transaction')) {
+    const isDonation = data.type === 'donation';
+    const isPurchase = data.type === 'purchase';
+    const isWithdrawal = data.type === 'withdrawal' || data.type === 'payout';
+
+    return (
+      <div className="space-y-0">
+        <Field 
+          label="Transaction Type" 
+          value={
+            <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
+              isDonation ? 'bg-blue-100 text-blue-700' :
+              isPurchase ? 'bg-emerald-100 text-emerald-700' :
+              isWithdrawal ? 'bg-orange-100 text-orange-700' :
+              'bg-gray-100 text-gray-700'
+            }`}>
+              {data.type || 'transaction'}
+            </span>
+          } 
+        />
+        <Field label="Amount" value={formatAmount(data.amount)} highlight />
+        <Field label="Reference" value={<span className="font-mono text-sm">{data.reference || data.id}</span>} />
+        <Field label="Status" value={
+          <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
+            data.status === 'success' || data.status === 'completed' ? 'bg-emerald-100 text-emerald-700' :
+            data.status === 'failed' ? 'bg-red-100 text-red-600' :
+            'bg-amber-100 text-amber-700'
+          }`}>
+            {data.status || 'success'}
+          </span>
+        } />
+        <Field label="User" value={data.user?.display_name || data.user?.username || '—'} highlight={false} />
+        <Field label="Description" value={data.description || '—'} />
+        <Field label="Date" value={formatDate(data.created_at)} />
+        <div className="pt-4 mt-2">
+           <p className="text-[10px] text-[var(--v2-on-surface-variant)] opacity-40 font-mono">INTERNAL ID: {data.id}</p>
+        </div>
+      </div>
+    );
+  }
+
   // User Details
   if (title.toLowerCase().includes('user')) {
     return (
