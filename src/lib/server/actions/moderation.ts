@@ -61,18 +61,74 @@ export async function fetchReports() {
   }
 }
 
-export async function updateReportStatus(reportId: string, status: string) {
+export async function updateReportStatus(reportId: string, status: string, notes?: string) {
   try {
     const admin = createAdminClient();
+    const {
+      data: { user },
+    } = await admin.auth.getUser();
+
     const { error } = await admin
       .from('moderation_reports')
-      .update({ status })
+      .update({ 
+        status, 
+        resolution_notes: notes, 
+        resolved_by: user?.id,
+        updated_at: new Date().toISOString() 
+      })
       .eq('id', reportId);
 
     if (error) throw error;
     revalidatePath('/v2/admin');
     return { success: true };
   } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
+
+export async function fetchReportDetails(targetId: string, targetType: string) {
+  try {
+    const admin = createAdminClient();
+    let data: any = null;
+    let error: any = null;
+
+    switch (targetType) {
+      case 'user':
+        ({ data, error } = await admin
+          .from('profiles')
+          .select('*')
+          .eq('id', targetId)
+          .single());
+        break;
+      case 'campaign':
+        ({ data, error } = await admin
+          .from('campaigns')
+          .select('*, profiles!campaigns_user_id_fkey(username, display_name)')
+          .eq('id', targetId)
+          .single());
+        break;
+      case 'vendor':
+        ({ data, error } = await admin
+          .from('profiles')
+          .select('*')
+          .eq('id', targetId)
+          .single());
+        break;
+      case 'gift':
+        ({ data, error } = await admin
+          .from('creator_support')
+          .select('*, sender:profiles!sender_id(username), recipient:profiles!user_id(username)')
+          .eq('id', targetId)
+          .single());
+        break;
+      default:
+        return { success: false, error: 'Invalid target type' };
+    }
+
+    if (error) throw error;
+    return { success: true, data };
+  } catch (err: any) {
+    console.error('Error fetching report details:', err);
     return { success: false, error: err.message };
   }
 }

@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS public.moderation_reports (
     reason TEXT NOT NULL,
     status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'resolved', 'dismissed')),
     resolution_notes TEXT,
+    resolved_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
