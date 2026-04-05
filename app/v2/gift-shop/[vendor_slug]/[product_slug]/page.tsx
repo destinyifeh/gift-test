@@ -10,6 +10,7 @@ import {toast} from 'sonner';
 import {useFavorites, useIsFavorited} from '@/hooks/use-favorites';
 import {useUserStore} from '@/lib/store/useUserStore';
 import {fetchVendorProducts} from '@/lib/server/actions/vendor';
+import { V2ReportModal } from '@/components/modals/V2ReportModal';
 
 // Helper to get all images from product
 function getProductImages(product: any): string[] {
@@ -30,6 +31,7 @@ export default function V2ProductDetailsPage({
   const {vendor_slug, product_slug} = use(params);
   const {data: product, isLoading} = useVendorProductBySlugs(vendor_slug, product_slug);
   const [showGiftModal, setShowGiftModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const {toggleFavorite, isToggling} = useFavorites();
   const {data: isFavorited} = useIsFavorited(product?.id);
@@ -383,12 +385,21 @@ export default function V2ProductDetailsPage({
                     </p>
                   )}
                 </div>
-                <Link
-                  href={`/v2/gift-shop/${vendor_slug}`}
-                  className="px-4 py-2 text-[var(--v2-primary)] font-bold text-sm hover:bg-[var(--v2-primary)]/10 rounded-lg transition-colors"
-                >
-                  View Shop
-                </Link>
+                <div className="flex items-center gap-2">
+                  <Link
+                    href={`/v2/gift-shop/${vendor_slug}`}
+                    className="px-4 py-2 text-[var(--v2-primary)] font-bold text-sm hover:bg-[var(--v2-primary)]/10 rounded-lg transition-colors"
+                  >
+                    View Shop
+                  </Link>
+                  <button 
+                    onClick={() => setShowReportModal(true)}
+                    className="p-2 text-[var(--v2-on-surface-variant)] hover:text-red-500 transition-colors"
+                    title="Report Vendor"
+                  >
+                     <span className="v2-icon text-lg">flag</span>
+                  </button>
+                </div>
               </div>
               {product.profiles?.shop_description && (
                 <p className="text-sm text-[var(--v2-on-surface-variant)] leading-relaxed">
@@ -591,6 +602,13 @@ export default function V2ProductDetailsPage({
           currency: currency,
           symbol: getCurrencyByCountry(product.profiles?.country || 'Nigeria') === 'NGN' ? '₦' : '$',
         }}
+      />
+      <V2ReportModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        targetId={product.vendor_id}
+        targetType="vendor"
+        targetName={product.profiles?.shop_name || 'Vendor'}
       />
     </div>
   );

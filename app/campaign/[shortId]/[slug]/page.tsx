@@ -27,7 +27,9 @@ import {
   Lock,
   Share2,
   Users,
+  Flag,
 } from 'lucide-react';
+import { V2ReportModal } from '@/components/modals/V2ReportModal';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {useEffect, use, useState} from 'react';
@@ -43,6 +45,7 @@ export default function CampaignPage({
   const isMobile = useIsMobile();
   const {data: c, isLoading, error} = useCampaign(shortId);
   const [showGiftModal, setShowGiftModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
 
   // SEO validation: ensure the URL slug matches the campaign's title slug
   useEffect(() => {
@@ -311,8 +314,15 @@ export default function CampaignPage({
                   onClick={() => setShowGiftModal(true)}>
                   <Gift className="w-5 h-5 mr-2" /> Send a Gift
                 </Button>
-                <Button variant="outline" className="w-full gap-2" onClick={handleShare}>
+                <Button variant="outline" className="w-full gap-2 mb-3" onClick={handleShare}>
                   <Share2 className="w-4 h-4" /> Share Campaign
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className="w-full gap-2 text-muted-foreground hover:text-red-600 hover:bg-red-50" 
+                  onClick={() => setShowReportModal(true)}
+                >
+                  <Flag className="w-4 h-4" /> Report Campaign
                 </Button>
               </div>
 
@@ -354,6 +364,9 @@ export default function CampaignPage({
           <Button variant="outline" className="h-12 w-12 p-0" onClick={handleShare}>
             <Share2 className="w-5 h-5" />
           </Button>
+          <Button variant="outline" className="h-12 w-12 p-0 text-muted-foreground hover:text-red-500" onClick={() => setShowReportModal(true)}>
+            <Flag className="w-5 h-5" />
+          </Button>
         </StickyFooter>
       )}
 
@@ -365,6 +378,13 @@ export default function CampaignPage({
         creatorName={c.profiles?.display_name || 'Organizer'}
         minAmount={c.min_amount}
         currency={c.currency}
+      />
+      <V2ReportModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        targetId={c.id}
+        targetType="campaign"
+        targetName={c.title}
       />
     </div>
   );

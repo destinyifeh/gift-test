@@ -6,6 +6,8 @@ import {useAuth} from '@/hooks/use-auth';
 import {useProfileByShopSlug} from '@/hooks/use-profile';
 import {useVendorProducts} from '@/hooks/use-vendor';
 import {formatCurrency} from '@/lib/utils/currency';
+import {useState} from 'react';
+import {V2ReportModal} from '@/components/modals/V2ReportModal';
 
 // Helper to get primary image
 function getPrimaryImage(product: any): string | null {
@@ -24,6 +26,7 @@ export default function V2VendorShopPage({
 
   // Centralized auth
   const {isLoggedIn} = useAuth();
+  const [showReportModal, setShowReportModal] = useState(false);
 
   // TanStack Query: Fetch vendor by shop_slug
   const {data: vendor, isLoading: vendorLoading} = useProfileByShopSlug(vendor_slug);
@@ -127,7 +130,7 @@ export default function V2VendorShopPage({
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mb-16">
           {/* Header Layout */}
           <div className="lg:col-span-8">
-            <div className="flex flex-col md:flex-row gap-8 items-start">
+            <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-center text-center md:items-start md:text-left">
               {/* Vendor Logo */}
               <div className="w-28 h-28 rounded-3xl bg-[var(--v2-surface-container-low)] flex items-center justify-center shadow-[0_20px_40px_rgba(73,38,4,0.04)] overflow-hidden">
                 {vendor.shop_logo_url ? (
@@ -143,26 +146,35 @@ export default function V2VendorShopPage({
               </div>
 
               {/* Vendor Info */}
-              <div className="flex-1">
-                <div className="flex flex-wrap items-center gap-4 mb-2">
-                  <h1 className="text-4xl md:text-5xl font-black v2-headline tracking-tight text-[var(--v2-on-surface)] capitalize">
+              <div className="flex-1 w-full">
+                <div className="flex flex-col md:flex-row flex-wrap items-center md:items-baseline gap-3 md:gap-4 mb-3">
+                  <h1 className="text-3xl md:text-5xl font-black v2-headline tracking-tighter text-[var(--v2-on-surface)] capitalize">
                     {vendor.shop_name || vendor.display_name || 'Vendor Shop'}
                   </h1>
-                  {vendor.roles?.includes('vendor') && (
-                    <span className="bg-[var(--v2-secondary-container)] text-[var(--v2-on-secondary-container)] text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
-                      Verified Vendor
-                    </span>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {vendor.roles?.includes('vendor') && (
+                      <span className="bg-[var(--v2-secondary-container)] text-[var(--v2-on-secondary-container)] text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full whitespace-nowrap">
+                        Verified Vendor
+                      </span>
+                    )}
+                    <button 
+                      onClick={() => setShowReportModal(true)}
+                      className="flex items-center gap-1.5 p-1.5 px-3 bg-[var(--v2-surface-container)] rounded-full text-[var(--v2-on-surface-variant)] hover:text-red-600 transition-colors active:scale-95 shadow-sm"
+                    >
+                      <span className="v2-icon text-lg">flag</span>
+                      <span className="text-[10px] font-bold uppercase tracking-widest">Report</span>
+                    </button>
+                  </div>
                 </div>
 
                 {vendor.shop_address && (
-                  <div className="flex items-center gap-2 text-[var(--v2-on-surface-variant)] mb-4">
+                  <div className="flex items-center justify-center md:justify-start gap-2 text-[var(--v2-on-surface-variant)] mb-4">
                     <span className="v2-icon text-lg">location_on</span>
                     <span className="text-sm font-semibold">{vendor.shop_address}</span>
                   </div>
                 )}
 
-                <p className="text-lg text-[var(--v2-on-surface-variant)] leading-relaxed max-w-2xl">
+                <p className="text-base md:text-lg text-[var(--v2-on-surface-variant)] leading-relaxed max-w-2xl mx-auto md:mx-0">
                   {vendor.shop_description || vendor.bio || 'This vendor has not added a description yet.'}
                 </p>
               </div>
@@ -285,6 +297,13 @@ export default function V2VendorShopPage({
           )}
         </section>
       </main>
+      <V2ReportModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        targetId={vendor.id}
+        targetType="vendor"
+        targetName={vendor.shop_name || vendor.display_name}
+      />
     </div>
   );
 }

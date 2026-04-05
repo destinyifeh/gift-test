@@ -56,18 +56,24 @@ export function CampaignDetailDesktopNav() {
 interface MobileNavProps {
   title?: string;
   onShare?: () => void;
+  onReport?: () => void;
 }
 
-export function CampaignDetailMobileNav({title = 'Campaign Details', onShare}: MobileNavProps) {
+export function CampaignDetailMobileNav({title = 'Campaign Details', onShare, onReport}: MobileNavProps) {
   return (
     <header className="md:hidden fixed top-0 w-full z-50 v2-glass-nav flex items-center justify-between px-6 h-16">
       <Link href="/v2/campaigns">
         <span className="v2-icon text-[var(--v2-primary)]">arrow_back</span>
       </Link>
-      <h1 className="v2-headline font-bold text-lg truncate max-w-[200px]">{title}</h1>
-      <button onClick={onShare}>
-        <span className="v2-icon text-[var(--v2-primary)]">share</span>
-      </button>
+      <h1 className="v2-headline font-bold text-lg truncate max-w-[150px]">{title}</h1>
+      <div className="flex items-center gap-2">
+        <button onClick={onReport} className="p-2">
+          <span className="v2-icon text-[var(--v2-on-surface-variant)]">flag</span>
+        </button>
+        <button onClick={onShare} className="p-2">
+          <span className="v2-icon text-[var(--v2-primary)]">share</span>
+        </button>
+      </div>
     </header>
   );
 }

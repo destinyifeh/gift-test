@@ -18,6 +18,8 @@ import {
   CampaignDetailLoading,
   CampaignDetailError,
 } from './components';
+import {useState} from 'react';
+import {V2ReportModal} from '@/components/modals/V2ReportModal';
 
 interface PageProps {
   params: Promise<{shortId: string; slug: string}>;
@@ -40,6 +42,7 @@ export default function CampaignDetailsPage({params}: PageProps) {
   const {shortId} = use(params);
 
   const {data: campaign, isLoading, isError, error} = useCampaign(shortId);
+  const [showReportModal, setShowReportModal] = useState(false);
 
   // Calculate derived values
   const raised = useMemo(() => getRaisedAmount(campaign?.contributions), [campaign?.contributions]);
@@ -86,7 +89,7 @@ export default function CampaignDetailsPage({params}: PageProps) {
     <div className="min-h-screen bg-[var(--v2-background)]">
       {/* Navigation */}
       <CampaignDetailDesktopNav />
-      <CampaignDetailMobileNav title={campaign.title} onShare={handleShare} />
+      <CampaignDetailMobileNav title={campaign.title} onShare={handleShare} onReport={() => setShowReportModal(true)} />
 
       {/* Main Content */}
       <main className="pt-16 md:pt-24 pb-32 md:pb-20">
@@ -140,6 +143,7 @@ export default function CampaignDetailsPage({params}: PageProps) {
               organizerAvatar={campaign.profiles?.avatar_url}
               campaignShortId={campaign.campaign_short_id}
               onShare={handleShare}
+              onReport={() => setShowReportModal(true)}
             />
           </div>
         </div>
@@ -150,6 +154,14 @@ export default function CampaignDetailsPage({params}: PageProps) {
 
       {/* Mobile Sticky Bottom Action */}
       <MobileStickyAction campaignShortId={campaign.campaign_short_id} />
+
+      <V2ReportModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        targetId={campaign.id}
+        targetType="campaign"
+        targetName={campaign.title}
+      />
     </div>
   );
 }

@@ -14,6 +14,7 @@ interface CampaignSidebarProps {
   campaignShortId: string;
   onSendGift?: () => void;
   onShare?: () => void;
+  onReport?: () => void;
 }
 
 export function CampaignSidebar({
@@ -27,6 +28,7 @@ export function CampaignSidebar({
   campaignShortId,
   onSendGift,
   onShare,
+  onReport,
 }: CampaignSidebarProps) {
   const progress = Math.min(100, Math.round((raised / goal) * 100));
 
@@ -79,12 +81,21 @@ export function CampaignSidebar({
             >
               Send a Gift
             </Link>
-            <button
-              onClick={onShare}
-              className="w-full bg-[var(--v2-surface-container-high)] text-[var(--v2-primary)] py-5 rounded-2xl v2-headline font-bold text-lg hover:bg-[var(--v2-surface-variant)] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-            >
-              <span className="v2-icon">share</span> Share Campaign
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={onShare}
+                className="flex-[2] bg-[var(--v2-surface-container-high)] text-[var(--v2-primary)] py-5 rounded-2xl v2-headline font-bold text-lg hover:bg-[var(--v2-surface-variant)] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+              >
+                <span className="v2-icon">share</span> Share
+              </button>
+              <button
+                onClick={onReport}
+                className="flex-1 bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface-variant)] py-5 rounded-2xl flex items-center justify-center hover:text-red-500 transition-colors active:scale-[0.98]"
+                title="Report Campaign"
+              >
+                <span className="v2-icon">flag</span>
+              </button>
+            </div>
           </div>
 
           {/* Fee Notice */}
