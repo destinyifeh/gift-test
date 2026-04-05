@@ -65,6 +65,7 @@ export function V2VendorCodesTab() {
   const streamRef = useRef<MediaStream | null>(null);
   const scanIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const foundCodeRef = useRef<string | null>(null);
+  const [showAllTransactions, setShowAllTransactions] = useState(false);
 
   const currency = getCurrencyByCountry(profile?.country || 'Nigeria');
 
@@ -226,7 +227,6 @@ export function V2VendorCodesTab() {
             success: false,
             message: result.error || 'Flex card not found or is invalid',
           });
-          toast.error(result.error || 'Invalid flex card');
           return;
         }
 
@@ -246,7 +246,6 @@ export function V2VendorCodesTab() {
           success: false,
           message: result.error || 'Gift code not found or is invalid',
         });
-        toast.error(result.error || 'Invalid gift code');
         return;
       }
 
@@ -303,7 +302,10 @@ export function V2VendorCodesTab() {
       const result = await redeemVoucherCode(verificationResult.data.gift_code);
 
       if (!result.success) {
-        toast.error(result.error || 'Failed to redeem gift');
+        setVerificationResult({
+          success: false,
+          message: result.error || 'Gift code not found or is invalid',
+        });
         return;
       }
 
@@ -431,105 +433,80 @@ export function V2VendorCodesTab() {
             )}
           </button>
 
-          {/* Flex Card Result */}
-          {codeType === 'flex_card' && flexCardResult && (
-            <div className="mt-6 md:mt-8 p-5 md:p-6 rounded-2xl bg-purple-50 border-2 border-purple-200">
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 bg-purple-100 text-purple-700">
-                  <span className="v2-icon">credit_card</span>
-                </div>
-                <div className="flex-1">
-                  <p className="font-bold text-[var(--v2-on-surface)] tracking-tight">
-                    Flex Card Verified!
-                  </p>
-                  <p className="text-[var(--v2-on-surface-variant)] text-sm">
-                    Ready for partial or full redemption
-                  </p>
-                </div>
-              </div>
+          {/* Flex Card Result State */}
+          {codeType === 'flex_card' && (verificationResult || flexCardResult) && (
+            <div className={`mt-6 md:mt-8 p-5 md:p-6 rounded-2xl ${
+              flexCardResult
+                ? 'bg-purple-50 border-2 border-purple-200'
+                : 'bg-red-50 border-2 border-dashed border-red-200'
+            }`}>
+              {flexCardResult ? (
+                <div className="space-y-6">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center flex-shrink-0">
+                      <span className="v2-icon">credit_card</span>
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-bold text-[var(--v2-on-surface)] tracking-tight">Flex Card Verified!</p>
+                      <p className="text-[var(--v2-on-surface-variant)] text-sm mb-4">Ready for partial or full redemption</p>
+                      
+                      <div className="bg-white rounded-xl p-4 mb-4 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-[var(--v2-on-surface-variant)]">Available Balance</span>
+                          <span className="text-2xl font-black text-purple-700">
+                            {formatCurrency(flexCardResult.balance, flexCardResult.currency)}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-[var(--v2-on-surface-variant)]">Cardholder</span>
+                          <span className="font-bold">{flexCardResult.userName}</span>
+                        </div>
+                      </div>
 
-              {/* Flex Card Details */}
-              <div className="bg-white rounded-xl p-4 mb-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-[var(--v2-on-surface-variant)]">Available Balance</span>
-                  <span className="text-2xl font-extrabold text-purple-700">
-                    {formatCurrency(flexCardResult.balance, flexCardResult.currency)}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-[var(--v2-on-surface-variant)]">Cardholder</span>
-                  <div className="flex items-center gap-2">
-                    {flexCardResult.userAvatar && (
-                      <img
-                        src={flexCardResult.userAvatar}
-                        alt=""
-                        className="w-6 h-6 rounded-full object-cover"
-                      />
-                    )}
-                    <span className="font-bold text-[var(--v2-on-surface)]">
-                      {flexCardResult.userName}
-                    </span>
+                      <div className="space-y-3 mb-6">
+                        <label className="text-xs font-bold text-purple-700 uppercase tracking-widest">Amount to Charge</label>
+                        <div className="relative">
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-400 font-bold">₦</span>
+                          <input
+                            type="number"
+                            value={flexRedeemAmount}
+                            onChange={e => setFlexRedeemAmount(e.target.value)}
+                            placeholder="0.00"
+                            max={flexCardResult.balance}
+                            className="w-full h-14 pl-10 pr-4 text-xl font-bold bg-white rounded-xl border-2 border-purple-200 focus:border-purple-400 focus:ring-0 outline-none"
+                          />
+                        </div>
+                        <div className="flex justify-between text-[10px] font-bold text-purple-600 px-1">
+                          <span>MAX: {formatCurrency(flexCardResult.balance, flexCardResult.currency)}</span>
+                          <button onClick={() => setFlexRedeemAmount(flexCardResult.balance.toString())} className="hover:underline">USE FULL BALANCE</button>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={handleFlexCardRedeem}
+                        disabled={isRedeeming || !flexRedeemAmount || parseFloat(flexRedeemAmount) <= 0 || parseFloat(flexRedeemAmount) > flexCardResult.balance}
+                        className="w-full py-4 bg-purple-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 transform active:scale-[0.98] transition-all shadow-lg shadow-purple-600/20">
+                         {isRedeeming ? (
+                          <span className="v2-icon animate-spin">progress_activity</span>
+                        ) : (
+                          <span className="v2-icon">credit_card</span>
+                        )}
+                        {isRedeeming ? 'Charging...' : `Confirm Charge ${flexRedeemAmount ? formatCurrency(parseFloat(flexRedeemAmount), 'NGN') : ''}`}
+                      </button>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-[var(--v2-on-surface-variant)]">Status</span>
-                  <span className={`px-2 py-0.5 text-xs font-bold rounded-full uppercase ${
-                    flexCardResult.status === 'active'
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-amber-100 text-amber-800'
-                  }`}>
-                    {flexCardResult.status === 'partially_used' ? 'Partially Used' : flexCardResult.status}
-                  </span>
+              ) : (
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0">
+                    <span className="v2-icon">error</span>
+                  </div>
+                  <div>
+                    <p className="font-bold text-red-700 tracking-tight">Flex Card Error</p>
+                    <p className="text-red-600/70 text-sm">{verificationResult?.message}</p>
+                  </div>
                 </div>
-              </div>
-
-              {/* Amount Input */}
-              <div className="space-y-2 mb-4">
-                <label className="text-sm font-bold text-[var(--v2-on-surface-variant)]">
-                  Amount to Charge
-                </label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)] font-bold">
-                    ₦
-                  </span>
-                  <input
-                    type="number"
-                    value={flexRedeemAmount}
-                    onChange={e => setFlexRedeemAmount(e.target.value)}
-                    placeholder="0.00"
-                    max={flexCardResult.balance}
-                    className="w-full h-14 pl-10 pr-4 text-xl font-bold bg-white rounded-xl border-2 border-purple-200 focus:border-purple-400 focus:ring-0 outline-none"
-                  />
-                </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-[var(--v2-on-surface-variant)]">
-                    Max: {formatCurrency(flexCardResult.balance, flexCardResult.currency)}
-                  </span>
-                  <button
-                    onClick={() => setFlexRedeemAmount(flexCardResult.balance.toString())}
-                    className="text-purple-600 font-bold hover:underline">
-                    Use Full Balance
-                  </button>
-                </div>
-              </div>
-
-              {/* Redeem Button */}
-              <button
-                onClick={handleFlexCardRedeem}
-                disabled={isRedeeming || !flexRedeemAmount || parseFloat(flexRedeemAmount) <= 0 || parseFloat(flexRedeemAmount) > flexCardResult.balance}
-                className="w-full px-6 py-4 bg-purple-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 hover:bg-purple-700 transition-colors">
-                {isRedeeming ? (
-                  <>
-                    <span className="v2-icon animate-spin">progress_activity</span>
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <span className="v2-icon">credit_card</span>
-                    Charge {flexRedeemAmount ? formatCurrency(parseFloat(flexRedeemAmount) || 0, 'NGN') : 'Flex Card'}
-                  </>
-                )}
-              </button>
+              )}
             </div>
           )}
 
@@ -540,7 +517,7 @@ export function V2VendorCodesTab() {
                 verificationResult.success
                   ? 'bg-[var(--v2-secondary-container)]/30 border-2 border-[var(--v2-secondary-container)]'
                   : verificationResult.data?.status === 'redeemed'
-                  ? 'bg-amber-100/50 border-2 border-amber-300'
+                  ? 'bg-amber-50 border-2 border-amber-200'
                   : 'bg-[var(--v2-error-container)]/10 border-2 border-dashed border-[var(--v2-error-container)]'
               }`}>
               <div className="flex items-start gap-4">
@@ -549,8 +526,8 @@ export function V2VendorCodesTab() {
                     verificationResult.success
                       ? 'bg-[var(--v2-secondary-container)] text-[var(--v2-on-secondary-container)]'
                       : verificationResult.data?.status === 'redeemed'
-                      ? 'bg-amber-200 text-amber-800'
-                      : 'bg-[var(--v2-error-container)]/20 text-[var(--v2-error)]'
+                      ? 'bg-amber-100 text-amber-700'
+                      : 'bg-red-100 text-red-600'
                   }`}>
                   <span className="v2-icon">
                     {verificationResult.success
@@ -560,7 +537,7 @@ export function V2VendorCodesTab() {
                       : 'error'}
                   </span>
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <p className="font-bold text-[var(--v2-on-surface)] tracking-tight">
                     {verificationResult.success
                       ? 'Code Verified!'
@@ -568,58 +545,61 @@ export function V2VendorCodesTab() {
                       ? 'Already Redeemed'
                       : 'Verification Failed'}
                   </p>
-                  <p className="text-[var(--v2-on-surface-variant)] text-sm">
+                  <p className="text-[var(--v2-on-surface-variant)] text-sm mb-3">
                     {verificationResult.message}
                   </p>
+
                   {verificationResult.data && (
-                    <div className="mt-3 space-y-2">
-                      <p className="text-lg font-bold text-[var(--v2-primary)]">
-                        Value: {formatCurrency(verificationResult.data.goal_amount, verificationResult.data.currency || currency)}
-                      </p>
-                      <p className="text-sm text-[var(--v2-on-surface-variant)]">
-                        <span className="font-medium">Gift:</span> {verificationResult.data.title || 'Gift Card'}
-                      </p>
-                      {verificationResult.data.profiles?.display_name && (
-                        <p className="text-sm text-[var(--v2-on-surface-variant)]">
-                          <span className="font-medium">Recipient:</span> {verificationResult.data.profiles.display_name}
+                    <div className="mt-4 pt-4 border-t border-black/5 space-y-3">
+                      <div className="flex justify-between items-center bg-white/40 p-3 rounded-xl">
+                        <span className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-tight">Gift Value</span>
+                        <span className="text-xl font-black text-[var(--v2-primary)]">
+                          {formatCurrency(verificationResult.data.goal_amount, verificationResult.data.currency || currency)}
+                        </span>
+                      </div>
+                      
+                      <div className="px-1 space-y-1">
+                        <p className="text-sm text-[var(--v2-on-surface-variant)] flex justify-between">
+                          <span className="opacity-60">Gift item:</span> 
+                          <span className="font-bold truncate max-w-[150px]">{verificationResult.data.title || 'Gift Card'}</span>
                         </p>
-                      )}
-                      {verificationResult.data.status && (
-                        <p className="text-sm">
-                          <span className="font-medium text-[var(--v2-on-surface-variant)]">Status:</span>{' '}
-                          <span className={`font-bold uppercase text-xs px-2 py-0.5 rounded-full ${
-                            verificationResult.data.status === 'redeemed'
-                              ? 'bg-amber-200 text-amber-800'
-                              : verificationResult.data.status === 'claimed'
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : 'bg-blue-100 text-blue-800'
+                        {verificationResult.data.profiles?.display_name && (
+                          <p className="text-sm text-[var(--v2-on-surface-variant)] flex justify-between">
+                            <span className="opacity-60">Recipient:</span> 
+                            <span className="font-bold">{verificationResult.data.profiles.display_name}</span>
+                          </p>
+                        )}
+                        <p className="text-sm text-[var(--v2-on-surface-variant)] flex justify-between items-center">
+                          <span className="opacity-60">Status:</span> 
+                          <span className={`text-[10px] uppercase font-black px-2 py-0.5 rounded-full ${
+                             verificationResult.data.status === 'redeemed'
+                             ? 'bg-amber-100 text-amber-700'
+                             : verificationResult.data.status === 'claimed'
+                             ? 'bg-emerald-100 text-emerald-800'
+                             : 'bg-blue-100 text-blue-800'
                           }`}>
                             {verificationResult.data.status}
                           </span>
                         </p>
-                      )}
+                      </div>
                     </div>
+                  )}
+
+                  {verificationResult.success && verificationResult.data?.status === 'claimed' && (
+                    <button
+                      onClick={handleRedeem}
+                      disabled={isRedeeming}
+                      className="w-full mt-6 py-4 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-xl flex items-center justify-center gap-2 transform active:scale-[0.98] transition-all shadow-lg shadow-[var(--v2-primary)]/20">
+                      {isRedeeming ? (
+                        <span className="v2-icon animate-spin">progress_activity</span>
+                      ) : (
+                        <span className="v2-icon">redeem</span>
+                      )}
+                      {isRedeeming ? 'Redeeming...' : 'Confirm Redemption'}
+                    </button>
                   )}
                 </div>
               </div>
-              {verificationResult.success && verificationResult.data?.status === 'claimed' && (
-                <button
-                  onClick={handleRedeem}
-                  disabled={isRedeeming}
-                  className="w-full mt-4 px-6 py-4 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-xl flex items-center justify-center gap-2 disabled:opacity-50">
-                  {isRedeeming ? (
-                    <>
-                      <span className="v2-icon animate-spin">progress_activity</span>
-                      Redeeming...
-                    </>
-                  ) : (
-                    <>
-                      <span className="v2-icon">redeem</span>
-                      Redeem Now
-                    </>
-                  )}
-                </button>
-              )}
             </div>
           )}
 
@@ -713,13 +693,18 @@ export function V2VendorCodesTab() {
 
       {/* Recent Redemptions */}
       <section className="bg-[var(--v2-surface-container-low)] rounded-[2rem] p-6 md:p-10">
-        <div className="flex flex-col md:flex-row justify-between md:items-end mb-6 md:mb-8 gap-4">
+        <div className="flex justify-between items-end mb-6 md:mb-8">
           <div>
             <h3 className="text-xl md:text-2xl v2-headline font-bold text-[var(--v2-on-surface)]">
-              Recent Redemptions
+              Recent Activity
             </h3>
             <p className="text-[var(--v2-on-surface-variant)] text-sm">Your latest successful redemptions</p>
           </div>
+          <button 
+            onClick={() => setShowAllTransactions(true)}
+            className="px-4 py-2 bg-white text-[var(--v2-primary)] text-sm font-bold rounded-full shadow-sm hover:shadow-md transition-all">
+            View all
+          </button>
         </div>
 
         {recentRedemptions.length === 0 ? (
@@ -734,26 +719,26 @@ export function V2VendorCodesTab() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {recentRedemptions.slice(0, 6).map((redemption: any) => (
+            {recentRedemptions.slice(0, 5).map((redemption: any) => (
               <div
                 key={redemption.id}
-                className="bg-[var(--v2-surface-container-lowest)] p-5 md:p-6 rounded-2xl flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${redemption.type === 'flex_card' ? 'bg-purple-100 text-purple-700' : 'bg-[var(--v2-secondary-container)]/50 text-[var(--v2-secondary)]'}`}>
-                    <span className="v2-icon">{redemption.type === 'flex_card' ? 'credit_card' : 'check_circle'}</span>
+                className="bg-[var(--v2-surface-container-lowest)] p-4 md:p-5 rounded-2xl flex items-center justify-between gap-3 overflow-hidden">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${redemption.type === 'flex_card' ? 'bg-purple-100 text-purple-700' : 'bg-[var(--v2-secondary-container)]/50 text-[var(--v2-secondary)]'}`}>
+                    <span className="v2-icon text-lg">{redemption.type === 'flex_card' ? 'credit_card' : 'check_circle'}</span>
                   </div>
-                  <div>
-                    <p className="font-bold text-[var(--v2-on-surface)] truncate max-w-[120px] md:max-w-[180px]">
+                  <div className="min-w-0">
+                    <p className="font-bold text-sm text-[var(--v2-on-surface)] truncate">
                       {redemption.desc || 'Redemption'}
                     </p>
-                    <p className="text-xs text-[var(--v2-on-surface-variant)]">{redemption.date}</p>
+                    <p className="text-[10px] text-[var(--v2-on-surface-variant)]">{redemption.date}</p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-lg v2-headline font-extrabold text-[var(--v2-on-surface)]">
+                <div className="text-right flex-shrink-0 flex flex-col items-end">
+                  <p className="text-sm md:text-base font-extrabold text-[var(--v2-on-surface)] whitespace-nowrap">
                     {formatCurrency(redemption.amount, currency)}
                   </p>
-                  <span className="px-2 py-0.5 text-[10px] font-bold rounded-full uppercase bg-[var(--v2-secondary-container)] text-[var(--v2-on-secondary-container)]">
+                  <span className="px-2 py-0.5 text-[8px] font-bold rounded-full uppercase bg-[var(--v2-secondary-container)] text-[var(--v2-on-secondary-container)] mt-1">
                     Success
                   </span>
                 </div>
@@ -762,6 +747,45 @@ export function V2VendorCodesTab() {
           </div>
         )}
       </section>
+
+      {/* All Transactions Modal */}
+      <ResponsiveModal open={showAllTransactions} onOpenChange={setShowAllTransactions}>
+        <ResponsiveModalContent className="max-w-2xl bg-[var(--v2-surface)]">
+          <ResponsiveModalHeader className="pb-4 border-b">
+            <ResponsiveModalTitle className="v2-headline text-2xl font-black">All Redemptions</ResponsiveModalTitle>
+          </ResponsiveModalHeader>
+          <div className="p-4 max-h-[60vh] overflow-y-auto space-y-3">
+            {recentRedemptions.map((redemption: any) => (
+              <div
+                key={redemption.id}
+                className="flex items-center justify-between p-4 rounded-xl bg-[var(--v2-surface-container-low)] gap-3">
+                <div className="flex items-center gap-4 min-w-0">
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${redemption.type === 'flex_card' ? 'bg-purple-100 text-purple-700' : 'bg-[var(--v2-secondary-container)]/50 text-[var(--v2-secondary)]'}`}>
+                    <span className="v2-icon">{redemption.type === 'flex_card' ? 'credit_card' : 'check_circle'}</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-bold text-[var(--v2-on-surface)] truncate">{redemption.desc}</p>
+                    <p className="text-xs text-[var(--v2-on-surface-variant)]">{redemption.date}</p>
+                  </div>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <p className="text-lg font-bold text-[var(--v2-on-surface)]">
+                    {formatCurrency(redemption.amount, currency)}
+                  </p>
+                  <span className="text-[10px] uppercase font-bold text-[var(--v2-secondary)]">Successful</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="p-4 mt-2">
+            <button 
+              onClick={() => setShowAllTransactions(false)}
+              className="w-full py-4 bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface)] font-bold rounded-xl transition-colors hover:bg-[var(--v2-surface-container-highest)]">
+              Close
+            </button>
+          </div>
+        </ResponsiveModalContent>
+      </ResponsiveModal>
 
       {/* QR Scanner Modal */}
       <ResponsiveModal open={showScanner} onOpenChange={open => !open && stopScanner()}>
