@@ -2,6 +2,7 @@
 
 import {revalidatePath} from 'next/cache';
 import {createClient} from '../supabase/server';
+import {createAdminClient} from '../supabase/admin';
 import {generateShortId} from '@/lib/utils/slugs';
 import {Resend} from 'resend';
 import FlexCardEmail from '@/components/emails/FlexCardEmail';
@@ -441,6 +442,19 @@ export async function redeemFlexCard(params: {
 
   revalidatePath('/v2/dashboard');
   revalidatePath('/v2/vendor/dashboard');
+
+  // Record in main transactions table for user wallet history
+  if (flexCard.user_id) {
+    const adminSupabase = createAdminClient();
+    await adminSupabase.from('transactions').insert({
+      user_id: flexCard.user_id,
+      amount: Math.round(params.amount * 100),
+      type: 'flex_card_redemption',
+      status: 'success',
+      reference: `FLEX-${flexCard.code}-${Date.now()}`,
+      description: params.description || `Payment with Flex Card at vendor`,
+    });
+  }
 
   return {
     success: true,

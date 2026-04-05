@@ -252,6 +252,8 @@ export async function fetchWalletProfile() {
           'creator_support',
           'creator_support_sent',
           'receipt',
+          'gift_redemption',
+          'flex_card_redemption',
         ])
         .order('created_at', {ascending: false}),
       supabase

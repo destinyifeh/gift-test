@@ -491,29 +491,32 @@ export function V2WalletTab() {
               <div className="space-y-1">
                 {wallet.transactions.slice(0, 5).map((t: any) => {
                   const isInflow = ['receipt', 'creator_support'].includes(t.type);
-                  const isFlexCard = t.type === 'flex_card' || t.description?.toLowerCase().includes('flex');
+                  const isFlexCard = t.type === 'flex_card' || t.type === 'flex_card_redemption' || t.description?.toLowerCase().includes('flex');
+                  const isGiftRedemption = t.type === 'gift_redemption';
                   const isWithdrawal = t.type === 'withdrawal' || t.type === 'payout';
 
                   const getIcon = () => {
-                    if (isFlexCard) return 'credit_card';
+                    if (isFlexCard || isGiftRedemption) return 'shopping_bag';
                     if (isWithdrawal) return 'account_balance';
                     if (isInflow) return 'payments';
-                    return 'shopping_bag';
+                    return 'receipt_long';
                   };
 
                   const getIconStyle = () => {
                     if (isFlexCard) return 'bg-purple-100 text-purple-700';
+                    if (isGiftRedemption) return 'bg-blue-100 text-blue-700';
                     if (isWithdrawal) return 'bg-orange-100 text-orange-700';
                     if (isInflow) return 'bg-green-100 text-green-700';
                     return 'bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface-variant)]';
                   };
 
                   const getTypeLabel = () => {
-                    if (isFlexCard) return 'Flex Card';
+                    if (isFlexCard) return 'Flex Card Payment';
+                    if (isGiftRedemption) return 'Gift Redemption';
                     if (isWithdrawal) return 'Withdrawal';
                     if (t.type === 'creator_support') return 'Gift Received';
                     if (t.type === 'campaign_contribution') return 'Contribution';
-                    return t.type;
+                    return t.type?.replace(/_/g, ' ');
                   };
 
                   return (

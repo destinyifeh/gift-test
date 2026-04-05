@@ -97,17 +97,18 @@ export function V2VendorWalletTab() {
       amount: t.amount,
       date: t.date,
       type: t.type || 'sale',
-      rawDate: t.rawDate || t.date,
+      rawDate: t.date,
+      timestamp: t.timestamp,
     }));
 
     // Filter by type
     if (transactionFilter === 'sales') {
       transactions = transactions.filter((t: any) =>
-        t.type === 'sale' || t.type === 'redemption' || !t.description?.toLowerCase().includes('flex')
+        t.type === 'sale' || t.type === 'redeemed' || !t.description?.toLowerCase().includes('flex')
       );
     } else if (transactionFilter === 'flex_redemptions') {
       transactions = transactions.filter((t: any) =>
-        t.type === 'flex_redemption' || t.description?.toLowerCase().includes('flex')
+        t.type === 'flex_card' || t.description?.toLowerCase().includes('flex')
       );
     } else if (transactionFilter === 'withdrawals') {
       transactions = transactions.filter((t: any) =>
@@ -135,14 +136,14 @@ export function V2VendorWalletTab() {
     }
 
     return transactions.sort((a: any, b: any) =>
-      new Date(b.rawDate || b.date || 0).getTime() - new Date(a.rawDate || a.date || 0).getTime()
+      (b.timestamp || 0) - (a.timestamp || 0)
     );
   }, [vendorTransactions, transactionFilter, dateFilter]);
 
   // Calculate stats
   const flexRedemptionTotal = useMemo(() => {
     return vendorTransactions
-      .filter((t: any) => t.type === 'flex_redemption' || t.desc?.toLowerCase().includes('flex'))
+      .filter((t: any) => t.type === 'flex_card' || t.desc?.toLowerCase().includes('flex'))
       .reduce((sum: number, t: any) => sum + (t.amount || 0), 0);
   }, [vendorTransactions]);
 
@@ -393,8 +394,8 @@ export function V2VendorWalletTab() {
               description: t.desc,
               amount: t.amount,
               date: t.date,
-              type: 'credit',
-            })).sort((a: any, b: any) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
+              type: t.type,
+            })).sort((a: any, b: any) => (b.timestamp || 0) - (a.timestamp || 0));
 
             if (redemptionTransactions.length === 0) {
               return (
@@ -412,24 +413,27 @@ export function V2VendorWalletTab() {
 
             return (
               <div className="space-y-3">
-                {redemptionTransactions.slice(0, 5).map((t: any) => (
-                  <div
-                    key={t.id}
-                    className="flex items-center justify-between p-3 rounded-xl bg-[var(--v2-surface-container-low)]">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-[var(--v2-secondary-container)]/30 text-[var(--v2-secondary)]">
-                        <span className="v2-icon">check_circle</span>
+                {redemptionTransactions.slice(0, 5).map((t: any) => {
+                  const isFlex = t.type === 'flex_card' || t.description.toLowerCase().includes('flex');
+                  return (
+                    <div
+                      key={t.id}
+                      className="flex items-center justify-between p-3 rounded-xl bg-[var(--v2-surface-container-low)]">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isFlex ? 'bg-purple-100 text-purple-700' : 'bg-[var(--v2-secondary-container)]/30 text-[var(--v2-secondary)]'}`}>
+                          <span className="v2-icon">{isFlex ? 'credit_card' : 'check_circle'}</span>
+                        </div>
+                        <div>
+                          <p className="font-bold text-sm text-[var(--v2-on-surface)]">{t.description}</p>
+                          <p className="text-xs text-[var(--v2-on-surface-variant)]">{t.date}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-bold text-sm text-[var(--v2-on-surface)]">{t.description}</p>
-                        <p className="text-xs text-[var(--v2-on-surface-variant)]">{t.date}</p>
-                      </div>
+                      <span className={`font-bold ${isFlex ? 'text-purple-600' : 'text-[var(--v2-secondary)]'}`}>
+                        +{formatCurrency(t.amount, userCurrency)}
+                      </span>
                     </div>
-                    <span className="font-bold text-[var(--v2-secondary)]">
-                      +{formatCurrency(t.amount, userCurrency)}
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             );
           })()}

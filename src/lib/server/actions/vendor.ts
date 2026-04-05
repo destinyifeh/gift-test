@@ -414,7 +414,7 @@ export async function redeemVoucherCode(code: string) {
   // 1. Verify it's claimable and already claimed
   const {data: campaign, error: vError} = await supabase
     .from('campaigns')
-    .select('status')
+    .select('*, profiles!campaigns_user_id_fkey(display_name)')
     .eq('gift_code', code.trim())
     .single();
 
@@ -445,6 +445,18 @@ export async function redeemVoucherCode(code: string) {
   if (error) {
     console.error('Error redeeming voucher:', error);
     return {success: false, error: error.message};
+  }
+
+  // 1.5 Record transaction for the user (The one who owned the gift)
+  if (campaign.user_id) {
+    await adminSupabase.from('transactions').insert({
+      user_id: campaign.user_id,
+      amount: Math.round(Number(campaign.goal_amount || 0) * 100),
+      type: 'gift_redemption',
+      status: 'success',
+      reference: `RED-${code.trim()}-${Date.now()}`,
+      description: `Gift Redemption: ${campaign.title || 'Gift'} at vendor`,
+    });
   }
 
   revalidatePath('/vendor');
@@ -497,21 +509,46 @@ export async function fetchVendorWallet() {
   const productsCount = products?.length || 0;
   const ordersCount = allOrders?.length || 0;
 
+  // 3. Get flex card transactions for this vendor
+  const {data: flexCardTxs} = await supabase
+    .from('flex_card_transactions')
+    .select('*, flex_cards(code)')
+    .eq('vendor_id', user.id);
+
+  const flexCardTotal = (flexCardTxs || []).reduce((acc, tx) => acc + Number(tx.amount || 0), 0);
+  const totalSalesFinal = totalSales + flexCardTotal;
+  const availableFinal = available + flexCardTotal;
+
+  // Merge and sort transactions
+  const voucherTxs = (redeemed || []).map((r, i) => ({
+    id: `vouch-${i}`,
+    type: 'redeemed',
+    desc: `Redemption: ${r.gift_code || 'GIFT'}`,
+    amount: Number(r.goal_amount),
+    date: r.redeemed_at?.split('T')[0],
+    timestamp: new Date(r.redeemed_at || 0).getTime(),
+  }));
+
+  const flexTxs = (flexCardTxs || []).map((tx, i) => ({
+    id: `flex-${i}`,
+    type: 'flex_card',
+    desc: `Flex Card: ${(tx.flex_cards as any)?.code || 'FLEX'}`,
+    amount: Number(tx.amount),
+    date: tx.created_at?.split('T')[0],
+    timestamp: new Date(tx.created_at || 0).getTime(),
+  }));
+
+  const allTxs = [...voucherTxs, ...flexTxs].sort((a, b) => b.timestamp - a.timestamp);
+
   return {
     success: true,
     data: {
-      available,
+      available: availableFinal,
       pending,
-      totalSales,
+      totalSales: totalSalesFinal,
       productsCount,
       ordersCount,
-      transactions: (redeemed || []).map((r, i) => ({
-        id: i,
-        type: 'redeemed',
-        desc: `Redemption: ${r.gift_code || 'GIFT'}`,
-        amount: Number(r.goal_amount),
-        date: r.redeemed_at?.split('T')[0],
-      })),
+      transactions: allTxs.slice(0, 10),
     },
   };
 }

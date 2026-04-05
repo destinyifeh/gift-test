@@ -739,11 +739,13 @@ export function V2VendorCodesTab() {
                 key={redemption.id}
                 className="bg-[var(--v2-surface-container-lowest)] p-5 md:p-6 rounded-2xl flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center bg-[var(--v2-secondary-container)]/50 text-[var(--v2-secondary)]">
-                    <span className="v2-icon">check_circle</span>
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${redemption.type === 'flex_card' ? 'bg-purple-100 text-purple-700' : 'bg-[var(--v2-secondary-container)]/50 text-[var(--v2-secondary)]'}`}>
+                    <span className="v2-icon">{redemption.type === 'flex_card' ? 'credit_card' : 'check_circle'}</span>
                   </div>
                   <div>
-                    <p className="font-bold text-[var(--v2-on-surface)]">{redemption.desc || 'Redemption'}</p>
+                    <p className="font-bold text-[var(--v2-on-surface)] truncate max-w-[120px] md:max-w-[180px]">
+                      {redemption.desc || 'Redemption'}
+                    </p>
                     <p className="text-xs text-[var(--v2-on-surface-variant)]">{redemption.date}</p>
                   </div>
                 </div>
