@@ -75,12 +75,12 @@ export function CampaignSidebar({
 
           {/* Action Buttons */}
           <div className="space-y-3">
-            <Link
-              href={`/v2/send-gift?campaign=${campaignShortId}`}
+            <button
+              onClick={onSendGift}
               className="w-full v2-btn-primary py-5 rounded-2xl v2-headline font-extrabold text-xl shadow-lg shadow-[var(--v2-primary)]/20 hover:shadow-xl hover:shadow-[var(--v2-primary)]/30 active:scale-[0.98] transition-all flex items-center justify-center"
             >
               Send a Gift
-            </Link>
+            </button>
             <div className="flex gap-3">
               <button
                 onClick={onShare}
@@ -145,18 +145,18 @@ export function CampaignSidebar({
   );
 }
 
-export function MobileStickyAction({campaignShortId}: {campaignShortId: string}) {
+export function MobileStickyAction({campaignShortId, onSendGift}: {campaignShortId: string; onSendGift?: () => void}) {
   return (
-    <div className="md:hidden fixed bottom-0 left-0 w-full px-6 pb-safe pt-4 bg-[var(--v2-surface)]/90 backdrop-blur-xl z-40">
-      <Link
-        href={`/v2/send-gift?campaign=${campaignShortId}`}
-        className="w-full h-14 v2-btn-primary rounded-xl v2-headline font-bold text-lg flex items-center justify-center gap-3 shadow-[0_12px_24px_rgba(150,67,0,0.25)] active:scale-95 transition-transform"
+    <div className="md:hidden fixed bottom-0 left-0 w-full px-6 pb-20 pt-4 bg-gradient-to-t from-[var(--v2-surface)] via-[var(--v2-surface)]/95 to-transparent backdrop-blur-md z-40">
+      <button
+        onClick={onSendGift}
+        className="w-full h-14 v2-btn-primary rounded-xl v2-headline font-bold text-lg flex items-center justify-center gap-3 shadow-[0_12px_24px_rgba(var(--v2-primary-rgb),0.25)] active:scale-95 transition-transform"
       >
         <span className="v2-icon" style={{fontVariationSettings: "'FILL' 1"}}>
           card_giftcard
         </span>
         Send a Gift
-      </Link>
+      </button>
     </div>
   );
 }

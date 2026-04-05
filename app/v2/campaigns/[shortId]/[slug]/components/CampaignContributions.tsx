@@ -104,7 +104,7 @@ export function CampaignContributions({contributions, currency, onViewAll}: Cont
                 </div>
                 <div className="text-right">
                   <p className="text-lg v2-headline font-bold text-[var(--v2-primary)] md:text-[var(--v2-on-surface)]">
-                    {formatCurrency(contribution.amount / 100, currency)}
+                    {formatCurrency(contribution.amount, currency)}
                   </p>
                   <p className="hidden md:block text-[10px] text-[var(--v2-on-surface-variant)] font-bold uppercase tracking-wider">
                     GIFTED

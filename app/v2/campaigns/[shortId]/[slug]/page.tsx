@@ -20,6 +20,7 @@ import {
 } from './components';
 import {useState} from 'react';
 import {V2ReportModal} from '@/components/modals/V2ReportModal';
+import V2SendCampaignGiftModal from '../../../components/V2SendCampaignGiftModal';
 
 interface PageProps {
   params: Promise<{shortId: string; slug: string}>;
@@ -35,13 +36,14 @@ function getDaysLeft(endDate?: string | null): number | null {
 
 function getRaisedAmount(contributions?: {amount?: number}[]): number {
   if (!contributions || contributions.length === 0) return 0;
-  return contributions.reduce((sum, c) => sum + ((c.amount || 0) / 100), 0);
+  return contributions.reduce((sum, c) => sum + (c.amount || 0), 0);
 }
 
 export default function CampaignDetailsPage({params}: PageProps) {
   const {shortId} = use(params);
 
   const {data: campaign, isLoading, isError, error} = useCampaign(shortId);
+  const [showGiftModal, setShowGiftModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
 
   // Calculate derived values
@@ -141,21 +143,35 @@ export default function CampaignDetailsPage({params}: PageProps) {
               daysLeft={daysLeft}
               organizerName={campaign.profiles?.display_name || campaign.profiles?.username}
               organizerAvatar={campaign.profiles?.avatar_url}
-              campaignShortId={campaign.campaign_short_id}
-              onShare={handleShare}
-              onReport={() => setShowReportModal(true)}
-            />
-          </div>
-        </div>
-      </main>
-
-      {/* Desktop Footer */}
-      <CampaignDetailFooter />
-
-      {/* Mobile Sticky Bottom Action */}
-      <MobileStickyAction campaignShortId={campaign.campaign_short_id} />
-
-      <V2ReportModal
+               campaignShortId={campaign.campaign_short_id}
+               onShare={handleShare}
+               onReport={() => setShowReportModal(true)}
+               onSendGift={() => setShowGiftModal(true)}
+             />
+           </div>
+         </div>
+       </main>
+ 
+       {/* Desktop Footer */}
+       <CampaignDetailFooter />
+ 
+       {/* Mobile Sticky Bottom Action */}
+       <MobileStickyAction 
+         campaignShortId={campaign.campaign_short_id} 
+         onSendGift={() => setShowGiftModal(true)}
+       />
+ 
+       <V2SendCampaignGiftModal
+        open={showGiftModal}
+        onOpenChange={setShowGiftModal}
+        campaignSlug={shortId}
+        campaignTitle={campaign.title || ''}
+        creatorName={campaign.profiles?.display_name || ''}
+        minAmount={campaign.min_amount}
+        currency={campaign.currency}
+      />
+ 
+       <V2ReportModal
         isOpen={showReportModal}
         onClose={() => setShowReportModal(false)}
         targetId={campaign.id}

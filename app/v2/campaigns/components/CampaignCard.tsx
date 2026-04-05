@@ -56,8 +56,8 @@ function getDaysLeft(endDate?: string): number | null {
 
 function getRaisedAmount(contributions?: {id: number; amount?: number}[]): number {
   if (!contributions || contributions.length === 0) return 0;
-  // Sum actual contribution amounts (stored in kobo/cents, so divide by 100)
-  return contributions.reduce((sum, c) => sum + ((c.amount || 0) / 100), 0);
+  // Sum actual contribution amounts (stored in main unit, so no division needed)
+  return contributions.reduce((sum, c) => sum + (c.amount || 0), 0);
 }
 
 /**

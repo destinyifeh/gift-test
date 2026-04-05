@@ -5,7 +5,7 @@ import {use, useState, useEffect} from 'react';
 import {useVendorProductBySlugs} from '@/hooks/use-vendor';
 import {formatCurrency} from '@/lib/utils/currency';
 import {getCurrencyByCountry} from '@/lib/currencies';
-import SendShopGiftModal from '@/components/SendShopGiftModal';
+import V2SendShopGiftModal from '../../../components/V2SendShopGiftModal';
 import {toast} from 'sonner';
 import {useFavorites, useIsFavorited} from '@/hooks/use-favorites';
 import {useUserStore} from '@/lib/store/useUserStore';
@@ -590,7 +590,7 @@ export default function V2ProductDetailsPage({
       </div>
 
       {/* Gift Modal */}
-      <SendShopGiftModal
+      <V2SendShopGiftModal
         open={showGiftModal}
         onOpenChange={setShowGiftModal}
         gift={{
