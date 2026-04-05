@@ -263,6 +263,50 @@ export async function fetchWalletProfile() {
         .is('gift_code', null),
     ]);
 
+  // 1. Get user's flex card IDs and codes (for both sent and received)
+  const {data: cards} = await supabase
+    .from('flex_cards')
+    .select('id, code')
+    .or(`user_id.eq.${user.id},sender_id.eq.${user.id}`);
+  
+  const cardIds = (cards || []).map(c => c.id);
+  const cardMap = new Map((cards || []).map(c => [c.id, c.code]));
+
+  // 2. Get transactions for these flex cards
+  let flexCardTransactions: any[] = [];
+  if (cardIds.length > 0) {
+    const {data: flexCardTxs} = await supabase
+      .from('flex_card_transactions')
+      .select('*, vendor:profiles!flex_card_transactions_vendor_id_fkey(shop_name, display_name)')
+      .in('flex_card_id', cardIds);
+    if (flexCardTxs) flexCardTransactions = flexCardTxs;
+  }
+
+  // 3. Merge flex card transactions into the main list if not already there
+  const mergedTxs = [...(txs || [])];
+  
+  flexCardTransactions.forEach(ftx => {
+    const cardCode = cardMap.get(ftx.flex_card_id);
+    // Avoid double counting if already present in main transactions table
+    const exists = txs?.some((t: any) => t.type === 'flex_card_redemption' && t.reference?.includes(cardCode || 'UNKNOWN_CODE'));
+    
+    if (!exists) {
+      mergedTxs.push({
+        id: `fc-tx-${ftx.id}`,
+        user_id: user.id,
+        amount: ftx.amount * 100, // already in unit currency, kobo is x100
+        type: 'flex_card_redemption',
+        status: 'success',
+        created_at: ftx.created_at,
+        description: ftx.description || `Spent with Flex Card ${cardCode || ''}`,
+        metadata: { flex_card_id: ftx.flex_card_id, vendor: ftx.vendor }
+      } as any);
+    }
+  });
+
+  // Re-sort after merge
+  mergedTxs.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
   // Total Inflow: Campaigns + Direct Gifts
   const totalCampaignInflowKobo = (userCampaigns || []).reduce(
     (acc, c) => acc + (Number(c.current_amount) || 0) * 100,
@@ -306,7 +350,7 @@ export async function fetchWalletProfile() {
       totalInflow: totalInflowKobo / 100,
       pendingPayouts: pendingPayoutsKobo / 100,
       accounts: accounts || [],
-      transactions: txs || [],
+      transactions: mergedTxs || [],
     },
   };
 }
