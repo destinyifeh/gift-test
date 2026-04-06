@@ -25,7 +25,7 @@ export default function CampaignsPage() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [activeSort, setActiveSort] = useState<'all' | 'trending' | 'recent'>('recent');
+  const [activeSort, setActiveSort] = useState<'all' | 'trending' | 'recent' | 'new' | 'near-goal' | 'ending-soon'>('recent');
 
   // Centralized auth
   const {isLoggedIn} = useAuth();

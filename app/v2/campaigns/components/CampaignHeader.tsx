@@ -15,8 +15,8 @@ const categories = [
 interface CampaignHeaderProps {
   activeCategory: string;
   onCategoryChange: (category: string) => void;
-  activeSort: 'all' | 'trending' | 'recent';
-  onSortChange: (sort: 'all' | 'trending' | 'recent') => void;
+  activeSort: 'all' | 'trending' | 'recent' | 'new' | 'near-goal' | 'ending-soon';
+  onSortChange: (sort: 'all' | 'trending' | 'recent' | 'new' | 'near-goal' | 'ending-soon') => void;
   searchQuery?: string;
   onSearchChange?: (value: string) => void;
 }
@@ -94,7 +94,7 @@ export function CampaignDesktopHeader({
             onClick={() => onSortChange('trending')}
             className={`px-5 py-3 rounded-full font-semibold transition-colors ${
               activeSort === 'trending'
-                ? 'bg-[var(--v2-primary)] text-[var(--v2-on-primary)]'
+                ? 'bg-[var(--v2-primary)] text-[var(--v2-on-primary)] shadow-lg shadow-[var(--v2-primary)]/20'
                 : 'bg-[var(--v2-surface-container-lowest)] text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)]'
             }`}
           >
@@ -103,12 +103,32 @@ export function CampaignDesktopHeader({
           <button
             onClick={() => onSortChange('recent')}
             className={`px-5 py-3 rounded-full font-semibold transition-colors ${
-              activeSort === 'recent'
-                ? 'bg-[var(--v2-primary)] text-[var(--v2-on-primary)]'
+              activeSort === 'recent' || activeSort === 'new'
+                ? 'bg-[var(--v2-primary)] text-[var(--v2-on-primary)] shadow-lg shadow-[var(--v2-primary)]/20'
                 : 'bg-[var(--v2-surface-container-lowest)] text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)]'
             }`}
           >
-            Recent
+            New
+          </button>
+          <button
+            onClick={() => onSortChange('near-goal')}
+            className={`px-5 py-3 rounded-full font-semibold transition-colors ${
+              activeSort === 'near-goal'
+                ? 'bg-[var(--v2-primary)] text-[var(--v2-on-primary)] shadow-lg shadow-[var(--v2-primary)]/20'
+                : 'bg-[var(--v2-surface-container-lowest)] text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)]'
+            }`}
+          >
+            Near Goal
+          </button>
+          <button
+            onClick={() => onSortChange('ending-soon')}
+            className={`px-5 py-3 rounded-full font-semibold transition-colors ${
+              activeSort === 'ending-soon'
+                ? 'bg-[var(--v2-primary)] text-[var(--v2-on-primary)] shadow-lg shadow-[var(--v2-primary)]/20'
+                : 'bg-[var(--v2-surface-container-lowest)] text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)]'
+            }`}
+          >
+            Ending Soon
           </button>
         </div>
         <Link
@@ -126,6 +146,8 @@ export function CampaignDesktopHeader({
 export function CampaignMobileHeader({
   activeCategory,
   onCategoryChange,
+  activeSort,
+  onSortChange,
   searchQuery,
   onSearchChange,
 }: CampaignHeaderProps) {
@@ -164,13 +186,39 @@ export function CampaignMobileHeader({
         ))}
       </section>
 
+      {/* Mobile Sort Tabs */}
+      <section className="flex overflow-x-auto v2-no-scrollbar -mx-6 px-6 gap-2 mb-6">
+        {[
+          { id: 'trending', label: 'Trending', icon: 'trending_up' },
+          { id: 'recent', label: 'New', icon: 'new_releases' },
+          { id: 'near-goal', label: 'Near Goal', icon: 'ads_click' },
+          { id: 'ending-soon', label: 'Ending Soon', icon: 'timer' },
+        ].map((sort) => (
+          <button
+            key={sort.id}
+            onClick={() => onSortChange(sort.id as any)}
+            className={`flex items-center gap-1.5 whitespace-nowrap px-4 py-2 rounded-xl font-bold text-xs transition-all ${
+              activeSort === sort.id || (sort.id === 'recent' && activeSort === 'new')
+                ? 'bg-[var(--v2-primary)] text-white shadow-md'
+                : 'bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface-variant)]'
+            }`}
+          >
+            <span className="v2-icon text-sm">{sort.icon}</span>
+            {sort.label}
+          </button>
+        ))}
+      </section>
+
       {/* Mobile Page Header */}
       <section className="space-y-1 mb-6">
         <h2 className="text-3xl font-extrabold v2-headline tracking-tight text-[var(--v2-on-surface)]">
-          Active Campaigns
+          {activeSort === 'trending' ? 'Trending Now' : 
+           activeSort === 'near-goal' ? 'Nearly There' :
+           activeSort === 'ending-soon' ? 'Last Chance' :
+           'Active Campaigns'}
         </h2>
         <p className="text-[var(--v2-on-surface-variant)] text-sm font-medium">
-          Empower impactful gifts today
+          {activeSort === 'ending-soon' ? 'Support these campaigns before time runs out' : 'Empower impactful gifts today'}
         </p>
       </section>
     </>

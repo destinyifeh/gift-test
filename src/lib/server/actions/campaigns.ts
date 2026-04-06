@@ -416,7 +416,7 @@ export async function getAllPublicCampaigns({
   pageParam?: number;
   category?: string;
   search?: string;
-  sort?: 'all' | 'trending' | 'recent';
+  sort?: 'all' | 'trending' | 'recent' | 'new' | 'near-goal' | 'ending-soon';
 } = {}) {
   const limit = 12;
   const from = pageParam * limit;
@@ -445,8 +445,18 @@ export async function getAllPublicCampaigns({
 
   // Apply sorting
   if (sort === 'trending') {
-    // Sort by number of contributions (approximated by goal_amount for now)
-    query = query.order('goal_amount', {ascending: false});
+    query = query.order('current_amount', {ascending: false});
+  } else if (sort === 'new' || sort === 'recent') {
+    query = query.order('created_at', {ascending: false});
+  } else if (sort === 'near-goal') {
+    // For near-goal, we prioritize campaigns that have a goal and are close to it
+    // Since we can't easily order by ratio in simple query, we sort by current_amount desc
+    // and ideally filter for those with current_amount > 0
+    query = query.not('goal_amount', 'is', null).order('current_amount', {ascending: false});
+  } else if (sort === 'ending-soon') {
+    query = query.not('end_date', 'is', null)
+                 .gt('end_date', new Date().toISOString())
+                 .order('end_date', {ascending: true});
   } else {
     // Default to recent
     query = query.order('created_at', {ascending: false});

@@ -23,7 +23,7 @@ export function useMyCampaigns() {
 export function usePublicCampaigns(options?: {
   category?: string;
   search?: string;
-  sort?: 'all' | 'trending' | 'recent';
+  sort?: 'all' | 'trending' | 'recent' | 'new' | 'near-goal' | 'ending-soon';
 }) {
   const {category, search, sort} = options || {};
 
