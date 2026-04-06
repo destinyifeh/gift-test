@@ -129,9 +129,27 @@ export default function CampaignPage({
           {/* Back Link */}
           <Link
             href="/campaigns"
-            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4 md:mb-6">
+            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4 md:mb-6"
+          >
             <ChevronLeft className="w-4 h-4" /> Back to Campaigns
           </Link>
+
+          {/* Status Message Banner */}
+          {c.status !== 'active' && (
+            <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3 shadow-sm">
+              <span className="v2-icon text-amber-600">info</span>
+              <div>
+                <h4 className="text-sm font-bold text-amber-900">
+                  This campaign is currently {c.status === 'paused' ? 'Paused' : 'Inactive'}
+                </h4>
+                <p className="text-amber-800 text-xs mt-1 leading-relaxed">
+                  {c.status_reason || (c.status === 'paused' 
+                    ? "The organizer has temporarily paused new contributions. You can still view the story and existing contributions."
+                    : "This campaign is not currently accepting support.")}
+                </p>
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-5 gap-6 md:gap-8">
             {/* Main Content */}
@@ -310,9 +328,14 @@ export default function CampaignPage({
                 {/* Actions */}
                 <Button
                   variant="hero"
-                  className="w-full h-12 text-base mb-3"
+                  className={cn("w-full h-12 text-base mb-3", c.status !== 'active' && "bg-amber-100 text-amber-800 border-amber-200 border-2 hover:bg-amber-100")}
+                  disabled={c.status !== 'active'}
                   onClick={() => setShowGiftModal(true)}>
-                  <Gift className="w-5 h-5 mr-2" /> Send a Gift
+                  {c.status === 'active' ? (
+                    <><Gift className="w-5 h-5 mr-2" /> Send a Gift</>
+                  ) : (
+                    <>Contributions Paused</>
+                  )}
                 </Button>
                 <Button variant="outline" className="w-full gap-2 mb-3" onClick={handleShare}>
                   <Share2 className="w-4 h-4" /> Share Campaign
@@ -357,9 +380,14 @@ export default function CampaignPage({
         <StickyFooter className="flex gap-3">
           <Button
             variant="hero"
-            className="flex-1 h-12"
+            className={cn("flex-1 h-12 text-sm", c.status !== 'active' && "bg-amber-100 text-amber-800 border-amber-200 border-2 hover:bg-amber-100")}
+            disabled={c.status !== 'active'}
             onClick={() => setShowGiftModal(true)}>
-            <Gift className="w-5 h-5 mr-2" /> Send a Gift
+            {c.status === 'active' ? (
+              <><Gift className="w-5 h-5 mr-2" /> Send a Gift</>
+            ) : (
+              <>Paused</>
+            )}
           </Button>
           <Button variant="outline" className="h-12 w-12 p-0" onClick={handleShare}>
             <Share2 className="w-5 h-5" />
@@ -378,6 +406,8 @@ export default function CampaignPage({
         creatorName={c.profiles?.display_name || 'Organizer'}
         minAmount={c.min_amount}
         currency={c.currency}
+        status={c.status}
+        statusReason={c.status_reason}
       />
       <V2ReportModal
         isOpen={showReportModal}

@@ -105,6 +105,24 @@ export default function CampaignDetailsPage({params}: PageProps) {
       {/* Main Content */}
       <main className="pt-16 md:pt-24 pb-32 md:pb-20">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
+          {/* Status Message Banner */}
+          {campaign.status !== 'active' && (
+            <div className="mb-8 p-6 bg-amber-50 border border-amber-200 rounded-[2rem] flex items-start gap-4 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500">
+              <div className="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center text-amber-600 shrink-0">
+                <span className="v2-icon text-2xl">info</span>
+              </div>
+              <div>
+                <h4 className="text-lg font-black v2-headline text-amber-900 leading-tight">
+                  This campaign is currently {campaign.status === 'paused' ? 'Paused' : 'Inactive'}
+                </h4>
+                <p className="text-amber-800 text-sm mt-1 leading-relaxed">
+                  {campaign.status_reason || (campaign.status === 'paused' 
+                    ? "The organizer has temporarily paused new contributions. You can still view the story and existing contributions."
+                    : "This campaign is not currently accepting support.")}
+                </p>
+              </div>
+            </div>
+          )}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
             {/* Hero & Story Content (Left Column) */}
             <div className="lg:col-span-8 space-y-6 md:space-y-10">
@@ -179,6 +197,8 @@ export default function CampaignDetailsPage({params}: PageProps) {
         creatorName={campaign.profiles?.display_name || ''}
         minAmount={campaign.min_amount}
         currency={campaign.currency}
+        status={campaign.status}
+        statusReason={campaign.status_reason}
       />
  
        <V2ReportModal

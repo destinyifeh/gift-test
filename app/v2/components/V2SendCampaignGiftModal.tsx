@@ -28,6 +28,8 @@ interface SendCampaignGiftModalProps {
   creatorName: string;
   minAmount?: number;
   currency?: string;
+  status?: string;
+  statusReason?: string | null;
 }
 
 const V2SendCampaignGiftModal = ({
@@ -38,6 +40,8 @@ const V2SendCampaignGiftModal = ({
   creatorName,
   minAmount = 0,
   currency = 'NGN',
+  status = 'active',
+  statusReason,
 }: SendCampaignGiftModalProps) => {
   const [step, setStep] = useState<
     'details' | 'recipient' | 'payment' | 'success'
@@ -168,7 +172,19 @@ const V2SendCampaignGiftModal = ({
               </div>
             </div>
 
-            {step !== 'success' && (
+            {status !== 'active' && step !== 'success' && (
+              <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3">
+                 <span className="v2-icon text-amber-600">info</span>
+                 <div>
+                    <p className="text-sm font-bold text-amber-800">Campaign {status === 'paused' ? 'Paused' : 'Inactive'}</p>
+                    <p className="text-xs text-amber-700 mt-0.5">
+                       {statusReason || (status === 'paused' ? 'The organizer has temporarily paused contributions.' : 'This campaign is currently inactive.')}
+                    </p>
+                 </div>
+              </div>
+            )}
+
+            {status === 'active' && step !== 'success' && (
               <div className="flex items-center gap-2 mt-6">
                 {[1, 2, 3].map(s => (
                   <div
@@ -198,11 +214,15 @@ const V2SendCampaignGiftModal = ({
                   currencyCode={currency}
                 />
                 <button
-                  className="w-full h-14 v2-btn-primary rounded-2xl text-lg font-bold flex items-center justify-center gap-3 transition-transform active:scale-[0.98]"
-                  disabled={!isDetailsValid}
+                  className={`w-full h-14 rounded-2xl text-lg font-bold flex items-center justify-center gap-3 transition-transform active:scale-[0.98] ${status !== 'active' ? 'bg-amber-100 text-amber-800 cursor-not-allowed border-amber-200 border' : 'v2-btn-primary'}`}
+                  disabled={!isDetailsValid || status !== 'active'}
                   onClick={handleNext}
                 >
-                  Continue to Support <ArrowRight className="w-5 h-5 ml-2" />
+                  {status === 'active' ? (
+                    <>Continue to Support <ArrowRight className="w-5 h-5 ml-2" /></>
+                  ) : (
+                    <>Contributions Paused</>
+                  )}
                 </button>
               </div>
             )}

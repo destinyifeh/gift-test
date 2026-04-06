@@ -12,7 +12,8 @@ create table if not exists campaigns (
   image_url text,
   visibility text default 'public', -- 'public' or 'private'
   contributors_see_each_other boolean default true,
-  status text default 'active', -- 'active', 'completed', 'cancelled'
+  status text default 'active', -- 'active', 'paused', 'inactive', 'completed', 'cancelled'
+  status_reason text, -- Reason for status change
   campaign_short_id text unique, -- Unique short identifier
   campaign_slug text, -- SEO-friendly title slug
   

@@ -28,6 +28,8 @@ interface SendCampaignGiftModalProps {
   creatorName: string;
   minAmount?: number;
   currency?: string;
+  status?: string;
+  statusReason?: string | null;
 }
 
 const SendCampaignGiftModal = ({
@@ -38,6 +40,8 @@ const SendCampaignGiftModal = ({
   creatorName,
   minAmount = 0,
   currency = 'NGN',
+  status = 'active',
+  statusReason,
 }: SendCampaignGiftModalProps) => {
   const [step, setStep] = useState<
     'details' | 'recipient' | 'payment' | 'success'
@@ -180,7 +184,19 @@ const SendCampaignGiftModal = ({
               </div>
             </div>
 
-            {step !== 'success' && (
+            {status !== 'active' && step !== 'success' && (
+              <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
+                 <span className="v2-icon text-amber-600">info</span>
+                 <div>
+                    <p className="text-sm font-bold text-amber-800">Campaign {status === 'paused' ? 'Paused' : 'Inactive'}</p>
+                    <p className="text-xs text-amber-700 mt-0.5 leading-relaxed">
+                       {statusReason || (status === 'paused' ? 'The organizer has temporarily paused contributions.' : 'This campaign is currently inactive.')}
+                    </p>
+                 </div>
+              </div>
+            )}
+
+            {status === 'active' && step !== 'success' && (
               <div className="flex items-center gap-2 mt-6">
                 {[1, 2, 3].map(s => (
                   <div
@@ -210,10 +226,14 @@ const SendCampaignGiftModal = ({
                   currencyCode={currency}
                 />
                 <Button
-                  className="w-full h-14 text-lg font-bold shadow-lg shadow-primary/20 rounded-2xl"
-                  disabled={!isDetailsValid}
+                  className={`w-full h-14 text-lg font-bold shadow-lg rounded-2xl ${status !== 'active' ? 'bg-amber-100 text-amber-800 border-amber-200 border hover:bg-amber-100' : 'shadow-primary/20'}`}
+                  disabled={!isDetailsValid || status !== 'active'}
                   onClick={handleNext}>
-                  Continue to Support <ArrowRight className="w-5 h-5 ml-2" />
+                  {status === 'active' ? (
+                    <>Continue to Support <ArrowRight className="w-5 h-5 ml-2" /></>
+                  ) : (
+                    <>Contributions Paused</>
+                  )}
                 </Button>
               </div>
             )}

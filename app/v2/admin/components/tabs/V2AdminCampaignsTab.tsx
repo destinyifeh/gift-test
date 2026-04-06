@@ -38,7 +38,7 @@ export function V2AdminCampaignsTab({
   // Action modal state
   const [actionModal, setActionModal] = useState<{
     isOpen: boolean;
-    type: 'pause' | 'resume' | 'feature' | 'delete' | null;
+    type: 'pause' | 'resume' | 'inactive' | 'feature' | 'delete' | null;
     campaign: any;
   }>({isOpen: false, type: null, campaign: null});
 
@@ -64,7 +64,7 @@ export function V2AdminCampaignsTab({
       }
       queryClient.invalidateQueries({queryKey: ['admin-campaigns']});
       toast.success('Campaign updated successfully');
-      addLog(`Updated campaign ${vars.id.slice(0, 8)}… → status: "${vars.updates.status || 'updated'}"`);
+      addLog(`Updated campaign ${vars.id.slice(0, 8)}… → status: "${vars.updates.status || 'updated'}"${vars.updates.status_reason ? ` (Reason: ${vars.updates.status_reason})` : ''}`);
     },
     onError: () => toast.error('Error updating campaign'),
   });
@@ -74,6 +74,7 @@ export function V2AdminCampaignsTab({
     totalCampaigns: campaigns.length,
     activeCampaigns: campaigns.filter((c: any) => c.status === 'active').length,
     pausedCampaigns: campaigns.filter((c: any) => c.status === 'paused').length,
+    inactiveCampaigns: campaigns.filter((c: any) => c.status === 'inactive').length,
     completedCampaigns: campaigns.filter((c: any) => c.status === 'completed').length,
   };
 
@@ -109,7 +110,7 @@ export function V2AdminCampaignsTab({
     setOpenDropdown(campaignId);
   };
 
-  const handleAction = (type: 'pause' | 'resume' | 'feature' | 'delete', campaign: any) => {
+  const handleAction = (type: 'pause' | 'resume' | 'inactive' | 'feature' | 'delete', campaign: any) => {
     setOpenDropdown(null);
     setMobileSheet({isOpen: false, campaign: null});
     setActionModal({isOpen: true, type, campaign});
@@ -122,9 +123,11 @@ export function V2AdminCampaignsTab({
     const {type, campaign} = actionModal;
 
     if (type === 'pause') {
-      mutation.mutate({id: campaign.id, updates: {status: 'paused'}});
+      mutation.mutate({id: campaign.id, updates: {status: 'paused', status_reason: actionReason}});
+    } else if (type === 'inactive') {
+      mutation.mutate({id: campaign.id, updates: {status: 'inactive', status_reason: actionReason}});
     } else if (type === 'resume') {
-      mutation.mutate({id: campaign.id, updates: {status: 'active'}});
+      mutation.mutate({id: campaign.id, updates: {status: 'active', status_reason: null}});
     } else if (type === 'feature') {
       mutation.mutate({id: campaign.id, updates: {is_featured: !campaign.is_featured}});
     } else if (type === 'delete') {
@@ -210,17 +213,17 @@ export function V2AdminCampaignsTab({
           </p>
         </button>
         <button
-          onClick={() => setStatusFilter('paused')}
+          onClick={() => setStatusFilter('inactive')}
           className={`p-4 rounded-xl transition-all ${
-            statusFilter === 'paused'
-              ? 'bg-amber-500 text-white shadow-lg'
+            statusFilter === 'inactive'
+              ? 'bg-red-500 text-white shadow-lg'
               : 'bg-white hover:bg-[var(--v2-surface-container)]'
           }`}>
-          <p className={`text-2xl font-black ${statusFilter === 'paused' ? 'text-white' : 'text-amber-600'}`}>
-            {stats.pausedCampaigns}
+          <p className={`text-2xl font-black ${statusFilter === 'inactive' ? 'text-white' : 'text-red-600'}`}>
+            {stats.inactiveCampaigns}
           </p>
-          <p className={`text-xs font-medium ${statusFilter === 'paused' ? 'text-white/80' : 'text-[var(--v2-on-surface-variant)]'}`}>
-            Paused
+          <p className={`text-xs font-medium ${statusFilter === 'inactive' ? 'text-white/80' : 'text-[var(--v2-on-surface-variant)]'}`}>
+            Inactive
           </p>
         </button>
         <button
@@ -286,7 +289,9 @@ export function V2AdminCampaignsTab({
                     ? 'bg-emerald-100 text-emerald-700'
                     : campaign.status === 'paused'
                       ? 'bg-amber-100 text-amber-700'
-                      : 'bg-[var(--v2-surface-container)] text-[var(--v2-on-surface-variant)]'
+                      : campaign.status === 'inactive'
+                        ? 'bg-red-100 text-red-700'
+                        : 'bg-[var(--v2-surface-container)] text-[var(--v2-on-surface-variant)]'
                 }`}>
                 {campaign.status || 'active'}
               </span>
@@ -440,6 +445,14 @@ export function V2AdminCampaignsTab({
                       Resume
                     </button>
                   )}
+                  {campaign.status !== 'inactive' && (
+                    <button
+                      onClick={() => handleAction('inactive', campaign)}
+                      className="w-full px-4 py-2.5 text-left text-sm font-medium hover:bg-red-50 text-red-600 flex items-center gap-3">
+                      <span className="v2-icon text-lg">block</span>
+                      Make Inactive
+                    </button>
+                  )}
                   <button
                     onClick={() => handleAction('delete', campaign)}
                     className="w-full px-4 py-2.5 text-left text-sm font-medium hover:bg-red-50 text-red-600 flex items-center gap-3">
@@ -502,6 +515,14 @@ export function V2AdminCampaignsTab({
                   Resume Campaign
                 </button>
               )}
+              {mobileSheet.campaign?.status !== 'inactive' && (
+                <button
+                  onClick={() => handleAction('inactive', mobileSheet.campaign)}
+                  className="w-full p-4 rounded-xl bg-red-50 text-left font-medium text-red-600 flex items-center gap-3">
+                  <span className="v2-icon">block</span>
+                  Make Inactive
+                </button>
+              )}
               <button
                 onClick={() => handleAction('delete', mobileSheet.campaign)}
                 className="w-full p-4 rounded-xl bg-red-50 text-left font-medium text-red-600 flex items-center gap-3">
@@ -528,6 +549,7 @@ export function V2AdminCampaignsTab({
           <div className="relative bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
             <h3 className="text-xl font-bold text-[var(--v2-on-surface)] mb-2">
               {actionModal.type === 'pause' && 'Pause Campaign'}
+              {actionModal.type === 'inactive' && 'Deactivate Campaign'}
               {actionModal.type === 'resume' && 'Resume Campaign'}
               {actionModal.type === 'feature' &&
                 (actionModal.campaign?.is_featured ? 'Unfeature Campaign' : 'Feature Campaign')}
@@ -536,6 +558,8 @@ export function V2AdminCampaignsTab({
             <p className="text-sm text-[var(--v2-on-surface-variant)] mb-4">
               {actionModal.type === 'pause' &&
                 `Are you sure you want to pause "${actionModal.campaign?.title}"? This will stop it from receiving contributions.`}
+              {actionModal.type === 'inactive' &&
+                `Are you sure you want to deactivate "${actionModal.campaign?.title}"? It will be hidden from public view and cannot receive contributions.`}
               {actionModal.type === 'resume' &&
                 `Are you sure you want to resume "${actionModal.campaign?.title}"? It will be visible and can receive contributions again.`}
               {actionModal.type === 'feature' &&
@@ -544,7 +568,7 @@ export function V2AdminCampaignsTab({
                 `This action is disabled for data retention policies. Campaign data cannot be deleted.`}
             </p>
 
-            {(actionModal.type === 'pause' || actionModal.type === 'delete') && (
+            {(actionModal.type === 'pause' || actionModal.type === 'inactive' || actionModal.type === 'delete') && (
               <div className="mb-4">
                 <label className="block text-sm font-medium text-[var(--v2-on-surface)] mb-2">
                   Reason (optional)
@@ -571,11 +595,13 @@ export function V2AdminCampaignsTab({
                 className={`flex-1 py-3 rounded-xl font-bold text-white transition-colors ${
                   actionModal.type === 'pause'
                     ? 'bg-amber-500 hover:bg-amber-600'
-                    : actionModal.type === 'resume'
-                      ? 'bg-emerald-500 hover:bg-emerald-600'
-                      : actionModal.type === 'delete'
-                        ? 'bg-gray-300 cursor-not-allowed'
-                        : 'bg-[var(--v2-primary)] hover:bg-[var(--v2-primary)]/90'
+                    : actionModal.type === 'inactive'
+                      ? 'bg-red-500 hover:bg-red-600'
+                      : actionModal.type === 'resume'
+                        ? 'bg-emerald-500 hover:bg-emerald-600'
+                        : actionModal.type === 'delete'
+                          ? 'bg-gray-300 cursor-not-allowed'
+                          : 'bg-[var(--v2-primary)] hover:bg-[var(--v2-primary)]/90'
                 }`}>
                 Confirm
               </button>
