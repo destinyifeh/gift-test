@@ -24,24 +24,14 @@ function getCampaignUrl(c: any): string {
 
 const statusConfig: Record<string, {bg: string; text: string; label: string}> = {
   active: {
-    bg: 'bg-green-100',
-    text: 'text-green-700',
+    bg: 'bg-emerald-100',
+    text: 'text-emerald-700',
     label: 'Active',
-  },
-  draft: {
-    bg: 'bg-[var(--v2-surface-container-high)]',
-    text: 'text-[var(--v2-on-surface-variant)]',
-    label: 'Draft',
   },
   completed: {
     bg: 'bg-[var(--v2-secondary-container)]',
     text: 'text-[var(--v2-on-secondary-container)]',
     label: 'Completed',
-  },
-  ended: {
-    bg: 'bg-[var(--v2-surface-container-high)]',
-    text: 'text-[var(--v2-on-surface-variant)]',
-    label: 'Ended',
   },
   paused: {
     bg: 'bg-amber-100',
@@ -56,7 +46,7 @@ const statusConfig: Record<string, {bg: string; text: string; label: string}> = 
 };
 
 type CategoryFilter = 'all' | 'birthday' | 'wedding' | 'charity' | 'medical' | 'education' | 'other';
-type StatusFilter = 'all' | 'active' | 'draft' | 'completed' | 'ended';
+type StatusFilter = 'all' | 'active' | 'paused' | 'completed' | 'cancelled';
 
 export function V2MyCampaignsTab() {
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
@@ -305,7 +295,7 @@ export function V2MyCampaignsTab() {
         </div>
 
         {/* Status Filters */}
-        {(['all', 'active', 'draft', 'completed'] as StatusFilter[]).map(status => (
+        {(['all', 'active', 'paused', 'completed', 'cancelled'] as StatusFilter[]).map(status => (
           <button
             key={status}
             onClick={() => setStatusFilter(status)}
@@ -332,7 +322,7 @@ export function V2MyCampaignsTab() {
             {categoryLabels[categoryFilter]}
             <span className="v2-icon text-xs">{showMobileCategoryDropdown ? 'expand_less' : 'expand_more'}</span>
           </button>
-          {(['active', 'draft', 'completed'] as StatusFilter[]).map(status => (
+          {(['active', 'paused', 'completed', 'cancelled'] as StatusFilter[]).map(status => (
             <button
               key={status}
               onClick={() => setStatusFilter(statusFilter === status ? 'all' : status)}
@@ -403,7 +393,7 @@ export function V2MyCampaignsTab() {
       {/* Desktop: Grid Layout */}
       <div className={`hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 ${campaignsList.length === 0 ? '!hidden' : ''}`}>
         {campaignsList.map((c: any) => {
-          const status = statusConfig[c.status] || statusConfig.draft;
+          const status = statusConfig[c.status] || statusConfig.active;
           const progress = c.goalAmount
             ? Math.round(((c.raisedAmount || 0) / c.goalAmount) * 100)
             : 0;
@@ -635,7 +625,7 @@ export function V2MyCampaignsTab() {
         </Link>
 
         {campaignsList.map((c: any) => {
-          const status = statusConfig[c.status] || statusConfig.draft;
+          const status = statusConfig[c.status] || statusConfig.active;
           const progress = c.goalAmount
             ? Math.round(((c.raisedAmount || 0) / c.goalAmount) * 100)
             : 0;
