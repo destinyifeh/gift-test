@@ -417,9 +417,27 @@ export async function updateCampaignAdmin(campaignId: string, updates: any) {
 
     const adminDb = createAdminClient();
 
+    // Fetch current status to check for completion
+    const { data: currentCampaign } = await adminDb
+      .from('campaigns')
+      .select('status')
+      .eq('id', campaignId)
+      .single();
+
+    if ((currentCampaign?.status === 'completed' || currentCampaign?.status === 'cancelled') && updates.status && updates.status !== currentCampaign.status) {
+      return { success: false, error: 'Completed or cancelled campaigns cannot be reopened.' };
+    }
+
+    const updateData = { ...updates };
+    if (updateData.status === 'paused') {
+      updateData.paused_by = 'admin';
+    } else if (updateData.status === 'active') {
+      updateData.paused_by = null;
+    }
+
     const {error} = await adminDb
       .from('campaigns')
-      .update(updates)
+      .update(updateData)
       .eq('id', campaignId);
 
     if (error) throw error;

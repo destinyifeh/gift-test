@@ -14,6 +14,7 @@ create table if not exists campaigns (
   contributors_see_each_other boolean default true,
   status text default 'active', -- 'active', 'paused', 'inactive', 'completed', 'cancelled'
   status_reason text, -- Reason for status change
+  paused_by text CHECK (paused_by IN ('admin', 'owner')), -- Who paused the campaign
   campaign_short_id text unique, -- Unique short identifier
   campaign_slug text, -- SEO-friendly title slug
   

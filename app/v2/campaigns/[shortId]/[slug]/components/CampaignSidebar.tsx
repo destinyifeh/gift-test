@@ -15,6 +15,9 @@ interface CampaignSidebarProps {
   onSendGift?: () => void;
   onShare?: () => void;
   onReport?: () => void;
+  status?: string;
+  isGoalReached?: boolean;
+  expiryWarning?: string | null;
 }
 
 export function CampaignSidebar({
@@ -29,6 +32,9 @@ export function CampaignSidebar({
   onSendGift,
   onShare,
   onReport,
+  status = 'active',
+  isGoalReached,
+  expiryWarning,
 }: CampaignSidebarProps) {
   const progress = Math.min(100, Math.round((raised / goal) * 100));
 
@@ -40,20 +46,35 @@ export function CampaignSidebar({
           {/* Progress Section */}
           <div>
             <div className="flex items-baseline gap-1">
-              <span className="text-4xl font-black v2-headline text-[var(--v2-on-surface)]">
+              <span className={`text-4xl font-black v2-headline ${isGoalReached ? 'text-emerald-600' : 'text-[var(--v2-on-surface)]'}`}>
                 {formatCurrency(raised, currency)}
               </span>
               <span className="text-[var(--v2-on-surface-variant)] font-medium">
                 raised of {formatCurrency(goal, currency)} goal
               </span>
             </div>
+            {isGoalReached && (
+              <div className="mt-2 flex items-center gap-1.5 text-emerald-500 font-bold text-xs uppercase tracking-wider">
+                 <span className="v2-icon text-sm">celebration</span>
+                 Goal reached!
+              </div>
+            )}
             <div className="mt-4 w-full h-3 bg-[var(--v2-surface-container-low)] rounded-full overflow-hidden">
               <div
-                className="h-full v2-gradient-primary transition-all duration-500"
+                className={`h-full transition-all duration-500 ${isGoalReached ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.2)]' : 'v2-gradient-primary'}`}
                 style={{width: `${progress}%`}}
               />
             </div>
           </div>
+
+          {expiryWarning && (
+             <div className="p-3 bg-amber-50 border border-amber-100 rounded-xl flex items-center gap-2 animate-pulse">
+                <span className="v2-icon text-amber-600 text-lg">schedule</span>
+                <span className="text-[10px] font-black uppercase tracking-wider text-amber-700">
+                  {expiryWarning}
+                </span>
+             </div>
+          )}
 
           {/* Stats Grid */}
           <div className="grid grid-cols-2 gap-4">
@@ -77,9 +98,14 @@ export function CampaignSidebar({
           <div className="space-y-3">
             <button
               onClick={onSendGift}
-              className="w-full v2-btn-primary py-5 rounded-2xl v2-headline font-extrabold text-xl shadow-lg shadow-[var(--v2-primary)]/20 hover:shadow-xl hover:shadow-[var(--v2-primary)]/30 active:scale-[0.98] transition-all flex items-center justify-center"
+              disabled={status !== 'active'}
+              className={`w-full py-5 rounded-2xl v2-headline font-extrabold text-xl shadow-lg active:scale-[0.98] transition-all flex items-center justify-center ${
+                status !== 'active' 
+                  ? 'bg-amber-100 text-amber-700 shadow-none cursor-not-allowed opacity-80' 
+                  : 'v2-btn-primary shadow-[var(--v2-primary)]/20 hover:shadow-xl hover:shadow-[var(--v2-primary)]/30'
+              }`}
             >
-              Send a Gift
+              {status === 'active' ? 'Send a Gift' : status === 'completed' ? 'Campaign Completed' : 'Contributions Paused'}
             </button>
             <div className="flex gap-3">
               <button
@@ -145,17 +171,30 @@ export function CampaignSidebar({
   );
 }
 
-export function MobileStickyAction({campaignShortId, onSendGift}: {campaignShortId: string; onSendGift?: () => void}) {
+export function MobileStickyAction({
+  campaignShortId, 
+  onSendGift,
+  status = 'active'
+}: {
+  campaignShortId: string; 
+  onSendGift?: () => void;
+  status?: string;
+}) {
   return (
     <div className="md:hidden fixed bottom-0 left-0 w-full px-6 pb-20 pt-4 bg-gradient-to-t from-[var(--v2-surface)] via-[var(--v2-surface)]/95 to-transparent backdrop-blur-md z-40">
       <button
         onClick={onSendGift}
-        className="w-full h-14 v2-btn-primary rounded-xl v2-headline font-bold text-lg flex items-center justify-center gap-3 shadow-[0_12px_24px_rgba(var(--v2-primary-rgb),0.25)] active:scale-95 transition-transform"
+        disabled={status !== 'active'}
+        className={`w-full h-14 rounded-xl v2-headline font-bold text-lg flex items-center justify-center gap-3 transition-transform ${
+          status !== 'active'
+            ? 'bg-amber-100 text-amber-700 shadow-none cursor-not-allowed'
+            : 'v2-btn-primary shadow-[0_12px_24px_rgba(var(--v2-primary-rgb),0.25)] active:scale-95'
+        }`}
       >
         <span className="v2-icon" style={{fontVariationSettings: "'FILL' 1"}}>
-          card_giftcard
+          {status === 'active' ? 'card_giftcard' : 'info'}
         </span>
-        Send a Gift
+        {status === 'active' ? 'Send a Gift' : status === 'completed' ? 'Completed' : 'Paused'}
       </button>
     </div>
   );

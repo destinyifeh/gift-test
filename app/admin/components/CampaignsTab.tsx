@@ -19,8 +19,17 @@ import {
 } from '@/lib/server/actions/admin';
 import {cn} from '@/lib/utils';
 import {useInfiniteQuery, useMutation, useQueryClient} from '@tanstack/react-query';
+import {adminUpdateCampaign, uploadCampaignImage} from '@/lib/server/actions/campaigns';
+import {ImageUpload} from '@/components/ui/image-upload';
+import {
+  ResponsiveModal,
+  ResponsiveModalContent,
+  ResponsiveModalHeader,
+  ResponsiveModalTitle,
+} from '@/components/ui/responsive-modal';
 import {
   Download,
+  Edit,
   Eye,
   Loader2,
   MoreVertical,
@@ -82,6 +91,16 @@ export function CampaignsTab({
     targetId: '',
     targetName: '',
   });
+
+  const [editingCampaign, setEditingCampaign] = useState<any | null>(null);
+  const [editForm, setEditForm] = useState({
+    title: '',
+    description: '',
+    goal_amount: 0,
+    image_url: '',
+    status: '',
+  });
+  const [isSaving, setIsSaving] = useState(false);
 
   const mutation = useMutation({
     mutationFn: ({id, updates}: {id: string; updates: any}) =>
@@ -154,57 +173,76 @@ export function CampaignsTab({
     );
   }
 
-  const CampaignActions = ({c}: {c: any}) => (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-          <MoreVertical className="w-4 h-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuItem
-          onClick={() =>
-            setViewDetailsModal({
-              isOpen: true,
-              title: 'Campaign Details',
-              data: {
-                ...c,
-                shop_name: c.vendor?.shop_name || 'N/A',
-                shop_address: c.vendor?.shop_address || 'N/A',
-              },
-            })
-          }>
-          <Eye className="w-4 h-4 mr-2" /> View Details
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onToggleFeatured(c.id, false, c.title)}>
-          <Star className="w-4 h-4 mr-2" /> Feature
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => onToggleStatus(c.id, c.status, c.title)}>
-          {c.status === 'active' ? (
+  const CampaignActions = ({c}: {c: any}) => {
+    const status = c.status?.trim().toLowerCase();
+    const isFinalized = status === 'completed' || status === 'cancelled' || status === 'inactive';
+
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+            <MoreVertical className="w-4 h-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuItem
+            onClick={() =>
+              setViewDetailsModal({
+                isOpen: true,
+                title: 'Campaign Details',
+                data: {
+                  ...c,
+                  shop_name: c.vendor?.shop_name || 'N/A',
+                  shop_address: c.vendor?.shop_address || 'N/A',
+                },
+              })
+            }>
+            <Eye className="w-4 h-4 mr-2" /> View Details
+          </DropdownMenuItem>
+
+          {!isFinalized && (
             <>
-              <Pause className="w-4 h-4 mr-2" /> Pause
-            </>
-          ) : c.status === 'paused' ? (
-            <>
-              <Play className="w-4 h-4 mr-2" /> Resume
-            </>
-          ) : (
-            <>
-              <RotateCcw className="w-4 h-4 mr-2" /> Reactivate
+              <DropdownMenuItem onClick={() => onToggleFeatured(c.id, false, c.title)}>
+                <Star className="w-4 h-4 mr-2" /> Feature
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setEditingCampaign(c);
+                  setEditForm({
+                    title: c.title || '',
+                    description: c.description || '',
+                    goal_amount: c.goal_amount || 0,
+                    image_url: c.image_url || c.imageUrl || '',
+                    status: c.status || '',
+                  });
+                }}>
+                <Edit className="w-4 h-4 mr-2" /> Edit Campaign
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => onToggleStatus(c.id, c.status, c.title)}>
+                {status === 'active' ? (
+                  <>
+                    <Pause className="w-4 h-4 mr-2" /> Pause
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-4 h-4 mr-2" /> Resume
+                  </>
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
+                onClick={() => handleAdvancedAction('delete', 'campaign', c.id, c.title)}>
+                <Trash2 className="w-4 h-4 mr-2" /> Delete
+              </DropdownMenuItem>
             </>
           )}
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="text-destructive focus:text-destructive"
-          onClick={() => handleAdvancedAction('delete', 'campaign', c.id, c.title)}>
-          <Trash2 className="w-4 h-4 mr-2" /> Delete
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  };
 
   const getCurrency = (country: string) => getCurrencySymbol(getCurrencyByCountry(country));
 
@@ -366,6 +404,99 @@ export function CampaignsTab({
         targetName={advancedModal.targetName}
         onConfirm={onConfirmAdvancedAction}
       />
+
+      <ResponsiveModal
+        open={!!editingCampaign}
+        onOpenChange={open => !open && setEditingCampaign(null)}>
+        <ResponsiveModalContent className="sm:max-w-[500px]">
+          <ResponsiveModalHeader>
+            <ResponsiveModalTitle>Edit Campaign (Admin)</ResponsiveModalTitle>
+          </ResponsiveModalHeader>
+          <div className="p-4 space-y-4 max-h-[75vh] overflow-y-auto scrollbar-hide">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Title</label>
+              <input
+                value={editForm.title}
+                onChange={e => setEditForm(prev => ({...prev, title: e.target.value}))}
+                className="w-full px-3 py-2 border rounded-md"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Description</label>
+              <textarea
+                value={editForm.description}
+                onChange={e => setEditForm(prev => ({...prev, description: e.target.value}))}
+                className="w-full px-3 py-2 border rounded-md"
+                rows={4}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Goal Amount</label>
+                <input
+                  type="number"
+                  value={editForm.goal_amount}
+                  onChange={e => setEditForm(prev => ({...prev, goal_amount: Number(e.target.value)}))}
+                  className="w-full px-3 py-2 border rounded-md"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Status</label>
+                <select
+                  disabled={editingCampaign.status === 'completed' || editingCampaign.status === 'cancelled'}
+                  value={editForm.status}
+                  onChange={e => setEditForm(prev => ({...prev, status: e.target.value}))}
+                  className="w-full px-3 py-2 border rounded-md disabled:bg-muted disabled:opacity-75">
+                  <option value="active">Active</option>
+                  <option value="paused">Paused</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+                {(editingCampaign.status === 'completed' || editingCampaign.status === 'cancelled') && (
+                  <p className="text-[10px] text-destructive font-bold uppercase mt-1 italic">
+                    {editingCampaign.status} campaigns cannot be reopened.
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Campaign Image</label>
+              <ImageUpload
+                value={editForm.image_url}
+                onChange={url => setEditForm(prev => ({...prev, image_url: url}))}
+                onUpload={uploadCampaignImage}
+                placeholder="Replace campaign image"
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button variant="outline" onClick={() => setEditingCampaign(null)} disabled={isSaving}>
+                Cancel
+              </Button>
+              <Button
+                disabled={isSaving}
+                onClick={async () => {
+                  setIsSaving(true);
+                  try {
+                    const res = await adminUpdateCampaign(editingCampaign.id, editForm);
+                    if (res.success) {
+                      toast.success('Campaign updated by admin');
+                      setEditingCampaign(null);
+                      queryClient.invalidateQueries({queryKey: ['admin-campaigns']});
+                    } else {
+                      toast.error(res.error || 'Update failed');
+                    }
+                  } catch (err) {
+                    toast.error('Error during update');
+                  } finally {
+                    setIsSaving(false);
+                  }
+                }}>
+                {isSaving ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </div>
+          </div>
+        </ResponsiveModalContent>
+      </ResponsiveModal>
     </div>
   );
 }

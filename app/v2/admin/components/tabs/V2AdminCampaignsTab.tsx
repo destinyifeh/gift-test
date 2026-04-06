@@ -3,10 +3,18 @@
 import {useIsMobile} from '@/hooks/use-mobile';
 import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
 import {fetchAdminCampaigns, updateCampaignAdmin} from '@/lib/server/actions/admin';
+import {adminUpdateCampaign, uploadCampaignImage, deleteCampaignImage} from '@/lib/server/actions/campaigns';
 import {useInfiniteQuery, useMutation, useQueryClient} from '@tanstack/react-query';
 import {useEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 import {toast} from 'sonner';
+import {ImageUpload} from '@/components/ui/image-upload';
+import {
+  ResponsiveModal,
+  ResponsiveModalContent,
+  ResponsiveModalHeader,
+  ResponsiveModalTitle,
+} from '@/components/ui/responsive-modal';
 
 interface V2AdminCampaignsTabProps {
   searchQuery: string;
@@ -54,6 +62,16 @@ export function V2AdminCampaignsTab({
     isOpen: false,
     campaign: null,
   });
+
+  const [editingCampaign, setEditingCampaign] = useState<any | null>(null);
+  const [editForm, setEditForm] = useState({
+    title: '',
+    description: '',
+    goal_amount: 0,
+    image_url: '',
+    status: '',
+  });
+  const [isSaving, setIsSaving] = useState(false);
 
   const mutation = useMutation({
     mutationFn: ({id, updates}: {id: string; updates: any}) => updateCampaignAdmin(id, updates),
@@ -405,6 +423,10 @@ export function V2AdminCampaignsTab({
             {(() => {
               const campaign = campaigns.find((c: any) => c.id === openDropdown);
               if (!campaign) return null;
+              
+              const status = campaign.status?.trim().toLowerCase();
+              const isFinalized = status === 'completed' || status === 'cancelled' || status === 'inactive';
+
               return (
                 <>
                   <button
@@ -419,46 +441,65 @@ export function V2AdminCampaignsTab({
                     <span className="v2-icon text-lg">visibility</span>
                     View Details
                   </button>
-                  <button
-                    onClick={() => handleAction('feature', campaign)}
-                    className="w-full px-4 py-2.5 text-left text-sm font-medium hover:bg-[var(--v2-surface-container)] flex items-center gap-3">
-                    <span
-                      className="v2-icon text-lg text-amber-500"
-                      style={campaign.is_featured ? {fontVariationSettings: "'FILL' 1"} : undefined}>
-                      star
-                    </span>
-                    {campaign.is_featured ? 'Unfeature' : 'Feature'}
-                  </button>
-                  <div className="border-t border-[var(--v2-outline-variant)]/10 my-1" />
-                  {campaign.status === 'active' ? (
-                    <button
-                      onClick={() => handleAction('pause', campaign)}
-                      className="w-full px-4 py-2.5 text-left text-sm font-medium hover:bg-amber-50 text-amber-600 flex items-center gap-3">
-                      <span className="v2-icon text-lg">pause_circle</span>
-                      Pause
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => handleAction('resume', campaign)}
-                      className="w-full px-4 py-2.5 text-left text-sm font-medium hover:bg-emerald-50 text-emerald-600 flex items-center gap-3">
-                      <span className="v2-icon text-lg">play_circle</span>
-                      Resume
-                    </button>
+                  
+                  {!isFinalized && (
+                    <>
+                      <button
+                        onClick={() => handleAction('feature', campaign)}
+                        className="w-full px-4 py-2.5 text-left text-sm font-medium hover:bg-[var(--v2-surface-container)] flex items-center gap-3">
+                        <span
+                          className="v2-icon text-lg text-amber-500"
+                          style={campaign.is_featured ? {fontVariationSettings: "'FILL' 1"} : undefined}>
+                          star
+                        </span>
+                        {campaign.is_featured ? 'Unfeature' : 'Feature'}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditingCampaign(campaign);
+                          setEditForm({
+                            title: campaign.title || '',
+                            description: campaign.description || '',
+                            goal_amount: campaign.goal_amount || 0,
+                            image_url: campaign.image_url || campaign.imageUrl || '',
+                            status: campaign.status || '',
+                          });
+                          setOpenDropdown(null);
+                        }}
+                        className="w-full px-4 py-2.5 text-left text-sm font-medium hover:bg-[var(--v2-surface-container)] flex items-center gap-3">
+                        <span className="v2-icon text-lg">edit</span>
+                        Edit Campaign
+                      </button>
+                      <div className="border-t border-[var(--v2-outline-variant)]/10 my-1" />
+                      {campaign.status === 'active' ? (
+                        <button
+                          onClick={() => handleAction('pause', campaign)}
+                          className="w-full px-4 py-2.5 text-left text-sm font-medium hover:bg-amber-50 text-amber-600 flex items-center gap-3">
+                          <span className="v2-icon text-lg">pause_circle</span>
+                          Pause
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleAction('resume', campaign)}
+                          className="w-full px-4 py-2.5 text-left text-sm font-medium hover:bg-emerald-50 text-emerald-600 flex items-center gap-3">
+                          <span className="v2-icon text-lg">play_circle</span>
+                          Resume
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleAction('inactive', campaign)}
+                        className="w-full px-4 py-2.5 text-left text-sm font-medium hover:bg-red-50 text-red-600 flex items-center gap-3">
+                        <span className="v2-icon text-lg">block</span>
+                        Make Inactive
+                      </button>
+                      <button
+                        onClick={() => handleAction('delete', campaign)}
+                        className="w-full px-4 py-2.5 text-left text-sm font-medium hover:bg-red-50 text-red-600 flex items-center gap-3">
+                        <span className="v2-icon text-lg">delete</span>
+                        Delete
+                      </button>
+                    </>
                   )}
-                  {campaign.status !== 'inactive' && (
-                    <button
-                      onClick={() => handleAction('inactive', campaign)}
-                      className="w-full px-4 py-2.5 text-left text-sm font-medium hover:bg-red-50 text-red-600 flex items-center gap-3">
-                      <span className="v2-icon text-lg">block</span>
-                      Make Inactive
-                    </button>
-                  )}
-                  <button
-                    onClick={() => handleAction('delete', campaign)}
-                    className="w-full px-4 py-2.5 text-left text-sm font-medium hover:bg-red-50 text-red-600 flex items-center gap-3">
-                    <span className="v2-icon text-lg">delete</span>
-                    Delete
-                  </button>
                 </>
               );
             })()}
@@ -490,45 +531,67 @@ export function V2AdminCampaignsTab({
                 <span className="v2-icon">visibility</span>
                 View Details
               </button>
-              <button
-                onClick={() => handleAction('feature', mobileSheet.campaign)}
-                className="w-full p-4 rounded-xl bg-[var(--v2-surface-container)] text-left font-medium flex items-center gap-3">
-                <span
-                  className="v2-icon text-amber-500"
-                  style={mobileSheet.campaign?.is_featured ? {fontVariationSettings: "'FILL' 1"} : undefined}>
-                  star
-                </span>
-                {mobileSheet.campaign?.is_featured ? 'Unfeature' : 'Feature'}
-              </button>
-              {mobileSheet.campaign?.status === 'active' ? (
-                <button
-                  onClick={() => handleAction('pause', mobileSheet.campaign)}
-                  className="w-full p-4 rounded-xl bg-amber-50 text-left font-medium text-amber-700 flex items-center gap-3">
-                  <span className="v2-icon">pause_circle</span>
-                  Pause Campaign
-                </button>
-              ) : (
-                <button
-                  onClick={() => handleAction('resume', mobileSheet.campaign)}
-                  className="w-full p-4 rounded-xl bg-emerald-50 text-left font-medium text-emerald-700 flex items-center gap-3">
-                  <span className="v2-icon">play_circle</span>
-                  Resume Campaign
-                </button>
+              
+              {mobileSheet.campaign?.status?.trim().toLowerCase() !== 'completed' && 
+               mobileSheet.campaign?.status?.trim().toLowerCase() !== 'cancelled' && 
+               mobileSheet.campaign?.status?.trim().toLowerCase() !== 'inactive' && (
+                <>
+                  <button
+                    onClick={() => handleAction('feature', mobileSheet.campaign)}
+                    className="w-full p-4 rounded-xl bg-[var(--v2-surface-container)] text-left font-medium flex items-center gap-3">
+                    <span
+                      className="v2-icon text-amber-500"
+                      style={mobileSheet.campaign?.is_featured ? {fontVariationSettings: "'FILL' 1"} : undefined}>
+                      star
+                    </span>
+                    {mobileSheet.campaign?.is_featured ? 'Unfeature' : 'Feature'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      const campaign = mobileSheet.campaign;
+                      setEditingCampaign(campaign);
+                      setEditForm({
+                        title: campaign.title || '',
+                        description: campaign.description || '',
+                        goal_amount: campaign.goal_amount || 0,
+                        image_url: campaign.image_url || campaign.imageUrl || '',
+                        status: campaign.status || '',
+                      });
+                      setMobileSheet({isOpen: false, campaign: null});
+                    }}
+                    className="w-full p-4 rounded-xl bg-[var(--v2-surface-container)] text-left font-medium flex items-center gap-3">
+                    <span className="v2-icon">edit</span>
+                    Edit Campaign
+                  </button>
+                  {mobileSheet.campaign?.status === 'active' ? (
+                    <button
+                      onClick={() => handleAction('pause', mobileSheet.campaign)}
+                      className="w-full p-4 rounded-xl bg-amber-50 text-left font-medium text-amber-700 flex items-center gap-3">
+                      <span className="v2-icon">pause_circle</span>
+                      Pause Campaign
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleAction('resume', mobileSheet.campaign)}
+                      className="w-full p-4 rounded-xl bg-emerald-50 text-left font-medium text-emerald-700 flex items-center gap-3">
+                      <span className="v2-icon">play_circle</span>
+                      Resume Campaign
+                    </button>
+                  )}
+                  <button
+                    onClick={() => handleAction('inactive', mobileSheet.campaign)}
+                    className="w-full p-4 rounded-xl bg-red-50 text-left font-medium text-red-600 flex items-center gap-3">
+                    <span className="v2-icon">block</span>
+                    Make Inactive
+                  </button>
+                  <button
+                    onClick={() => handleAction('delete', mobileSheet.campaign)}
+                    className="w-full p-4 rounded-xl bg-red-50 text-left font-medium text-red-600 flex items-center gap-3">
+                    <span className="v2-icon">delete</span>
+                    Delete Campaign
+                  </button>
+                </>
               )}
-              {mobileSheet.campaign?.status !== 'inactive' && (
-                <button
-                  onClick={() => handleAction('inactive', mobileSheet.campaign)}
-                  className="w-full p-4 rounded-xl bg-red-50 text-left font-medium text-red-600 flex items-center gap-3">
-                  <span className="v2-icon">block</span>
-                  Make Inactive
-                </button>
-              )}
-              <button
-                onClick={() => handleAction('delete', mobileSheet.campaign)}
-                className="w-full p-4 rounded-xl bg-red-50 text-left font-medium text-red-600 flex items-center gap-3">
-                <span className="v2-icon">delete</span>
-                Delete Campaign
-              </button>
             </div>
             <button
               onClick={() => setMobileSheet({isOpen: false, campaign: null})}
@@ -609,6 +672,103 @@ export function V2AdminCampaignsTab({
           </div>
         </div>
       )}
+      {/* Edit Component Modal */}
+      <ResponsiveModal
+        open={!!editingCampaign}
+        onOpenChange={open => !open && setEditingCampaign(null)}>
+        <ResponsiveModalContent className="sm:max-w-[500px]">
+          <ResponsiveModalHeader>
+            <ResponsiveModalTitle>Edit Campaign (Admin)</ResponsiveModalTitle>
+          </ResponsiveModalHeader>
+          <div className="p-6 space-y-4 max-h-[80vh] overflow-y-auto scrollbar-hide">
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-[var(--v2-on-surface)]">Title</label>
+              <input
+                value={editForm.title}
+                onChange={e => setEditForm(prev => ({...prev, title: e.target.value}))}
+                className="w-full px-4 py-3 rounded-xl bg-[var(--v2-surface-container-low)] border border-[var(--v2-outline-variant)]/20 focus:border-[var(--v2-primary)] outline-none"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-[var(--v2-on-surface)]">Description</label>
+              <textarea
+                value={editForm.description}
+                onChange={e => setEditForm(prev => ({...prev, description: e.target.value}))}
+                className="w-full px-4 py-3 rounded-xl bg-[var(--v2-surface-container-low)] border border-[var(--v2-outline-variant)]/20 focus:border-[var(--v2-primary)] outline-none resize-none"
+                rows={4}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-[var(--v2-on-surface)]">Goal Amount</label>
+                <input
+                  type="number"
+                  value={editForm.goal_amount}
+                  onChange={e => setEditForm(prev => ({...prev, goal_amount: Number(e.target.value)}))}
+                  className="w-full px-4 py-3 rounded-xl bg-[var(--v2-surface-container-low)] border border-[var(--v2-outline-variant)]/20 focus:border-[var(--v2-primary)] outline-none"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-[var(--v2-on-surface)]">Status</label>
+                <select
+                  disabled={editingCampaign?.status?.toLowerCase() === 'completed' || editingCampaign?.status?.toLowerCase() === 'cancelled'}
+                  value={editForm.status}
+                  onChange={e => setEditForm(prev => ({...prev, status: e.target.value}))}
+                  className="w-full h-12 px-4 rounded-xl bg-[var(--v2-surface-container-low)] border border-[var(--v2-outline-variant)]/20 focus:border-[var(--v2-primary)] outline-none font-medium text-sm">
+                  <option value="active">Active</option>
+                  <option value="paused">Paused</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-[var(--v2-on-surface)]">Campaign Image</label>
+              <ImageUpload
+                value={editForm.image_url}
+                onChange={async (url) => {
+                  if (url === '' && editForm.image_url) {
+                    await deleteCampaignImage(editForm.image_url);
+                  }
+                  setEditForm(prev => ({...prev, image_url: url}));
+                }}
+                onUpload={uploadCampaignImage}
+                placeholder="Replace campaign image"
+              />
+            </div>
+            <div className="flex gap-3 pt-4">
+              <button
+                onClick={() => setEditingCampaign(null)}
+                className="flex-1 py-3 rounded-xl border border-[var(--v2-outline-variant)]/20 font-bold hover:bg-[var(--v2-surface-container)] transition-colors">
+                Cancel
+              </button>
+              <button
+                disabled={isSaving}
+                onClick={async () => {
+                  setIsSaving(true);
+                  try {
+                    const res = await adminUpdateCampaign(editingCampaign.id, editForm);
+                    if (res.success) {
+                      toast.success('Campaign updated by admin');
+                      setEditingCampaign(null);
+                      queryClient.invalidateQueries({queryKey: ['admin-campaigns']});
+                    } else {
+                      toast.error(res.error || 'Update failed');
+                    }
+                  } catch (err) {
+                    toast.error('Error during update');
+                  } finally {
+                    setIsSaving(false);
+                  }
+                }}
+                className="flex-1 py-3 rounded-xl bg-[var(--v2-primary)] text-white font-bold hover:bg-[var(--v2-primary)]/90 transition-colors shadow-lg shadow-[var(--v2-primary)]/20 disabled:opacity-50">
+                {isSaving ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </ResponsiveModalContent>
+      </ResponsiveModal>
     </div>
   );
 }

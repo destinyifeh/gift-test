@@ -12,6 +12,8 @@ interface CampaignHeroProps {
   currency: string;
   contributorsCount: number;
   daysLeft: number | null;
+  isGoalReached?: boolean;
+  expiryWarning?: string | null;
 }
 
 export function CampaignHeroImage({imageUrl, title}: {imageUrl?: string | null; title: string}) {
@@ -52,13 +54,14 @@ export function CampaignHeroImage({imageUrl, title}: {imageUrl?: string | null; 
     </>
   );
 }
-
 export function MobileProgressCard({
   raised,
   goal,
   currency,
   contributorsCount,
   daysLeft,
+  isGoalReached,
+  expiryWarning,
 }: Omit<CampaignHeroProps, 'imageUrl' | 'title' | 'category' | 'isVerified'>) {
   const progress = Math.min(100, Math.round((raised / goal) * 100));
 
@@ -71,7 +74,7 @@ export function MobileProgressCard({
               Raised so far
             </span>
             <div className="flex items-baseline gap-1">
-              <span className="text-xl v2-headline font-bold text-[var(--v2-primary)]">
+              <span className={`text-xl v2-headline font-bold ${isGoalReached ? 'text-emerald-600' : 'text-[var(--v2-primary)]'}`}>
                 {formatCurrency(raised, currency)}
               </span>
               <span className="text-sm text-[var(--v2-on-surface-variant)]">
@@ -79,17 +82,25 @@ export function MobileProgressCard({
               </span>
             </div>
           </div>
-          <div className="bg-[var(--v2-secondary-container)] text-[var(--v2-on-secondary-container)] px-3 py-1 rounded-full text-[12px] font-bold">
-            {progress}% Funded
+          <div className={`${isGoalReached ? 'bg-emerald-100 text-emerald-700' : 'bg-[var(--v2-secondary-container)] text-[var(--v2-on-secondary-container)]'} px-3 py-1 rounded-full text-[12px] font-bold flex items-center gap-1`}>
+             {isGoalReached && <span className="v2-icon text-[14px]">celebration</span>}
+             {isGoalReached ? 'Goal Reached!' : `${progress}% Funded`}
           </div>
         </div>
 
-        <div className="w-full h-3 bg-[var(--v2-surface-container-low)] rounded-full overflow-hidden mb-6">
+        <div className="w-full h-3 bg-[var(--v2-surface-container-low)] rounded-full overflow-hidden mb-4">
           <div
-            className="h-full v2-gradient-primary rounded-full transition-all duration-500"
+            className={`h-full ${isGoalReached ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]' : 'v2-gradient-primary'} rounded-full transition-all duration-500`}
             style={{width: `${progress}%`}}
           />
         </div>
+
+        {expiryWarning && (
+           <div className="mb-4 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-tighter text-amber-600 animate-pulse bg-amber-50 py-1.5 px-3 rounded-lg w-fit">
+              <span className="v2-icon text-sm">schedule</span>
+              {expiryWarning}
+           </div>
+        )}
 
         <div className="flex justify-between items-center py-2 border-t border-[var(--v2-outline-variant)]/10">
           <div className="flex flex-col">

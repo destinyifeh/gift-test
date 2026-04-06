@@ -35,6 +35,20 @@ function getDaysLeft(endDate?: string | null): number | null {
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
 }
 
+function getExpiryWarning(endDate?: string | null): string | null {
+  if (!endDate) return null;
+  const end = new Date(endDate);
+  const now = new Date();
+  const diffMs = end.getTime() - now.getTime();
+  if (diffMs <= 0) return null;
+  
+  const diffHrs = diffMs / (1000 * 60 * 60);
+  if (diffHrs <= 1) return "Ending in less than an hour";
+  if (diffHrs <= 2) return "Ending in 2 hours";
+  if (diffHrs <= 24) return `Ending in ${Math.floor(diffHrs)} hours`;
+  return null;
+}
+
 function getRaisedAmount(contributions?: {amount?: number}[]): number {
   if (!contributions || contributions.length === 0) return 0;
   return contributions.reduce((sum, c) => sum + (c.amount || 0), 0);
@@ -57,10 +71,14 @@ export default function CampaignDetailsPage({params}: PageProps) {
 
   // Calculate derived values
   const raised = useMemo(() => getRaisedAmount(campaign?.contributions), [campaign?.contributions]);
-  const goal = campaign?.goal_amount || 100000;
+  const goal = campaign?.goal_amount || 0;
   const currency = campaign?.currency || 'NGN';
   const contributorsCount = campaign?.contributions?.length || 0;
-  const daysLeft = getDaysLeft(campaign?.end_date);
+  const daysLeft = useMemo(() => getDaysLeft(campaign?.end_date), [campaign?.end_date]);
+  const expiryWarning = useMemo(() => getExpiryWarning(campaign?.end_date), [campaign?.end_date]);
+  const isGoalReached = goal > 0 && raised >= goal;
+  const isExpired = campaign?.end_date && new Date(campaign.end_date) < new Date();
+  const effectiveStatus = isExpired ? 'completed' : (campaign?.status || 'active');
 
   // Share handler
   const handleShare = async () => {
@@ -106,23 +124,38 @@ export default function CampaignDetailsPage({params}: PageProps) {
       <main className="pt-16 md:pt-24 pb-32 md:pb-20">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           {/* Status Message Banner */}
-          {campaign.status !== 'active' && (
-            <div className="mb-8 p-6 bg-amber-50 border border-amber-200 rounded-[2rem] flex items-start gap-4 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500">
-              <div className="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center text-amber-600 shrink-0">
-                <span className="v2-icon text-2xl">info</span>
+          {effectiveStatus !== 'active' && (
+            <div className={`mb-8 p-6 border rounded-[2rem] flex items-start gap-4 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500 ${
+              effectiveStatus === 'completed' ? 'bg-emerald-50 border-emerald-200' : 'bg-amber-50 border-amber-200'
+            }`}>
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${
+                effectiveStatus === 'completed' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'
+              }`}>
+                <span className="v2-icon text-2xl">{effectiveStatus === 'completed' ? 'check_circle' : 'info'}</span>
               </div>
               <div>
-                <h4 className="text-lg font-black v2-headline text-amber-900 leading-tight">
-                  This campaign is currently {campaign.status === 'paused' ? 'Paused' : 'Inactive'}
+                <h4 className={`text-lg font-black v2-headline leading-tight ${
+                  effectiveStatus === 'completed' ? 'text-emerald-900' : 'text-amber-900'
+                }`}>
+                  {effectiveStatus === 'completed' 
+                    ? 'Campaign Completed' 
+                    : `Campaign ${effectiveStatus === 'paused' ? 'Paused' : 'Inactive'}`}
                 </h4>
-                <p className="text-amber-800 text-sm mt-1 leading-relaxed">
-                  {campaign.status_reason || (campaign.status === 'paused' 
-                    ? "The organizer has temporarily paused new contributions. You can still view the story and existing contributions."
-                    : "This campaign is not currently accepting support.")}
+                <p className={`text-sm mt-1 leading-relaxed ${
+                  effectiveStatus === 'completed' ? 'text-emerald-800' : 'text-amber-800'
+                }`}>
+                  {effectiveStatus === 'completed' 
+                    ? "This campaign has reached its goal or has been closed."
+                    : campaign.paused_by === 'admin'
+                      ? "This campaign is temporarily unavailable. Contributions have been paused by the platform for review."
+                      : campaign.paused_by === 'owner' || campaign.status === 'paused'
+                        ? "This campaign is temporarily paused. The organizer has paused contributions for now."
+                        : campaign.status_reason || "This campaign is not currently accepting support."}
                 </p>
               </div>
             </div>
           )}
+
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
             {/* Hero & Story Content (Left Column) */}
             <div className="lg:col-span-8 space-y-6 md:space-y-10">
@@ -135,18 +168,28 @@ export default function CampaignDetailsPage({params}: PageProps) {
               {/* Mobile Floating Progress Card */}
               <MobileProgressCard
                 raised={raised}
-                goal={goal}
-                currency={currency}
+                goal={campaign.goal_amount}
+                currency={campaign.currency}
                 contributorsCount={contributorsCount}
                 daysLeft={daysLeft}
+                isGoalReached={isGoalReached}
+                expiryWarning={expiryWarning}
               />
 
               {/* Title and Meta - Desktop */}
-              <CampaignTitleSection
-                title={campaign.title}
-                category={campaign.category}
-                isVerified={campaign.visibility === 'public'}
-              />
+              <div className="flex flex-col gap-2">
+                {isGoalReached && (
+                  <div className="flex items-center gap-2 text-emerald-600 font-black text-sm uppercase tracking-widest animate-pulse">
+                    <span className="v2-icon text-lg">celebration</span>
+                    Goal reached!
+                  </div>
+                )}
+                <CampaignTitleSection
+                  title={campaign.title}
+                  category={campaign.category}
+                  isVerified={campaign.visibility === 'public'}
+                />
+              </div>
 
               {/* Story Section */}
               <CampaignStory description={campaign.description} />
@@ -175,6 +218,9 @@ export default function CampaignDetailsPage({params}: PageProps) {
                onShare={handleShare}
                onReport={() => setShowReportModal(true)}
                onSendGift={() => setShowGiftModal(true)}
+               status={effectiveStatus}
+               isGoalReached={isGoalReached}
+               expiryWarning={expiryWarning}
              />
            </div>
          </div>
@@ -187,6 +233,7 @@ export default function CampaignDetailsPage({params}: PageProps) {
        <MobileStickyAction 
          campaignShortId={campaign.campaign_short_id} 
          onSendGift={() => setShowGiftModal(true)}
+         status={effectiveStatus}
        />
  
        <V2SendCampaignGiftModal
@@ -197,7 +244,7 @@ export default function CampaignDetailsPage({params}: PageProps) {
         creatorName={campaign.profiles?.display_name || ''}
         minAmount={campaign.min_amount}
         currency={campaign.currency}
-        status={campaign.status}
+        status={effectiveStatus}
         statusReason={campaign.status_reason}
       />
  

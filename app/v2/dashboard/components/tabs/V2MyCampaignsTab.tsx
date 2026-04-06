@@ -7,8 +7,9 @@ import {
   ResponsiveModalTitle,
 } from '@/components/ui/responsive-modal';
 import {InfiniteScroll} from '@/components/ui/infinite-scroll';
-import {getMyCampaigns} from '@/lib/server/actions/campaigns';
+import {getMyCampaigns, updateCampaign, uploadCampaignImage, deleteCampaignImage} from '@/lib/server/actions/campaigns';
 import {formatCurrency} from '@/lib/utils/currency';
+import {ImageUpload} from '@/components/ui/image-upload';
 import {useInfiniteQuery, useQueryClient} from '@tanstack/react-query';
 import Link from 'next/link';
 import {useState} from 'react';
@@ -47,6 +48,11 @@ const statusConfig: Record<string, {bg: string; text: string; label: string}> = 
     text: 'text-amber-700',
     label: 'Paused',
   },
+  cancelled: {
+    bg: 'bg-red-100',
+    text: 'text-red-700',
+    label: 'Cancelled',
+  },
 };
 
 type CategoryFilter = 'all' | 'birthday' | 'wedding' | 'charity' | 'medical' | 'education' | 'other';
@@ -58,8 +64,16 @@ export function V2MyCampaignsTab() {
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showMobileCategoryDropdown, setShowMobileCategoryDropdown] = useState(false);
   const [editingCampaign, setEditingCampaign] = useState<any | null>(null);
-  const [editForm, setEditForm] = useState({title: '', description: '', endDate: ''});
+  const [editForm, setEditForm] = useState({title: '', description: '', endDate: '', imageUrl: '', goalAmount: 0});
   const [isSaving, setIsSaving] = useState(false);
+  const [isStatusChanging, setIsStatusChanging] = useState(false);
+  const [confirmStatusModal, setConfirmStatusModal] = useState<{
+    campaignId: string;
+    newStatus: string;
+    title: string;
+    message: string;
+  } | null>(null);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   const {data: campaignsRes, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage} =
@@ -95,26 +109,94 @@ export function V2MyCampaignsTab() {
 
   const openEditModal = (campaign: any) => {
     setEditForm({
-      title: campaign.name || '',
+      title: campaign.name || campaign.title || '',
       description: campaign.description || '',
-      endDate: campaign.endDate || campaign.deadline || '',
+      endDate: campaign.endDate || campaign.deadline || campaign.end_date || '',
+      imageUrl: campaign.imageUrl || campaign.image_url || '',
+      goalAmount: campaign.goalAmount || campaign.goal_amount || 0,
     });
     setEditingCampaign(campaign);
   };
 
   const handleSaveEdit = async () => {
     if (!editingCampaign) return;
+    
+    // Validate goal amount (allow increase only)
+    const currentGoal = editingCampaign.goalAmount || editingCampaign.goal_amount || 0;
+    if (editForm.goalAmount < currentGoal) {
+      toast.error(`Goal amount can only be increased.`);
+      return;
+    }
+
     setIsSaving(true);
     try {
-      // TODO: Call actual API to update campaign
-      // await updateCampaign(editingCampaign.id, editForm);
-      toast.success('Campaign updated successfully!');
-      setEditingCampaign(null);
-      queryClient.invalidateQueries({queryKey: ['my-campaigns']});
+      const res = await updateCampaign(editingCampaign.id, {
+        title: editForm.title,
+        description: editForm.description,
+        end_date: editForm.endDate,
+        image_url: editForm.imageUrl,
+        goal_amount: editForm.goalAmount,
+      });
+      if (res.success) {
+        toast.success('Campaign updated successfully!');
+        setEditingCampaign(null);
+        queryClient.invalidateQueries({queryKey: ['my-campaigns']});
+      } else {
+        toast.error(res.error || 'Failed to update campaign');
+      }
     } catch (error) {
       toast.error('Failed to update campaign');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleStatusChange = async (campaignId: string, status: string, skipConfirm = false) => {
+    // Show confirmation for critical status changes
+    if (!skipConfirm) {
+      if (status === 'completed') {
+        setConfirmStatusModal({
+          campaignId,
+          newStatus: status,
+          title: 'Mark as Completed?',
+          message: 'This will lock the campaign from further contributions and edits. This action cannot be undone.',
+        });
+        return;
+      }
+      if (status === 'paused') {
+        setConfirmStatusModal({
+          campaignId,
+          newStatus: status,
+          title: 'Pause Campaign?',
+          message: 'This will temporarily stop people from sending gifts or donating to this campaign.',
+        });
+        return;
+      }
+      if (status === 'cancelled') {
+        setConfirmStatusModal({
+          campaignId,
+          newStatus: status,
+          title: 'Cancel Campaign?',
+          message: 'This will permanently close the campaign. Are you sure?',
+        });
+        return;
+      }
+    }
+
+    try {
+      setIsStatusChanging(true);
+      const res = await updateCampaign(campaignId, {status});
+      if (res.success) {
+        toast.success(`Campaign marked as ${status}`);
+        queryClient.invalidateQueries({queryKey: ['my-campaigns']});
+        setConfirmStatusModal(null);
+      } else {
+        toast.error(res.error || `Failed to ${status} campaign`);
+      }
+    } catch (error) {
+       toast.error(`Error updating campaign status`);
+    } finally {
+      setIsStatusChanging(false);
     }
   };
 
@@ -364,17 +446,39 @@ export function V2MyCampaignsTab() {
 
                 <div className="space-y-4">
                   <div className="flex justify-between text-sm font-bold">
-                    <span className="text-[var(--v2-primary)]">{progress}% raised</span>
+                    <span className={progress >= 100 ? "text-emerald-500 flex items-center gap-1" : "text-[var(--v2-primary)]"}>
+                      {progress >= 100 && <span className="v2-icon text-sm">celebration</span>}
+                      {progress}% {progress >= 100 ? 'Goal reached!' : 'raised'}
+                    </span>
                     <span className="text-[var(--v2-on-surface-variant)]">
                       Goal: {formatCurrency(c.goalAmount, c.currency)}
                     </span>
                   </div>
                   <div className="h-3 bg-[var(--v2-surface-container-low)] rounded-full overflow-hidden">
                     <div
-                      className="h-full v2-gradient-primary rounded-full"
+                      className={`h-full rounded-full ${progress >= 100 ? 'bg-emerald-500' : 'v2-gradient-primary'}`}
                       style={{width: `${Math.min(progress, 100)}%`}}
                     />
                   </div>
+
+                  {/* Goal Prompt for Creator */}
+                  {progress >= 100 && c.status === 'active' && (
+                    <div className="bg-emerald-50 p-4 rounded-2xl border border-emerald-100 mt-2">
+                       <p className="text-xs font-bold text-emerald-800 flex items-center gap-1.5 mb-2">
+                          <span className="v2-icon text-sm">stars</span>
+                          CAMPAIGN GOAL REACHED
+                       </p>
+                       <p className="text-[10px] text-emerald-700 mb-3 leading-relaxed">
+                          Your campaign has reached its goal! Would you like to mark it as completed or continue receiving gifts?
+                       </p>
+                       <button 
+                         onClick={() => handleStatusChange(c.id, 'completed')}
+                         className="w-full py-2 bg-emerald-600 text-white text-[10px] font-black rounded-lg uppercase tracking-wider"
+                       >
+                          Complete Campaign Now
+                       </button>
+                    </div>
+                  )}
 
                   <div className="flex items-center justify-between pt-4 mt-4 border-t border-[var(--v2-surface-container)]">
                     <div className="flex flex-col">
@@ -382,7 +486,7 @@ export function V2MyCampaignsTab() {
                         Raised
                       </span>
                       <span className="text-lg font-black text-[var(--v2-on-surface)]">
-                        {formatCurrency(c.raisedAmount || 0, c.currency)}
+                         {formatCurrency(c.raisedAmount || 0, c.currency)}
                       </span>
                     </div>
                     <div className="flex flex-col items-end">
@@ -395,28 +499,116 @@ export function V2MyCampaignsTab() {
                     </div>
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex gap-2 pt-4">
+                  {/* Actions Area */}
+                  <div className="flex items-center gap-2 pt-4 border-t border-[var(--v2-surface-container)] mt-2">
                     <Link
                       href={getCampaignUrl(c)}
-                      className="flex-1 h-10 bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] font-bold text-sm rounded-xl flex items-center justify-center gap-1.5 hover:bg-[var(--v2-surface-container-high)] transition-colors">
-                      View
+                      className="flex-1 h-12 bg-[var(--v2-primary)] text-white font-bold text-sm rounded-2xl flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all shadow-md shadow-[var(--v2-primary)]/10">
+                      <span className="v2-icon text-lg">visibility</span>
+                      View Public Page
                     </Link>
-                    <button
-                      onClick={() => openEditModal(c)}
-                      className="flex-1 h-10 bg-[var(--v2-primary)]/10 text-[var(--v2-primary)] font-bold text-sm rounded-xl flex items-center justify-center gap-1.5 hover:bg-[var(--v2-primary)]/20 transition-colors">
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(
-                          `${window.location.origin}${getCampaignUrl(c)}`
-                        );
-                        toast.success('Link copied!');
-                      }}
-                      className="h-10 w-10 bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface-variant)] rounded-xl flex items-center justify-center hover:bg-[var(--v2-surface-container-high)] transition-colors">
-                      <span className="v2-icon text-lg">share</span>
-                    </button>
+
+                    {/* Actions Dropdown */}
+                    <div className="relative">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveDropdown(activeDropdown === c.id ? null : c.id);
+                        }}
+                        className={`h-12 w-12 rounded-2xl flex items-center justify-center transition-all ${
+                           activeDropdown === c.id 
+                             ? 'bg-[var(--v2-primary)] text-white' 
+                             : 'bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface-variant)] hover:bg-[var(--v2-surface-container-high)]'
+                        }`}>
+                        <span className="v2-icon text-2xl font-bold">more_horiz</span>
+                      </button>
+
+                      {activeDropdown === c.id && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setActiveDropdown(null)} />
+                          <div className="absolute bottom-full right-0 mb-2 w-56 bg-[var(--v2-surface-container-lowest)] rounded-2xl shadow-2xl border border-[var(--v2-outline-variant)]/10 overflow-hidden z-50 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                             <div className="p-2 border-b border-[var(--v2-outline-variant)]/5">
+                                <p className="px-3 py-1.5 text-[10px] font-black text-[var(--v2-on-surface-variant)] uppercase tracking-widest">
+                                   Campaign Actions
+                                </p>
+                             </div>
+                             
+                             <div className="p-1.5">
+                                {c.status !== 'completed' && c.status !== 'cancelled' && (
+                                  <button
+                                    onClick={() => {
+                                      openEditModal(c);
+                                      setActiveDropdown(null);
+                                    }}
+                                    className="w-full h-11 px-3 text-left text-sm font-bold text-[var(--v2-on-surface)] hover:bg-[var(--v2-primary)]/5 hover:text-[var(--v2-primary)] rounded-xl flex items-center gap-3 transition-colors">
+                                    <span className="v2-icon text-lg">edit</span>
+                                    Edit Campaign
+                                  </button>
+                                )}
+
+                                {c.status === 'active' && c.status !== 'cancelled' ? (
+                                  <button
+                                    onClick={() => {
+                                      handleStatusChange(c.id, 'paused');
+                                      setActiveDropdown(null);
+                                    }}
+                                    className="w-full h-11 px-3 text-left text-sm font-bold text-amber-600 hover:bg-amber-50 rounded-xl flex items-center gap-3 transition-colors">
+                                    <span className="v2-icon text-lg font-bold">pause_circle</span>
+                                    Pause Contributions
+                                  </button>
+                                ) : c.status === 'paused' && c.status !== 'cancelled' && (!c.paused_by || c.paused_by === 'owner') ? (
+                                  <button
+                                    onClick={() => {
+                                      handleStatusChange(c.id, 'active');
+                                      setActiveDropdown(null);
+                                    }}
+                                    className="w-full h-11 px-3 text-left text-sm font-bold text-emerald-600 hover:bg-emerald-50 rounded-xl flex items-center gap-3 transition-colors">
+                                    <span className="v2-icon text-lg font-bold">play_circle</span>
+                                    Resume Campaign
+                                  </button>
+                                ) : null}
+
+                                {c.status !== 'completed' && c.status !== 'cancelled' && (
+                                  <button
+                                    onClick={() => {
+                                      handleStatusChange(c.id, 'completed');
+                                      setActiveDropdown(null);
+                                    }}
+                                    className="w-full h-11 px-3 text-left text-sm font-bold text-[var(--v2-secondary)] hover:bg-[var(--v2-secondary-container)]/10 rounded-xl flex items-center gap-3 transition-colors">
+                                    <span className="v2-icon text-lg font-bold">check_circle</span>
+                                    Mark as Completed
+                                  </button>
+                                )}
+
+                                <button
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(`${window.location.origin}${getCampaignUrl(c)}`);
+                                    toast.success('Link copied!');
+                                    setActiveDropdown(null);
+                                  }}
+                                  className="w-full h-11 px-3 text-left text-sm font-bold text-[var(--v2-on-surface-variant)] hover:bg-[var(--v2-surface-container-low)] rounded-xl flex items-center gap-3 transition-colors">
+                                  <span className="v2-icon text-lg">share</span>
+                                  Share Campaign
+                                </button>
+                                
+                                {c.status !== 'cancelled' && c.status !== 'completed' && (
+                                   <div className="mt-1.5 pt-1.5 border-t border-[var(--v2-outline-variant)]/5">
+                                      <button
+                                        onClick={() => {
+                                          handleStatusChange(c.id, 'cancelled');
+                                          setActiveDropdown(null);
+                                        }}
+                                        className="w-full h-11 px-3 text-left text-sm font-bold text-red-500 hover:bg-red-50 rounded-xl flex items-center gap-3 transition-colors">
+                                        <span className="v2-icon text-lg font-bold">cancel</span>
+                                        Cancel Campaign
+                                      </button>
+                                   </div>
+                                )}
+                             </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -497,30 +689,110 @@ export function V2MyCampaignsTab() {
                 </div>
               </div>
 
-              {/* Actions */}
-              <div className="flex gap-2 mt-4">
+              {/* Actions Area - Mobile */}
+              <div className="flex items-center gap-2 mt-4 pt-4 border-t border-[var(--v2-surface-container)]/5">
                 <Link
                   href={getCampaignUrl(c)}
-                  className="flex-1 h-10 bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface)] font-bold text-sm rounded-xl flex items-center justify-center gap-1.5">
-                  <span className="v2-icon text-lg">visibility</span>
-                  View
+                  className="flex-1 h-11 bg-[var(--v2-primary)] text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2">
+                  <span className="v2-icon text-base">visibility</span>
+                  View Page
                 </Link>
-                <button
-                  onClick={() => openEditModal(c)}
-                  className="flex-1 h-10 bg-[var(--v2-primary)]/10 text-[var(--v2-primary)] font-bold text-sm rounded-xl flex items-center justify-center gap-1.5">
-                  <span className="v2-icon text-lg">edit</span>
-                  Edit
-                </button>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(
-                      `${window.location.origin}${getCampaignUrl(c)}`
-                    );
-                    toast.success('Link copied!');
-                  }}
-                  className="h-10 px-3 bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface-variant)] rounded-xl flex items-center justify-center">
-                  <span className="v2-icon text-lg">share</span>
-                </button>
+
+                {/* Actions Dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveDropdown(activeDropdown === `m-${c.id}` ? null : `m-${c.id}`);
+                    }}
+                    className={`h-11 w-11 rounded-xl flex items-center justify-center transition-all ${
+                       activeDropdown === `m-${c.id}` 
+                         ? 'bg-[var(--v2-primary)] text-white' 
+                         : 'bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface-variant)]'
+                    }`}>
+                    <span className="v2-icon text-xl font-bold">more_horiz</span>
+                  </button>
+
+                  {activeDropdown === `m-${c.id}` && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setActiveDropdown(null)} />
+                      <div className="absolute bottom-full right-0 mb-2 w-56 bg-[var(--v2-surface-container-lowest)] rounded-2xl shadow-2xl border border-[var(--v2-outline-variant)]/10 overflow-hidden z-50">
+                         <div className="p-1.5">
+                            {c.status !== 'completed' && c.status !== 'cancelled' && (
+                              <button
+                                onClick={() => {
+                                  openEditModal(c);
+                                  setActiveDropdown(null);
+                                }}
+                                className="w-full h-11 px-3 text-left text-sm font-bold text-[var(--v2-on-surface)] rounded-xl flex items-center gap-3 active:bg-[var(--v2-primary)]/5">
+                                <span className="v2-icon text-lg">edit</span>
+                                Edit Campaign
+                              </button>
+                            )}
+
+                            {c.status === 'active' && c.status !== 'cancelled' ? (
+                              <button
+                                onClick={() => {
+                                  handleStatusChange(c.id, 'paused');
+                                  setActiveDropdown(null);
+                                }}
+                                className="w-full h-11 px-3 text-left text-sm font-bold text-amber-600 rounded-xl flex items-center gap-3 active:bg-amber-50">
+                                <span className="v2-icon text-lg font-bold">pause_circle</span>
+                                Pause Campaign
+                              </button>
+                            ) : c.status === 'paused' && c.status !== 'cancelled' && (!c.paused_by || c.paused_by === 'owner') ? (
+                              <button
+                                onClick={() => {
+                                  handleStatusChange(c.id, 'active');
+                                  setActiveDropdown(null);
+                                }}
+                                className="w-full h-11 px-3 text-left text-sm font-bold text-emerald-600 rounded-xl flex items-center gap-3 active:bg-emerald-50">
+                                <span className="v2-icon text-lg font-bold">play_circle</span>
+                                Resume Campaign
+                              </button>
+                            ) : null}
+
+                            {c.status !== 'completed' && c.status !== 'cancelled' && (
+                              <button
+                                onClick={() => {
+                                  handleStatusChange(c.id, 'completed');
+                                  setActiveDropdown(null);
+                                }}
+                                className="w-full h-11 px-3 text-left text-sm font-bold text-[var(--v2-secondary)] rounded-xl flex items-center gap-3">
+                                <span className="v2-icon text-lg font-bold">check_circle</span>
+                                Mark as Completed
+                              </button>
+                            )}
+
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(`${window.location.origin}${getCampaignUrl(c)}`);
+                                toast.success('Link copied!');
+                                setActiveDropdown(null);
+                              }}
+                              className="w-full h-11 px-3 text-left text-sm font-bold text-[var(--v2-on-surface-variant)] rounded-xl flex items-center gap-3">
+                              <span className="v2-icon text-lg">share</span>
+                              Share Link
+                            </button>
+                            
+                            {c.status !== 'cancelled' && c.status !== 'completed' && (
+                               <div className="mt-1.5 pt-1.5 border-t border-[var(--v2-outline-variant)]/5">
+                                  <button
+                                    onClick={() => {
+                                      handleStatusChange(c.id, 'cancelled');
+                                      setActiveDropdown(null);
+                                    }}
+                                    className="w-full h-11 px-3 text-left text-sm font-bold text-red-500 rounded-xl flex items-center gap-3 active:bg-red-50">
+                                    <span className="v2-icon text-lg font-bold">cancel</span>
+                                    Cancel Campaign
+                                  </button>
+                               </div>
+                            )}
+                         </div>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           );
@@ -605,6 +877,47 @@ export function V2MyCampaignsTab() {
                     className="w-full h-12 px-4 bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] rounded-xl border border-[var(--v2-outline-variant)]/20 focus:border-[var(--v2-primary)] focus:outline-none transition-colors"
                   />
                 </div>
+
+                {/* Goal Amount */}
+                <div>
+                  <label className="block text-sm font-bold text-[var(--v2-on-surface)] mb-2">
+                    Goal Amount ({editingCampaign.currency})
+                  </label>
+                  <input
+                    type="number"
+                    value={editForm.goalAmount}
+                    onChange={e => setEditForm(prev => ({...prev, goalAmount: Number(e.target.value)}))}
+                    min={editingCampaign.goalAmount || editingCampaign.goal_amount}
+                    className="w-full h-12 px-4 bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] rounded-xl border border-[var(--v2-outline-variant)]/20 focus:border-[var(--v2-primary)] focus:outline-none transition-colors"
+                  />
+                  <p className="text-[10px] text-[var(--v2-on-surface-variant)] mt-1.5 px-1 leading-relaxed">
+                    You can increase your goal amount to collect more gifts. 
+                  </p>
+                </div>
+
+                {/* Image Upload */}
+                <div>
+                  <label className="block text-sm font-bold text-[var(--v2-on-surface)] mb-2">
+                    Campaign Cover Image
+                  </label>
+                  <ImageUpload
+                    value={editForm.imageUrl}
+                    onChange={async (url) => {
+                      if (url === '' && editForm.imageUrl) {
+                        // Permanent delete from storage
+                        const res = await deleteCampaignImage(editForm.imageUrl);
+                        if (!res.success) {
+                           toast.error(res.error || 'Failed to delete image');
+                           return;
+                        }
+                        toast.success('Image removed permanently');
+                      }
+                      setEditForm(prev => ({...prev, imageUrl: url}));
+                    }}
+                    onUpload={uploadCampaignImage}
+                    placeholder="Click to change campaign image"
+                  />
+                </div>
               </div>
 
               {/* Actions */}
@@ -634,6 +947,56 @@ export function V2MyCampaignsTab() {
               </div>
             </div>
           )}
+        </ResponsiveModalContent>
+      </ResponsiveModal>
+      {/* Status Change Confirmation Modal */}
+      <ResponsiveModal 
+        open={!!confirmStatusModal} 
+        onOpenChange={open => !open && setConfirmStatusModal(null)}
+      >
+        <ResponsiveModalContent className="bg-[var(--v2-surface)] md:max-w-[400px]">
+          <div className="p-6 text-center">
+            <div className={`w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 ${
+              confirmStatusModal?.newStatus === 'completed' ? 'bg-emerald-100 text-emerald-600' :
+              confirmStatusModal?.newStatus === 'cancelled' ? 'bg-red-100 text-red-500' :
+              'bg-amber-100 text-amber-600'
+            }`}>
+              <span className="v2-icon text-3xl">
+                {confirmStatusModal?.newStatus === 'completed' ? 'check_circle' :
+                 confirmStatusModal?.newStatus === 'cancelled' ? 'cancel' :
+                 'pause_circle'}
+              </span>
+            </div>
+            
+            <h3 className="text-xl font-bold v2-headline text-[var(--v2-on-surface)] mb-2">
+              {confirmStatusModal?.title}
+            </h3>
+            <p className="text-[var(--v2-on-surface-variant)] text-sm leading-relaxed mb-8">
+              {confirmStatusModal?.message}
+            </p>
+            
+            <div className="flex flex-col gap-3">
+              <button
+                disabled={isStatusChanging}
+                onClick={() => confirmStatusModal && handleStatusChange(confirmStatusModal.campaignId, confirmStatusModal.newStatus, true)}
+                className={`w-full py-4 rounded-2xl font-bold v2-headline transition-all active:scale-[0.98] flex items-center justify-center gap-2 ${
+                  confirmStatusModal?.newStatus === 'completed' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20' :
+                  confirmStatusModal?.newStatus === 'cancelled' ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' :
+                  'bg-amber-500 text-white shadow-lg shadow-amber-500/20'
+                } ${isStatusChanging ? 'opacity-70 cursor-not-allowed' : ''}`}
+              >
+                {isStatusChanging && <span className="v2-icon animate-spin text-lg">progress_activity</span>}
+                {isStatusChanging ? 'Processing...' : 'Yes, Proceed'}
+              </button>
+              <button
+                disabled={isStatusChanging}
+                onClick={() => setConfirmStatusModal(null)}
+                className="w-full py-4 rounded-2xl font-bold v2-headline text-[var(--v2-on-surface-variant)] hover:bg-[var(--v2-surface-container-low)] transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </ResponsiveModalContent>
       </ResponsiveModal>
     </div>

@@ -248,9 +248,35 @@ export async function updateCampaign(id: string, data: any) {
     return {success: false, error: 'Not authenticated'};
   }
 
+  // Fetch current status to check for completion
+  const { data: currentCampaign, error: fetchError } = await supabase
+    .from('campaigns')
+    .select('status, end_date')
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .single();
+
+  if (fetchError || !currentCampaign) {
+    return { success: false, error: 'Campaign not found' };
+  }
+
+  // Prevent reopening completed campaigns
+  if (currentCampaign.status === 'completed' && data.status && data.status !== 'completed') {
+    return { success: false, error: 'Completed campaigns cannot be reopened.' };
+  }
+
+  const updateData = { ...data };
+
+  // Handle paused_by
+  if (updateData.status === 'paused') {
+    updateData.paused_by = 'owner';
+  } else if (updateData.status === 'active') {
+    updateData.paused_by = null;
+  }
+
   const {error} = await supabase
     .from('campaigns')
-    .update(data)
+    .update(updateData)
     .eq('id', id)
     .eq('user_id', user.id);
 
@@ -259,6 +285,55 @@ export async function updateCampaign(id: string, data: any) {
   }
 
   revalidatePath('/dashboard');
+  revalidatePath('/v2/dashboard');
+  return {success: true};
+}
+
+export async function adminUpdateCampaign(id: string, data: any) {
+  const supabase = await createClient();
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) return {success: false, error: 'Not authenticated'};
+
+  // Check if user is admin
+  const {data: profile} = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (profile?.role !== 'admin') {
+    return {success: false, error: 'Unauthorized'};
+  }
+
+  // Fetch current status to check for completion
+  const { data: currentCampaign, error: fetchError } = await supabase
+    .from('campaigns')
+    .select('status')
+    .eq('id', id)
+    .single();
+
+  if (fetchError || !currentCampaign) {
+    return { success: false, error: 'Campaign not found' };
+  }
+
+  // Prevent reopening completed campaigns even for admins
+  if (currentCampaign.status === 'completed' && data.status && data.status !== 'completed') {
+    return { success: false, error: 'Completed campaigns cannot be reopened.' };
+  }
+
+  const {error} = await supabase
+    .from('campaigns')
+    .update(data)
+    .eq('id', id);
+
+  if (error) return {success: false, error: error.message};
+
+  revalidatePath('/dashboard');
+  revalidatePath('/v2/dashboard');
+  revalidatePath('/admin');
   return {success: true};
 }
 
@@ -399,4 +474,22 @@ export async function getAllPublicCampaigns({
       hasMore,
     },
   };
+}
+
+export async function deleteCampaignImage(url: string) {
+  const supabase = await createClient();
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) return {success: false, error: 'Not authenticated'};
+
+  // Extract filename from URL (it's the last part)
+  const parts = url.split('/');
+  const filePath = parts[parts.length - 1];
+
+  const {error} = await supabase.storage.from('campaign-images').remove([filePath]);
+
+  if (error) return {success: false, error: error.message};
+  return {success: true};
 }
