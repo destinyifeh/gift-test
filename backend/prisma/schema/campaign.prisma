@@ -1,0 +1,78 @@
+model Campaign {
+  id                       String    @id @default(uuid())
+  userId                   String
+  user                     User      @relation("UserCampaigns", fields: [userId], references: [id], onDelete: Cascade)
+  category                 String
+  title                    String
+  description              String?
+  goalAmount               Decimal?
+  minAmount                Decimal?
+  currentAmount            Decimal   @default(0)
+  endDate                  DateTime?
+  imageUrl                 String?
+  coverImage               String?
+  images                   String[]  @default([])
+  visibility               String    @default("public")
+  contributorsSeeEachOther Boolean   @default(true)
+  status                   String    @default("active")
+  statusReason             String?
+  pausedBy                 String?
+  isFlagged                Boolean   @default(false)
+  flagReason               String?
+  flaggedAt                DateTime?
+  flaggedBy                String?
+  campaignShortId          String?   @unique
+  campaignSlug             String?
+
+  // Claimable logic
+  claimableType          String?
+  claimableGiftId        Int?
+  product                VendorGift? @relation("CampaignProduct", fields: [claimableGiftId], references: [id], onDelete: SetNull)
+  claimableRecipientType String?
+  recipientEmail         String?
+  senderEmail            String?
+  paymentReference       String?
+  currency               String      @default("NGN")
+  giftCode               String?
+
+  // Custom/Voucher redemption
+  redeemedAt         DateTime?
+  redeemedByVendorId String?
+  redeemedByVendor   User?     @relation("RedeemedByVendor", fields: [redeemedByVendorId], references: [id], onDelete: SetNull)
+  vendorRating       Int?
+  message            String?
+
+  // V2 WhatsApp/Delivery
+  deliveryMethod       String? @default("email")
+  recipientPhone       String?
+  recipientCountryCode String?
+  whatsappFee          Decimal @default(0)
+  senderName           String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  contributions Contribution[]
+  transactions  Transaction[]
+
+  @@map("campaigns")
+}
+
+model Contribution {
+  id            String       @id @default(uuid())
+  campaignId    String
+  campaign      Campaign     @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  transactionId String?      @unique
+  transaction   Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+  amount        Decimal
+  currency      String       @default("NGN")
+  donorName     String
+  donorEmail    String?
+  message       String?
+  isAnonymous   Boolean      @default(false)
+  hideAmount    Boolean      @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@map("contributions")
+}

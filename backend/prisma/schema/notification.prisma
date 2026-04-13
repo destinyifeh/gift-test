@@ -1,0 +1,28 @@
+model Notification {
+  id         Int      @id @default(autoincrement())
+  userId     String?
+  type       String
+  title      String
+  message    String
+  data       Json     @default("{}")
+  isGlobal   Boolean  @default(false)
+  targetRole String?
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user  User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reads NotificationRead[]
+}
+
+model NotificationRead {
+  id             Int      @id @default(autoincrement())
+  notificationId Int
+  userId         String
+  createdAt      DateTime @default(now())
+
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, userId])
+}

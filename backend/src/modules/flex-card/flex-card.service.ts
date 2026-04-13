@@ -1,0 +1,158 @@
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
+import { EmailService } from '../email/email.service';
+import { generateGiftCode } from '../../common/utils/token.util';
+import { randomBytes } from 'crypto';
+
+@Injectable()
+export class FlexCardService {
+  constructor(private prisma: PrismaService, private emailService: EmailService) {}
+
+  async createFlexCard(userId: string, data: {
+    initialAmount: number; recipientEmail?: string; recipientPhone?: string;
+    deliveryMethod?: string; senderName?: string; message?: string; currency?: string;
+  }) {
+    const code = generateGiftCode();
+    const claimToken = randomBytes(8).toString('hex');
+
+    const card = await (this.prisma as any).flexCard.create({
+      data: {
+        senderId: userId,
+        initialAmount: data.initialAmount,
+        currentBalance: data.initialAmount,
+        currency: data.currency || 'NGN',
+        code, claimToken, status: 'active',
+        senderName: data.senderName, recipientEmail: data.recipientEmail,
+        recipientPhone: data.recipientPhone, deliveryMethod: data.deliveryMethod || 'email',
+        message: data.message,
+      }
+    });
+
+    // Send email logic here if needed
+    
+    // Create transaction record
+    await (this.prisma as any).transaction.create({
+      data: {
+        userId, amount: BigInt(data.initialAmount * 100), type: 'gift_sent', status: 'success',
+        reference: `FLEX-${code}`, description: `Sent Flex Card ${code}`,
+      }
+    });
+
+    return card;
+  }
+
+  async fetchUserFlexCards(userId: string, type?: 'sent' | 'received') {
+    const where: any = {};
+    if (type === 'sent') where.senderId = userId;
+    else if (type === 'received') where.userId = userId;
+    else where.OR = [{ senderId: userId }, { userId }];
+
+    return (this.prisma as any).flexCard.findMany({
+      where, orderBy: { createdAt: 'desc' },
+      include: {
+        sender: { select: { displayName: true, username: true, avatarUrl: true } }
+      }
+    });
+  }
+
+  async fetchFlexCardByCode(code: string) {
+    const card = await (this.prisma as any).flexCard.findFirst({
+      where: { code: code.toUpperCase() },
+      include: { sender: { select: { displayName: true, username: true, avatarUrl: true } } }
+    });
+    if (!card) throw new NotFoundException('Flex card not found');
+    return card;
+  }
+
+  async fetchFlexCardByClaimToken(claimToken: string) {
+    const card = await (this.prisma as any).flexCard.findFirst({
+      where: { claimToken },
+      include: { sender: { select: { displayName: true, username: true, avatarUrl: true } } }
+    });
+    if (!card) throw new NotFoundException('Flex card not found');
+    return card;
+  }
+
+  async claimFlexCard(userId: string, code: string) {
+    const card = await (this.prisma as any).flexCard.findFirst({ where: { code: code.toUpperCase() } });
+    if (!card) throw new NotFoundException('Flex card not found');
+    if (card.userId) throw new BadRequestException('This flex card has already been claimed');
+    if (card.status === 'redeemed') throw new BadRequestException('This flex card has been fully redeemed');
+
+    return (this.prisma as any).flexCard.update({
+      where: { id: card.id },
+      data: { userId, claimedAt: new Date() }
+    });
+  }
+
+  async claimFlexCardByToken(userId: string, token: string) {
+    const card = await (this.prisma as any).flexCard.findFirst({ where: { claimToken: token } });
+    if (!card) throw new NotFoundException('Flex card not found');
+    if (card.userId) throw new BadRequestException('This flex card has already been claimed');
+    if (card.status === 'redeemed') throw new BadRequestException('This flex card has been fully redeemed');
+
+    return (this.prisma as any).flexCard.update({
+      where: { id: card.id },
+      data: { userId, claimedAt: new Date() }
+    });
+  }
+
+  async redeemFlexCard(vendorId: string, code: string, amount: number, description?: string) {
+    const profile = await (this.prisma as any).user.findUnique({ where: { id: vendorId } });
+    if (!profile.roles.includes('vendor')) throw new BadRequestException('Invalid vendor');
+
+    const card = await (this.prisma as any).flexCard.findFirst({ where: { code: code.toUpperCase() } });
+    if (!card) throw new NotFoundException('Flex card not found');
+    if (card.status === 'redeemed') throw new BadRequestException('This flex card has been fully redeemed');
+    if (amount > card.currentBalance) throw new BadRequestException(`Insufficient balance. Available: ${card.currentBalance}`);
+    if (amount <= 0) throw new BadRequestException('Amount must be greater than 0');
+
+    const newBalance = card.currentBalance - amount;
+    const newStatus = newBalance === 0 ? 'redeemed' : 'partially_used';
+
+    const transaction = await (this.prisma as any).flexCardTransaction.create({
+      data: { flexCardId: card.id, vendorId, amount, balanceAfter: newBalance, description: description || 'Redeemed at vendor' }
+    });
+
+    await (this.prisma as any).flexCard.update({ where: { id: card.id }, data: { currentBalance: newBalance, status: newStatus } });
+
+    if (card.userId) {
+      await (this.prisma as any).transaction.create({
+        data: {
+          userId: card.userId, amount: BigInt(amount * 100), type: 'flex_card_redemption', status: 'success',
+          reference: `FLEX-${card.code}-${Date.now()}`, description: description || 'Payment with Flex Card at vendor'
+        }
+      });
+    }
+
+    return { transaction, newBalance, status: newStatus };
+  }
+
+  async getFlexCardTransactions(userId: string, cardId: number) {
+    const card = await (this.prisma as any).flexCard.findUnique({ where: { id: cardId } });
+    if (!card || (card.userId !== userId && card.senderId !== userId)) throw new BadRequestException('Unauthorized');
+
+    return (this.prisma as any).flexCardTransaction.findMany({
+      where: { flexCardId: cardId },
+      orderBy: { createdAt: 'desc' },
+      include: { vendor: { select: { shopName: true, displayName: true } } }
+    });
+  }
+
+  async lookupFlexCardForRedemption(vendorId: string, code: string) {
+    const profile = await (this.prisma as any).user.findUnique({ where: { id: vendorId } });
+    if (!profile.roles.includes('vendor')) throw new BadRequestException('Only vendors can look up flex cards');
+
+    const card = await (this.prisma as any).flexCard.findFirst({
+      where: { code: code.toUpperCase() },
+      include: { user: { select: { displayName: true, avatarUrl: true } } }
+    });
+    if (!card) throw new NotFoundException('Flex card not found');
+    if (card.status === 'redeemed') throw new BadRequestException('This flex card has been fully redeemed');
+
+    return {
+      id: card.id, code: card.code, balance: card.currentBalance, currency: card.currency,
+      status: card.status, userName: card.user?.displayName || 'Unknown User', userAvatar: card.user?.avatarUrl
+    };
+  }
+}

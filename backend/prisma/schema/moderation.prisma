@@ -1,0 +1,68 @@
+model ModerationReport {
+  id               String  @id @default(uuid())
+  targetId         String
+  targetType       String // 'campaign', 'user', 'vendor', 'gift'
+  targetName       String?
+  reporterId       String?
+  reporter         User?   @relation("Reporter", fields: [reporterId], references: [id], onDelete: SetNull)
+  reporterUsername String  @default("anonymous")
+  reason           String
+  status           String  @default("pending") // 'pending', 'resolved', 'dismissed'
+  resolutionNotes  String?
+  resolvedById     String?
+  resolver         User?   @relation("Resolver", fields: [resolvedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("moderation_reports")
+}
+
+model ModerationTicket {
+  id           String  @id @default(uuid())
+  reporterId   String
+  reporter     User    @relation("TicketReporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  subject      String
+  description  String
+  status       String  @default("open") // 'open', 'in_progress', 'resolved', 'closed'
+  priority     String  @default("medium") // 'low', 'medium', 'high'
+  resolvedById String?
+  resolver     User?   @relation("TicketResolver", fields: [resolvedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("moderation_tickets")
+}
+
+model AdminLog {
+  id        Int      @id @default(autoincrement())
+  adminId   String
+  admin     User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  action    String
+  createdAt DateTime @default(now())
+
+  @@map("admin_logs")
+}
+
+model CreatorSupport {
+  id            String       @id @default(uuid())
+  userId        String
+  user          User         @relation("SupportRecipient", fields: [userId], references: [id], onDelete: Cascade)
+  transactionId String?      @unique
+  transaction   Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+  amount        Decimal
+  currency      String       @default("NGN")
+  donorName     String
+  donorEmail    String?
+  message       String?
+  isAnonymous   Boolean      @default(false)
+  hideAmount    Boolean      @default(false)
+  giftId        Int?
+  giftName      String?
+  vendorRating  Int?
+
+  createdAt DateTime @default(now())
+
+  @@map("creator_support")
+}

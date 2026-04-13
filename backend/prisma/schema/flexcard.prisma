@@ -1,0 +1,39 @@
+model FlexCard {
+  id             Int       @id @default(autoincrement())
+  userId         String?
+  recipient      User?     @relation("ReceivedFlexCards", fields: [userId], references: [id], onDelete: SetNull)
+  senderId       String?
+  sender         User?     @relation("SentFlexCards", fields: [senderId], references: [id], onDelete: SetNull)
+  initialAmount  Decimal
+  currentBalance Decimal
+  currency       String    @default("NGN")
+  code           String    @unique
+  claimToken     String?   @unique
+  status         String    @default("active")
+  senderName     String?
+  recipientEmail String?
+  recipientPhone String?
+  deliveryMethod String    @default("email")
+  message        String?
+  claimedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  transactions FlexCardTransaction[]
+
+  @@map("flex_cards")
+}
+
+model FlexCardTransaction {
+  id           Int      @id @default(autoincrement())
+  flexCardId   Int
+  flexCard     FlexCard @relation(fields: [flexCardId], references: [id], onDelete: Cascade)
+  vendorId     String
+  vendor       User     @relation("VendorTransactions", fields: [vendorId], references: [id], onDelete: Cascade)
+  amount       Decimal
+  balanceAfter Decimal
+  description  String?
+  createdAt    DateTime @default(now())
+
+  @@map("flex_card_transactions")
+}

@@ -1,0 +1,62 @@
+model VendorGift {
+  id          Int     @id @default(autoincrement())
+  vendorId    String
+  vendor      User    @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  name        String
+  slug        String?
+  price       Decimal
+  description String?
+  imageUrl    String?
+  category    String?
+  type        String  @default("digital") // 'digital' or 'physical'
+  status      String  @default("active")
+
+  // V2 specific
+  stockQuantity Int?
+  unitsSold     Int      @default(0)
+  images        String[] @default([])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  giftImages VendorGiftImage[]
+  favorites  Favorite[]
+  promotions Promotion[]
+  campaigns  Campaign[]        @relation("CampaignProduct")
+
+  @@map("vendor_gifts")
+}
+
+model VendorGiftImage {
+  id        Int        @id @default(autoincrement())
+  giftId    Int
+  gift      VendorGift @relation(fields: [giftId], references: [id], onDelete: Cascade)
+  url       String
+  createdAt DateTime   @default(now())
+
+  @@map("vendor_gift_images")
+}
+
+model Favorite {
+  id           Int        @id @default(autoincrement())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vendorGiftId Int
+  vendorGift   VendorGift @relation(fields: [vendorGiftId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@unique([userId, vendorGiftId], name: "userId_vendorGiftId")
+  @@map("favorites")
+}
+
+model Rating {
+  id         Int      @id @default(autoincrement())
+  targetId   String // Can be vendorId or campaignId
+  targetType String // 'vendor', 'campaign'
+  userId     String
+  rating     Int
+  comment    String?
+  createdAt  DateTime @default(now())
+
+  @@map("ratings")
+}

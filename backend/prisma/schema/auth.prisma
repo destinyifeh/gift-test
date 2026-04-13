@@ -1,0 +1,110 @@
+model User {
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Better Auth integrations
+  sessions Session[]
+  accounts Account[]
+
+  // --- Gift/Platform Profile Fields ---
+  username         String?   @unique
+  displayName      String?
+  avatarUrl        String?
+  bio              String?
+  isCreator        Boolean   @default(false)
+  suggestedAmounts Int[]     @default([5, 10, 25])
+  socialLinks      Json?     @default("{}")
+  themeSettings    Json?     @default("{}")
+  country          String?
+  roles            String[]  @default(["user"])
+  adminRole        String?
+  platformBalance  BigInt    @default(0)
+  status           String    @default("active") // 'active', 'suspended', 'banned'
+  walletStatus     String    @default("active") // 'active', 'restricted'
+  suspensionEnd    DateTime?
+
+  // --- Vendor Shop Fields ---
+  shopName         String?
+  shopDescription  String?
+  shopAddress      String?
+  shopSlug         String?  @unique
+  shopLogoUrl      String?
+  bannerUrl        String?
+  isVerifiedVendor Boolean  @default(false)
+  vendorStatus     String   @default("pending") // 'pending', 'approved', 'rejected'
+  vendorCategories String[] @default([])
+
+  // Relations
+  campaigns               Campaign[]            @relation("UserCampaigns")
+  bankAccounts            BankAccount[]
+  transactions            Transaction[]
+  vendorGifts             VendorGift[]
+  favorites               Favorite[]
+  promotions              Promotion[]           @relation("VendorPromotions")
+  sentFlexCards           FlexCard[]            @relation("SentFlexCards")
+  receivedFlexCards       FlexCard[]            @relation("ReceivedFlexCards")
+  moderationReportsMade   ModerationReport[]    @relation("Reporter")
+  moderationReportsFixed  ModerationReport[]    @relation("Resolver")
+  moderationTickets       ModerationTicket[]    @relation("TicketReporter")
+  adminResolvedTickets    ModerationTicket[]    @relation("TicketResolver")
+  flexCardTransactions    FlexCardTransaction[] @relation("VendorTransactions")
+  redeemedCampaigns       Campaign[]            @relation("RedeemedByVendor")
+  creatorSupportReceived  CreatorSupport[]      @relation("SupportRecipient")
+  adminResolvedPromotions ExternalPromotion[]   @relation("AdminExternalPromotions")
+  withdrawals             Withdrawal[]
+
+  adminLogs         AdminLog[]
+  notifications     Notification[]
+  notificationReads NotificationRead[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Account {
+  id                    String    @id @default(uuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("accounts")
+}
+
+model Verification {
+  id         String    @id @default(uuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+
+  @@map("verifications")
+}

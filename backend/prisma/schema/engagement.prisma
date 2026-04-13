@@ -1,0 +1,68 @@
+model Promotion {
+  id               Int         @id @default(autoincrement())
+  vendorId         String
+  vendor           User        @relation("VendorPromotions", fields: [vendorId], references: [id], onDelete: Cascade)
+  productId        Int?
+  vendorGiftId     Int?
+  product          VendorGift? @relation(fields: [vendorGiftId], references: [id], onDelete: SetNull)
+  placement        String // 'featured', 'new_arrivals', 'sponsored'
+  durationDays     Int         @default(7)
+  startDate        DateTime?
+  endDate          DateTime?
+  status           String      @default("pending_approval") // 'pending_approval', 'active', 'paused', 'completed', 'rejected'
+  amountPaid       Decimal
+  currency         String      @default("NGN")
+  paymentReference String?
+  rejectionReason  String?
+
+  // Stats
+  views       Int @default(0)
+  clicks      Int @default(0)
+  conversions Int @default(0)
+
+  transactionId String?      @unique
+  transaction   Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("promotions")
+}
+
+model ExternalPromotion {
+  id          Int       @id @default(autoincrement())
+  adminId     String
+  admin       User      @relation("AdminExternalPromotions", fields: [adminId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  imageUrl    String?
+  link        String?
+  placement   String // 'banner', 'hero', 'sidebar'
+  startDate   DateTime  @default(now())
+  endDate     DateTime?
+  status      String    @default("active")
+
+  views  Int @default(0)
+  clicks Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("external_promotions")
+}
+
+model FeaturedItem {
+  id          Int     @id @default(autoincrement())
+  title       String?
+  description String?
+  imageUrl    String?
+  link        String?
+  type        String // 'banner', 'collection', 'highlight'
+  order       Int     @default(0)
+  isActive    Boolean @default(true)
+  metadata    Json?   @default("{}")
+
+  createdAt DateTime @default(now())
+
+  @@map("featured_items")
+}

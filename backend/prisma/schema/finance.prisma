@@ -1,0 +1,63 @@
+model Transaction {
+  id          String    @id @default(uuid())
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  campaignId  String?
+  campaign    Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  amount      BigInt // In smallest currency unit (kobo/cents)
+  currency    String    @default("NGN")
+  type        String // 'campaign_contribution', 'creator_support', 'withdrawal', 'payout', 'fee', 'receipt', 'gift_redemption', 'gift_sent', 'flex_card_redemption', 'flex_card', 'platform_credit_conversion'
+  status      String    @default("pending") // 'pending', 'success', 'failed'
+  reference   String?   @unique
+  description String?
+  metadata    Json?     @default("{}")
+
+  createdAt DateTime @default(now())
+
+  creatorSupport CreatorSupport?
+  contribution   Contribution?
+  withdrawal     Withdrawal?
+  promotion      Promotion?
+
+  @@map("transactions")
+}
+
+model BankAccount {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bankName      String
+  bankCode      String
+  accountNumber String
+  accountName   String
+  recipientCode String?
+  currency      String   @default("NGN")
+  country       String   @default("Nigeria")
+  isPrimary     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  withdrawals Withdrawal[]
+
+  @@map("bank_accounts")
+}
+
+model Withdrawal {
+  id              String       @id @default(uuid())
+  userId          String
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bankAccountId   String
+  bankAccount     BankAccount  @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
+  amount          Decimal
+  currency        String       @default("NGN")
+  status          String       @default("pending") // 'pending', 'approved', 'rejected', 'completed'
+  reference       String?      @unique
+  rejectionReason String?
+  transactionId   String?      @unique
+  transaction     Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("withdrawals")
+}
