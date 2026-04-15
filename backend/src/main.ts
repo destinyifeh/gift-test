@@ -1,16 +1,16 @@
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { ValidationPipe, Logger } from '@nestjs/common';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
   // Basic Logging
   const logger = new Logger('Bootstrap');
-  
+
   // Enable CORS
   app.enableCors({
     origin: true,
@@ -46,9 +46,9 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, document);
 
   // Define port
-  const port = process.env.PORT || 4000;
+  const port = process.env.PORT || 3001;
   await app.listen(port);
-  
+
   logger.log(`Application successfully started on port ${port}`);
 }
 bootstrap();
