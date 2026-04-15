@@ -1,5 +1,7 @@
 'use client';
 
+import {GIFT_TAGS} from '@/lib/constants/gift-tags';
+
 interface GiftShopHeaderProps {
   activeCategory: string;
   onCategoryChange: (category: string) => void;
@@ -7,32 +9,9 @@ interface GiftShopHeaderProps {
   onSearchChange: (value: string) => void;
 }
 
-const categories = [
-  'All Gifts',
-  'Birthday',
-  'Anniversary',
-  'Corporate',
-  'Wedding',
-  'Men',
-  'Women',
-  'Kids',
-  'Home',
-  'Digital',
-  'Wellness',
-  'Gourmet',
-];
+const categories = ['All Gifts', ...GIFT_TAGS];
 
-const mobileCategories = [
-  'All Gifts',
-  'Men',
-  'Women',
-  'Kids',
-  'Birthday',
-  'Anniversary',
-  'Corporate',
-  'Home',
-  'Digital',
-];
+const mobileCategories = ['All Gifts', ...GIFT_TAGS.slice(0, 8)];
 
 export function GiftShopDesktopHeader({activeCategory, onCategoryChange}: Omit<GiftShopHeaderProps, 'searchQuery' | 'onSearchChange'>) {
   return (

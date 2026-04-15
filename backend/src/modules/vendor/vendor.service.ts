@@ -57,12 +57,29 @@ export class VendorService {
 
     const where: any = { status: 'active' };
     if (vendorId) where.vendorId = vendorId;
-    if (category && category !== 'All Gifts') where.category = { equals: category, mode: 'insensitive' };
+
+    const conditions: any[] = [];
+
+    if (category && category !== 'All Gifts') {
+      conditions.push({
+        OR: [
+          { category: { equals: category, mode: 'insensitive' } },
+          { tags: { hasSome: [category] } },
+        ],
+      });
+    }
+
     if (search) {
-      where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
-      ];
+      conditions.push({
+        OR: [
+          { name: { contains: search, mode: 'insensitive' } },
+          { description: { contains: search, mode: 'insensitive' } },
+        ],
+      });
+    }
+
+    if (conditions.length > 0) {
+      where.AND = conditions;
     }
 
     const [products, total] = await Promise.all([

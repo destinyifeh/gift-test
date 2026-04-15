@@ -17,6 +17,7 @@ import {
   uploadVendorProductImage,
 } from '@/lib/server/actions/vendor';
 import {formatCurrency} from '@/lib/utils/currency';
+import {GIFT_TAGS} from '@/lib/constants/gift-tags';
 import {useQueryClient} from '@tanstack/react-query';
 import React, {useEffect, useState} from 'react';
 import {toast} from 'sonner';
@@ -30,6 +31,7 @@ interface ProductFormData {
   status: string;
   images: string[];
   category: string;
+  tags: string[];
   type: string;
   stock_quantity: string;
 }
@@ -41,6 +43,7 @@ const initialFormData: ProductFormData = {
   status: 'active',
   images: [],
   category: 'all',
+  tags: [],
   type: 'digital',
   stock_quantity: '',
 };
@@ -161,6 +164,7 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct}: V2Vendo
         status: product.status || 'active',
         images,
         category: product.category || 'all',
+        tags: product.tags || [],
         type: product.type || 'digital',
         stock_quantity: product.stock_quantity !== null ? String(product.stock_quantity) : '',
       });
@@ -244,6 +248,7 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct}: V2Vendo
       // Store images array and keep image_url as first image for backward compatibility
       image_url: productForm.images[0] || null,
       images: productForm.images,
+      tags: productForm.tags,
     };
 
     const result = await manageVendorProduct(payload);
@@ -822,35 +827,57 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct}: V2Vendo
               />
             </div>
 
-            {/* Category & Type */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)] mb-2">
-                  Category
-                </label>
-                <select
-                  value={productForm.category}
-                  onChange={e => setProductForm({...productForm, category: e.target.value})}
-                  className="w-full py-3 px-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-[var(--v2-on-surface)]">
-                  <option value="all">All</option>
-                  <option value="birthday">Birthday</option>
-                  <option value="spa">Spa</option>
-                  <option value="fashion">Fashion</option>
-                  <option value="food">Food</option>
-                </select>
+            {/* Tags */}
+            <div>
+              <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)] mb-2">
+                Tags ({productForm.tags.length}/4 selected)
+              </label>
+              <p className="text-xs text-[var(--v2-on-surface-variant)] mb-3">
+                Select up to 4 tags that describe your product. This helps buyers find it.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {GIFT_TAGS.map((tag) => {
+                  const isSelected = productForm.tags.includes(tag);
+                  const isDisabled = !isSelected && productForm.tags.length >= 4;
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      disabled={isDisabled}
+                      onClick={() => {
+                        const newTags = isSelected
+                          ? productForm.tags.filter((t) => t !== tag)
+                          : [...productForm.tags, tag];
+                        setProductForm({...productForm, tags: newTags});
+                      }}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                        isSelected
+                          ? 'bg-[var(--v2-primary)] text-[var(--v2-on-primary)] shadow-md'
+                          : isDisabled
+                            ? 'bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface-variant)]/30 cursor-not-allowed opacity-40'
+                            : 'bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface-variant)] hover:bg-[var(--v2-surface-container-high)]'
+                      }`}
+                    >
+                      {isSelected && <span className="mr-1">✓</span>}
+                      {tag}
+                    </button>
+                  );
+                })}
               </div>
-              <div>
-                <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)] mb-2">
-                  Type
-                </label>
-                <select
-                  value={productForm.type}
-                  onChange={e => setProductForm({...productForm, type: e.target.value})}
-                  className="w-full py-3 px-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-[var(--v2-on-surface)]">
-                  <option value="digital">Digital</option>
-                  <option value="physical">Physical</option>
-                </select>
-              </div>
+            </div>
+
+            {/* Type */}
+            <div>
+              <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)] mb-2">
+                Type
+              </label>
+              <select
+                value={productForm.type}
+                onChange={e => setProductForm({...productForm, type: e.target.value})}
+                className="w-full py-3 px-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-[var(--v2-on-surface)]">
+                <option value="digital">Digital</option>
+                <option value="physical">Physical</option>
+              </select>
             </div>
 
             {/* Stock & Status */}
