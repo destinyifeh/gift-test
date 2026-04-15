@@ -1,8 +1,8 @@
 model Transaction {
   id          String    @id @default(uuid())
-  userId      String?
+  userId      String?   @map("user_id")
   user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
-  campaignId  String?
+  campaignId  String?   @map("campaign_id")
   campaign    Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
   amount      BigInt // In smallest currency unit (kobo/cents)
   currency    String    @default("NGN")
@@ -12,7 +12,7 @@ model Transaction {
   description String?
   metadata    Json?     @default("{}")
 
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
 
   creatorSupport CreatorSupport?
   contribution   Contribution?
@@ -24,18 +24,18 @@ model Transaction {
 
 model BankAccount {
   id            String   @id @default(uuid())
-  userId        String
+  userId        String   @map("user_id")
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  bankName      String
-  bankCode      String
-  accountNumber String
-  accountName   String
-  recipientCode String?
+  bankName      String   @map("bank_name")
+  bankCode      String   @map("bank_code")
+  accountNumber String   @map("account_number")
+  accountName   String   @map("account_name")
+  recipientCode String?  @map("recipient_code")
   currency      String   @default("NGN")
   country       String   @default("Nigeria")
-  isPrimary     Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  isPrimary     Boolean  @default(false) @map("is_primary")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
 
   withdrawals Withdrawal[]
 
@@ -44,20 +44,20 @@ model BankAccount {
 
 model Withdrawal {
   id              String       @id @default(uuid())
-  userId          String
+  userId          String       @map("user_id")
   user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  bankAccountId   String
+  bankAccountId   String       @map("bank_account_id")
   bankAccount     BankAccount  @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
   amount          Decimal
   currency        String       @default("NGN")
   status          String       @default("pending") // 'pending', 'approved', 'rejected', 'completed'
   reference       String?      @unique
-  rejectionReason String?
-  transactionId   String?      @unique
+  rejectionReason String?      @map("rejection_reason")
+  transactionId   String?      @unique @map("transaction_id")
   transaction     Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("withdrawals")
 }

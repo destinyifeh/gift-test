@@ -13,31 +13,31 @@ model User {
 
   // --- Gift/Platform Profile Fields ---
   username         String?   @unique
-  displayName      String?
-  avatarUrl        String?
+  displayName      String?   @map("display_name")
+  avatarUrl        String?   @map("avatar_url")
   bio              String?
-  isCreator        Boolean   @default(false)
-  suggestedAmounts Int[]     @default([5, 10, 25])
-  socialLinks      Json?     @default("{}")
-  themeSettings    Json?     @default("{}")
+  isCreator        Boolean   @default(false) @map("is_creator")
+  suggestedAmounts Int[]     @default([5, 10, 25]) @map("suggested_amounts")
+  socialLinks      Json?     @default("{}") @map("social_links")
+  themeSettings    Json?     @default("{}") @map("theme_settings")
   country          String?
   roles            String[]  @default(["user"])
-  adminRole        String?
-  platformBalance  BigInt    @default(0)
+  adminRole        String?   @map("admin_role")
+  platformBalance  BigInt    @default(0) @map("platform_balance")
   status           String    @default("active") // 'active', 'suspended', 'banned'
-  walletStatus     String    @default("active") // 'active', 'restricted'
-  suspensionEnd    DateTime?
+  walletStatus     String    @default("active") @map("wallet_status") // 'active', 'restricted'
+  suspensionEnd    DateTime? @map("suspension_end")
 
   // --- Vendor Shop Fields ---
-  shopName         String?
-  shopDescription  String?
-  shopAddress      String?
-  shopSlug         String?  @unique
-  shopLogoUrl      String?
-  bannerUrl        String?
-  isVerifiedVendor Boolean  @default(false)
-  vendorStatus     String   @default("pending") // 'pending', 'approved', 'rejected'
-  vendorCategories String[] @default([])
+  shopName         String?   @map("shop_name")
+  shopDescription  String?   @map("shop_description")
+  shopAddress      String?   @map("shop_address")
+  shopSlug         String?   @unique @map("shop_slug")
+  shopLogoUrl      String?   @map("shop_logo_url")
+  bannerUrl        String?   @map("banner_url")
+  isVerifiedVendor Boolean   @default(false) @map("is_verified_vendor")
+  vendorStatus     String    @default("pending") @map("vendor_status") // 'pending', 'approved', 'rejected'
+  vendorCategories String[]  @default([]) @map("vendor_categories")
 
   // Relations
   campaigns               Campaign[]            @relation("UserCampaigns")
