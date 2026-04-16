@@ -1,23 +1,32 @@
-import {getVendorRatingStats} from '@/lib/server/actions/ratings';
-import {
-  fetchVendorOrders,
-  fetchVendorProductById,
-  fetchVendorProductBySlugs,
-  fetchVendorProducts,
-  fetchVendorProductsPaginated,
-  fetchVendorWallet,
-} from '@/lib/server/actions/vendor';
-import {useInfiniteQuery, useQuery} from '@tanstack/react-query';
+import api from '@/lib/api-client';
+import {useInfiniteQuery, useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
+
+// Helper to map backend camelCase to frontend snake_case where needed
+const mapProduct = (p: any) => ({
+  ...p,
+  image_url: p.imageUrl,
+  vendor_id: p.vendorId,
+  created_at: p.createdAt,
+  updated_at: p.updatedAt,
+  stock_quantity: p.stockQuantity,
+  units_sold: p.unitsSold,
+  vendor: p.vendor ? {
+    ...p.vendor,
+    display_name: p.vendor.displayName,
+    shop_slug: p.vendor.shopSlug,
+    shop_name: p.vendor.shopName,
+    shop_logo_url: p.vendor.shopLogoUrl,
+  } : undefined
+});
 
 export function useVendorProducts(vendorId?: string, includeDrafts = false) {
   return useQuery({
     queryKey: ['vendor-products', vendorId || 'all', includeDrafts],
     queryFn: async () => {
-      const result = await fetchVendorProducts(vendorId, includeDrafts);
-      if (!result.success) {
-        throw new Error(result.error);
-      }
-      return result.data;
+      const endpoint = vendorId ? `/vendor/products?vendorId=${vendorId}` : '/vendor/products';
+      const res = await api.get(endpoint);
+      const data = res.data.data || res.data;
+      return Array.isArray(data) ? data.map(mapProduct) : [];
     },
   });
 }
@@ -38,17 +47,20 @@ export function useInfiniteVendorProducts(options: {
     queryKey: ['vendor-products-infinite', category, search, vendorId, limit],
     initialPageParam: 1,
     queryFn: async ({pageParam = 1}) => {
-      const result = await fetchVendorProductsPaginated({
-        page: pageParam,
-        limit,
-        category: category !== 'All Gifts' ? category : undefined,
-        search: search || undefined,
-        vendorId,
-      });
-      if (!result.success) {
-        throw new Error(result.error);
-      }
-      return result;
+      const params = new URLSearchParams();
+      params.append('page', String(pageParam));
+      params.append('limit', String(limit));
+      if (category && category !== 'All Gifts') params.append('category', category);
+      if (search) params.append('search', search);
+      if (vendorId) params.append('vendorId', vendorId);
+
+      const res = await api.get(`/vendor/products/paginated?${params.toString()}`);
+      const result = res.data;
+      
+      return {
+        ...result,
+        data: result.data.map(mapProduct)
+      };
     },
     getNextPageParam: lastPage => {
       if (lastPage.pagination?.hasMore) {
@@ -64,11 +76,8 @@ export function useVendorProduct(productId: string | number) {
   return useQuery({
     queryKey: ['vendor-product', productId],
     queryFn: async () => {
-      const result = await fetchVendorProductById(productId);
-      if (!result.success) {
-        throw new Error(result.error);
-      }
-      return result.data;
+      const res = await api.get(`/vendor/products/${productId}`);
+      return mapProduct(res.data.data || res.data);
     },
     enabled: !!productId,
   });
@@ -81,11 +90,8 @@ export function useVendorProductBySlugs(
   return useQuery({
     queryKey: ['vendor-product', vendorSlug, productSlug],
     queryFn: async () => {
-      const result = await fetchVendorProductBySlugs(vendorSlug, productSlug);
-      if (!result.success) {
-        throw new Error(result.error);
-      }
-      return result.data;
+      const res = await api.get(`/vendor/shop/${vendorSlug}/${productSlug}`);
+      return mapProduct(res.data.data || res.data);
     },
     enabled: !!vendorSlug && !!productSlug,
   });
@@ -95,11 +101,8 @@ export function useVendorOrders() {
   return useQuery({
     queryKey: ['vendor-orders'],
     queryFn: async () => {
-      const result = await fetchVendorOrders();
-      if (!result.success) {
-        throw new Error(result.error);
-      }
-      return result.data;
+      const res = await api.get('/vendor/orders');
+      return res.data.data || res.data;
     },
   });
 }
@@ -108,11 +111,8 @@ export function useVendorWallet() {
   return useQuery({
     queryKey: ['vendor-wallet'],
     queryFn: async () => {
-      const result = await fetchVendorWallet();
-      if (!result.success) {
-        throw new Error(result.error);
-      }
-      return result.data;
+      const res = await api.get('/vendor/wallet');
+      return res.data.data || res.data;
     },
   });
 }
@@ -122,9 +122,70 @@ export function useVendorRatingStats(vendorId: string | undefined) {
     queryKey: ['vendor-rating', vendorId],
     queryFn: async () => {
       if (!vendorId) return null;
-      return await getVendorRatingStats(vendorId);
+      const res = await api.get(`/ratings/vendor/${vendorId}`);
+      return res.data.data || res.data;
     },
     enabled: !!vendorId,
     staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+}
+
+/**
+ * Mutation to create or update a vendor product
+ */
+export function useManageVendorProduct() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: any) => {
+      const res = await api.post('/vendor/products', data);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vendor-products'] });
+    },
+  });
+}
+
+/**
+ * Mutation to delete a vendor product
+ */
+export function useDeleteVendorProduct() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (productId: number) => {
+      const res = await api.delete(`/vendor/products/${productId}`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vendor-products'] });
+    },
+  });
+}
+
+/**
+ * Mutation to upload a product image
+ */
+export function useUploadProductImage() {
+  return useMutation({
+    mutationFn: async (formData: FormData) => {
+      const res = await api.post('/files/upload?folder=products', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return res.data;
+    },
+  });
+}
+
+/**
+ * Mutation to delete a product image
+ */
+export function useDeleteProductImage() {
+  return useMutation({
+    mutationFn: async (url: string) => {
+      const res = await api.post('/files/delete', { url });
+      return res.data;
+    },
   });
 }

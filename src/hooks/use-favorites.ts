@@ -1,12 +1,13 @@
-'use client';
-
-import {
-  checkIsFavorited,
-  fetchUserFavorites,
-  toggleFavorite,
-} from '@/lib/server/actions/favorites';
+import api from '@/lib/api-client';
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
 import {toast} from 'sonner';
+
+// Helper to map backend camelCase to frontend snake_case
+const mapFavorite = (f: any) => ({
+  ...f,
+  image_url: f.imageUrl,
+  vendor_id: f.vendorId,
+});
 
 export function useFavorites() {
   const queryClient = useQueryClient();
@@ -14,17 +15,16 @@ export function useFavorites() {
   const {data: favorites = [], isLoading} = useQuery({
     queryKey: ['favorites'],
     queryFn: async () => {
-      const result = await fetchUserFavorites();
-      if (!result.success) return [];
-      return result.data;
+      const res = await api.get('/favorites');
+      const data = res.data.data || res.data;
+      return Array.isArray(data) ? data.map(mapFavorite) : [];
     },
   });
 
   const toggleMutation = useMutation({
     mutationFn: async (productId: number) => {
-      const result = await toggleFavorite(productId);
-      if (!result.success) throw new Error(result.error);
-      return result;
+      const res = await api.post(`/favorites/toggle/${productId}`);
+      return res.data;
     },
     onSuccess: (result, productId) => {
       queryClient.invalidateQueries({queryKey: ['favorites']});
@@ -37,7 +37,7 @@ export function useFavorites() {
       }
     },
     onError: (error: any) => {
-      toast.error(error.message || 'Failed to update favorites');
+      toast.error(error.response?.data?.message || error.message || 'Failed to update favorites');
     },
   });
 
@@ -52,7 +52,10 @@ export function useFavorites() {
 export function useIsFavorited(productId: number) {
   return useQuery({
     queryKey: ['is-favorited', productId],
-    queryFn: () => checkIsFavorited(productId),
+    queryFn: async () => {
+      const res = await api.get(`/favorites/check/${productId}`);
+      return res.data.favorited;
+    },
     enabled: !!productId,
   });
 }

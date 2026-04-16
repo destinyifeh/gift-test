@@ -571,13 +571,13 @@ export class AnalyticsService {
    * Fetch unclaimed gifts sent to a user's email.
    * Mirrors frontend: analytics.ts → fetchUnclaimedGifts
    */
-  async fetchUnclaimedGifts(email: string) {
+  async fetchUnclaimedGifts(userId: string, email: string) {
     const unclaimed = await (this.prisma as any).campaign.findMany({
       where: {
         recipientEmail: email,
         status: { in: ['active', 'pending', 'funded'] },
         giftCode: { not: null },
-        userId: null, // Not yet claimed
+        userId: { not: userId }, // Not yet claimed by the current user
       },
       orderBy: { createdAt: 'desc' },
       include: {

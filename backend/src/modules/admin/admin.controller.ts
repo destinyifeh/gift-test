@@ -3,6 +3,7 @@ import { AdminService } from './admin.service';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { UserRole, AdminRole } from '../../generated/prisma';
 import type { Request } from 'express';
 
 @Controller('admin')
@@ -14,8 +15,7 @@ export class AdminController {
   // ── Dashboard ──
   @Get('stats')
   async getDashboardStats() {
-    const data = await this.adminService.getDashboardStats();
-    return { success: true, data };
+    return this.adminService.getDashboardStats();
   }
 
   // ── User Management ──
@@ -28,7 +28,7 @@ export class AdminController {
   ) {
     return this.adminService.fetchUsers({
       search,
-      role,
+      role: role as UserRole,
       page: Number(page) || 1,
       limit: Number(limit) || 20,
     });
@@ -42,8 +42,12 @@ export class AdminController {
     @Body('adminRole') adminRole: string | null,
   ) {
     const adminId = (req as any).user.id;
-    const user = await this.adminService.updateUserRole(adminId, userId, roles, adminRole);
-    return { success: true, data: user };
+    return this.adminService.updateUserRole(
+      adminId,
+      userId,
+      roles as UserRole[],
+      adminRole as AdminRole | null,
+    );
   }
 
   @Patch('users/:id/status')
@@ -54,13 +58,12 @@ export class AdminController {
     @Body('suspensionEnd') suspensionEnd?: string,
   ) {
     const adminId = (req as any).user.id;
-    const user = await this.adminService.updateUserStatus(
+    return this.adminService.updateUserStatus(
       adminId,
       userId,
       status,
       suspensionEnd ? new Date(suspensionEnd) : undefined,
     );
-    return { success: true, data: user };
   }
 
   // ── Subscription Management ──
@@ -75,6 +78,26 @@ export class AdminController {
       page: Number(page) || 1,
       limit: Number(limit) || 20,
     });
+  }
+
+  @Patch('subscriptions/:id/cancel')
+  async cancelSubscription(
+    @Req() req: Request,
+    @Param('id') id: string,
+    @Body('reason') reason: string,
+  ) {
+    const adminId = (req as any).user.id;
+    return this.adminService.cancelSubscription(adminId, id, reason);
+  }
+
+  @Patch('subscriptions/:id/extend')
+  async extendSubscription(
+    @Req() req: Request,
+    @Param('id') id: string,
+    @Body('days') days: number,
+  ) {
+    const adminId = (req as any).user.id;
+    return this.adminService.extendSubscription(adminId, id, days);
   }
 
   // ── Campaign & Shop Gift Management ──
@@ -104,15 +127,44 @@ export class AdminController {
     });
   }
 
+  @Patch('shop-gifts/:id/invalidate')
+  async invalidateShopGift(
+    @Req() req: Request,
+    @Param('id') id: string,
+    @Body('reason') reason: string,
+  ) {
+    const adminId = (req as any).user.id;
+    return this.adminService.invalidateShopGift(adminId, id, reason);
+  }
+
   @Patch('campaigns/:id/status')
   async updateCampaignStatus(
     @Req() req: Request,
     @Param('id') id: string,
     @Body('status') status: string,
+    @Body('reason') reason?: string,
   ) {
     const adminId = (req as any).user.id;
-    const campaign = await this.adminService.updateCampaignStatus(adminId, id, status);
-    return { success: true, data: campaign };
+    return this.adminService.updateCampaignStatus(adminId, id, status, reason);
+  }
+
+  @Patch('campaigns/:id')
+  async updateCampaignAdmin(
+    @Req() req: Request,
+    @Param('id') id: string,
+    @Body() data: any,
+  ) {
+    const adminId = (req as any).user.id;
+    return this.adminService.updateCampaignAdmin(adminId, id, data);
+  }
+
+  @Post('campaigns/:id/toggle-featured')
+  async toggleCampaignFeatured(
+    @Req() req: Request,
+    @Param('id') id: string,
+  ) {
+    const adminId = (req as any).user.id;
+    return this.adminService.toggleCampaignFeatured(adminId, id);
   }
 
   // ── Transaction & Wallet Management ──
@@ -151,6 +203,16 @@ export class AdminController {
       page: Number(page) || 1,
       limit: Number(limit) || 20,
     });
+  }
+
+  @Patch('wallets/:id/status')
+  async updateWalletStatus(
+    @Req() req: Request,
+    @Param('id') id: string,
+    @Body('status') status: string,
+  ) {
+    const adminId = (req as any).user.id;
+    return this.adminService.updateWalletStatus(adminId, id, status);
   }
 
   @Get('creator-gifts')
@@ -203,6 +265,38 @@ export class AdminController {
     });
   }
 
+  @Post('logs')
+  async createAdminLog(
+    @Req() req: Request,
+    @Body('action') action: string,
+  ) {
+    const adminId = (req as any).user.id;
+    return this.adminService.logAction(adminId, action);
+  }
+
+  @Get('settings')
+  async getSystemSettings() {
+    return this.adminService.getSettings();
+  }
+
+  @Patch('settings')
+  async updateSystemSettings(
+    @Req() req: Request,
+    @Body() settings: any,
+  ) {
+    const adminId = (req as any).user.id;
+    return this.adminService.updateSettings(adminId, settings);
+  }
+
+  @Post('change-password')
+  async changePassword(
+    @Req() req: Request,
+    @Body() data: any,
+  ) {
+    const adminId = (req as any).user.id;
+    return this.adminService.changePassword(adminId, data.currentPassword, data.newPassword, req.headers as any);
+  }
+
   @Delete('logs/:id')
   async deleteAdminLog(
     @Req() req: Request,
@@ -221,8 +315,7 @@ export class AdminController {
     @Body('action') action: 'flag' | 'unflag',
   ) {
     const adminId = (req as any).user.id;
-    const gift = await this.adminService.flagCreatorGift(adminId, id, reason, action);
-    return { success: true, data: gift };
+    return this.adminService.flagCreatorGift(adminId, id, reason, action);
   }
 
   // ── Vendor Management ──
@@ -256,8 +349,7 @@ export class AdminController {
     },
   ) {
     const adminId = (req as any).user.id;
-    const vendor = await this.adminService.updateVendorShopAdmin(adminId, id, data);
-    return { success: true, data: vendor };
+    return this.adminService.updateVendorShopAdmin(adminId, id, data);
   }
 
   @Patch('vendors/:id/verify')
@@ -267,8 +359,7 @@ export class AdminController {
     @Body('isVerified') isVerified: boolean,
   ) {
     const adminId = (req as any).user.id;
-    const vendor = await this.adminService.verifyVendor(adminId, id, isVerified);
-    return { success: true, data: vendor };
+    return this.adminService.verifyVendor(adminId, id, isVerified);
   }
 
   @Patch('vendors/:id/status')
@@ -278,8 +369,7 @@ export class AdminController {
     @Body('vendorStatus') vendorStatus: string,
   ) {
     const adminId = (req as any).user.id;
-    const vendor = await this.adminService.updateVendorStatus(adminId, id, vendorStatus);
-    return { success: true, data: vendor };
+    return this.adminService.updateVendorStatus(adminId, id, vendorStatus);
   }
 
   // ── Product Management ──
@@ -299,8 +389,7 @@ export class AdminController {
     @Body('status') status: string,
   ) {
     const adminId = (req as any).user.id;
-    const product = await this.adminService.updateProductStatusAdmin(adminId, Number(id), status);
-    return { success: true, data: product };
+    return this.adminService.updateProductStatusAdmin(adminId, Number(id), status);
   }
 
   // ── FlexCard Management ──
@@ -328,19 +417,17 @@ export class AdminController {
     @Body('rejectionReason') rejectionReason?: string,
   ) {
     const adminId = (req as any).user.id;
-    const withdrawal = await this.adminService.processWithdrawal(
+    return this.adminService.processWithdrawal(
       adminId,
       Number(id),
       action,
       rejectionReason,
     );
-    return { success: true, data: withdrawal };
   }
 
   // ── System Analytics ──
   @Get('system-analytics')
   async fetchSystemAnalytics() {
-    const data = await this.adminService.fetchSystemAnalytics();
-    return { success: true, data };
+    return this.adminService.fetchSystemAnalytics();
   }
 }

@@ -1,10 +1,11 @@
 import { Controller, All, Get, Post, Body, Req, Res, UseGuards } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { auth } from './better-auth';
+import { toNodeHandler } from 'better-auth/node';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { AuthService } from './auth.service';
 
-@Controller('auth')
+@Controller('api/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
   
@@ -14,7 +15,8 @@ export class AuthController {
    */
   @All('/*path')
   async catchAll(@Req() req: Request, @Res() res: Response) {
-    return (auth as any).handler(req, res);
+    const handler = toNodeHandler(auth);
+    return handler(req, res);
   }
 
   /**
@@ -24,7 +26,6 @@ export class AuthController {
   @UseGuards(AuthGuard)
   async getMe(@Req() req: Request) {
     return {
-      success: true,
       user: (req as any).user,
       session: (req as any).session,
     };
@@ -35,8 +36,12 @@ export class AuthController {
    */
   @Post('change-password')
   @UseGuards(AuthGuard)
-  async changePassword(@Req() req: Request, @Body('newPassword') newPassword: string) {
+  async changePassword(
+    @Req() req: Request, 
+    @Body('currentPassword') currentPassword: string,
+    @Body('newPassword') newPassword: string
+  ) {
     const userId = (req as any).user.id;
-    return this.authService.updatePassword(userId, newPassword);
+    return this.authService.updatePassword(userId, currentPassword, newPassword, req.headers as any);
   }
 }

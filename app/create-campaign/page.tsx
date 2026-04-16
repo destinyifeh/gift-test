@@ -1,406 +1,29 @@
 'use client';
 
-import {RequireAuthUI} from '@/components/guards';
-import Navbar from '@/components/landing/Navbar';
-import {Button} from '@/components/ui/button';
-import {Checkbox} from '@/components/ui/checkbox';
-import {Input} from '@/components/ui/input';
-import {Label} from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {StickyFooter} from '@/components/ui/sticky-footer';
-import {Textarea} from '@/components/ui/textarea';
 import {useIsMobile} from '@/hooks/use-mobile';
 import {useProfile} from '@/hooks/use-profile';
 import {CAMPAIGN_CATEGORIES} from '@/lib/constants/campaigns';
-import {
-  SUPPORTED_CURRENCIES,
-  getCurrencySymbol,
-} from '@/lib/constants/currencies';
-import {cn} from '@/lib/utils';
+import {SUPPORTED_CURRENCIES, getCurrencySymbol} from '@/lib/constants/currencies';
 import {generateSlug} from '@/lib/utils/slugs';
-import {
-  createCampaign,
-  uploadCampaignImage,
-} from '@/lib/server/actions/campaigns';
-import {AnimatePresence, motion} from 'framer-motion';
-import {
-  AlertCircle,
-  ArrowLeft,
-  Check,
-  CheckCircle,
-  ChevronDown,
-  Copy,
-  Globe,
-  Link as LinkIcon,
-  Loader2,
-  Lock,
-  Plus,
-  SendHorizontal,
-  Upload,
-  X,
-} from 'lucide-react';
+import {createCampaign, uploadCampaignImage} from '@/lib/server/actions/campaigns';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {useEffect, useRef, useState} from 'react';
 import {toast} from 'sonner';
 
-// Types
 type SectionId = 'category' | 'details' | 'visibility';
 
-interface FormSectionProps {
-  id: SectionId;
-  title: string;
-  subtitle?: string;
-  isOpen: boolean;
-  isCompleted: boolean;
-  onToggle: () => void;
-  children: React.ReactNode;
-  badge?: string;
-}
+// Material Symbols icons mapped to category ids
+const CATEGORY_ICONS: Record<string, string> = {
+  personal: 'card_giftcard',
+  group: 'groups',
+  appreciation: 'favorite',
+  hobby: 'sports_esports',
+  project: 'work',
+  support: 'wb_sunny',
+  holiday: 'event',
+};
 
-// Collapsible Form Section Component
-function FormSection({
-  id,
-  title,
-  subtitle,
-  isOpen,
-  isCompleted,
-  onToggle,
-  children,
-  badge,
-}: FormSectionProps) {
-  return (
-    <div className="bg-card rounded-2xl border border-border overflow-hidden">
-      <button
-        onClick={onToggle}
-        className={cn(
-          'w-full flex items-center justify-between p-4 md:p-5',
-          'text-left transition-colors min-h-[64px]',
-          isOpen ? 'bg-muted/30' : 'hover:bg-muted/20',
-        )}>
-        <div className="flex items-center gap-3">
-          <div
-            className={cn(
-              'w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors',
-              isCompleted
-                ? 'bg-secondary text-secondary-foreground'
-                : isOpen
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted text-muted-foreground',
-            )}>
-            {isCompleted ? <Check className="w-4 h-4" /> : id === 'category' ? '1' : id === 'details' ? '2' : '3'}
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-foreground">{title}</h3>
-              {badge && (
-                <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
-                  {badge}
-                </span>
-              )}
-            </div>
-            {subtitle && !isOpen && (
-              <p className="text-sm text-muted-foreground mt-0.5">{subtitle}</p>
-            )}
-          </div>
-        </div>
-        <ChevronDown
-          className={cn(
-            'w-5 h-5 text-muted-foreground transition-transform',
-            isOpen && 'rotate-180',
-          )}
-        />
-      </button>
-
-      <AnimatePresence initial={false}>
-        {isOpen && (
-          <motion.div
-            initial={{height: 0, opacity: 0}}
-            animate={{height: 'auto', opacity: 1}}
-            exit={{height: 0, opacity: 0}}
-            transition={{duration: 0.2}}>
-            <div className="p-4 md:p-5 pt-0 md:pt-0 space-y-4">
-              {children}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-// Category List Item with Radio
-function CategoryListItem({
-  category,
-  isSelected,
-  onSelect,
-}: {
-  category: (typeof CAMPAIGN_CATEGORIES)[number];
-  isSelected: boolean;
-  onSelect: () => void;
-}) {
-  const Icon = category.icon;
-
-  return (
-    <button
-      onClick={onSelect}
-      className={cn(
-        'w-full flex items-center gap-3 p-3 rounded-xl transition-all',
-        'active:scale-[0.99] min-h-[56px]',
-        isSelected
-          ? 'bg-primary/5 border border-primary'
-          : 'bg-card border border-border hover:border-primary/40',
-      )}>
-      <div
-        className={cn(
-          'w-9 h-9 rounded-lg flex items-center justify-center shrink-0',
-          isSelected ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground',
-        )}>
-        <Icon className="w-4 h-4" />
-      </div>
-      <div className="flex-1 text-left min-w-0">
-        <p className={cn('font-medium text-sm', isSelected ? 'text-primary' : 'text-foreground')}>
-          {category.label}
-        </p>
-        <p className="text-xs text-muted-foreground truncate">{category.desc}</p>
-      </div>
-      <div
-        className={cn(
-          'w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors',
-          isSelected ? 'border-primary bg-primary' : 'border-muted-foreground/30',
-        )}>
-        {isSelected && <div className="w-2 h-2 rounded-full bg-primary-foreground" />}
-      </div>
-    </button>
-  );
-}
-
-// Visibility List Item with Radio
-function VisibilityListItem({
-  type,
-  isSelected,
-  onSelect,
-}: {
-  type: 'public' | 'private';
-  isSelected: boolean;
-  onSelect: () => void;
-}) {
-  const isPublic = type === 'public';
-  const Icon = isPublic ? Globe : Lock;
-
-  return (
-    <button
-      onClick={onSelect}
-      className={cn(
-        'w-full flex items-center gap-3 p-3 rounded-xl transition-all',
-        'active:scale-[0.99] min-h-[56px]',
-        isSelected
-          ? 'bg-primary/5 border border-primary'
-          : 'bg-card border border-border hover:border-primary/40',
-      )}>
-      <div
-        className={cn(
-          'w-9 h-9 rounded-lg flex items-center justify-center shrink-0',
-          isSelected ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground',
-        )}>
-        <Icon className="w-4 h-4" />
-      </div>
-      <div className="flex-1 text-left min-w-0">
-        <p className={cn('font-medium text-sm', isSelected ? 'text-primary' : 'text-foreground')}>
-          {isPublic ? 'Public Campaign' : 'Private Campaign'}
-        </p>
-        <p className="text-xs text-muted-foreground truncate">
-          {isPublic ? 'Anyone can view and contribute' : 'Only people with link can view'}
-        </p>
-      </div>
-      <div
-        className={cn(
-          'w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors',
-          isSelected ? 'border-primary bg-primary' : 'border-muted-foreground/30',
-        )}>
-        {isSelected && <div className="w-2 h-2 rounded-full bg-primary-foreground" />}
-      </div>
-    </button>
-  );
-}
-
-// Success Screen Component
-function SuccessScreen({title, slug}: {title: string; slug: string}) {
-  const [copied, setCopied] = useState(false);
-  const [origin, setOrigin] = useState('');
-  const isMobile = useIsMobile();
-
-  useEffect(() => {
-    setOrigin(window.location.origin);
-  }, []);
-
-  const campaignLink = `${origin}/campaign/${slug}/${generateSlug(title)}`;
-
-  const handleShare = async () => {
-    const shareText = `Check out my gift campaign: ${title}`;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: title || 'Gift Campaign',
-          text: shareText,
-          url: campaignLink,
-        });
-      } catch (error) {
-        console.log('Error sharing:', error);
-      }
-    } else {
-      navigator.clipboard.writeText(campaignLink);
-      toast.success('Link copied to clipboard!');
-    }
-  };
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(campaignLink);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="pt-20 md:pt-24 pb-32 md:pb-16">
-        <div className="container mx-auto px-4 max-w-lg">
-          {/* Success Header */}
-          <div className="text-center mb-8">
-            <motion.div
-              initial={{scale: 0}}
-              animate={{scale: 1}}
-              transition={{type: 'spring', stiffness: 200, damping: 15}}
-              className="w-20 h-20 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-12 h-12 text-secondary" />
-            </motion.div>
-            <motion.h1
-              initial={{opacity: 0, y: 10}}
-              animate={{opacity: 1, y: 0}}
-              transition={{delay: 0.2}}
-              className="text-2xl md:text-3xl font-bold font-display text-foreground mb-2">
-              Campaign Created! 🎉
-            </motion.h1>
-            <motion.p
-              initial={{opacity: 0}}
-              animate={{opacity: 1}}
-              transition={{delay: 0.3}}
-              className="text-muted-foreground">
-              Share your campaign and start receiving contributions
-            </motion.p>
-          </div>
-
-          {/* Campaign Link Card */}
-          <motion.div
-            initial={{opacity: 0, y: 20}}
-            animate={{opacity: 1, y: 0}}
-            transition={{delay: 0.4}}
-            className="bg-card rounded-2xl border border-border p-4 md:p-6 space-y-4 mb-4">
-            <div>
-              <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2 block">
-                Campaign Link
-              </Label>
-              <div className="flex items-center gap-2 bg-muted rounded-xl px-4 py-3 border border-border">
-                <LinkIcon className="w-4 h-4 text-muted-foreground shrink-0" />
-                <span className="font-mono text-sm text-foreground truncate flex-1">
-                  {campaignLink}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="lg"
-                className={cn(
-                  'flex-1 h-12',
-                  copied && 'border-green-500 text-green-600',
-                )}
-                onClick={handleCopy}>
-                {copied ? (
-                  <>
-                    <CheckCircle className="w-4 h-4 mr-2" /> Copied!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4 mr-2" /> Copy Link
-                  </>
-                )}
-              </Button>
-              <Button variant="hero" size="lg" className="flex-1 h-12" onClick={handleShare}>
-                <Plus className="w-4 h-4 mr-2" /> Share
-              </Button>
-            </div>
-          </motion.div>
-
-          {/* Invite Section */}
-          <motion.div
-            initial={{opacity: 0, y: 20}}
-            animate={{opacity: 1, y: 0}}
-            transition={{delay: 0.5}}
-            className="bg-card rounded-2xl border border-border p-4 md:p-6 space-y-4 mb-4">
-            <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-              Invite Contributors
-            </Label>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Input
-                placeholder="Enter emails separated by commas"
-                className="bg-muted border-border h-12"
-              />
-              <Button variant="hero" size="lg" className="shrink-0 h-12">
-                <SendHorizontal className="w-4 h-4 mr-2" /> Send
-              </Button>
-            </div>
-          </motion.div>
-
-          {/* Actions - Fixed on mobile */}
-          {isMobile ? (
-            <StickyFooter className="bg-background border-t border-border">
-              <div className="flex gap-3">
-                <Link href={`/campaign/${slug}/${generateSlug(title)}`} className="flex-1">
-                  <Button variant="hero" size="lg" className="w-full h-12">
-                    View Campaign
-                  </Button>
-                </Link>
-                <Link href="/dashboard">
-                  <Button variant="outline" size="lg" className="h-12">
-                    Dashboard
-                  </Button>
-                </Link>
-              </div>
-            </StickyFooter>
-          ) : (
-            <motion.div
-              initial={{opacity: 0, y: 20}}
-              animate={{opacity: 1, y: 0}}
-              transition={{delay: 0.6}}
-              className="flex gap-3">
-              <Link href={`/campaign/${slug}/${generateSlug(title)}`} className="flex-1">
-                <Button variant="hero" size="lg" className="w-full h-12">
-                  View Campaign
-                </Button>
-              </Link>
-              <Link href="/dashboard" className="flex-1">
-                <Button variant="outline" size="lg" className="w-full h-12">
-                  Go to Dashboard
-                </Button>
-              </Link>
-            </motion.div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Main Page Component
 export default function CreateCampaignPage() {
   const router = useRouter();
   const isMobile = useIsMobile();
@@ -430,7 +53,7 @@ export default function CreateCampaignPage() {
   useEffect(() => {
     if (profile?.country && !hasSetDefaultCurrency) {
       const userCurrency = SUPPORTED_CURRENCIES.find(
-        c => c.country === profile.country && c.canCreate,
+        c => c.country === profile.country && c.canCreate
       );
       if (userCurrency) {
         setCurrency(userCurrency.code);
@@ -442,7 +65,6 @@ export default function CreateCampaignPage() {
   // Section completion checks
   const isCategoryComplete = !!category;
   const isDetailsComplete = !!title;
-  const isVisibilityComplete = true; // Always has a default
 
   // Get selected category details
   const selectedCategory = CAMPAIGN_CATEGORIES.find(c => c.id === category);
@@ -526,7 +148,7 @@ export default function CreateCampaignPage() {
           setCreatedSlug(result.data.campaign_short_id);
         }
         setSubmitted(true);
-        toast.success('Campaign launched successfully! 🚀');
+        toast.success('Campaign launched successfully!');
       } else {
         toast.error(result.error || 'Failed to launch campaign');
       }
@@ -539,12 +161,7 @@ export default function CreateCampaignPage() {
 
   // Handle section toggle
   const handleSectionToggle = (section: SectionId) => {
-    if (openSection === section) {
-      // Close the section - don't open any
-      setOpenSection('' as SectionId);
-    } else {
-      setOpenSection(section);
-    }
+    setOpenSection(openSection === section ? ('' as SectionId) : section);
   };
 
   // Handle category selection
@@ -558,337 +175,669 @@ export default function CreateCampaignPage() {
   }
 
   return (
-    <RequireAuthUI header={<Navbar />} redirectPath="/create-campaign">
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="pt-20 md:pt-24 pb-32 md:pb-16">
-          <div className="container mx-auto px-4 max-w-xl">
-            {/* Page Header */}
-            <div className="mb-6 md:mb-8">
-              <button
-                onClick={() => router.back()}
-                className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-4">
-                <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Back</span>
-              </button>
-              <h1 className="text-2xl md:text-3xl font-bold font-display text-foreground">
-                Create Campaign
-              </h1>
-              <p className="text-muted-foreground mt-1">
-                Start a fundraising campaign for any occasion
-              </p>
-            </div>
+    <div className="min-h-screen bg-[var(--v2-background)] pb-32 md:pb-8">
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-[var(--v2-surface)]/80 backdrop-blur-xl border-b border-[var(--v2-outline-variant)]/10">
+        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center">
+          <button
+            onClick={() => router.back()}
+            className="w-10 h-10 -ml-2 flex items-center justify-center rounded-xl hover:bg-[var(--v2-surface-container-high)] transition-colors"
+          >
+            <span className="v2-icon text-[var(--v2-on-surface)]">arrow_back</span>
+          </button>
+          <h1 className="text-lg font-bold v2-headline text-[var(--v2-on-surface)] ml-2">
+            Create Campaign
+          </h1>
+        </div>
+      </header>
 
-            {/* Form Sections */}
-            <div className="space-y-3 md:space-y-4">
-              {/* Category Section */}
-              <FormSection
-                id="category"
-                title="Campaign Type"
-                subtitle={selectedCategory?.label || 'Select a category'}
-                isOpen={openSection === 'category'}
-                isCompleted={isCategoryComplete}
-                onToggle={() => handleSectionToggle('category')}
-                badge={selectedCategory?.label}>
-                <div className="space-y-2">
-                  {CAMPAIGN_CATEGORIES.map(cat => (
-                    <CategoryListItem
-                      key={cat.id}
-                      category={cat}
-                      isSelected={category === cat.id}
-                      onSelect={() => handleCategorySelect(cat.id)}
-                    />
-                  ))}
-                </div>
-              </FormSection>
+      <main className="max-w-2xl mx-auto px-4 py-6">
+        {/* Page Header */}
+        <div className="mb-6">
+          <p className="text-[var(--v2-on-surface-variant)]">
+            Start a fundraising campaign for any occasion
+          </p>
+        </div>
 
-              {/* Details Section */}
-              <FormSection
-                id="details"
-                title="Campaign Details"
-                subtitle={title || 'Add title, goal, and more'}
-                isOpen={openSection === 'details'}
-                isCompleted={isDetailsComplete}
-                onToggle={() => handleSectionToggle('details')}>
-                <div className="space-y-4">
-                  {/* Title */}
-                  <div>
-                    <Label htmlFor="title">Campaign Title *</Label>
-                    <Input
-                      id="title"
-                      value={title}
-                      onChange={e => setTitle(e.target.value)}
-                      placeholder="e.g., Sarah's Birthday Fund"
-                      className="h-12 mt-1.5"
-                    />
+        {/* Form Sections */}
+        <div className="space-y-3">
+          {/* Category Section */}
+          <CollapsibleSection
+            title="Campaign Type"
+            subtitle={selectedCategory?.label || 'Select a category'}
+            badge={selectedCategory?.label}
+            stepNumber={1}
+            isOpen={openSection === 'category'}
+            isCompleted={isCategoryComplete}
+            onToggle={() => handleSectionToggle('category')}
+          >
+            <div className="space-y-2">
+              {CAMPAIGN_CATEGORIES.map(cat => (
+                <button
+                  key={cat.id}
+                  onClick={() => handleCategorySelect(cat.id)}
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all active:scale-[0.99] ${
+                    category === cat.id
+                      ? 'bg-[var(--v2-primary)]/5 border-2 border-[var(--v2-primary)]'
+                      : 'bg-[var(--v2-surface-container-lowest)] border-2 border-transparent hover:border-[var(--v2-primary)]/40'
+                  }`}
+                >
+                  <div
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                      category === cat.id
+                        ? 'bg-[var(--v2-primary)] text-[var(--v2-on-primary)]'
+                        : 'bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface-variant)]'
+                    }`}
+                  >
+                    <span className="v2-icon">{CATEGORY_ICONS[cat.id] || 'category'}</span>
                   </div>
-
-                  {/* Description */}
-                  <div>
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea
-                      id="description"
-                      value={description}
-                      onChange={e => setDescription(e.target.value)}
-                      placeholder="Tell your supporters why you're raising funds..."
-                      rows={3}
-                      className="mt-1.5 resize-none"
-                    />
-                  </div>
-
-                  {/* Currency */}
-                  <div>
-                    <Label htmlFor="currency">Currency</Label>
-                    <p className="text-xs text-muted-foreground mb-1.5">
-                      Based on your account country
+                  <div className="flex-1 text-left">
+                    <p
+                      className={`font-semibold text-sm ${
+                        category === cat.id
+                          ? 'text-[var(--v2-primary)]'
+                          : 'text-[var(--v2-on-surface)]'
+                      }`}
+                    >
+                      {cat.label}
                     </p>
-                    <Select disabled value={currency} onValueChange={setCurrency}>
-                      <SelectTrigger id="currency" className="h-12">
-                        <SelectValue placeholder="Select Currency" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {SUPPORTED_CURRENCIES.filter(c => c.canCreate).map(c => (
-                          <SelectItem key={c.code} value={c.code}>
-                            <span className="flex items-center gap-2">
-                              <span>{c.flag}</span>
-                              <span>{c.label} ({c.symbol})</span>
-                            </span>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {profile?.country &&
-                      SUPPORTED_CURRENCIES.find(c => c.code === currency)?.country !== profile.country && (
-                        <div className="flex items-start gap-2 mt-2 p-2 rounded-lg bg-orange-50 border border-orange-100 text-orange-800 text-xs">
-                          <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-                          <p>
-                            You can only withdraw to a{' '}
-                            {SUPPORTED_CURRENCIES.find(c => c.code === currency)?.label} bank account.
-                          </p>
-                        </div>
-                      )}
+                    <p className="text-xs text-[var(--v2-on-surface-variant)] truncate">
+                      {cat.desc}
+                    </p>
                   </div>
-
-                  {/* Goal & Min Amount */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <Label htmlFor="goal">Goal Amount</Label>
-                      <div className="relative mt-1.5">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">
-                          {getCurrencySymbol(currency)}
-                        </span>
-                        <Input
-                          id="goal"
-                          type="number"
-                          value={goal}
-                          onChange={e => setGoal(e.target.value)}
-                          placeholder="0.00"
-                          className="pl-10 h-12"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <Label htmlFor="min-amount">Min. Amount</Label>
-                      <div className="relative mt-1.5">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">
-                          {getCurrencySymbol(currency)}
-                        </span>
-                        <Input
-                          id="min-amount"
-                          type="number"
-                          value={minAmount}
-                          onChange={e => setMinAmount(e.target.value)}
-                          placeholder="0.00"
-                          className="pl-10 h-12"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* End Date */}
-                  <div>
-                    <Label htmlFor="end-date">End Date (Optional)</Label>
-                    <Input
-                      id="end-date"
-                      type="date"
-                      value={endDate}
-                      onChange={e => setEndDate(e.target.value)}
-                      className="h-12 mt-1.5"
-                    />
-                  </div>
-
-                  {/* Image Upload */}
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <Label>Cover Image</Label>
-                      <span className="text-xs text-muted-foreground">Optional</span>
-                    </div>
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      className="hidden"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                    />
-                    <div
-                      onClick={() => fileInputRef.current?.click()}
-                      className={cn(
-                        'border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-colors min-h-[120px] flex flex-col items-center justify-center relative',
-                        image
-                          ? 'border-primary/30 bg-primary/5'
-                          : 'border-border hover:border-primary/40',
-                      )}>
-                      {image ? (
-                        <div className="relative w-full">
-                          <img
-                            src={image}
-                            alt="Preview"
-                            className="max-h-[160px] w-auto mx-auto rounded-lg object-contain"
-                          />
-                          <button
-                            onClick={e => {
-                              e.stopPropagation();
-                              setImage(null);
-                            }}
-                            className="absolute top-2 right-2 w-7 h-7 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center hover:scale-110 transition-transform">
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <>
-                          <Upload className="w-8 h-8 text-muted-foreground mb-2" />
-                          <p className="text-sm text-foreground font-medium">
-                            Tap to upload
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            PNG, JPG up to 2MB
-                          </p>
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Continue Button */}
-                  <Button
-                    variant="hero"
-                    size="lg"
-                    className="w-full h-12 mt-2"
-                    onClick={() => setOpenSection('visibility')}>
-                    Continue to Visibility
-                  </Button>
-                </div>
-              </FormSection>
-
-              {/* Visibility Section */}
-              <FormSection
-                id="visibility"
-                title="Visibility"
-                subtitle={visibility === 'public' ? 'Public campaign' : 'Private campaign'}
-                isOpen={openSection === 'visibility'}
-                isCompleted={isVisibilityComplete}
-                onToggle={() => handleSectionToggle('visibility')}>
-                <div className="space-y-4">
-                  {/* Visibility Options */}
-                  <div className="space-y-2">
-                    <VisibilityListItem
-                      type="public"
-                      isSelected={visibility === 'public'}
-                      onSelect={() => setVisibility('public')}
-                    />
-                    <VisibilityListItem
-                      type="private"
-                      isSelected={visibility === 'private'}
-                      onSelect={() => setVisibility('private')}
-                    />
-                  </div>
-
-                  {/* Private Options */}
-                  <AnimatePresence>
-                    {visibility === 'private' && (
-                      <motion.div
-                        initial={{opacity: 0, height: 0}}
-                        animate={{opacity: 1, height: 'auto'}}
-                        exit={{opacity: 0, height: 0}}
-                        className="bg-muted/50 rounded-xl p-4 space-y-3 border border-border">
-                        <p className="font-medium text-foreground text-sm">
-                          Privacy Settings
-                        </p>
-                        <div className="space-y-3">
-                          <label className="flex items-start gap-3 cursor-pointer">
-                            <Checkbox
-                              checked={contributorsSeeEachOther}
-                              onCheckedChange={v => setContributorsSeeEachOther(!!v)}
-                              className="mt-0.5"
-                            />
-                            <div>
-                              <p className="font-medium text-sm">Contributors can see each other</p>
-                              <p className="text-xs text-muted-foreground">
-                                Social campaign feel
-                              </p>
-                            </div>
-                          </label>
-                          <label className="flex items-start gap-3 cursor-pointer">
-                            <Checkbox
-                              checked={!contributorsSeeEachOther}
-                              onCheckedChange={v => setContributorsSeeEachOther(!v)}
-                              className="mt-0.5"
-                            />
-                            <div>
-                              <p className="font-medium text-sm">Fully private</p>
-                              <p className="text-xs text-muted-foreground">
-                                No one sees other contributors
-                              </p>
-                            </div>
-                          </label>
-                        </div>
-                      </motion.div>
+                  <div
+                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                      category === cat.id
+                        ? 'border-[var(--v2-primary)] bg-[var(--v2-primary)]'
+                        : 'border-[var(--v2-on-surface-variant)]/30'
+                    }`}
+                  >
+                    {category === cat.id && (
+                      <div className="w-2 h-2 rounded-full bg-[var(--v2-on-primary)]" />
                     )}
-                  </AnimatePresence>
-                </div>
-              </FormSection>
+                  </div>
+                </button>
+              ))}
             </div>
+          </CollapsibleSection>
 
-            {/* Sticky CTA Footer */}
-            {isMobile ? (
-              <StickyFooter className="bg-background border-t border-border">
-                <Button
-                  variant="hero"
-                  size="lg"
-                  className="w-full h-14 text-base font-semibold"
-                  disabled={isLaunching || !category || !title}
-                  onClick={handleLaunch}>
-                  {isLaunching ? (
-                    <>
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      Creating...
-                    </>
-                  ) : (
-                    'Launch Campaign 🚀'
-                  )}
-                </Button>
-              </StickyFooter>
-            ) : (
-              <div className="mt-6">
-                <Button
-                  variant="hero"
-                  size="lg"
-                  className="w-full h-14 text-base font-semibold"
-                  disabled={isLaunching || !category || !title}
-                  onClick={handleLaunch}>
-                  {isLaunching ? (
-                    <>
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      Creating Campaign...
-                    </>
-                  ) : (
-                    'Launch Campaign 🚀'
-                  )}
-                </Button>
+          {/* Details Section */}
+          <CollapsibleSection
+            title="Campaign Details"
+            subtitle={title || 'Add title, goal, and more'}
+            stepNumber={2}
+            isOpen={openSection === 'details'}
+            isCompleted={isDetailsComplete}
+            onToggle={() => handleSectionToggle('details')}
+          >
+            <div className="space-y-4">
+              {/* Title */}
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-[var(--v2-on-surface)]">
+                  Campaign Title <span className="text-[var(--v2-error)]">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={e => setTitle(e.target.value)}
+                  placeholder="e.g., Sarah's Birthday Fund"
+                  className="w-full h-12 px-4 bg-[var(--v2-surface-container-lowest)] rounded-xl text-[var(--v2-on-surface)] placeholder:text-[var(--v2-on-surface-variant)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--v2-primary)]/20"
+                />
               </div>
+
+              {/* Description */}
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-[var(--v2-on-surface)]">
+                  Description
+                </label>
+                <textarea
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  placeholder="Tell your supporters why you're raising funds..."
+                  rows={3}
+                  className="w-full px-4 py-3 bg-[var(--v2-surface-container-lowest)] rounded-xl text-[var(--v2-on-surface)] placeholder:text-[var(--v2-on-surface-variant)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 resize-none"
+                />
+              </div>
+
+              {/* Currency */}
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-[var(--v2-on-surface)]">
+                  Currency
+                </label>
+                <p className="text-xs text-[var(--v2-on-surface-variant)]">
+                  Based on your account country
+                </p>
+                <div className="relative">
+                  <select
+                    value={currency}
+                    onChange={e => setCurrency(e.target.value)}
+                    disabled
+                    className="w-full h-12 px-4 bg-[var(--v2-surface-container-lowest)] rounded-xl text-[var(--v2-on-surface)] appearance-none focus:outline-none opacity-70 cursor-not-allowed"
+                  >
+                    {SUPPORTED_CURRENCIES.filter(c => c.canCreate).map(c => (
+                      <option key={c.code} value={c.code}>
+                        {c.flag} {c.label} ({c.symbol})
+                      </option>
+                    ))}
+                  </select>
+                  <span className="v2-icon absolute right-4 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)] pointer-events-none">
+                    expand_more
+                  </span>
+                </div>
+              </div>
+
+              {/* Goal & Min Amount */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-[var(--v2-on-surface)]">
+                    Goal Amount
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)] font-medium">
+                      {getCurrencySymbol(currency)}
+                    </span>
+                    <input
+                      type="number"
+                      value={goal}
+                      onChange={e => setGoal(e.target.value)}
+                      placeholder="0.00"
+                      className="w-full h-12 pl-10 pr-4 bg-[var(--v2-surface-container-lowest)] rounded-xl text-[var(--v2-on-surface)] placeholder:text-[var(--v2-on-surface-variant)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--v2-primary)]/20"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-[var(--v2-on-surface)]">
+                    Min. Amount
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)] font-medium">
+                      {getCurrencySymbol(currency)}
+                    </span>
+                    <input
+                      type="number"
+                      value={minAmount}
+                      onChange={e => setMinAmount(e.target.value)}
+                      placeholder="0.00"
+                      className="w-full h-12 pl-10 pr-4 bg-[var(--v2-surface-container-lowest)] rounded-xl text-[var(--v2-on-surface)] placeholder:text-[var(--v2-on-surface-variant)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--v2-primary)]/20"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* End Date */}
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-[var(--v2-on-surface)]">
+                  End Date (Optional)
+                </label>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={e => setEndDate(e.target.value)}
+                  className="w-full h-12 px-4 bg-[var(--v2-surface-container-lowest)] rounded-xl text-[var(--v2-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--v2-primary)]/20"
+                />
+              </div>
+
+              {/* Image Upload */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block text-sm font-bold text-[var(--v2-on-surface)]">
+                    Cover Image
+                  </label>
+                  <span className="text-xs text-[var(--v2-on-surface-variant)]">Optional</span>
+                </div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                />
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-colors min-h-[120px] flex flex-col items-center justify-center relative ${
+                    image
+                      ? 'border-[var(--v2-primary)]/30 bg-[var(--v2-primary)]/5'
+                      : 'border-[var(--v2-outline-variant)]/30 hover:border-[var(--v2-primary)]/40'
+                  }`}
+                >
+                  {image ? (
+                    <div className="relative w-full">
+                      <img
+                        src={image}
+                        alt="Preview"
+                        className="max-h-[160px] w-auto mx-auto rounded-xl object-contain"
+                      />
+                      <button
+                        onClick={e => {
+                          e.stopPropagation();
+                          setImage(null);
+                        }}
+                        className="absolute top-2 right-2 w-8 h-8 rounded-full bg-[var(--v2-error)] text-[var(--v2-on-error)] flex items-center justify-center hover:scale-110 transition-transform"
+                      >
+                        <span className="v2-icon text-sm">close</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <span className="v2-icon text-3xl text-[var(--v2-on-surface-variant)] mb-2">
+                        cloud_upload
+                      </span>
+                      <p className="text-sm text-[var(--v2-on-surface)] font-medium">
+                        Tap to upload
+                      </p>
+                      <p className="text-xs text-[var(--v2-on-surface-variant)] mt-1">
+                        PNG, JPG up to 2MB
+                      </p>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <button
+                onClick={() => setOpenSection('visibility')}
+                className="w-full h-12 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-2xl transition-transform active:scale-[0.98]"
+              >
+                Continue to Visibility
+              </button>
+            </div>
+          </CollapsibleSection>
+
+          {/* Visibility Section */}
+          <CollapsibleSection
+            title="Visibility"
+            subtitle={visibility === 'public' ? 'Public campaign' : 'Private campaign'}
+            stepNumber={3}
+            isOpen={openSection === 'visibility'}
+            isCompleted={true}
+            onToggle={() => handleSectionToggle('visibility')}
+          >
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <VisibilityOption
+                  type="public"
+                  isSelected={visibility === 'public'}
+                  onSelect={() => setVisibility('public')}
+                />
+                <VisibilityOption
+                  type="private"
+                  isSelected={visibility === 'private'}
+                  onSelect={() => setVisibility('private')}
+                />
+              </div>
+
+              {visibility === 'private' && (
+                <div className="bg-[var(--v2-surface-container-highest)] rounded-xl p-4 space-y-3">
+                  <p className="font-semibold text-[var(--v2-on-surface)] text-sm">
+                    Privacy Settings
+                  </p>
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={contributorsSeeEachOther}
+                      onChange={e => setContributorsSeeEachOther(e.target.checked)}
+                      className="w-5 h-5 rounded accent-[var(--v2-primary)] mt-0.5"
+                    />
+                    <div>
+                      <p className="font-medium text-sm text-[var(--v2-on-surface)]">
+                        Contributors can see each other
+                      </p>
+                      <p className="text-xs text-[var(--v2-on-surface-variant)]">
+                        Social campaign feel
+                      </p>
+                    </div>
+                  </label>
+                  <label className="flex items-start gap-3 cursor-pointer border-t border-[var(--v2-outline-variant)]/20 pt-3">
+                    <input
+                      type="checkbox"
+                      checked={!contributorsSeeEachOther}
+                      onChange={e => setContributorsSeeEachOther(!e.target.checked)}
+                      className="w-5 h-5 rounded accent-[var(--v2-primary)] mt-0.5"
+                    />
+                    <div>
+                      <p className="font-medium text-sm text-[var(--v2-on-surface)]">
+                        Fully private
+                      </p>
+                      <p className="text-xs text-[var(--v2-on-surface-variant)]">
+                        No one sees other contributors
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              )}
+            </div>
+          </CollapsibleSection>
+        </div>
+      </main>
+
+      {/* Sticky CTA Footer */}
+      {isMobile ? (
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-[var(--v2-surface)]/90 backdrop-blur-xl border-t border-[var(--v2-outline-variant)]/10 pb-safe">
+          <button
+            onClick={handleLaunch}
+            disabled={isLaunching || !category || !title}
+            className="w-full h-14 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-2xl flex items-center justify-center gap-2 transition-transform active:scale-[0.98] disabled:opacity-50 shadow-lg shadow-[var(--v2-primary)]/20"
+          >
+            {isLaunching ? (
+              <>
+                <span className="v2-icon animate-spin">progress_activity</span>
+                Creating...
+              </>
+            ) : (
+              'Launch Campaign 🚀'
+            )}
+          </button>
+        </div>
+      ) : (
+        <div className="max-w-2xl mx-auto px-4 mt-6">
+          <button
+            onClick={handleLaunch}
+            disabled={isLaunching || !category || !title}
+            className="w-full h-14 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-2xl flex items-center justify-center gap-2 transition-transform active:scale-[0.98] disabled:opacity-50"
+          >
+            {isLaunching ? (
+              <>
+                <span className="v2-icon animate-spin">progress_activity</span>
+                Creating Campaign...
+              </>
+            ) : (
+              'Launch Campaign 🚀'
+            )}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+interface CollapsibleSectionProps {
+  title: string;
+  subtitle: string;
+  badge?: string;
+  stepNumber: number;
+  isOpen: boolean;
+  isCompleted: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}
+
+function CollapsibleSection({
+  title,
+  subtitle,
+  badge,
+  stepNumber,
+  isOpen,
+  isCompleted,
+  onToggle,
+  children,
+}: CollapsibleSectionProps) {
+  return (
+    <div
+      className={`bg-[var(--v2-surface-container-low)] rounded-[1.25rem] overflow-hidden transition-colors ${
+        isOpen ? '' : 'hover:bg-[var(--v2-surface-container)]'
+      }`}
+    >
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center justify-between p-4 text-left"
+      >
+        <div className="flex items-center gap-3">
+          <div
+            className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${
+              isCompleted
+                ? 'bg-[var(--v2-secondary)] text-[var(--v2-on-secondary)]'
+                : isOpen
+                  ? 'bg-[var(--v2-primary)] text-[var(--v2-on-primary)]'
+                  : 'bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface-variant)]'
+            }`}
+          >
+            {isCompleted ? (
+              <span className="v2-icon text-sm">check</span>
+            ) : (
+              stepNumber
+            )}
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold text-[var(--v2-on-surface)]">{title}</h3>
+              {badge && (
+                <span className="text-[10px] bg-[var(--v2-primary)]/10 text-[var(--v2-primary)] px-2 py-0.5 rounded-full font-bold">
+                  {badge}
+                </span>
+              )}
+            </div>
+            {!isOpen && (
+              <p className="text-sm text-[var(--v2-on-surface-variant)] mt-0.5">{subtitle}</p>
             )}
           </div>
         </div>
+        <span
+          className={`v2-icon text-[var(--v2-on-surface-variant)] transition-transform ${
+            isOpen ? 'rotate-180' : ''
+          }`}
+        >
+          expand_more
+        </span>
+      </button>
+
+      {isOpen && (
+        <div className="px-4 pb-4 pt-0">
+          <div className="pt-2 border-t border-[var(--v2-outline-variant)]/10">{children}</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function VisibilityOption({
+  type,
+  isSelected,
+  onSelect,
+}: {
+  type: 'public' | 'private';
+  isSelected: boolean;
+  onSelect: () => void;
+}) {
+  const isPublic = type === 'public';
+
+  return (
+    <button
+      onClick={onSelect}
+      className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all active:scale-[0.99] ${
+        isSelected
+          ? 'bg-[var(--v2-primary)]/5 border-2 border-[var(--v2-primary)]'
+          : 'bg-[var(--v2-surface-container-lowest)] border-2 border-transparent hover:border-[var(--v2-primary)]/40'
+      }`}
+    >
+      <div
+        className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+          isSelected
+            ? 'bg-[var(--v2-primary)] text-[var(--v2-on-primary)]'
+            : 'bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface-variant)]'
+        }`}
+      >
+        <span className="v2-icon">{isPublic ? 'public' : 'lock'}</span>
       </div>
-    </RequireAuthUI>
+      <div className="flex-1 text-left">
+        <p
+          className={`font-semibold text-sm ${
+            isSelected ? 'text-[var(--v2-primary)]' : 'text-[var(--v2-on-surface)]'
+          }`}
+        >
+          {isPublic ? 'Public Campaign' : 'Private Campaign'}
+        </p>
+        <p className="text-xs text-[var(--v2-on-surface-variant)]">
+          {isPublic ? 'Anyone can view and contribute' : 'Only people with link can view'}
+        </p>
+      </div>
+      <div
+        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+          isSelected
+            ? 'border-[var(--v2-primary)] bg-[var(--v2-primary)]'
+            : 'border-[var(--v2-on-surface-variant)]/30'
+        }`}
+      >
+        {isSelected && <div className="w-2 h-2 rounded-full bg-[var(--v2-on-primary)]" />}
+      </div>
+    </button>
+  );
+}
+
+function SuccessScreen({title, slug}: {title: string; slug: string}) {
+  const [copied, setCopied] = useState(false);
+  const [origin, setOrigin] = useState('');
+  const isMobile = useIsMobile();
+
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
+
+  const campaignLink = `${origin}/campaigns/${slug}/${generateSlug(title)}`;
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: title || 'Gift Campaign',
+          text: `Check out my gift campaign: ${title}`,
+          url: campaignLink,
+        });
+      } catch {
+        navigator.clipboard.writeText(campaignLink);
+        toast.success('Link copied to clipboard!');
+      }
+    } else {
+      navigator.clipboard.writeText(campaignLink);
+      toast.success('Link copied to clipboard!');
+    }
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(campaignLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="min-h-screen bg-[var(--v2-background)] pb-32 md:pb-8">
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-[var(--v2-surface)]/80 backdrop-blur-xl border-b border-[var(--v2-outline-variant)]/10">
+        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-center">
+          <Link href="/" className="inline-flex items-center gap-2">
+            <span
+              className="v2-icon text-2xl text-[var(--v2-primary)]"
+              style={{fontVariationSettings: "'FILL' 1"}}
+            >
+              card_giftcard
+            </span>
+            <span className="text-lg font-bold v2-headline text-[var(--v2-on-surface)]">
+              Gifthance
+            </span>
+          </Link>
+        </div>
+      </header>
+
+      <main className="max-w-lg mx-auto px-4 py-8">
+        {/* Success Header */}
+        <div className="text-center mb-8">
+          <div className="w-20 h-20 bg-[var(--v2-secondary)]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span
+              className="v2-icon text-4xl text-[var(--v2-secondary)]"
+              style={{fontVariationSettings: "'FILL' 1"}}
+            >
+              check_circle
+            </span>
+          </div>
+          <h1 className="text-2xl md:text-3xl font-bold v2-headline text-[var(--v2-on-surface)] mb-2">
+            Campaign Created! 🎉
+          </h1>
+          <p className="text-[var(--v2-on-surface-variant)]">
+            Share your campaign and start receiving contributions
+          </p>
+        </div>
+
+        {/* Campaign Link Card */}
+        <div className="bg-[var(--v2-surface-container-low)] rounded-[1.5rem] p-5 mb-4">
+          <label className="text-xs uppercase tracking-wider text-[var(--v2-on-surface-variant)] font-bold mb-2 block">
+            Campaign Link
+          </label>
+          <div className="flex items-center gap-2 bg-[var(--v2-surface-container-lowest)] rounded-xl px-4 py-3 mb-4">
+            <span className="v2-icon text-[var(--v2-on-surface-variant)]">link</span>
+            <span className="font-mono text-sm text-[var(--v2-on-surface)] truncate flex-1">
+              {campaignLink}
+            </span>
+          </div>
+
+          <div className="flex gap-2">
+            <button
+              onClick={handleCopy}
+              className={`flex-1 h-12 flex items-center justify-center gap-2 font-bold rounded-2xl transition-colors ${
+                copied
+                  ? 'bg-[var(--v2-secondary)]/10 text-[var(--v2-secondary)] border-2 border-[var(--v2-secondary)]'
+                  : 'bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface)] border-2 border-transparent'
+              }`}
+            >
+              <span className="v2-icon">{copied ? 'check_circle' : 'content_copy'}</span>
+              {copied ? 'Copied!' : 'Copy Link'}
+            </button>
+            <button
+              onClick={handleShare}
+              className="flex-1 h-12 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-2xl flex items-center justify-center gap-2"
+            >
+              <span className="v2-icon">share</span>
+              Share
+            </button>
+          </div>
+        </div>
+
+        {/* Invite Section */}
+        <div className="bg-[var(--v2-surface-container-low)] rounded-[1.5rem] p-5 mb-4">
+          <label className="text-xs uppercase tracking-wider text-[var(--v2-on-surface-variant)] font-bold mb-3 block">
+            Invite Contributors
+          </label>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <input
+              type="text"
+              placeholder="Enter emails separated by commas"
+              className="flex-1 h-12 px-4 bg-[var(--v2-surface-container-lowest)] rounded-xl text-[var(--v2-on-surface)] placeholder:text-[var(--v2-on-surface-variant)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--v2-primary)]/20"
+            />
+            <button className="h-12 px-6 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-2xl flex items-center justify-center gap-2 shrink-0">
+              <span className="v2-icon">send</span>
+              Send
+            </button>
+          </div>
+        </div>
+
+        {/* Actions */}
+        {isMobile ? (
+          <div className="fixed bottom-0 left-0 right-0 p-4 bg-[var(--v2-surface)]/90 backdrop-blur-xl border-t border-[var(--v2-outline-variant)]/10 pb-safe">
+            <div className="flex gap-3">
+              <Link href={`/campaign/${slug}/${generateSlug(title)}`} className="flex-1">
+                <button className="w-full h-12 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-2xl">
+                  View Campaign
+                </button>
+              </Link>
+              <Link href="/dashboard">
+                <button className="h-12 px-6 bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface)] font-bold rounded-2xl">
+                  Dashboard
+                </button>
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="flex gap-3">
+            <Link href={`/campaign/${slug}/${generateSlug(title)}`} className="flex-1">
+              <button className="w-full h-12 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-2xl">
+                View Campaign
+              </button>
+            </Link>
+            <Link href="/dashboard" className="flex-1">
+              <button className="w-full h-12 bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface)] font-bold rounded-2xl hover:bg-[var(--v2-surface-container-highest)] transition-colors">
+                Go to Dashboard
+              </button>
+            </Link>
+          </div>
+        )}
+      </main>
+    </div>
   );
 }

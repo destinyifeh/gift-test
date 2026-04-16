@@ -10,8 +10,7 @@ export class TransactionController {
   @UseGuards(AuthGuard)
   @Get('wallet')
   async getWalletProfile(@Req() req: any) {
-    const data = await this.transactionService.fetchWalletProfile(req.user.id);
-    return { success: true, data };
+    return this.transactionService.fetchWalletProfile(req.user.id);
   }
 
   @UseGuards(AuthGuard)
@@ -23,21 +22,18 @@ export class TransactionController {
   // ── Bank Accounts ──
   @Get('banks')
   async getPaystackBanks(@Query('country') country?: string) {
-    const data = await this.transactionService.getPaystackBanks(country);
-    return { success: true, data };
+    return this.transactionService.getPaystackBanks(country);
   }
 
   @Get('banks/resolve')
   async resolveAccount(@Query('account_number') accountNumber: string, @Query('bank_code') bankCode: string) {
-    const data = await this.transactionService.resolvePaystackAccount(accountNumber, bankCode);
-    return { success: true, data };
+    return this.transactionService.resolvePaystackAccount(accountNumber, bankCode);
   }
 
   @UseGuards(AuthGuard)
   @Post('bank-accounts')
   async addBankAccount(@Req() req: any, @Body() data: any) {
-    const result = await this.transactionService.addBankAccount(req.user.id, data);
-    return { success: true, data: result };
+    return this.transactionService.addBankAccount(req.user.id, data);
   }
 
   @UseGuards(AuthGuard)
@@ -107,7 +103,6 @@ export class TransactionController {
     @Query('amount') amount: string,
     @Query('currentGiftId') currentGiftId: string,
   ) {
-    const data = await this.transactionService.fetchEligibleSwapGifts(vendorId, Number(amount), Number(currentGiftId));
-    return { success: true, data };
+    return this.transactionService.fetchEligibleSwapGifts(vendorId, Number(amount), Number(currentGiftId));
   }
 }

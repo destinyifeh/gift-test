@@ -27,10 +27,16 @@ export class AllExceptionsFilter implements ExceptionFilter {
       message = exception.message;
     }
 
-    this.logger.error(
-      `Http Status: ${status} Error Message: ${JSON.stringify(message)}`,
-      exception instanceof Error ? exception.stack : '',
-    );
+    if (status >= 500) {
+      this.logger.error(
+        `Http Status: ${status} Error Message: ${JSON.stringify(message)}`,
+        exception instanceof Error ? exception.stack : '',
+      );
+    } else {
+      this.logger.warn(
+        `Http Status: ${status} Path: ${request.url} Message: ${JSON.stringify(message)}`
+      );
+    }
 
     const errorResponse = {
       statusCode: status,

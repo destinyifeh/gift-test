@@ -5,3 +5,7 @@ export * from './use-favorites';
 export * from './use-profile';
 export * from './use-promotions';
 export * from './use-vendor';
+export * from './use-analytics';
+export * from './use-transactions';
+export * from './use-notifications';
+export * from './use-featured-items';

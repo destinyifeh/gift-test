@@ -1,111 +1,100 @@
 'use client';
 
-import {Button} from '@/components/ui/button';
 import {cn} from '@/lib/utils';
-import {ArrowLeft, Home, Search} from 'lucide-react';
 import Link from 'next/link';
-import {usePathname, useRouter} from 'next/navigation';
-import {useEffect} from 'react';
+import {useRouter} from 'next/navigation';
 
 export default function NotFound() {
-  const pathname = usePathname();
   const router = useRouter();
 
-  useEffect(() => {
-    console.error(
-      '404 Error: User attempted to access non-existent route:',
-      pathname,
-    );
-  }, [pathname]);
-
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-4 py-12">
-        {/* Animated 404 Illustration */}
-        <div className="relative mb-8">
-          {/* Background glow effect */}
-          <div className="absolute inset-0 blur-3xl opacity-20 bg-gradient-to-r from-primary via-secondary to-primary rounded-full scale-150" />
+    <div className="v2-theme min-h-screen bg-[var(--v2-background)] flex flex-col items-center justify-center p-6 text-[var(--v2-on-surface)] selection:bg-[var(--v2-primary-container)] selection:text-[var(--v2-on-primary-container)]">
+      {/* Decorative background elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-[var(--v2-primary-fixed)] opacity-5 blur-[120px]" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-[var(--v2-tertiary-fixed)] opacity-5 blur-[120px]" />
+      </div>
 
-          {/* 404 Number */}
-          <div className="relative">
-            <h1 className="text-[120px] md:text-[180px] font-bold font-display leading-none text-gradient select-none">
+      <main className="relative z-10 w-full max-w-[480px] text-center">
+        {/* Animated Illustration Area */}
+        <div className="relative mb-12 flex justify-center">
+          <div className="relative group">
+            {/* Soft shadow/glow */}
+            <div className="absolute inset-0 bg-[var(--v2-primary)] opacity-10 blur-2xl rounded-full scale-110 group-hover:scale-125 transition-transform duration-700" />
+            
+            {/* Main Error Number */}
+            <h1 className="v2-headline relative text-[140px] md:text-[180px] font-black leading-none tracking-tighter bg-gradient-to-b from-[var(--v2-primary)] to-[var(--v2-primary-fixed)] bg-clip-text text-transparent select-none animate-in fade-in zoom-in duration-1000">
               404
             </h1>
-
-            {/* Decorative elements */}
-            <div className="absolute -top-4 -right-4 w-8 h-8 md:w-12 md:h-12 rounded-full bg-primary/20 animate-pulse" />
-            <div className="absolute -bottom-2 -left-6 w-6 h-6 md:w-10 md:h-10 rounded-full bg-secondary/20 animate-pulse delay-150" />
+            
+            {/* Floating Icons */}
+            <div className="absolute top-0 -left-8 animate-bounce delay-75">
+              <span className="v2-icon text-4xl text-[var(--v2-tertiary)] opacity-40">pest_control</span>
+            </div>
+            <div className="absolute bottom-4 -right-8 animate-bounce delay-300">
+              <span className="v2-icon text-4xl text-[var(--v2-primary)] opacity-40">explore</span>
+            </div>
           </div>
         </div>
 
-        {/* Text Content */}
-        <div className="text-center max-w-md mx-auto space-y-3">
-          <h2 className="text-xl md:text-2xl font-semibold text-foreground">
-            Page not found
+        {/* Message Content */}
+        <div className="space-y-4 mb-10 animate-in slide-in-from-bottom-4 duration-700 delay-200">
+          <h2 className="v2-headline text-3xl md:text-4xl font-bold text-[var(--v2-on-surface)]">
+            Lost in the gallery?
           </h2>
-          <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-            The page you're looking for doesn't exist or may have been moved.
-            Let's get you back on track.
+          <p className="text-lg text-[var(--v2-on-surface-variant)] leading-relaxed max-w-[400px] mx-auto opacity-80">
+            The page you're looking for has wandered off our curated shelves. 
+            Let's guide you back to something beautiful.
           </p>
         </div>
 
-        {/* Action Buttons */}
-        <div className="mt-8 w-full max-w-sm space-y-3 px-4">
-          <Link href="/" className="block">
-            <Button
-              variant="hero"
-              size="lg"
-              className="w-full h-12 text-base font-medium">
-              <Home className="w-4 h-4 mr-2" />
-              Go to Homepage
-            </Button>
+        {/* Action Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in slide-in-from-bottom-8 duration-700 delay-500">
+          <Link href="/" className="group">
+            <button className="v2-btn-primary w-full h-14 flex items-center justify-center gap-3 px-6 shadow-lg shadow-[rgba(150,67,0,0.15)] hover:shadow-[rgba(150,67,0,0.25)] hover:scale-[1.02] transition-all">
+              <span className="v2-icon text-xl">home</span>
+              <span>Go Home</span>
+            </button>
           </Link>
 
-          <Button
-            variant="outline"
-            size="lg"
-            className="w-full h-12 text-base font-medium"
-            onClick={() => router.back()}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Go Back
-          </Button>
+          <button 
+            onClick={() => router.back()}
+            className="v2-btn-secondary w-full h-14 flex items-center justify-center gap-3 px-6 border border-[var(--v2-outline-variant)]/20 hover:bg-[var(--v2-surface-container-high)] hover:scale-[1.02] transition-all text-[var(--v2-primary)]"
+          >
+            <span className="v2-icon text-xl">arrow_back</span>
+            <span>Step Back</span>
+          </button>
         </div>
 
-        {/* Quick Links */}
-        <div className="mt-10 pt-8 border-t border-border w-full max-w-sm mx-auto px-4">
-          <p className="text-xs text-muted-foreground text-center mb-4 uppercase tracking-wider font-medium">
-            Popular destinations
+        {/* Curation Links */}
+        <div className="mt-16 pt-10 border-t border-[var(--v2-outline-variant)]/10 animate-in fade-in duration-1000 delay-700">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--v2-on-surface-variant)] opacity-60 mb-6">
+            Looking for something specific?
           </p>
-          <div className="flex flex-wrap justify-center gap-2">
+          <div className="flex flex-wrap justify-center gap-3 px-4">
             {[
-              {label: 'Dashboard', href: '/dashboard'},
-              {label: 'Explore', href: '/explore'},
-              {label: 'Send Gift', href: '/send'},
-              {label: 'Help', href: '/help'},
-            ].map(link => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  'px-4 py-2 rounded-full text-sm font-medium',
-                  'bg-muted/50 hover:bg-muted text-foreground',
-                  'transition-colors duration-200',
-                )}>
-                {link.label}
+              { label: 'Gift Shop', href: '/gift-shop', icon: 'shopping_bag' },
+              { label: 'Campaigns', href: '/campaigns', icon: 'auto_awesome' },
+              { label: 'My Wallet', href: '/dashboard/wallet', icon: 'account_balance_wallet' },
+              { label: 'Help', href: '/help', icon: 'support_agent' },
+            ].map((item) => (
+              <Link 
+                key={item.href} 
+                href={item.href}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-[var(--v2-surface-container-low)] hover:bg-[var(--v2-surface-container)] transition-colors text-sm font-semibold text-[var(--v2-on-surface)] border border-[var(--v2-outline-variant)]/5"
+              >
+                <span className="v2-icon text-lg opacity-70">{item.icon}</span>
+                {item.label}
               </Link>
             ))}
           </div>
         </div>
-      </div>
+      </main>
 
-      {/* Footer */}
-      <footer className="py-6 text-center">
-        <p className="text-xs text-muted-foreground">
-          Need help?{' '}
-          <Link href="/help" className="text-primary hover:underline">
-            Contact Support
-          </Link>
+      {/* Footer Branding */}
+      <footer className="fixed bottom-8 left-0 right-0 text-center animate-in fade-in duration-1000 delay-1000">
+        <p className="text-xs font-medium text-[var(--v2-on-surface-variant)] opacity-40">
+          &copy; {new Date().getFullYear()} Gifthance &bull; Curating moments of joy.
         </p>
       </footer>
     </div>

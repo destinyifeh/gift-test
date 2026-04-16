@@ -1,44 +1,95 @@
 'use client';
 
-import {BottomTabBar} from '@/components/navigation/BottomTabBar';
-import {Button} from '@/components/ui/button';
 import {useIsMobile} from '@/hooks/use-mobile';
 import {useProfile} from '@/hooks/use-profile';
-import {signOut} from '@/lib/server/actions/auth';
+import { authClient } from '@/lib/auth-client';
 import {useUserStore} from '@/lib/store/useUserStore';
 import {useQueryClient} from '@tanstack/react-query';
-import {Gift, Plus, Send} from 'lucide-react';
 import Link from 'next/link';
-import {useRouter} from 'next/navigation';
-import {useEffect, useState} from 'react';
+import {useRouter, useSearchParams} from 'next/navigation';
+import {Suspense, useEffect, useState} from 'react';
 import {toast} from 'sonner';
-import {AnalyticsTab} from './components/AnalyticsTab';
-import {ContributionsTab} from './components/ContributionsTab';
-import {CreatorGiftsTab} from './components/CreatorGiftsTab';
-import {SelectedSection} from './components/dashboard-config';
-import {DesktopSidebar} from './components/DesktopSidebar';
-import {FavoritesTab} from './components/FavoritesTab';
-import {GiftPageTab} from './components/GiftPageTab';
-import {MyCampaignsTab} from './components/MyCampaignsTab';
-import {MyGiftsTab} from './components/MyGiftsTab';
-import {OverviewTab} from './components/OverviewTab';
-import {ReceivedGiftsTab} from './components/ReceivedGiftsTab';
-import {SentGiftsTab} from './components/SentGiftsTab';
-import {SettingsTab} from './components/SettingsTab';
-import {SupportersTab} from './components/SupportersTab';
-import {getTitle} from './components/utils';
-import {WalletTab} from './components/WalletTab';
+import {SelectedSection, sectionTitles, sectionIcons} from './components/dashboard-config';
+import {V2BottomTabBar} from './components/V2BottomTabBar';
+import {V2RoleSwitcher} from '../components/V2RoleSwitcher';
+import {V2NotificationsPanel} from '../components/V2NotificationsPanel';
+import {V2MobileMenu} from './components/V2MobileMenu';
+import {GifthanceLogo} from '@/components/GifthanceLogo';
+import {
+  V2OverviewTab,
+  V2SentGiftsTab,
+  V2ReceivedGiftsTab,
+  V2MyGiftsTab,
+  V2ContributionsTab,
+  V2FavoritesTab,
+  V2MyCampaignsTab,
+  V2WalletTab,
+  V2SettingsTab,
+  V2GiftPageTab,
+  V2SupportersTab,
+  V2AnalyticsTab,
+} from './components/tabs';
 
-export default function DashboardPage() {
+// Desktop sidebar nav items
+const navItems: {id: SelectedSection; label: string; icon: string}[] = [
+  {id: 'overview', label: 'Overview', icon: 'dashboard'},
+  {id: 'sent', label: 'Gifts Sent', icon: 'send'},
+  {id: 'my-gifts', label: 'My Gifts', icon: 'card_giftcard'},
+  {id: 'received', label: 'Campaign Donations', icon: 'volunteer_activism'},
+  {id: 'contributions', label: 'My Contributions', icon: 'paid'},
+  {id: 'campaigns', label: 'My Campaigns', icon: 'campaign'},
+  {id: 'favorites', label: 'Favorites', icon: 'favorite'},
+  {id: 'wallet', label: 'Wallet', icon: 'account_balance_wallet'},
+  {id: 'settings', label: 'Settings', icon: 'settings'},
+];
+
+const creatorNavItems: {id: SelectedSection; label: string; icon: string}[] = [
+  {id: 'gift-page', label: 'My Gift Page', icon: 'auto_awesome'},
+  {id: 'supporters', label: 'Supporters', icon: 'group'},
+  {id: 'analytics', label: 'Analytics', icon: 'analytics'},
+];
+
+function DashboardLoadingFallback() {
+  return (
+    <div className="min-h-screen bg-[var(--v2-background)] flex items-center justify-center">
+      <span className="v2-icon text-4xl text-[var(--v2-primary)] animate-spin">
+        progress_activity
+      </span>
+    </div>
+  );
+}
+
+export default function V2DashboardPage() {
+  return (
+    <Suspense fallback={<DashboardLoadingFallback />}>
+      <V2DashboardContent />
+    </Suspense>
+  );
+}
+
+function V2DashboardContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
-  const {data: profile} = useProfile();
-  const [section, setSection] = useState<SelectedSection>('overview');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { data: session, isPending } = authClient.useSession();
+  const { data: profile } = useProfile();
+  const isMobile = useIsMobile();
+  const user = useUserStore(state => state.user);
+  const clearUser = useUserStore(state => state.clearUser);
+
+  // Authentication and Redirect
+  useEffect(() => {
+    if (!isPending && !session) {
+      router.push('/login');
+    }
+  }, [session, isPending, router]);
+
+  // Get initial tab from URL or default to overview
+  const initialTab = (searchParams.get('tab') as SelectedSection) || 'overview';
+  const [section, setSection] = useState<SelectedSection>(initialTab);
   const [dbIsCreator, setDbIsCreator] = useState(false);
   const [dbPlan, setDbPlan] = useState<'free' | 'pro'>('free');
-  const isMobile = useIsMobile();
-
-  const user = useUserStore(state => state.user);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -47,145 +98,236 @@ export default function DashboardPage() {
     }
   }, [profile]);
 
+  // Update URL when section changes
+  useEffect(() => {
+    const url = section === 'overview' ? '/dashboard' : `/dashboard?tab=${section}`;
+    window.history.replaceState(null, '', url);
+  }, [section]);
+
   const isEffectivelyCreator = dbIsCreator || dbPlan === 'pro';
 
-  const router = useRouter();
-  const clearUser = useUserStore(state => state.clearUser);
+  // Prevent hydration errors by ensuring client and server match on initial render
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Show loading while checking auth or until mounted
+  if (!mounted || isPending) {
+    return (
+      <div className="min-h-screen bg-[var(--v2-background)] flex items-center justify-center">
+        <span className="v2-icon text-4xl text-[var(--v2-primary)] animate-spin">
+          progress_activity
+        </span>
+      </div>
+    );
+  }
 
   const handleSignOut = async () => {
-    const result = await signOut();
-    if (result.success) {
+    try {
+      await authClient.signOut();
       queryClient.clear();
       clearUser();
       toast.success('Signed out successfully');
       router.push('/login');
-    } else {
-      toast.error(result.error || 'Failed to sign out');
+    } catch (error) {
+      toast.error('Failed to sign out');
     }
   };
 
-  const commonProps = {
-    setSection,
-    sidebarOpen,
-    setSidebarOpen,
-    creatorEnabled: isEffectivelyCreator,
-    setCreatorEnabled: setDbIsCreator,
-    creatorPlan: dbPlan,
+  const handleSectionChange = (newSection: SelectedSection) => {
+    setSection(newSection);
   };
 
-  const handleSectionChange = (newSection: string) => {
-    setSection(newSection as SelectedSection);
-  };
+  const userName = profile?.display_name || user?.display_name || 'User';
 
   return (
-    <div className="min-h-screen bg-background flex">
-      <DesktopSidebar
-        section={section}
-        commonProps={commonProps}
-        onSignOut={handleSignOut}
-      />
+    <div className="min-h-screen bg-[var(--v2-background)]">
+      {/* Mobile Top Bar */}
+      <header className="md:hidden fixed top-0 z-50 w-full px-4 h-14 flex justify-between items-center v2-glass-nav">
+        <GifthanceLogo size="sm" />
+        <div className="flex items-center gap-2">
+          <V2NotificationsPanel />
+          <button
+            onClick={() => setMobileMenuOpen(true)}
+            className="w-10 h-10 rounded-xl bg-[var(--v2-surface-container-high)] flex items-center justify-center">
+            <span className="v2-icon text-[var(--v2-on-surface)]">menu</span>
+          </button>
+        </div>
+      </header>
 
-      <main className="flex-1 min-w-0">
-        <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border px-4 md:px-8 h-14 sm:h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {/* Mobile: Show logo instead of hamburger */}
-            <Link href="/" className="md:hidden flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-hero flex items-center justify-center">
-                <Gift className="w-4 h-4 text-primary-foreground" />
+      {/* Mobile Menu */}
+      <V2MobileMenu open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
+
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:flex fixed left-0 top-0 h-full py-6 px-4 w-64 flex-col bg-[var(--v2-surface-container-low)] z-30 border-r border-[var(--v2-outline-variant)]/10">
+        <div className="px-4 mb-4">
+          <GifthanceLogo size="md" />
+        </div>
+
+        <V2RoleSwitcher />
+
+        <nav className="flex-1 space-y-1 overflow-y-auto">
+          {navItems.map(item => (
+            <button
+              key={item.id}
+              onClick={() => handleSectionChange(item.id)}
+              className={`w-full flex items-center gap-3 py-2.5 px-4 rounded-xl transition-colors duration-200 text-left ${
+                section === item.id
+                  ? 'text-[var(--v2-primary)] font-bold bg-[var(--v2-primary)]/10'
+                  : 'text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] hover:bg-[var(--v2-surface)]/50'
+              }`}>
+              <span
+                className="v2-icon text-xl"
+                style={section === item.id ? {fontVariationSettings: "'FILL' 1"} : undefined}>
+                {item.icon}
+              </span>
+              <span className="v2-headline text-sm font-semibold tracking-tight">{item.label}</span>
+            </button>
+          ))}
+
+          {/* Creator Section */}
+          {isEffectivelyCreator && (
+            <>
+              <div className="pt-4 pb-2 px-4">
+                <p className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
+                  Creator
+                </p>
               </div>
-            </Link>
-            <h1 className="text-base sm:text-lg font-semibold font-display text-foreground capitalize">
-              {getTitle(section)}
-            </h1>
+              {creatorNavItems.map(item => (
+                <button
+                  key={item.id}
+                  onClick={() => handleSectionChange(item.id)}
+                  className={`w-full flex items-center gap-3 py-2.5 px-4 rounded-xl transition-colors duration-200 text-left ${
+                    section === item.id
+                      ? 'text-[var(--v2-primary)] font-bold bg-[var(--v2-primary)]/10'
+                      : 'text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] hover:bg-[var(--v2-surface)]/50'
+                  }`}>
+                  <span
+                    className="v2-icon text-xl"
+                    style={section === item.id ? {fontVariationSettings: "'FILL' 1"} : undefined}>
+                    {item.icon}
+                  </span>
+                  <span className="v2-headline text-sm font-semibold tracking-tight">
+                    {item.label}
+                  </span>
+                </button>
+              ))}
+            </>
+          )}
+        </nav>
+
+        <div className="mt-auto pt-4 border-t border-[var(--v2-outline-variant)]/10">
+          <Link
+            href="/create-campaign"
+            className="w-full h-12 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-[var(--v2-primary)]/10 transition-transform active:scale-[0.98] mb-4">
+            <span className="v2-icon">add</span>
+            New Campaign
+          </Link>
+
+          <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--v2-surface-container-high)] transition-colors cursor-pointer">
+            <div className="w-10 h-10 rounded-full bg-[var(--v2-primary)]/10 flex items-center justify-center">
+              <span className="text-lg font-bold text-[var(--v2-primary)] capitalize">
+                {userName.charAt(0)}
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-sm text-[var(--v2-on-surface)] truncate capitalize">
+                {userName}
+              </p>
+              <p className="text-xs text-[var(--v2-on-surface-variant)] truncate">
+                @{user?.username || 'username'}
+              </p>
+            </div>
+            <button
+              onClick={handleSignOut}
+              className="p-2 rounded-lg hover:bg-[var(--v2-error)]/10 text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-error)] transition-colors"
+              title="Sign out">
+              <span className="v2-icon text-lg">logout</span>
+            </button>
           </div>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Link href="/send-gift">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-xs sm:text-sm text-primary font-medium hover:text-primary/80 hover:bg-primary/5">
-                <Send className="w-4 h-4 mr-1 pb-0.5" />
-                <span className="hidden sm:inline">Send Gift</span>
-              </Button>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="md:ml-64 min-h-screen pt-14 md:pt-0 pb-24 md:pb-8">
+        {/* Desktop Header */}
+        <header className="hidden md:flex sticky top-0 z-40 bg-[var(--v2-background)]/80 backdrop-blur-xl border-b border-[var(--v2-outline-variant)]/10 px-6 h-16 items-center justify-between">
+          <h1 className="text-xl font-bold v2-headline text-[var(--v2-on-surface)]">
+            {sectionTitles[section]}
+          </h1>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/send-gift"
+              className="h-10 px-4 text-[var(--v2-on-surface-variant)] font-medium text-sm rounded-xl flex items-center gap-2 hover:bg-[var(--v2-surface-container-low)] transition-colors">
+              Send Gift
             </Link>
-            <Link href="/gift-shop" className="hidden sm:block">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-xs sm:text-sm text-muted-foreground hover:text-foreground">
-                Gift Shop
-              </Button>
+            <Link
+              href="/gift-shop"
+              className="h-10 px-4 text-[var(--v2-on-surface-variant)] font-medium text-sm rounded-xl flex items-center gap-2 hover:bg-[var(--v2-surface-container-low)] transition-colors">
+              Gift Shop
             </Link>
-            <Link href="/campaigns" className="hidden sm:block">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-xs sm:text-sm text-muted-foreground hover:text-foreground">
-                Campaigns
-              </Button>
+            <Link
+              href="/campaigns"
+              className="h-10 px-4 text-[var(--v2-on-surface-variant)] font-medium text-sm rounded-xl flex items-center gap-2 hover:bg-[var(--v2-surface-container-low)] transition-colors">
+              Campaigns
             </Link>
-            <Link href="/create-campaign">
-              <Button variant="hero" size="sm" className="text-xs sm:text-sm">
-                <Plus className="w-4 h-4 mr-1" />{' '}
-                <span className="hidden sm:inline">New Campaign</span>
-              </Button>
-            </Link>
+            <V2NotificationsPanel />
           </div>
         </header>
 
-        {/* Add bottom padding on mobile for the tab bar */}
-        <div className="p-4 md:p-8 max-w-5xl pb-24 md:pb-8">
+        {/* Tab Content */}
+        <div className="p-4 md:p-8 max-w-6xl mx-auto">
           {section === 'overview' && (
-            <OverviewTab
-              {...commonProps}
-              setCreatorPlan={setDbPlan}
-              setSection={setSection}
+            <V2OverviewTab
+              creatorEnabled={isEffectivelyCreator}
+              setCreatorEnabled={setDbIsCreator}
+              setSection={handleSectionChange}
             />
           )}
 
-          {section === 'sent' && <SentGiftsTab />}
+          {section === 'sent' && <V2SentGiftsTab />}
 
-          {section === 'my-gifts' && <MyGiftsTab />}
-
-          {section === 'creator-gifts' && (
-            <CreatorGiftsTab
-              setSection={setSection}
-              setWalletView={() => setSection('wallet')}
-            />
-          )}
+          {section === 'my-gifts' && <V2MyGiftsTab />}
 
           {section === 'received' && (
-            <ReceivedGiftsTab
-              setSection={setSection}
-              setWalletView={() => setSection('wallet')}
+            <V2ReceivedGiftsTab
+              setSection={handleSectionChange}
+              setWalletView={() => handleSectionChange('wallet')}
             />
           )}
 
-          {section === 'contributions' && <ContributionsTab />}
+          {section === 'contributions' && <V2ContributionsTab />}
 
-          {section === 'favorites' && <FavoritesTab />}
+          {section === 'favorites' && <V2FavoritesTab />}
 
-          {section === 'campaigns' && <MyCampaignsTab />}
+          {section === 'campaigns' && <V2MyCampaignsTab />}
 
-          {section === 'wallet' && <WalletTab />}
+          {section === 'wallet' && <V2WalletTab />}
 
-          {section === 'settings' && <SettingsTab />}
+          {section === 'settings' && <V2SettingsTab />}
 
           {section === 'gift-page' && isEffectivelyCreator && (
-            <GiftPageTab creatorPlan={dbPlan} setCreatorPlan={setDbPlan} />
+            <V2GiftPageTab creatorPlan={dbPlan} setCreatorPlan={setDbPlan} />
           )}
 
           {section === 'supporters' && isEffectivelyCreator && (
-            <SupportersTab />
+            <V2SupportersTab setSection={handleSectionChange} />
           )}
 
-          {section === 'analytics' && isEffectivelyCreator && <AnalyticsTab />}
-
+          {section === 'analytics' && isEffectivelyCreator && (
+            <V2AnalyticsTab
+              setSection={handleSectionChange}
+              setWalletView={() => handleSectionChange('wallet')}
+            />
+          )}
         </div>
       </main>
 
       {/* Mobile Bottom Tab Bar */}
-      {isMobile && <BottomTabBar onNavigate={handleSectionChange} activeSection={section} />}
+      {isMobile && (
+        <V2BottomTabBar activeSection={section} onNavigate={handleSectionChange} />
+      )}
     </div>
   );
 }

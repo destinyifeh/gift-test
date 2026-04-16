@@ -1,3 +1,17 @@
+enum UserRole {
+  user
+  admin
+  vendor
+  superadmin
+}
+
+enum AdminRole {
+  support
+  finance
+  moderator
+  superadmin
+}
+
 model User {
   id            String   @id @default(uuid())
   name          String
@@ -21,8 +35,8 @@ model User {
   socialLinks      Json?     @default("{}") @map("social_links")
   themeSettings    Json?     @default("{}") @map("theme_settings")
   country          String?
-  roles            String[]  @default(["user"])
-  adminRole        String?   @map("admin_role")
+  roles            UserRole[]  @default([user])
+  adminRole        AdminRole?  @map("admin_role")
   platformBalance  BigInt    @default(0) @map("platform_balance")
   status           String    @default("active") // 'active', 'suspended', 'banned'
   walletStatus     String    @default("active") @map("wallet_status") // 'active', 'restricted'

@@ -48,11 +48,12 @@ export class AuthService implements OnModuleInit {
    * Manual Password Update (When logged in)
    * Mirrors frontend: auth.ts → updatePassword
    */
-  async updatePassword(userId: string, newPassword: string) {
-    // Better Auth utility
+  async updatePassword(userId: string, currentPassword: string, newPassword: string, headers?: any) {
     try {
       await (auth.api as any).changePassword({
+        headers: headers ? new Headers(headers) : undefined,
         body: {
+          currentPassword,
           newPassword,
         }
       });

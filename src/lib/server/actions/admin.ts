@@ -1,21 +1,16 @@
 'use server';
 
-import {createAdminClient} from '../supabase/admin';
-import {createClient} from '../supabase/server';
+import {revalidatePath} from 'next/cache';
+import {serverFetch} from '../server-api';
 
-export async function checkIsAdmin(supabase: any) {
-  const {
-    data: {user},
-  } = await supabase.auth.getUser();
-  if (!user) return false;
-
-  const {data: profile} = await supabase
-    .from('profiles')
-    .select('roles')
-    .eq('id', user.id)
-    .single();
-
-  return profile?.roles?.includes('admin') || false;
+export async function checkIsAdmin() {
+  try {
+    // Simply attempt an admin-only endpoint; the backend RolesGuard enforces access.
+    await serverFetch('admin/stats');
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export async function fetchAdminUsers({
@@ -29,38 +24,18 @@ export async function fetchAdminUsers({
 } = {}) {
   try {
     const limit = 20;
-    const from = pageParam * limit;
-    const to = from + limit - 1;
+    const params = new URLSearchParams({
+      page: (pageParam + 1).toString(),
+      limit: limit.toString(),
+    });
+    if (search) params.set('search', search);
+    if (role) params.set('role', role);
 
-    const supabase = await createClient();
-    const isAdmin = await checkIsAdmin(supabase);
-    if (!isAdmin) return {success: false, error: 'Unauthorized'};
-
-    let query = supabase
-      .from('profiles')
-      .select(
-        'id, username, display_name, email, avatar_url, country, roles, admin_role, is_creator, updated_at, created_at, status',
-      )
-      .order('created_at', {ascending: false})
-      .range(from, to);
-
-    if (role) {
-      query = query.contains('roles', [role]);
-    }
-
-    if (search) {
-      query = query.or(
-        `username.ilike.%${search}%,display_name.ilike.%${search}%,email.ilike.%${search}%`,
-      );
-    }
-
-    const {data, error} = await query;
-    if (error) throw error;
-
+    const response = await serverFetch(`admin/users?${params.toString()}`);
     return {
       success: true,
-      data,
-      nextPage: data?.length === limit ? pageParam + 1 : undefined,
+      data: response.data || [],
+      nextPage: (response.data?.length === limit || response.nextPage !== undefined) ? (response.nextPage ?? pageParam + 1) : undefined,
     };
   } catch (error: any) {
     console.error('Error fetching admin users:', error);
@@ -78,26 +53,11 @@ export async function updateUserRole({
   adminRole: string | null;
 }) {
   try {
-    const supabase = await createClient();
-    const isAdmin = await checkIsAdmin(supabase);
-    if (!isAdmin) return {success: false, error: 'Unauthorized'};
-
-    const adminDb = createAdminClient();
-
-    // users must always retain the base 'user' role
-    const finalRoles = [...new Set([...roles, 'user'])];
-
-    const {error} = await adminDb
-      .from('profiles')
-      .update({
-        roles: finalRoles,
-        admin_role: finalRoles.includes('admin') ? adminRole : null,
-      })
-      .eq('id', userId);
-
-    if (error) throw error;
-
-    return {success: true};
+    const response = await serverFetch(`admin/users/${userId}/role`, {
+      method: 'PATCH',
+      body: JSON.stringify({roles, adminRole}),
+    });
+    return response;
   } catch (error: any) {
     console.error('Error updating user role:', error);
     return {success: false, error: error.message};
@@ -106,158 +66,10 @@ export async function updateUserRole({
 
 export async function fetchAdminDashboardStats(period: string = 'monthly') {
   try {
-    const supabase = await createClient();
-    const isAdmin = await checkIsAdmin(supabase);
-    if (!isAdmin) return {success: false, error: 'Unauthorized'};
-
-    const adminDb = createAdminClient();
-
-    // Basic counts
-    const {count: userCount} = await adminDb
-      .from('profiles')
-      .select('*', {count: 'exact', head: true});
-
-    const {count: campaignCount} = await supabase
-      .from('campaigns')
-      .select('*', {count: 'exact', head: true})
-      .is('gift_code', null);
-
-    // Revenue/Activity data
-    const {data: support} = await supabase
-      .from('creator_support')
-      .select('amount, created_at');
-    
-    const {data: campaigns} = await supabase
-      .from('campaigns')
-      .select('current_amount, created_at')
-      .is('gift_code', null);
-
-    let totalSupport = 0;
-    const monthlyMap: Record<string, number> = {};
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const currentYear = new Date().getFullYear();
-    months.forEach(m => (monthlyMap[m] = 0));
-
-    if (support) {
-      support.forEach(s => {
-        const amt = parseFloat(s.amount || '0');
-        totalSupport += amt;
-        if (s.created_at) {
-          const date = new Date(s.created_at);
-          if (date.getFullYear() === currentYear) {
-            monthlyMap[months[date.getMonth()]] += amt;
-          }
-        }
-      });
-    }
-
-    if (campaigns) {
-      campaigns.forEach(c => {
-        const amt = parseFloat(c.current_amount || '0');
-        totalSupport += amt;
-        if (c.created_at) {
-          const date = new Date(c.created_at);
-          if (date.getFullYear() === currentYear) {
-            monthlyMap[months[date.getMonth()]] += amt;
-          }
-        }
-      });
-    }
-
-    const revenueData = months
-      .map(month => ({
-        month,
-        revenue: monthlyMap[month],
-      }))
-      .filter((_, i) => i <= new Date().getMonth());
-
-    // Top Creators (based on earned amount in creator_support)
-    const {data: topCreatorsData} = await supabase
-      .from('creator_support')
-      .select('user_id, amount')
-      .order('amount', {ascending: false});
-
-    const creatorTotals: Record<string, number> = {};
-    topCreatorsData?.forEach(s => {
-      creatorTotals[s.user_id] = (creatorTotals[s.user_id] || 0) + parseFloat(s.amount || '0');
-    });
-
-    const sortedCreators = Object.entries(creatorTotals)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 5);
-
-    const {data: creatorProfiles} = await supabase
-      .from('profiles')
-      .select('id, username, display_name')
-      .in('id', sortedCreators.map(([id]) => id));
-
-    const topCreators = sortedCreators.map(([id, total]) => {
-      const p = creatorProfiles?.find(cp => cp.id === id);
-      return {
-        id,
-        name: p?.display_name || p?.username || 'Unknown',
-        total,
-      };
-    });
-
-    // Top Donors (based on successful transactions of type campaign_contribution/creator_support)
-    const {data: donorData} = await supabase
-      .from('transactions')
-      .select('sender_id, amount')
-      .in('type', ['campaign_contribution', 'creator_support'])
-      .eq('status', 'success');
-
-    const donorTotals: Record<string, number> = {};
-    donorData?.forEach(tx => {
-       if (tx.sender_id) {
-         donorTotals[tx.sender_id] = (donorTotals[tx.sender_id] || 0) + parseFloat(tx.amount || '0');
-       }
-    });
-
-    const sortedDonors = Object.entries(donorTotals)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 5);
-
-    const {data: donorProfiles} = await supabase
-      .from('profiles')
-      .select('id, username, display_name')
-      .in('id', sortedDonors.map(([id]) => id));
-
-    const topDonors = sortedDonors.map(([id, total]) => {
-       const p = donorProfiles?.find(dp => dp.id === id);
-       return {
-         id,
-         name: p?.display_name || p?.username || 'Anonymous',
-         total,
-       };
-    });
-
-    // Top Campaigns (based on current_amount)
-    const {data: topCampaignsData} = await supabase
-      .from('campaigns')
-      .select('id, title, current_amount, campaign_short_id, campaign_slug')
-      .is('gift_code', null)
-      .order('current_amount', {ascending: false})
-      .limit(5);
-
-    const topCampaigns = topCampaignsData?.map(c => ({
-       id: c.id,
-       title: c.title,
-       total: parseFloat(c.current_amount || '0'),
-       slug: `/campaign/${c.campaign_short_id}/${c.campaign_slug}`,
-    })) || [];
-
+    const response = await serverFetch('admin/stats');
     return {
       success: true,
-      data: {
-        totalUsers: userCount || 0,
-        totalCampaigns: campaignCount || 0,
-        totalSupport,
-        revenueData,
-        topCreators,
-        topDonors,
-        topCampaigns,
-      },
+      data: response.data || response,
     };
   } catch (error: any) {
     console.error('Error fetching admin dashboard stats:', error);
@@ -265,8 +77,6 @@ export async function fetchAdminDashboardStats(period: string = 'monthly') {
   }
 }
 
-// Consolidating: version at the bottom is more complete or we prefer a single source.
-// I will move the detailed subscription version here and remove the one at the end.
 export async function fetchAdminSubscriptions({
   search,
   pageParam = 0,
@@ -276,48 +86,17 @@ export async function fetchAdminSubscriptions({
 } = {}) {
   try {
     const limit = 20;
-    const from = pageParam * limit;
-    const to = from + limit - 1;
+    const params = new URLSearchParams({
+      page: (pageParam + 1).toString(),
+      limit: limit.toString(),
+    });
+    if (search) params.set('search', search);
 
-    const supabase = await createClient();
-    const isAdmin = await checkIsAdmin(supabase);
-    if (!isAdmin) return {success: false, error: 'Unauthorized'};
-
-    const adminDb = createAdminClient();
-
-    let query = adminDb
-      .from('profiles')
-      .select('*')
-      .contains('theme_settings', {plan: 'pro'})
-      .order('updated_at', {ascending: false})
-      .range(from, to);
-
-    if (search) {
-      query = query.or(`username.ilike.%${search}%,display_name.ilike.%${search}%,email.ilike.%${search}%`);
-    }
-
-    const {data, error, count} = await query;
-    
-    if (error) {
-      console.error('Database error in fetchAdminSubscriptions:', error);
-      throw error;
-    }
-
-    console.log(`Found ${data?.length || 0} subscriptions (Total: ${count})`);
-
-    const formattedData = data?.map(d => ({
-      ...d,
-      plan: 'Pro',
-      price: '$8/mo',
-      status: 'active',
-      started: new Date(d.created_at).toLocaleDateString(),
-      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString(),
-    }));
-
+    const response = await serverFetch(`admin/subscriptions?${params.toString()}`);
     return {
       success: true,
-      data: formattedData,
-      nextPage: data?.length === limit ? pageParam + 1 : undefined,
+      data: response.data || [],
+      nextPage: response.nextPage,
     };
   } catch (error: any) {
     console.error('Error fetching admin subscriptions:', error);
@@ -334,33 +113,17 @@ export async function fetchAdminCampaigns({
 } = {}) {
   try {
     const limit = 20;
-    const from = pageParam * limit;
-    const to = from + limit - 1;
+    const params = new URLSearchParams({
+      page: (pageParam + 1).toString(),
+      limit: limit.toString(),
+    });
+    if (search) params.set('search', search);
 
-    const supabase = await createClient();
-    const isAdmin = await checkIsAdmin(supabase);
-    if (!isAdmin) return {success: false, error: 'Unauthorized'};
-
-    const adminDb = createAdminClient();
-
-    let query = adminDb
-      .from('campaigns')
-      .select('*, vendor:profiles!user_id(username, display_name, country, shop_name, shop_address)')
-      .is('gift_code', null) // Only show real campaigns, not shop gifts
-      .order('created_at', {ascending: false})
-      .range(from, to);
-
-    if (search) {
-      query = query.ilike('title', `%${search}%`);
-    }
-
-    const {data, error} = await query;
-    if (error) throw error;
-
+    const response = await serverFetch(`admin/campaigns?${params.toString()}`);
     return {
       success: true,
-      data,
-      nextPage: data?.length === limit ? pageParam + 1 : undefined,
+      data: response.data || [],
+      nextPage: response.nextPage,
     };
   } catch (error: any) {
     console.error('Error fetching admin campaigns:', error);
@@ -377,31 +140,17 @@ export async function fetchAdminShopGifts({
 } = {}) {
   try {
     const limit = 20;
-    const from = pageParam * limit;
-    const to = from + limit - 1;
+    const params = new URLSearchParams({
+      page: (pageParam + 1).toString(),
+      limit: limit.toString(),
+    });
+    if (search) params.set('search', search);
 
-    const supabase = await createClient();
-    const isAdmin = await checkIsAdmin(supabase);
-    if (!isAdmin) return {success: false, error: 'Unauthorized'};
-
-    let query = supabase
-      .from('campaigns')
-      .select('*, profiles!campaigns_user_id_fkey(username, display_name, country, shop_name, shop_address, shop_logo_url)')
-      .not('gift_code', 'is', null) // Only show shop gifts (gift cards, prepaid items)
-      .order('created_at', {ascending: false})
-      .range(from, to);
-
-    if (search) {
-      query = query.ilike('title', `%${search}%`);
-    }
-
-    const {data, error} = await query;
-    if (error) throw error;
-
+    const response = await serverFetch(`admin/shop-gifts?${params.toString()}`);
     return {
       success: true,
-      data,
-      nextPage: data?.length === limit ? pageParam + 1 : undefined,
+      data: response.data || [],
+      nextPage: response.nextPage,
     };
   } catch (error: any) {
     console.error('Error fetching admin shop gifts:', error);
@@ -411,37 +160,11 @@ export async function fetchAdminShopGifts({
 
 export async function updateCampaignAdmin(campaignId: string, updates: any) {
   try {
-    const supabase = await createClient();
-    const isAdmin = await checkIsAdmin(supabase);
-    if (!isAdmin) return {success: false, error: 'Unauthorized'};
-
-    const adminDb = createAdminClient();
-
-    // Fetch current status to check for completion
-    const { data: currentCampaign } = await adminDb
-      .from('campaigns')
-      .select('status')
-      .eq('id', campaignId)
-      .single();
-
-    if ((currentCampaign?.status === 'completed' || currentCampaign?.status === 'cancelled') && updates.status && updates.status !== currentCampaign.status) {
-      return { success: false, error: 'Completed or cancelled campaigns cannot be reopened.' };
-    }
-
-    const updateData = { ...updates };
-    if (updateData.status === 'paused') {
-      updateData.paused_by = 'admin';
-    } else if (updateData.status === 'active') {
-      updateData.paused_by = null;
-    }
-
-    const {error} = await adminDb
-      .from('campaigns')
-      .update(updateData)
-      .eq('id', campaignId);
-
-    if (error) throw error;
-    return {success: true};
+    const response = await serverFetch(`admin/campaigns/${campaignId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updates),
+    });
+    return response;
   } catch (error: any) {
     console.error('Error updating campaign admin:', error);
     return {success: false, error: error.message};
@@ -457,112 +180,17 @@ export async function fetchAdminTransactions({
 } = {}) {
   try {
     const limit = 30;
-    const from = pageParam * limit;
-    const to = from + limit - 1;
-
-    const supabase = await createClient();
-    const isAdmin = await checkIsAdmin(supabase);
-    if (!isAdmin) return {success: false, error: 'Unauthorized'};
-
-    const adminDb = createAdminClient();
-
-    // 1. Fetch from transactions table (standard gifts, withdrawals, etc)
-    let query = adminDb
-      .from('transactions')
-      .select(
-        '*, user:profiles!transactions_user_id_fkey(username, display_name)',
-      )
-      .order('created_at', {ascending: false})
-      .range(from, to);
-
-    if (search) {
-      query = query.or(`description.ilike.%${search}%,reference.ilike.%${search}%`);
-    }
-
-    const {data: mainTxs, error: mainError} = await query;
-    if (mainError) throw mainError;
-
-    // 2. Fetch from creator_support (tips/direct gifts)
-    let supportQuery = adminDb
-      .from('creator_support')
-      .select('*, user:profiles!user_id(username, display_name)')
-      .order('created_at', {ascending: false})
-      .limit(limit);
-
-    if (search) {
-      supportQuery = supportQuery.or(`donor_name.ilike.%${search}%,gift_name.ilike.%${search}%,message.ilike.%${search}%`);
-    }
-
-    const {data: supportTxs, error: supportError} = await supportQuery;
-    if (supportError) throw supportError;
-
-    // 3. Fetch from flex_card_transactions (vendor sales)
-    let flexQuery = adminDb
-      .from('flex_card_transactions')
-      .select('*, flex_card:flex_cards(code), user:profiles!flex_card_transactions_vendor_id_fkey(username, display_name, shop_name)')
-      .order('created_at', {ascending: false})
-      .limit(limit);
-
-    if (search) {
-       flexQuery = flexQuery.or(`description.ilike.%${search}%`);
-    }
-
-    const {data: flexTxs, error: flexError} = await flexQuery;
-    if (flexError) throw flexError;
-
-    // Combine and format
-    const allTxs: any[] = [];
-
-    // Add main transactions
-    (mainTxs || []).forEach(tx => {
-      allTxs.push({
-        id: tx.id,
-        amount: Number(tx.amount) / 100, // standard is usually in kobo internally for transactions table
-        type: tx.type || 'transaction',
-        status: tx.status || 'success',
-        reference: tx.reference,
-        created_at: tx.created_at,
-        user: tx.user,
-        description: tx.description
-      });
+    const params = new URLSearchParams({
+      page: (pageParam + 1).toString(),
+      limit: limit.toString(),
     });
+    if (search) params.set('search', search);
 
-    // Add support transactions
-    (supportTxs || []).forEach(tx => {
-      allTxs.push({
-        id: `support-${tx.id}`,
-        amount: Number(tx.amount), 
-        type: 'donation',
-        status: tx.status || 'success',
-        reference: tx.reference || `SUP-${tx.id}`,
-        created_at: tx.created_at,
-        user: tx.user,
-        description: tx.gift_name ? `Gift: ${tx.gift_name}` : 'Direct Support'
-      });
-    });
-
-    // Add flex card redemptions
-    (flexTxs || []).forEach(tx => {
-      allTxs.push({
-        id: `flex-${tx.id}`,
-        amount: Number(tx.amount),
-        type: 'purchase',
-        status: 'success',
-        reference: tx.flex_card?.code || `FLEX-${tx.id}`,
-        created_at: tx.created_at,
-        user: tx.user,
-        description: tx.description || 'Flex Card Purchase'
-      });
-    });
-
-    // Sort by date and slice
-    allTxs.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-    const finalData = allTxs.slice(0, limit);
-
+    const response = await serverFetch(`admin/transactions?${params.toString()}`);
     return {
       success: true,
-      data: finalData,
-      nextPage: mainTxs?.length === limit ? pageParam + 1 : undefined,
+      data: response.data || [],
+      nextPage: response.nextPage,
     };
   } catch (error: any) {
     console.error('Error fetching admin transactions:', error);
@@ -579,29 +207,16 @@ export async function fetchAdminWithdrawals({
 } = {}) {
   try {
     const limit = 20;
-    const from = pageParam * limit;
-    const to = from + limit - 1;
+    const params = new URLSearchParams({
+      page: (pageParam + 1).toString(),
+      limit: limit.toString(),
+    });
 
-    const supabase = await createClient();
-    const isAdmin = await checkIsAdmin(supabase);
-    if (!isAdmin) return {success: false, error: 'Unauthorized'};
-
-    let query = supabase
-      .from('transactions')
-      .select(
-        '*, recipient_profile:profiles!transactions_sender_id_fkey(username)',
-      )
-      .eq('type', 'withdrawal')
-      .order('created_at', {ascending: false})
-      .range(from, to);
-
-    const {data, error} = await query;
-    if (error) throw error;
-
+    const response = await serverFetch(`admin/withdrawals?${params.toString()}`);
     return {
       success: true,
-      data,
-      nextPage: data?.length === limit ? pageParam + 1 : undefined,
+      data: response.data || [],
+      nextPage: response.nextPage,
     };
   } catch (error: any) {
     return {success: false, error: error.message};
@@ -610,19 +225,11 @@ export async function fetchAdminWithdrawals({
 
 export async function updateTransactionStatus(txId: string, status: string) {
   try {
-    const supabase = await createClient();
-    const isAdmin = await checkIsAdmin(supabase);
-    if (!isAdmin) return {success: false, error: 'Unauthorized'};
-
-    const adminDb = createAdminClient();
-
-    const {error} = await adminDb
-      .from('transactions')
-      .update({status})
-      .eq('id', txId);
-
-    if (error) throw error;
-    return {success: true};
+    const response = await serverFetch(`admin/transactions/${txId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({status}),
+    });
+    return response;
   } catch (error: any) {
     return {success: false, error: error.message};
   }
@@ -637,92 +244,17 @@ export async function fetchAdminWallets({
 } = {}) {
   try {
     const limit = 20;
-    const from = pageParam * limit;
-    const to = from + limit - 1;
-
-    const supabase = await createClient();
-    const isAdmin = await checkIsAdmin(supabase);
-    if (!isAdmin) return {success: false, error: 'Unauthorized'};
-
-    const adminDb = createAdminClient();
-
-    // 1. Fetch paginated profiles (without potentially missing wallet_status)
-    let profileQuery = adminDb
-      .from('profiles')
-      .select('id, username, country')
-      .order('username', {ascending: true})
-      .range(from, to);
-
-    if (search) {
-      profileQuery = profileQuery.ilike('username', `%${search}%`);
-    }
-
-    const {data: profiles, error: pError} = await profileQuery;
-    if (pError) throw pError;
-
-    if (!profiles || profiles.length === 0) {
-      return {success: true, data: [], nextPage: undefined};
-    }
-
-    const profileIds = profiles.map(p => p.id);
-
-    // 2. Fetch all relevant money movements for these profiles
-    // Creator Support (direct tips)
-    const {data: supportData} = await adminDb
-      .from('creator_support')
-      .select('recipient_id, sender_id, amount')
-      .or(`recipient_id.in.(${profileIds.join(',')}),sender_id.in.(${profileIds.join(',')})`)
-      .eq('status', 'success');
-
-    // General Transactions (campaign contributions, withdrawals, etc.)
-    const {data: txData} = await adminDb
-      .from('transactions')
-      .select('user_id, amount, type')
-      .in('user_id', profileIds)
-      .eq('status', 'success');
-    const stats = profiles.map((p: any) => {
-      // Direct Support
-      const receivedSupport = supportData
-        ?.filter(s => s.recipient_id === p.id)
-        .reduce((acc, s) => acc + parseFloat(s.amount || '0'), 0) || 0;
-      const sentSupport = supportData
-        ?.filter(s => s.sender_id === p.id)
-        .reduce((acc, s) => acc + parseFloat(s.amount || '0'), 0) || 0;
-
-      // Transactions
-      const txs = txData?.filter(t => t.user_id === p.id) || [];
-      const receiptSum = txs
-        .filter(t => t.type === 'receipt')
-        .reduce((acc, t) => acc + parseFloat(t.amount || '0'), 0);
-      const withdrawalSum = txs
-        .filter(t => t.type === 'withdrawal')
-        .reduce((acc, t) => acc + parseFloat(t.amount || '0'), 0);
-      const contributionSum = txs
-        .filter(t => t.type === 'campaign_contribution')
-        .reduce((acc, t) => acc + parseFloat(t.amount || '0'), 0);
-
-      // Simple Balance Calculation for display
-      const earned = receivedSupport + receiptSum;
-      const withdrawn = withdrawalSum + sentSupport + contributionSum;
-      const pending = 0; // Simplified for now
-      const balance = earned - withdrawn;
-
-      return {
-        id: p.id,
-        user: p.username,
-        country: p.country,
-        balance,
-        earned,
-        withdrawn,
-        pending,
-        status: (p as any).wallet_status || 'active',
-      };
+    const params = new URLSearchParams({
+      page: (pageParam + 1).toString(),
+      limit: limit.toString(),
     });
+    if (search) params.set('search', search);
 
+    const response = await serverFetch(`admin/wallets?${params.toString()}`);
     return {
       success: true,
-      data: stats,
-      nextPage: profiles.length === limit ? pageParam + 1 : undefined,
+      data: response.data || [],
+      nextPage: response.nextPage,
     };
   } catch (error: any) {
     console.error('Error fetching admin wallets:', error);
@@ -739,42 +271,23 @@ export async function fetchAdminCreatorGifts({
 } = {}) {
   try {
     const limit = 20;
-    const from = pageParam * limit;
-    const to = from + limit - 1;
+    const params = new URLSearchParams({
+      page: (pageParam + 1).toString(),
+      limit: limit.toString(),
+    });
+    if (search) params.set('search', search);
 
-    const supabase = await createClient();
-    const isAdmin = await checkIsAdmin(supabase);
-    if (!isAdmin) return {success: false, error: 'Unauthorized'};
-
-    const adminDb = createAdminClient();
-
-    let query = adminDb
-      .from('creator_support')
-      .select('*, recipient:profiles!user_id(*)')
-      .order('created_at', {ascending: false})
-      .range(from, to);
-
-    // If search is provided, we might need a more complex query or filter in JS
-    // Since creator_support doesn't have a direct 'title', we'll search by recipient username or donor name
-    if (search) {
-      query = query.or(`donor_name.ilike.%${search}%`);
-    }
-
-    const {data, error} = await query;
-    if (error) throw error;
-
+    const response = await serverFetch(`admin/creator-gifts?${params.toString()}`);
     return {
       success: true,
-      data,
-      nextPage: data?.length === limit ? pageParam + 1 : undefined,
+      data: response.data || [],
+      nextPage: response.nextPage,
     };
   } catch (error: any) {
     console.error('Error fetching admin creator gifts:', error);
     return {success: false, error: error.message};
   }
 }
-
-
 
 export async function fetchAdminVendors({
   search,
@@ -785,47 +298,17 @@ export async function fetchAdminVendors({
 } = {}) {
   try {
     const limit = 20;
-    const from = pageParam * limit;
-    const to = from + limit - 1;
-
-    const supabase = await createClient();
-    const isAdmin = await checkIsAdmin(supabase);
-    if (!isAdmin) return {success: false, error: 'Unauthorized'};
-
-    const adminDb = createAdminClient();
-
-    let query = adminDb
-      .from('profiles')
-      .select('*, campaigns!user_id(current_amount)')
-      .contains('roles', ['vendor'])
-      .order('created_at', {ascending: false})
-      .range(from, to);
-
-    if (search) {
-      query = query.or(`username.ilike.%${search}%,display_name.ilike.%${search}%`);
-    }
-
-    const {data, error} = await query;
-    if (error) throw error;
-
-    const formatted = data.map((v: any) => {
-      const campaigns = v.campaigns || [];
-      const orders_count = campaigns.length;
-      const sales_volume = campaigns.reduce(
-        (acc: number, c: any) => acc + parseFloat(c.current_amount || '0'),
-        0,
-      );
-      return {
-        ...v,
-        orders_count,
-        sales_volume,
-      };
+    const params = new URLSearchParams({
+      page: (pageParam + 1).toString(),
+      limit: limit.toString(),
     });
+    if (search) params.set('search', search);
 
+    const response = await serverFetch(`admin/vendors?${params.toString()}`);
     return {
       success: true,
-      data: formatted,
-      nextPage: data?.length === limit ? pageParam + 1 : undefined,
+      data: response.data || [],
+      nextPage: response.nextPage,
     };
   } catch (error: any) {
     return {success: false, error: error.message};
@@ -834,14 +317,11 @@ export async function fetchAdminVendors({
 
 export async function updateVendorStatus(id: string, status: string) {
   try {
-    const supabase = await createClient();
-    const isAdmin = await checkIsAdmin(supabase);
-    if (!isAdmin) return {success: false, error: 'Unauthorized'};
-
-    const adminDb = createAdminClient();
-    const {error} = await adminDb.from('profiles').update({status}).eq('id', id);
-    if (error) throw error;
-    return {success: true};
+    const response = await serverFetch(`admin/vendors/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({vendorStatus: status}),
+    });
+    return response;
   } catch (error: any) {
     return {success: false, error: error.message};
   }
@@ -852,16 +332,14 @@ export async function updateUserSystemStatus(
   updates: {status?: string; suspension_end?: string | null},
 ) {
   try {
-    const supabase = await createClient();
-    const isAdmin = await checkIsAdmin(supabase);
-    if (!isAdmin) return {success: false, error: 'Unauthorized'};
-
-    const adminDb = createAdminClient();
-
-    const {error} = await adminDb.from('profiles').update(updates).eq('id', id);
-    if (error) throw error;
-
-    return {success: true};
+    const response = await serverFetch(`admin/users/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        status: updates.status,
+        suspensionEnd: updates.suspension_end,
+      }),
+    });
+    return response;
   } catch (error: any) {
     return {success: false, error: error.message};
   }
@@ -869,25 +347,15 @@ export async function updateUserSystemStatus(
 
 export async function updateWalletStatus(id: string, wallet_status: string) {
   try {
-    const supabase = await createClient();
-    const isAdmin = await checkIsAdmin(supabase);
-    if (!isAdmin) return {success: false, error: 'Unauthorized'};
-
-    const adminDb = createAdminClient();
-    const {error} = await adminDb
-      .from('profiles')
-      .update({wallet_status})
-      .eq('id', id);
-
-    if (error) throw error;
-
-    return {success: true};
+    const response = await serverFetch(`admin/wallets/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({status: wallet_status}),
+    });
+    return response;
   } catch (error: any) {
     return {success: false, error: error.message};
   }
 }
-
-
 
 export async function updateVendorShopAdmin(
   userId: string,
@@ -900,35 +368,15 @@ export async function updateVendorShopAdmin(
   },
 ) {
   try {
-    const supabase = await createClient();
-    const isAdmin = await checkIsAdmin(supabase);
-    if (!isAdmin) return {success: false, error: 'Unauthorized'};
-
-    const adminDb = createAdminClient();
-
-    // If shop_slug is being updated, check if it's already taken
-    if (updates.shop_slug) {
-      const {data: existingShop} = await adminDb
-        .from('profiles')
-        .select('id')
-        .eq('shop_slug', updates.shop_slug.toLowerCase())
-        .neq('id', userId)
-        .maybeSingle();
-
-      if (existingShop) {
-        return {success: false, error: 'Shop URL identifier is already taken'};
-      }
-      updates.shop_slug = updates.shop_slug.toLowerCase();
-    }
-
-    const {error} = await adminDb
-      .from('profiles')
-      .update(updates)
-      .eq('id', userId);
-
-    if (error) throw error;
-
-    return {success: true};
+    const response = await serverFetch(`admin/vendors/${userId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        shopName: updates.shop_name,
+        shopDescription: updates.shop_description,
+        shopSlug: updates.shop_slug,
+      }),
+    });
+    return response;
   } catch (error: any) {
     console.error('Error updating vendor shop admin:', error);
     return {success: false, error: error.message};
@@ -937,20 +385,8 @@ export async function updateVendorShopAdmin(
 
 export async function fetchAdminModerationQueue() {
   try {
-    const supabase = await createClient();
-    const isAdmin = await checkIsAdmin(supabase);
-    if (!isAdmin) return {success: false, error: 'Unauthorized'};
-
-    const {data, error} = await supabase
-      .from('moderation_tickets')
-      .select(
-        '*, reporter_profile:profiles!moderation_tickets_reporter_id_fkey(username)',
-      )
-      .order('created_at', {ascending: false});
-
-    if (error) throw error;
-
-    return {success: true, data: data || []};
+    const response = await serverFetch('moderation/tickets');
+    return {success: true, data: response.data || []};
   } catch (error: any) {
     return {success: false, error: error.message};
   }
@@ -961,19 +397,14 @@ export async function resolveModerationTicket(
   updates: {status: string; resolution_notes?: string},
 ) {
   try {
-    const supabase = await createClient();
-    const isAdmin = await checkIsAdmin(supabase);
-    if (!isAdmin) return {success: false, error: 'Unauthorized'};
-
-    const adminDb = createAdminClient();
-
-    const {error} = await adminDb
-      .from('moderation_tickets')
-      .update(updates)
-      .eq('id', id);
-    if (error) throw error;
-
-    return {success: true};
+    const response = await serverFetch(`admin/reports/${id}/resolve`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        status: updates.status,
+        resolutionNotes: updates.resolution_notes,
+      }),
+    });
+    return response;
   } catch (error: any) {
     return {success: false, error: error.message};
   }
@@ -981,20 +412,11 @@ export async function resolveModerationTicket(
 
 export async function flagCreatorGift(id: string, reason: string) {
   try {
-    const supabase = await createClient();
-    const isAdmin = await checkIsAdmin(supabase);
-    if (!isAdmin) return {success: false, error: 'Unauthorized'};
-
-    const adminDb = createAdminClient();
-
-    const {error} = await adminDb
-      .from('creator_support')
-      .update({is_flagged: true, flag_reason: reason})
-      .eq('id', id);
-
-    if (error) throw error;
-
-    return {success: true};
+    const response = await serverFetch(`admin/gifts/${id}/flag`, {
+      method: 'PATCH',
+      body: JSON.stringify({reason, action: 'flag'}),
+    });
+    return response;
   } catch (error: any) {
     return {success: false, error: error.message};
   }
@@ -1002,21 +424,11 @@ export async function flagCreatorGift(id: string, reason: string) {
 
 export async function createAdminLog(action: string) {
   try {
-    const supabase = await createClient();
-    const {
-      data: {user},
-    } = await supabase.auth.getUser();
-    if (!user) return {success: false, error: 'Not authenticated'};
-
-    const adminDb = createAdminClient();
-
-    const {error} = await adminDb.from('admin_logs').insert({
-      admin_id: user.id,
-      action,
+    const response = await serverFetch('admin/logs', {
+      method: 'POST',
+      body: JSON.stringify({action}),
     });
-
-    if (error) throw error;
-    return {success: true};
+    return response;
   } catch (error: any) {
     console.error('Error creating admin log:', error);
     return {success: false, error: error.message};
@@ -1025,23 +437,8 @@ export async function createAdminLog(action: string) {
 
 export async function fetchAdminLogs() {
   try {
-    const supabase = await createClient();
-    const isAdmin = await checkIsAdmin(supabase);
-    if (!isAdmin) return {success: false, error: 'Unauthorized'};
-
-    const adminDb = createAdminClient();
-
-    const {data, error} = await adminDb
-      .from('admin_logs')
-      .select(
-        '*, admin:profiles!admin_logs_admin_id_fkey(username, display_name)',
-      )
-      .order('created_at', {ascending: false})
-      .limit(200);
-
-    if (error) throw error;
-
-    return {success: true, data: data || []};
+    const response = await serverFetch('admin/logs?limit=200');
+    return {success: true, data: response.data || []};
   } catch (error: any) {
     console.error('Error fetching admin logs:', error);
     return {success: false, error: error.message};
@@ -1050,16 +447,10 @@ export async function fetchAdminLogs() {
 
 export async function deleteAdminLog(logId: string) {
   try {
-    const supabase = await createClient();
-    const isAdmin = await checkIsAdmin(supabase);
-    if (!isAdmin) return {success: false, error: 'Unauthorized'};
-
-    const adminDb = createAdminClient();
-
-    const {error} = await adminDb.from('admin_logs').delete().eq('id', logId);
-
-    if (error) throw error;
-    return {success: true};
+    const response = await serverFetch(`admin/logs/${logId}`, {
+      method: 'DELETE',
+    });
+    return response;
   } catch (error: any) {
     console.error('Error deleting admin log:', error);
     return {success: false, error: error.message};

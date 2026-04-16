@@ -120,9 +120,451 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.UserScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  emailVerified: 'emailVerified',
+  image: 'image',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  username: 'username',
+  displayName: 'displayName',
+  avatarUrl: 'avatarUrl',
+  bio: 'bio',
+  isCreator: 'isCreator',
+  suggestedAmounts: 'suggestedAmounts',
+  socialLinks: 'socialLinks',
+  themeSettings: 'themeSettings',
+  country: 'country',
+  roles: 'roles',
+  adminRole: 'adminRole',
+  platformBalance: 'platformBalance',
+  status: 'status',
+  walletStatus: 'walletStatus',
+  suspensionEnd: 'suspensionEnd',
+  shopName: 'shopName',
+  shopDescription: 'shopDescription',
+  shopAddress: 'shopAddress',
+  shopSlug: 'shopSlug',
+  shopLogoUrl: 'shopLogoUrl',
+  bannerUrl: 'bannerUrl',
+  isVerifiedVendor: 'isVerifiedVendor',
+  vendorStatus: 'vendorStatus',
+  vendorCategories: 'vendorCategories'
+};
+
+exports.Prisma.SessionScalarFieldEnum = {
+  id: 'id',
+  expiresAt: 'expiresAt',
+  token: 'token',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  userId: 'userId'
+};
+
+exports.Prisma.AccountScalarFieldEnum = {
+  id: 'id',
+  accountId: 'accountId',
+  providerId: 'providerId',
+  userId: 'userId',
+  accessToken: 'accessToken',
+  refreshToken: 'refreshToken',
+  idToken: 'idToken',
+  accessTokenExpiresAt: 'accessTokenExpiresAt',
+  refreshTokenExpiresAt: 'refreshTokenExpiresAt',
+  scope: 'scope',
+  password: 'password',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.VerificationScalarFieldEnum = {
+  id: 'id',
+  identifier: 'identifier',
+  value: 'value',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CampaignScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  category: 'category',
+  title: 'title',
+  description: 'description',
+  goalAmount: 'goalAmount',
+  minAmount: 'minAmount',
+  currentAmount: 'currentAmount',
+  endDate: 'endDate',
+  imageUrl: 'imageUrl',
+  coverImage: 'coverImage',
+  images: 'images',
+  visibility: 'visibility',
+  contributorsSeeEachOther: 'contributorsSeeEachOther',
+  status: 'status',
+  statusReason: 'statusReason',
+  pausedBy: 'pausedBy',
+  isFlagged: 'isFlagged',
+  flagReason: 'flagReason',
+  flaggedAt: 'flaggedAt',
+  flaggedBy: 'flaggedBy',
+  campaignShortId: 'campaignShortId',
+  campaignSlug: 'campaignSlug',
+  claimableType: 'claimableType',
+  claimableGiftId: 'claimableGiftId',
+  claimableRecipientType: 'claimableRecipientType',
+  recipientEmail: 'recipientEmail',
+  senderEmail: 'senderEmail',
+  paymentReference: 'paymentReference',
+  currency: 'currency',
+  giftCode: 'giftCode',
+  redeemedAt: 'redeemedAt',
+  redeemedByVendorId: 'redeemedByVendorId',
+  vendorRating: 'vendorRating',
+  message: 'message',
+  deliveryMethod: 'deliveryMethod',
+  recipientPhone: 'recipientPhone',
+  recipientCountryCode: 'recipientCountryCode',
+  whatsappFee: 'whatsappFee',
+  senderName: 'senderName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ContributionScalarFieldEnum = {
+  id: 'id',
+  campaignId: 'campaignId',
+  transactionId: 'transactionId',
+  amount: 'amount',
+  currency: 'currency',
+  donorName: 'donorName',
+  donorEmail: 'donorEmail',
+  message: 'message',
+  isAnonymous: 'isAnonymous',
+  hideAmount: 'hideAmount',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.PromotionScalarFieldEnum = {
+  id: 'id',
+  vendorId: 'vendorId',
+  productId: 'productId',
+  vendorGiftId: 'vendorGiftId',
+  placement: 'placement',
+  durationDays: 'durationDays',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  status: 'status',
+  amountPaid: 'amountPaid',
+  currency: 'currency',
+  paymentReference: 'paymentReference',
+  rejectionReason: 'rejectionReason',
+  views: 'views',
+  clicks: 'clicks',
+  conversions: 'conversions',
+  transactionId: 'transactionId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ExternalPromotionScalarFieldEnum = {
+  id: 'id',
+  adminId: 'adminId',
+  title: 'title',
+  description: 'description',
+  imageUrl: 'imageUrl',
+  link: 'link',
+  placement: 'placement',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  status: 'status',
+  views: 'views',
+  clicks: 'clicks',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.FeaturedItemScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  imageUrl: 'imageUrl',
+  link: 'link',
+  type: 'type',
+  order: 'order',
+  isActive: 'isActive',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.TransactionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  campaignId: 'campaignId',
+  amount: 'amount',
+  currency: 'currency',
+  type: 'type',
+  status: 'status',
+  reference: 'reference',
+  description: 'description',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.BankAccountScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  bankName: 'bankName',
+  bankCode: 'bankCode',
+  accountNumber: 'accountNumber',
+  accountName: 'accountName',
+  recipientCode: 'recipientCode',
+  currency: 'currency',
+  country: 'country',
+  isPrimary: 'isPrimary',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WithdrawalScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  bankAccountId: 'bankAccountId',
+  amount: 'amount',
+  currency: 'currency',
+  status: 'status',
+  reference: 'reference',
+  rejectionReason: 'rejectionReason',
+  transactionId: 'transactionId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.FlexCardScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  senderId: 'senderId',
+  initialAmount: 'initialAmount',
+  currentBalance: 'currentBalance',
+  currency: 'currency',
+  code: 'code',
+  claimToken: 'claimToken',
+  status: 'status',
+  senderName: 'senderName',
+  recipientEmail: 'recipientEmail',
+  recipientPhone: 'recipientPhone',
+  deliveryMethod: 'deliveryMethod',
+  message: 'message',
+  claimedAt: 'claimedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.FlexCardTransactionScalarFieldEnum = {
+  id: 'id',
+  flexCardId: 'flexCardId',
+  vendorId: 'vendorId',
+  amount: 'amount',
+  balanceAfter: 'balanceAfter',
+  description: 'description',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ModerationReportScalarFieldEnum = {
+  id: 'id',
+  targetId: 'targetId',
+  targetType: 'targetType',
+  targetName: 'targetName',
+  reporterId: 'reporterId',
+  reporterUsername: 'reporterUsername',
+  reason: 'reason',
+  status: 'status',
+  resolutionNotes: 'resolutionNotes',
+  resolvedById: 'resolvedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ModerationTicketScalarFieldEnum = {
+  id: 'id',
+  reporterId: 'reporterId',
+  subject: 'subject',
+  description: 'description',
+  status: 'status',
+  priority: 'priority',
+  resolvedById: 'resolvedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AdminLogScalarFieldEnum = {
+  id: 'id',
+  adminId: 'adminId',
+  action: 'action',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.CreatorSupportScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  transactionId: 'transactionId',
+  amount: 'amount',
+  currency: 'currency',
+  donorName: 'donorName',
+  donorEmail: 'donorEmail',
+  message: 'message',
+  isAnonymous: 'isAnonymous',
+  hideAmount: 'hideAmount',
+  giftId: 'giftId',
+  giftName: 'giftName',
+  vendorRating: 'vendorRating',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.NotificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  type: 'type',
+  title: 'title',
+  message: 'message',
+  data: 'data',
+  isGlobal: 'isGlobal',
+  targetRole: 'targetRole',
+  read: 'read',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.NotificationReadScalarFieldEnum = {
+  id: 'id',
+  notificationId: 'notificationId',
+  userId: 'userId',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.SystemSettingScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  value: 'value',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.VendorGiftScalarFieldEnum = {
+  id: 'id',
+  vendorId: 'vendorId',
+  name: 'name',
+  slug: 'slug',
+  price: 'price',
+  description: 'description',
+  imageUrl: 'imageUrl',
+  category: 'category',
+  tags: 'tags',
+  type: 'type',
+  status: 'status',
+  stockQuantity: 'stockQuantity',
+  unitsSold: 'unitsSold',
+  images: 'images',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.VendorGiftImageScalarFieldEnum = {
+  id: 'id',
+  giftId: 'giftId',
+  url: 'url',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.FavoriteScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  vendorGiftId: 'vendorGiftId',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.RatingScalarFieldEnum = {
+  id: 'id',
+  targetId: 'targetId',
+  targetType: 'targetType',
+  userId: 'userId',
+  rating: 'rating',
+  comment: 'comment',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.SortOrder = {
+  asc: 'asc',
+  desc: 'desc'
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+};
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+exports.AdminRole = exports.$Enums.AdminRole = {
+  support: 'support',
+  finance: 'finance',
+  moderator: 'moderator',
+  superadmin: 'superadmin'
+};
+
+exports.UserRole = exports.$Enums.UserRole = {
+  user: 'user',
+  admin: 'admin',
+  vendor: 'vendor',
+  superadmin: 'superadmin'
+};
 
 exports.Prisma.ModelName = {
-
+  User: 'User',
+  Session: 'Session',
+  Account: 'Account',
+  Verification: 'Verification',
+  Campaign: 'Campaign',
+  Contribution: 'Contribution',
+  Promotion: 'Promotion',
+  ExternalPromotion: 'ExternalPromotion',
+  FeaturedItem: 'FeaturedItem',
+  Transaction: 'Transaction',
+  BankAccount: 'BankAccount',
+  Withdrawal: 'Withdrawal',
+  FlexCard: 'FlexCard',
+  FlexCardTransaction: 'FlexCardTransaction',
+  ModerationReport: 'ModerationReport',
+  ModerationTicket: 'ModerationTicket',
+  AdminLog: 'AdminLog',
+  CreatorSupport: 'CreatorSupport',
+  Notification: 'Notification',
+  NotificationRead: 'NotificationRead',
+  SystemSetting: 'SystemSetting',
+  VendorGift: 'VendorGift',
+  VendorGiftImage: 'VendorGiftImage',
+  Favorite: 'Favorite',
+  Rating: 'Rating'
 };
 
 /**

@@ -3,6 +3,8 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { FileService } from '../file/file.service';
 import { paginate, getPaginationOptions } from '../../common/utils/pagination.util';
 import { NotificationService } from '../notification/notification.service';
+import { AuthService } from '../auth/auth.service';
+import { UserRole, AdminRole } from '../../generated/prisma';
 
 @Injectable()
 export class AdminService {
@@ -12,13 +14,14 @@ export class AdminService {
     private prisma: PrismaService,
     private notificationService: NotificationService,
     private fileService: FileService,
+    private authService: AuthService,
   ) {}
 
   // ─────────────────────────────────────────────
   // User Management
   // ─────────────────────────────────────────────
 
-  async fetchUsers(options: { search?: string; role?: string; page?: number; limit?: number }) {
+  async fetchUsers(options: { search?: string; role?: UserRole; page?: number; limit?: number }) {
     const { search, role, page = 1, limit = 20 } = options;
     const { skip, take } = getPaginationOptions(page, limit);
 
@@ -67,7 +70,7 @@ export class AdminService {
     return paginate(formatted, total, page, limit);
   }
 
-  async updateUserRole(adminId: string, userId: string, roles: string[], adminRole: string | null) {
+  async updateUserRole(adminId: string, userId: string, roles: UserRole[], adminRole: AdminRole | null) {
     const finalRoles = [...new Set([...roles, 'user'])];
     
     const user = await (this.prisma as any).user.update({
@@ -89,6 +92,16 @@ export class AdminService {
     });
 
     await this.logAction(adminId, `Updated status for user ${userId} to ${status}`);
+    return user;
+  }
+
+  async updateWalletStatus(adminId: string, userId: string, walletStatus: string) {
+    const user = await (this.prisma as any).user.update({
+      where: { id: userId },
+      data: { walletStatus },
+    });
+
+    await this.logAction(adminId, `Updated wallet status for user ${userId} to ${walletStatus}`);
     return user;
   }
 
@@ -250,14 +263,16 @@ export class AdminService {
       currentAmount: c.currentAmount.toString(),
     })), total, page, limit);
   }
-
   async fetchShopGifts(options: { search?: string; page?: number; limit?: number }) {
     const { search, page = 1, limit = 20 } = options;
     const { skip, take } = getPaginationOptions(page, limit);
 
     const where: any = { giftCode: { not: null } };
     if (search) {
-      where.title = { contains: search, mode: 'insensitive' };
+      where.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { giftCode: { contains: search, mode: 'insensitive' } },
+      ];
     }
 
     const [gifts, total] = await Promise.all([
@@ -266,7 +281,17 @@ export class AdminService {
         skip,
         take,
         orderBy: { createdAt: 'desc' },
-        include: { user: { select: { username: true, displayName: true, shopName: true } } },
+        include: { 
+          user: { 
+            select: { 
+              username: true, 
+              displayName: true,
+              country: true,
+              shopName: true,
+              shopAddress: true,
+            } 
+          } 
+        },
       }),
       (this.prisma as any).campaign.count({ where }),
     ]);
@@ -276,6 +301,19 @@ export class AdminService {
       goalAmount: g.goalAmount?.toString(),
       currentAmount: g.currentAmount.toString(),
     })), total, page, limit);
+  }
+
+  async invalidateShopGift(adminId: string, giftId: string, reason: string) {
+    const gift = await (this.prisma as any).campaign.update({
+      where: { id: giftId },
+      data: { 
+        status: 'expired',
+        statusReason: reason,
+      },
+    });
+
+    await this.logAction(adminId, `Invalidated shop gift ${giftId} for reason: ${reason}`);
+    return gift;
   }
 
   async fetchSubscriptions(options: { search?: string; page?: number; limit?: number }) {
@@ -319,6 +357,37 @@ export class AdminService {
     }));
 
     return paginate(formatted, total, page, limit);
+  }
+
+  async cancelSubscription(adminId: string, userId: string, reason: string) {
+    const user = await (this.prisma as any).user.findUnique({
+      where: { id: userId },
+      select: { themeSettings: true },
+    });
+
+    if (!user) throw new NotFoundException('User not found');
+
+    const themeSettings = (user.themeSettings as any) || {};
+    const updatedSettings = { ...themeSettings, plan: 'basic', cancelReason: reason };
+
+    const updatedUser = await (this.prisma as any).user.update({
+      where: { id: userId },
+      data: { themeSettings: updatedSettings },
+    });
+
+    await this.logAction(adminId, `Cancelled Pro subscription for user ${userId}. Reason: ${reason}`);
+    return updatedUser;
+  }
+
+  async changePassword(adminId: string, currentPassword: string, newPassword: string, headers?: any) {
+    return this.authService.updatePassword(adminId, currentPassword, newPassword, headers);
+  }
+
+  async extendSubscription(adminId: string, userId: string, days: number) {
+    // Note: Since expiry date is currently mocked/not in schema, this just logs for now.
+    // In a real implementation, we would update a 'subscriptionExpiresAt' field.
+    await this.logAction(adminId, `Extended subscription for user ${userId} by ${days} days (Logged action only).`);
+    return { success: true, userId, extendedBy: days };
   }
 
   async fetchTransactions(options: { search?: string; page?: number; limit?: number }) {
@@ -438,7 +507,7 @@ export class AdminService {
         earned,
         withdrawn,
         pending: 0,
-        status: 'active',
+        status: u.walletStatus || 'active',
       };
     });
 
@@ -476,17 +545,53 @@ export class AdminService {
     return paginate(formatted, total, page, limit);
   }
 
-  async updateCampaignStatus(adminId: string, campaignId: string, status: string) {
+  async updateCampaignStatus(adminId: string, campaignId: string, status: string, reason?: string) {
     const campaign = await (this.prisma as any).campaign.update({
       where: { id: campaignId },
       data: { 
         status,
         pausedBy: status === 'paused' ? 'admin' : null,
+        statusReason: reason || null,
       },
     });
 
-    await this.logAction(adminId, `Updated campaign ${campaignId} status to ${status}`);
+    await this.logAction(adminId, `Updated campaign ${campaignId} status to ${status}${reason ? ` (Reason: ${reason})` : ''}`);
     return campaign;
+  }
+
+  async updateCampaignAdmin(adminId: string, campaignId: string, data: any) {
+    const updateData: any = {};
+    if (data.title !== undefined) updateData.title = data.title;
+    if (data.description !== undefined) updateData.description = data.description;
+    if (data.goal_amount !== undefined) updateData.goalAmount = data.goal_amount;
+    if (data.status !== undefined) updateData.status = data.status;
+    if (data.category !== undefined) updateData.category = data.category;
+    if (data.image_url !== undefined) updateData.coverImage = data.image_url;
+
+    const campaign = await (this.prisma as any).campaign.update({
+      where: { id: campaignId },
+      data: updateData,
+    });
+
+    await this.logAction(adminId, `Admin updated campaign ${campaignId}: ${JSON.stringify(data)}`);
+    return campaign;
+  }
+
+  async toggleCampaignFeatured(adminId: string, campaignId: string) {
+    const campaign = await (this.prisma as any).campaign.findUnique({
+      where: { id: campaignId },
+      select: { isFeatured: true },
+    });
+
+    if (!campaign) throw new NotFoundException('Campaign not found');
+
+    const updated = await (this.prisma as any).campaign.update({
+      where: { id: campaignId },
+      data: { isFeatured: !campaign.isFeatured },
+    });
+
+    await this.logAction(adminId, `${updated.isFeatured ? 'Featured' : 'Unfeatured'} campaign ${campaignId}`);
+    return updated;
   }
 
   // ─────────────────────────────────────────────
@@ -1138,5 +1243,61 @@ export class AdminService {
         thisMonth: Number(revenueThisMonthResult._sum?.amount || 0) / 100,
       },
     };
+  }
+
+  /**
+   * Get platform-wide system settings.
+   */
+  async getSettings() {
+    try {
+      const settings = await (this.prisma as any).systemSetting.findMany();
+      const settingsMap = settings.reduce((acc: any, curr: any) => {
+        acc[curr.key] = curr.value;
+        return acc;
+      }, {});
+
+      // Merge with defaults
+      return {
+        platformFee: 5,
+        minWithdrawal: 1000,
+        maxWithdrawal: 500000,
+        maintenanceMode: false,
+        newRegistrations: true,
+        vendorApplications: true,
+        emailNotifications: true,
+        ...settingsMap,
+      };
+    } catch (error) {
+      this.logger.warn('Failed to fetch system settings, returning defaults', error);
+      return {
+        platformFee: 5,
+        minWithdrawal: 1000,
+        maxWithdrawal: 500000,
+        maintenanceMode: false,
+        newRegistrations: true,
+        vendorApplications: true,
+        emailNotifications: true,
+      };
+    }
+  }
+
+  /**
+   * Update platform-wide system settings.
+   */
+  async updateSettings(adminId: string, settings: any) {
+    const entries = Object.entries(settings);
+
+    await (this.prisma as any).$transaction(
+      entries.map(([key, value]) =>
+        (this.prisma as any).systemSetting.upsert({
+          where: { key },
+          update: { value },
+          create: { key, value },
+        }),
+      ),
+    );
+
+    await this.logAction(adminId, `Updated system settings: ${Object.keys(settings).join(', ')}`);
+    return { success: true };
   }
 }

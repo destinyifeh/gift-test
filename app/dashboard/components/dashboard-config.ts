@@ -1,16 +1,3 @@
-import {
-  BarChart3,
-  Gift,
-  Heart,
-  LayoutDashboard,
-  Send,
-  Settings,
-  Sparkles,
-  Star,
-  Users,
-  Wallet,
-} from 'lucide-react';
-
 export type SelectedSection =
   | 'overview'
   | 'sent'
@@ -26,25 +13,57 @@ export type SelectedSection =
   | 'analytics'
   | 'favorites';
 
-export const navItems: {id: SelectedSection; label: string; icon: any}[] = [
-  {id: 'overview', label: 'Overview', icon: LayoutDashboard},
-  {id: 'sent', label: 'Gifts Sent', icon: Send},
-  {id: 'my-gifts', label: 'My Gifts', icon: Gift},
-  {id: 'received', label: 'Campaign Donations', icon: Heart},
-  {id: 'contributions', label: 'My Contributions', icon: Send},
-  {id: 'campaigns', label: 'My Campaigns', icon: Users},
-  {id: 'favorites', label: 'Favorites', icon: Star},
-  {id: 'wallet', label: 'Wallet', icon: Wallet},
-  {id: 'settings', label: 'Settings', icon: Settings},
+export const sectionTitles: Record<SelectedSection, string> = {
+  overview: 'Overview',
+  sent: 'Gifts Sent',
+  'my-gifts': 'My Gifts',
+  received: 'Campaign Donations',
+  'creator-gifts': 'Creator Gifts',
+  contributions: 'My Contributions',
+  campaigns: 'My Campaigns',
+  favorites: 'Favorites',
+  wallet: 'Wallet',
+  settings: 'Settings',
+  'gift-page': 'My Gift Page',
+  supporters: 'Supporters',
+  analytics: 'Analytics',
+};
+
+// Icons using Material Symbols names
+export const sectionIcons: Record<SelectedSection, string> = {
+  overview: 'dashboard',
+  sent: 'send',
+  'my-gifts': 'card_giftcard',
+  received: 'volunteer_activism',
+  'creator-gifts': 'redeem',
+  contributions: 'paid',
+  campaigns: 'campaign',
+  favorites: 'favorite',
+  wallet: 'account_balance_wallet',
+  settings: 'settings',
+  'gift-page': 'auto_awesome',
+  supporters: 'group',
+  analytics: 'analytics',
+};
+
+// Gift-related sections for the Gifts drawer
+export const giftSections: SelectedSection[] = [
+  'my-gifts',
+  'sent',
+  'received',
 ];
 
-export const creatorNavItems: {
-  id: SelectedSection;
-  label: string;
-  icon: any;
-}[] = [
-  {id: 'gift-page', label: 'My Gift Page', icon: Sparkles},
-  {id: 'supporters', label: 'Supporters', icon: Users},
-  {id: 'creator-gifts', label: 'Creator Gifts', icon: Gift},
-  {id: 'analytics', label: 'Analytics', icon: BarChart3},
+// More menu sections
+export const moreSections: SelectedSection[] = [
+  'contributions',
+  'campaigns',
+  'favorites',
+  'settings',
+];
+
+// Creator-only sections
+export const creatorSections: SelectedSection[] = [
+  'gift-page',
+  'supporters',
+  'analytics',
 ];

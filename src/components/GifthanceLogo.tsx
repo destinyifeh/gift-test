@@ -32,7 +32,7 @@ function LogoIcon({size}: {size: 'sm' | 'md' | 'lg'}) {
   );
 }
 
-export function GifthanceLogo({size = 'md', showText = true, href = '/v2', className = ''}: GifthanseLogoProps) {
+export function GifthanceLogo({size = 'md', showText = true, href = '/', className = ''}: GifthanseLogoProps) {
   const textSizes = {
     sm: 'text-lg',
     md: 'text-xl',

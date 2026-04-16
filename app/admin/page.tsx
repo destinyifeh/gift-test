@@ -1,362 +1,647 @@
 'use client';
 
-import {Badge} from '@/components/ui/badge';
 import {RequireAdmin} from '@/components/guards';
-import {Input} from '@/components/ui/input';
 import {useIsMobile} from '@/hooks/use-mobile';
-import {createAdminLog} from '@/lib/server/actions/admin';
-import {cn} from '@/lib/utils';
+import {useProfile} from '@/hooks/use-profile';
+import {authClient} from '@/lib/auth-client';
+import {useUserStore} from '@/lib/store/useUserStore';
+import {useMutation, useQueryClient} from '@tanstack/react-query';
+import api from '@/lib/api-client';
+import Link from 'next/link';
+import {useRouter, useSearchParams} from 'next/navigation';
+import {Suspense, useState} from 'react';
+import {toast} from 'sonner';
+
+// Types
+import {AdminSection} from './types';
+
+// Components
+import {V2AdminSidebar} from './components/V2AdminSidebar';
+import {V2AdminBottomNav} from './components/V2AdminBottomNav';
+import {V2AdminMobileMenu} from './components/V2AdminMobileMenu';
 import {
-  BarChart3,
-  Bell,
-  Crown,
-  DollarSign,
-  FileText,
-  Gift,
-  LayoutDashboard,
-  Menu,
-  Search,
-  Settings,
-  Shield,
-  ShoppingCart,
-  Users,
-  Wallet,
-  X,
-} from 'lucide-react';
-import {useState} from 'react';
+  V2AdminDashboardTab,
+  V2AdminUsersTab,
+  V2AdminCampaignsTab,
+  V2AdminCreatorGiftsTab,
+  V2AdminClaimableGiftsTab,
+  V2AdminTransactionsTab,
+  V2AdminWalletsTab,
+  V2AdminWithdrawalsTab,
+  V2AdminVendorsTab,
+  V2AdminFeaturedTab,
+  V2AdminPromotionsTab,
+  V2AdminSubscriptionsTab,
+  V2AdminReportsTab,
+  V2AdminModerationTab,
+  V2AdminNotificationsTab,
+  V2AdminSettingsTab,
+  V2AdminRolesTab,
+  V2AdminLogsTab,
+} from './components/tabs';
+import {V2NotificationsPanel} from '../components/V2NotificationsPanel';
 
-// Modular Components
-import {AdminsTab} from './components/AdminsTab';
-import {CampaignsTab} from './components/CampaignsTab';
-import {DashboardTab} from './components/DashboardTab';
-import {CreatorGiftsTab} from './components/CreatorGiftsTab';
-import {ClaimableGiftsTab} from './components/ClaimableGiftsTab';
-import {LogsTab} from './components/LogsTab';
-import {ModerationTab} from './components/ModerationTab';
-import {NotificationsTab} from './components/NotificationsTab';
-import {ReportsTab} from './components/ReportsTab';
-import {SettingsTab} from './components/SettingsTab';
-import {SubscriptionsTab} from './components/SubscriptionsTab';
-import {TransactionsTab} from './components/TransactionsTab';
-import {UsersTab} from './components/UsersTab';
-import {VendorsTab} from './components/VendorsTab';
-import {WalletsTab} from './components/WalletsTab';
-import {WithdrawalsTab} from './components/WithdrawalsTab';
+function AdminLoadingFallback() {
+  return (
+    <div className="min-h-screen bg-[var(--v2-background)] flex items-center justify-center">
+      <span className="v2-icon text-4xl text-[var(--v2-primary)] animate-spin">
+        progress_activity
+      </span>
+    </div>
+  );
+}
 
-// Layout & Modals
-import {ActionConfirmModal} from './components/ActionConfirmModal';
-import {Section, Sidebar, navItems} from './components/Sidebar';
-import {ViewDetailsModal} from './components/ViewDetailsModal';
+// Helper component to format view details modal content
+function ViewDetailsContent({data, title}: {data: any; title: string}) {
+  if (!data) return null;
 
-// Mobile bottom nav items - only show most important ones
-const mobileNavItems = [
-  {id: 'dashboard' as Section, label: 'Home', icon: LayoutDashboard},
-  {id: 'users' as Section, label: 'Users', icon: Users},
-  {id: 'transactions' as Section, label: 'Transactions', icon: DollarSign},
-  {id: 'vendors' as Section, label: 'Vendors', icon: ShoppingCart},
-];
+  // Format date helper
+  const formatDate = (dateStr: string | null) => {
+    if (!dateStr) return '—';
+    return new Date(dateStr).toLocaleString();
+  };
 
-export default function AdminDashboardPage() {
-  const [section, setSection] = useState<Section>('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [moreDrawerOpen, setMoreDrawerOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showMobileSearch, setShowMobileSearch] = useState(false);
+  // Format currency helper
+  const formatAmount = (amount: number | string | null, symbol = '₦') => {
+    if (amount === null || amount === undefined) return '—';
+    const num = typeof amount === 'string' ? parseFloat(amount) : amount;
+    return `${symbol}${num.toLocaleString()}`;
+  };
+
+  // Render field
+  const Field = ({label, value, highlight}: {label: string; value: any; highlight?: boolean}) => (
+    <div className="py-3 border-b border-[var(--v2-outline-variant)]/10 last:border-0">
+      <p className="text-xs font-medium text-[var(--v2-on-surface-variant)] uppercase tracking-wider mb-1">
+        {label}
+      </p>
+      <p className={`font-medium ${highlight ? 'text-[var(--v2-primary)] text-lg' : 'text-[var(--v2-on-surface)]'}`}>
+        {value || '—'}
+      </p>
+    </div>
+  );
+
+  // Campaign Details
+  if (title.toLowerCase().includes('campaign')) {
+    return (
+      <div className="space-y-0">
+        {data.cover_image && (
+          <div className="mb-4 -mx-6 -mt-2">
+            <img src={data.cover_image} alt="" className="w-full h-40 object-cover rounded-t-xl" />
+          </div>
+        )}
+        <Field label="Title" value={data.title} />
+        <Field label="Creator" value={data.vendor?.display_name || data.vendor?.username || data.creator || 'Unknown'} />
+        <Field label="Category" value={data.category} />
+        <Field label="Status" value={
+          <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase ${
+            data.status === 'active' ? 'bg-emerald-100 text-emerald-700' :
+            data.status === 'paused' ? 'bg-amber-100 text-amber-700' :
+            'bg-[var(--v2-surface-container)] text-[var(--v2-on-surface-variant)]'
+          }`}>{data.status || 'active'}</span>
+        } />
+        <Field label="Current Amount" value={formatAmount(data.current_amount)} highlight />
+        {data.goal_amount && <Field label="Goal Amount" value={formatAmount(data.goal_amount)} />}
+        {data.goal_amount && (
+          <Field label="Progress" value={`${Math.round(((data.current_amount || 0) / data.goal_amount) * 100)}%`} />
+        )}
+        <Field label="Description" value={data.description} />
+        <Field label="Created" value={formatDate(data.created_at)} />
+        {data.is_featured && <Field label="Featured" value="Yes" />}
+        <Field label="ID" value={<span className="font-mono text-xs">{data.id}</span>} />
+      </div>
+    );
+  }
+
+  // Creator Gift / Gift Details
+  if (title.toLowerCase().includes('gift')) {
+    const isClaimable = data.gift_code || title.toLowerCase().includes('code');
+
+    if (isClaimable) {
+      return (
+        <div className="space-y-0">
+          <Field label="Gift Code" value={<span className="font-mono">{data.gift_code || 'PREPAID'}</span>} />
+          <Field label="Product" value={data.title} />
+          <Field label="Amount" value={formatAmount(data.current_amount || data.goal_amount)} highlight />
+          <Field label="Status" value={
+            <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase ${
+              data.status === 'completed' || data.status === 'redeemed' || data.status === 'claimed' ? 'bg-emerald-100 text-emerald-700' :
+              data.status === 'expired' ? 'bg-red-100 text-red-700' :
+              'bg-amber-100 text-amber-700'
+            }`}>{data.status === 'completed' ? 'redeemed' : data.status || 'ready'}</span>
+          } />
+
+          {/* Sender Info */}
+          <div className="pt-3 mt-3 border-t border-[var(--v2-outline-variant)]/20">
+            <p className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider mb-2">Sender</p>
+          </div>
+          <Field label="Sender Name" value={data.sender_name || 'Anonymous'} />
+          <Field label="Sender Email" value={data.sender_email} />
+
+          {/* Recipient Info */}
+          <div className="pt-3 mt-3 border-t border-[var(--v2-outline-variant)]/20">
+            <p className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider mb-2">Recipient</p>
+          </div>
+          <Field label="Recipient Email" value={data.recipient_email} />
+
+          {/* Vendor/Shop Info */}
+          <div className="pt-3 mt-3 border-t border-[var(--v2-outline-variant)]/20">
+            <p className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider mb-2">Vendor</p>
+          </div>
+          <Field label="Vendor Name" value={data.profiles?.display_name || data.profiles?.username || data.vendor_name || '—'} />
+          <Field label="Shop Name" value={data.profiles?.shop_name || data.shop_name || '—'} />
+          <Field label="Shop Address" value={data.profiles?.shop_address || '—'} />
+
+          {/* Meta */}
+          <div className="pt-3 mt-3 border-t border-[var(--v2-outline-variant)]/20">
+            <p className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider mb-2">Details</p>
+          </div>
+          {data.message && <Field label="Message" value={data.message} />}
+          <Field label="Created" value={formatDate(data.created_at)} />
+          <Field label="ID" value={<span className="font-mono text-xs">{data.id}</span>} />
+        </div>
+      );
+    }
+
+    // Creator support gift
+    return (
+      <div className="space-y-0">
+        <Field label="Sender" value={`${data.donor_name || 'Anonymous'}${data.is_anonymous ? ' (Anonymous)' : ''}`} />
+        <Field label="Recipient" value={data.recipient?.display_name || data.recipient?.username || 'Unknown'} />
+        <Field label="Type" value={data.gift_name ? 'Gift Card' : 'Cash Gift'} />
+        {data.gift_name && <Field label="Gift" value={data.gift_name} />}
+        <Field label="Amount" value={formatAmount(data.amount)} highlight />
+        <Field label="Message" value={data.message || 'No message'} />
+        <Field label="Status" value={
+          <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase ${
+            data.is_flagged ? 'bg-red-100 text-red-700' :
+            data.transactions?.status === 'success' ? 'bg-emerald-100 text-emerald-700' :
+            'bg-amber-100 text-amber-700'
+          }`}>{data.is_flagged ? 'Flagged' : data.transactions?.status || 'success'}</span>
+        } />
+        {data.is_flagged && <Field label="Flag Reason" value={data.flag_reason} />}
+        <Field label="Date" value={formatDate(data.created_at)} />
+        <Field label="ID" value={<span className="font-mono text-xs">{data.id}</span>} />
+      </div>
+    );
+  }
+
+  // Transaction Details
+  if (title.toLowerCase().includes('transaction')) {
+    const isDonation = data.type === 'donation';
+    const isPurchase = data.type === 'purchase';
+    const isWithdrawal = data.type === 'withdrawal' || data.type === 'payout';
+
+    return (
+      <div className="space-y-0">
+        <Field 
+          label="Transaction Type" 
+          value={
+            <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
+              isDonation ? 'bg-blue-100 text-blue-700' :
+              isPurchase ? 'bg-emerald-100 text-emerald-700' :
+              isWithdrawal ? 'bg-orange-100 text-orange-700' :
+              'bg-gray-100 text-gray-700'
+            }`}>
+              {data.type || 'transaction'}
+            </span>
+          } 
+        />
+        <Field label="Amount" value={formatAmount(data.amount)} highlight />
+        <Field label="Reference" value={<span className="font-mono text-sm">{data.reference || data.id}</span>} />
+        <Field label="Status" value={
+          <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
+            data.status === 'success' || data.status === 'completed' ? 'bg-emerald-100 text-emerald-700' :
+            data.status === 'failed' ? 'bg-red-100 text-red-600' :
+            'bg-amber-100 text-amber-700'
+          }`}>
+            {data.status || 'success'}
+          </span>
+        } />
+        <Field label="User" value={data.user?.display_name || data.user?.username || '—'} highlight={false} />
+        <Field label="Description" value={data.description || '—'} />
+        <Field label="Date" value={formatDate(data.created_at)} />
+        <div className="pt-4 mt-2">
+           <p className="text-[10px] text-[var(--v2-on-surface-variant)] opacity-40 font-mono">INTERNAL ID: {data.id}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // User Details
+  if (title.toLowerCase().includes('user')) {
+    return (
+      <div className="space-y-0">
+        <div className="flex items-center gap-4 mb-4">
+          {data.avatar_url ? (
+            <img src={data.avatar_url} alt="" className="w-16 h-16 rounded-full object-cover" />
+          ) : (
+            <div className="w-16 h-16 rounded-full bg-[var(--v2-primary)]/10 flex items-center justify-center">
+              <span className="text-2xl font-bold text-[var(--v2-primary)]">
+                {(data.display_name || data.username || 'U').charAt(0).toUpperCase()}
+              </span>
+            </div>
+          )}
+          <div>
+            <p className="font-bold text-lg">{data.display_name || data.username}</p>
+            <p className="text-sm text-[var(--v2-on-surface-variant)]">@{data.username}</p>
+          </div>
+        </div>
+        <Field label="Email" value={data.email} />
+        <Field label="Country" value={data.country} />
+        <Field label="Roles" value={data.roles?.join(', ')} />
+        {data.admin_role && <Field label="Admin Role" value={data.admin_role} />}
+        <Field label="Status" value={
+          <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase ${
+            data.status === 'active' || !data.status ? 'bg-emerald-100 text-emerald-700' :
+            data.status === 'suspended' ? 'bg-amber-100 text-amber-700' :
+            'bg-red-100 text-red-700'
+          }`}>{data.status || 'active'}</span>
+        } />
+        <Field label="Joined" value={formatDate(data.created_at)} />
+        <Field label="ID" value={<span className="font-mono text-xs">{data.id}</span>} />
+      </div>
+    );
+  }
+
+  // Vendor Details
+  if (title.toLowerCase().includes('vendor')) {
+    return (
+      <div className="space-y-0">
+        <div className="flex items-center gap-4 mb-4">
+          {data.avatar_url || data.shop_logo_url ? (
+            <img src={data.shop_logo_url || data.avatar_url} alt="" className="w-16 h-16 rounded-xl object-cover" />
+          ) : (
+            <div className="w-16 h-16 rounded-xl bg-[var(--v2-primary)]/10 flex items-center justify-center">
+              <span className="v2-icon text-2xl text-[var(--v2-primary)]">storefront</span>
+            </div>
+          )}
+          <div>
+            <p className="font-bold text-lg">{data.shop_name || data.display_name || data.username}</p>
+            <p className="text-sm text-[var(--v2-on-surface-variant)]">@{data.username}</p>
+          </div>
+        </div>
+        <Field label="Shop Name" value={data.shop_name} />
+        <Field label="Shop Address" value={data.shop_address} />
+        <Field label="Email" value={data.email} />
+        <Field label="Country" value={data.country} />
+        <Field label="Products" value={data.orders_count || 0} />
+        <Field label="Total Sales" value={formatAmount(data.sales_volume)} highlight />
+        <Field label="Status" value={
+          <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase ${
+            data.status === 'active' || !data.status ? 'bg-emerald-100 text-emerald-700' :
+            data.status === 'suspended' ? 'bg-amber-100 text-amber-700' :
+            'bg-red-100 text-red-700'
+          }`}>{data.status || 'active'}</span>
+        } />
+        <Field label="Joined" value={formatDate(data.created_at)} />
+        <Field label="ID" value={<span className="font-mono text-xs">{data.id}</span>} />
+      </div>
+    );
+  }
+
+  // Subscription Details
+  if (title.toLowerCase().includes('subscription')) {
+    return (
+      <div className="space-y-0">
+        <div className="flex items-center gap-4 mb-4">
+          {data.avatar_url ? (
+            <img src={data.avatar_url} alt="" className="w-16 h-16 rounded-full object-cover" />
+          ) : (
+            <div className="w-16 h-16 rounded-full bg-[var(--v2-primary)]/10 flex items-center justify-center">
+              <span className="text-2xl font-bold text-[var(--v2-primary)]">
+                {(data.display_name || data.username || 'U').charAt(0).toUpperCase()}
+              </span>
+            </div>
+          )}
+          <div>
+            <p className="font-bold text-lg">{data.display_name || data.username}</p>
+            <p className="text-sm text-[var(--v2-on-surface-variant)]">@{data.username}</p>
+          </div>
+        </div>
+        <Field label="Plan" value={
+          <span className="inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase bg-[var(--v2-primary)] text-white">
+            {data.plan || 'Pro'}
+          </span>
+        } />
+        <Field label="Price" value={data.price || '$8/mo'} />
+        <Field label="Email" value={data.email} />
+        <Field label="Status" value={
+          <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase ${
+            data.status === 'active' ? 'bg-emerald-100 text-emerald-700' :
+            'bg-red-100 text-red-700'
+          }`}>{data.status || 'active'}</span>
+        } />
+        <Field label="Started" value={data.started || formatDate(data.created_at)} />
+        <Field label="Expires" value={data.expires} />
+        <Field label="ID" value={<span className="font-mono text-xs">{data.id}</span>} />
+      </div>
+    );
+  }
+
+  // Fallback to formatted JSON for unknown types
+  return (
+    <div className="space-y-0">
+      {Object.entries(data).map(([key, value]) => {
+        if (key === 'id' || typeof value === 'object') return null;
+        const label = key.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        return <Field key={key} label={label} value={String(value)} />;
+      })}
+      <Field label="ID" value={<span className="font-mono text-xs">{data.id}</span>} />
+    </div>
+  );
+}
+
+export default function V2AdminPage() {
+  return (
+    <RequireAdmin>
+      <Suspense fallback={<AdminLoadingFallback />}>
+        <V2AdminContent />
+      </Suspense>
+    </RequireAdmin>
+  );
+}
+
+function V2AdminContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
+  const {data: profile} = useProfile();
   const isMobile = useIsMobile();
+  const clearUser = useUserStore(state => state.clearUser);
 
-  // Action Confirmation State
-  const [confirmModal, setConfirmModal] = useState<{
-    isOpen: boolean;
-    title: string;
-    description: string;
-    onConfirm: () => void;
-  }>({
-    isOpen: false,
-    title: '',
-    description: '',
-    onConfirm: () => {},
-  });
+  // Get initial section from URL
+  const initialSection = (searchParams.get('tab') as AdminSection) || 'dashboard';
+  const [section, setSection] = useState<AdminSection>(initialSection);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
+  // Modals state
   const [viewDetailsModal, setViewDetailsModal] = useState<{
     isOpen: boolean;
     title: string;
     data: any;
-  }>({
-    isOpen: false,
-    title: '',
-    data: null,
+  }>({isOpen: false, title: '', data: null});
+
+  const addLogMutation = useMutation({
+    mutationFn: (action: string) => api.post('/admin/logs', { action }),
   });
 
   const addLog = (action: string) => {
-    createAdminLog(action).catch(console.error);
+    addLogMutation.mutate(action);
     window.dispatchEvent(new CustomEvent('admin-log', {detail: action}));
   };
 
-  const handleSectionChange = (newSection: Section) => {
+  const handleSectionChange = (newSection: AdminSection) => {
     setSection(newSection);
-    setSidebarOpen(false);
-    setMoreDrawerOpen(false);
+    setMobileMenuOpen(false);
+    // Update URL
+    const url = newSection === 'dashboard' ? '/admin' : `/admin?tab=${newSection}`;
+    window.history.replaceState(null, '', url);
   };
 
-  // Get remaining nav items for "More" menu
-  const moreNavItems = navItems.filter(
-    item => !mobileNavItems.some(m => m.id === item.id),
-  );
+  const handleSignOut = async () => {
+    try {
+      await authClient.signOut();
+      queryClient.clear();
+      clearUser();
+      toast.success('Signed out successfully');
+      router.push('/login');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to sign out');
+    }
+  };
+
+  const formatAdminRole = (role: string | null) => {
+    if (!role) return 'Admin';
+    const formatted = role
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+    return formatted.toLowerCase().includes('admin') ? formatted : `${formatted} Admin`;
+  };
+
+  const adminName = profile?.display_name || profile?.username || 'Admin';
+  const adminRole = formatAdminRole(profile?.admin_role || null);
 
   return (
-    <RequireAdmin>
-      <div className="min-h-screen bg-background flex">
-        {/* Desktop Sidebar */}
-        <Sidebar
-          section={section}
-          setSection={handleSectionChange}
-          sidebarOpen={sidebarOpen}
-          setSidebarOpen={setSidebarOpen}
-          setConfirmModal={setConfirmModal}
-        />
-
-        {/* Main content */}
-        <main className="flex-1 min-w-0 pb-20 md:pb-0">
-          {/* Header */}
-          <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-lg border-b border-border px-4 md:px-6 h-14 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <button
-                className="md:hidden p-2 -ml-2 hover:bg-muted rounded-lg"
-                onClick={() => setSidebarOpen(true)}>
-                <Menu className="w-5 h-5 text-foreground" />
-              </button>
-              <h1 className="text-lg font-semibold font-display text-foreground capitalize">
-                {section.replace('-', ' ')}
-              </h1>
-            </div>
-            <div className="flex items-center gap-2">
-              {/* Mobile Search Toggle */}
-              <button
-                className="md:hidden p-2 hover:bg-muted rounded-lg"
-                onClick={() => setShowMobileSearch(!showMobileSearch)}>
-                <Search className="w-5 h-5 text-muted-foreground" />
-              </button>
-              {/* Desktop Search */}
-              <div className="relative hidden md:block">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search..."
-                  className="pl-9 w-60 h-9"
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <Badge variant="destructive" className="text-xs hidden sm:inline-flex">
-                Admin
-              </Badge>
-            </div>
-          </header>
-
-          {/* Mobile Search Bar */}
-          {showMobileSearch && isMobile && (
-            <div className="px-4 py-3 border-b border-border bg-background">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search..."
-                  className="pl-9 h-11"
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  autoFocus
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Content */}
-          <div className="p-4 md:p-6 max-w-7xl">
-            {section === 'dashboard' && (
-              <DashboardTab searchQuery={searchQuery} setSection={handleSectionChange} />
-            )}
-            {section === 'users' && (
-              <UsersTab
-                searchQuery={searchQuery}
-                addLog={addLog}
-                setViewDetailsModal={setViewDetailsModal}
-              />
-            )}
-            {section === 'campaigns' && (
-              <CampaignsTab
-                searchQuery={searchQuery}
-                addLog={addLog}
-                setViewDetailsModal={setViewDetailsModal}
-              />
-            )}
-            {section === 'creator-gifts' && (
-              <CreatorGiftsTab
-                searchQuery={searchQuery}
-                addLog={addLog}
-                setViewDetailsModal={setViewDetailsModal}
-              />
-            )}
-            {section === 'claimable-gifts' && (
-              <ClaimableGiftsTab
-                searchQuery={searchQuery}
-                addLog={addLog}
-                setViewDetailsModal={setViewDetailsModal}
-              />
-            )}
-            {section === 'transactions' && (
-              <TransactionsTab
-                searchQuery={searchQuery}
-                setViewDetailsModal={setViewDetailsModal}
-              />
-            )}
-            {section === 'wallets' && (
-              <WalletsTab
-                searchQuery={searchQuery}
-                addLog={addLog}
-                setViewDetailsModal={setViewDetailsModal}
-              />
-            )}
-            {section === 'withdrawals' && (
-              <WithdrawalsTab
-                searchQuery={searchQuery}
-                addLog={addLog}
-                setViewDetailsModal={setViewDetailsModal}
-              />
-            )}
-            {section === 'vendors' && (
-              <VendorsTab
-                searchQuery={searchQuery}
-                addLog={addLog}
-                setViewDetailsModal={setViewDetailsModal}
-              />
-            )}
-            {section === 'subscriptions' && (
-              <SubscriptionsTab
-                searchQuery={searchQuery}
-                addLog={addLog}
-                setViewDetailsModal={setViewDetailsModal}
-              />
-            )}
-            {section === 'reports' && <ReportsTab />}
-            {section === 'moderation' && <ModerationTab addLog={addLog} />}
-            {section === 'notifications' && <NotificationsTab />}
-            {section === 'settings' && <SettingsTab />}
-            {section === 'admins' && (
-              <AdminsTab
-                searchQuery={searchQuery}
-                addLog={addLog}
-                setViewDetailsModal={setViewDetailsModal}
-              />
-            )}
-            {section === 'logs' && <LogsTab />}
+    <div className="min-h-screen bg-[var(--v2-background)]">
+      {/* Mobile Top Bar */}
+      <header className="md:hidden fixed top-0 z-50 w-full h-16 px-4 flex justify-between items-center bg-white/80 backdrop-blur-xl">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl v2-hero-gradient flex items-center justify-center text-white shadow-lg shadow-[var(--v2-primary)]/20">
+            <span className="v2-icon" style={{fontVariationSettings: "'FILL' 1"}}>
+              redeem
+            </span>
           </div>
-        </main>
+          <h1 className="text-lg font-black v2-headline text-[var(--v2-on-surface)] tracking-tight">
+            Gifthance
+          </h1>
+        </div>
+        <div className="flex items-center gap-2">
+          <V2NotificationsPanel />
+          <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-[var(--v2-primary-container)]/20">
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full bg-[var(--v2-primary)]/10 flex items-center justify-center">
+                <span className="text-sm font-bold text-[var(--v2-primary)]">
+                  {adminName.charAt(0).toUpperCase()}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
 
-        {/* Mobile Bottom Navigation */}
-        {isMobile && (
-          <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border">
-            <div className="flex items-center justify-around h-16 px-2">
-              {mobileNavItems.map(item => {
-                const isActive = section === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => handleSectionChange(item.id)}
-                    className={cn(
-                      'flex flex-col items-center justify-center gap-1 flex-1 py-2 rounded-lg transition-colors',
-                      isActive
-                        ? 'text-primary'
-                        : 'text-muted-foreground hover:text-foreground',
-                    )}>
-                    <item.icon className={cn('w-5 h-5', isActive && 'text-primary')} />
-                    <span className="text-[10px] font-medium">{item.label}</span>
-                  </button>
-                );
-              })}
-              {/* More Button */}
-              <button
-                onClick={() => setMoreDrawerOpen(true)}
-                className={cn(
-                  'flex flex-col items-center justify-center gap-1 flex-1 py-2 rounded-lg transition-colors',
-                  moreDrawerOpen
-                    ? 'text-primary'
-                    : 'text-muted-foreground hover:text-foreground',
-                )}>
-                <Menu className="w-5 h-5" />
-                <span className="text-[10px] font-medium">More</span>
-              </button>
+      {/* Mobile Menu */}
+      <V2AdminMobileMenu
+        open={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+        section={section}
+        onSectionChange={handleSectionChange}
+        onSignOut={handleSignOut}
+        adminName={adminName}
+        adminRole={adminRole}
+      />
+
+      {/* Desktop Sidebar */}
+      <V2AdminSidebar
+        section={section}
+        onSectionChange={handleSectionChange}
+        onSignOut={handleSignOut}
+        adminName={adminName}
+        adminRole={adminRole}
+        avatarUrl={profile?.avatar_url}
+      />
+
+      {/* Main Content */}
+      <main className="md:ml-64 min-h-screen pt-16 md:pt-0 pb-24 md:pb-8">
+        {/* Desktop Header */}
+        <header className="hidden md:flex fixed top-0 right-0 w-[calc(100%-16rem)] h-20 z-40 bg-white/80 backdrop-blur-xl items-center justify-between px-10">
+          <div className="flex items-center gap-8 flex-1">
+            <div className="relative w-full max-w-md">
+              <span className="v2-icon absolute left-4 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)]/40">
+                search
+              </span>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full bg-[var(--v2-surface-container)] border-none rounded-full py-2.5 pl-12 pr-4 text-sm focus:ring-2 focus:ring-[var(--v2-primary-container)]/20 transition-all outline-none"
+                placeholder="Search curated data..."
+              />
             </div>
-          </nav>
-        )}
+          </div>
+          <div className="flex items-center gap-6">
+            <V2NotificationsPanel />
+            <div className="flex items-center gap-3 pl-4 border-l border-[var(--v2-outline-variant)]/20">
+              <div className="text-right">
+                <p className="text-sm font-bold text-[var(--v2-on-surface)]">{adminName}</p>
+                <p className="text-[10px] text-[var(--v2-on-surface-variant)] font-medium uppercase tracking-wider">
+                  {adminRole}
+                </p>
+              </div>
+              <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-[var(--v2-primary-container)]/20">
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-[var(--v2-primary)]/10 flex items-center justify-center">
+                    <span className="text-sm font-bold text-[var(--v2-primary)]">
+                      {adminName.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </header>
 
-        {/* More Drawer (Mobile) */}
-        {moreDrawerOpen && isMobile && (
-          <div className="fixed inset-0 z-50">
-            <div
-              className="absolute inset-0 bg-black/50"
-              onClick={() => setMoreDrawerOpen(false)}
+        {/* Tab Content */}
+        <div className="pt-20 md:pt-28 pb-12 px-4 md:px-10 max-w-7xl">
+          {section === 'dashboard' && (
+            <V2AdminDashboardTab
+              searchQuery={searchQuery}
+              setSection={handleSectionChange}
             />
-            <div className="absolute bottom-0 left-0 right-0 bg-background rounded-t-3xl max-h-[80vh] overflow-hidden animate-in slide-in-from-bottom duration-300">
-              {/* Handle */}
-              <div className="flex justify-center py-3">
-                <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
-              </div>
+          )}
+          {section === 'users' && (
+            <V2AdminUsersTab
+              searchQuery={searchQuery}
+              addLog={addLog}
+              setViewDetailsModal={setViewDetailsModal}
+            />
+          )}
+          {section === 'campaigns' && (
+            <V2AdminCampaignsTab
+              searchQuery={searchQuery}
+              addLog={addLog}
+              setViewDetailsModal={setViewDetailsModal}
+            />
+          )}
+          {section === 'creator-gifts' && (
+            <V2AdminCreatorGiftsTab
+              searchQuery={searchQuery}
+              addLog={addLog}
+              setViewDetailsModal={setViewDetailsModal}
+            />
+          )}
+          {section === 'claimable-gifts' && (
+            <V2AdminClaimableGiftsTab
+              searchQuery={searchQuery}
+              addLog={addLog}
+              setViewDetailsModal={setViewDetailsModal}
+            />
+          )}
+          {section === 'transactions' && (
+            <V2AdminTransactionsTab
+              searchQuery={searchQuery}
+              setViewDetailsModal={setViewDetailsModal}
+            />
+          )}
+          {section === 'wallets' && (
+            <V2AdminWalletsTab
+              searchQuery={searchQuery}
+              addLog={addLog}
+              setViewDetailsModal={setViewDetailsModal}
+            />
+          )}
+          {section === 'withdrawals' && (
+            <V2AdminWithdrawalsTab
+              searchQuery={searchQuery}
+              addLog={addLog}
+              setViewDetailsModal={setViewDetailsModal}
+            />
+          )}
+          {section === 'vendors' && (
+            <V2AdminVendorsTab
+              searchQuery={searchQuery}
+              addLog={addLog}
+              setViewDetailsModal={setViewDetailsModal}
+            />
+          )}
+          {section === 'featured' && (
+            <V2AdminFeaturedTab
+              searchQuery={searchQuery}
+              addLog={addLog}
+            />
+          )}
+          {section === 'promotions' && (
+            <V2AdminPromotionsTab
+              searchQuery={searchQuery}
+              addLog={addLog}
+            />
+          )}
+          {section === 'subscriptions' && (
+            <V2AdminSubscriptionsTab
+              searchQuery={searchQuery}
+              addLog={addLog}
+              setViewDetailsModal={setViewDetailsModal}
+            />
+          )}
+          {section === 'reports' && <V2AdminReportsTab />}
+          {section === 'moderation' && <V2AdminModerationTab addLog={addLog} />}
+          {section === 'notifications' && <V2AdminNotificationsTab />}
+          {section === 'settings' && <V2AdminSettingsTab />}
+          {section === 'roles' && (
+            <V2AdminRolesTab
+              searchQuery={searchQuery}
+              addLog={addLog}
+              setViewDetailsModal={setViewDetailsModal}
+            />
+          )}
+          {section === 'logs' && <V2AdminLogsTab />}
+        </div>
+      </main>
 
-              {/* Header */}
-              <div className="flex items-center justify-between px-4 pb-3 border-b border-border">
-                <h3 className="text-lg font-semibold">More Options</h3>
-                <button
-                  onClick={() => setMoreDrawerOpen(false)}
-                  className="p-2 hover:bg-muted rounded-lg">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
+      {/* Mobile Bottom Nav */}
+      {isMobile && (
+        <V2AdminBottomNav
+          activeSection={section}
+          onNavigate={handleSectionChange}
+          onOpenMenu={() => setMobileMenuOpen(true)}
+        />
+      )}
 
-              {/* Nav Items */}
-              <div className="p-4 overflow-y-auto max-h-[60vh]">
-                <div className="grid grid-cols-3 gap-3">
-                  {moreNavItems.map(item => {
-                    const isActive = section === item.id;
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => handleSectionChange(item.id)}
-                        className={cn(
-                          'flex flex-col items-center gap-2 p-4 rounded-xl transition-colors',
-                          isActive
-                            ? 'bg-primary/10 text-primary'
-                            : 'bg-muted/50 text-foreground hover:bg-muted',
-                        )}>
-                        <item.icon className="w-6 h-6" />
-                        <span className="text-xs font-medium text-center leading-tight">
-                          {item.label}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+      {/* View Details Modal */}
+      {viewDetailsModal.isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setViewDetailsModal({...viewDetailsModal, isOpen: false})}
+          />
+          <div className="relative bg-white rounded-3xl p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold v2-headline">{viewDetailsModal.title}</h3>
+              <button
+                onClick={() => setViewDetailsModal({...viewDetailsModal, isOpen: false})}
+                className="w-10 h-10 rounded-full bg-[var(--v2-surface-container)] flex items-center justify-center hover:bg-[var(--v2-surface-container-high)] transition-colors">
+                <span className="v2-icon">close</span>
+              </button>
             </div>
+            <ViewDetailsContent data={viewDetailsModal.data} title={viewDetailsModal.title} />
           </div>
-        )}
-
-        <ActionConfirmModal
-          open={confirmModal.isOpen}
-          onOpenChange={open =>
-            setConfirmModal(prev => ({...prev, isOpen: open}))
-          }
-          title={confirmModal.title}
-          description={confirmModal.description}
-          onConfirm={confirmModal.onConfirm}
-        />
-
-        <ViewDetailsModal
-          isOpen={viewDetailsModal.isOpen}
-          onOpenChange={open =>
-            setViewDetailsModal(prev => ({...prev, isOpen: open}))
-          }
-          title={viewDetailsModal.title}
-          data={viewDetailsModal.data}
-        />
-      </div>
-    </RequireAdmin>
+        </div>
+      )}
+    </div>
   );
 }

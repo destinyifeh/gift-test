@@ -3,7 +3,7 @@
 import {useProfile} from '@/hooks/use-profile';
 import {useUserStore} from '@/lib/store/useUserStore';
 import {notFound, useRouter} from 'next/navigation';
-import {ReactNode} from 'react';
+import {ReactNode, useEffect} from 'react';
 import {Card} from '@/components/ui/card';
 import {Button} from '@/components/ui/button';
 import {Lock} from 'lucide-react';
@@ -49,11 +49,16 @@ export function RequireAuth({
   const router = useRouter();
   const {isLoading} = useProfile();
 
+  useEffect(() => {
+    if (!isLoading && !user && fallback === 'redirect') {
+      router.replace(redirectTo);
+    }
+  }, [isLoading, user, fallback, redirectTo, router]);
+
   if (isLoading) return <GuardLoader />;
 
   if (!user) {
     if (fallback === 'redirect') {
-      router.replace(redirectTo);
       return <GuardLoader />;
     }
     notFound();
@@ -168,11 +173,16 @@ export function RequireRole({
   const {data: profile, isLoading} = useProfile();
   const router = useRouter();
 
+  useEffect(() => {
+    if (!isLoading && !profile?.roles?.includes(role) && fallback === 'redirect') {
+      router.replace(redirectTo);
+    }
+  }, [isLoading, profile, role, fallback, redirectTo, router]);
+
   if (isLoading) return <GuardLoader />;
 
   if (!profile?.roles?.includes(role)) {
     if (fallback === 'redirect') {
-      router.replace(redirectTo);
       return <GuardLoader />;
     }
     notFound();
@@ -199,11 +209,16 @@ export function RequireAdmin({
   const {data: profile, isLoading} = useProfile();
   const router = useRouter();
 
+  useEffect(() => {
+    if (!isLoading && !profile?.admin_role && fallback === 'redirect') {
+      router.replace(redirectTo);
+    }
+  }, [isLoading, profile, fallback, redirectTo, router]);
+
   if (isLoading) return <GuardLoader />;
 
   if (!profile?.admin_role) {
     if (fallback === 'redirect') {
-      router.replace(redirectTo);
       return <GuardLoader />;
     }
     notFound();
@@ -252,11 +267,16 @@ export function RequireCreator({
   const {data: profile, isLoading} = useProfile();
   const router = useRouter();
 
+  useEffect(() => {
+    if (!isLoading && !profile?.is_creator && !profile?.roles?.includes('creator') && fallback === 'redirect') {
+      router.replace(redirectTo);
+    }
+  }, [isLoading, profile, fallback, redirectTo, router]);
+
   if (isLoading) return <GuardLoader />;
 
   if (!profile?.is_creator && !profile?.roles?.includes('creator')) {
     if (fallback === 'redirect') {
-      router.replace(redirectTo);
       return <GuardLoader />;
     }
     notFound();

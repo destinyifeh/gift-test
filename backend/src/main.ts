@@ -18,7 +18,7 @@ async function bootstrap() {
   });
 
   // Global prefixes and versioning could be added here
-  app.setGlobalPrefix('api/v1');
+  // app.setGlobalPrefix('api/v1');
 
   // Global Pipes
   app.useGlobalPipes(

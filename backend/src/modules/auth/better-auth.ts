@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { PrismaClient } from '@generated/prisma';
@@ -23,7 +24,7 @@ export const auth = betterAuth({
       avatarUrl: { type: 'string', required: false },
       bio: { type: 'string', required: false },
       isCreator: { type: 'boolean', defaultValue: false },
-      suggestedAmounts: { type: 'string[]' as any, defaultValue: ['5', '10', '25'] as any }, // Stored as array in Prisma, but Better Auth might need mapping
+      suggestedAmounts: { type: 'number[]' as any, defaultValue: [5, 10, 25] as any }, 
       socialLinks: { type: 'string' as any, defaultValue: '{}' },
       themeSettings: { type: 'string' as any, defaultValue: '{}' },
       country: { type: 'string', required: false },
@@ -45,6 +46,7 @@ export const auth = betterAuth({
   emailVerification: {
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
+    redirectTo: (process.env.BETTER_AUTH_TRUSTED_ORIGINS || 'http://localhost:3000').split(',')[0],
     async sendVerificationEmail({ user, url }) {
       await AuthEmailHelper.sendVerifyEmail({
         to: user.email,

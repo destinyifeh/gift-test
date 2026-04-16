@@ -300,13 +300,7 @@ export class CampaignService {
       currentAmount: c.currentAmount?.toString(),
     }));
 
-    return {
-      data: formatted,
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    };
+    return paginate(formatted, total, page, limit);
   }
 
   /**
@@ -415,5 +409,44 @@ export class CampaignService {
     });
 
     return { success: true };
+  }
+
+  async findContributions(campaignId: string, page: number = 1, limit: number = 10) {
+    const { skip, take } = getPaginationOptions(page, limit);
+
+    const [contributions, total] = await Promise.all([
+      (this.prisma as any).contribution.findMany({
+        where: {
+          OR: [
+            { campaignId },
+            { campaign: { campaignShortId: campaignId } },
+            { campaign: { campaignSlug: campaignId } }
+          ]
+        },
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+      }),
+      (this.prisma as any).contribution.count({
+        where: {
+          OR: [
+            { campaignId },
+            { campaign: { campaignShortId: campaignId } },
+            { campaign: { campaignSlug: campaignId } }
+          ]
+        }
+      }),
+    ]);
+
+    const formatted = contributions.map((c: any) => ({
+      ...c,
+      amount: c.amount.toString(),
+      donor_name: c.isAnonymous ? 'Anonymous' : c.donorName || 'Guest',
+      is_anonymous: c.isAnonymous,
+      hide_amount: c.hideAmount,
+      created_at: c.createdAt,
+    }));
+
+    return paginate(formatted, total, page, limit);
   }
 }

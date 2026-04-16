@@ -1,42 +1,23 @@
 'use client';
 
-import Navbar from '@/components/landing/Navbar';
-import {RequireAuthUI} from '@/components/guards';
-import {Button} from '@/components/ui/button';
-import {Input} from '@/components/ui/input';
-import {Label} from '@/components/ui/label';
-import {Textarea} from '@/components/ui/textarea';
-import {useIsMobile} from '@/hooks/use-mobile';
-import {createClient} from '@/lib/server/supabase/client';
+import {V2RequireAuthUI} from '../components/V2RequireAuthUI';
+import {authClient} from '@/lib/auth-client';
+import {fetchAllProducts} from '@/lib/server/actions/vendor';
 import {cn} from '@/lib/utils';
-import {motion, AnimatePresence} from 'framer-motion';
-import {
-  ArrowRight,
-  Calendar,
-  CheckCircle,
-  ChevronDown,
-  ChevronLeft,
-  Copy,
-  CreditCard,
-  Gift,
-  Link as LinkIcon,
-  Loader2,
-  Mail,
-  Search,
-  Send,
-  User,
-} from 'lucide-react';
-import {useRouter} from 'next/navigation';
 import Link from 'next/link';
+import {useRouter} from 'next/navigation';
 import {useEffect, useState} from 'react';
 import {toast} from 'sonner';
+import {CountryPhoneInput, formatE164} from '@/components/CountryPhoneInput';
 
-type GiftType = 'money' | 'gift-card' | null;
+type GiftType = 'money' | 'gift-card' | 'flex-card' | null;
 type DeliveryType = 'direct' | 'claim-link';
+type DeliveryMethod = 'email' | 'whatsapp';
 type DeliveryTime = 'now' | 'schedule';
 
-export default function SendGiftPage() {
-  const isMobile = useIsMobile();
+const WHATSAPP_FEE = 100; // Flat fee in NGN
+
+export default function V2SendGiftPage() {
   const router = useRouter();
 
   // Form State
@@ -46,7 +27,11 @@ export default function SendGiftPage() {
   const [message, setMessage] = useState('');
 
   const [deliveryType, setDeliveryType] = useState<DeliveryType>('direct');
+  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>('email');
   const [recipientEmail, setRecipientEmail] = useState('');
+  const [recipientPhone, setRecipientPhone] = useState('');
+  const [recipientCountryCode, setRecipientCountryCode] = useState('+234');
+  const [isPhoneValid, setIsPhoneValid] = useState(false);
   const [senderName, setSenderName] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
 
@@ -67,14 +52,12 @@ export default function SendGiftPage() {
   useEffect(() => {
     if (giftType === 'gift-card') {
       const fetchGifts = async () => {
-        const supabase = createClient();
-        const {data} = await supabase
-          .from('vendor_gifts')
-          .select(
-            'id, name, price, profiles!vendor_gifts_vendor_id_fkey(shop_name, display_name)',
-          )
-          .eq('is_active', true);
-        if (data) setVendorGifts(data);
+        const result = await fetchAllProducts(1, 100);
+        if (result.success && result.data) {
+          setVendorGifts(result.data);
+        } else if (result.error) {
+          console.error('Error fetching vendor gifts:', result.error);
+        }
       };
       fetchGifts();
     }
@@ -85,15 +68,28 @@ export default function SendGiftPage() {
     if (deliveryType === 'claim-link' && deliveryTime === 'schedule') {
       setDeliveryTime('now');
     }
+    // Reset delivery method fields when switching delivery type
+    if (deliveryType === 'claim-link') {
+      setDeliveryMethod('email');
+    }
   }, [deliveryType, deliveryTime]);
 
   const selectedGift = vendorGifts.find(g => g.id === giftId);
+
+  // Flex Card amount presets
+  const flexCardPresets = [1000, 3000, 5000, 10000];
+  const [flexCardAmount, setFlexCardAmount] = useState<number | null>(null);
+  const [customFlexAmount, setCustomFlexAmount] = useState('');
 
   const canProceed = () => {
     if (!giftType) return false;
     if (giftType === 'money' && !amount) return false;
     if (giftType === 'gift-card' && !giftId) return false;
-    if (deliveryType === 'direct' && !recipientEmail) return false;
+    if (giftType === 'flex-card' && !flexCardAmount && !customFlexAmount) return false;
+    if (deliveryType === 'direct') {
+      if (deliveryMethod === 'email' && !recipientEmail) return false;
+      if (deliveryMethod === 'whatsapp' && (!recipientPhone || !isPhoneValid)) return false;
+    }
     if (deliveryTime === 'schedule' && !scheduledFor) return false;
     return true;
   };
@@ -104,110 +100,230 @@ export default function SendGiftPage() {
       return;
     }
 
+    if (!process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY) {
+      toast.error('Payment gateway not configured. Please contact support.');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      const supabase = createClient();
-      const {
-        data: {user},
-      } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      const { data: session } = await authClient.getSession();
+      if (!session?.user) throw new Error('Not authenticated');
+      const user = session.user;
 
-      const {data: profile} = await supabase
-        .from('profiles')
-        .select('email')
-        .eq('id', user.id)
-        .single();
+      const userEmail = user.email;
+      if (!userEmail) {
+        toast.error('Unable to get your email for payment');
+        setIsSubmitting(false);
+        return;
+      }
 
       let finalGoal = Number(amount);
       if (giftType === 'gift-card' && giftId) {
-        const {data: vendorGift} = await supabase
-          .from('vendor_gifts')
-          .select('price')
-          .eq('id', giftId)
-          .single();
-        if (vendorGift) finalGoal = Number(vendorGift.price);
+        const selectedVendorGift = vendorGifts.find(g => g.id === giftId);
+        if (selectedVendorGift) finalGoal = Number(selectedVendorGift.price);
+      }
+      if (giftType === 'flex-card') {
+        finalGoal = flexCardAmount || Number(customFlexAmount);
       }
 
-      const payload = {
-        category: 'claimable',
-        title: giftType === 'money' ? 'Cash Gift' : 'Gift Card',
-        claimable_type: giftType,
-        goal_amount: finalGoal,
+      // Calculate total with WhatsApp fee if applicable
+      const whatsappFee = deliveryType === 'direct' && deliveryMethod === 'whatsapp' ? WHATSAPP_FEE : 0;
+      const totalAmount = finalGoal + whatsappFee;
+
+      // Generate a unique gift code for claiming
+      const giftCode = `GFT-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+
+      // Initialize Paystack payment
+      const PaystackPop = (await import('@paystack/inline-js')).default;
+      const paystack = new (PaystackPop as any)();
+
+      paystack.newTransaction({
+        key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY as string,
+        email: userEmail,
+        amount: Math.round(totalAmount * 100), // Convert to kobo
         currency: 'NGN',
-        claimable_gift_id: giftId || undefined,
-        recipient_email: deliveryType === 'direct' ? recipientEmail : null,
-        sender_email: profile?.email || user.email,
-        sender_name: senderName || undefined,
-        is_anonymous: isAnonymous,
-        message: message || undefined,
-        status: 'active',
-        scheduled_for:
-          deliveryTime === 'schedule' && scheduledFor
-            ? new Date(scheduledFor).toISOString()
-            : undefined,
-      };
+        metadata: {
+          gift_type: giftType,
+          gift_id: giftId,
+          recipient_email: deliveryType === 'direct' && deliveryMethod === 'email' ? recipientEmail : null,
+          recipient_phone: deliveryType === 'direct' && deliveryMethod === 'whatsapp' ? recipientPhone : null,
+          custom_fields: [
+            {
+              display_name: 'Gift Type',
+              variable_name: 'gift_type',
+              value: giftType,
+            },
+          ],
+        },
+        onSuccess: async (response: {reference: string}) => {
+          // Payment successful, now create the campaign/gift
+          try {
+            // Handle Flex Card creation
+            if (giftType === 'flex-card') {
+              const {createFlexCard} = await import('@/lib/server/actions/flex-cards');
+              const flexResult = await createFlexCard({
+                initial_amount: finalGoal,
+                recipient_email: deliveryType === 'direct' && deliveryMethod === 'email' ? recipientEmail : undefined,
+                recipient_phone: deliveryType === 'direct' && deliveryMethod === 'whatsapp'
+                  ? formatE164(recipientPhone, recipientCountryCode)
+                  : undefined,
+                delivery_method: deliveryType === 'direct' ? deliveryMethod : 'email',
+                sender_name: senderName || undefined,
+                message: message || undefined,
+              });
 
-      const {createCampaign} = await import('@/lib/server/actions/campaigns');
-      const result = await createCampaign(payload as any);
+              if (flexResult.success && flexResult.data) {
+                setCampaignSlug(flexResult.data.code);
+                setSubmitted(true);
+              } else {
+                toast.error(flexResult.error || 'Payment successful but failed to create Flex Card. Please contact support.');
+              }
+              setIsSubmitting(false);
+              return;
+            }
 
-      if (result.success && result.data) {
-        if (result.data.authorization_url) {
-          window.location.href = result.data.authorization_url;
-        } else {
-          setCampaignSlug(result.data.campaign_short_id || '');
-          setSubmitted(true);
-        }
-      } else {
-        toast.error(result.error || 'Failed to initialize payment');
-      }
+            // Create campaign for money/gift-card
+            const payload = {
+              category: 'claimable',
+              title: giftType === 'money' ? 'Cash Gift' : 'Gift Card',
+              claimable_type: giftType,
+              goal_amount: finalGoal,
+              currency: 'NGN',
+              claimable_gift_id: giftId || undefined,
+              recipient_email: deliveryType === 'direct' && deliveryMethod === 'email' ? recipientEmail : null,
+              sender_email: userEmail,
+              sender_name: senderName || undefined,
+              is_anonymous: isAnonymous,
+              message: message || undefined,
+              status: 'active',
+              gift_code: giftCode,
+              payment_reference: response.reference,
+              scheduled_for:
+                deliveryTime === 'schedule' && scheduledFor
+                  ? new Date(scheduledFor).toISOString()
+                  : undefined,
+              delivery_method: deliveryType === 'direct' ? deliveryMethod : 'email',
+              recipient_phone: deliveryType === 'direct' && deliveryMethod === 'whatsapp'
+                ? formatE164(recipientPhone, recipientCountryCode)
+                : null,
+              recipient_country_code: deliveryType === 'direct' && deliveryMethod === 'whatsapp'
+                ? recipientCountryCode
+                : null,
+              whatsapp_fee: whatsappFee,
+            };
+
+            const {createCampaign} = await import('@/lib/server/actions/campaigns');
+            const result = await createCampaign(payload as any);
+
+            if (result.success && result.data) {
+              setCampaignSlug(deliveryType === 'claim-link' ? giftCode : (result.data.campaign_short_id || ''));
+              setSubmitted(true);
+              toast.success('Gift sent successfully!');
+            } else {
+              toast.error(result.error || 'Payment successful but failed to create gift. Please contact support.');
+            }
+          } catch (err: any) {
+            toast.error(err.message || 'Payment successful but an error occurred. Please contact support.');
+          }
+          setIsSubmitting(false);
+        },
+        onCancel: () => {
+          toast.info('Payment cancelled');
+          setIsSubmitting(false);
+        },
+        onError: (error: any) => {
+          console.error('Paystack error:', error);
+          toast.error('Payment failed. Please try again.');
+          setIsSubmitting(false);
+        },
+      });
     } catch (err: any) {
       toast.error(err.message || 'Something went wrong');
-    } finally {
       setIsSubmitting(false);
     }
   };
 
   if (submitted) {
-    return <SuccessScreen slug={campaignSlug} isClaimLink={deliveryType === 'claim-link'} />;
+    return <V2SuccessScreen slug={campaignSlug} isClaimLink={deliveryType === 'claim-link'} />;
   }
 
   const toggleSection = (section: string) => {
     setExpandedSection(expandedSection === section ? null : section);
   };
 
-  return (
-    <RequireAuthUI header={<Navbar />} redirectPath="/send-gift">
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="pt-16 md:pt-24 pb-32 md:pb-16">
-          <div className="container mx-auto px-4 max-w-xl">
-            {/* Mobile Back Button */}
-            <button
-              onClick={() => router.back()}
-              className="md:hidden flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4 -ml-1">
-              <ChevronLeft className="w-5 h-5" />
-              Back
-            </button>
+  const baseAmount = giftType === 'money'
+    ? Number(amount)
+    : giftType === 'flex-card'
+      ? (flexCardAmount || Number(customFlexAmount) || 0)
+      : Number(selectedGift?.price || 0);
+  const whatsappDeliveryFee = deliveryType === 'direct' && deliveryMethod === 'whatsapp' ? WHATSAPP_FEE : 0;
+  const totalAmount = baseAmount + whatsappDeliveryFee;
 
-            {/* Header */}
-            <div className="text-center mb-8">
-              <div className="w-14 h-14 md:w-16 md:h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-3 md:mb-4">
-                <Gift className="w-7 h-7 md:w-8 md:h-8 text-primary" />
+  return (
+    <V2RequireAuthUI redirectPath="/send-gift">
+      <div className="min-h-screen bg-[var(--v2-background)]">
+        {/* Desktop Navigation */}
+        <nav className="hidden md:block fixed top-0 w-full z-50 v2-glass-nav">
+          <div className="flex justify-between items-center px-8 h-16 max-w-7xl mx-auto">
+            <Link href="/" className="text-xl font-extrabold text-[var(--v2-primary)] tracking-tight v2-headline">
+              Gifthance
+            </Link>
+            <div className="flex items-center gap-6">
+              <Link href="/gift-shop" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] font-medium transition-colors">
+                Gift Shop
+              </Link>
+              <Link href="/campaigns" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] font-medium transition-colors">
+                Campaigns
+              </Link>
+              <Link href="/dashboard" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] font-medium transition-colors">
+                Dashboard
+              </Link>
+            </div>
+          </div>
+        </nav>
+
+        {/* Mobile Header */}
+        <header className="md:hidden fixed top-0 w-full z-50 v2-glass-nav h-14 flex items-center justify-between px-4">
+          <button onClick={() => router.back()} className="flex items-center gap-1 text-[var(--v2-primary)]">
+            <span className="v2-icon">arrow_back</span>
+          </button>
+          <h1 className="text-lg font-bold v2-headline text-[var(--v2-on-surface)]">Send Gift</h1>
+          <div className="w-10" />
+        </header>
+
+        {/* Main Content */}
+        <main className="pt-14 md:pt-24 pb-32 md:pb-16 px-4">
+          <div className="max-w-xl mx-auto">
+            {/* Header - Desktop only */}
+            <div className="hidden md:block mb-8">
+              <button
+                onClick={() => router.back()}
+                className="flex items-center gap-1 text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors mb-6">
+                <span className="v2-icon">arrow_back</span>
+                <span className="font-medium">Back</span>
+              </button>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-[var(--v2-primary)]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <span className="v2-icon text-3xl text-[var(--v2-primary)]" style={{fontVariationSettings: "'FILL' 1"}}>
+                    card_giftcard
+                  </span>
+                </div>
+                <h1 className="text-3xl font-extrabold v2-headline text-[var(--v2-on-surface)] tracking-tight">
+                  Send a Gift
+                </h1>
+                <p className="text-[var(--v2-on-surface-variant)] mt-2">
+                  Brighten someone's day with a thoughtful gift
+                </p>
               </div>
-              <h1 className="text-xl md:text-3xl font-bold font-display text-foreground">
-                Send a Gift
-              </h1>
-              <p className="text-muted-foreground mt-1 md:mt-2 text-sm">
-                Brighten someone's day with a thoughtful gift
-              </p>
             </div>
 
-            {/* Main Form */}
+            {/* Form Sections */}
             <div className="space-y-4">
               {/* Section 1: Gift Type */}
-              <FormSection
+              <V2FormSection
                 title="Choose Gift Type"
-                icon={<Gift className="w-4 h-4" />}
+                icon="card_giftcard"
                 isExpanded={expandedSection === 'gift'}
                 onToggle={() => toggleSection('gift')}
                 isComplete={!!giftType}
@@ -216,311 +332,411 @@ export default function SendGiftPage() {
                     ? 'Cash Gift'
                     : giftType === 'gift-card'
                       ? 'Vendor Gift Card'
-                      : undefined
+                      : giftType === 'flex-card'
+                        ? 'Gifthance Flex Card'
+                        : undefined
                 }>
-                <div className="space-y-2">
-                  <ListItemRadio
+                <div className="space-y-3">
+                  {/* Flex Card - Featured */}
+                  <V2ListItemRadio
+                    selected={giftType === 'flex-card'}
+                    onClick={() => setGiftType('flex-card')}
+                    icon="card_giftcard"
+                    title="Gifthance Flex"
+                    description="Balance card - use anywhere"
+                  />
+                  <V2ListItemRadio
                     selected={giftType === 'gift-card'}
                     onClick={() => setGiftType('gift-card')}
-                    icon={<Gift className="w-4 h-4" />}
+                    icon="redeem"
                     title="Gift Card"
                     description="From verified vendors"
                   />
-                  <ListItemRadio
+                  <V2ListItemRadio
                     selected={giftType === 'money'}
                     onClick={() => setGiftType('money')}
-                    icon={<CreditCard className="w-4 h-4" />}
+                    icon="payments"
                     title="Money"
                     description="Flexible cash gift"
                   />
                 </div>
 
-                {/* Amount or Gift Selection */}
-                <AnimatePresence mode="wait">
-                  {giftType === 'money' && (
-                    <motion.div
-                      initial={{opacity: 0, height: 0}}
-                      animate={{opacity: 1, height: 'auto'}}
-                      exit={{opacity: 0, height: 0}}
-                      className="mt-4">
-                      <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        Amount
-                      </Label>
-                      <div className="relative mt-2">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold">
-                          ₦
-                        </span>
-                        <Input
-                          type="number"
-                          placeholder="0.00"
-                          value={amount}
-                          onChange={e => setAmount(e.target.value)}
-                          className="pl-10 h-14 text-xl font-semibold"
-                        />
+                {/* Flex Card Amount Selection */}
+                {giftType === 'flex-card' && (
+                  <div className="mt-4 space-y-3">
+                    <div className="bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl p-4 text-white">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="v2-icon">card_giftcard</span>
+                        <span className="font-bold">Gifthance Flex Card</span>
                       </div>
-                    </motion.div>
-                  )}
+                      <p className="text-sm text-white/80">
+                        A balance-based gift card that can be used at any vendor, with partial redemptions allowed.
+                      </p>
+                    </div>
 
-                  {giftType === 'gift-card' && (
-                    <motion.div
-                      initial={{opacity: 0, height: 0}}
-                      animate={{opacity: 1, height: 'auto'}}
-                      exit={{opacity: 0, height: 0}}
-                      className="mt-4 space-y-3">
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input
-                          placeholder="Search gift cards..."
-                          value={search}
-                          onChange={e => setSearch(e.target.value)}
-                          className="pl-9 h-11"
-                        />
-                      </div>
-                      <div className="max-h-[200px] overflow-y-auto space-y-2 hide-scrollbar">
-                        {vendorGifts
-                          .filter(
-                            g =>
-                              !search ||
-                              g.name.toLowerCase().includes(search.toLowerCase()),
-                          )
-                          .map(g => (
-                            <button
-                              key={g.id}
-                              onClick={() => setGiftId(g.id)}
-                              className={cn(
-                                'w-full p-3 rounded-xl border-2 text-left flex items-center justify-between transition-all',
-                                giftId === g.id
-                                  ? 'border-primary bg-primary/5'
-                                  : 'border-border hover:border-primary/30',
-                              )}>
-                              <div>
-                                <p className="font-semibold text-sm capitalize">
-                                  {g.name}
-                                </p>
-                                <p className="text-xs text-muted-foreground capitalize">
-                                  {g.profiles?.shop_name || 'Vendor'}
-                                </p>
-                              </div>
-                              <span className="font-bold text-primary text-sm">
-                                ₦{Number(g.price).toLocaleString()}
-                              </span>
-                            </button>
-                          ))}
-                        {vendorGifts.length === 0 && (
-                          <p className="text-center text-sm text-muted-foreground py-4">
-                            Loading gift cards...
+                    <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider ml-1">
+                      Select Amount
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {flexCardPresets.map(preset => (
+                        <button
+                          key={preset}
+                          onClick={() => {
+                            setFlexCardAmount(preset);
+                            setCustomFlexAmount('');
+                          }}
+                          className={cn(
+                            'p-4 rounded-xl font-bold text-lg transition-all',
+                            flexCardAmount === preset && !customFlexAmount
+                              ? 'bg-[var(--v2-primary)] text-[var(--v2-on-primary)]'
+                              : 'bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] hover:bg-[var(--v2-surface-container-high)]',
+                          )}>
+                          ₦{preset.toLocaleString()}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="relative">
+                      <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider ml-1 block mb-2">
+                        Or enter custom amount
+                      </label>
+                      <span className="absolute left-4 bottom-4 text-[var(--v2-on-surface-variant)] font-bold text-lg">
+                        ₦
+                      </span>
+                      <input
+                        type="number"
+                        placeholder="Custom amount"
+                        value={customFlexAmount}
+                        onChange={e => {
+                          setCustomFlexAmount(e.target.value);
+                          setFlexCardAmount(null);
+                        }}
+                        className="w-full h-14 pl-10 pr-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-xl font-bold text-[var(--v2-on-surface)] focus:ring-2 focus:ring-[var(--v2-primary)]/20 transition-all"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Amount Input for Money */}
+                {giftType === 'money' && (
+                  <div className="mt-4 space-y-2">
+                    <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider ml-1">
+                      Amount
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)] font-bold text-lg">
+                        ₦
+                      </span>
+                      <input
+                        type="number"
+                        placeholder="0.00"
+                        value={amount}
+                        onChange={e => setAmount(e.target.value)}
+                        className="w-full h-14 pl-10 pr-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-xl font-bold text-[var(--v2-on-surface)] focus:ring-2 focus:ring-[var(--v2-primary)]/20 focus:bg-[var(--v2-surface-container-lowest)] transition-all"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Gift Card Selection */}
+                {giftType === 'gift-card' && (
+                  <div className="mt-4 space-y-3">
+                    <div className="relative">
+                      <span className="v2-icon absolute left-3 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)]">
+                        search
+                      </span>
+                      <input
+                        placeholder="Search gift cards..."
+                        value={search}
+                        onChange={e => setSearch(e.target.value)}
+                        className="w-full h-11 pl-10 pr-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-[var(--v2-on-surface)] focus:ring-2 focus:ring-[var(--v2-primary)]/20 transition-all"
+                      />
+                    </div>
+                    <div className="max-h-[200px] overflow-y-auto space-y-2 v2-no-scrollbar">
+                      {vendorGifts
+                        .filter(g => !search || g.name.toLowerCase().includes(search.toLowerCase()))
+                        .map(g => (
+                          <button
+                            key={g.id}
+                            onClick={() => setGiftId(g.id)}
+                            className={cn(
+                              'w-full p-4 rounded-xl text-left flex items-center justify-between transition-all active:scale-[0.98]',
+                              giftId === g.id
+                                ? 'bg-[var(--v2-primary)]/10 ring-2 ring-[var(--v2-primary)]'
+                                : 'bg-[var(--v2-surface-container-low)] hover:bg-[var(--v2-surface-container-high)]',
+                            )}>
+                            <div>
+                              <p className="font-bold text-sm text-[var(--v2-on-surface)] capitalize">
+                                {g.name}
+                              </p>
+                              <p className="text-xs text-[var(--v2-on-surface-variant)] capitalize">
+                                {g.profiles?.shop_name || 'Vendor'}
+                              </p>
+                            </div>
+                            <span className="font-bold text-[var(--v2-primary)]">
+                              ₦{Number(g.price).toLocaleString()}
+                            </span>
+                          </button>
+                        ))}
+                      {vendorGifts.length === 0 && (
+                        <div className="text-center py-6">
+                          <span className="v2-icon text-3xl text-[var(--v2-on-surface-variant)]/40 block mb-2">inventory_2</span>
+                          <p className="text-sm text-[var(--v2-on-surface-variant)]">
+                            No gift cards available
                           </p>
-                        )}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </FormSection>
+                          <Link
+                            href="/gift-shop"
+                            className="text-xs text-[var(--v2-primary)] font-medium mt-1 inline-block">
+                            Browse Gift Shop
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </V2FormSection>
 
               {/* Section 2: Delivery Method */}
-              <FormSection
+              <V2FormSection
                 title="Delivery Method"
-                icon={<Send className="w-4 h-4" />}
+                icon="send"
                 isExpanded={expandedSection === 'delivery'}
                 onToggle={() => toggleSection('delivery')}
                 isComplete={
                   deliveryType === 'claim-link' ||
-                  (deliveryType === 'direct' && !!recipientEmail)
+                  (deliveryType === 'direct' && deliveryMethod === 'email' && !!recipientEmail) ||
+                  (deliveryType === 'direct' && deliveryMethod === 'whatsapp' && isPhoneValid)
                 }
                 summary={
-                  deliveryType === 'direct'
-                    ? recipientEmail || 'Send to email'
-                    : 'Create claim link'
+                  deliveryType === 'claim-link'
+                    ? 'Create claim link'
+                    : deliveryMethod === 'whatsapp'
+                      ? recipientPhone ? `WhatsApp: ${recipientCountryCode} ${recipientPhone}` : 'Send via WhatsApp'
+                      : recipientEmail || 'Send to email'
                 }>
-                <div className="space-y-2">
-                  <ListItemRadio
+                <div className="space-y-3">
+                  <V2ListItemRadio
                     selected={deliveryType === 'direct'}
                     onClick={() => setDeliveryType('direct')}
-                    icon={<Mail className="w-4 h-4" />}
-                    title="Send to Email"
-                    description="Deliver directly to recipient"
+                    icon="person"
+                    title="Send to Someone"
+                    description="Deliver directly via email or WhatsApp"
                   />
 
-                  <AnimatePresence>
-                    {deliveryType === 'direct' && (
-                      <motion.div
-                        initial={{opacity: 0, height: 0}}
-                        animate={{opacity: 1, height: 'auto'}}
-                        exit={{opacity: 0, height: 0}}
-                        className="pl-4 border-l-2 border-primary/20 ml-2">
-                        <Input
+                  {deliveryType === 'direct' && (
+                    <div className="pl-4 border-l-2 border-[var(--v2-primary)]/20 ml-2 space-y-3">
+                      {/* Email/WhatsApp Toggle */}
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setDeliveryMethod('email')}
+                          className={cn(
+                            'flex-1 py-2.5 px-4 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-all',
+                            deliveryMethod === 'email'
+                              ? 'bg-[var(--v2-primary)] text-[var(--v2-on-primary)]'
+                              : 'bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface-variant)] hover:bg-[var(--v2-surface-container-highest)]',
+                          )}>
+                          <span className="v2-icon text-lg">mail</span>
+                          Email
+                        </button>
+                        <button
+                          onClick={() => setDeliveryMethod('whatsapp')}
+                          className={cn(
+                            'flex-1 py-2.5 px-4 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-all',
+                            deliveryMethod === 'whatsapp'
+                              ? 'bg-[#25D366] text-white'
+                              : 'bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface-variant)] hover:bg-[var(--v2-surface-container-highest)]',
+                          )}>
+                          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                          </svg>
+                          WhatsApp
+                        </button>
+                      </div>
+
+                      {/* Email Input */}
+                      {deliveryMethod === 'email' && (
+                        <input
                           type="email"
                           placeholder="recipient@email.com"
                           value={recipientEmail}
                           onChange={e => setRecipientEmail(e.target.value)}
-                          className="h-11"
+                          className="w-full h-12 px-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-[var(--v2-on-surface)] focus:ring-2 focus:ring-[var(--v2-primary)]/20 transition-all"
                         />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                      )}
 
-                  <ListItemRadio
+                      {/* WhatsApp Phone Input */}
+                      {deliveryMethod === 'whatsapp' && (
+                        <div className="space-y-2">
+                          <CountryPhoneInput
+                            value={recipientPhone}
+                            countryCode={recipientCountryCode}
+                            onChange={(phone, code, isValid) => {
+                              setRecipientPhone(phone);
+                              setRecipientCountryCode(code);
+                              setIsPhoneValid(isValid);
+                            }}
+                            placeholder="Phone number"
+                          />
+                          <div className="flex items-center gap-2 p-3 rounded-xl bg-[#25D366]/10 text-[#25D366]">
+                            <span className="v2-icon text-lg">info</span>
+                            <span className="text-xs font-medium">
+                              +₦{WHATSAPP_FEE.toLocaleString()} WhatsApp delivery fee
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <V2ListItemRadio
                     selected={deliveryType === 'claim-link'}
                     onClick={() => setDeliveryType('claim-link')}
-                    icon={<LinkIcon className="w-4 h-4" />}
+                    icon="link"
                     title="Create Claim Link"
                     description="Share a link for anyone to claim"
                   />
                 </div>
-              </FormSection>
+              </V2FormSection>
 
-              {/* Section 3: Schedule (optional) */}
-              <FormSection
+              {/* Section 3: Schedule */}
+              <V2FormSection
                 title="When to Send"
-                icon={<Calendar className="w-4 h-4" />}
+                icon="schedule"
                 isExpanded={expandedSection === 'schedule'}
                 onToggle={() => toggleSection('schedule')}
                 isComplete={deliveryTime === 'now' || !!scheduledFor}
                 summary={deliveryTime === 'now' ? 'Send immediately' : 'Scheduled'}>
-                <div className="space-y-2">
-                  <ListItemRadio
+                <div className="space-y-3">
+                  <V2ListItemRadio
                     selected={deliveryTime === 'now'}
                     onClick={() => setDeliveryTime('now')}
-                    icon={<Send className="w-4 h-4" />}
+                    icon="bolt"
                     title="Send Now"
                     description="Deliver immediately"
                   />
-                  <ListItemRadio
+                  <V2ListItemRadio
                     selected={deliveryTime === 'schedule'}
-                    onClick={() =>
-                      deliveryType !== 'claim-link' && setDeliveryTime('schedule')
-                    }
-                    icon={<Calendar className="w-4 h-4" />}
+                    onClick={() => deliveryType !== 'claim-link' && setDeliveryTime('schedule')}
+                    icon="event"
                     title="Schedule"
-                    description={
-                      deliveryType === 'claim-link'
-                        ? 'Not available for claim links'
-                        : 'Choose date and time'
-                    }
+                    description={deliveryType === 'claim-link' ? 'Not available for claim links' : 'Choose date and time'}
                     disabled={deliveryType === 'claim-link'}
                   />
 
-                  <AnimatePresence>
-                    {deliveryTime === 'schedule' && (
-                      <motion.div
-                        initial={{opacity: 0, height: 0}}
-                        animate={{opacity: 1, height: 'auto'}}
-                        exit={{opacity: 0, height: 0}}
-                        className="pl-4 border-l-2 border-primary/20 ml-2">
-                        <Input
-                          type="datetime-local"
-                          value={scheduledFor}
-                          onChange={e => setScheduledFor(e.target.value)}
-                          min={new Date().toISOString().slice(0, 16)}
-                          className="h-11"
-                        />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                  {deliveryTime === 'schedule' && (
+                    <div className="pl-4 border-l-2 border-[var(--v2-primary)]/20 ml-2">
+                      <input
+                        type="datetime-local"
+                        value={scheduledFor}
+                        onChange={e => setScheduledFor(e.target.value)}
+                        min={new Date().toISOString().slice(0, 16)}
+                        className="w-full h-12 px-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-[var(--v2-on-surface)] focus:ring-2 focus:ring-[var(--v2-primary)]/20 transition-all"
+                      />
+                    </div>
+                  )}
                 </div>
-              </FormSection>
+              </V2FormSection>
 
-              {/* Section 4: Personal Touch (optional) */}
-              <FormSection
+              {/* Section 4: Personal Touch */}
+              <V2FormSection
                 title="Personal Touch"
-                icon={<User className="w-4 h-4" />}
+                icon="favorite"
                 isExpanded={expandedSection === 'personal'}
                 onToggle={() => toggleSection('personal')}
                 optional
                 summary={message ? 'Message added' : 'Add a message'}>
                 <div className="space-y-4">
-                  <div>
-                    <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider ml-1">
                       Your Name (optional)
-                    </Label>
-                    <Input
+                    </label>
+                    <input
                       placeholder="E.g. John Doe"
                       value={senderName}
                       onChange={e => setSenderName(e.target.value)}
-                      className="h-11 mt-2"
+                      className="w-full h-12 px-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-[var(--v2-on-surface)] focus:ring-2 focus:ring-[var(--v2-primary)]/20 transition-all"
                     />
                   </div>
 
-                  <div>
-                    <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider ml-1">
                       Message (optional)
-                    </Label>
-                    <Textarea
+                    </label>
+                    <textarea
                       placeholder="Add a personal note..."
                       value={message}
                       onChange={e => setMessage(e.target.value)}
                       rows={3}
-                      className="mt-2 resize-none"
+                      className="w-full px-4 py-3 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-[var(--v2-on-surface)] focus:ring-2 focus:ring-[var(--v2-primary)]/20 transition-all resize-none"
                     />
                   </div>
 
-                  <label className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 cursor-pointer hover:bg-muted transition-colors">
-                    <input
-                      type="checkbox"
-                      checked={isAnonymous}
-                      onChange={e => setIsAnonymous(e.target.checked)}
-                      className="w-5 h-5 rounded border-border text-primary focus:ring-primary"
-                    />
-                    <span className="text-sm font-medium">
-                      Send anonymously
-                    </span>
+                  <label className="flex items-center gap-3 p-4 rounded-xl bg-[var(--v2-surface-container-low)] cursor-pointer hover:bg-[var(--v2-surface-container-high)] transition-colors">
+                    <div
+                      className={cn(
+                        'w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-colors',
+                        isAnonymous
+                          ? 'bg-[var(--v2-primary)] border-[var(--v2-primary)]'
+                          : 'border-[var(--v2-outline-variant)]',
+                      )}>
+                      {isAnonymous && (
+                        <span className="v2-icon text-sm text-[var(--v2-on-primary)]">check</span>
+                      )}
+                    </div>
+                    <span className="font-medium text-[var(--v2-on-surface)]">Send anonymously</span>
                   </label>
                 </div>
-              </FormSection>
+              </V2FormSection>
             </div>
           </div>
-        </div>
+        </main>
 
         {/* Sticky Footer CTA */}
-        <div
-          className={cn(
-            'fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-lg border-t border-border',
-            'p-4 pb-safe',
-            'md:relative md:max-w-xl md:mx-auto md:mt-6 md:bg-transparent md:border-t-0 md:p-0 md:pb-8',
-          )}>
-          <div className="flex items-center gap-3">
+        <div className="fixed bottom-0 left-0 right-0 bg-[var(--v2-surface)]/95 backdrop-blur-xl border-t border-[var(--v2-outline-variant)]/10 p-4 pb-safe md:relative md:max-w-xl md:mx-auto md:mt-6 md:bg-transparent md:border-t-0 md:p-0 md:pb-8 z-40">
+          <div className="flex items-center gap-4">
             {/* Price Summary */}
-            {(giftType === 'money' && amount) || selectedGift ? (
+            {totalAmount > 0 && (
               <div className="flex-1">
-                <p className="text-xs text-muted-foreground">Total</p>
-                <p className="text-xl font-bold text-foreground">
-                  ₦
-                  {giftType === 'money'
-                    ? Number(amount).toLocaleString()
-                    : Number(selectedGift?.price || 0).toLocaleString()}
+                <p className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">Total</p>
+                <p className="text-2xl font-extrabold v2-headline text-[var(--v2-on-surface)]">
+                  ₦{totalAmount.toLocaleString()}
                 </p>
+                {whatsappDeliveryFee > 0 && (
+                  <p className="text-xs text-[#25D366] font-medium">
+                    incl. ₦{whatsappDeliveryFee} WhatsApp fee
+                  </p>
+                )}
               </div>
-            ) : (
-              <div className="flex-1" />
             )}
 
-            <Button
-              variant="hero"
-              size="xl"
+            <button
               onClick={handleSendGift}
               disabled={!canProceed() || isSubmitting}
-              className="flex-1 md:flex-none md:px-12">
+              className={cn(
+                'flex-1 md:flex-none md:px-12 h-14 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-[var(--v2-primary)]/20 active:scale-[0.98] transition-all disabled:opacity-50',
+                !totalAmount && 'flex-1',
+              )}>
               {isSubmitting ? (
                 <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  <span className="v2-icon animate-spin">progress_activity</span>
                   Processing...
                 </>
               ) : (
                 <>
                   Continue to Pay
-                  <ArrowRight className="w-5 h-5 ml-2" />
+                  <span className="v2-icon">arrow_forward</span>
                 </>
               )}
-            </Button>
+            </button>
           </div>
         </div>
       </div>
-    </RequireAuthUI>
+    </V2RequireAuthUI>
   );
 }
 
-// Collapsible Form Section Component
-function FormSection({
+// V2 Form Section Component
+function V2FormSection({
   title,
   icon,
   isExpanded,
@@ -531,7 +747,7 @@ function FormSection({
   children,
 }: {
   title: string;
-  icon: React.ReactNode;
+  icon: string;
   isExpanded: boolean;
   onToggle: () => void;
   isComplete?: boolean;
@@ -542,61 +758,54 @@ function FormSection({
   return (
     <div
       className={cn(
-        'rounded-2xl border-2 overflow-hidden transition-all',
-        isExpanded ? 'border-primary/30 bg-card' : 'border-border bg-card/50',
+        'rounded-2xl overflow-hidden transition-all',
+        isExpanded
+          ? 'bg-[var(--v2-surface-container-lowest)] ring-2 ring-[var(--v2-primary)]/20'
+          : 'bg-[var(--v2-surface-container-low)]',
       )}>
-      <button
-        onClick={onToggle}
-        className="w-full p-4 flex items-center justify-between text-left">
+      <button onClick={onToggle} className="w-full p-4 flex items-center justify-between text-left">
         <div className="flex items-center gap-3">
           <div
             className={cn(
-              'w-8 h-8 rounded-full flex items-center justify-center',
+              'w-10 h-10 rounded-xl flex items-center justify-center',
               isComplete
-                ? 'bg-primary/10 text-primary'
-                : 'bg-muted text-muted-foreground',
+                ? 'bg-[var(--v2-primary)]/10 text-[var(--v2-primary)]'
+                : 'bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface-variant)]',
             )}>
-            {isComplete ? <CheckCircle className="w-4 h-4" /> : icon}
+            <span className="v2-icon" style={isComplete ? {fontVariationSettings: "'FILL' 1"} : undefined}>
+              {isComplete ? 'check_circle' : icon}
+            </span>
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-foreground">{title}</span>
+              <span className="font-bold text-[var(--v2-on-surface)]">{title}</span>
               {optional && (
-                <span className="text-[10px] uppercase tracking-wider text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                <span className="text-[10px] uppercase tracking-wider text-[var(--v2-on-surface-variant)] bg-[var(--v2-surface-container-high)] px-2 py-0.5 rounded-full font-bold">
                   Optional
                 </span>
               )}
             </div>
             {!isExpanded && summary && (
-              <p className="text-xs text-muted-foreground mt-0.5">{summary}</p>
+              <p className="text-xs text-[var(--v2-on-surface-variant)] mt-0.5">{summary}</p>
             )}
           </div>
         </div>
-        <ChevronDown
+        <span
           className={cn(
-            'w-5 h-5 text-muted-foreground transition-transform',
+            'v2-icon text-[var(--v2-on-surface-variant)] transition-transform',
             isExpanded && 'rotate-180',
-          )}
-        />
+          )}>
+          expand_more
+        </span>
       </button>
 
-      <AnimatePresence initial={false}>
-        {isExpanded && (
-          <motion.div
-            initial={{height: 0, opacity: 0}}
-            animate={{height: 'auto', opacity: 1}}
-            exit={{height: 0, opacity: 0}}
-            transition={{duration: 0.2}}>
-            <div className="px-4 pb-4">{children}</div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {isExpanded && <div className="px-4 pb-4">{children}</div>}
     </div>
   );
 }
 
-// List Item with Radio Component
-function ListItemRadio({
+// V2 List Item Radio Component
+function V2ListItemRadio({
   selected,
   onClick,
   icon,
@@ -606,7 +815,7 @@ function ListItemRadio({
 }: {
   selected: boolean;
   onClick: () => void;
-  icon: React.ReactNode;
+  icon: string;
   title: string;
   description: string;
   disabled?: boolean;
@@ -616,40 +825,39 @@ function ListItemRadio({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'w-full flex items-center gap-3 p-3 rounded-xl transition-all',
-        'active:scale-[0.99] min-h-[56px]',
+        'w-full flex items-center gap-3 p-4 rounded-xl transition-all active:scale-[0.98] min-h-[60px]',
         selected
-          ? 'bg-primary/5 border border-primary'
+          ? 'bg-[var(--v2-primary)]/10 ring-2 ring-[var(--v2-primary)]'
           : disabled
-            ? 'bg-muted/20 border border-muted opacity-50 cursor-not-allowed'
-            : 'bg-card border border-border hover:border-primary/40',
+            ? 'bg-[var(--v2-surface-container-high)]/50 opacity-50 cursor-not-allowed'
+            : 'bg-[var(--v2-surface-container-low)] hover:bg-[var(--v2-surface-container-high)]',
       )}>
       <div
         className={cn(
-          'w-9 h-9 rounded-lg flex items-center justify-center shrink-0',
-          selected ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground',
+          'w-10 h-10 rounded-xl flex items-center justify-center shrink-0',
+          selected ? 'bg-[var(--v2-primary)] text-[var(--v2-on-primary)]' : 'bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface-variant)]',
         )}>
-        {icon}
+        <span className="v2-icon">{icon}</span>
       </div>
       <div className="flex-1 text-left min-w-0">
-        <p className={cn('font-medium text-sm', selected ? 'text-primary' : 'text-foreground')}>
+        <p className={cn('font-bold text-sm', selected ? 'text-[var(--v2-primary)]' : 'text-[var(--v2-on-surface)]')}>
           {title}
         </p>
-        <p className="text-xs text-muted-foreground truncate">{description}</p>
+        <p className="text-xs text-[var(--v2-on-surface-variant)] truncate">{description}</p>
       </div>
       <div
         className={cn(
           'w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors',
-          selected ? 'border-primary bg-primary' : 'border-muted-foreground/30',
+          selected ? 'border-[var(--v2-primary)] bg-[var(--v2-primary)]' : 'border-[var(--v2-outline-variant)]',
         )}>
-        {selected && <div className="w-2 h-2 rounded-full bg-primary-foreground" />}
+        {selected && <div className="w-2 h-2 rounded-full bg-[var(--v2-on-primary)]" />}
       </div>
     </button>
   );
 }
 
-// Success Screen Component
-function SuccessScreen({slug, isClaimLink}: {slug: string; isClaimLink: boolean}) {
+// V2 Success Screen
+function V2SuccessScreen({slug, isClaimLink}: {slug: string; isClaimLink: boolean}) {
   const [copied, setCopied] = useState(false);
   const [origin, setOrigin] = useState('');
 
@@ -659,81 +867,68 @@ function SuccessScreen({slug, isClaimLink}: {slug: string; isClaimLink: boolean}
 
   const claimUrl = `${origin}/claim/${slug}`;
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(claimUrl);
+    setCopied(true);
+    toast.success('Link copied!');
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="pt-24 pb-16 flex flex-col items-center justify-center px-4">
-        <div className="max-w-md w-full text-center">
-          <motion.div
-            initial={{scale: 0}}
-            animate={{scale: 1}}
-            transition={{type: 'spring', duration: 0.5}}
-            className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-10 h-10 text-green-500" />
-          </motion.div>
+    <div className="min-h-screen bg-[var(--v2-background)] flex items-center justify-center p-4">
+      <div className="max-w-md w-full text-center">
+        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <span className="v2-icon text-4xl text-green-600" style={{fontVariationSettings: "'FILL' 1"}}>
+            check_circle
+          </span>
+        </div>
 
-          <motion.div
-            initial={{opacity: 0, y: 20}}
-            animate={{opacity: 1, y: 0}}
-            transition={{delay: 0.2}}>
-            <h1 className="text-2xl font-bold font-display text-foreground mb-2">
-              Gift Created!
-            </h1>
-            <p className="text-muted-foreground text-sm mb-8">
-              {isClaimLink
-                ? 'Share the link below for someone to claim this gift'
-                : 'The recipient will be notified via email'}
-            </p>
+        <h1 className="text-2xl font-extrabold v2-headline text-[var(--v2-on-surface)] mb-2">
+          Gift Created!
+        </h1>
+        <p className="text-[var(--v2-on-surface-variant)] mb-8">
+          {isClaimLink
+            ? 'Share the link below for someone to claim this gift'
+            : 'The recipient will be notified via email'}
+        </p>
 
-            {isClaimLink && (
-              <div className="bg-card border border-border rounded-2xl p-4 mb-8">
-                <Label className="text-xs uppercase tracking-wider text-muted-foreground">
-                  Claim Link
-                </Label>
-                <div className="flex items-center gap-2 mt-2">
-                  <div className="flex-1 bg-muted rounded-lg px-3 py-2.5 overflow-hidden">
-                    <p className="font-mono text-sm text-foreground truncate">
-                      {claimUrl}
-                    </p>
-                  </div>
-                  <Button
-                    variant={copied ? 'default' : 'outline'}
-                    size="sm"
-                    className={cn(
-                      'shrink-0 h-10',
-                      copied && 'bg-green-500 hover:bg-green-600',
-                    )}
-                    onClick={() => {
-                      navigator.clipboard.writeText(claimUrl);
-                      setCopied(true);
-                      setTimeout(() => setCopied(false), 2000);
-                    }}>
-                    {copied ? (
-                      <CheckCircle className="w-4 h-4" />
-                    ) : (
-                      <Copy className="w-4 h-4" />
-                    )}
-                  </Button>
-                </div>
+        {isClaimLink && (
+          <div className="bg-[var(--v2-surface-container-low)] rounded-2xl p-4 mb-8">
+            <label className="text-xs font-bold uppercase tracking-wider text-[var(--v2-on-surface-variant)] block mb-2">
+              Claim Link
+            </label>
+            <div className="flex items-center gap-2">
+              <div className="flex-1 bg-[var(--v2-surface-container-lowest)] rounded-xl px-4 py-3 overflow-hidden">
+                <p className="font-mono text-sm text-[var(--v2-on-surface)] truncate">{claimUrl}</p>
               </div>
-            )}
-
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Link href="/send-gift" className="flex-1">
-                <Button
-                  variant="hero"
-                  className="w-full h-12"
-                  onClick={() => window.location.reload()}>
-                  Send Another
-                </Button>
-              </Link>
-              <Link href="/dashboard" className="flex-1">
-                <Button variant="outline" className="w-full h-12">
-                  Dashboard
-                </Button>
-              </Link>
+              <button
+                onClick={handleCopy}
+                className={cn(
+                  'shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-colors',
+                  copied
+                    ? 'bg-green-500 text-white'
+                    : 'bg-[var(--v2-primary)]/10 text-[var(--v2-primary)] hover:bg-[var(--v2-primary)]/20',
+                )}>
+                <span className="v2-icon">{copied ? 'check' : 'content_copy'}</span>
+              </button>
             </div>
-          </motion.div>
+          </div>
+        )}
+
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Link href="/send-gift" className="flex-1">
+            <button
+              onClick={() => window.location.reload()}
+              className="w-full h-12 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-xl flex items-center justify-center gap-2">
+              <span className="v2-icon">add</span>
+              Send Another
+            </button>
+          </Link>
+          <Link href="/dashboard" className="flex-1">
+            <button className="w-full h-12 bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] font-bold rounded-xl hover:bg-[var(--v2-surface-container-high)] transition-colors">
+              Dashboard
+            </button>
+          </Link>
         </div>
       </div>
     </div>

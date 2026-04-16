@@ -11,8 +11,7 @@ export class PromotionController {
   // ── Public ──
   @Get('active')
   async fetchActive(@Query('placement') placement?: string) {
-    const data = await this.promotionService.fetchActive(placement);
-    return { success: true, data };
+    return this.promotionService.fetchActive(placement);
   }
 
   @Post('track/view/:id')
@@ -37,15 +36,13 @@ export class PromotionController {
   @UseGuards(AuthGuard)
   @Post()
   async create(@Req() req: any, @Body() data: any) {
-    const result = await this.promotionService.create(req.user.id, data);
-    return { success: true, data: result };
+    return this.promotionService.create(req.user.id, data);
   }
 
   @UseGuards(AuthGuard)
   @Get('my')
   async fetchMine(@Req() req: any, @Query('status') status?: string) {
-    const data = await this.promotionService.fetchVendorPromotions(req.user.id, status);
-    return { success: true, data };
+    return this.promotionService.fetchVendorPromotions(req.user.id, status);
   }
 
   @UseGuards(AuthGuard)
@@ -67,8 +64,7 @@ export class PromotionController {
   @Roles('admin', 'superadmin')
   @Get('all')
   async fetchAll(@Query('status') status?: string) {
-    const data = await this.promotionService.fetchAll(status);
-    return { success: true, data };
+    return this.promotionService.fetchAll(status);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
@@ -88,16 +84,14 @@ export class PromotionController {
   // ── External Promotions ──
   @Get('external')
   async fetchExternalPromotions(@Query('placement') placement?: string) {
-    const data = await this.promotionService.fetchExternalPromotions(placement);
-    return { success: true, data };
+    return this.promotionService.fetchExternalPromotions(placement);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('admin', 'superadmin')
   @Post('external')
   async createExternal(@Req() req: any, @Body() data: any) {
-    const result = await this.promotionService.createExternal(req.user.id, data);
-    return { success: true, data: result };
+    return this.promotionService.createExternal(req.user.id, data);
   }
 
   @Post('external/track/view/:id')
@@ -116,16 +110,14 @@ export class PromotionController {
   @Roles('admin', 'superadmin')
   @Get('external/all')
   async fetchAllExternalPromotions() {
-    const data = await this.promotionService.fetchAllExternalPromotions();
-    return { success: true, data };
+    return this.promotionService.fetchAllExternalPromotions();
   }
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('admin', 'superadmin')
   @Patch('external/:id')
   async updateExternalPromotion(@Param('id') id: string, @Body() data: any) {
-    const result = await this.promotionService.updateExternalPromotion(Number(id), data);
-    return { success: true, data: result };
+    return this.promotionService.updateExternalPromotion(Number(id), data);
   }
 
   @UseGuards(AuthGuard, RolesGuard)

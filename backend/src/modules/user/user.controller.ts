@@ -38,40 +38,35 @@ export class UserController {
   @Patch('creator-status')
   async updateCreatorStatus(@Req() req: Request, @Body('enabled') enabled: boolean) {
     const userId = (req as any).user.id;
-    const user = await this.userService.updateCreatorStatus(userId, enabled);
-    return { success: true, data: user };
+    return this.userService.updateCreatorStatus(userId, enabled);
   }
 
   @UseGuards(AuthGuard)
   @Patch('banner')
   async updateBanner(@Req() req: Request, @Body('bannerUrl') bannerUrl: string) {
     const userId = (req as any).user.id;
-    const user = await this.userService.updateBannerImage(userId, bannerUrl);
-    return { success: true, data: user };
+    return this.userService.updateBannerImage(userId, bannerUrl);
   }
 
   @UseGuards(AuthGuard)
   @Patch('avatar')
   async updateAvatar(@Req() req: Request, @Body('avatarUrl') avatarUrl: string) {
     const userId = (req as any).user.id;
-    const user = await this.userService.updateAvatarImage(userId, avatarUrl);
-    return { success: true, data: user };
+    return this.userService.updateAvatarImage(userId, avatarUrl);
   }
 
   @UseGuards(AuthGuard)
   @Delete('banner')
   async deleteBanner(@Req() req: Request) {
     const userId = (req as any).user.id;
-    const user = await this.userService.deleteBannerImage(userId);
-    return { success: true, data: user };
+    return this.userService.deleteBannerImage(userId);
   }
 
   @UseGuards(AuthGuard)
   @Delete('avatar')
   async deleteAvatar(@Req() req: Request) {
     const userId = (req as any).user.id;
-    const user = await this.userService.deleteAvatarImage(userId);
-    return { success: true, data: user };
+    return this.userService.deleteAvatarImage(userId);
   }
 
   @UseGuards(AuthGuard)

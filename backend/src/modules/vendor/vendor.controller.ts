@@ -9,8 +9,7 @@ export class VendorController {
   // ── Public Product Discovery ──
   @Get('products')
   async fetchProducts(@Query('vendorId') vendorId?: string) {
-    const data = await this.vendorService.fetchProducts(vendorId);
-    return { success: true, data };
+    return this.vendorService.fetchProducts(vendorId);
   }
 
   @Get('products/paginated')
@@ -27,29 +26,25 @@ export class VendorController {
 
   @Get('products/:id')
   async fetchProductById(@Param('id') id: string) {
-    const data = await this.vendorService.fetchProductById(Number(id));
-    return { success: true, data };
+    return this.vendorService.fetchProductById(Number(id));
   }
 
   @Get('shop/:vendorSlug/:productSlug')
   async fetchProductBySlugs(@Param('vendorSlug') vendorSlug: string, @Param('productSlug') productSlug: string) {
-    const data = await this.vendorService.fetchProductBySlugs(vendorSlug, productSlug);
-    return { success: true, data };
+    return this.vendorService.fetchProductBySlugs(vendorSlug, productSlug);
   }
 
   // ── Vendor Product Management ──
   @UseGuards(AuthGuard)
   @Get('my-products')
   async fetchMyProducts(@Req() req: any) {
-    const data = await this.vendorService.fetchProducts(req.user.id, true);
-    return { success: true, data };
+    return this.vendorService.fetchProducts(req.user.id, true);
   }
 
   @UseGuards(AuthGuard)
   @Post('products')
   async manageProduct(@Req() req: any, @Body() data: any) {
-    const result = await this.vendorService.manageProduct(req.user.id, data);
-    return { success: true, data: result };
+    return this.vendorService.manageProduct(req.user.id, data);
   }
 
   @UseGuards(AuthGuard)
@@ -62,8 +57,7 @@ export class VendorController {
   @UseGuards(AuthGuard)
   @Post('verify-voucher')
   async verifyVoucher(@Req() req: any, @Body('code') code: string) {
-    const data = await this.vendorService.verifyVoucherCode(req.user.id, code);
-    return { success: true, data };
+    return this.vendorService.verifyVoucherCode(req.user.id, code);
   }
 
   @UseGuards(AuthGuard)
@@ -76,15 +70,13 @@ export class VendorController {
   @UseGuards(AuthGuard)
   @Get('wallet')
   async fetchWallet(@Req() req: any) {
-    const data = await this.vendorService.fetchVendorWallet(req.user.id);
-    return { success: true, data };
+    return this.vendorService.fetchVendorWallet(req.user.id);
   }
 
   @UseGuards(AuthGuard)
   @Get('orders')
   async fetchOrders(@Req() req: any) {
-    const data = await this.vendorService.fetchVendorOrders(req.user.id);
-    return { success: true, data };
+    return this.vendorService.fetchVendorOrders(req.user.id);
   }
 
   // ── Product Images ──
@@ -95,8 +87,7 @@ export class VendorController {
     @Param('id') id: string,
     @Body('imageUrl') imageUrl: string,
   ) {
-    const result = await this.vendorService.addProductImage(req.user.id, Number(id), imageUrl);
-    return { success: true, data: result };
+    return this.vendorService.addProductImage(req.user.id, Number(id), imageUrl);
   }
 
   @UseGuards(AuthGuard)
@@ -106,8 +97,7 @@ export class VendorController {
     @Param('id') id: string,
     @Body('imageUrl') imageUrl: string,
   ) {
-    const result = await this.vendorService.removeProductImage(req.user.id, Number(id), imageUrl);
-    return { success: true, data: result };
+    return this.vendorService.removeProductImage(req.user.id, Number(id), imageUrl);
   }
 
   @UseGuards(AuthGuard)
@@ -117,7 +107,6 @@ export class VendorController {
     @Param('id') id: string,
     @Body('imageUrl') imageUrl: string,
   ) {
-    const result = await this.vendorService.setProductMainImage(req.user.id, Number(id), imageUrl);
-    return { success: true, data: result };
+    return this.vendorService.setProductMainImage(req.user.id, Number(id), imageUrl);
   }
 }

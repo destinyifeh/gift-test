@@ -11,8 +11,7 @@ export class AnalyticsController {
   @Get('dashboard')
   async getDashboardAnalytics(@Req() req: Request) {
     const userId = (req as any).user.id;
-    const data = await this.analyticsService.fetchDashboardAnalytics(userId);
-    return { success: true, data };
+    return this.analyticsService.fetchDashboardAnalytics(userId);
   }
 
   @Get('contributions')
@@ -80,14 +79,12 @@ export class AnalyticsController {
   @Get('creator-analytics')
   async getCreatorAnalytics(@Req() req: Request) {
     const userId = (req as any).user.id;
-    const data = await this.analyticsService.fetchCreatorAnalytics(userId);
-    return { success: true, data };
+    return this.analyticsService.fetchCreatorAnalytics(userId);
   }
 
   @Get('unclaimed')
   async getUnclaimedGifts(@Req() req: Request) {
-    const email = (req as any).user.email;
-    const data = await this.analyticsService.fetchUnclaimedGifts(email);
-    return { success: true, data };
+    const user = (req as any).user;
+    return this.analyticsService.fetchUnclaimedGifts(user.id, user.email);
   }
 }

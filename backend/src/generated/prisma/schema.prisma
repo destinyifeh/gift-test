@@ -1,8 +1,561 @@
+enum UserRole {
+  user
+  admin
+  vendor
+  superadmin
+}
+
+enum AdminRole {
+  support
+  finance
+  moderator
+  superadmin
+}
+
+model User {
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Better Auth integrations
+  sessions Session[]
+  accounts Account[]
+
+  // --- Gift/Platform Profile Fields ---
+  username         String?    @unique
+  displayName      String?    @map("display_name")
+  avatarUrl        String?    @map("avatar_url")
+  bio              String?
+  isCreator        Boolean    @default(false) @map("is_creator")
+  suggestedAmounts Int[]      @default([5, 10, 25]) @map("suggested_amounts")
+  socialLinks      Json?      @default("{}") @map("social_links")
+  themeSettings    Json?      @default("{}") @map("theme_settings")
+  country          String?
+  roles            UserRole[] @default([user])
+  adminRole        AdminRole? @map("admin_role")
+  platformBalance  BigInt     @default(0) @map("platform_balance")
+  status           String     @default("active") // 'active', 'suspended', 'banned'
+  walletStatus     String     @default("active") @map("wallet_status") // 'active', 'restricted'
+  suspensionEnd    DateTime?  @map("suspension_end")
+
+  // --- Vendor Shop Fields ---
+  shopName         String?  @map("shop_name")
+  shopDescription  String?  @map("shop_description")
+  shopAddress      String?  @map("shop_address")
+  shopSlug         String?  @unique @map("shop_slug")
+  shopLogoUrl      String?  @map("shop_logo_url")
+  bannerUrl        String?  @map("banner_url")
+  isVerifiedVendor Boolean  @default(false) @map("is_verified_vendor")
+  vendorStatus     String   @default("pending") @map("vendor_status") // 'pending', 'approved', 'rejected'
+  vendorCategories String[] @default([]) @map("vendor_categories")
+
+  // Relations
+  campaigns               Campaign[]            @relation("UserCampaigns")
+  bankAccounts            BankAccount[]
+  transactions            Transaction[]
+  vendorGifts             VendorGift[]
+  favorites               Favorite[]
+  promotions              Promotion[]           @relation("VendorPromotions")
+  sentFlexCards           FlexCard[]            @relation("SentFlexCards")
+  receivedFlexCards       FlexCard[]            @relation("ReceivedFlexCards")
+  moderationReportsMade   ModerationReport[]    @relation("Reporter")
+  moderationReportsFixed  ModerationReport[]    @relation("Resolver")
+  moderationTickets       ModerationTicket[]    @relation("TicketReporter")
+  adminResolvedTickets    ModerationTicket[]    @relation("TicketResolver")
+  flexCardTransactions    FlexCardTransaction[] @relation("VendorTransactions")
+  redeemedCampaigns       Campaign[]            @relation("RedeemedByVendor")
+  creatorSupportReceived  CreatorSupport[]      @relation("SupportRecipient")
+  adminResolvedPromotions ExternalPromotion[]   @relation("AdminExternalPromotions")
+  withdrawals             Withdrawal[]
+
+  adminLogs         AdminLog[]
+  notifications     Notification[]
+  notificationReads NotificationRead[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Account {
+  id                    String    @id @default(uuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("accounts")
+}
+
+model Verification {
+  id         String    @id @default(uuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+
+  @@map("verifications")
+}
+
+model Campaign {
+  id                       String    @id @default(uuid())
+  userId                   String    @map("user_id")
+  user                     User      @relation("UserCampaigns", fields: [userId], references: [id], onDelete: Cascade)
+  category                 String
+  title                    String
+  description              String?
+  goalAmount               Decimal?  @map("goal_amount")
+  minAmount                Decimal?  @map("min_amount")
+  currentAmount            Decimal   @default(0) @map("current_amount")
+  endDate                  DateTime? @map("end_date")
+  imageUrl                 String?   @map("image_url")
+  coverImage               String?   @map("cover_image")
+  images                   String[]  @default([])
+  visibility               String    @default("public")
+  contributorsSeeEachOther Boolean   @default(true) @map("contributors_see_each_other")
+  status                   String    @default("active")
+  statusReason             String?   @map("status_reason")
+  pausedBy                 String?   @map("paused_by")
+  isFlagged                Boolean   @default(false) @map("is_flagged")
+  flagReason               String?   @map("flag_reason")
+  flaggedAt                DateTime? @map("flagged_at")
+  flaggedBy                String?   @map("flagged_by")
+  campaignShortId          String?   @unique @map("campaign_short_id")
+  campaignSlug             String?   @map("campaign_slug")
+
+  // Claimable logic
+  claimableType          String?     @map("claimable_type")
+  claimableGiftId        Int?        @map("claimable_gift_id")
+  product                VendorGift? @relation("CampaignProduct", fields: [claimableGiftId], references: [id], onDelete: SetNull)
+  claimableRecipientType String?     @map("claimable_recipient_type")
+  recipientEmail         String?     @map("recipient_email")
+  senderEmail            String?     @map("sender_email")
+  paymentReference       String?     @map("payment_reference")
+  currency               String      @default("NGN")
+  giftCode               String?     @map("gift_code")
+
+  // Custom/Voucher redemption
+  redeemedAt         DateTime? @map("redeemed_at")
+  redeemedByVendorId String?   @map("redeemed_by_vendor_id")
+  redeemedByVendor   User?     @relation("RedeemedByVendor", fields: [redeemedByVendorId], references: [id], onDelete: SetNull)
+  vendorRating       Int?      @map("vendor_rating")
+  message            String?
+
+  // V2 WhatsApp/Delivery
+  deliveryMethod       String? @default("email") @map("delivery_method")
+  recipientPhone       String? @map("recipient_phone")
+  recipientCountryCode String? @map("recipient_country_code")
+  whatsappFee          Decimal @default(0) @map("whatsapp_fee")
+  senderName           String? @map("sender_name")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  contributions Contribution[]
+  transactions  Transaction[]
+
+  @@map("campaigns")
+}
+
+model Contribution {
+  id            String       @id @default(uuid())
+  campaignId    String       @map("campaign_id")
+  campaign      Campaign     @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  transactionId String?      @unique @map("transaction_id")
+  transaction   Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+  amount        Decimal
+  currency      String       @default("NGN")
+  donorName     String       @map("donor_name")
+  donorEmail    String?      @map("donor_email")
+  message       String?
+  isAnonymous   Boolean      @default(false) @map("is_anonymous")
+  hideAmount    Boolean      @default(false) @map("hide_amount")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("contributions")
+}
+
+model Promotion {
+  id               Int         @id @default(autoincrement())
+  vendorId         String
+  vendor           User        @relation("VendorPromotions", fields: [vendorId], references: [id], onDelete: Cascade)
+  productId        Int?
+  vendorGiftId     Int?
+  product          VendorGift? @relation(fields: [vendorGiftId], references: [id], onDelete: SetNull)
+  placement        String // 'featured', 'new_arrivals', 'sponsored'
+  durationDays     Int         @default(7)
+  startDate        DateTime?
+  endDate          DateTime?
+  status           String      @default("pending_approval") // 'pending_approval', 'active', 'paused', 'completed', 'rejected'
+  amountPaid       Decimal
+  currency         String      @default("NGN")
+  paymentReference String?
+  rejectionReason  String?
+
+  // Stats
+  views       Int @default(0)
+  clicks      Int @default(0)
+  conversions Int @default(0)
+
+  transactionId String?      @unique
+  transaction   Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("promotions")
+}
+
+model ExternalPromotion {
+  id          Int       @id @default(autoincrement())
+  adminId     String
+  admin       User      @relation("AdminExternalPromotions", fields: [adminId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  imageUrl    String?
+  link        String?
+  placement   String // 'banner', 'hero', 'sidebar'
+  startDate   DateTime  @default(now())
+  endDate     DateTime?
+  status      String    @default("active")
+
+  views  Int @default(0)
+  clicks Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("external_promotions")
+}
+
+model FeaturedItem {
+  id          Int     @id @default(autoincrement())
+  title       String?
+  description String?
+  imageUrl    String?
+  link        String?
+  type        String // 'banner', 'collection', 'highlight'
+  order       Int     @default(0)
+  isActive    Boolean @default(true)
+  metadata    Json?   @default("{}")
+
+  createdAt DateTime @default(now())
+
+  @@map("featured_items")
+}
+
+model Transaction {
+  id          String    @id @default(uuid())
+  userId      String?   @map("user_id")
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  campaignId  String?   @map("campaign_id")
+  campaign    Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  amount      BigInt // In smallest currency unit (kobo/cents)
+  currency    String    @default("NGN")
+  type        String // 'campaign_contribution', 'creator_support', 'withdrawal', 'payout', 'fee', 'receipt', 'gift_redemption', 'gift_sent', 'flex_card_redemption', 'flex_card', 'platform_credit_conversion'
+  status      String    @default("pending") // 'pending', 'success', 'failed'
+  reference   String?   @unique
+  description String?
+  metadata    Json?     @default("{}")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  creatorSupport CreatorSupport?
+  contribution   Contribution?
+  withdrawal     Withdrawal?
+  promotion      Promotion?
+
+  @@map("transactions")
+}
+
+model BankAccount {
+  id            String   @id @default(uuid())
+  userId        String   @map("user_id")
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bankName      String   @map("bank_name")
+  bankCode      String   @map("bank_code")
+  accountNumber String   @map("account_number")
+  accountName   String   @map("account_name")
+  recipientCode String?  @map("recipient_code")
+  currency      String   @default("NGN")
+  country       String   @default("Nigeria")
+  isPrimary     Boolean  @default(false) @map("is_primary")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  withdrawals Withdrawal[]
+
+  @@map("bank_accounts")
+}
+
+model Withdrawal {
+  id              String       @id @default(uuid())
+  userId          String       @map("user_id")
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bankAccountId   String       @map("bank_account_id")
+  bankAccount     BankAccount  @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
+  amount          Decimal
+  currency        String       @default("NGN")
+  status          String       @default("pending") // 'pending', 'approved', 'rejected', 'completed'
+  reference       String?      @unique
+  rejectionReason String?      @map("rejection_reason")
+  transactionId   String?      @unique @map("transaction_id")
+  transaction     Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("withdrawals")
+}
+
+model FlexCard {
+  id             Int       @id @default(autoincrement())
+  userId         String?
+  recipient      User?     @relation("ReceivedFlexCards", fields: [userId], references: [id], onDelete: SetNull)
+  senderId       String?
+  sender         User?     @relation("SentFlexCards", fields: [senderId], references: [id], onDelete: SetNull)
+  initialAmount  Decimal
+  currentBalance Decimal
+  currency       String    @default("NGN")
+  code           String    @unique
+  claimToken     String?   @unique
+  status         String    @default("active")
+  senderName     String?
+  recipientEmail String?
+  recipientPhone String?
+  deliveryMethod String    @default("email")
+  message        String?
+  claimedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  transactions FlexCardTransaction[]
+
+  @@map("flex_cards")
+}
+
+model FlexCardTransaction {
+  id           Int      @id @default(autoincrement())
+  flexCardId   Int
+  flexCard     FlexCard @relation(fields: [flexCardId], references: [id], onDelete: Cascade)
+  vendorId     String
+  vendor       User     @relation("VendorTransactions", fields: [vendorId], references: [id], onDelete: Cascade)
+  amount       Decimal
+  balanceAfter Decimal
+  description  String?
+  createdAt    DateTime @default(now())
+
+  @@map("flex_card_transactions")
+}
+
+model ModerationReport {
+  id               String  @id @default(uuid())
+  targetId         String
+  targetType       String // 'campaign', 'user', 'vendor', 'gift'
+  targetName       String?
+  reporterId       String?
+  reporter         User?   @relation("Reporter", fields: [reporterId], references: [id], onDelete: SetNull)
+  reporterUsername String  @default("anonymous")
+  reason           String
+  status           String  @default("pending") // 'pending', 'resolved', 'dismissed'
+  resolutionNotes  String?
+  resolvedById     String?
+  resolver         User?   @relation("Resolver", fields: [resolvedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("moderation_reports")
+}
+
+model ModerationTicket {
+  id           String  @id @default(uuid())
+  reporterId   String
+  reporter     User    @relation("TicketReporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  subject      String
+  description  String
+  status       String  @default("open") // 'open', 'in_progress', 'resolved', 'closed'
+  priority     String  @default("medium") // 'low', 'medium', 'high'
+  resolvedById String?
+  resolver     User?   @relation("TicketResolver", fields: [resolvedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("moderation_tickets")
+}
+
+model AdminLog {
+  id        Int      @id @default(autoincrement())
+  adminId   String
+  admin     User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  action    String
+  createdAt DateTime @default(now())
+
+  @@map("admin_logs")
+}
+
+model CreatorSupport {
+  id            String       @id @default(uuid())
+  userId        String
+  user          User         @relation("SupportRecipient", fields: [userId], references: [id], onDelete: Cascade)
+  transactionId String?      @unique
+  transaction   Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+  amount        Decimal
+  currency      String       @default("NGN")
+  donorName     String
+  donorEmail    String?
+  message       String?
+  isAnonymous   Boolean      @default(false)
+  hideAmount    Boolean      @default(false)
+  giftId        Int?
+  giftName      String?
+  vendorRating  Int?
+
+  createdAt DateTime @default(now())
+
+  @@map("creator_support")
+}
+
+model Notification {
+  id         Int      @id @default(autoincrement())
+  userId     String?  @map("user_id")
+  type       String
+  title      String
+  message    String
+  data       Json     @default("{}")
+  isGlobal   Boolean  @default(false) @map("is_global")
+  targetRole String?  @map("target_role")
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  user  User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reads NotificationRead[]
+
+  @@map("notifications")
+}
+
+model NotificationRead {
+  id             Int      @id @default(autoincrement())
+  notificationId Int      @map("notification_id")
+  userId         String   @map("user_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, userId])
+  @@map("notification_reads")
+}
+
 datasource db {
   provider = "postgresql"
 }
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../../src/generated/prisma"
+  provider        = "prisma-client-js"
+  previewFeatures = ["prismaSchemaFolder"]
+  output          = "../../src/generated/prisma"
+}
+
+model SystemSetting {
+  id    String @id @default(uuid())
+  key   String @unique
+  value Json
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("system_settings")
+}
+
+model VendorGift {
+  id          Int      @id @default(autoincrement())
+  vendorId    String   @map("vendor_id")
+  vendor      User     @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  name        String
+  slug        String?
+  price       Decimal
+  description String?
+  imageUrl    String?  @map("image_url")
+  category    String?
+  tags        String[] @default([])
+  type        String   @default("digital") // 'digital' or 'physical'
+  status      String   @default("active")
+
+  // V2 specific
+  stockQuantity Int?     @map("stock_quantity")
+  unitsSold     Int      @default(0) @map("units_sold")
+  images        String[] @default([])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  giftImages VendorGiftImage[]
+  favorites  Favorite[]
+  promotions Promotion[]
+  campaigns  Campaign[]        @relation("CampaignProduct")
+
+  @@map("vendor_gifts")
+}
+
+model VendorGiftImage {
+  id        Int        @id @default(autoincrement())
+  giftId    Int        @map("gift_id")
+  gift      VendorGift @relation(fields: [giftId], references: [id], onDelete: Cascade)
+  url       String
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  @@map("vendor_gift_images")
+}
+
+model Favorite {
+  id           Int        @id @default(autoincrement())
+  userId       String     @map("user_id")
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vendorGiftId Int        @map("vendor_gift_id")
+  vendorGift   VendorGift @relation(fields: [vendorGiftId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  @@unique([userId, vendorGiftId], name: "userId_vendorGiftId")
+  @@map("favorites")
+}
+
+model Rating {
+  id         Int      @id @default(autoincrement())
+  targetId   String   @map("target_id") // Can be vendorId or campaignId
+  targetType String   @map("target_type") // 'vendor', 'campaign'
+  userId     String   @map("user_id")
+  rating     Int
+  comment    String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("ratings")
 }
