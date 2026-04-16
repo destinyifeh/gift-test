@@ -67,7 +67,7 @@ export class GiftService {
       return flexCard;
     });
 
-    const claimUrl = `${siteUrl}/v2/claim/flex/${claimToken}`;
+    const claimUrl = `${siteUrl}/claim/flex/${claimToken}`;
 
     if (data.deliveryMethod === 'email' && data.recipientEmail) {
       await this.emailService.sendGiftEmail({

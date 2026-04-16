@@ -156,7 +156,7 @@ export default function ClaimFlexCardPage() {
                 currentBalance={flexCard.current_balance}
                 currency={flexCard.currency}
                 status={flexCard.status}
-                senderName={flexCard.sender?.display_name || flexCard.sender_name}
+                senderName={flexCard.sender_name || flexCard.sender?.display_name}
                 message={flexCard.message}
                 variant="premium"
                 interactive={false}
@@ -277,7 +277,7 @@ export default function ClaimFlexCardPage() {
   }
 
   // Main Claim View
-  const senderName = flexCard.sender?.display_name || flexCard.sender_name || 'Someone';
+  const senderName = flexCard.sender_name || flexCard.sender?.display_name || 'Someone';
 
   return (
     <div className="min-h-screen bg-[var(--v2-background)] flex flex-col">

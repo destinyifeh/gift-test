@@ -28,8 +28,24 @@ export class FlexCardService {
       }
     });
 
-    // Send email logic here if needed
-    
+    const siteUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const claimUrl = `${siteUrl}/claim/flex/${claimToken}`;
+
+    if (data.deliveryMethod === 'email' && data.recipientEmail) {
+      try {
+        await this.emailService.sendGiftEmail({
+          to: data.recipientEmail,
+          senderName: data.senderName || 'Someone',
+          vendorShopName: 'Gifthance Flex Card',
+          giftName: 'Flex Gift Card',
+          giftAmount: data.initialAmount,
+          message: data.message,
+          claimUrl,
+        });
+      } catch (err) {
+        console.error('Failed to send flex card email:', err);
+      }
+    }
     // Create transaction record
     await (this.prisma as any).transaction.create({
       data: {

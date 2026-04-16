@@ -169,12 +169,12 @@ export default function V2SendGiftPage() {
                   ? formatE164(recipientPhone, recipientCountryCode)
                   : undefined,
                 delivery_method: deliveryType === 'direct' ? deliveryMethod : 'email',
-                sender_name: senderName || undefined,
+                sender_name: isAnonymous ? (senderName || 'Someone') : (senderName || undefined),
                 message: message || undefined,
               });
 
               if (flexResult.success && flexResult.data) {
-                setCampaignSlug(flexResult.data.code);
+                setCampaignSlug(flexResult.data.claimToken || flexResult.data.code);
                 setSubmitted(true);
               } else {
                 toast.error(flexResult.error || 'Payment successful but failed to create Flex Card. Please contact support.');
@@ -245,7 +245,7 @@ export default function V2SendGiftPage() {
   };
 
   if (submitted) {
-    return <V2SuccessScreen slug={campaignSlug} isClaimLink={deliveryType === 'claim-link'} />;
+    return <V2SuccessScreen slug={campaignSlug} isClaimLink={deliveryType === 'claim-link'} giftType={giftType || undefined} />;
   }
 
   const toggleSection = (section: string) => {
@@ -671,7 +671,15 @@ export default function V2SendGiftPage() {
                     />
                   </div>
 
-                  <label className="flex items-center gap-3 p-4 rounded-xl bg-[var(--v2-surface-container-low)] cursor-pointer hover:bg-[var(--v2-surface-container-high)] transition-colors">
+                  <label 
+                    className="flex items-center gap-3 p-4 rounded-xl bg-[var(--v2-surface-container-low)] cursor-pointer hover:bg-[var(--v2-surface-container-high)] transition-colors"
+                  >
+                    <input 
+                      type="checkbox" 
+                      className="hidden" 
+                      checked={isAnonymous} 
+                      onChange={(e) => setIsAnonymous(e.target.checked)} 
+                    />
                     <div
                       className={cn(
                         'w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-colors',
@@ -857,7 +865,7 @@ function V2ListItemRadio({
 }
 
 // V2 Success Screen
-function V2SuccessScreen({slug, isClaimLink}: {slug: string; isClaimLink: boolean}) {
+function V2SuccessScreen({slug, isClaimLink, giftType}: {slug: string; isClaimLink: boolean; giftType?: string}) {
   const [copied, setCopied] = useState(false);
   const [origin, setOrigin] = useState('');
 
@@ -865,7 +873,7 @@ function V2SuccessScreen({slug, isClaimLink}: {slug: string; isClaimLink: boolea
     setOrigin(window.location.origin);
   }, []);
 
-  const claimUrl = `${origin}/claim/${slug}`;
+  const claimUrl = giftType === 'flex-card' ? `${origin}/claim/flex/${slug}` : `${origin}/claim/${slug}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(claimUrl);

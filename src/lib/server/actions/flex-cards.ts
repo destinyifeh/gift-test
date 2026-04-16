@@ -56,15 +56,52 @@ export interface FlexCardTransaction {
   };
 }
 
+// Helper to map NestJS camelCase responses to the legacy snake_case FlexCard interface the UI expects
+function mapBackendCard(card: any): FlexCard {
+  if (!card) return card;
+  return {
+    ...card,
+    user_id: card.userId,
+    sender_id: card.senderId,
+    initial_amount: Number(card.initialAmount || card.initial_amount || 0),
+    current_balance: Number(card.currentBalance || card.current_balance || 0),
+    claim_token: card.claimToken || card.claim_token,
+    sender_name: card.senderName || card.sender_name,
+    recipient_email: card.recipientEmail || card.recipient_email,
+    recipient_phone: card.recipientPhone || card.recipient_phone,
+    delivery_method: card.deliveryMethod || card.delivery_method,
+    claimed_at: card.claimedAt || card.claimed_at,
+    created_at: card.createdAt || card.created_at,
+    updated_at: card.updatedAt || card.updated_at,
+    sender: card.sender ? {
+      ...card.sender,
+      display_name: card.sender.displayName || card.sender.display_name,
+      avatar_url: card.sender.avatarUrl || card.sender.avatar_url,
+    } : undefined
+  } as FlexCard;
+}
+
 // Create a new flex card
 export async function createFlexCard(data: FlexCardCreateData) {
   try {
+    // Map snake_case to camelCase for NestJS backend
+    const payload = {
+      initialAmount: data.initial_amount,
+      recipientEmail: data.recipient_email,
+      recipientPhone: data.recipient_phone,
+      deliveryMethod: data.delivery_method,
+      senderName: data.sender_name,
+      message: data.message,
+      currency: data.currency,
+    };
+
     const response = await serverFetch('flex-cards', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     });
+
     revalidatePath('/dashboard');
-    return response;
+    return {success: true, data: response};
   } catch (err: any) {
     console.error('Error creating flex card:', err);
     return {success: false, error: err.message};
@@ -77,7 +114,8 @@ export async function fetchUserFlexCards(options?: {type?: 'sent' | 'received'})
     const params = new URLSearchParams();
     if (options?.type) params.set('type', options.type);
     const response = await serverFetch(`flex-cards/my-cards?${params.toString()}`);
-    return {success: true, data: (response.data || response) as FlexCard[]};
+    const cards = (response.data || response).map((c: any) => mapBackendCard(c));
+    return {success: true, data: cards as FlexCard[]};
   } catch (err: any) {
     console.error('Error fetching flex cards:', err);
     return {success: false, error: err.message};
@@ -88,7 +126,8 @@ export async function fetchUserFlexCards(options?: {type?: 'sent' | 'received'})
 export async function fetchFlexCardByCode(code: string) {
   try {
     const response = await serverFetch(`flex-cards/code/${code.toUpperCase()}`);
-    return {success: true, data: (response.data || response) as FlexCard};
+    const card = mapBackendCard(response.data || response);
+    return {success: true, data: card};
   } catch (err: any) {
     console.error('Error fetching flex card:', err);
     return {success: false, error: 'Flex card not found'};
@@ -99,7 +138,8 @@ export async function fetchFlexCardByCode(code: string) {
 export async function fetchFlexCardByClaimToken(claimToken: string) {
   try {
     const response = await serverFetch(`flex-cards/token/${claimToken}`);
-    return {success: true, data: (response.data || response) as FlexCard};
+    const card = mapBackendCard(response.data || response);
+    return {success: true, data: card};
   } catch (err: any) {
     console.error('Error fetching flex card by claim token:', err);
     return {success: false, error: 'Flex card not found'};
@@ -114,7 +154,7 @@ export async function claimFlexCard(code: string) {
       body: JSON.stringify({code: code.toUpperCase()}),
     });
     revalidatePath('/dashboard');
-    return response;
+    return {success: true, data: response};
   } catch (err: any) {
     console.error('Error claiming flex card:', err);
     return {success: false, error: err.message};
@@ -129,7 +169,7 @@ export async function claimFlexCardByToken(claimToken: string) {
       body: JSON.stringify({token: claimToken}),
     });
     revalidatePath('/dashboard');
-    return response;
+    return {success: true, data: response};
   } catch (err: any) {
     console.error('Error claiming flex card:', err);
     return {success: false, error: err.message};
@@ -154,7 +194,7 @@ export async function redeemFlexCard(params: {
     });
     revalidatePath('/dashboard');
     revalidatePath('/vendor/dashboard');
-    return response;
+    return {success: true, data: response};
   } catch (err: any) {
     console.error('Error redeeming flex card:', err);
     return {success: false, error: err.message};
@@ -176,7 +216,8 @@ export async function getFlexCardTransactions(cardId: number) {
 export async function lookupFlexCardForRedemption(code: string) {
   try {
     const response = await serverFetch(`flex-cards/lookup/${code.toUpperCase()}`);
-    return {success: true, data: response.data || response};
+    const card = mapBackendCard(response.data || response);
+    return {success: true, data: card};
   } catch (err: any) {
     console.error('Error looking up flex card:', err);
     return {success: false, error: err.message};
