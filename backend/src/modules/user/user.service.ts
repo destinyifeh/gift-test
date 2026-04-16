@@ -82,11 +82,16 @@ export class UserService {
     }
 
     try {
-      return await (this.prisma as any).user.update({
+      const updated = await (this.prisma as any).user.update({
         where: { id: userId },
         data: updates,
       });
+      return {
+        ...updated,
+        platformBalance: updated.platformBalance?.toString() ?? '0',
+      };
     } catch (error) {
+      this.logger.error('User update failed:', error);
       throw new BadRequestException('Could not update profile');
     }
   }

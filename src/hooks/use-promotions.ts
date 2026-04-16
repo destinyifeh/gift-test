@@ -32,18 +32,34 @@ export interface ExternalPromotion {
 }
 
 // Helper to map backend camelCase to frontend snake_case
-const mapPromotion = (p: any) => ({
-  ...p,
-  vendor_id: p.vendorId,
-  vendor_gift_id: p.vendorGiftId,
-  start_date: p.startDate,
-  end_date: p.endDate,
-  vendor_gifts: p.vendorGift ? {
-    ...p.vendorGift,
-    image_url: p.vendorGift.imageUrl,
-    vendor_id: p.vendorGift.vendorId,
-  } : undefined
-});
+const mapPromotion = (p: any) => {
+  const product = p.product || p.vendorGift;
+  return {
+    ...p,
+    vendor_id: p.vendorId,
+    vendor_gift_id: p.vendorGiftId,
+    start_date: p.startDate,
+    end_date: p.endDate,
+    vendor_gifts: product ? {
+      ...product,
+      image_url: product.imageUrl,
+      vendor_id: product.vendorId,
+      // Include vendor details for routing
+      vendor: product.vendor ? {
+        ...product.vendor,
+        display_name: product.vendor.displayName,
+        shop_slug: product.vendor.shopSlug,
+        shop_name: product.vendor.shopName,
+      } : undefined,
+      profiles: product.vendor ? {
+        ...product.vendor,
+        display_name: product.vendor.displayName,
+        shop_slug: product.vendor.shopSlug,
+        shop_name: product.vendor.shopName,
+      } : undefined
+    } : undefined
+  };
+};
 
 const mapExternalPromotion = (p: any) => ({
   ...p,

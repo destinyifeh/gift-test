@@ -10,7 +10,7 @@ export async function createCampaign(data: any) {
       body: JSON.stringify(data),
     });
     revalidatePath('/dashboard');
-    return response;
+    return { success: true, data: response };
   } catch (error: any) {
     console.error('Error creating campaign:', error);
     return { success: false, error: error.message };

@@ -78,7 +78,7 @@ const V2SendShopGiftModal = ({
   }, [open, profile]);
 
   const whatsappFee = deliveryMethod === 'whatsapp' ? WHATSAPP_FEE : 0;
-  const totalAmount = gift.price + whatsappFee;
+  const totalAmount = Number(gift.price) + whatsappFee;
 
   const validateRecipient = () => {
     if (deliveryMethod === 'email') {
@@ -139,6 +139,9 @@ const V2SendShopGiftModal = ({
     const PaystackPop = (await import('@paystack/inline-js')).default;
     const paystack = new PaystackPop();
     
+    // Close the current gift modal as soon as Paystack opens
+    onOpenChange(false);
+
     paystack.newTransaction({
       key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || '',
       email: formData.senderEmail,
@@ -162,7 +165,6 @@ const V2SendShopGiftModal = ({
           onSuccess: () => {
             setIsLoading(false);
             toast.success('Gift card sent successfully!');
-            setStep('success');
           },
           onError: (error: any) => {
             setIsLoading(false);
@@ -183,7 +185,9 @@ const V2SendShopGiftModal = ({
 
   return (
     <ResponsiveModal open={open} onOpenChange={onOpenChange}>
-      <ResponsiveModalContent className="sm:max-w-[480px] p-0 overflow-hidden border-none shadow-2xl sm:rounded-3xl max-h-[90vh] flex flex-col bg-[var(--v2-surface)]">
+      <ResponsiveModalContent 
+        className="sm:max-w-[480px] p-0 overflow-hidden border-none shadow-2xl sm:rounded-3xl max-h-[90vh] flex flex-col bg-[var(--v2-surface)]"
+      >
         <VisuallyHidden>
           <ResponsiveModalTitle>Send {gift.name} Gift Card</ResponsiveModalTitle>
         </VisuallyHidden>

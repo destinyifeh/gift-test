@@ -21,7 +21,7 @@ function getProductHref(product: any): string {
   if (product.isExternal && product.redirect_url) {
     return product.redirect_url;
   }
-  return `/gift-shop/${product.profiles?.shop_slug || product.vendor_id}/${product.slug || product.id}`;
+  return `/gift-shop/${product.vendor?.shop_slug || product.profiles?.shop_slug || product.vendor_id}/${product.slug || product.id}`;
 }
 
 // Check if product is a featured item (not a regular product)

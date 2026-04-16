@@ -1,17 +1,11 @@
 'use client';
 
-import {fetchUserFavorites} from '@/lib/server/actions/favorites';
 import {formatCurrency} from '@/lib/utils/currency';
-import {useQuery} from '@tanstack/react-query';
+import {useFavorites} from '@/hooks/use-favorites';
 import Link from 'next/link';
 
 export function V2FavoritesTab() {
-  const {data: favRes, isLoading} = useQuery({
-    queryKey: ['favorites'],
-    queryFn: () => fetchUserFavorites(),
-  });
-
-  const favoritesList = favRes?.data || [];
+  const {favorites: favoritesList, isLoading} = useFavorites();
 
   if (isLoading) {
     return (

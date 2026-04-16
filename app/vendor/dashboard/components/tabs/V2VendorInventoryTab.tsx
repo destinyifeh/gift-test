@@ -272,16 +272,22 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct}: V2Vendo
     manageProduct.mutate(payload, {
       onSuccess: (result: any) => {
         setSaving(false);
-        if (result.success) {
+        // The API returns the product object directly (no {success} envelope)
+        if (result && (result.id || result.success)) {
           toast.success(editingProduct ? 'Product updated' : 'Product created');
           handleCloseModal();
+        } else if (result?.error) {
+          toast.error(result.error);
         } else {
-          toast.error(result.error || 'Failed to save product');
+          // If we got here, the mutation succeeded (no axios error thrown)
+          toast.success(editingProduct ? 'Product updated' : 'Product created');
+          handleCloseModal();
         }
       },
       onError: (error: any) => {
         setSaving(false);
-        toast.error(error.message || 'Failed to save product');
+        const msg = error.response?.data?.message;
+        toast.error(Array.isArray(msg) ? msg[0] : msg || error.message || 'Failed to save product');
       }
     });
   };
@@ -291,17 +297,14 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct}: V2Vendo
 
     setDeletingId(productId);
     deleteProduct.mutate(productId, {
-      onSuccess: (result: any) => {
+      onSuccess: () => {
         setDeletingId(null);
-        if (result.success) {
-          toast.success('Product deleted');
-        } else {
-          toast.error(result.error || 'Failed to delete product');
-        }
+        toast.success('Product deleted');
       },
       onError: (error: any) => {
         setDeletingId(null);
-        toast.error(error.message || 'Failed to delete product');
+        const msg = error.response?.data?.message;
+        toast.error(Array.isArray(msg) ? msg[0] : msg || error.message || 'Failed to delete product');
       }
     });
   };
@@ -309,18 +312,17 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct}: V2Vendo
   const handleToggleStatus = async (product: any) => {
     const newStatus = product.status === 'active' ? 'draft' : 'active';
     manageProduct.mutate({
-      ...product,
+      id: product.id,
+      name: product.name,
+      price: product.price,
       status: newStatus,
     }, {
-      onSuccess: (result: any) => {
-        if (result.success) {
-          toast.success(`Product marked as ${newStatus}`);
-        } else {
-          toast.error(result.error || 'Failed to update status');
-        }
+      onSuccess: () => {
+        toast.success(`Product marked as ${newStatus}`);
       },
       onError: (error: any) => {
-        toast.error(error.message || 'Failed to update status');
+        const msg = error.response?.data?.message;
+        toast.error(Array.isArray(msg) ? msg[0] : msg || error.message || 'Failed to update status');
       }
     });
   };
@@ -845,20 +847,6 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct}: V2Vendo
               />
             </div>
 
-            {/* Description */}
-            <div>
-              <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)] mb-2">
-                Description
-              </label>
-              <textarea
-                value={productForm.description}
-                onChange={e => setProductForm({...productForm, description: e.target.value})}
-                className="w-full py-3 px-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-[var(--v2-on-surface)] resize-none"
-                rows={3}
-                placeholder="Describe your product..."
-              />
-            </div>
-
             {/* Tags */}
             <div>
               <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)] mb-2">
@@ -896,6 +884,20 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct}: V2Vendo
                   );
                 })}
               </div>
+            </div>
+
+            {/* Description */}
+            <div>
+              <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)] mb-2">
+                Description
+              </label>
+              <textarea
+                value={productForm.description}
+                onChange={e => setProductForm({...productForm, description: e.target.value})}
+                className="w-full py-3 px-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-[var(--v2-on-surface)] resize-none"
+                rows={3}
+                placeholder="Describe your product..."
+              />
             </div>
 
             {/* Type */}
@@ -950,7 +952,7 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct}: V2Vendo
             </button>
             <button
               onClick={handleSaveProduct}
-              disabled={saving || !productForm.name || !productForm.price}
+              disabled={saving || !productForm.name || !productForm.price || !productForm.description || productForm.images.length === 0}
               className="flex-1 py-3 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-xl disabled:opacity-50 flex items-center justify-center gap-2">
               {saving && <span className="v2-icon text-sm animate-spin">progress_activity</span>}
               {editingProduct ? 'Update' : 'Save'}

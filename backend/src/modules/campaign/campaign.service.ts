@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { FileService } from '../file/file.service';
+import { EmailService } from '../email/email.service';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { paginate, getPaginationOptions } from '../../common/utils/pagination.util';
 import { generateGiftCode, generateId } from '../../common/utils/token.util';
@@ -13,6 +14,7 @@ export class CampaignService {
   constructor(
     private prisma: PrismaService,
     private fileService: FileService,
+    private emailService: EmailService,
   ) {}
 
   async create(userId: string, data: CreateCampaignDto) {
@@ -26,12 +28,17 @@ export class CampaignService {
     const slugs = existingCampaigns.map((c: any) => c.campaignSlug) as string[];
     const campaignSlug = generateUniqueSlug(data.title, slugs);
 
-    // Create gift code using our specific nanoid human-readable generator
+    // Always generate a fresh, secure gift code on the backend for claimable gifts
     const giftCode = data.category.toLowerCase().includes('claimable') || data.claimableType ? generateGiftCode() : null;
 
-    return (this.prisma as any).campaign.create({
+    // Prisma Campaign model doesn't have an isAnonymous or scheduledFor column
+    const { isAnonymous, scheduledFor, senderEmail, status, ...campaignData } = data as any;
+
+    const campaign = await (this.prisma as any).campaign.create({
       data: {
-        ...data,
+        ...campaignData,
+        status: status || 'active',
+        senderEmail,
         userId,
         campaignShortId,
         campaignSlug,
@@ -39,6 +46,28 @@ export class CampaignService {
         endDate: data.endDate ? new Date(data.endDate) : null,
       },
     });
+
+    // Send email logic for claimable cash gifts/vouchers
+    if (data.deliveryMethod === 'email' && data.recipientEmail) {
+      const siteUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      const claimUrl = `${siteUrl}/claim/${giftCode || campaign.campaignSlug}`;
+      
+      try {
+        await this.emailService.sendGiftEmail({
+          to: data.recipientEmail,
+          senderName: data.senderName || 'Someone',
+          vendorShopName: data.claimableType === 'money' ? 'Gifthance Cash Gift' : 'Gift Partner',
+          giftName: data.claimableType === 'money' ? 'Cash Gift' : (data.title || 'Gift'),
+          giftAmount: Number(data.goalAmount) || 0,
+          message: data.message,
+          claimUrl,
+        });
+      } catch (err) {
+        this.logger.error('Failed to send campaign gift email', err);
+      }
+    }
+
+    return campaign;
   }
 
   async findAll(page: number = 1, limit: number = 10, visibility: string = 'public') {

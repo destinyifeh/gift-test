@@ -55,8 +55,11 @@ export function V2VendorShopTab() {
 
       queryClient.invalidateQueries({queryKey: ['profile']});
       toast.success('Shop details saved successfully');
-    } catch (error) {
-      toast.error('Failed to save shop details');
+    } catch (error: any) {
+      console.error('API Error:', error.response?.data || error);
+      const serverMessage = error.response?.data?.message;
+      const displayError = Array.isArray(serverMessage) ? serverMessage[0] : serverMessage;
+      toast.error(displayError || error.message || 'Failed to save shop details');
     } finally {
       setIsSaving(false);
     }
@@ -150,14 +153,19 @@ export function V2VendorShopTab() {
                 <input
                   type="text"
                   value={shopName}
-                  onChange={e => setShopName(e.target.value)}
+                  onChange={e => {
+                    const value = e.target.value;
+                    setShopName(value);
+                    // Automatically generate matching URL slug
+                    setStoreUrl(value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''));
+                  }}
                   className="bg-[var(--v2-surface-container-lowest)] border-none rounded-xl px-4 py-4 text-[var(--v2-on-surface)] shadow-sm focus:ring-1 ring-[var(--v2-outline-variant)]/30 transition-all"
                   placeholder="Your Shop Name"
                 />
               </div>
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-bold text-[var(--v2-on-surface-variant)] ml-1">
-                  Store URL
+                  Shop URL
                 </label>
                 <div className="flex items-center bg-[var(--v2-surface-container-lowest)] rounded-xl px-4 py-4 shadow-sm border-none focus-within:ring-1 ring-[var(--v2-outline-variant)]/30 transition-all">
                   <span className="text-[var(--v2-on-surface-variant)]/60 text-sm">gifthance.com/vendor/</span>

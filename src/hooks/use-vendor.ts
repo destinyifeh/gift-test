@@ -16,6 +16,14 @@ const mapProduct = (p: any) => ({
     shop_slug: p.vendor.shopSlug,
     shop_name: p.vendor.shopName,
     shop_logo_url: p.vendor.shopLogoUrl,
+  } : undefined,
+  // Add profiles as alias for vendor for legacy component support
+  profiles: p.vendor ? {
+    ...p.vendor,
+    display_name: p.vendor.displayName,
+    shop_slug: p.vendor.shopSlug,
+    shop_name: p.vendor.shopName,
+    shop_logo_url: p.vendor.shopLogoUrl,
   } : undefined
 });
 

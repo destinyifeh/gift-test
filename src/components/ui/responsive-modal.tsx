@@ -62,7 +62,7 @@ const ResponsiveModalTrigger = ({
   );
 };
 
-interface ResponsiveModalContentProps {
+interface ResponsiveModalContentProps extends React.ComponentProps<typeof DialogContent> {
   children: React.ReactNode;
   className?: string;
 }
@@ -70,6 +70,7 @@ interface ResponsiveModalContentProps {
 const ResponsiveModalContent = ({
   children,
   className,
+  ...props
 }: ResponsiveModalContentProps) => {
   const isMobile = useIsMobile();
 
@@ -82,7 +83,8 @@ const ResponsiveModalContent = ({
         className={cn(
           'max-h-[90vh]',
           className,
-        )}>
+        )}
+        {...(props as any)}>
         {children}
       </DrawerContent>
     );
@@ -93,7 +95,8 @@ const ResponsiveModalContent = ({
       className={cn(
         'sm:max-w-[480px] overflow-hidden border shadow-2xl rounded-2xl',
         className,
-      )}>
+      )}
+      {...props}>
       {children}
     </DialogContent>
   );

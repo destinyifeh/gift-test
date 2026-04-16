@@ -129,10 +129,19 @@ export class VendorService {
   }
 
   async fetchProductBySlugs(vendorSlug: string, productSlug: string) {
-    const vendor = await (this.prisma as any).user.findFirst({
+    let vendor = await (this.prisma as any).user.findFirst({
       where: { shopSlug: vendorSlug },
       select: { id: true },
     });
+
+    if (!vendor) {
+      // Fallback: Check if vendorSlug is actually an ID
+      vendor = await (this.prisma as any).user.findUnique({
+        where: { id: vendorSlug },
+        select: { id: true },
+      });
+    }
+
     if (!vendor) throw new NotFoundException('Vendor not found');
 
     // Try by slug first
@@ -166,29 +175,43 @@ export class VendorService {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)+/g, '');
 
+    // Only pick fields that exist in the VendorGift Prisma model
+    // Accept both camelCase and snake_case from the frontend
+    const rawStock = productData.stockQuantity ?? productData.stock_quantity;
+    const safeData: any = {
+      name: productData.name,
+      description: productData.description || undefined,
+      price: productData.price ? Number(productData.price) : undefined,
+      imageUrl: productData.imageUrl || productData.image_url || undefined,
+      category: productData.category || undefined,
+      tags: productData.tags || undefined,
+      type: productData.type || 'digital',
+      status: productData.status || 'active',
+      stockQuantity: rawStock != null && rawStock !== '' ? Number(rawStock) : null,
+      images: productData.images, // Always pass through (even empty array)
+      slug,
+    };
+
+    // Remove undefined keys so Prisma doesn't try to set them
+    // But keep stockQuantity (can be null = unlimited) and images (can be empty array)
+    Object.keys(safeData).forEach(key => {
+      if (key === 'stockQuantity' || key === 'images') return; // preserve these
+      if (safeData[key] === undefined) delete safeData[key];
+    });
+
     if (productData.id && !String(productData.id).includes('new')) {
       // Update
-      return (this.prisma as any).vendorGift.update({
+      const updated = await (this.prisma as any).vendorGift.update({
         where: { id: Number(productData.id) },
-        data: {
-          ...productData,
-          id: undefined,
-          vendorId: userId,
-          slug,
-          price: productData.price ? Number(productData.price) : undefined,
-        },
+        data: { ...safeData, vendorId: userId },
       });
+      return { ...updated, price: updated.price.toString() };
     } else {
       // Create
-      const { id, ...newPayload } = productData;
-      return (this.prisma as any).vendorGift.create({
-        data: {
-          ...newPayload,
-          vendorId: userId,
-          slug,
-          price: Number(newPayload.price),
-        },
+      const created = await (this.prisma as any).vendorGift.create({
+        data: { ...safeData, vendorId: userId },
       });
+      return { ...created, price: created.price.toString() };
     }
   }
 

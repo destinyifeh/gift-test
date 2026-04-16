@@ -78,4 +78,28 @@ export class CreateCampaignDto {
   @IsNumber()
   @IsOptional()
   whatsappFee?: number;
+
+  @IsString()
+  @IsOptional()
+  senderEmail?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  isAnonymous?: boolean;
+
+  @IsString()
+  @IsOptional()
+  status?: string;
+
+  @IsString()
+  @IsOptional()
+  giftCode?: string;
+
+  @IsString()
+  @IsOptional()
+  paymentReference?: string;
+
+  @IsString()
+  @IsOptional()
+  scheduledFor?: string;
 }

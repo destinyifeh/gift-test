@@ -7,12 +7,18 @@ const mapFavorite = (f: any) => ({
   ...f,
   image_url: f.imageUrl,
   vendor_id: f.vendorId,
+  shop_slug: f.shopSlug,
+  // Add profiles alias and ensure nested mapping
+  profiles: {
+    shop_name: f.vendor, // Backend already maps this to vendor name
+    shop_slug: f.shopSlug,
+  },
 });
 
 export function useFavorites() {
   const queryClient = useQueryClient();
 
-  const {data: favorites = [], isLoading} = useQuery({
+  const {data, isLoading} = useQuery({
     queryKey: ['favorites'],
     queryFn: async () => {
       const res = await api.get('/favorites');
@@ -20,6 +26,8 @@ export function useFavorites() {
       return Array.isArray(data) ? data.map(mapFavorite) : [];
     },
   });
+
+  const favorites = Array.isArray(data) ? data : [];
 
   const toggleMutation = useMutation({
     mutationFn: async (productId: number) => {

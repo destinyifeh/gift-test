@@ -131,9 +131,6 @@ export default function V2SendGiftPage() {
       const whatsappFee = deliveryType === 'direct' && deliveryMethod === 'whatsapp' ? WHATSAPP_FEE : 0;
       const totalAmount = finalGoal + whatsappFee;
 
-      // Generate a unique gift code for claiming
-      const giftCode = `GFT-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-
       // Initialize Paystack payment
       const PaystackPop = (await import('@paystack/inline-js')).default;
       const paystack = new (PaystackPop as any)();
@@ -187,37 +184,36 @@ export default function V2SendGiftPage() {
             const payload = {
               category: 'claimable',
               title: giftType === 'money' ? 'Cash Gift' : 'Gift Card',
-              claimable_type: giftType,
-              goal_amount: finalGoal,
+              claimableType: giftType,
+              goalAmount: finalGoal,
               currency: 'NGN',
-              claimable_gift_id: giftId || undefined,
-              recipient_email: deliveryType === 'direct' && deliveryMethod === 'email' ? recipientEmail : null,
-              sender_email: userEmail,
-              sender_name: senderName || undefined,
-              is_anonymous: isAnonymous,
+              claimableGiftId: giftId || undefined,
+              recipientEmail: deliveryType === 'direct' && deliveryMethod === 'email' ? recipientEmail : undefined,
+              senderEmail: userEmail,
+              senderName: isAnonymous ? (senderName || 'Someone') : (senderName || undefined),
+              isAnonymous: isAnonymous,
               message: message || undefined,
               status: 'active',
-              gift_code: giftCode,
-              payment_reference: response.reference,
-              scheduled_for:
+              paymentReference: response.reference,
+              scheduledFor:
                 deliveryTime === 'schedule' && scheduledFor
                   ? new Date(scheduledFor).toISOString()
                   : undefined,
-              delivery_method: deliveryType === 'direct' ? deliveryMethod : 'email',
-              recipient_phone: deliveryType === 'direct' && deliveryMethod === 'whatsapp'
+              deliveryMethod: deliveryType === 'direct' ? deliveryMethod : 'email',
+              recipientPhone: deliveryType === 'direct' && deliveryMethod === 'whatsapp'
                 ? formatE164(recipientPhone, recipientCountryCode)
-                : null,
-              recipient_country_code: deliveryType === 'direct' && deliveryMethod === 'whatsapp'
+                : undefined,
+              recipientCountryCode: deliveryType === 'direct' && deliveryMethod === 'whatsapp'
                 ? recipientCountryCode
-                : null,
-              whatsapp_fee: whatsappFee,
+                : undefined,
+              whatsappFee: whatsappFee,
             };
 
             const {createCampaign} = await import('@/lib/server/actions/campaigns');
             const result = await createCampaign(payload as any);
 
             if (result.success && result.data) {
-              setCampaignSlug(deliveryType === 'claim-link' ? giftCode : (result.data.campaign_short_id || ''));
+              setCampaignSlug(deliveryType === 'claim-link' ? result.data.giftCode : (result.data.campaignShortId || result.data.campaign_short_id || ''));
               setSubmitted(true);
               toast.success('Gift sent successfully!');
             } else {
