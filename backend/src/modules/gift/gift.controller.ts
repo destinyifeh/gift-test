@@ -33,7 +33,8 @@ export class GiftController {
   @Get('my-cards')
   async getMyCards(@Req() req: Request, @Query('page') page: string, @Query('limit') limit: string) {
     const userId = (req as any).user.id;
-    return this.giftService.getMyCards(userId, Number(page) || 1, Number(limit) || 10);
+    const email = (req as any).user.email;
+    return this.giftService.getMyCards(userId, email, Number(page) || 1, Number(limit) || 10);
   }
 
   // ── Traditional Vouchers/Gifts (campaigns) ──

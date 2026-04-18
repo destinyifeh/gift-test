@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException, Logger } from '@nes
 import { PrismaService } from '../../prisma/prisma.service';
 import { FileService } from '../file/file.service';
 import { EmailService } from '../email/email.service';
+import { NotificationService } from '../notification/notification.service';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { paginate, getPaginationOptions } from '../../common/utils/pagination.util';
 import { generateGiftCode, generateId } from '../../common/utils/token.util';
@@ -15,6 +16,7 @@ export class CampaignService {
     private prisma: PrismaService,
     private fileService: FileService,
     private emailService: EmailService,
+    private notificationService: NotificationService,
   ) {}
 
   async create(userId: string, data: CreateCampaignDto) {
@@ -64,6 +66,30 @@ export class CampaignService {
         });
       } catch (err) {
         this.logger.error('Failed to send campaign gift email', err);
+      }
+
+      // Create internal notification for recipient if they exist
+      try {
+        const recipient = await (this.prisma as any).user.findUnique({
+          where: { email: data.recipientEmail },
+          select: { id: true },
+        });
+
+        if (recipient) {
+          await this.notificationService.create({
+            userId: recipient.id,
+            type: 'gift_received',
+            title: 'New Gift Received! 🎁',
+            message: `${data.senderName || 'Someone'} sent you a ${data.claimableType === 'money' ? 'cash gift' : 'gift card'}.`,
+            data: {
+              campaignId: campaign.id,
+              giftCode: giftCode,
+              amount: data.goalAmount,
+            },
+          });
+        }
+      } catch (err) {
+        this.logger.error('Failed to create recipient notification', err);
       }
     }
 
@@ -161,7 +187,7 @@ export class CampaignService {
   async claimGiftByCode(userId: string, code: string) {
     return (this.prisma as any).$transaction(async (tx: any) => {
       const gift = await (tx as any).campaign.findFirst({
-        where: { giftCode: code.trim() },
+        where: { giftCode: { equals: code.trim(), mode: 'insensitive' } },
       });
 
       if (!gift) throw new NotFoundException('Gift not found or invalid code');

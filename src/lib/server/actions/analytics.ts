@@ -167,8 +167,8 @@ export async function fetchUnclaimedGifts() {
     const response = await serverFetch('analytics/unclaimed');
     return {
       success: true,
-      data: response.data?.data || response.data || [],
-      flexCards: response.data?.flexCards || [],
+      data: response.data || [],
+      flexCards: response.flexCards || [],
     };
   } catch (err: any) {
     console.error('fetchUnclaimedGifts Error:', err);

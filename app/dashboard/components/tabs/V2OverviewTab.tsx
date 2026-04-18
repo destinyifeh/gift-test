@@ -44,8 +44,8 @@ export function V2OverviewTab({creatorEnabled, setCreatorEnabled, setSection}: V
 
   // Categorize and count pending claims
   const flexCardCount = unclaimedFlexCards.length;
-  const moneyGiftCount = unclaimedGifts.filter((g: any) => g.claimable_type === 'money').length;
-  const vendorGiftCount = unclaimedGifts.filter((g: any) => g.claimable_type === 'gift-card').length;
+  const moneyGiftCount = unclaimedGifts.filter((g: any) => g.claimable_type?.toLowerCase() === 'money').length;
+  const vendorGiftCount = unclaimedGifts.filter((g: any) => g.claimable_type?.toLowerCase() === 'gift-card').length;
   const totalPendingClaims = flexCardCount + unclaimedGifts.length;
 
   const stats = analytics || {

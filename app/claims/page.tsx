@@ -17,10 +17,14 @@ export default function V2ClaimsPage() {
 
   // Categorize gifts
   const flexCards = unclaimedFlexCards;
-  const moneyGifts = unclaimedGifts.filter((g: any) => g.claimable_type === 'money');
-  const vendorGiftCards = unclaimedGifts.filter((g: any) => g.claimable_type === 'gift-card');
+  const moneyGifts = unclaimedGifts.filter((g: any) => g.claimable_type?.toLowerCase() === 'money');
+  const vendorGiftCards = unclaimedGifts.filter((g: any) => g.claimable_type?.toLowerCase() === 'gift-card');
+  const otherGifts = unclaimedGifts.filter((g: any) => 
+    g.claimable_type?.toLowerCase() !== 'money' && 
+    g.claimable_type?.toLowerCase() !== 'gift-card'
+  );
 
-  const totalCount = flexCards.length + moneyGifts.length + vendorGiftCards.length;
+  const totalCount = flexCards.length + unclaimedGifts.length;
 
   return (
     <V2RequireAuthUI redirectPath="/claims">
@@ -196,6 +200,46 @@ export default function V2ClaimsPage() {
                             </div>
                           </div>
                           <div className="flex items-center gap-2 text-white/80">
+                            <span className="text-sm font-medium">Claim</span>
+                            <span className="v2-icon">arrow_forward</span>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </section>
+              )}
+              {/* Other Gifts Section */}
+              {otherGifts.length > 0 && (
+                <section>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-8 h-8 rounded-lg bg-[var(--v2-surface-container-high)] flex items-center justify-center">
+                      <span className="v2-icon text-[var(--v2-on-surface-variant)] text-sm">redeem</span>
+                    </div>
+                    <h2 className="text-base font-bold text-[var(--v2-on-surface)] v2-headline">
+                      Other Gifts ({otherGifts.length})
+                    </h2>
+                  </div>
+                  <div className="space-y-3">
+                    {otherGifts.map((gift: any) => (
+                      <Link
+                        key={gift.id}
+                        href={`/claim/${gift.gift_code}`}
+                        className="block relative overflow-hidden rounded-2xl p-4 bg-[var(--v2-surface-container-low)] border border-[var(--v2-outline-variant)]/10 active:scale-[0.98] transition-transform">
+                        <div className="relative z-10 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-xl bg-[var(--v2-primary)]/10 flex items-center justify-center">
+                              <span className="v2-icon text-2xl text-[var(--v2-primary)]">redeem</span>
+                            </div>
+                            <div>
+                              <p className="font-bold text-[var(--v2-on-surface)]">{gift.title || gift.name || 'Gift'}</p>
+                              <p className="text-[var(--v2-on-surface-variant)] text-sm">
+                                {gift.goal_amount && formatCurrency(gift.goal_amount, gift.currency || 'NGN')}
+                                {gift.sender_name && ` • from ${gift.sender_name}`}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 text-[var(--v2-primary)]">
                             <span className="text-sm font-medium">Claim</span>
                             <span className="v2-icon">arrow_forward</span>
                           </div>

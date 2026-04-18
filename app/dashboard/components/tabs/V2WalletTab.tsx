@@ -73,29 +73,31 @@ export function V2WalletTab() {
   }, [profile, hasSetDefaultCountry]);
 
   const banks = banksData?.data || [];
-  const wallet = walletProfile?.data || {
+  const walletData = walletProfile?.data || {};
+  const wallet = walletData.user || {
     balance: 0,
     totalInflow: 0,
-    pendingPayouts: 0,
-    accounts: [],
-    transactions: [],
+    pending: 0,
+    outflow: 0,
   };
+  const accounts = walletData.accounts || [];
+  const walletTransactions = walletData.transactions || [];
 
   // Filter transactions based on type and date
   const filteredTransactions = useMemo(() => {
-    let transactions = wallet.transactions || [];
+    let txs = walletTransactions || [];
 
     // Filter by type
     if (transactionFilter === 'gifts') {
-      transactions = transactions.filter((t: any) =>
+      txs = txs.filter((t: any) =>
         ['receipt', 'creator_support', 'campaign_contribution', 'gift_redemption'].includes(t.type)
       );
     } else if (transactionFilter === 'flex_card') {
-      transactions = transactions.filter((t: any) =>
+      txs = txs.filter((t: any) =>
         ['flex_card', 'flex_card_redemption'].includes(t.type) || t.description?.toLowerCase().includes('flex')
       );
     } else if (transactionFilter === 'withdrawals') {
-      transactions = transactions.filter((t: any) =>
+      txs = txs.filter((t: any) =>
         ['withdrawal', 'payout'].includes(t.type)
       );
     }
@@ -113,13 +115,13 @@ export function V2WalletTab() {
         cutoffDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
       }
 
-      transactions = transactions.filter((t: any) =>
+      txs = txs.filter((t: any) =>
         new Date(t.created_at) >= cutoffDate
       );
     }
 
-    return transactions;
-  }, [wallet.transactions, transactionFilter, dateFilter]);
+    return txs;
+  }, [walletTransactions, transactionFilter, dateFilter]);
 
   // Calculate flex card total balance
   const totalFlexCardBalance = useMemo(() => {
@@ -267,26 +269,9 @@ export function V2WalletTab() {
           </div>
         </div>
 
-        {/* Platform Credit Card - Desktop only */}
-        <div className="hidden lg:flex lg:col-span-4 bg-[var(--v2-primary)] text-white rounded-[2rem] p-6 flex-col justify-between relative overflow-hidden">
-          <div className="absolute bottom-0 left-0 w-full h-1/2 bg-white/10 blur-2xl" />
-          <div className="relative z-10">
-            <span className="text-white/70 font-semibold text-xs tracking-wide uppercase block mb-1">
-              Platform Credit
-            </span>
-            <h4 className="text-2xl font-bold tracking-tight v2-headline">
-              {formatCurrency(profile?.platform_balance || 0, userCurrency)}
-            </h4>
-          </div>
-          <div className="relative z-10 mt-6">
-            <p className="text-sm text-white/80 mb-4 leading-relaxed">
-              Your platform credits available for immediate use.
-            </p>
-            <button className="w-full bg-white/20 backdrop-blur-md py-3 rounded-xl font-bold text-sm hover:bg-white/30 transition-colors">
-              Redeem Credit
-            </button>
-          </div>
-        </div>
+        {/* Platform Credit Card - Desktop only (Temporarily Disabled) */}
+        {/* <div className="hidden lg:flex lg:col-span-4 bg-[var(--v2-primary)] text-white rounded-[2rem] p-6 flex-col justify-between relative overflow-hidden">
+        </div> */}
       </div>
 
       {/* Mobile Action Buttons */}
@@ -317,8 +302,8 @@ export function V2WalletTab() {
         </button>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
+      {/* User Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Total Inflow */}
         <div className="bg-[var(--v2-surface-container-lowest)] p-3 md:p-5 rounded-[1.25rem] md:rounded-[1.5rem] shadow-sm">
           <div className="w-8 h-8 md:w-12 md:h-12 rounded-full bg-[var(--v2-secondary-container)]/30 flex items-center justify-center mb-2">
@@ -332,47 +317,31 @@ export function V2WalletTab() {
           </p>
         </div>
 
-        {/* Monthly Inflow / Pending */}
+        {/* Pending Cash Gifts */}
         <div className="bg-[var(--v2-surface-container-lowest)] p-3 md:p-5 rounded-[1.25rem] md:rounded-[1.5rem] shadow-sm">
           <div className="w-8 h-8 md:w-12 md:h-12 rounded-full bg-[var(--v2-tertiary-container)]/30 flex items-center justify-center mb-2">
             <span className="v2-icon text-sm md:text-base text-[var(--v2-tertiary)]">schedule</span>
           </div>
           <p className="text-[9px] md:text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
-            Pending
+            Pending Gifts
           </p>
           <p className="text-sm md:text-xl font-extrabold text-[var(--v2-on-surface)] tracking-tight v2-headline">
-            {formatCurrency(wallet.pendingPayouts, userCurrency)}
+            {formatCurrency(wallet.pending, userCurrency)}
           </p>
         </div>
 
-        {/* Platform Credit - Mobile only */}
-        <div className="lg:hidden bg-[var(--v2-surface-container-lowest)] p-3 md:p-5 rounded-[1.25rem] md:rounded-[1.5rem] shadow-sm">
-          <div className="w-8 h-8 md:w-12 md:h-12 rounded-full bg-[var(--v2-primary)]/10 flex items-center justify-center mb-2">
-            <span className="v2-icon text-sm md:text-base text-[var(--v2-primary)]">toll</span>
+        {/* Total Outflow */}
+        <div className="bg-[var(--v2-surface-container-lowest)] p-3 md:p-5 rounded-[1.25rem] md:rounded-[1.5rem] shadow-sm">
+          <div className="w-8 h-8 md:w-12 md:h-12 rounded-full bg-[var(--v2-error)]/10 flex items-center justify-center mb-2">
+            <span className="v2-icon text-sm md:text-base text-[var(--v2-error)]">call_made</span>
           </div>
           <p className="text-[9px] md:text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
-            Credit Limit
+            Total Outflow
           </p>
           <p className="text-sm md:text-xl font-extrabold text-[var(--v2-on-surface)] tracking-tight v2-headline">
-            {formatCurrency(profile?.platform_balance || 0, userCurrency)}
+            {formatCurrency(wallet.outflow, userCurrency)}
           </p>
         </div>
-
-        {/* Outflow/Savings - Desktop */}
-        <div className="hidden lg:flex bg-[var(--v2-surface-container-lowest)] p-5 rounded-[1.5rem] items-center gap-4 shadow-sm">
-          <div className="w-12 h-12 rounded-full bg-[var(--v2-error)]/10 flex items-center justify-center">
-            <span className="v2-icon text-[var(--v2-error)]">call_made</span>
-          </div>
-          <div>
-            <p className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
-              Total Outflow
-            </p>
-            <p className="text-xl font-extrabold text-[var(--v2-on-surface)] tracking-tight v2-headline">
-              {formatCurrency(0, userCurrency)}
-            </p>
-          </div>
-        </div>
-
       </div>
 
       {/* Flex Cards Section */}
@@ -444,7 +413,7 @@ export function V2WalletTab() {
           </div>
 
           <div className="bg-[var(--v2-surface-container-low)] rounded-[1.5rem] md:rounded-[2rem] p-2">
-            {wallet.transactions.length === 0 ? (
+            {walletTransactions.length === 0 ? (
               <div className="text-center py-12">
                 <span className="v2-icon text-4xl text-[var(--v2-on-surface-variant)]/50 mb-2">
                   receipt_long
@@ -453,7 +422,7 @@ export function V2WalletTab() {
               </div>
             ) : (
               <div className="space-y-1">
-                {wallet.transactions.slice(0, 5).map((t: any) => {
+                {filteredTransactions.slice(0, 5).map((t: any) => {
                   const isInflow = ['receipt', 'creator_support'].includes(t.type);
                   const isFlexCard = t.type === 'flex_card' || t.type === 'flex_card_redemption' || t.description?.toLowerCase().includes('flex');
                   const isGiftRedemption = t.type === 'gift_redemption';
@@ -525,9 +494,9 @@ export function V2WalletTab() {
           </h4>
 
           {/* Bank Cards */}
-          {wallet.accounts.length > 0 ? (
+          {accounts.length > 0 ? (
             <div className="space-y-3">
-              {wallet.accounts.slice(0, 1).map((b: any) => (
+              {accounts.slice(0, 1).map((b: any) => (
                 <div
                   key={b.id}
                   className="bg-[var(--v2-surface-container-highest)] rounded-[1.5rem] p-5 relative overflow-hidden group">
@@ -587,13 +556,13 @@ export function V2WalletTab() {
       </div>
 
       {/* Connected Banks - Mobile only */}
-      {wallet.accounts.length > 0 && (
+      {accounts.length > 0 && (
         <div className="lg:hidden space-y-3">
           <h3 className="text-base font-bold text-[var(--v2-on-surface)] v2-headline">
             Connected Banks
           </h3>
           <div className="space-y-2">
-            {wallet.accounts.map((b: any) => (
+            {accounts.map((b: any) => (
               <div
                 key={b.id}
                 className="flex items-center justify-between p-4 rounded-2xl bg-[var(--v2-surface-container-lowest)]">
@@ -647,7 +616,7 @@ export function V2WalletTab() {
                 onChange={e => setWithdrawBank(e.target.value)}
                 className="w-full h-12 px-4 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] border-none focus:ring-2 focus:ring-[var(--v2-primary)]">
                 <option value="">Choose bank</option>
-                {wallet.accounts.map((b: any) => (
+                {accounts.map((b: any) => (
                   <option key={b.id} value={b.id}>
                     {b.bank_name} — ••••{b.account_number?.slice(-4)}
                   </option>
@@ -747,7 +716,7 @@ export function V2WalletTab() {
                 <button
                   onClick={handleResolveAccount}
                   disabled={isResolving || bankForm.accountNumber.length !== 10 || !bankForm.bankCode}
-                  className="h-12 px-4 bg-[var(--v2-primary)]/10 text-[var(--v2-primary)] font-bold rounded-xl hover:bg-[var(--v2-primary)]/20 transition-colors disabled:opacity-50">
+                  className="h-12 px-4 bg-[var(--v2-primary)] text-white font-bold rounded-xl hover:bg-[var(--v2-primary)]/90 transition-colors disabled:opacity-50 disabled:bg-[var(--v2-surface-container-high)] disabled:text-[var(--v2-on-surface-variant)]">
                   {isResolving ? (
                     <span className="v2-icon animate-spin">progress_activity</span>
                   ) : (
@@ -778,7 +747,7 @@ export function V2WalletTab() {
               <button
                 onClick={handleAddBank}
                 disabled={!bankForm.holderName || isAdding}
-                className="flex-1 h-12 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-xl transition-transform active:scale-[0.98] disabled:opacity-50">
+                className="flex-1 h-12 bg-[var(--v2-primary)] text-white font-bold rounded-xl transition-all active:scale-[0.98] disabled:bg-[var(--v2-surface-container-high)] disabled:text-[var(--v2-on-surface-variant)] disabled:opacity-50 shadow-lg shadow-[var(--v2-primary)]/20">
                 {isAdding ? (
                   <span className="v2-icon animate-spin">progress_activity</span>
                 ) : (

@@ -258,31 +258,98 @@ export class VendorService {
   // ─────────────────────────────────────────────
 
   async verifyVoucherCode(userId: string, code: string) {
-    const campaign = await (this.prisma as any).campaign.findFirst({
-      where: { giftCode: code.trim() },
+    const trimmedCode = code.trim();
+    const upperCode = trimmedCode.toUpperCase();
+    
+    // 1. Try regular gift code (Campaign)
+    let campaign = await (this.prisma as any).campaign.findFirst({
+      where: { 
+        giftCode: { equals: trimmedCode, mode: 'insensitive' } 
+      },
       include: {
         user: { select: { username: true, displayName: true } },
       },
     });
 
-    if (!campaign) throw new NotFoundException('Invalid or expired code');
-
-    // If gift-card, check vendor ownership
-    if (campaign.claimableGiftId) {
-      const gift = await (this.prisma as any).vendorGift.findUnique({
-        where: { id: campaign.claimableGiftId },
-        select: { vendorId: true, name: true },
+    // Fallback: If code doesn't start with GFT-, try adding it for campaign
+    if (!campaign && !upperCode.startsWith('GFT-')) {
+      campaign = await (this.prisma as any).campaign.findFirst({
+        where: { 
+          giftCode: { equals: `GFT-${trimmedCode}`, mode: 'insensitive' } 
+        },
+        include: {
+          user: { select: { username: true, displayName: true } },
+        },
       });
-      if (gift && gift.vendorId !== userId) {
-        throw new ForbiddenException('This gift card belongs to another vendor.');
-      }
     }
 
-    return {
-      ...campaign,
-      goalAmount: campaign.goalAmount?.toString(),
-      currentAmount: campaign.currentAmount?.toString(),
-    };
+    // Fallback: Try campaignShortId or campaignSlug (users sometimes confuse these)
+    if (!campaign) {
+      campaign = await (this.prisma as any).campaign.findFirst({
+        where: {
+          OR: [
+            { id: trimmedCode },
+            { campaignShortId: { equals: trimmedCode, mode: 'insensitive' } },
+            { campaignSlug: { equals: trimmedCode, mode: 'insensitive' } }
+          ]
+        },
+        include: {
+          user: { select: { username: true, displayName: true } },
+        },
+      });
+    }
+
+    if (campaign) {
+      // Check vendor ownership if it's a specific vendor gift
+      if (campaign.claimableGiftId) {
+        const gift = await (this.prisma as any).vendorGift.findUnique({
+          where: { id: campaign.claimableGiftId },
+          select: { vendorId: true, name: true },
+        });
+        if (gift && gift.vendorId !== userId) {
+          throw new ForbiddenException('This gift card belongs to another vendor.');
+        }
+      }
+      return { 
+        ...campaign, 
+        type: 'gift',
+        goalAmount: campaign.goalAmount?.toString(),
+        currentAmount: campaign.currentAmount?.toString(),
+      };
+    }
+
+    // 2. Try Flex Card if not found in campaigns
+    const flexCard = await (this.prisma as any).flexCard.findFirst({
+      where: {
+        OR: [
+          { code: { equals: trimmedCode, mode: 'insensitive' } },
+          { code: { equals: `GFT-${trimmedCode}`, mode: 'insensitive' } },
+          { code: { equals: `FLEX-${trimmedCode}`, mode: 'insensitive' } }
+        ]
+      },
+      include: { 
+        recipient: { select: { displayName: true, avatarUrl: true } },
+        sender: { select: { displayName: true, avatarUrl: true } }
+      }
+    });
+
+    if (flexCard) {
+      if (flexCard.status === 'redeemed') {
+        throw new BadRequestException('This flex card has been fully redeemed');
+      }
+      return {
+        id: flexCard.id,
+        code: flexCard.code,
+        balance: flexCard.currentBalance,
+        currency: flexCard.currency,
+        status: flexCard.status,
+        userName: flexCard.recipient?.displayName || flexCard.sender?.displayName || 'Unknown User',
+        userAvatar: flexCard.recipient?.avatarUrl || flexCard.sender?.avatarUrl,
+        type: 'flex_card'
+      };
+    }
+
+    throw new NotFoundException('Invalid or expired code');
   }
 
   async redeemVoucherCode(userId: string, code: string) {
@@ -336,22 +403,27 @@ export class VendorService {
     });
     const productIds = products.map((p: any) => p.id);
 
-    const [redeemed, allOrders] = await Promise.all([
+    const [redeemedVouchers, allOrders, withdrawals] = await Promise.all([
       (this.prisma as any).campaign.findMany({
-        where: { claimableGiftId: { in: productIds }, redeemedAt: { not: null } },
+        where: { redeemedByVendorId: userId, status: 'redeemed' },
         select: { goalAmount: true, currentAmount: true, status: true, redeemedAt: true, giftCode: true },
       }),
       (this.prisma as any).campaign.findMany({
         where: { claimableGiftId: { in: productIds } },
         select: { goalAmount: true, currentAmount: true, status: true, createdAt: true, giftCode: true },
       }),
+      (this.prisma as any).transaction.findMany({
+        where: { userId, type: { in: ['withdrawal', 'payout', 'fee'] }, status: { in: ['success', 'pending'] } },
+        select: { amount: true },
+      }),
     ]);
 
-    const totalSales = allOrders.reduce((acc: number, c: any) => acc + (Number(c.goalAmount) || 0), 0);
-    const available = redeemed.reduce((acc: number, c: any) => acc + (Number(c.goalAmount) || 0), 0);
-    const pending = totalSales - available;
+    const totalSales = allOrders.reduce((acc: number, c: any) => acc + (Number(c.goalAmount || c.currentAmount || 0)), 0);
+    const available = redeemedVouchers.reduce((acc: number, c: any) => acc + (Number(c.goalAmount || c.currentAmount || 0)), 0);
+    const totalWithdrawn = withdrawals.reduce((acc: number, w: any) => acc + (Number(w.amount) / 100), 0);
+    const pending = Math.max(0, totalSales - available);
 
-    // Flex card transactions
+    // Flex card transactions (as vendor)
     const flexCardTxs = await (this.prisma as any).flexCardTransaction.findMany({
       where: { vendorId: userId },
       include: { flexCard: { select: { code: true } } },
@@ -359,14 +431,14 @@ export class VendorService {
 
     const flexCardTotal = flexCardTxs.reduce((acc: number, t: any) => acc + Number(t.amount || 0), 0);
     const totalSalesFinal = totalSales + flexCardTotal;
-    const availableFinal = available + flexCardTotal;
+    const availableFinal = Math.max(0, available + flexCardTotal - totalWithdrawn);
 
     // Build transaction list
-    const voucherTxs = redeemed.map((r: any, i: number) => ({
+    const voucherTxs = redeemedVouchers.map((r: any, i: number) => ({
       id: `vouch-${i}`,
       type: 'redeemed',
       desc: `Redemption: ${r.giftCode || 'GIFT'}`,
-      amount: Number(r.goalAmount),
+      amount: Number(r.goalAmount || r.currentAmount || 0),
       date: r.redeemedAt?.toISOString().split('T')[0],
       timestamp: new Date(r.redeemedAt || 0).getTime(),
     }));
@@ -376,11 +448,20 @@ export class VendorService {
       type: 'flex_card',
       desc: `Flex Card: ${t.flexCard?.code || 'FLEX'}`,
       amount: Number(t.amount),
-      date: t.createdAt.toISOString().split('T')[0],
+      date: (t.createdAt as Date).toISOString().split('T')[0],
       timestamp: new Date(t.createdAt).getTime(),
     }));
 
-    const allTxs = [...voucherTxs, ...flexTxs].sort((a, b) => b.timestamp - a.timestamp);
+    const withdrawalTxs = withdrawals.map((w: any, i: number) => ({
+      id: `with-${i}`,
+      type: 'withdrawal',
+      desc: 'Withdrawal',
+      amount: Number(w.amount) / 100,
+      date: new Date().toISOString().split('T')[0], // Withdrawal might not have date in this query
+      timestamp: Date.now(),
+    }));
+
+    const allTxs = [...voucherTxs, ...flexTxs, ...withdrawalTxs].sort((a, b) => b.timestamp - a.timestamp);
 
     return {
       available: availableFinal,

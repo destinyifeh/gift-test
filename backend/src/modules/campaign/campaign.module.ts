@@ -4,9 +4,10 @@ import { CampaignController } from './campaign.controller';
 import { PrismaModule } from '../../prisma/prisma.module';
 import { FileModule } from '../file/file.module';
 import { EmailModule } from '../email/email.module';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
-  imports: [PrismaModule, FileModule, EmailModule],
+  imports: [PrismaModule, FileModule, EmailModule, NotificationModule],
   controllers: [CampaignController],
   providers: [CampaignService],
   exports: [CampaignService],

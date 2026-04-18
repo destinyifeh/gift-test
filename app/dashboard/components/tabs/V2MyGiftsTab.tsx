@@ -7,7 +7,7 @@ import {
   ResponsiveModalTitle,
 } from '@/components/ui/responsive-modal';
 import {useMyFlexCards, useClaimGift} from '@/hooks/use-claims';
-import {useMyGifts} from '@/hooks/use-analytics';
+import {useMyGifts, useUnclaimedGifts} from '@/hooks/use-analytics';
 import {useConvertToCredit} from '@/hooks/use-transactions';
 import {useRateVoucher} from '@/hooks/use-rating';
 import {formatCurrency} from '@/lib/utils/currency';
@@ -90,9 +90,11 @@ export function V2MyGiftsTab() {
   const [page, setPage] = useState(1);
   const {data: giftsRes, isLoading, refetch} = useMyGifts(page);
   const {data: flexCardsRes, isLoading: flexCardsLoading} = useMyFlexCards();
+  const {data: unclaimedRes} = useUnclaimedGifts();
   
   const gifts = giftsRes?.data || [];
   const flexCards = flexCardsRes?.data || [];
+  const unclaimedGiftsCount = (unclaimedRes?.data?.length || 0) + (unclaimedRes?.flexCards?.length || 0);
 
   const convertMutation = useConvertToCredit();
   const rateMutation = useRateVoucher();
@@ -117,12 +119,15 @@ export function V2MyGiftsTab() {
     });
   };
 
-  // Calculate stats - count gifts that are ready to claim or use
-  const readyToClaim = gifts.filter((g: any) =>
-    g.status !== 'redeemed' && g.status !== 'expired' && g.status !== 'cancelled'
-  ).length;
-  const totalValue = gifts.reduce((sum: number, g: any) => sum + (g.amount || 0), 0);
-  const redeemedCount = gifts.filter((g: any) => g.status === 'redeemed').length;
+  // Calculate stats - count gifts that are ready to claim (unclaimed) or use (claimed but not redeemed)
+  const readyToClaim = (gifts.filter((g: any) => g.status !== 'redeemed' && g.status !== 'expired' && g.status !== 'cancelled').length) + unclaimedGiftsCount;
+
+  const totalGiftsValue = gifts.reduce((sum: number, g: any) => sum + Number(g.amount || 0), 0);
+  const totalFlexCardsValue = flexCards.reduce((sum: number, c: any) => sum + Number(c.current_balance || 0), 0);
+  const totalValue = totalGiftsValue + totalFlexCardsValue;
+
+  const redeemedCount = gifts.filter((g: any) => g.status === 'redeemed').length +
+                        flexCards.filter((c: any) => c.status === 'redeemed').length;
 
   // Filter and sort gifts
   let filteredGifts = filterStatus === 'all'
@@ -983,11 +988,11 @@ export function V2MyGiftsTab() {
                   )}
                 </div>
 
-                {/* Options Section - Show for all gifts */}
+                {/* Options Section - Temporarily Hidden per user request */}
+                {/* 
                 <div className="space-y-3 pt-4 border-t border-[var(--v2-outline-variant)]/10">
                   <p className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">Options</p>
 
-                  {/* Convert to Credit */}
                   <button
                     onClick={() => setIsConvertConfirmOpen(true)}
                     disabled={isConverting || selectedGift.status === 'redeemed'}
@@ -1001,7 +1006,6 @@ export function V2MyGiftsTab() {
                     </div>
                   </button>
 
-                  {/* Swap Gift Card */}
                   <button
                     disabled={selectedGift.status === 'redeemed'}
                     className="w-full p-4 rounded-2xl border border-dashed border-[var(--v2-outline-variant)]/30 flex items-center gap-4 hover:bg-[var(--v2-surface-container-low)] transition-colors disabled:opacity-50 group">
@@ -1013,7 +1017,8 @@ export function V2MyGiftsTab() {
                       <p className="text-xs text-[var(--v2-on-surface-variant)]">Exchange for another at same vendor</p>
                     </div>
                   </button>
-                </div>
+                </div> 
+                */}
               </div>
             </div>
           )}

@@ -5,6 +5,7 @@ import { generateCode, generateId } from '../../common/utils/token.util';
 import { paginate, getPaginationOptions } from '../../common/utils/pagination.util';
 import { EmailService } from '../email/email.service';
 import { ConfigService } from '@nestjs/config';
+import { NotificationService } from '../notification/notification.service';
 
 // Mirrors frontend generateClaimToken
 function generateClaimToken(): string {
@@ -21,7 +22,8 @@ export class GiftService {
   constructor(
     private prisma: PrismaService,
     private emailService: EmailService,
-    private configService: ConfigService
+    private configService: ConfigService,
+    private notificationService: NotificationService
   ) {}
 
   // ─────────────────────────────────────────────
@@ -79,6 +81,32 @@ export class GiftService {
         message: data.message,
         claimUrl,
       });
+    }
+
+    // Create internal notification for recipient if they exist
+    if (data.recipientEmail) {
+      try {
+        const recipient = await (this.prisma as any).user.findUnique({
+          where: { email: data.recipientEmail },
+          select: { id: true },
+        });
+
+        if (recipient) {
+          await this.notificationService.create({
+            userId: recipient.id,
+            type: 'gift_received',
+            title: 'New Flex Card! 💳',
+            message: `${senderName} sent you a Gifthance Flex Card.`,
+            data: {
+              cardId: card.id,
+              claimToken: claimToken,
+              amount: data.initialAmount,
+            },
+          });
+        }
+      } catch (err) {
+        // Log but don't fail
+      }
     }
 
     return card;
@@ -278,7 +306,7 @@ export class GiftService {
   // User History
   // ─────────────────────────────────────────────
 
-  async getMyCards(userId: string, page: number = 1, limit: number = 10) {
+  async getMyCards(userId: string, email: string, page: number = 1, limit: number = 10) {
     const { skip, take } = getPaginationOptions(page, limit);
 
     const [cards, total] = await Promise.all([
@@ -294,8 +322,14 @@ export class GiftService {
 
     const formatted = cards.map((c: any) => ({
       ...c,
-      initialAmount: c.initialAmount.toString(),
-      currentBalance: c.currentBalance.toString()
+      initial_amount: Number(c.initialAmount),
+      current_balance: Number(c.currentBalance),
+      created_at: c.createdAt,
+      sender_name: c.sender?.displayName || c.senderName,
+      sender: c.sender ? {
+        ...c.sender,
+        display_name: c.sender.displayName
+      } : null
     }));
 
     return paginate(formatted, total, page, limit);
@@ -305,6 +339,7 @@ export class GiftService {
     const card = await (this.prisma as any).flexCard.findUnique({
       where: { code },
       include: {
+        sender: { select: { displayName: true, username: true, avatarUrl: true } },
         transactions: { include: { vendor: { select: { shopName: true, displayName: true } } }, orderBy: { createdAt: 'desc' } }
       }
     });
@@ -317,12 +352,19 @@ export class GiftService {
 
     return {
       ...card,
-      initialAmount: card.initialAmount.toString(),
-      currentBalance: card.currentBalance.toString(),
+      initial_amount: Number(card.initialAmount),
+      current_balance: Number(card.currentBalance),
+      created_at: card.createdAt,
+      sender_name: card.sender?.displayName || card.senderName,
+      sender: card.sender ? {
+        ...card.sender,
+        display_name: card.sender.displayName
+      } : null,
       transactions: card.transactions.map((t: any) => ({
         ...t,
-        amount: t.amount.toString(),
-        balanceAfter: t.balanceAfter.toString()
+        amount: Number(t.amount),
+        balance_after: Number(t.balanceAfter),
+        created_at: t.createdAt
       }))
     };
   }

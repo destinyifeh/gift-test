@@ -27,7 +27,7 @@ export default function ClaimGiftPage() {
             ? 'Gift claimed and added to your wallet!'
             : 'Gift successfully claimed!'
         );
-        router.push('/dashboard?tab=received');
+        router.push('/dashboard?tab=my-gifts');
       }
     });
   };

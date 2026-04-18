@@ -30,10 +30,10 @@ export function V2VendorOrdersTab({searchQuery = ''}: V2VendorOrdersTabProps) {
     // Search filter
     if (search) {
       const searchLower = search.toLowerCase();
-      const matchesCode = o.gift_code?.toLowerCase().includes(searchLower);
+      const matchesCode = o.giftCode?.toLowerCase().includes(searchLower);
       const matchesTitle = o.title?.toLowerCase().includes(searchLower);
-      const matchesSender = o.sender_name?.toLowerCase().includes(searchLower) ||
-        o.profiles?.display_name?.toLowerCase().includes(searchLower);
+      const matchesSender = o.senderName?.toLowerCase().includes(searchLower) ||
+        o.user?.displayName?.toLowerCase().includes(searchLower);
       if (!matchesCode && !matchesTitle && !matchesSender) return false;
     }
 
@@ -48,7 +48,7 @@ export function V2VendorOrdersTab({searchQuery = ''}: V2VendorOrdersTabProps) {
   const activeOrders = orders.filter((o: any) => o.status === 'active').length;
   const claimedOrders = orders.filter((o: any) => o.status === 'claimed').length;
   const redeemedOrders = orders.filter((o: any) => o.status === 'redeemed').length;
-  const totalRevenue = orders.reduce((sum: number, o: any) => sum + (Number(o.goal_amount) || 0), 0);
+  const totalRevenue = orders.reduce((sum: number, o: any) => sum + (Number(o.goalAmount) || 0), 0);
 
   const getStatusStyle = (status: string) => {
     switch (status) {
@@ -231,8 +231,8 @@ export function V2VendorOrdersTab({searchQuery = ''}: V2VendorOrdersTabProps) {
                               {order.title || 'Gift Card'}
                             </p>
                             <p className="text-xs text-[var(--v2-on-surface-variant)] font-mono">
-                              {order.gift_code
-                                ? `${order.gift_code.split('-')[0]}-${order.gift_code.split('-')[1]?.charAt(0) || ''}***`
+                              {order.giftCode
+                                ? `${order.giftCode.split('-')[0]}-${order.giftCode.split('-')[1]?.charAt(0) || ''}***`
                                 : 'GIFT'}
                             </p>
                           </div>
@@ -240,7 +240,7 @@ export function V2VendorOrdersTab({searchQuery = ''}: V2VendorOrdersTabProps) {
                       </td>
                       <td className="py-4 px-4">
                         <p className="text-sm text-[var(--v2-on-surface)] capitalize">
-                          {order.sender_name || order.profiles?.display_name || order.profiles?.username || 'Customer'}
+                          {order.senderName || order.user?.displayName || order.user?.username || 'Customer'}
                         </p>
                       </td>
                       <td className="py-4 px-4">
@@ -252,12 +252,12 @@ export function V2VendorOrdersTab({searchQuery = ''}: V2VendorOrdersTabProps) {
                       </td>
                       <td className="py-4 px-4 text-right">
                         <p className="font-bold text-[var(--v2-on-surface)]">
-                          {formatCurrency(order.goal_amount || 0, currency)}
+                          {formatCurrency(order.goalAmount || 0, currency)}
                         </p>
                       </td>
                       <td className="py-4 px-4 text-right">
                         <p className="text-sm text-[var(--v2-on-surface-variant)]">
-                          {new Date(order.created_at).toLocaleDateString()}
+                          {new Date(order.createdAt).toLocaleDateString()}
                         </p>
                       </td>
                     </tr>
@@ -283,8 +283,8 @@ export function V2VendorOrdersTab({searchQuery = ''}: V2VendorOrdersTabProps) {
                         {order.title || 'Gift Card'}
                       </p>
                       <p className="text-xs text-[var(--v2-on-surface-variant)] font-mono">
-                        {order.gift_code
-                          ? `${order.gift_code.split('-')[0]}-${order.gift_code.split('-')[1]?.charAt(0) || ''}***`
+                        {order.giftCode
+                          ? `${order.giftCode.split('-')[0]}-${order.giftCode.split('-')[1]?.charAt(0) || ''}***`
                           : 'GIFT'}
                       </p>
                     </div>
@@ -299,19 +299,19 @@ export function V2VendorOrdersTab({searchQuery = ''}: V2VendorOrdersTabProps) {
                   <div>
                     <p className="text-xs text-[var(--v2-on-surface-variant)]">Customer</p>
                     <p className="text-sm font-medium text-[var(--v2-on-surface)] capitalize">
-                      {order.sender_name || order.profiles?.display_name || 'Customer'}
+                      {order.senderName || order.user?.displayName || 'Customer'}
                     </p>
                   </div>
                   <div className="text-right">
                     <p className="text-xs text-[var(--v2-on-surface-variant)]">Amount</p>
                     <p className="text-lg font-bold text-[var(--v2-primary)]">
-                      {formatCurrency(order.goal_amount || 0, currency)}
+                      {formatCurrency(order.goalAmount || 0, currency)}
                     </p>
                   </div>
                 </div>
 
                 <p className="text-xs text-[var(--v2-on-surface-variant)] mt-2">
-                  {new Date(order.created_at).toLocaleDateString()}
+                  {new Date(order.createdAt).toLocaleDateString()}
                 </p>
               </div>
             ))}

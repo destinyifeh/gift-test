@@ -199,7 +199,7 @@ export function V2VendorOverviewTab({setSection}: V2VendorOverviewTabProps) {
                         {order.title || 'Gift Card'}
                       </p>
                       <p className="text-xs text-[var(--v2-on-surface-variant)]">
-                        {order.sender_name || order.profiles?.display_name || 'Customer'} · {new Date(order.created_at).toLocaleDateString()}
+                      {order.senderName || order.user?.displayName || 'Customer'} · {new Date(order.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
@@ -211,7 +211,7 @@ export function V2VendorOverviewTab({setSection}: V2VendorOverviewTabProps) {
                       {order.status}
                     </span>
                     <span className="font-bold text-[var(--v2-on-surface)]">
-                      {formatCurrency(order.goal_amount || 0, currency)}
+                      {formatCurrency(order.goalAmount || 0, currency)}
                     </span>
                   </div>
                 </div>

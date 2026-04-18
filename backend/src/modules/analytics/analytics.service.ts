@@ -77,7 +77,7 @@ export class AnalyticsService {
       });
     }
 
-    const giftsReceivedCount = directSupport.length + vendorGiftCampaigns.length + inboundContribs.length;
+    const giftsReceivedCount = directSupport.length + vendorGiftCampaigns.length + inboundContribs.length + receivedCards.length;
 
     // Recent activities (Received)
     const directRecent = directSupport.map((s: any) => ({
@@ -227,8 +227,9 @@ export class AnalyticsService {
     const [allCampaigns, total] = await Promise.all([
       (this.prisma as any).campaign.findMany({
         where: {
-          OR: [{ userId }, { recipientEmail: email }],
+          userId,
           giftCode: { not: null },
+          status: { not: 'active' },
         },
         orderBy: { createdAt: 'desc' },
         skip,
@@ -236,8 +237,9 @@ export class AnalyticsService {
       }),
       (this.prisma as any).campaign.count({
         where: {
-          OR: [{ userId }, { recipientEmail: email }],
+          userId,
           giftCode: { not: null },
+          status: { not: 'active' },
         },
       }),
     ]);
@@ -326,8 +328,9 @@ export class AnalyticsService {
     const [campaigns, total] = await Promise.all([
       (this.prisma as any).campaign.findMany({
         where: {
-          OR: [{ userId }, { recipientEmail: email }],
+          userId,
           giftCode: { not: null },
+          status: { not: 'active' },
         },
         orderBy: { createdAt: 'desc' },
         skip,
@@ -342,8 +345,9 @@ export class AnalyticsService {
       }),
       (this.prisma as any).campaign.count({
         where: {
-          OR: [{ userId }, { recipientEmail: email }],
+          userId,
           giftCode: { not: null },
+          status: { not: 'active' },
         },
       }),
     ]);
@@ -571,35 +575,76 @@ export class AnalyticsService {
    * Fetch unclaimed gifts sent to a user's email.
    * Mirrors frontend: analytics.ts → fetchUnclaimedGifts
    */
-  async fetchUnclaimedGifts(userId: string, email: string) {
-    const unclaimed = await (this.prisma as any).campaign.findMany({
-      where: {
-        recipientEmail: email,
-        status: { in: ['active', 'pending', 'funded'] },
-        giftCode: { not: null },
-        userId: { not: userId }, // Not yet claimed by the current user
-      },
-      orderBy: { createdAt: 'desc' },
-      include: {
-        product: {
-          include: {
-            vendor: { select: { shopName: true, displayName: true } },
-          },
-        },
-      },
+  async fetchUnclaimedGifts(userId: string) {
+    const user = await (this.prisma as any).user.findUnique({
+      where: { id: userId },
+      select: { email: true },
     });
 
-    return unclaimed.map((c: any) => ({
+    const email = user?.email;
+    if (!email) return { data: [], flexCards: [] };
+
+    const [unclaimedGifts, unclaimedFlexCards] = await Promise.all([
+      (this.prisma as any).campaign.findMany({
+        where: {
+          recipientEmail: { equals: email, mode: 'insensitive' },
+          status: { in: ['active', 'pending', 'funded'] },
+          giftCode: { not: null },
+        },
+        orderBy: { createdAt: 'desc' },
+        include: {
+          product: {
+            include: {
+              vendor: { select: { shopName: true, displayName: true } },
+            },
+          },
+        },
+      }),
+      (this.prisma as any).flexCard.findMany({
+        where: {
+          recipientEmail: { equals: email, mode: 'insensitive' },
+          userId: null,
+          status: 'active',
+        },
+        orderBy: { createdAt: 'desc' },
+        include: {
+          sender: { select: { displayName: true } },
+        },
+      }),
+    ]);
+
+    const formattedGifts = unclaimedGifts.map((c: any) => ({
       id: c.id,
       name: c.title || c.product?.name || (c.claimableType === 'money' ? 'Cash Gift' : 'Gift Card'),
       sender: c.senderName || 'A Friend',
       date: c.createdAt,
-      amount: Number(c.goalAmount),
+      goal_amount: Number(c.goalAmount),
       currency: c.currency || 'NGN',
-      code: c.giftCode,
+      gift_code: c.giftCode,
       vendorShopName: c.product?.vendor?.shopName || c.product?.vendor?.displayName,
       message: c.message,
-      claimableType: c.claimableType,
+      claimable_type: c.claimableType || (c.product ? 'gift-card' : 'money'),
+      sender_name: c.senderName || 'A Friend',
     }));
+
+    const formattedFlexCards = unclaimedFlexCards.map((c: any) => ({
+      id: c.id,
+      name: 'Flex Gift Card',
+      sender: c.senderName || c.sender?.displayName || 'A Friend',
+      sender_name: c.senderName || c.sender?.displayName || 'A Friend',
+      date: c.createdAt,
+      initial_amount: Number(c.initialAmount),
+      currency: c.currency || 'NGN',
+      code: c.code,
+      claim_token: c.claimToken,
+      vendorShopName: 'Gifthance Flex Card',
+      message: c.message,
+      claimable_type: 'gift-card',
+    }));
+
+    return {
+      data: formattedGifts,
+      flexCards: formattedFlexCards,
+    };
   }
 }

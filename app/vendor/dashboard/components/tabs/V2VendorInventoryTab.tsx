@@ -33,7 +33,7 @@ interface ProductFormData {
   category: string;
   tags: string[];
   type: string;
-  stock_quantity: string;
+  stockQuantity: string;
 }
 
 const initialFormData: ProductFormData = {
@@ -45,7 +45,7 @@ const initialFormData: ProductFormData = {
   category: 'all',
   tags: [],
   type: 'digital',
-  stock_quantity: '',
+  stockQuantity: '',
 };
 
 const MAX_IMAGES = 3;
@@ -108,7 +108,7 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct}: V2Vendo
       case 'draft':
         return p.status === 'draft';
       case 'low':
-        return p.stock_quantity !== null && p.stock_quantity <= 5;
+        return p.stockQuantity !== null && p.stockQuantity <= 5;
       default:
         return true;
     }
@@ -118,16 +118,16 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct}: V2Vendo
   const activeCount = products.filter((p: any) => p.status === 'active').length;
   const draftCount = products.filter((p: any) => p.status === 'draft').length;
   const lowStockCount = products.filter(
-    (p: any) => p.stock_quantity !== null && p.stock_quantity > 0 && p.stock_quantity <= 5
+    (p: any) => p.stockQuantity !== null && p.stockQuantity > 0 && p.stockQuantity <= 5
   ).length;
-  const totalUnitsSold = products.reduce((sum: number, p: any) => sum + (p.units_sold || 0), 0);
+  const totalUnitsSold = products.reduce((sum: number, p: any) => sum + (p.unitsSold || 0), 0);
 
   const getStockStatus = (product: any) => {
     if (product.status === 'draft') return {label: 'Draft', color: 'bg-gray-100 text-gray-800'};
-    if (product.stock_quantity === null) return {label: 'Active', color: 'bg-emerald-100 text-emerald-800'};
-    if (product.stock_quantity === 0)
+    if (product.stockQuantity === null) return {label: 'Active', color: 'bg-emerald-100 text-emerald-800'};
+    if (product.stockQuantity === 0)
       return {label: 'Out of Stock', color: 'bg-[var(--v2-error-container)]/20 text-[var(--v2-error)]'};
-    if (product.stock_quantity <= 5) return {label: 'Low Stock', color: 'bg-amber-100 text-amber-800'};
+    if (product.stockQuantity <= 5) return {label: 'Low Stock', color: 'bg-amber-100 text-amber-800'};
     return {label: 'Active', color: 'bg-emerald-100 text-emerald-800'};
   };
 
@@ -136,7 +136,7 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct}: V2Vendo
     if (product.images && Array.isArray(product.images) && product.images.length > 0) {
       return product.images[0];
     }
-    return product.image_url || null;
+    return product.imageUrl || null;
   };
 
   // Get image count for display
@@ -144,7 +144,7 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct}: V2Vendo
     if (product.images && Array.isArray(product.images)) {
       return product.images.length;
     }
-    return product.image_url ? 1 : 0;
+    return product.imageUrl ? 1 : 0;
   };
 
   const resetForm = () => {
@@ -159,8 +159,8 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct}: V2Vendo
       let images: string[] = [];
       if (product.images && Array.isArray(product.images)) {
         images = product.images;
-      } else if (product.image_url) {
-        images = [product.image_url];
+      } else if (product.imageUrl) {
+        images = [product.imageUrl];
       }
       setProductForm({
         name: product.name || '',
@@ -171,7 +171,7 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct}: V2Vendo
         category: product.category || 'all',
         tags: product.tags || [],
         type: product.type || 'digital',
-        stock_quantity: product.stock_quantity !== null ? String(product.stock_quantity) : '',
+        stockQuantity: product.stockQuantity !== null ? String(product.stockQuantity) : '',
       });
     } else {
       resetForm();
@@ -262,9 +262,9 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct}: V2Vendo
       ...productForm,
       id: editingProduct?.id,
       price: Number(productForm.price),
-      stock_quantity: productForm.stock_quantity ? Number(productForm.stock_quantity) : null,
-      // Store images array and keep image_url as first image for backward compatibility
-      image_url: productForm.images[0] || null,
+      stockQuantity: productForm.stockQuantity ? Number(productForm.stockQuantity) : null,
+      // Store images array and keep imageUrl as first image for backward compatibility
+      imageUrl: productForm.images[0] || null,
       images: productForm.images,
       tags: productForm.tags,
     };
@@ -537,12 +537,12 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct}: V2Vendo
                         </td>
                         <td className="py-4 px-4 text-right">
                           <p className="text-sm text-[var(--v2-on-surface-variant)]">
-                            {product.stock_quantity !== null ? `${product.stock_quantity} units` : 'Unlimited'}
+                            {product.stockQuantity !== null ? `${product.stockQuantity} units` : 'Unlimited'}
                           </p>
                         </td>
                         <td className="py-4 px-4 text-center">
                           <p className="text-sm font-semibold text-[var(--v2-on-surface)]">
-                            {product.units_sold || 0}
+                            {product.unitsSold || 0}
                           </p>
                         </td>
                         <td className="py-4 px-6 text-right">
@@ -649,9 +649,9 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct}: V2Vendo
                       <div>
                         <h3 className="font-bold text-lg text-[var(--v2-on-surface)]">{product.name}</h3>
                         <div className="flex items-center gap-3 text-xs text-[var(--v2-on-surface-variant)]">
-                          <span>{product.units_sold || 0} sold</span>
-                          {product.stock_quantity !== null && (
-                            <span>{product.stock_quantity} in stock</span>
+                          <span>{product.unitsSold || 0} sold</span>
+                          {product.stockQuantity !== null && (
+                            <span>{product.stockQuantity} in stock</span>
                           )}
                         </div>
                       </div>
@@ -922,8 +922,8 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct}: V2Vendo
                 </label>
                 <input
                   type="number"
-                  value={productForm.stock_quantity}
-                  onChange={e => setProductForm({...productForm, stock_quantity: e.target.value})}
+                  value={productForm.stockQuantity}
+                  onChange={e => setProductForm({...productForm, stockQuantity: e.target.value})}
                   className="w-full py-3 px-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-[var(--v2-on-surface)]"
                   placeholder="Leave empty for unlimited"
                 />

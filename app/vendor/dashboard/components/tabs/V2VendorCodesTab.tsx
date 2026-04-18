@@ -34,13 +34,13 @@ interface VerificationResult {
   data?: {
     id: string;
     title: string;
-    goal_amount: number;
+    goalAmount: number;
     currency: string;
-    gift_code: string;
+    giftCode: string;
     status: string;
-    profiles?: {
+    user?: {
       username?: string;
-      display_name?: string;
+      displayName?: string;
     };
   };
 }
@@ -214,59 +214,47 @@ export function V2VendorCodesTab() {
     setFlexRedeemAmount('');
 
     const trimmedCode = code.trim().toUpperCase();
-
     try {
-      // Check if it's a Flex Card (starts with FLEX-)
-      if (trimmedCode.startsWith('FLEX-')) {
-        const res = await api.get(`/flex-cards/lookup/${trimmedCode}`);
-        const result = res.data;
-
-        if (!result.success) {
-          setCodeType('flex_card');
-          setVerificationResult({
-            success: false,
-            message: result.error || 'Flex card not found or is invalid',
-          });
-          return;
-        }
-
-        // Valid Flex Card found
-        setCodeType('flex_card');
-        setFlexCardResult(result.data!);
-        toast.success('Flex Card verified!');
-        return;
-      }
-
-      // Otherwise, it's a regular gift code
-      setCodeType('gift');
+      // Use the unified verification endpoint for all codes
       const res = await api.post('/vendor/verify-voucher', {code: trimmedCode});
       const result = res.data;
 
-      if (!result.success) {
+      if (!result) {
         setVerificationResult({
           success: false,
-          message: result.error || 'Gift code not found or is invalid',
+          message: 'Gift code not found or is invalid',
         });
         return;
       }
 
+      // Check if it's a Flex Card based on the returned type
+      if (result.type === 'flex_card') {
+        setCodeType('flex_card');
+        setFlexCardResult(result);
+        toast.success('Flex Card verified!');
+        return;
+      }
+
+      // Otherwise, assume it's a regular gift
+      setCodeType('gift');
+
       // Check if already redeemed
-      if (result.data?.status === 'redeemed') {
+      if (result.status === 'redeemed') {
         setVerificationResult({
           success: false,
           message: 'This gift code has already been redeemed.',
-          data: result.data,
+          data: result,
         });
         toast.error('Gift code already redeemed');
         return;
       }
 
       // Check if not yet claimed
-      if (result.data?.status === 'active' || result.data?.status === 'pending') {
+      if (result.status === 'active' || result.status === 'pending') {
         setVerificationResult({
           success: false,
           message: 'This gift has not been claimed by the recipient yet. They must claim it before it can be redeemed.',
-          data: result.data,
+          data: result,
         });
         toast.error('Gift not yet claimed');
         return;
@@ -276,15 +264,16 @@ export function V2VendorCodesTab() {
       setVerificationResult({
         success: true,
         message: 'Gift code is valid and ready to redeem',
-        data: result.data,
+        data: result,
       });
       toast.success('Gift code verified successfully!');
-    } catch (error) {
+    } catch (error: any) {
+      const msg = error.response?.data?.message || 'Error verifying code. Please try again.';
       setVerificationResult({
         success: false,
-        message: 'Error verifying code. Please try again.',
+        message: msg,
       });
-      toast.error('Verification failed');
+      toast.error(msg === 'Invalid or expired code' ? msg : 'Verification failed');
     } finally {
       setIsVerifying(false);
     }
@@ -296,17 +285,17 @@ export function V2VendorCodesTab() {
   };
 
   const handleRedeem = async () => {
-    if (!verificationResult?.data?.gift_code) return;
+    if (!verificationResult?.data?.giftCode) return;
 
     setIsRedeeming(true);
     try {
-      const res = await api.post('/vendor/redeem-voucher', {code: verificationResult.data.gift_code});
+      const res = await api.post('/vendor/redeem-voucher', {code: verificationResult.data.giftCode});
       const result = res.data;
 
-      if (!result.success) {
+      if (!result) {
         setVerificationResult({
           success: false,
-          message: result.error || 'Gift code not found or is invalid',
+          message: 'Failed to redeem gift code',
         });
         return;
       }
@@ -348,16 +337,16 @@ export function V2VendorCodesTab() {
       });
       const result = res.data;
 
-      if (!result.success) {
-        toast.error(result.error || 'Failed to redeem flex card');
+      if (!result) {
+        toast.error('Failed to redeem flex card');
         return;
       }
 
       toast.success(`Successfully redeemed ${formatCurrency(amount, flexCardResult.currency)}!`);
 
       // Show remaining balance
-      if (result.data?.newBalance && result.data.newBalance > 0) {
-        toast.info(`Remaining balance: ${formatCurrency(result.data.newBalance, flexCardResult.currency)}`);
+      if (result.newBalance && result.newBalance > 0) {
+        toast.info(`Remaining balance: ${formatCurrency(result.newBalance, flexCardResult.currency)}`);
       }
 
       // Reset state
@@ -562,7 +551,7 @@ export function V2VendorCodesTab() {
                       <div className="flex justify-between items-center bg-white/40 p-3 rounded-xl">
                         <span className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-tight">Gift Value</span>
                         <span className="text-xl font-black text-[var(--v2-primary)]">
-                          {formatCurrency(verificationResult.data.goal_amount, verificationResult.data.currency || currency)}
+                          {formatCurrency(verificationResult.data.goalAmount, verificationResult.data.currency || currency)}
                         </span>
                       </div>
                       
@@ -571,10 +560,10 @@ export function V2VendorCodesTab() {
                           <span className="opacity-60">Gift item:</span> 
                           <span className="font-bold truncate max-w-[150px]">{verificationResult.data.title || 'Gift Card'}</span>
                         </p>
-                        {verificationResult.data.profiles?.display_name && (
+                        {verificationResult.data.user?.displayName && (
                           <p className="text-sm text-[var(--v2-on-surface-variant)] flex justify-between">
                             <span className="opacity-60">Recipient:</span> 
-                            <span className="font-bold">{verificationResult.data.profiles.display_name}</span>
+                            <span className="font-bold">{verificationResult.data.user.displayName}</span>
                           </p>
                         )}
                         <p className="text-sm text-[var(--v2-on-surface-variant)] flex justify-between items-center">

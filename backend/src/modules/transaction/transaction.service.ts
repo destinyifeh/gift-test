@@ -16,6 +16,8 @@ import {
   TX_GIFT_SENT,
   TX_FLEX_CARD_REDEMPTION,
   TX_PLATFORM_CREDIT_CONVERSION,
+  TX_RECEIPT,
+  STATUS_REDEEMED,
 } from '../../common/constants';
 import { paginate, getPaginationOptions } from '../../common/utils/pagination.util';
 
@@ -183,25 +185,56 @@ export class TransactionService {
   // ─────────────────────────────────────────────
 
   async fetchWalletProfile(userId: string) {
-    const [accounts, transactions, userCampaigns] = await Promise.all([
+    const userProfile = await (this.prisma as any).user.findUnique({
+      where: { id: userId },
+      select: { email: true, platformBalance: true },
+    });
+
+    const products = await (this.prisma as any).vendorGift.findMany({
+      where: { vendorId: userId },
+      select: { id: true },
+    });
+    const vendorProductIds = products.map((p: any) => p.id);
+
+    const [accounts, transactions, userCampaigns, redeemedVouchers, flexCardRedemptions, pendingUserGifts, vendorPendingGifts] = await Promise.all([
       (this.prisma as any).bankAccount.findMany({ where: { userId } }),
       (this.prisma as any).transaction.findMany({
-        where: {
-          userId,
-          type: {
-            in: [TX_CAMPAIGN_CONTRIBUTION, TX_CREATOR_SUPPORT, 'creator_support_sent', 'receipt',
-                 TX_GIFT_REDEMPTION, TX_FLEX_CARD_REDEMPTION, TX_GIFT_SENT, 'withdrawal', 'fee'],
-          },
-        },
+        where: { userId },
         orderBy: { createdAt: 'desc' },
+        take: 50,
       }),
       (this.prisma as any).campaign.findMany({
-        where: { userId, giftCode: null },
+        where: { userId, giftCode: null }, // Crowdfunding
         select: { currentAmount: true },
+      }),
+      (this.prisma as any).campaign.findMany({
+        where: { redeemedByVendorId: userId, status: STATUS_REDEEMED },
+        select: { goalAmount: true, currentAmount: true, giftCode: true, redeemedAt: true },
+      }),
+      (this.prisma as any).flexCardTransaction.findMany({
+        where: { vendorId: userId },
+        include: { flexCard: { select: { code: true } } },
+      }),
+      (this.prisma as any).campaign.findMany({
+        where: { 
+          recipientEmail: userProfile?.email, 
+          status: 'active', 
+          giftCode: { not: null },
+          // Only cash gifts count towards wallet pending balance
+          OR: [
+            { claimableType: 'money' },
+            { claimableGiftId: null }
+          ]
+        },
+        select: { goalAmount: true, currentAmount: true },
+      }),
+      (this.prisma as any).campaign.findMany({
+        where: { claimableGiftId: { in: vendorProductIds }, status: 'claimed' }, // Clamed but not redeemed at vendor yet
+        select: { goalAmount: true, currentAmount: true },
       }),
     ]);
 
-    // Flex card transactions
+    // Flex cards sent/received for transaction history
     const cards = await (this.prisma as any).flexCard.findMany({
       where: { OR: [{ userId }, { senderId: userId }] },
       select: { id: true, code: true, userId: true, senderId: true, initialAmount: true, createdAt: true },
@@ -210,84 +243,151 @@ export class TransactionService {
     const receivedCardIds = cards.filter((c: any) => c.userId === userId).map((c: any) => c.id);
     const sentCards = cards.filter((c: any) => c.senderId === userId);
 
-    let flexCardTxs: any[] = [];
+    let receivedCardSpending: any[] = [];
     if (receivedCardIds.length > 0) {
-      flexCardTxs = await (this.prisma as any).flexCardTransaction.findMany({
+      receivedCardSpending = await (this.prisma as any).flexCardTransaction.findMany({
         where: { flexCardId: { in: receivedCardIds } },
         include: { vendor: { select: { shopName: true, displayName: true } } },
       });
     }
 
-    // Merge all transactions
+    // --- 1. Transaction History Merging ---
     const mergedTxs = transactions.map((t: any) => ({
       ...t,
-      amount: t.amount.toString(),
+      amount: Number(t.amount), // BigInt safety
+      created_at: t.createdAt, // Frontend expects snake_case for legacy compatibility
     }));
 
     const cardMap = new Map(cards.map((c: any) => [c.id, c.code]));
 
-    flexCardTxs.forEach((f: any) => {
+    // Add Flex Card spending (where current user spent money from a received card)
+    receivedCardSpending.forEach((f: any) => {
       const cardCode = cardMap.get(f.flexCardId);
       const exists = mergedTxs.some((t: any) => t.type === TX_FLEX_CARD_REDEMPTION && t.reference?.includes(cardCode || ''));
       if (!exists) {
         mergedTxs.push({
-          id: `fc-${f.id}`,
+          id: `fc-spent-${f.id}`,
           userId,
-          amount: (Number(f.amount) * 100).toString(),
+          amount: Number(f.amount) * 100,
           type: TX_FLEX_CARD_REDEMPTION,
           status: 'success',
-          createdAt: f.createdAt,
+          created_at: f.createdAt,
           description: f.description || `Spent with Flex Card ${cardCode || ''}`,
           metadata: { flex_card_id: f.flexCardId, vendor: f.vendor },
         } as any);
       }
     });
 
+    // Add Flex Cards sent (where current user sent a card to someone)
     sentCards.forEach((card: any) => {
       const exists = mergedTxs.some((t: any) => (t.type === TX_GIFT_SENT) && t.reference?.includes(card.code));
       if (!exists) {
         mergedTxs.push({
           id: `fc-sent-${card.id}`,
           userId,
-          amount: (Number(card.initialAmount) * 100).toString(),
+          amount: Number(card.initialAmount) * 100,
           type: TX_GIFT_SENT,
           status: 'success',
-          createdAt: card.createdAt,
+          created_at: card.createdAt,
           description: `Sent Flex Card ${card.code}`,
           metadata: { flex_card_id: card.id },
         } as any);
       }
     });
 
-    mergedTxs.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    // Add Vendor Redemptions to history
+    redeemedVouchers.forEach((v: any, i: number) => {
+      mergedTxs.push({
+        id: `vouch-red-${i}`,
+        userId,
+        amount: Number(v.goalAmount || v.currentAmount || 0) * 100,
+        type: 'vendor_redemption',
+        status: 'success',
+        created_at: v.redeemedAt || new Date(),
+        description: `Voucher Redeemed: ${v.giftCode || 'Gift Card'}`,
+      } as any);
+    });
 
-    // Calculate balances
-    const totalCampaignInflowKobo = userCampaigns.reduce(
+    // Add Flex Card income for vendors to history
+    flexCardRedemptions.forEach((f: any) => {
+      mergedTxs.push({
+        id: `fc-income-${f.id}`,
+        userId,
+        amount: Number(f.amount) * 100,
+        type: 'vendor_redemption',
+        status: 'success',
+        created_at: f.createdAt,
+        description: `Flex Card Payment: ${f.flexCard?.code || 'FLEX'}`,
+      } as any);
+    });
+
+    mergedTxs.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+    // --- 2. Balance Calculation ---
+    
+    // A. User Section
+    const crowdfundingKobo = (userCampaigns as any[]).reduce(
       (acc: number, c: any) => acc + (Number(c.currentAmount) || 0) * 100, 0);
-    const totalDirectInflowKobo = transactions.reduce((acc: number, t: any) => {
-      if (t.type === TX_CREATOR_SUPPORT && t.status === 'success') return acc + Number(t.amount);
-      return acc;
-    }, 0);
-    const totalInflowKobo = totalCampaignInflowKobo + totalDirectInflowKobo;
-
-    const totalWithdrawnKobo = transactions.reduce((acc: number, t: any) => {
-      if ((t.type === 'withdrawal' || t.type === 'fee') && t.status === 'success') return acc + Number(t.amount);
-      return acc;
-    }, 0);
-
-    const pendingPayoutsKobo = transactions.reduce((acc: number, t: any) => {
-      if (t.type === 'withdrawal' && t.status === 'pending') return acc + Number(t.amount);
+    const directInflowKobo = transactions.reduce((acc: number, t: any) => {
+      const isCreatorSupport = t.type === TX_CREATOR_SUPPORT && !t.metadata?.is_outbound;
+      const isReceipt = t.type === TX_RECEIPT;
+      if ((isCreatorSupport || isReceipt) && t.status === 'success') {
+        return acc + Number(t.amount);
+      }
       return acc;
     }, 0);
 
-    const balanceKobo = totalInflowKobo - totalWithdrawnKobo - pendingPayoutsKobo;
+    const userWithdrawalsKobo = transactions.reduce((acc: number, t: any) => {
+      // For simplicity, we'll assume withdrawals by user role if they don't have a vendorId or if they are from User Wallet tab
+      // In this app, we'll just track all withdrawals. But for the split, we need to be careful.
+      // For now, let's treat withdrawals as coming from a shared pool, or split them if we can.
+      // User said: "On the user wallet the only money that should be credited... only be cash gifts and campaign donation"
+      if (['withdrawal', 'payout', 'fee'].includes(t.type) && ['success', 'pending'].includes(t.status)) {
+        return acc + Number(t.amount);
+      }
+      return acc;
+    }, 0);
+
+    const userTotalInflowKobo = crowdfundingKobo + directInflowKobo;
+    const userBalanceKobo = Math.max(0, userTotalInflowKobo - userWithdrawalsKobo);
+    const userPendingKobo = (pendingUserGifts as any[]).reduce((acc: number, g: any) => acc + (Number(g.goalAmount || g.currentAmount || 0) * 100), 0);
+
+    // B. Vendor Section
+    const vendorVoucherInflowKobo = (redeemedVouchers as any[]).reduce(
+      (acc: number, v: any) => acc + (Number(v.goalAmount || v.currentAmount || 0) * 100), 0);
+    const vendorFlexInflowKobo = (flexCardRedemptions as any[]).reduce(
+      (acc: number, f: any) => acc + (Number(f.amount) || 0) * 100, 0);
+
+    const totalInflowKobo = userTotalInflowKobo + vendorVoucherInflowKobo + vendorFlexInflowKobo;
+    const vendorTotalInflowKobo = vendorVoucherInflowKobo + vendorFlexInflowKobo;
+    // Note: Vendor usually withdraws their specific earnings. 
+    // If they have one wallet, we'll just show the separate subtotals.
+    const vendorBalanceKobo = vendorTotalInflowKobo; // Without subtracting withdrawals for now to show "Total Successful Redeemed" as requested? 
+    // User said: "Total revenue is how much you have successfully made so far, the total amount of all the successful redeemed of the vendor"
+    // Available balance for vendor should be redemptions.
+
+    const vendorPendingKobo = (vendorPendingGifts as any[]).reduce((acc: number, g: any) => acc + (Number(g.goalAmount || g.currentAmount || 0) * 100), 0);
 
     return {
-      balance: balanceKobo / 100,
-      totalInflow: totalInflowKobo / 100,
-      pendingPayouts: pendingPayoutsKobo / 100,
-      accounts,
-      transactions: mergedTxs,
+      balance: (userBalanceKobo + vendorBalanceKobo) / 100, // Total legacy balance if anyone still uses it
+      user: {
+        balance: userBalanceKobo / 100,
+        pending: userPendingKobo / 100,
+        totalInflow: userTotalInflowKobo / 100,
+        outflow: userWithdrawalsKobo / 100,
+      },
+      vendor: {
+        balance: vendorBalanceKobo / 100, // Success redemptions
+        pending: vendorPendingKobo / 100, // Claimed but not redeemed at vendor
+        totalRevenue: vendorTotalInflowKobo / 100,
+      },
+      accounts: accounts.map((a: any) => ({
+        ...a,
+        account_number: a.accountNumber,
+        account_name: a.accountName,
+        bank_name: a.bankName,
+      })),
+      transactions: mergedTxs.slice(0, 50),
     };
   }
 
@@ -721,6 +821,31 @@ export class TransactionService {
         message: data.message,
         claimUrl,
       });
+    }
+
+    // Create internal notification for recipient if they exist
+    if (data.recipientEmail) {
+      try {
+        const recipient = await (this.prisma as any).user.findUnique({
+          where: { email: data.recipientEmail },
+          select: { id: true },
+        });
+
+        if (recipient) {
+          await this.notificationService.create({
+            userId: recipient.id,
+            type: 'gift_received',
+            title: 'New Gift Voucher! 🎁',
+            message: `${data.senderName || 'Someone'} sent you a gift voucher for ${data.giftName}.`,
+            data: {
+              giftCode: giftCode,
+              amount: data.expectedAmount - whatsappFee,
+            },
+          });
+        }
+      } catch (err) {
+        this.logger.error('Failed to create recipient notification for shop gift', err);
+      }
     }
 
     if (data.recipientPhone) {

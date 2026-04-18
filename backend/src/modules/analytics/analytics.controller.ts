@@ -84,7 +84,7 @@ export class AnalyticsController {
 
   @Get('unclaimed')
   async getUnclaimedGifts(@Req() req: Request) {
-    const user = (req as any).user;
-    return this.analyticsService.fetchUnclaimedGifts(user.id, user.email);
+    const userId = (req as any).user.id;
+    return this.analyticsService.fetchUnclaimedGifts(userId);
   }
 }

@@ -70,13 +70,15 @@ export class VendorController {
   @UseGuards(AuthGuard)
   @Get('wallet')
   async fetchWallet(@Req() req: any) {
-    return this.vendorService.fetchVendorWallet(req.user.id);
+    const data = await this.vendorService.fetchVendorWallet(req.user.id);
+    return { success: true, data };
   }
 
   @UseGuards(AuthGuard)
   @Get('orders')
   async fetchOrders(@Req() req: any) {
-    return this.vendorService.fetchVendorOrders(req.user.id);
+    const data = await this.vendorService.fetchVendorOrders(req.user.id);
+    return { success: true, data };
   }
 
   // ── Product Images ──

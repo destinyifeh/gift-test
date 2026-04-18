@@ -72,21 +72,23 @@ export function V2VendorWalletTab() {
   }, [profile, hasSetDefaultCountry]);
 
   const banks = banksData?.data || [];
-  const wallet = walletProfile?.data || {
+  const walletData = walletProfile?.data || {};
+  const wallet = walletData.vendor || {
     balance: 0,
-    totalInflow: 0,
-    pendingPayouts: 0,
-    accounts: [],
-    transactions: [],
+    totalRevenue: 0,
+    pending: 0,
   };
+  const accounts = walletData.accounts || [];
+  const walletTransactions = walletData.transactions || [];
 
   const userCurrency = getCurrencyByCountry(profile?.country);
   const currencySymbol = getCurrencySymbol(userCurrency);
 
   // Use vendor stats for revenue and transactions
-  const totalRevenue = vendorStats?.totalSales || 0;
-  const pendingAmount = vendorStats?.pending || 0;
-  const vendorTransactions = vendorStats?.transactions || [];
+  const totalRevenue = wallet.totalRevenue || 0;
+  const pendingAmount = wallet.pending || 0;
+  // Transactions are pre-calculated by backend now, simplify frontend
+  const vendorTransactions = walletTransactions;
 
   // Filter transactions based on type and date
   const filteredTransactions = useMemo(() => {
@@ -142,8 +144,8 @@ export function V2VendorWalletTab() {
   // Calculate stats
   const flexRedemptionTotal = useMemo(() => {
     return vendorTransactions
-      .filter((t: any) => t.type === 'flex_card' || t.desc?.toLowerCase().includes('flex'))
-      .reduce((sum: number, t: any) => sum + (t.amount || 0), 0);
+      .filter((t: any) => t.type === 'flex_card' || t.description?.toLowerCase().includes('flex'))
+      .reduce((sum: number, t: any) => sum + (Number(t.amount) || 0) / 100, 0); // Amount from DB is mostly Kobo if using mergedTxs, backend divides by 100 so it might just be amount
   }, [vendorTransactions]);
 
   const handleResolveAccount = async () => {
@@ -328,9 +330,17 @@ export function V2VendorWalletTab() {
               <span className="v2-icon text-[var(--v2-tertiary)]">schedule</span>
             </div>
             <div>
-              <p className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
-                Pending
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
+                  Pending Redemptions
+                </p>
+                <div className="relative group cursor-help">
+                  <span className="v2-icon text-[10px] text-[var(--v2-on-surface-variant)]">error</span>
+                  <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1 w-48 p-2 bg-[var(--v2-surface-container-highest)] text-[var(--v2-on-surface)] text-[10px] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
+                    Amount of gifts created with your items that haven't been successfully redeemed yet.
+                  </div>
+                </div>
+              </div>
               <p className="text-xl font-extrabold text-[var(--v2-on-surface)] tracking-tight v2-headline">
                 {formatCurrency(pendingAmount, userCurrency)}
               </p>
@@ -357,9 +367,17 @@ export function V2VendorWalletTab() {
           <div className="w-8 h-8 rounded-full bg-[var(--v2-tertiary-container)]/30 flex items-center justify-center mb-2">
             <span className="v2-icon text-sm text-[var(--v2-tertiary)]">schedule</span>
           </div>
-          <p className="text-[9px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
-            Pending
-          </p>
+          <div className="flex items-center gap-1">
+            <p className="text-[9px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
+              Pending Redemptions
+            </p>
+            <div className="relative group cursor-help">
+              <span className="v2-icon text-[10px] text-[var(--v2-on-surface-variant)]">error</span>
+              <div className="absolute left-0 bottom-full mb-1 w-32 p-2 bg-[var(--v2-surface-container-highest)] text-[var(--v2-on-surface)] text-[10px] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
+                Gifts with your items not yet redeemed.
+              </div>
+            </div>
+          </div>
           <p className="text-sm font-extrabold text-[var(--v2-on-surface)] tracking-tight v2-headline">
             {formatCurrency(pendingAmount, userCurrency)}
           </p>
@@ -451,7 +469,7 @@ export function V2VendorWalletTab() {
             <h3 className="text-base md:text-lg font-bold v2-headline text-[var(--v2-on-surface)]">
               Withdrawal Banks
             </h3>
-            {wallet.accounts.length > 0 && (
+            {accounts.length > 0 && (
               <button
                 onClick={() => setActiveModal('manage-banks')}
                 className="text-sm font-bold text-[var(--v2-primary)] hover:underline">
@@ -460,7 +478,7 @@ export function V2VendorWalletTab() {
             )}
           </div>
 
-          {wallet.accounts.length === 0 ? (
+          {accounts.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8">
               <span className="v2-icon text-3xl text-[var(--v2-on-surface-variant)]/30 mb-2">
                 account_balance
@@ -469,7 +487,7 @@ export function V2VendorWalletTab() {
             </div>
           ) : (
             <div className="space-y-3">
-              {wallet.accounts.slice(0, 2).map((b: any) => (
+              {accounts.slice(0, 2).map((b: any) => (
                 <div
                   key={b.id}
                   className="p-4 rounded-xl bg-[var(--v2-surface-container-lowest)] flex items-center gap-4">
@@ -486,17 +504,17 @@ export function V2VendorWalletTab() {
                   </div>
                 </div>
               ))}
-              {wallet.accounts.length > 2 && (
+              {accounts.length > 2 && (
                 <button
                   onClick={() => setActiveModal('manage-banks')}
                   className="w-full py-2 text-sm font-medium text-[var(--v2-primary)] hover:underline">
-                  +{wallet.accounts.length - 2} more accounts
+                  +{accounts.length - 2} more accounts
                 </button>
               )}
             </div>
           )}
 
-          {wallet.accounts.length < 2 ? (
+          {accounts.length < 2 ? (
             <button
               onClick={() => {
                 resetBankForm();
@@ -548,7 +566,7 @@ export function V2VendorWalletTab() {
               <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)] mb-2">
                 Select Bank
               </label>
-              {wallet.accounts.length === 0 ? (
+              {accounts.length === 0 ? (
                 <button
                   onClick={() => setActiveModal('bank')}
                   className="w-full py-4 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-primary)] font-bold">
@@ -558,9 +576,9 @@ export function V2VendorWalletTab() {
                 <select
                   value={withdrawBank}
                   onChange={e => setWithdrawBank(e.target.value)}
-                  className="w-full py-4 px-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl">
+                  className="w-full py-4 px-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-[var(--v2-on-surface)]">
                   <option value="">Select bank...</option>
-                  {wallet.accounts.map((b: any) => (
+                  {accounts.map((b: any) => (
                     <option key={b.id} value={b.id}>
                       {b.bank_name} - ****{b.account_number?.slice(-4)}
                     </option>
@@ -644,7 +662,7 @@ export function V2VendorWalletTab() {
             <button
               onClick={handleAddBank}
               disabled={isAdding || !bankForm.holderName}
-              className="w-full py-4 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-xl disabled:opacity-50">
+              className="w-full py-4 bg-[var(--v2-primary)] text-white font-bold rounded-xl disabled:opacity-50 disabled:bg-[var(--v2-surface-container-high)] disabled:text-[var(--v2-on-surface-variant)] shadow-[var(--v2-primary)]/20 shadow-lg">
               {isAdding ? 'Adding...' : 'Add Bank Account'}
             </button>
           </div>
@@ -658,7 +676,7 @@ export function V2VendorWalletTab() {
             <ResponsiveModalTitle>Manage Bank Accounts</ResponsiveModalTitle>
           </ResponsiveModalHeader>
           <div className="p-6 space-y-4">
-            {wallet.accounts.length === 0 ? (
+            {accounts.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8">
                 <span className="v2-icon text-4xl text-[var(--v2-on-surface-variant)]/30 mb-3">
                   account_balance
@@ -670,7 +688,7 @@ export function V2VendorWalletTab() {
               </div>
             ) : (
               <div className="space-y-3 max-h-[40vh] overflow-y-auto">
-                {wallet.accounts.map((b: any) => (
+                {accounts.map((b: any) => (
                   <div
                     key={b.id}
                     className="p-4 rounded-xl bg-[var(--v2-surface-container-low)] flex items-center gap-4">
@@ -702,7 +720,7 @@ export function V2VendorWalletTab() {
               </div>
             )}
 
-            {wallet.accounts.length < 2 ? (
+            {accounts.length < 2 ? (
               <button
                 onClick={() => {
                   resetBankForm();

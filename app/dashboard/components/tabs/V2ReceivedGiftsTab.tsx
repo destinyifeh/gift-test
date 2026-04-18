@@ -6,7 +6,7 @@ import {
   ResponsiveModalHeader,
   ResponsiveModalTitle,
 } from '@/components/ui/responsive-modal';
-import {useReceivedGifts} from '@/hooks/use-analytics';
+import {useMyCampaignContributions} from '@/hooks/use-analytics';
 import {formatCurrency} from '@/lib/utils/currency';
 import {useState} from 'react';
 import {SelectedSection} from '../dashboard-config';
@@ -54,7 +54,7 @@ export function V2ReceivedGiftsTab({setSection, setWalletView}: V2ReceivedGiftsT
   const [selectedGift, setSelectedGift] = useState<any | null>(null);
 
   const [page, setPage] = useState(1);
-  const {data: receivedRes, isLoading} = useReceivedGifts(page);
+  const {data: receivedRes, isLoading} = useMyCampaignContributions(page);
 
   const receivedGiftsList = receivedRes?.data || [];
 
@@ -220,7 +220,7 @@ export function V2ReceivedGiftsTab({setSection, setWalletView}: V2ReceivedGiftsT
 
         <div className="space-y-2 md:space-y-3">
           {filteredGifts.map((g: any) => {
-            const status = statusConfig[g.status] || statusConfig.pending;
+            const status = statusConfig[g.status || 'success'] || statusConfig.pending;
 
             return (
               <button
@@ -246,7 +246,7 @@ export function V2ReceivedGiftsTab({setSection, setWalletView}: V2ReceivedGiftsT
                       </h3>
                       {/* Campaign name, From, Date */}
                       <p className="text-xs md:text-sm text-[var(--v2-on-surface-variant)] truncate">
-                        Campaign: <span className="font-medium">{g.campaignName || g.name || 'Campaign'}</span> • From: <span className="font-medium">{g.sender || 'Anonymous'}</span> • {g.date}
+                        Campaign: <span className="font-medium">{g.campaignTitle || g.campaignName || g.name || 'Campaign'}</span> • From: <span className="font-medium">{g.contributorName || g.sender || 'Anonymous'}</span> • {new Date(g.date).toLocaleDateString()}
                       </p>
                     </div>
                     <span
@@ -297,13 +297,13 @@ export function V2ReceivedGiftsTab({setSection, setWalletView}: V2ReceivedGiftsT
                 </div>
                 <div className="min-w-0 flex-1">
                   <h2 className="text-xl font-bold v2-headline text-[var(--v2-on-surface)] truncate">
-                    {selectedGift.campaignName || selectedGift.name || 'Campaign Donation'}
+                    {selectedGift.campaignTitle || selectedGift.campaignName || selectedGift.name || 'Campaign Donation'}
                   </h2>
                   <span
                     className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold uppercase mt-1 ${
-                      (statusConfig[selectedGift.status] || statusConfig.pending).bg
-                    } ${(statusConfig[selectedGift.status] || statusConfig.pending).text}`}>
-                    {(statusConfig[selectedGift.status] || statusConfig.pending).label}
+                      (statusConfig[selectedGift.status || 'success'] || statusConfig.pending).bg
+                    } ${(statusConfig[selectedGift.status || 'success'] || statusConfig.pending).text}`}>
+                    {(statusConfig[selectedGift.status || 'success'] || statusConfig.pending).label}
                   </span>
                 </div>
               </div>
@@ -325,7 +325,7 @@ export function V2ReceivedGiftsTab({setSection, setWalletView}: V2ReceivedGiftsT
                     <span className="text-sm text-[var(--v2-on-surface-variant)]">Campaign</span>
                   </div>
                   <span className="text-sm font-medium text-[var(--v2-on-surface)] truncate max-w-[180px]">
-                    {selectedGift.campaignName || selectedGift.name || 'Campaign'}
+                    {selectedGift.campaignTitle || selectedGift.campaignName || selectedGift.name || 'Campaign'}
                   </span>
                 </div>
                 {/* Donor */}
@@ -335,7 +335,7 @@ export function V2ReceivedGiftsTab({setSection, setWalletView}: V2ReceivedGiftsT
                     <span className="text-sm text-[var(--v2-on-surface-variant)]">Donor</span>
                   </div>
                   <span className="text-sm font-medium text-[var(--v2-on-surface)]">
-                    {selectedGift.sender || 'Anonymous Supporter'}
+                    {selectedGift.contributorName || selectedGift.sender || 'Anonymous Supporter'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--v2-surface-container-low)]">
@@ -344,7 +344,7 @@ export function V2ReceivedGiftsTab({setSection, setWalletView}: V2ReceivedGiftsT
                     <span className="text-sm text-[var(--v2-on-surface-variant)]">Date</span>
                   </div>
                   <span className="text-sm font-medium text-[var(--v2-on-surface)]">
-                    {selectedGift.date}
+                    {new Date(selectedGift.date).toLocaleDateString()}
                   </span>
                 </div>
                 {selectedGift.message && (
