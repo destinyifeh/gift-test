@@ -96,10 +96,10 @@ export class CampaignService {
     return campaign;
   }
 
-  async findAll(page: number = 1, limit: number = 10, visibility: string = 'public') {
+  async findAll(page: number = 1, limit: number = 10) {
     const { skip, take } = getPaginationOptions(page, limit);
 
-    const where = { visibility, status: 'active' };
+    const where = { visibility: 'public', status: 'active', giftCode: null };
 
     const [campaigns, total] = await Promise.all([
       (this.prisma as any).campaign.findMany({
@@ -128,7 +128,7 @@ export class CampaignService {
 
   async findMyCampaigns(userId: string) {
     const campaigns = await (this.prisma as any).campaign.findMany({
-      where: { userId },
+      where: { userId, giftCode: null },
       orderBy: { createdAt: 'desc' },
     });
 
