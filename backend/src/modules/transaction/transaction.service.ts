@@ -50,13 +50,17 @@ export class TransactionService {
   // Paystack Utilities
   // ─────────────────────────────────────────────
 
-  async verifyPaystackPayment(reference: string) {
+  async verifyPaystackPayment(reference: string, expectedAmount?: number) {
     const response = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
       headers: { Authorization: `Bearer ${this.paystackSecretKey}` },
     });
     const body = await response.json();
     if (!body.status || body.data.status !== 'success') {
       throw new BadRequestException('Payment verification failed');
+    }
+
+    if (expectedAmount && body.data.amount !== expectedAmount) {
+      throw new BadRequestException(`Payment amount mismatch. Expected: ${expectedAmount}, Got: ${body.data.amount}`);
     }
     return body.data;
   }
@@ -134,7 +138,7 @@ export class TransactionService {
   // ─────────────────────────────────────────────
 
   async verifyPaymentAndUpgrade(userId: string, reference: string) {
-    await this.verifyPaystackPayment(reference);
+    await this.verifyPaystackPayment(reference, 10000 * 100);
 
     const profile = await (this.prisma as any).user.findUnique({
       where: { id: userId },
@@ -682,58 +686,54 @@ export class TransactionService {
       });
     }
 
-    // Outbound transaction for donor
-    if (donorId) {
-      await (this.prisma as any).transaction.create({
-        data: {
-          userId: donorId,
-          campaignId: newGiftId,
-          amount: BigInt(paymentData.amount),
-          currency: paymentData.currency || data.currency,
-          type: TX_CAMPAIGN_CONTRIBUTION,
-          status: 'success',
-          reference: `${data.reference}-out`,
-          description: data.giftId
-            ? `Gift: ${data.giftName} to ${data.creatorUsername}`
-            : `Support for ${data.creatorUsername}`,
-          metadata: { is_outbound: true },
-        },
-      });
-    }
+    // ── Notifications ──
+    const themeSettings = (creator.themeSettings as any) || {};
+    const creatorPlan = themeSettings.plan;
+    const thankYouMsg = themeSettings.proThankYouMessage;
+    const dmNotifications = themeSettings.dmNotifications ?? true;
 
-    // Send thank-you email if creator is pro
-    const creatorPlan = (creator.themeSettings as any)?.plan;
-    const thankYouMsg = (creator.themeSettings as any)?.proThankYou;
-
-    if (data.giftId && creator.email) {
-      const vendorGift = await (this.prisma as any).vendorGift.findUnique({
-        where: { id: data.giftId },
-        select: { vendorId: true },
-      });
-      const vendorProfile = vendorGift
-        ? await (this.prisma as any).user.findUnique({ where: { id: vendorGift.vendorId }, select: { shopName: true } })
-        : null;
+    // 1. Notify Creator (if enabled)
+    if (dmNotifications && creator.email) {
+      let vendorShopName = 'Gifthance Partner';
+      let displayGiftName = data.giftName || 'Gift Card';
+      
+      if (data.giftId) {
+        const vendorGift = await (this.prisma as any).vendorGift.findUnique({
+          where: { id: data.giftId },
+          select: { vendorId: true },
+        });
+        const vendorProfile = vendorGift
+          ? await (this.prisma as any).user.findUnique({ where: { id: vendorGift.vendorId }, select: { shopName: true } })
+          : null;
+        vendorShopName = vendorProfile?.shopName || vendorShopName;
+      } else {
+        vendorShopName = 'Gifthance Wallet';
+        displayGiftName = 'Direct Cash Support';
+      }
 
       await this.emailService.sendGiftEmail({
         to: creator.email,
         senderName: data.isAnonymous ? 'A Supporter' : data.donorName,
-        vendorShopName: vendorProfile?.shopName || 'Gifthance Partner',
-        giftName: data.giftName || 'Gift Card',
+        vendorShopName,
+        giftName: displayGiftName,
         giftAmount: data.expectedAmount,
         message: data.message,
         claimUrl: `${this.siteUrl}/dashboard`,
-      });
-    } else if (creatorPlan === 'pro' && thankYouMsg && data.donorEmail) {
+      }).catch(e => this.logger.error(`Creator notification failed: ${e.message}`));
+    }
+
+    // 2. Send Thank You to Gifter (if Pro)
+    if (creatorPlan === 'pro' && thankYouMsg && data.donorEmail) {
       await this.emailService.sendThankYouEmail({
         to: data.donorEmail,
         donorName: data.isAnonymous ? 'Supporter' : data.donorName,
         creatorName: creator.displayName || data.creatorUsername,
         creatorUsername: data.creatorUsername,
         thankYouMessage: thankYouMsg,
-        giftName: data.giftName || null,
+        giftName: data.giftName || (data.giftId ? 'Physical Gift' : 'Direct Support'),
         amount: paidAmount,
         currency: paymentData.currency || data.currency,
-      }).catch(e => console.error('Thank-you email failed:', e));
+      }).catch(e => this.logger.error(`Thank-you email failed: ${e.message}`));
     }
 
     return { success: true };

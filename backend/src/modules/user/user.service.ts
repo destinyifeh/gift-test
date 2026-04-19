@@ -164,6 +164,70 @@ export class UserService {
   }
 
   /**
+   * Fetch a creator's public supporters
+   */
+  async getPublicSupporters(username: string, page: number = 1, limit: number = 10) {
+    const user = await (this.prisma as any).user.findFirst({
+      where: {
+        OR: [
+          { username: { equals: username, mode: 'insensitive' } },
+        ]
+      }
+    });
+
+    if (!user) throw new NotFoundException('User not found');
+
+    const skip = (page - 1) * limit;
+    const take = limit;
+
+    const supportPageFilter = {
+      userId: user.id,
+      NOT: {
+        message: { contains: 'Claimed cash gift' },
+      },
+    };
+
+    const [supporters, total, summary] = await Promise.all([
+      (this.prisma as any).creatorSupport.findMany({
+        where: supportPageFilter,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take,
+      }),
+      (this.prisma as any).creatorSupport.count({ where: supportPageFilter }),
+      (this.prisma as any).creatorSupport.aggregate({
+        where: supportPageFilter,
+        _sum: { amount: true },
+      }),
+    ]);
+
+    const formatted = supporters.map((s: any) => ({
+      id: s.id,
+      name: s.donorName || 'Anonymous',
+      // Purposefully excluding sensitive donor email
+      amount: Number(s.amount),
+      currency: s.currency || 'NGN',
+      message: s.message,
+      date: s.createdAt.toLocaleDateString(),
+      giftName: s.giftName,
+      anonymous: s.isAnonymous,
+      hideAmount: s.hideAmount,
+    }));
+
+    return {
+      data: formatted,
+      totalSupporters: total,
+      totalReceived: Number(summary._sum.amount || 0),
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      }
+    };
+  }
+
+  /**
    * Update user banner image. Deletes old image from R2 if it exists.
    * Only pro plan users can have a banner.
    */

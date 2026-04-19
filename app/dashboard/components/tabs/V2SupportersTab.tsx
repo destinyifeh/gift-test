@@ -69,7 +69,7 @@ export function V2SupportersTab({setSection}: V2SupportersTabProps) {
 
   const supportersList = supportersRes?.data || [];
   const totalSupporters = supportersRes?.total || supportersList.length;
-  const totalReceived = supportersRes?.totalReceived || supportersList.reduce((sum: number, s: any) => sum + (s.amount || 0), 0);
+  const totalReceived = supportersRes?.totalReceived || 0;
 
   // Filter and sort supporters
   const filteredAndSortedSupporters = useMemo(() => {
@@ -164,13 +164,13 @@ export function V2SupportersTab({setSection}: V2SupportersTabProps) {
       <div className="hidden md:flex justify-between items-start">
         <div>
           <p className="text-xs text-[var(--v2-on-surface-variant)] uppercase tracking-wider mb-1">
-            Campaigns • Supporters List
+            Creator Support • Supporters
           </p>
           <h1 className="text-3xl font-extrabold v2-headline text-[var(--v2-on-surface)] tracking-tight">
-            Project Supporters
+            Your Supporters
           </h1>
           <p className="text-[var(--v2-on-surface-variant)] mt-1">
-            Track and manage the generous individuals who have contributed to your active gifting campaigns.
+            Direct gifts and messages from fans on your public support page.
           </p>
         </div>
         <div className="text-right">

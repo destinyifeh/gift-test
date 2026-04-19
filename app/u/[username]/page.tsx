@@ -3,7 +3,7 @@
 import {useProfileByUsername} from '@/hooks/use-profile';
 import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
 import {useRecordCreatorGift} from '@/hooks/use-transactions';
-import {useCreatorSupporters} from '@/hooks/use-analytics';
+import {usePublicCreatorSupporters} from '@/hooks/use-analytics';
 import {useUserStore} from '@/lib/store/useUserStore';
 import {formatCurrency} from '@/lib/utils/currency';
 import {useInfiniteQuery, useQueryClient} from '@tanstack/react-query';
@@ -53,13 +53,15 @@ export default function CreatorProfilePage({params}: {params: Promise<{username:
   const [customAmount, setCustomAmount] = useState('');
 
   const loggedInUser = useUserStore(state => state.user);
-  const {data: dbProfile, isLoading} = useProfileByUsername(username);
+  const {data: dbProfile, isLoading: isProfileLoading} = useProfileByUsername(username);
 
-  const {data: supportersData} = useCreatorSupporters();
+  const {data: supportersData, isLoading: isSupportersLoading} = usePublicCreatorSupporters(username);
 
   const allSupporters = supportersData?.data || [];
   const totalSupporters = supportersData?.totalSupporters || 0;
   const totalReceived = supportersData?.totalReceived || 0;
+
+  const isLoading = isProfileLoading;
 
   if (isLoading) {
     return (
@@ -101,6 +103,30 @@ export default function CreatorProfilePage({params}: {params: Promise<{username:
     );
   }
 
+  const isPublic = dbProfile?.theme_settings?.publicProfile ?? true;
+
+  if (!isPublic && !isOwner) {
+    return (
+      <div className="min-h-screen bg-[var(--v2-background)]">
+        <MobileHeader isOwner={false} />
+        <DesktopHeader />
+        <div className="pt-20 pb-16 flex items-center justify-center px-4">
+          <div className="max-w-md w-full bg-[var(--v2-surface-container-low)] rounded-[2rem] p-8 text-center">
+            <div className="w-20 h-20 rounded-full bg-[var(--v2-surface-container-high)] flex items-center justify-center mx-auto mb-4">
+              <span className="v2-icon text-3xl text-[var(--v2-on-surface-variant)]">lock</span>
+            </div>
+            <h1 className="text-xl font-bold v2-headline text-[var(--v2-on-surface)] mb-2">
+              @{username}
+            </h1>
+            <p className="text-[var(--v2-on-surface-variant)] mb-6">
+              This profile is currently private.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const currency = getCurrencyByCountry(dbProfile?.country || 'Nigeria');
   const currencySymbol = getCurrencySymbol(currency);
 
@@ -116,7 +142,7 @@ export default function CreatorProfilePage({params}: {params: Promise<{username:
   const profile = {
     name: dbProfile?.display_name || username || 'User',
     bio: dbProfile?.bio || 'Supporting creativity, one gift at a time.',
-    showSupporters: dbProfile?.theme_settings?.showSupporters ?? true,
+    showSupportTotal: dbProfile?.theme_settings?.showSupportTotal ?? true,
     showAmounts: dbProfile?.theme_settings?.showAmountOnSupport ?? true,
     acceptMoney: dbProfile?.theme_settings?.acceptMoney ?? true,
     socialLinks: dbProfile?.social_links || {},
@@ -190,24 +216,26 @@ export default function CreatorProfilePage({params}: {params: Promise<{username:
                     </div>
 
                     {/* Stats */}
-                    <div className="flex justify-center gap-8 py-4 border-y border-[var(--v2-outline-variant)]/10">
-                      <div className="text-center">
-                        <p className="text-2xl font-black v2-headline text-[var(--v2-primary)]">
-                          {totalSupporters.toLocaleString()}
-                        </p>
-                        <p className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
-                          Supporters
-                        </p>
+                    {profile.showSupportTotal && (
+                      <div className="flex justify-center gap-8 py-4 border-y border-[var(--v2-outline-variant)]/10">
+                        <div className="text-center">
+                          <p className="text-2xl font-black v2-headline text-[var(--v2-primary)]">
+                            {totalSupporters.toLocaleString()}
+                          </p>
+                          <p className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
+                            Supporters
+                          </p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-2xl font-black v2-headline text-[var(--v2-primary)]">
+                            {formatCurrency(totalReceived, currency)}
+                          </p>
+                          <p className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
+                            Received
+                          </p>
+                        </div>
                       </div>
-                      <div className="text-center">
-                        <p className="text-2xl font-black v2-headline text-[var(--v2-primary)]">
-                          {formatCurrency(totalReceived, currency)}
-                        </p>
-                        <p className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
-                          Received
-                        </p>
-                      </div>
-                    </div>
+                    )}
 
                     {/* Social Links */}
                     {Object.keys(profile.socialLinks).length > 0 && (
@@ -234,7 +262,7 @@ export default function CreatorProfilePage({params}: {params: Promise<{username:
                 </div>
 
                 {/* Recent Supporters */}
-                {allSupporters.length > 0 && (
+                {profile.showSupportTotal && allSupporters.length > 0 && (
                   <div className="mt-6 bg-[var(--v2-surface-container-lowest)] rounded-[2rem] p-6">
                     <h3 className="font-bold v2-headline text-[var(--v2-on-surface)] mb-4">Recent Supporters</h3>
                     <div className="space-y-3">
@@ -260,7 +288,11 @@ export default function CreatorProfilePage({params}: {params: Promise<{username:
                                 )}
                               </div>
                             </div>
-                            {!s.hideAmount && (
+                            {(!profile.showAmounts || s.hideAmount) ? (
+                              <span className="text-xs font-bold text-[var(--v2-on-surface-variant)] italic">
+                                Hidden
+                              </span>
+                            ) : (
                               <span className="text-sm font-bold text-[var(--v2-primary)]">
                                 {formatCurrency(s.amount, s.currency)}
                               </span>
@@ -758,40 +790,40 @@ function GiftModal({open, onClose, creatorName, creatorUsername, amount, currenc
         amount: Math.round(amount * 100),
         currency:'NGN',
         onSuccess: async (response: any) => {
-          recordGift.mutate({
-            reference: response.reference,
-            creatorUsername,
-            donorName,
-            donorEmail,
-            message,
-            isAnonymous,
-            hideAmount,
-            expectedAmount: amount,
-            currency,
-            giftId: null,
-            giftName: giftTier ? `${giftTier.emoji} ${giftTier.label}` : null,
-          }, {
-            onSuccess: (res) => {
-              if (res.success) {
-                queryClient.invalidateQueries({queryKey: ['profile']});
-                queryClient.invalidateQueries({queryKey: ['creator-supporters']});
-                setStep('success');
-              } else {
-                toast.error(res.error || 'Failed to record gift');
-              }
-              setIsProcessing(false);
-            },
-            onError: (err: any) => {
-              toast.error(err.response?.data?.message || 'Failed to record gift');
-              setIsProcessing(false);
+          try {
+            const res = await recordGift.mutateAsync({
+              reference: response.reference,
+              creatorUsername,
+              donorName,
+              donorEmail,
+              message,
+              isAnonymous,
+              hideAmount,
+              expectedAmount: amount,
+              currency,
+              giftId: null,
+              giftName: giftTier ? `${giftTier.emoji} ${giftTier.label}` : null,
+            });
+
+            if (res.success) {
+              queryClient.invalidateQueries({queryKey: ['profile']});
+              queryClient.invalidateQueries({queryKey: ['public-creator-supporters']});
+              queryClient.invalidateQueries({queryKey: ['creator-supporters']});
+              toast.success('Gift Sent!', { description: thankYouMessage });
+            } else {
+              toast.error(res.error || 'Failed to record gift');
             }
-          });
+          } catch (err: any) {
+            toast.error(err.response?.data?.message || 'Failed to record gift');
+          }
         },
         onCancel: () => {
-          setIsProcessing(false);
           toast.info('Payment cancelled');
         },
       });
+
+      // Close the native modal immediately so the user only sees Paystack widget
+      onClose();
     } catch (err: any) {
       toast.error(err?.message || 'Could not start transaction');
       setIsProcessing(false);

@@ -95,9 +95,20 @@ export function V2GiftPageTab({creatorPlan, setCreatorPlan}: V2GiftPageTabProps)
   }, [profile]);
 
   const toggleGiftTier = (id: string) => {
-    setGiftTiers(prev =>
-      prev.map(tier => (tier.id === id ? {...tier, enabled: !tier.enabled} : tier))
-    );
+    setGiftTiers(prev => {
+      const isEnabling = prev.find(t => t.id === id)?.enabled === false;
+      const currentlyEnabledCount = prev.filter(t => t.enabled).length;
+
+      if (isEnabling && currentlyEnabledCount >= 3) {
+        toast.error('Maximum 3 active tiers allowed', {
+          description: 'Please turn off an active tier to enable this one.',
+          duration: 5000,
+        });
+        return prev;
+      }
+
+      return prev.map(tier => (tier.id === id ? {...tier, enabled: !tier.enabled} : tier));
+    });
   };
 
   const handleAddTier = () => {
@@ -110,16 +121,26 @@ export function V2GiftPageTab({creatorPlan, setCreatorPlan}: V2GiftPageTabProps)
       return;
     }
 
+    const currentlyEnabledCount = giftTiers.filter(t => t.enabled).length;
+    const shouldEnable = currentlyEnabledCount < 3;
+
+    if (!shouldEnable) {
+      toast.info('Maximum 3 active tiers reached', {
+        description: 'New tier added but kept inactive. Turn off another tier to enable it.',
+      });
+    } else {
+      toast.success('Gift tier added!');
+    }
+
     const tier: GiftTier = {
       ...newTier,
       id: `custom-${Date.now()}`,
-      enabled: true,
+      enabled: shouldEnable,
     };
 
     setGiftTiers(prev => [...prev, tier]);
     setNewTier({emoji: '🎁', label: '', amount: 1000, enabled: true});
     setShowAddTierModal(false);
-    toast.success('Gift tier added!');
   };
 
   const handleUpdateTier = () => {

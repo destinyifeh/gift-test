@@ -41,6 +41,18 @@ export function useCreatorSupporters(page: number = 1, limit: number = 10) {
   });
 }
 
+export function usePublicCreatorSupporters(username: string | null, page: number = 1, limit: number = 10) {
+  return useQuery({
+    queryKey: ['public-creator-supporters', username, page, limit],
+    queryFn: async () => {
+      if (!username) return null;
+      const res = await api.get(`/users/${username}/supporters?page=${page}&limit=${limit}`);
+      return res.data;
+    },
+    enabled: !!username,
+  });
+}
+
 export function useSentGifts(page: number = 1, limit: number = 10) {
   return useQuery({
     queryKey: ['sent-gifts', page, limit],

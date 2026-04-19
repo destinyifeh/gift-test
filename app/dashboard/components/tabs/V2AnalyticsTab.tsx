@@ -46,9 +46,8 @@ export function V2AnalyticsTab({setSection, setWalletView}: V2AnalyticsTabProps)
   // Fetch recent supporters for the activity section
   const {data: supportersRes} = useCreatorSupporters(1, 10);
 
-  // Type guard to check if data has analytics shape (not array)
-  const analyticsData =
-    analyticsRes?.data && !Array.isArray(analyticsRes.data) ? analyticsRes.data : analyticsRes || null;
+  // Backend returns flat: { totalReceived, totalSupporters, chartData, currency }
+  const analyticsData = analyticsRes || null;
 
   const totalReceived = analyticsData?.totalReceived || 0;
   const totalSupporters = analyticsData?.totalSupporters || 0;
@@ -76,7 +75,7 @@ export function V2AnalyticsTab({setSection, setWalletView}: V2AnalyticsTabProps)
     return acc;
   }, {});
 
-  const topTiers = Object.entries(giftTierBreakdown)
+  const topTiers = (Object.entries(giftTierBreakdown) as [string, {count: number; total: number}][])
     .map(([name, data]) => ({name, ...data}))
     .sort((a, b) => b.total - a.total)
     .slice(0, 4);

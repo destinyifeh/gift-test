@@ -364,19 +364,42 @@ export class AnalyticsService {
 
   /**
    * Fetch creator supporters (people who sent money/gifts to the creator).
-   * Mirrors frontend: analytics.ts → fetchCreatorSupporters
+   * Only includes direct support page gifts — excludes claimed cash gifts.
    */
   async fetchCreatorSupporters(userId: string, page: number = 1, limit: number = 10) {
     const { skip, take } = getPaginationOptions(page, limit);
 
-    const [supporters, total] = await Promise.all([
+    // Filter: only support page gifts (exclude claimed gifts)
+    const supportPageFilter = {
+      userId,
+      AND: [
+        {
+          NOT: {
+            transaction: {
+              reference: { startsWith: 'claim-' },
+            },
+          },
+        },
+        {
+          NOT: {
+            message: { contains: 'Claimed cash gift' },
+          },
+        }
+      ]
+    };
+
+    const [supporters, total, summary] = await Promise.all([
       (this.prisma as any).creatorSupport.findMany({
-        where: { userId },
+        where: supportPageFilter,
         orderBy: { createdAt: 'desc' },
         skip,
         take,
       }),
-      (this.prisma as any).creatorSupport.count({ where: { userId } }),
+      (this.prisma as any).creatorSupport.count({ where: supportPageFilter }),
+      (this.prisma as any).creatorSupport.aggregate({
+        where: supportPageFilter,
+        _sum: { amount: true },
+      }),
     ]);
 
     const formatted = supporters.map((s: any) => ({
@@ -388,9 +411,13 @@ export class AnalyticsService {
       message: s.message,
       date: s.createdAt.toLocaleDateString(),
       vendorRating: s.vendorRating,
+      giftName: s.giftName,
     }));
 
-    return paginate(formatted, total, page, limit);
+    return {
+      ...paginate(formatted, total, page, limit),
+      totalReceived: Number(summary._sum.amount || 0),
+    };
   }
 
   /**
@@ -442,127 +469,71 @@ export class AnalyticsService {
   }
 
   /**
-   * Fetch comprehensive creator analytics.
-   * Mirrors frontend: analytics.ts → fetchCreatorAnalytics
+   * Fetch creator analytics — STRICTLY from the support page.
+   * Only queries CreatorSupport records, excluding claimed gifts.
    */
   async fetchCreatorAnalytics(userId: string) {
-    // Get all user's campaigns (both crowdfunding and gifts received)
-    const [campaigns, directSupport, sentGifts, flexCardsSent, flexCardsReceived] = await Promise.all([
-      (this.prisma as any).campaign.findMany({
-        where: { userId },
-        select: {
-          id: true,
-          currentAmount: true,
-          goalAmount: true,
-          status: true,
-          category: true,
-          giftCode: true,
-          createdAt: true,
+    // Filter: only support page gifts (exclude claimed gifts)
+    const supportPageFilter = {
+      userId,
+      AND: [
+        {
+          NOT: {
+            transaction: {
+              reference: { startsWith: 'claim-' },
+            },
+          },
         },
-      }),
+        {
+          NOT: {
+            message: { contains: 'Claimed cash gift' },
+          },
+        }
+      ]
+    };
+
+    const [directSupport, totalSupporters] = await Promise.all([
       (this.prisma as any).creatorSupport.findMany({
-        where: { userId },
+        where: supportPageFilter,
         select: { amount: true, createdAt: true },
+        orderBy: { createdAt: 'desc' },
       }),
-      (this.prisma as any).directGift.findMany({
-        where: { userId },
-        select: { amount: true, createdAt: true },
-      }),
-      (this.prisma as any).flexCard.findMany({
-        where: { senderId: userId },
-        select: { initialAmount: true, createdAt: true },
-      }),
-      (this.prisma as any).flexCard.findMany({
-        where: { userId },
-        select: { initialAmount: true, currentBalance: true, createdAt: true },
-      }),
+      (this.prisma as any).creatorSupport.count({ where: supportPageFilter }),
     ]);
 
-    // Calculate metrics
-    const crowdfundingCampaigns = campaigns.filter((c: any) => !c.giftCode);
-    // receivedGifts is now from directGift query
-    const receivedGifts = sentGifts; // sentGifts now holds directGifts belonging to user
-
-    const totalCrowdfundingRaised = crowdfundingCampaigns.reduce(
-      (sum: number, c: any) => sum + Number(c.currentAmount || 0),
-      0
+    const totalReceived = directSupport.reduce(
+      (sum: number, s: any) => sum + Number(s.amount || 0),
+      0,
     );
 
-    const totalDirectSupport = directSupport.reduce((sum: number, s: any) => sum + Number(s.amount || 0), 0);
-
-    const totalGiftsSentValue = sentGifts.reduce((sum: number, g: any) => sum + Number(g.amount || 0), 0);
-
-    const totalGiftsReceivedValue = receivedGifts.reduce((sum: number, g: any) => sum + Number(g.amount || 0), 0);
-
-    const totalFlexCardsSentValue = flexCardsSent.reduce(
-      (sum: number, c: any) => sum + Number(c.initialAmount || 0),
-      0
-    );
-
-    const totalFlexCardsReceivedValue = flexCardsReceived.reduce(
-      (sum: number, c: any) => sum + Number(c.initialAmount || 0),
-      0
-    );
-
-    // Monthly breakdown for the last 6 months
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-
-    const monthlyData: Record<string, { received: number; sent: number }> = {};
-
-    const allReceivedItems = [
-      ...crowdfundingCampaigns.map((c: any) => ({
-        amount: Number(c.currentAmount || 0),
-        date: c.createdAt,
-      })),
-      ...directSupport.map((s: any) => ({ amount: Number(s.amount || 0), date: s.createdAt })),
-      ...receivedGifts.map((g: any) => ({ amount: Number(g.amount || 0), date: g.createdAt })),
-      ...flexCardsReceived.map((c: any) => ({ amount: Number(c.initialAmount || 0), date: c.createdAt })),
-    ];
-
-    const allSentItems = [
-      ...sentGifts.map((g: any) => ({ amount: Number(g.amount || 0), date: g.createdAt })),
-      ...flexCardsSent.map((c: any) => ({ amount: Number(c.initialAmount || 0), date: c.createdAt })),
-    ];
-
-    allReceivedItems.forEach((item) => {
-      if (item.date >= sixMonthsAgo) {
-        const monthKey = `${item.date.getFullYear()}-${String(item.date.getMonth() + 1).padStart(2, '0')}`;
-        if (!monthlyData[monthKey]) monthlyData[monthKey] = { received: 0, sent: 0 };
-        monthlyData[monthKey].received += item.amount;
-      }
+    // Last 7 days breakdown for the chart
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
+      d.setHours(0, 0, 0, 0);
+      return d;
     });
 
-    allSentItems.forEach((item) => {
-      if (item.date >= sixMonthsAgo) {
-        const monthKey = `${item.date.getFullYear()}-${String(item.date.getMonth() + 1).padStart(2, '0')}`;
-        if (!monthlyData[monthKey]) monthlyData[monthKey] = { received: 0, sent: 0 };
-        monthlyData[monthKey].sent += item.amount;
-      }
+    const chartData = last7Days.map(date => {
+      const nextDate = new Date(date);
+      nextDate.setDate(nextDate.getDate() + 1);
+
+      const dayGifts = directSupport.filter((s: any) => {
+        const sDate = new Date(s.createdAt);
+        return sDate >= date && sDate < nextDate;
+      }).length;
+
+      return {
+        date: date.toISOString().split('T')[0],
+        gifts: dayGifts,
+      };
     });
 
     return {
-      summary: {
-        totalReceived: totalCrowdfundingRaised + totalDirectSupport + totalGiftsReceivedValue + totalFlexCardsReceivedValue,
-        totalSent: totalGiftsSentValue + totalFlexCardsSentValue,
-        campaignsCount: crowdfundingCampaigns.length,
-        giftsReceivedCount: receivedGifts.length,
-        giftsSentCount: sentGifts.length,
-        supportersCount: directSupport.length,
-        flexCardsReceivedCount: flexCardsReceived.length,
-        flexCardsSentCount: flexCardsSent.length,
-      },
-      breakdown: {
-        crowdfundingRaised: totalCrowdfundingRaised,
-        directSupport: totalDirectSupport,
-        giftsReceivedValue: totalGiftsReceivedValue,
-        giftsSentValue: totalGiftsSentValue,
-        flexCardsReceivedValue: totalFlexCardsReceivedValue,
-        flexCardsSentValue: totalFlexCardsSentValue,
-      },
-      monthlyTrends: Object.entries(monthlyData)
-        .sort(([a], [b]) => a.localeCompare(b))
-        .map(([month, data]) => ({ month, ...data })),
+      totalReceived,
+      totalSupporters,
+      chartData,
+      currency: 'NGN',
     };
   }
 

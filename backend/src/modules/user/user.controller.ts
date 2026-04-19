@@ -27,6 +27,15 @@ export class UserController {
     return this.userService.findOne(idOrUsername);
   }
 
+  @Get(':username/supporters')
+  async getPublicSupporters(
+    @Param('username') username: string,
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '10'
+  ) {
+    return this.userService.getPublicSupporters(username, Number(page), Number(limit));
+  }
+
   @UseGuards(AuthGuard)
   @Patch()
   async update(@Req() req: Request, @Body() updateData: UpdateUserDto) {
