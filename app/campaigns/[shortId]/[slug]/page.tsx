@@ -49,9 +49,9 @@ function getExpiryWarning(endDate?: string | null): string | null {
   return null;
 }
 
-function getRaisedAmount(contributions?: {amount?: number}[]): number {
+function getRaisedAmount(contributions?: {amount?: number | string}[]): number {
   if (!contributions || contributions.length === 0) return 0;
-  return contributions.reduce((sum, c) => sum + (c.amount || 0), 0);
+  return contributions.reduce((sum, c) => sum + Number(c.amount || 0), 0);
 }
 
 export default function CampaignDetailsPage({params}: PageProps) {
@@ -212,8 +212,8 @@ export default function CampaignDetailsPage({params}: PageProps) {
               currency={currency}
               contributorsCount={contributorsCount}
               daysLeft={daysLeft}
-              organizerName={campaign.profiles?.display_name || campaign.profiles?.username}
-              organizerAvatar={campaign.profiles?.avatar_url}
+              organizerName={campaign.user?.display_name || campaign.user?.username}
+              organizerAvatar={campaign.user?.avatar_url}
                campaignShortId={campaign.campaign_short_id}
                onShare={handleShare}
                onReport={() => setShowReportModal(true)}
@@ -241,7 +241,7 @@ export default function CampaignDetailsPage({params}: PageProps) {
         onOpenChange={setShowGiftModal}
         campaignSlug={shortId}
         campaignTitle={campaign.title || ''}
-        creatorName={campaign.profiles?.display_name || ''}
+        creatorName={campaign.user?.display_name || ''}
         minAmount={campaign.min_amount}
         currency={campaign.currency}
         status={effectiveStatus}

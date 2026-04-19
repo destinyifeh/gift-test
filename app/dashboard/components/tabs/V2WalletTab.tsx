@@ -73,7 +73,12 @@ export function V2WalletTab() {
   }, [profile, hasSetDefaultCountry]);
 
   const banks = banksData?.data || [];
-  const walletData = walletProfile?.data || {};
+  const walletData = walletProfile || {};
+  
+  // Debug log to see the shape of the data
+  console.log('--- Wallet Profile Debug ---');
+  console.log('API Response (destructured):', walletData);
+
   const wallet = walletData.user || {
     balance: 0,
     totalInflow: 0,

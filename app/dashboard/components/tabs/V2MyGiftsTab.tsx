@@ -119,8 +119,8 @@ export function V2MyGiftsTab() {
     });
   };
 
-  // Calculate stats - count gifts that are ready to claim (unclaimed) or use (claimed but not redeemed)
-  const readyToClaim = (gifts.filter((g: any) => g.status !== 'redeemed' && g.status !== 'expired' && g.status !== 'cancelled').length) + unclaimedGiftsCount;
+  // Calculate stats - "Gifts to claim" = only unclaimed gifts (not yet claimed by user)
+  const readyToClaim = unclaimedGiftsCount;
 
   const totalGiftsValue = gifts.reduce((sum: number, g: any) => sum + Number(g.amount || 0), 0);
   const totalFlexCardsValue = flexCards.reduce((sum: number, c: any) => sum + Number(c.current_balance || 0), 0);

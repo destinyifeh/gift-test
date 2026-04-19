@@ -155,6 +155,7 @@ const V2SendShopGiftModal = ({
           recipientCountryCode: deliveryMethod === 'whatsapp' ? countryCode : undefined,
           deliveryMethod: deliveryMethod,
           senderName: formData.isAnonymous ? 'Anonymous' : formData.senderName,
+          senderEmail: formData.senderEmail,
           message: formData.message,
           giftId: Number(gift.id),
           giftName: gift.name,

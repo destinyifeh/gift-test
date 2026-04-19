@@ -24,7 +24,7 @@ export interface Campaign {
   status: string;
   visibility: string;
   created_at: string;
-  profiles?: {
+  user?: {
     id: string;
     username?: string;
     display_name?: string;
@@ -54,10 +54,10 @@ function getDaysLeft(endDate?: string): number | null {
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
 }
 
-function getRaisedAmount(contributions?: {id: number; amount?: number}[]): number {
+function getRaisedAmount(contributions?: {id: number; amount?: number | string}[]): number {
   if (!contributions || contributions.length === 0) return 0;
   // Sum actual contribution amounts (stored in main unit, so no division needed)
-  return contributions.reduce((sum, c) => sum + (c.amount || 0), 0);
+  return contributions.reduce((sum, c) => sum + Number(c.amount || 0), 0);
 }
 
 /**
@@ -70,7 +70,7 @@ export function DesktopCampaignCard({campaign}: CampaignCardProps) {
   const progress = Math.min(100, Math.round((raised / goal) * 100));
   const daysLeft = getDaysLeft(campaign.end_date);
   const currency = campaign.currency || 'NGN';
-  const organizerName = campaign.profiles?.display_name || campaign.profiles?.username || 'Anonymous';
+  const organizerName = campaign.user?.display_name || campaign.user?.username || 'Anonymous';
 
   return (
     <Link href={getCampaignUrl(campaign)}>
@@ -135,8 +135,8 @@ export function DesktopCampaignCard({campaign}: CampaignCardProps) {
             </div>
             <div className="flex items-center gap-3 pt-4">
               <div className="w-8 h-8 rounded-full bg-[var(--v2-surface-container-high)] flex items-center justify-center text-[var(--v2-primary)] font-bold text-xs uppercase overflow-hidden">
-                {campaign.profiles?.avatar_url ? (
-                  <img src={campaign.profiles.avatar_url} alt={organizerName} className="w-full h-full object-cover" />
+                {campaign.user?.avatar_url ? (
+                  <img src={campaign.user.avatar_url} alt={organizerName} className="w-full h-full object-cover" />
                 ) : (
                   getInitials(organizerName)
                 )}

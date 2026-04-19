@@ -72,7 +72,7 @@ export function V2VendorWalletTab() {
   }, [profile, hasSetDefaultCountry]);
 
   const banks = banksData?.data || [];
-  const walletData = walletProfile?.data || {};
+  const walletData = walletProfile || {};
   const wallet = walletData.vendor || {
     balance: 0,
     totalRevenue: 0,

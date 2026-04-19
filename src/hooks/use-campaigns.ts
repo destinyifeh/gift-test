@@ -11,12 +11,16 @@ const mapCampaign = (c: any) => ({
   updated_at: c.updatedAt,
   user_id: c.userId,
   short_id: c.campaignShortId,
+  campaign_short_id: c.campaignShortId,
   slug: c.campaignSlug || c.campaignShortId,
+  campaign_slug: c.campaignSlug || c.campaignShortId,
   user: c.user ? {
     ...c.user,
     display_name: c.user.displayName,
     avatar_url: c.user.avatarUrl,
   } : undefined,
+  raisedAmount: c.contributions?.reduce((sum: number, contrib: any) => sum + Number(contrib.amount || 0), 0) || 0,
+  contributorsCount: c.contributions?.length || 0,
   contributions: c.contributions?.map((contrib: any) => ({
     ...contrib,
     donor_name: contrib.donor_name || (contrib.isAnonymous ? 'Anonymous' : contrib.donorName) || 'Guest',
@@ -63,6 +67,7 @@ export function usePublicCampaigns(options?: {
       return {
         data: result.data.map(mapCampaign),
         nextPage: result.pagination?.hasMore ? pageParam + 1 : undefined,
+        pagination: result.pagination,
       };
     },
     getNextPageParam: lastPage => lastPage.nextPage,

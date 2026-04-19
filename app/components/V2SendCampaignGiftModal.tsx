@@ -109,6 +109,9 @@ const V2SendCampaignGiftModal = ({
       const PaystackPop = (await import('@paystack/inline-js')).default;
       const paystack = new (PaystackPop as any)();
 
+      // Close the internal modal early so it doesn't linger behind Paystack
+      onOpenChange(false);
+
       paystack.newTransaction({
         key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY as string,
         email: donorEmail,

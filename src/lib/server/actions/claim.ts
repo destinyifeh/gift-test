@@ -8,7 +8,7 @@ import { serverFetch } from '../server-api';
  */
 export async function fetchGiftByCode(code: string) {
   try {
-    const data = await serverFetch(`campaigns/${code}`);
+    const data = await serverFetch(`gifts/code/${code}`);
     return { success: true, data };
   } catch (error: any) {
     return { success: false, error: error.message };
