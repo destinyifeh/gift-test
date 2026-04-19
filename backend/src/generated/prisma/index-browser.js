@@ -231,8 +231,18 @@ exports.Prisma.CampaignScalarFieldEnum = {
   recipientCountryCode: 'recipientCountryCode',
   whatsappFee: 'whatsappFee',
   senderName: 'senderName',
+  withdrawnAmount: 'withdrawnAmount',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CampaignWithdrawalScalarFieldEnum = {
+  id: 'id',
+  campaignId: 'campaignId',
+  amount: 'amount',
+  currency: 'currency',
+  transactionId: 'transactionId',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.ContributionScalarFieldEnum = {
@@ -574,6 +584,7 @@ exports.Prisma.ModelName = {
   Account: 'Account',
   Verification: 'Verification',
   Campaign: 'Campaign',
+  CampaignWithdrawal: 'CampaignWithdrawal',
   Contribution: 'Contribution',
   DirectGift: 'DirectGift',
   Promotion: 'Promotion',

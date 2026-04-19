@@ -15,6 +15,7 @@ const mapCampaign = (c: any) => ({
   campaign_short_id: c.campaignShortId,
   slug: c.campaignSlug || c.campaignShortId,
   campaign_slug: c.campaignSlug || c.campaignShortId,
+  name: c.title || c.name,
   user: c.user ? {
     ...c.user,
     display_name: c.user.displayName,
@@ -22,6 +23,8 @@ const mapCampaign = (c: any) => ({
   } : undefined,
   raisedAmount: c.contributions?.reduce((sum: number, contrib: any) => sum + Number(contrib.amount || 0), 0) || 0,
   contributorsCount: c.contributions?.length || 0,
+  withdrawnAmount: Number(c.withdrawnAmount || 0),
+  withdrawals: c.withdrawals || [],
   contributions: c.contributions?.map((contrib: any) => ({
     ...contrib,
     donor_name: contrib.donor_name || (contrib.isAnonymous ? 'Anonymous' : contrib.donorName) || 'Guest',

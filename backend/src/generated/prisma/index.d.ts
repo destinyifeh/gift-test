@@ -39,6 +39,11 @@ export type Verification = $Result.DefaultSelection<Prisma.$VerificationPayload>
  */
 export type Campaign = $Result.DefaultSelection<Prisma.$CampaignPayload>
 /**
+ * Model CampaignWithdrawal
+ * 
+ */
+export type CampaignWithdrawal = $Result.DefaultSelection<Prisma.$CampaignWithdrawalPayload>
+/**
  * Model Contribution
  * 
  */
@@ -347,6 +352,16 @@ export class PrismaClient<
     * ```
     */
   get campaign(): Prisma.CampaignDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.campaignWithdrawal`: Exposes CRUD operations for the **CampaignWithdrawal** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CampaignWithdrawals
+    * const campaignWithdrawals = await prisma.campaignWithdrawal.findMany()
+    * ```
+    */
+  get campaignWithdrawal(): Prisma.CampaignWithdrawalDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.contribution`: Exposes CRUD operations for the **Contribution** model.
@@ -996,6 +1011,7 @@ export namespace Prisma {
     Account: 'Account',
     Verification: 'Verification',
     Campaign: 'Campaign',
+    CampaignWithdrawal: 'CampaignWithdrawal',
     Contribution: 'Contribution',
     DirectGift: 'DirectGift',
     Promotion: 'Promotion',
@@ -1032,7 +1048,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "session" | "account" | "verification" | "campaign" | "contribution" | "directGift" | "promotion" | "externalPromotion" | "featuredItem" | "transaction" | "bankAccount" | "withdrawal" | "flexCard" | "flexCardTransaction" | "moderationReport" | "moderationTicket" | "adminLog" | "creatorSupport" | "notification" | "notificationRead" | "systemSetting" | "vendorGift" | "vendorGiftImage" | "favorite" | "rating"
+      modelProps: "user" | "session" | "account" | "verification" | "campaign" | "campaignWithdrawal" | "contribution" | "directGift" | "promotion" | "externalPromotion" | "featuredItem" | "transaction" | "bankAccount" | "withdrawal" | "flexCard" | "flexCardTransaction" | "moderationReport" | "moderationTicket" | "adminLog" | "creatorSupport" | "notification" | "notificationRead" | "systemSetting" | "vendorGift" | "vendorGiftImage" | "favorite" | "rating"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1403,6 +1419,80 @@ export namespace Prisma {
           count: {
             args: Prisma.CampaignCountArgs<ExtArgs>
             result: $Utils.Optional<CampaignCountAggregateOutputType> | number
+          }
+        }
+      }
+      CampaignWithdrawal: {
+        payload: Prisma.$CampaignWithdrawalPayload<ExtArgs>
+        fields: Prisma.CampaignWithdrawalFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CampaignWithdrawalFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CampaignWithdrawalPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CampaignWithdrawalFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CampaignWithdrawalPayload>
+          }
+          findFirst: {
+            args: Prisma.CampaignWithdrawalFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CampaignWithdrawalPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CampaignWithdrawalFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CampaignWithdrawalPayload>
+          }
+          findMany: {
+            args: Prisma.CampaignWithdrawalFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CampaignWithdrawalPayload>[]
+          }
+          create: {
+            args: Prisma.CampaignWithdrawalCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CampaignWithdrawalPayload>
+          }
+          createMany: {
+            args: Prisma.CampaignWithdrawalCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CampaignWithdrawalCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CampaignWithdrawalPayload>[]
+          }
+          delete: {
+            args: Prisma.CampaignWithdrawalDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CampaignWithdrawalPayload>
+          }
+          update: {
+            args: Prisma.CampaignWithdrawalUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CampaignWithdrawalPayload>
+          }
+          deleteMany: {
+            args: Prisma.CampaignWithdrawalDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CampaignWithdrawalUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.CampaignWithdrawalUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CampaignWithdrawalPayload>[]
+          }
+          upsert: {
+            args: Prisma.CampaignWithdrawalUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CampaignWithdrawalPayload>
+          }
+          aggregate: {
+            args: Prisma.CampaignWithdrawalAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCampaignWithdrawal>
+          }
+          groupBy: {
+            args: Prisma.CampaignWithdrawalGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CampaignWithdrawalGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CampaignWithdrawalCountArgs<ExtArgs>
+            result: $Utils.Optional<CampaignWithdrawalCountAggregateOutputType> | number
           }
         }
       }
@@ -3073,6 +3163,7 @@ export namespace Prisma {
     account?: AccountOmit
     verification?: VerificationOmit
     campaign?: CampaignOmit
+    campaignWithdrawal?: CampaignWithdrawalOmit
     contribution?: ContributionOmit
     directGift?: DirectGiftOmit
     promotion?: PromotionOmit
@@ -3413,11 +3504,13 @@ export namespace Prisma {
 
   export type CampaignCountOutputType = {
     contributions: number
+    withdrawals: number
     transactions: number
   }
 
   export type CampaignCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     contributions?: boolean | CampaignCountOutputTypeCountContributionsArgs
+    withdrawals?: boolean | CampaignCountOutputTypeCountWithdrawalsArgs
     transactions?: boolean | CampaignCountOutputTypeCountTransactionsArgs
   }
 
@@ -3437,6 +3530,13 @@ export namespace Prisma {
    */
   export type CampaignCountOutputTypeCountContributionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ContributionWhereInput
+  }
+
+  /**
+   * CampaignCountOutputType without action
+   */
+  export type CampaignCountOutputTypeCountWithdrawalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CampaignWithdrawalWhereInput
   }
 
   /**
@@ -8987,6 +9087,7 @@ export namespace Prisma {
     claimableGiftId: number | null
     vendorRating: number | null
     whatsappFee: Decimal | null
+    withdrawnAmount: Decimal | null
   }
 
   export type CampaignSumAggregateOutputType = {
@@ -8996,6 +9097,7 @@ export namespace Prisma {
     claimableGiftId: number | null
     vendorRating: number | null
     whatsappFee: Decimal | null
+    withdrawnAmount: Decimal | null
   }
 
   export type CampaignMinAggregateOutputType = {
@@ -9038,6 +9140,7 @@ export namespace Prisma {
     recipientCountryCode: string | null
     whatsappFee: Decimal | null
     senderName: string | null
+    withdrawnAmount: Decimal | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -9082,6 +9185,7 @@ export namespace Prisma {
     recipientCountryCode: string | null
     whatsappFee: Decimal | null
     senderName: string | null
+    withdrawnAmount: Decimal | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -9127,6 +9231,7 @@ export namespace Prisma {
     recipientCountryCode: number
     whatsappFee: number
     senderName: number
+    withdrawnAmount: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -9140,6 +9245,7 @@ export namespace Prisma {
     claimableGiftId?: true
     vendorRating?: true
     whatsappFee?: true
+    withdrawnAmount?: true
   }
 
   export type CampaignSumAggregateInputType = {
@@ -9149,6 +9255,7 @@ export namespace Prisma {
     claimableGiftId?: true
     vendorRating?: true
     whatsappFee?: true
+    withdrawnAmount?: true
   }
 
   export type CampaignMinAggregateInputType = {
@@ -9191,6 +9298,7 @@ export namespace Prisma {
     recipientCountryCode?: true
     whatsappFee?: true
     senderName?: true
+    withdrawnAmount?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -9235,6 +9343,7 @@ export namespace Prisma {
     recipientCountryCode?: true
     whatsappFee?: true
     senderName?: true
+    withdrawnAmount?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -9280,6 +9389,7 @@ export namespace Prisma {
     recipientCountryCode?: true
     whatsappFee?: true
     senderName?: true
+    withdrawnAmount?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -9412,6 +9522,7 @@ export namespace Prisma {
     recipientCountryCode: string | null
     whatsappFee: Decimal
     senderName: string | null
+    withdrawnAmount: Decimal
     createdAt: Date
     updatedAt: Date
     _count: CampaignCountAggregateOutputType | null
@@ -9476,12 +9587,14 @@ export namespace Prisma {
     recipientCountryCode?: boolean
     whatsappFee?: boolean
     senderName?: boolean
+    withdrawnAmount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     product?: boolean | Campaign$productArgs<ExtArgs>
     redeemedByVendor?: boolean | Campaign$redeemedByVendorArgs<ExtArgs>
     contributions?: boolean | Campaign$contributionsArgs<ExtArgs>
+    withdrawals?: boolean | Campaign$withdrawalsArgs<ExtArgs>
     transactions?: boolean | Campaign$transactionsArgs<ExtArgs>
     _count?: boolean | CampaignCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["campaign"]>
@@ -9527,6 +9640,7 @@ export namespace Prisma {
     recipientCountryCode?: boolean
     whatsappFee?: boolean
     senderName?: boolean
+    withdrawnAmount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -9575,6 +9689,7 @@ export namespace Prisma {
     recipientCountryCode?: boolean
     whatsappFee?: boolean
     senderName?: boolean
+    withdrawnAmount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -9623,16 +9738,18 @@ export namespace Prisma {
     recipientCountryCode?: boolean
     whatsappFee?: boolean
     senderName?: boolean
+    withdrawnAmount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type CampaignOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "category" | "title" | "description" | "goalAmount" | "minAmount" | "currentAmount" | "endDate" | "imageUrl" | "coverImage" | "images" | "visibility" | "contributorsSeeEachOther" | "status" | "statusReason" | "pausedBy" | "isFlagged" | "flagReason" | "flaggedAt" | "flaggedBy" | "campaignShortId" | "campaignSlug" | "claimableType" | "claimableGiftId" | "claimableRecipientType" | "recipientEmail" | "senderEmail" | "paymentReference" | "currency" | "giftCode" | "redeemedAt" | "redeemedByVendorId" | "vendorRating" | "message" | "deliveryMethod" | "recipientPhone" | "recipientCountryCode" | "whatsappFee" | "senderName" | "createdAt" | "updatedAt", ExtArgs["result"]["campaign"]>
+  export type CampaignOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "category" | "title" | "description" | "goalAmount" | "minAmount" | "currentAmount" | "endDate" | "imageUrl" | "coverImage" | "images" | "visibility" | "contributorsSeeEachOther" | "status" | "statusReason" | "pausedBy" | "isFlagged" | "flagReason" | "flaggedAt" | "flaggedBy" | "campaignShortId" | "campaignSlug" | "claimableType" | "claimableGiftId" | "claimableRecipientType" | "recipientEmail" | "senderEmail" | "paymentReference" | "currency" | "giftCode" | "redeemedAt" | "redeemedByVendorId" | "vendorRating" | "message" | "deliveryMethod" | "recipientPhone" | "recipientCountryCode" | "whatsappFee" | "senderName" | "withdrawnAmount" | "createdAt" | "updatedAt", ExtArgs["result"]["campaign"]>
   export type CampaignInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     product?: boolean | Campaign$productArgs<ExtArgs>
     redeemedByVendor?: boolean | Campaign$redeemedByVendorArgs<ExtArgs>
     contributions?: boolean | Campaign$contributionsArgs<ExtArgs>
+    withdrawals?: boolean | Campaign$withdrawalsArgs<ExtArgs>
     transactions?: boolean | Campaign$transactionsArgs<ExtArgs>
     _count?: boolean | CampaignCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -9654,6 +9771,7 @@ export namespace Prisma {
       product: Prisma.$VendorGiftPayload<ExtArgs> | null
       redeemedByVendor: Prisma.$UserPayload<ExtArgs> | null
       contributions: Prisma.$ContributionPayload<ExtArgs>[]
+      withdrawals: Prisma.$CampaignWithdrawalPayload<ExtArgs>[]
       transactions: Prisma.$TransactionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -9697,6 +9815,7 @@ export namespace Prisma {
       recipientCountryCode: string | null
       whatsappFee: Prisma.Decimal
       senderName: string | null
+      withdrawnAmount: Prisma.Decimal
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["campaign"]>
@@ -10097,6 +10216,7 @@ export namespace Prisma {
     product<T extends Campaign$productArgs<ExtArgs> = {}>(args?: Subset<T, Campaign$productArgs<ExtArgs>>): Prisma__VendorGiftClient<$Result.GetResult<Prisma.$VendorGiftPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     redeemedByVendor<T extends Campaign$redeemedByVendorArgs<ExtArgs> = {}>(args?: Subset<T, Campaign$redeemedByVendorArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     contributions<T extends Campaign$contributionsArgs<ExtArgs> = {}>(args?: Subset<T, Campaign$contributionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    withdrawals<T extends Campaign$withdrawalsArgs<ExtArgs> = {}>(args?: Subset<T, Campaign$withdrawalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CampaignWithdrawalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     transactions<T extends Campaign$transactionsArgs<ExtArgs> = {}>(args?: Subset<T, Campaign$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -10167,6 +10287,7 @@ export namespace Prisma {
     readonly recipientCountryCode: FieldRef<"Campaign", 'String'>
     readonly whatsappFee: FieldRef<"Campaign", 'Decimal'>
     readonly senderName: FieldRef<"Campaign", 'String'>
+    readonly withdrawnAmount: FieldRef<"Campaign", 'Decimal'>
     readonly createdAt: FieldRef<"Campaign", 'DateTime'>
     readonly updatedAt: FieldRef<"Campaign", 'DateTime'>
   }
@@ -10632,6 +10753,30 @@ export namespace Prisma {
   }
 
   /**
+   * Campaign.withdrawals
+   */
+  export type Campaign$withdrawalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CampaignWithdrawal
+     */
+    select?: CampaignWithdrawalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CampaignWithdrawal
+     */
+    omit?: CampaignWithdrawalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CampaignWithdrawalInclude<ExtArgs> | null
+    where?: CampaignWithdrawalWhereInput
+    orderBy?: CampaignWithdrawalOrderByWithRelationInput | CampaignWithdrawalOrderByWithRelationInput[]
+    cursor?: CampaignWithdrawalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CampaignWithdrawalScalarFieldEnum | CampaignWithdrawalScalarFieldEnum[]
+  }
+
+  /**
    * Campaign.transactions
    */
   export type Campaign$transactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -10671,6 +10816,1124 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: CampaignInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model CampaignWithdrawal
+   */
+
+  export type AggregateCampaignWithdrawal = {
+    _count: CampaignWithdrawalCountAggregateOutputType | null
+    _avg: CampaignWithdrawalAvgAggregateOutputType | null
+    _sum: CampaignWithdrawalSumAggregateOutputType | null
+    _min: CampaignWithdrawalMinAggregateOutputType | null
+    _max: CampaignWithdrawalMaxAggregateOutputType | null
+  }
+
+  export type CampaignWithdrawalAvgAggregateOutputType = {
+    amount: Decimal | null
+  }
+
+  export type CampaignWithdrawalSumAggregateOutputType = {
+    amount: Decimal | null
+  }
+
+  export type CampaignWithdrawalMinAggregateOutputType = {
+    id: string | null
+    campaignId: string | null
+    amount: Decimal | null
+    currency: string | null
+    transactionId: string | null
+    createdAt: Date | null
+  }
+
+  export type CampaignWithdrawalMaxAggregateOutputType = {
+    id: string | null
+    campaignId: string | null
+    amount: Decimal | null
+    currency: string | null
+    transactionId: string | null
+    createdAt: Date | null
+  }
+
+  export type CampaignWithdrawalCountAggregateOutputType = {
+    id: number
+    campaignId: number
+    amount: number
+    currency: number
+    transactionId: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type CampaignWithdrawalAvgAggregateInputType = {
+    amount?: true
+  }
+
+  export type CampaignWithdrawalSumAggregateInputType = {
+    amount?: true
+  }
+
+  export type CampaignWithdrawalMinAggregateInputType = {
+    id?: true
+    campaignId?: true
+    amount?: true
+    currency?: true
+    transactionId?: true
+    createdAt?: true
+  }
+
+  export type CampaignWithdrawalMaxAggregateInputType = {
+    id?: true
+    campaignId?: true
+    amount?: true
+    currency?: true
+    transactionId?: true
+    createdAt?: true
+  }
+
+  export type CampaignWithdrawalCountAggregateInputType = {
+    id?: true
+    campaignId?: true
+    amount?: true
+    currency?: true
+    transactionId?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type CampaignWithdrawalAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CampaignWithdrawal to aggregate.
+     */
+    where?: CampaignWithdrawalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CampaignWithdrawals to fetch.
+     */
+    orderBy?: CampaignWithdrawalOrderByWithRelationInput | CampaignWithdrawalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CampaignWithdrawalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CampaignWithdrawals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CampaignWithdrawals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CampaignWithdrawals
+    **/
+    _count?: true | CampaignWithdrawalCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: CampaignWithdrawalAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: CampaignWithdrawalSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CampaignWithdrawalMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CampaignWithdrawalMaxAggregateInputType
+  }
+
+  export type GetCampaignWithdrawalAggregateType<T extends CampaignWithdrawalAggregateArgs> = {
+        [P in keyof T & keyof AggregateCampaignWithdrawal]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCampaignWithdrawal[P]>
+      : GetScalarType<T[P], AggregateCampaignWithdrawal[P]>
+  }
+
+
+
+
+  export type CampaignWithdrawalGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CampaignWithdrawalWhereInput
+    orderBy?: CampaignWithdrawalOrderByWithAggregationInput | CampaignWithdrawalOrderByWithAggregationInput[]
+    by: CampaignWithdrawalScalarFieldEnum[] | CampaignWithdrawalScalarFieldEnum
+    having?: CampaignWithdrawalScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CampaignWithdrawalCountAggregateInputType | true
+    _avg?: CampaignWithdrawalAvgAggregateInputType
+    _sum?: CampaignWithdrawalSumAggregateInputType
+    _min?: CampaignWithdrawalMinAggregateInputType
+    _max?: CampaignWithdrawalMaxAggregateInputType
+  }
+
+  export type CampaignWithdrawalGroupByOutputType = {
+    id: string
+    campaignId: string
+    amount: Decimal
+    currency: string
+    transactionId: string
+    createdAt: Date
+    _count: CampaignWithdrawalCountAggregateOutputType | null
+    _avg: CampaignWithdrawalAvgAggregateOutputType | null
+    _sum: CampaignWithdrawalSumAggregateOutputType | null
+    _min: CampaignWithdrawalMinAggregateOutputType | null
+    _max: CampaignWithdrawalMaxAggregateOutputType | null
+  }
+
+  type GetCampaignWithdrawalGroupByPayload<T extends CampaignWithdrawalGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CampaignWithdrawalGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CampaignWithdrawalGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CampaignWithdrawalGroupByOutputType[P]>
+            : GetScalarType<T[P], CampaignWithdrawalGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CampaignWithdrawalSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    campaignId?: boolean
+    amount?: boolean
+    currency?: boolean
+    transactionId?: boolean
+    createdAt?: boolean
+    campaign?: boolean | CampaignDefaultArgs<ExtArgs>
+    transaction?: boolean | TransactionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["campaignWithdrawal"]>
+
+  export type CampaignWithdrawalSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    campaignId?: boolean
+    amount?: boolean
+    currency?: boolean
+    transactionId?: boolean
+    createdAt?: boolean
+    campaign?: boolean | CampaignDefaultArgs<ExtArgs>
+    transaction?: boolean | TransactionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["campaignWithdrawal"]>
+
+  export type CampaignWithdrawalSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    campaignId?: boolean
+    amount?: boolean
+    currency?: boolean
+    transactionId?: boolean
+    createdAt?: boolean
+    campaign?: boolean | CampaignDefaultArgs<ExtArgs>
+    transaction?: boolean | TransactionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["campaignWithdrawal"]>
+
+  export type CampaignWithdrawalSelectScalar = {
+    id?: boolean
+    campaignId?: boolean
+    amount?: boolean
+    currency?: boolean
+    transactionId?: boolean
+    createdAt?: boolean
+  }
+
+  export type CampaignWithdrawalOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "campaignId" | "amount" | "currency" | "transactionId" | "createdAt", ExtArgs["result"]["campaignWithdrawal"]>
+  export type CampaignWithdrawalInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    campaign?: boolean | CampaignDefaultArgs<ExtArgs>
+    transaction?: boolean | TransactionDefaultArgs<ExtArgs>
+  }
+  export type CampaignWithdrawalIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    campaign?: boolean | CampaignDefaultArgs<ExtArgs>
+    transaction?: boolean | TransactionDefaultArgs<ExtArgs>
+  }
+  export type CampaignWithdrawalIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    campaign?: boolean | CampaignDefaultArgs<ExtArgs>
+    transaction?: boolean | TransactionDefaultArgs<ExtArgs>
+  }
+
+  export type $CampaignWithdrawalPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CampaignWithdrawal"
+    objects: {
+      campaign: Prisma.$CampaignPayload<ExtArgs>
+      transaction: Prisma.$TransactionPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      campaignId: string
+      amount: Prisma.Decimal
+      currency: string
+      transactionId: string
+      createdAt: Date
+    }, ExtArgs["result"]["campaignWithdrawal"]>
+    composites: {}
+  }
+
+  type CampaignWithdrawalGetPayload<S extends boolean | null | undefined | CampaignWithdrawalDefaultArgs> = $Result.GetResult<Prisma.$CampaignWithdrawalPayload, S>
+
+  type CampaignWithdrawalCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CampaignWithdrawalFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CampaignWithdrawalCountAggregateInputType | true
+    }
+
+  export interface CampaignWithdrawalDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CampaignWithdrawal'], meta: { name: 'CampaignWithdrawal' } }
+    /**
+     * Find zero or one CampaignWithdrawal that matches the filter.
+     * @param {CampaignWithdrawalFindUniqueArgs} args - Arguments to find a CampaignWithdrawal
+     * @example
+     * // Get one CampaignWithdrawal
+     * const campaignWithdrawal = await prisma.campaignWithdrawal.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CampaignWithdrawalFindUniqueArgs>(args: SelectSubset<T, CampaignWithdrawalFindUniqueArgs<ExtArgs>>): Prisma__CampaignWithdrawalClient<$Result.GetResult<Prisma.$CampaignWithdrawalPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one CampaignWithdrawal that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CampaignWithdrawalFindUniqueOrThrowArgs} args - Arguments to find a CampaignWithdrawal
+     * @example
+     * // Get one CampaignWithdrawal
+     * const campaignWithdrawal = await prisma.campaignWithdrawal.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CampaignWithdrawalFindUniqueOrThrowArgs>(args: SelectSubset<T, CampaignWithdrawalFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CampaignWithdrawalClient<$Result.GetResult<Prisma.$CampaignWithdrawalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CampaignWithdrawal that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CampaignWithdrawalFindFirstArgs} args - Arguments to find a CampaignWithdrawal
+     * @example
+     * // Get one CampaignWithdrawal
+     * const campaignWithdrawal = await prisma.campaignWithdrawal.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CampaignWithdrawalFindFirstArgs>(args?: SelectSubset<T, CampaignWithdrawalFindFirstArgs<ExtArgs>>): Prisma__CampaignWithdrawalClient<$Result.GetResult<Prisma.$CampaignWithdrawalPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CampaignWithdrawal that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CampaignWithdrawalFindFirstOrThrowArgs} args - Arguments to find a CampaignWithdrawal
+     * @example
+     * // Get one CampaignWithdrawal
+     * const campaignWithdrawal = await prisma.campaignWithdrawal.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CampaignWithdrawalFindFirstOrThrowArgs>(args?: SelectSubset<T, CampaignWithdrawalFindFirstOrThrowArgs<ExtArgs>>): Prisma__CampaignWithdrawalClient<$Result.GetResult<Prisma.$CampaignWithdrawalPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CampaignWithdrawals that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CampaignWithdrawalFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CampaignWithdrawals
+     * const campaignWithdrawals = await prisma.campaignWithdrawal.findMany()
+     * 
+     * // Get first 10 CampaignWithdrawals
+     * const campaignWithdrawals = await prisma.campaignWithdrawal.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const campaignWithdrawalWithIdOnly = await prisma.campaignWithdrawal.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CampaignWithdrawalFindManyArgs>(args?: SelectSubset<T, CampaignWithdrawalFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CampaignWithdrawalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a CampaignWithdrawal.
+     * @param {CampaignWithdrawalCreateArgs} args - Arguments to create a CampaignWithdrawal.
+     * @example
+     * // Create one CampaignWithdrawal
+     * const CampaignWithdrawal = await prisma.campaignWithdrawal.create({
+     *   data: {
+     *     // ... data to create a CampaignWithdrawal
+     *   }
+     * })
+     * 
+     */
+    create<T extends CampaignWithdrawalCreateArgs>(args: SelectSubset<T, CampaignWithdrawalCreateArgs<ExtArgs>>): Prisma__CampaignWithdrawalClient<$Result.GetResult<Prisma.$CampaignWithdrawalPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many CampaignWithdrawals.
+     * @param {CampaignWithdrawalCreateManyArgs} args - Arguments to create many CampaignWithdrawals.
+     * @example
+     * // Create many CampaignWithdrawals
+     * const campaignWithdrawal = await prisma.campaignWithdrawal.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CampaignWithdrawalCreateManyArgs>(args?: SelectSubset<T, CampaignWithdrawalCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CampaignWithdrawals and returns the data saved in the database.
+     * @param {CampaignWithdrawalCreateManyAndReturnArgs} args - Arguments to create many CampaignWithdrawals.
+     * @example
+     * // Create many CampaignWithdrawals
+     * const campaignWithdrawal = await prisma.campaignWithdrawal.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CampaignWithdrawals and only return the `id`
+     * const campaignWithdrawalWithIdOnly = await prisma.campaignWithdrawal.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CampaignWithdrawalCreateManyAndReturnArgs>(args?: SelectSubset<T, CampaignWithdrawalCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CampaignWithdrawalPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a CampaignWithdrawal.
+     * @param {CampaignWithdrawalDeleteArgs} args - Arguments to delete one CampaignWithdrawal.
+     * @example
+     * // Delete one CampaignWithdrawal
+     * const CampaignWithdrawal = await prisma.campaignWithdrawal.delete({
+     *   where: {
+     *     // ... filter to delete one CampaignWithdrawal
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CampaignWithdrawalDeleteArgs>(args: SelectSubset<T, CampaignWithdrawalDeleteArgs<ExtArgs>>): Prisma__CampaignWithdrawalClient<$Result.GetResult<Prisma.$CampaignWithdrawalPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one CampaignWithdrawal.
+     * @param {CampaignWithdrawalUpdateArgs} args - Arguments to update one CampaignWithdrawal.
+     * @example
+     * // Update one CampaignWithdrawal
+     * const campaignWithdrawal = await prisma.campaignWithdrawal.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CampaignWithdrawalUpdateArgs>(args: SelectSubset<T, CampaignWithdrawalUpdateArgs<ExtArgs>>): Prisma__CampaignWithdrawalClient<$Result.GetResult<Prisma.$CampaignWithdrawalPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more CampaignWithdrawals.
+     * @param {CampaignWithdrawalDeleteManyArgs} args - Arguments to filter CampaignWithdrawals to delete.
+     * @example
+     * // Delete a few CampaignWithdrawals
+     * const { count } = await prisma.campaignWithdrawal.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CampaignWithdrawalDeleteManyArgs>(args?: SelectSubset<T, CampaignWithdrawalDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CampaignWithdrawals.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CampaignWithdrawalUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CampaignWithdrawals
+     * const campaignWithdrawal = await prisma.campaignWithdrawal.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CampaignWithdrawalUpdateManyArgs>(args: SelectSubset<T, CampaignWithdrawalUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CampaignWithdrawals and returns the data updated in the database.
+     * @param {CampaignWithdrawalUpdateManyAndReturnArgs} args - Arguments to update many CampaignWithdrawals.
+     * @example
+     * // Update many CampaignWithdrawals
+     * const campaignWithdrawal = await prisma.campaignWithdrawal.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more CampaignWithdrawals and only return the `id`
+     * const campaignWithdrawalWithIdOnly = await prisma.campaignWithdrawal.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends CampaignWithdrawalUpdateManyAndReturnArgs>(args: SelectSubset<T, CampaignWithdrawalUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CampaignWithdrawalPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one CampaignWithdrawal.
+     * @param {CampaignWithdrawalUpsertArgs} args - Arguments to update or create a CampaignWithdrawal.
+     * @example
+     * // Update or create a CampaignWithdrawal
+     * const campaignWithdrawal = await prisma.campaignWithdrawal.upsert({
+     *   create: {
+     *     // ... data to create a CampaignWithdrawal
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CampaignWithdrawal we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CampaignWithdrawalUpsertArgs>(args: SelectSubset<T, CampaignWithdrawalUpsertArgs<ExtArgs>>): Prisma__CampaignWithdrawalClient<$Result.GetResult<Prisma.$CampaignWithdrawalPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of CampaignWithdrawals.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CampaignWithdrawalCountArgs} args - Arguments to filter CampaignWithdrawals to count.
+     * @example
+     * // Count the number of CampaignWithdrawals
+     * const count = await prisma.campaignWithdrawal.count({
+     *   where: {
+     *     // ... the filter for the CampaignWithdrawals we want to count
+     *   }
+     * })
+    **/
+    count<T extends CampaignWithdrawalCountArgs>(
+      args?: Subset<T, CampaignWithdrawalCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CampaignWithdrawalCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CampaignWithdrawal.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CampaignWithdrawalAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CampaignWithdrawalAggregateArgs>(args: Subset<T, CampaignWithdrawalAggregateArgs>): Prisma.PrismaPromise<GetCampaignWithdrawalAggregateType<T>>
+
+    /**
+     * Group by CampaignWithdrawal.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CampaignWithdrawalGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CampaignWithdrawalGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CampaignWithdrawalGroupByArgs['orderBy'] }
+        : { orderBy?: CampaignWithdrawalGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CampaignWithdrawalGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCampaignWithdrawalGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CampaignWithdrawal model
+   */
+  readonly fields: CampaignWithdrawalFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CampaignWithdrawal.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CampaignWithdrawalClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    campaign<T extends CampaignDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CampaignDefaultArgs<ExtArgs>>): Prisma__CampaignClient<$Result.GetResult<Prisma.$CampaignPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    transaction<T extends TransactionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TransactionDefaultArgs<ExtArgs>>): Prisma__TransactionClient<$Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CampaignWithdrawal model
+   */
+  interface CampaignWithdrawalFieldRefs {
+    readonly id: FieldRef<"CampaignWithdrawal", 'String'>
+    readonly campaignId: FieldRef<"CampaignWithdrawal", 'String'>
+    readonly amount: FieldRef<"CampaignWithdrawal", 'Decimal'>
+    readonly currency: FieldRef<"CampaignWithdrawal", 'String'>
+    readonly transactionId: FieldRef<"CampaignWithdrawal", 'String'>
+    readonly createdAt: FieldRef<"CampaignWithdrawal", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CampaignWithdrawal findUnique
+   */
+  export type CampaignWithdrawalFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CampaignWithdrawal
+     */
+    select?: CampaignWithdrawalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CampaignWithdrawal
+     */
+    omit?: CampaignWithdrawalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CampaignWithdrawalInclude<ExtArgs> | null
+    /**
+     * Filter, which CampaignWithdrawal to fetch.
+     */
+    where: CampaignWithdrawalWhereUniqueInput
+  }
+
+  /**
+   * CampaignWithdrawal findUniqueOrThrow
+   */
+  export type CampaignWithdrawalFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CampaignWithdrawal
+     */
+    select?: CampaignWithdrawalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CampaignWithdrawal
+     */
+    omit?: CampaignWithdrawalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CampaignWithdrawalInclude<ExtArgs> | null
+    /**
+     * Filter, which CampaignWithdrawal to fetch.
+     */
+    where: CampaignWithdrawalWhereUniqueInput
+  }
+
+  /**
+   * CampaignWithdrawal findFirst
+   */
+  export type CampaignWithdrawalFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CampaignWithdrawal
+     */
+    select?: CampaignWithdrawalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CampaignWithdrawal
+     */
+    omit?: CampaignWithdrawalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CampaignWithdrawalInclude<ExtArgs> | null
+    /**
+     * Filter, which CampaignWithdrawal to fetch.
+     */
+    where?: CampaignWithdrawalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CampaignWithdrawals to fetch.
+     */
+    orderBy?: CampaignWithdrawalOrderByWithRelationInput | CampaignWithdrawalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CampaignWithdrawals.
+     */
+    cursor?: CampaignWithdrawalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CampaignWithdrawals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CampaignWithdrawals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CampaignWithdrawals.
+     */
+    distinct?: CampaignWithdrawalScalarFieldEnum | CampaignWithdrawalScalarFieldEnum[]
+  }
+
+  /**
+   * CampaignWithdrawal findFirstOrThrow
+   */
+  export type CampaignWithdrawalFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CampaignWithdrawal
+     */
+    select?: CampaignWithdrawalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CampaignWithdrawal
+     */
+    omit?: CampaignWithdrawalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CampaignWithdrawalInclude<ExtArgs> | null
+    /**
+     * Filter, which CampaignWithdrawal to fetch.
+     */
+    where?: CampaignWithdrawalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CampaignWithdrawals to fetch.
+     */
+    orderBy?: CampaignWithdrawalOrderByWithRelationInput | CampaignWithdrawalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CampaignWithdrawals.
+     */
+    cursor?: CampaignWithdrawalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CampaignWithdrawals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CampaignWithdrawals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CampaignWithdrawals.
+     */
+    distinct?: CampaignWithdrawalScalarFieldEnum | CampaignWithdrawalScalarFieldEnum[]
+  }
+
+  /**
+   * CampaignWithdrawal findMany
+   */
+  export type CampaignWithdrawalFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CampaignWithdrawal
+     */
+    select?: CampaignWithdrawalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CampaignWithdrawal
+     */
+    omit?: CampaignWithdrawalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CampaignWithdrawalInclude<ExtArgs> | null
+    /**
+     * Filter, which CampaignWithdrawals to fetch.
+     */
+    where?: CampaignWithdrawalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CampaignWithdrawals to fetch.
+     */
+    orderBy?: CampaignWithdrawalOrderByWithRelationInput | CampaignWithdrawalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CampaignWithdrawals.
+     */
+    cursor?: CampaignWithdrawalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CampaignWithdrawals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CampaignWithdrawals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CampaignWithdrawals.
+     */
+    distinct?: CampaignWithdrawalScalarFieldEnum | CampaignWithdrawalScalarFieldEnum[]
+  }
+
+  /**
+   * CampaignWithdrawal create
+   */
+  export type CampaignWithdrawalCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CampaignWithdrawal
+     */
+    select?: CampaignWithdrawalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CampaignWithdrawal
+     */
+    omit?: CampaignWithdrawalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CampaignWithdrawalInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CampaignWithdrawal.
+     */
+    data: XOR<CampaignWithdrawalCreateInput, CampaignWithdrawalUncheckedCreateInput>
+  }
+
+  /**
+   * CampaignWithdrawal createMany
+   */
+  export type CampaignWithdrawalCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CampaignWithdrawals.
+     */
+    data: CampaignWithdrawalCreateManyInput | CampaignWithdrawalCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CampaignWithdrawal createManyAndReturn
+   */
+  export type CampaignWithdrawalCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CampaignWithdrawal
+     */
+    select?: CampaignWithdrawalSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CampaignWithdrawal
+     */
+    omit?: CampaignWithdrawalOmit<ExtArgs> | null
+    /**
+     * The data used to create many CampaignWithdrawals.
+     */
+    data: CampaignWithdrawalCreateManyInput | CampaignWithdrawalCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CampaignWithdrawalIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CampaignWithdrawal update
+   */
+  export type CampaignWithdrawalUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CampaignWithdrawal
+     */
+    select?: CampaignWithdrawalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CampaignWithdrawal
+     */
+    omit?: CampaignWithdrawalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CampaignWithdrawalInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CampaignWithdrawal.
+     */
+    data: XOR<CampaignWithdrawalUpdateInput, CampaignWithdrawalUncheckedUpdateInput>
+    /**
+     * Choose, which CampaignWithdrawal to update.
+     */
+    where: CampaignWithdrawalWhereUniqueInput
+  }
+
+  /**
+   * CampaignWithdrawal updateMany
+   */
+  export type CampaignWithdrawalUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CampaignWithdrawals.
+     */
+    data: XOR<CampaignWithdrawalUpdateManyMutationInput, CampaignWithdrawalUncheckedUpdateManyInput>
+    /**
+     * Filter which CampaignWithdrawals to update
+     */
+    where?: CampaignWithdrawalWhereInput
+    /**
+     * Limit how many CampaignWithdrawals to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CampaignWithdrawal updateManyAndReturn
+   */
+  export type CampaignWithdrawalUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CampaignWithdrawal
+     */
+    select?: CampaignWithdrawalSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CampaignWithdrawal
+     */
+    omit?: CampaignWithdrawalOmit<ExtArgs> | null
+    /**
+     * The data used to update CampaignWithdrawals.
+     */
+    data: XOR<CampaignWithdrawalUpdateManyMutationInput, CampaignWithdrawalUncheckedUpdateManyInput>
+    /**
+     * Filter which CampaignWithdrawals to update
+     */
+    where?: CampaignWithdrawalWhereInput
+    /**
+     * Limit how many CampaignWithdrawals to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CampaignWithdrawalIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CampaignWithdrawal upsert
+   */
+  export type CampaignWithdrawalUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CampaignWithdrawal
+     */
+    select?: CampaignWithdrawalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CampaignWithdrawal
+     */
+    omit?: CampaignWithdrawalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CampaignWithdrawalInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CampaignWithdrawal to update in case it exists.
+     */
+    where: CampaignWithdrawalWhereUniqueInput
+    /**
+     * In case the CampaignWithdrawal found by the `where` argument doesn't exist, create a new CampaignWithdrawal with this data.
+     */
+    create: XOR<CampaignWithdrawalCreateInput, CampaignWithdrawalUncheckedCreateInput>
+    /**
+     * In case the CampaignWithdrawal was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CampaignWithdrawalUpdateInput, CampaignWithdrawalUncheckedUpdateInput>
+  }
+
+  /**
+   * CampaignWithdrawal delete
+   */
+  export type CampaignWithdrawalDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CampaignWithdrawal
+     */
+    select?: CampaignWithdrawalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CampaignWithdrawal
+     */
+    omit?: CampaignWithdrawalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CampaignWithdrawalInclude<ExtArgs> | null
+    /**
+     * Filter which CampaignWithdrawal to delete.
+     */
+    where: CampaignWithdrawalWhereUniqueInput
+  }
+
+  /**
+   * CampaignWithdrawal deleteMany
+   */
+  export type CampaignWithdrawalDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CampaignWithdrawals to delete
+     */
+    where?: CampaignWithdrawalWhereInput
+    /**
+     * Limit how many CampaignWithdrawals to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * CampaignWithdrawal without action
+   */
+  export type CampaignWithdrawalDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CampaignWithdrawal
+     */
+    select?: CampaignWithdrawalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CampaignWithdrawal
+     */
+    omit?: CampaignWithdrawalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CampaignWithdrawalInclude<ExtArgs> | null
   }
 
 
@@ -17242,6 +18505,7 @@ export namespace Prisma {
     contribution?: boolean | Transaction$contributionArgs<ExtArgs>
     withdrawal?: boolean | Transaction$withdrawalArgs<ExtArgs>
     promotion?: boolean | Transaction$promotionArgs<ExtArgs>
+    campaignWithdrawal?: boolean | Transaction$campaignWithdrawalArgs<ExtArgs>
   }, ExtArgs["result"]["transaction"]>
 
   export type TransactionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -17298,6 +18562,7 @@ export namespace Prisma {
     contribution?: boolean | Transaction$contributionArgs<ExtArgs>
     withdrawal?: boolean | Transaction$withdrawalArgs<ExtArgs>
     promotion?: boolean | Transaction$promotionArgs<ExtArgs>
+    campaignWithdrawal?: boolean | Transaction$campaignWithdrawalArgs<ExtArgs>
   }
   export type TransactionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | Transaction$userArgs<ExtArgs>
@@ -17317,6 +18582,7 @@ export namespace Prisma {
       contribution: Prisma.$ContributionPayload<ExtArgs> | null
       withdrawal: Prisma.$WithdrawalPayload<ExtArgs> | null
       promotion: Prisma.$PromotionPayload<ExtArgs> | null
+      campaignWithdrawal: Prisma.$CampaignWithdrawalPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -17730,6 +18996,7 @@ export namespace Prisma {
     contribution<T extends Transaction$contributionArgs<ExtArgs> = {}>(args?: Subset<T, Transaction$contributionArgs<ExtArgs>>): Prisma__ContributionClient<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     withdrawal<T extends Transaction$withdrawalArgs<ExtArgs> = {}>(args?: Subset<T, Transaction$withdrawalArgs<ExtArgs>>): Prisma__WithdrawalClient<$Result.GetResult<Prisma.$WithdrawalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     promotion<T extends Transaction$promotionArgs<ExtArgs> = {}>(args?: Subset<T, Transaction$promotionArgs<ExtArgs>>): Prisma__PromotionClient<$Result.GetResult<Prisma.$PromotionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    campaignWithdrawal<T extends Transaction$campaignWithdrawalArgs<ExtArgs> = {}>(args?: Subset<T, Transaction$campaignWithdrawalArgs<ExtArgs>>): Prisma__CampaignWithdrawalClient<$Result.GetResult<Prisma.$CampaignWithdrawalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -18282,6 +19549,25 @@ export namespace Prisma {
      */
     include?: PromotionInclude<ExtArgs> | null
     where?: PromotionWhereInput
+  }
+
+  /**
+   * Transaction.campaignWithdrawal
+   */
+  export type Transaction$campaignWithdrawalArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CampaignWithdrawal
+     */
+    select?: CampaignWithdrawalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CampaignWithdrawal
+     */
+    omit?: CampaignWithdrawalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CampaignWithdrawalInclude<ExtArgs> | null
+    where?: CampaignWithdrawalWhereInput
   }
 
   /**
@@ -35922,11 +37208,24 @@ export namespace Prisma {
     recipientCountryCode: 'recipientCountryCode',
     whatsappFee: 'whatsappFee',
     senderName: 'senderName',
+    withdrawnAmount: 'withdrawnAmount',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
   export type CampaignScalarFieldEnum = (typeof CampaignScalarFieldEnum)[keyof typeof CampaignScalarFieldEnum]
+
+
+  export const CampaignWithdrawalScalarFieldEnum: {
+    id: 'id',
+    campaignId: 'campaignId',
+    amount: 'amount',
+    currency: 'currency',
+    transactionId: 'transactionId',
+    createdAt: 'createdAt'
+  };
+
+  export type CampaignWithdrawalScalarFieldEnum = (typeof CampaignWithdrawalScalarFieldEnum)[keyof typeof CampaignWithdrawalScalarFieldEnum]
 
 
   export const ContributionScalarFieldEnum: {
@@ -36993,12 +38292,14 @@ export namespace Prisma {
     recipientCountryCode?: StringNullableFilter<"Campaign"> | string | null
     whatsappFee?: DecimalFilter<"Campaign"> | Decimal | DecimalJsLike | number | string
     senderName?: StringNullableFilter<"Campaign"> | string | null
+    withdrawnAmount?: DecimalFilter<"Campaign"> | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFilter<"Campaign"> | Date | string
     updatedAt?: DateTimeFilter<"Campaign"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     product?: XOR<VendorGiftNullableScalarRelationFilter, VendorGiftWhereInput> | null
     redeemedByVendor?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     contributions?: ContributionListRelationFilter
+    withdrawals?: CampaignWithdrawalListRelationFilter
     transactions?: TransactionListRelationFilter
   }
 
@@ -37043,12 +38344,14 @@ export namespace Prisma {
     recipientCountryCode?: SortOrderInput | SortOrder
     whatsappFee?: SortOrder
     senderName?: SortOrderInput | SortOrder
+    withdrawnAmount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
     product?: VendorGiftOrderByWithRelationInput
     redeemedByVendor?: UserOrderByWithRelationInput
     contributions?: ContributionOrderByRelationAggregateInput
+    withdrawals?: CampaignWithdrawalOrderByRelationAggregateInput
     transactions?: TransactionOrderByRelationAggregateInput
   }
 
@@ -37096,12 +38399,14 @@ export namespace Prisma {
     recipientCountryCode?: StringNullableFilter<"Campaign"> | string | null
     whatsappFee?: DecimalFilter<"Campaign"> | Decimal | DecimalJsLike | number | string
     senderName?: StringNullableFilter<"Campaign"> | string | null
+    withdrawnAmount?: DecimalFilter<"Campaign"> | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFilter<"Campaign"> | Date | string
     updatedAt?: DateTimeFilter<"Campaign"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     product?: XOR<VendorGiftNullableScalarRelationFilter, VendorGiftWhereInput> | null
     redeemedByVendor?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     contributions?: ContributionListRelationFilter
+    withdrawals?: CampaignWithdrawalListRelationFilter
     transactions?: TransactionListRelationFilter
   }, "id" | "campaignShortId">
 
@@ -37146,6 +38451,7 @@ export namespace Prisma {
     recipientCountryCode?: SortOrderInput | SortOrder
     whatsappFee?: SortOrder
     senderName?: SortOrderInput | SortOrder
+    withdrawnAmount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: CampaignCountOrderByAggregateInput
@@ -37199,8 +38505,74 @@ export namespace Prisma {
     recipientCountryCode?: StringNullableWithAggregatesFilter<"Campaign"> | string | null
     whatsappFee?: DecimalWithAggregatesFilter<"Campaign"> | Decimal | DecimalJsLike | number | string
     senderName?: StringNullableWithAggregatesFilter<"Campaign"> | string | null
+    withdrawnAmount?: DecimalWithAggregatesFilter<"Campaign"> | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeWithAggregatesFilter<"Campaign"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Campaign"> | Date | string
+  }
+
+  export type CampaignWithdrawalWhereInput = {
+    AND?: CampaignWithdrawalWhereInput | CampaignWithdrawalWhereInput[]
+    OR?: CampaignWithdrawalWhereInput[]
+    NOT?: CampaignWithdrawalWhereInput | CampaignWithdrawalWhereInput[]
+    id?: StringFilter<"CampaignWithdrawal"> | string
+    campaignId?: StringFilter<"CampaignWithdrawal"> | string
+    amount?: DecimalFilter<"CampaignWithdrawal"> | Decimal | DecimalJsLike | number | string
+    currency?: StringFilter<"CampaignWithdrawal"> | string
+    transactionId?: StringFilter<"CampaignWithdrawal"> | string
+    createdAt?: DateTimeFilter<"CampaignWithdrawal"> | Date | string
+    campaign?: XOR<CampaignScalarRelationFilter, CampaignWhereInput>
+    transaction?: XOR<TransactionScalarRelationFilter, TransactionWhereInput>
+  }
+
+  export type CampaignWithdrawalOrderByWithRelationInput = {
+    id?: SortOrder
+    campaignId?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    transactionId?: SortOrder
+    createdAt?: SortOrder
+    campaign?: CampaignOrderByWithRelationInput
+    transaction?: TransactionOrderByWithRelationInput
+  }
+
+  export type CampaignWithdrawalWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    transactionId?: string
+    AND?: CampaignWithdrawalWhereInput | CampaignWithdrawalWhereInput[]
+    OR?: CampaignWithdrawalWhereInput[]
+    NOT?: CampaignWithdrawalWhereInput | CampaignWithdrawalWhereInput[]
+    campaignId?: StringFilter<"CampaignWithdrawal"> | string
+    amount?: DecimalFilter<"CampaignWithdrawal"> | Decimal | DecimalJsLike | number | string
+    currency?: StringFilter<"CampaignWithdrawal"> | string
+    createdAt?: DateTimeFilter<"CampaignWithdrawal"> | Date | string
+    campaign?: XOR<CampaignScalarRelationFilter, CampaignWhereInput>
+    transaction?: XOR<TransactionScalarRelationFilter, TransactionWhereInput>
+  }, "id" | "transactionId">
+
+  export type CampaignWithdrawalOrderByWithAggregationInput = {
+    id?: SortOrder
+    campaignId?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    transactionId?: SortOrder
+    createdAt?: SortOrder
+    _count?: CampaignWithdrawalCountOrderByAggregateInput
+    _avg?: CampaignWithdrawalAvgOrderByAggregateInput
+    _max?: CampaignWithdrawalMaxOrderByAggregateInput
+    _min?: CampaignWithdrawalMinOrderByAggregateInput
+    _sum?: CampaignWithdrawalSumOrderByAggregateInput
+  }
+
+  export type CampaignWithdrawalScalarWhereWithAggregatesInput = {
+    AND?: CampaignWithdrawalScalarWhereWithAggregatesInput | CampaignWithdrawalScalarWhereWithAggregatesInput[]
+    OR?: CampaignWithdrawalScalarWhereWithAggregatesInput[]
+    NOT?: CampaignWithdrawalScalarWhereWithAggregatesInput | CampaignWithdrawalScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CampaignWithdrawal"> | string
+    campaignId?: StringWithAggregatesFilter<"CampaignWithdrawal"> | string
+    amount?: DecimalWithAggregatesFilter<"CampaignWithdrawal"> | Decimal | DecimalJsLike | number | string
+    currency?: StringWithAggregatesFilter<"CampaignWithdrawal"> | string
+    transactionId?: StringWithAggregatesFilter<"CampaignWithdrawal"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"CampaignWithdrawal"> | Date | string
   }
 
   export type ContributionWhereInput = {
@@ -37796,6 +39168,7 @@ export namespace Prisma {
     contribution?: XOR<ContributionNullableScalarRelationFilter, ContributionWhereInput> | null
     withdrawal?: XOR<WithdrawalNullableScalarRelationFilter, WithdrawalWhereInput> | null
     promotion?: XOR<PromotionNullableScalarRelationFilter, PromotionWhereInput> | null
+    campaignWithdrawal?: XOR<CampaignWithdrawalNullableScalarRelationFilter, CampaignWithdrawalWhereInput> | null
   }
 
   export type TransactionOrderByWithRelationInput = {
@@ -37816,6 +39189,7 @@ export namespace Prisma {
     contribution?: ContributionOrderByWithRelationInput
     withdrawal?: WithdrawalOrderByWithRelationInput
     promotion?: PromotionOrderByWithRelationInput
+    campaignWithdrawal?: CampaignWithdrawalOrderByWithRelationInput
   }
 
   export type TransactionWhereUniqueInput = Prisma.AtLeast<{
@@ -37839,6 +39213,7 @@ export namespace Prisma {
     contribution?: XOR<ContributionNullableScalarRelationFilter, ContributionWhereInput> | null
     withdrawal?: XOR<WithdrawalNullableScalarRelationFilter, WithdrawalWhereInput> | null
     promotion?: XOR<PromotionNullableScalarRelationFilter, PromotionWhereInput> | null
+    campaignWithdrawal?: XOR<CampaignWithdrawalNullableScalarRelationFilter, CampaignWithdrawalWhereInput> | null
   }, "id" | "reference">
 
   export type TransactionOrderByWithAggregationInput = {
@@ -39698,12 +41073,14 @@ export namespace Prisma {
     recipientCountryCode?: string | null
     whatsappFee?: Decimal | DecimalJsLike | number | string
     senderName?: string | null
+    withdrawnAmount?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutCampaignsInput
     product?: VendorGiftCreateNestedOneWithoutCampaignsInput
     redeemedByVendor?: UserCreateNestedOneWithoutRedeemedCampaignsInput
     contributions?: ContributionCreateNestedManyWithoutCampaignInput
+    withdrawals?: CampaignWithdrawalCreateNestedManyWithoutCampaignInput
     transactions?: TransactionCreateNestedManyWithoutCampaignInput
   }
 
@@ -39748,9 +41125,11 @@ export namespace Prisma {
     recipientCountryCode?: string | null
     whatsappFee?: Decimal | DecimalJsLike | number | string
     senderName?: string | null
+    withdrawnAmount?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     contributions?: ContributionUncheckedCreateNestedManyWithoutCampaignInput
+    withdrawals?: CampaignWithdrawalUncheckedCreateNestedManyWithoutCampaignInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutCampaignInput
   }
 
@@ -39792,12 +41171,14 @@ export namespace Prisma {
     recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
     whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    withdrawnAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutCampaignsNestedInput
     product?: VendorGiftUpdateOneWithoutCampaignsNestedInput
     redeemedByVendor?: UserUpdateOneWithoutRedeemedCampaignsNestedInput
     contributions?: ContributionUpdateManyWithoutCampaignNestedInput
+    withdrawals?: CampaignWithdrawalUpdateManyWithoutCampaignNestedInput
     transactions?: TransactionUpdateManyWithoutCampaignNestedInput
   }
 
@@ -39842,9 +41223,11 @@ export namespace Prisma {
     recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
     whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    withdrawnAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     contributions?: ContributionUncheckedUpdateManyWithoutCampaignNestedInput
+    withdrawals?: CampaignWithdrawalUncheckedUpdateManyWithoutCampaignNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutCampaignNestedInput
   }
 
@@ -39889,6 +41272,7 @@ export namespace Prisma {
     recipientCountryCode?: string | null
     whatsappFee?: Decimal | DecimalJsLike | number | string
     senderName?: string | null
+    withdrawnAmount?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -39931,6 +41315,7 @@ export namespace Prisma {
     recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
     whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    withdrawnAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -39976,8 +41361,70 @@ export namespace Prisma {
     recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
     whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    withdrawnAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CampaignWithdrawalCreateInput = {
+    id?: string
+    amount: Decimal | DecimalJsLike | number | string
+    currency?: string
+    createdAt?: Date | string
+    campaign: CampaignCreateNestedOneWithoutWithdrawalsInput
+    transaction: TransactionCreateNestedOneWithoutCampaignWithdrawalInput
+  }
+
+  export type CampaignWithdrawalUncheckedCreateInput = {
+    id?: string
+    campaignId: string
+    amount: Decimal | DecimalJsLike | number | string
+    currency?: string
+    transactionId: string
+    createdAt?: Date | string
+  }
+
+  export type CampaignWithdrawalUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    campaign?: CampaignUpdateOneRequiredWithoutWithdrawalsNestedInput
+    transaction?: TransactionUpdateOneRequiredWithoutCampaignWithdrawalNestedInput
+  }
+
+  export type CampaignWithdrawalUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    campaignId?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    transactionId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CampaignWithdrawalCreateManyInput = {
+    id?: string
+    campaignId: string
+    amount: Decimal | DecimalJsLike | number | string
+    currency?: string
+    transactionId: string
+    createdAt?: Date | string
+  }
+
+  export type CampaignWithdrawalUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CampaignWithdrawalUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    campaignId?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    transactionId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ContributionCreateInput = {
@@ -40643,6 +42090,7 @@ export namespace Prisma {
     contribution?: ContributionCreateNestedOneWithoutTransactionInput
     withdrawal?: WithdrawalCreateNestedOneWithoutTransactionInput
     promotion?: PromotionCreateNestedOneWithoutTransactionInput
+    campaignWithdrawal?: CampaignWithdrawalCreateNestedOneWithoutTransactionInput
   }
 
   export type TransactionUncheckedCreateInput = {
@@ -40661,6 +42109,7 @@ export namespace Prisma {
     contribution?: ContributionUncheckedCreateNestedOneWithoutTransactionInput
     withdrawal?: WithdrawalUncheckedCreateNestedOneWithoutTransactionInput
     promotion?: PromotionUncheckedCreateNestedOneWithoutTransactionInput
+    campaignWithdrawal?: CampaignWithdrawalUncheckedCreateNestedOneWithoutTransactionInput
   }
 
   export type TransactionUpdateInput = {
@@ -40679,6 +42128,7 @@ export namespace Prisma {
     contribution?: ContributionUpdateOneWithoutTransactionNestedInput
     withdrawal?: WithdrawalUpdateOneWithoutTransactionNestedInput
     promotion?: PromotionUpdateOneWithoutTransactionNestedInput
+    campaignWithdrawal?: CampaignWithdrawalUpdateOneWithoutTransactionNestedInput
   }
 
   export type TransactionUncheckedUpdateInput = {
@@ -40697,6 +42147,7 @@ export namespace Prisma {
     contribution?: ContributionUncheckedUpdateOneWithoutTransactionNestedInput
     withdrawal?: WithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
     promotion?: PromotionUncheckedUpdateOneWithoutTransactionNestedInput
+    campaignWithdrawal?: CampaignWithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
   }
 
   export type TransactionCreateManyInput = {
@@ -42694,7 +44145,17 @@ export namespace Prisma {
     none?: ContributionWhereInput
   }
 
+  export type CampaignWithdrawalListRelationFilter = {
+    every?: CampaignWithdrawalWhereInput
+    some?: CampaignWithdrawalWhereInput
+    none?: CampaignWithdrawalWhereInput
+  }
+
   export type ContributionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type CampaignWithdrawalOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -42739,6 +44200,7 @@ export namespace Prisma {
     recipientCountryCode?: SortOrder
     whatsappFee?: SortOrder
     senderName?: SortOrder
+    withdrawnAmount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -42750,6 +44212,7 @@ export namespace Prisma {
     claimableGiftId?: SortOrder
     vendorRating?: SortOrder
     whatsappFee?: SortOrder
+    withdrawnAmount?: SortOrder
   }
 
   export type CampaignMaxOrderByAggregateInput = {
@@ -42792,6 +44255,7 @@ export namespace Prisma {
     recipientCountryCode?: SortOrder
     whatsappFee?: SortOrder
     senderName?: SortOrder
+    withdrawnAmount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -42836,6 +44300,7 @@ export namespace Prisma {
     recipientCountryCode?: SortOrder
     whatsappFee?: SortOrder
     senderName?: SortOrder
+    withdrawnAmount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -42847,6 +44312,7 @@ export namespace Prisma {
     claimableGiftId?: SortOrder
     vendorRating?: SortOrder
     whatsappFee?: SortOrder
+    withdrawnAmount?: SortOrder
   }
 
   export type DecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -42900,6 +44366,46 @@ export namespace Prisma {
   export type CampaignScalarRelationFilter = {
     is?: CampaignWhereInput
     isNot?: CampaignWhereInput
+  }
+
+  export type TransactionScalarRelationFilter = {
+    is?: TransactionWhereInput
+    isNot?: TransactionWhereInput
+  }
+
+  export type CampaignWithdrawalCountOrderByAggregateInput = {
+    id?: SortOrder
+    campaignId?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    transactionId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CampaignWithdrawalAvgOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
+  export type CampaignWithdrawalMaxOrderByAggregateInput = {
+    id?: SortOrder
+    campaignId?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    transactionId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CampaignWithdrawalMinOrderByAggregateInput = {
+    id?: SortOrder
+    campaignId?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    transactionId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CampaignWithdrawalSumOrderByAggregateInput = {
+    amount?: SortOrder
   }
 
   export type TransactionNullableScalarRelationFilter = {
@@ -43306,6 +44812,11 @@ export namespace Prisma {
   export type PromotionNullableScalarRelationFilter = {
     is?: PromotionWhereInput | null
     isNot?: PromotionWhereInput | null
+  }
+
+  export type CampaignWithdrawalNullableScalarRelationFilter = {
+    is?: CampaignWithdrawalWhereInput | null
+    isNot?: CampaignWithdrawalWhereInput | null
   }
 
   export type TransactionCountOrderByAggregateInput = {
@@ -45220,6 +46731,13 @@ export namespace Prisma {
     connect?: ContributionWhereUniqueInput | ContributionWhereUniqueInput[]
   }
 
+  export type CampaignWithdrawalCreateNestedManyWithoutCampaignInput = {
+    create?: XOR<CampaignWithdrawalCreateWithoutCampaignInput, CampaignWithdrawalUncheckedCreateWithoutCampaignInput> | CampaignWithdrawalCreateWithoutCampaignInput[] | CampaignWithdrawalUncheckedCreateWithoutCampaignInput[]
+    connectOrCreate?: CampaignWithdrawalCreateOrConnectWithoutCampaignInput | CampaignWithdrawalCreateOrConnectWithoutCampaignInput[]
+    createMany?: CampaignWithdrawalCreateManyCampaignInputEnvelope
+    connect?: CampaignWithdrawalWhereUniqueInput | CampaignWithdrawalWhereUniqueInput[]
+  }
+
   export type TransactionCreateNestedManyWithoutCampaignInput = {
     create?: XOR<TransactionCreateWithoutCampaignInput, TransactionUncheckedCreateWithoutCampaignInput> | TransactionCreateWithoutCampaignInput[] | TransactionUncheckedCreateWithoutCampaignInput[]
     connectOrCreate?: TransactionCreateOrConnectWithoutCampaignInput | TransactionCreateOrConnectWithoutCampaignInput[]
@@ -45232,6 +46750,13 @@ export namespace Prisma {
     connectOrCreate?: ContributionCreateOrConnectWithoutCampaignInput | ContributionCreateOrConnectWithoutCampaignInput[]
     createMany?: ContributionCreateManyCampaignInputEnvelope
     connect?: ContributionWhereUniqueInput | ContributionWhereUniqueInput[]
+  }
+
+  export type CampaignWithdrawalUncheckedCreateNestedManyWithoutCampaignInput = {
+    create?: XOR<CampaignWithdrawalCreateWithoutCampaignInput, CampaignWithdrawalUncheckedCreateWithoutCampaignInput> | CampaignWithdrawalCreateWithoutCampaignInput[] | CampaignWithdrawalUncheckedCreateWithoutCampaignInput[]
+    connectOrCreate?: CampaignWithdrawalCreateOrConnectWithoutCampaignInput | CampaignWithdrawalCreateOrConnectWithoutCampaignInput[]
+    createMany?: CampaignWithdrawalCreateManyCampaignInputEnvelope
+    connect?: CampaignWithdrawalWhereUniqueInput | CampaignWithdrawalWhereUniqueInput[]
   }
 
   export type TransactionUncheckedCreateNestedManyWithoutCampaignInput = {
@@ -45312,6 +46837,20 @@ export namespace Prisma {
     deleteMany?: ContributionScalarWhereInput | ContributionScalarWhereInput[]
   }
 
+  export type CampaignWithdrawalUpdateManyWithoutCampaignNestedInput = {
+    create?: XOR<CampaignWithdrawalCreateWithoutCampaignInput, CampaignWithdrawalUncheckedCreateWithoutCampaignInput> | CampaignWithdrawalCreateWithoutCampaignInput[] | CampaignWithdrawalUncheckedCreateWithoutCampaignInput[]
+    connectOrCreate?: CampaignWithdrawalCreateOrConnectWithoutCampaignInput | CampaignWithdrawalCreateOrConnectWithoutCampaignInput[]
+    upsert?: CampaignWithdrawalUpsertWithWhereUniqueWithoutCampaignInput | CampaignWithdrawalUpsertWithWhereUniqueWithoutCampaignInput[]
+    createMany?: CampaignWithdrawalCreateManyCampaignInputEnvelope
+    set?: CampaignWithdrawalWhereUniqueInput | CampaignWithdrawalWhereUniqueInput[]
+    disconnect?: CampaignWithdrawalWhereUniqueInput | CampaignWithdrawalWhereUniqueInput[]
+    delete?: CampaignWithdrawalWhereUniqueInput | CampaignWithdrawalWhereUniqueInput[]
+    connect?: CampaignWithdrawalWhereUniqueInput | CampaignWithdrawalWhereUniqueInput[]
+    update?: CampaignWithdrawalUpdateWithWhereUniqueWithoutCampaignInput | CampaignWithdrawalUpdateWithWhereUniqueWithoutCampaignInput[]
+    updateMany?: CampaignWithdrawalUpdateManyWithWhereWithoutCampaignInput | CampaignWithdrawalUpdateManyWithWhereWithoutCampaignInput[]
+    deleteMany?: CampaignWithdrawalScalarWhereInput | CampaignWithdrawalScalarWhereInput[]
+  }
+
   export type TransactionUpdateManyWithoutCampaignNestedInput = {
     create?: XOR<TransactionCreateWithoutCampaignInput, TransactionUncheckedCreateWithoutCampaignInput> | TransactionCreateWithoutCampaignInput[] | TransactionUncheckedCreateWithoutCampaignInput[]
     connectOrCreate?: TransactionCreateOrConnectWithoutCampaignInput | TransactionCreateOrConnectWithoutCampaignInput[]
@@ -45340,6 +46879,20 @@ export namespace Prisma {
     deleteMany?: ContributionScalarWhereInput | ContributionScalarWhereInput[]
   }
 
+  export type CampaignWithdrawalUncheckedUpdateManyWithoutCampaignNestedInput = {
+    create?: XOR<CampaignWithdrawalCreateWithoutCampaignInput, CampaignWithdrawalUncheckedCreateWithoutCampaignInput> | CampaignWithdrawalCreateWithoutCampaignInput[] | CampaignWithdrawalUncheckedCreateWithoutCampaignInput[]
+    connectOrCreate?: CampaignWithdrawalCreateOrConnectWithoutCampaignInput | CampaignWithdrawalCreateOrConnectWithoutCampaignInput[]
+    upsert?: CampaignWithdrawalUpsertWithWhereUniqueWithoutCampaignInput | CampaignWithdrawalUpsertWithWhereUniqueWithoutCampaignInput[]
+    createMany?: CampaignWithdrawalCreateManyCampaignInputEnvelope
+    set?: CampaignWithdrawalWhereUniqueInput | CampaignWithdrawalWhereUniqueInput[]
+    disconnect?: CampaignWithdrawalWhereUniqueInput | CampaignWithdrawalWhereUniqueInput[]
+    delete?: CampaignWithdrawalWhereUniqueInput | CampaignWithdrawalWhereUniqueInput[]
+    connect?: CampaignWithdrawalWhereUniqueInput | CampaignWithdrawalWhereUniqueInput[]
+    update?: CampaignWithdrawalUpdateWithWhereUniqueWithoutCampaignInput | CampaignWithdrawalUpdateWithWhereUniqueWithoutCampaignInput[]
+    updateMany?: CampaignWithdrawalUpdateManyWithWhereWithoutCampaignInput | CampaignWithdrawalUpdateManyWithWhereWithoutCampaignInput[]
+    deleteMany?: CampaignWithdrawalScalarWhereInput | CampaignWithdrawalScalarWhereInput[]
+  }
+
   export type TransactionUncheckedUpdateManyWithoutCampaignNestedInput = {
     create?: XOR<TransactionCreateWithoutCampaignInput, TransactionUncheckedCreateWithoutCampaignInput> | TransactionCreateWithoutCampaignInput[] | TransactionUncheckedCreateWithoutCampaignInput[]
     connectOrCreate?: TransactionCreateOrConnectWithoutCampaignInput | TransactionCreateOrConnectWithoutCampaignInput[]
@@ -45352,6 +46905,34 @@ export namespace Prisma {
     update?: TransactionUpdateWithWhereUniqueWithoutCampaignInput | TransactionUpdateWithWhereUniqueWithoutCampaignInput[]
     updateMany?: TransactionUpdateManyWithWhereWithoutCampaignInput | TransactionUpdateManyWithWhereWithoutCampaignInput[]
     deleteMany?: TransactionScalarWhereInput | TransactionScalarWhereInput[]
+  }
+
+  export type CampaignCreateNestedOneWithoutWithdrawalsInput = {
+    create?: XOR<CampaignCreateWithoutWithdrawalsInput, CampaignUncheckedCreateWithoutWithdrawalsInput>
+    connectOrCreate?: CampaignCreateOrConnectWithoutWithdrawalsInput
+    connect?: CampaignWhereUniqueInput
+  }
+
+  export type TransactionCreateNestedOneWithoutCampaignWithdrawalInput = {
+    create?: XOR<TransactionCreateWithoutCampaignWithdrawalInput, TransactionUncheckedCreateWithoutCampaignWithdrawalInput>
+    connectOrCreate?: TransactionCreateOrConnectWithoutCampaignWithdrawalInput
+    connect?: TransactionWhereUniqueInput
+  }
+
+  export type CampaignUpdateOneRequiredWithoutWithdrawalsNestedInput = {
+    create?: XOR<CampaignCreateWithoutWithdrawalsInput, CampaignUncheckedCreateWithoutWithdrawalsInput>
+    connectOrCreate?: CampaignCreateOrConnectWithoutWithdrawalsInput
+    upsert?: CampaignUpsertWithoutWithdrawalsInput
+    connect?: CampaignWhereUniqueInput
+    update?: XOR<XOR<CampaignUpdateToOneWithWhereWithoutWithdrawalsInput, CampaignUpdateWithoutWithdrawalsInput>, CampaignUncheckedUpdateWithoutWithdrawalsInput>
+  }
+
+  export type TransactionUpdateOneRequiredWithoutCampaignWithdrawalNestedInput = {
+    create?: XOR<TransactionCreateWithoutCampaignWithdrawalInput, TransactionUncheckedCreateWithoutCampaignWithdrawalInput>
+    connectOrCreate?: TransactionCreateOrConnectWithoutCampaignWithdrawalInput
+    upsert?: TransactionUpsertWithoutCampaignWithdrawalInput
+    connect?: TransactionWhereUniqueInput
+    update?: XOR<XOR<TransactionUpdateToOneWithWhereWithoutCampaignWithdrawalInput, TransactionUpdateWithoutCampaignWithdrawalInput>, TransactionUncheckedUpdateWithoutCampaignWithdrawalInput>
   }
 
   export type CampaignCreateNestedOneWithoutContributionsInput = {
@@ -45534,6 +47115,12 @@ export namespace Prisma {
     connect?: PromotionWhereUniqueInput
   }
 
+  export type CampaignWithdrawalCreateNestedOneWithoutTransactionInput = {
+    create?: XOR<CampaignWithdrawalCreateWithoutTransactionInput, CampaignWithdrawalUncheckedCreateWithoutTransactionInput>
+    connectOrCreate?: CampaignWithdrawalCreateOrConnectWithoutTransactionInput
+    connect?: CampaignWithdrawalWhereUniqueInput
+  }
+
   export type CreatorSupportUncheckedCreateNestedOneWithoutTransactionInput = {
     create?: XOR<CreatorSupportCreateWithoutTransactionInput, CreatorSupportUncheckedCreateWithoutTransactionInput>
     connectOrCreate?: CreatorSupportCreateOrConnectWithoutTransactionInput
@@ -45556,6 +47143,12 @@ export namespace Prisma {
     create?: XOR<PromotionCreateWithoutTransactionInput, PromotionUncheckedCreateWithoutTransactionInput>
     connectOrCreate?: PromotionCreateOrConnectWithoutTransactionInput
     connect?: PromotionWhereUniqueInput
+  }
+
+  export type CampaignWithdrawalUncheckedCreateNestedOneWithoutTransactionInput = {
+    create?: XOR<CampaignWithdrawalCreateWithoutTransactionInput, CampaignWithdrawalUncheckedCreateWithoutTransactionInput>
+    connectOrCreate?: CampaignWithdrawalCreateOrConnectWithoutTransactionInput
+    connect?: CampaignWithdrawalWhereUniqueInput
   }
 
   export type UserUpdateOneWithoutTransactionsNestedInput = {
@@ -45618,6 +47211,16 @@ export namespace Prisma {
     update?: XOR<XOR<PromotionUpdateToOneWithWhereWithoutTransactionInput, PromotionUpdateWithoutTransactionInput>, PromotionUncheckedUpdateWithoutTransactionInput>
   }
 
+  export type CampaignWithdrawalUpdateOneWithoutTransactionNestedInput = {
+    create?: XOR<CampaignWithdrawalCreateWithoutTransactionInput, CampaignWithdrawalUncheckedCreateWithoutTransactionInput>
+    connectOrCreate?: CampaignWithdrawalCreateOrConnectWithoutTransactionInput
+    upsert?: CampaignWithdrawalUpsertWithoutTransactionInput
+    disconnect?: CampaignWithdrawalWhereInput | boolean
+    delete?: CampaignWithdrawalWhereInput | boolean
+    connect?: CampaignWithdrawalWhereUniqueInput
+    update?: XOR<XOR<CampaignWithdrawalUpdateToOneWithWhereWithoutTransactionInput, CampaignWithdrawalUpdateWithoutTransactionInput>, CampaignWithdrawalUncheckedUpdateWithoutTransactionInput>
+  }
+
   export type CreatorSupportUncheckedUpdateOneWithoutTransactionNestedInput = {
     create?: XOR<CreatorSupportCreateWithoutTransactionInput, CreatorSupportUncheckedCreateWithoutTransactionInput>
     connectOrCreate?: CreatorSupportCreateOrConnectWithoutTransactionInput
@@ -45656,6 +47259,16 @@ export namespace Prisma {
     delete?: PromotionWhereInput | boolean
     connect?: PromotionWhereUniqueInput
     update?: XOR<XOR<PromotionUpdateToOneWithWhereWithoutTransactionInput, PromotionUpdateWithoutTransactionInput>, PromotionUncheckedUpdateWithoutTransactionInput>
+  }
+
+  export type CampaignWithdrawalUncheckedUpdateOneWithoutTransactionNestedInput = {
+    create?: XOR<CampaignWithdrawalCreateWithoutTransactionInput, CampaignWithdrawalUncheckedCreateWithoutTransactionInput>
+    connectOrCreate?: CampaignWithdrawalCreateOrConnectWithoutTransactionInput
+    upsert?: CampaignWithdrawalUpsertWithoutTransactionInput
+    disconnect?: CampaignWithdrawalWhereInput | boolean
+    delete?: CampaignWithdrawalWhereInput | boolean
+    connect?: CampaignWithdrawalWhereUniqueInput
+    update?: XOR<XOR<CampaignWithdrawalUpdateToOneWithWhereWithoutTransactionInput, CampaignWithdrawalUpdateWithoutTransactionInput>, CampaignWithdrawalUncheckedUpdateWithoutTransactionInput>
   }
 
   export type UserCreateNestedOneWithoutBankAccountsInput = {
@@ -46789,11 +48402,13 @@ export namespace Prisma {
     recipientCountryCode?: string | null
     whatsappFee?: Decimal | DecimalJsLike | number | string
     senderName?: string | null
+    withdrawnAmount?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     product?: VendorGiftCreateNestedOneWithoutCampaignsInput
     redeemedByVendor?: UserCreateNestedOneWithoutRedeemedCampaignsInput
     contributions?: ContributionCreateNestedManyWithoutCampaignInput
+    withdrawals?: CampaignWithdrawalCreateNestedManyWithoutCampaignInput
     transactions?: TransactionCreateNestedManyWithoutCampaignInput
   }
 
@@ -46837,9 +48452,11 @@ export namespace Prisma {
     recipientCountryCode?: string | null
     whatsappFee?: Decimal | DecimalJsLike | number | string
     senderName?: string | null
+    withdrawnAmount?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     contributions?: ContributionUncheckedCreateNestedManyWithoutCampaignInput
+    withdrawals?: CampaignWithdrawalUncheckedCreateNestedManyWithoutCampaignInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutCampaignInput
   }
 
@@ -46908,6 +48525,7 @@ export namespace Prisma {
     contribution?: ContributionCreateNestedOneWithoutTransactionInput
     withdrawal?: WithdrawalCreateNestedOneWithoutTransactionInput
     promotion?: PromotionCreateNestedOneWithoutTransactionInput
+    campaignWithdrawal?: CampaignWithdrawalCreateNestedOneWithoutTransactionInput
   }
 
   export type TransactionUncheckedCreateWithoutUserInput = {
@@ -46925,6 +48543,7 @@ export namespace Prisma {
     contribution?: ContributionUncheckedCreateNestedOneWithoutTransactionInput
     withdrawal?: WithdrawalUncheckedCreateNestedOneWithoutTransactionInput
     promotion?: PromotionUncheckedCreateNestedOneWithoutTransactionInput
+    campaignWithdrawal?: CampaignWithdrawalUncheckedCreateNestedOneWithoutTransactionInput
   }
 
   export type TransactionCreateOrConnectWithoutUserInput = {
@@ -47367,11 +48986,13 @@ export namespace Prisma {
     recipientCountryCode?: string | null
     whatsappFee?: Decimal | DecimalJsLike | number | string
     senderName?: string | null
+    withdrawnAmount?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutCampaignsInput
     product?: VendorGiftCreateNestedOneWithoutCampaignsInput
     contributions?: ContributionCreateNestedManyWithoutCampaignInput
+    withdrawals?: CampaignWithdrawalCreateNestedManyWithoutCampaignInput
     transactions?: TransactionCreateNestedManyWithoutCampaignInput
   }
 
@@ -47415,9 +49036,11 @@ export namespace Prisma {
     recipientCountryCode?: string | null
     whatsappFee?: Decimal | DecimalJsLike | number | string
     senderName?: string | null
+    withdrawnAmount?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     contributions?: ContributionUncheckedCreateNestedManyWithoutCampaignInput
+    withdrawals?: CampaignWithdrawalUncheckedCreateNestedManyWithoutCampaignInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutCampaignInput
   }
 
@@ -47886,6 +49509,7 @@ export namespace Prisma {
     recipientCountryCode?: StringNullableFilter<"Campaign"> | string | null
     whatsappFee?: DecimalFilter<"Campaign"> | Decimal | DecimalJsLike | number | string
     senderName?: StringNullableFilter<"Campaign"> | string | null
+    withdrawnAmount?: DecimalFilter<"Campaign"> | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFilter<"Campaign"> | Date | string
     updatedAt?: DateTimeFilter<"Campaign"> | Date | string
   }
@@ -49325,6 +50949,32 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type CampaignWithdrawalCreateWithoutCampaignInput = {
+    id?: string
+    amount: Decimal | DecimalJsLike | number | string
+    currency?: string
+    createdAt?: Date | string
+    transaction: TransactionCreateNestedOneWithoutCampaignWithdrawalInput
+  }
+
+  export type CampaignWithdrawalUncheckedCreateWithoutCampaignInput = {
+    id?: string
+    amount: Decimal | DecimalJsLike | number | string
+    currency?: string
+    transactionId: string
+    createdAt?: Date | string
+  }
+
+  export type CampaignWithdrawalCreateOrConnectWithoutCampaignInput = {
+    where: CampaignWithdrawalWhereUniqueInput
+    create: XOR<CampaignWithdrawalCreateWithoutCampaignInput, CampaignWithdrawalUncheckedCreateWithoutCampaignInput>
+  }
+
+  export type CampaignWithdrawalCreateManyCampaignInputEnvelope = {
+    data: CampaignWithdrawalCreateManyCampaignInput | CampaignWithdrawalCreateManyCampaignInput[]
+    skipDuplicates?: boolean
+  }
+
   export type TransactionCreateWithoutCampaignInput = {
     id?: string
     amount: bigint | number
@@ -49340,6 +50990,7 @@ export namespace Prisma {
     contribution?: ContributionCreateNestedOneWithoutTransactionInput
     withdrawal?: WithdrawalCreateNestedOneWithoutTransactionInput
     promotion?: PromotionCreateNestedOneWithoutTransactionInput
+    campaignWithdrawal?: CampaignWithdrawalCreateNestedOneWithoutTransactionInput
   }
 
   export type TransactionUncheckedCreateWithoutCampaignInput = {
@@ -49357,6 +51008,7 @@ export namespace Prisma {
     contribution?: ContributionUncheckedCreateNestedOneWithoutTransactionInput
     withdrawal?: WithdrawalUncheckedCreateNestedOneWithoutTransactionInput
     promotion?: PromotionUncheckedCreateNestedOneWithoutTransactionInput
+    campaignWithdrawal?: CampaignWithdrawalUncheckedCreateNestedOneWithoutTransactionInput
   }
 
   export type TransactionCreateOrConnectWithoutCampaignInput = {
@@ -49708,6 +51360,34 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Contribution"> | Date | string
   }
 
+  export type CampaignWithdrawalUpsertWithWhereUniqueWithoutCampaignInput = {
+    where: CampaignWithdrawalWhereUniqueInput
+    update: XOR<CampaignWithdrawalUpdateWithoutCampaignInput, CampaignWithdrawalUncheckedUpdateWithoutCampaignInput>
+    create: XOR<CampaignWithdrawalCreateWithoutCampaignInput, CampaignWithdrawalUncheckedCreateWithoutCampaignInput>
+  }
+
+  export type CampaignWithdrawalUpdateWithWhereUniqueWithoutCampaignInput = {
+    where: CampaignWithdrawalWhereUniqueInput
+    data: XOR<CampaignWithdrawalUpdateWithoutCampaignInput, CampaignWithdrawalUncheckedUpdateWithoutCampaignInput>
+  }
+
+  export type CampaignWithdrawalUpdateManyWithWhereWithoutCampaignInput = {
+    where: CampaignWithdrawalScalarWhereInput
+    data: XOR<CampaignWithdrawalUpdateManyMutationInput, CampaignWithdrawalUncheckedUpdateManyWithoutCampaignInput>
+  }
+
+  export type CampaignWithdrawalScalarWhereInput = {
+    AND?: CampaignWithdrawalScalarWhereInput | CampaignWithdrawalScalarWhereInput[]
+    OR?: CampaignWithdrawalScalarWhereInput[]
+    NOT?: CampaignWithdrawalScalarWhereInput | CampaignWithdrawalScalarWhereInput[]
+    id?: StringFilter<"CampaignWithdrawal"> | string
+    campaignId?: StringFilter<"CampaignWithdrawal"> | string
+    amount?: DecimalFilter<"CampaignWithdrawal"> | Decimal | DecimalJsLike | number | string
+    currency?: StringFilter<"CampaignWithdrawal"> | string
+    transactionId?: StringFilter<"CampaignWithdrawal"> | string
+    createdAt?: DateTimeFilter<"CampaignWithdrawal"> | Date | string
+  }
+
   export type TransactionUpsertWithWhereUniqueWithoutCampaignInput = {
     where: TransactionWhereUniqueInput
     update: XOR<TransactionUpdateWithoutCampaignInput, TransactionUncheckedUpdateWithoutCampaignInput>
@@ -49722,6 +51402,302 @@ export namespace Prisma {
   export type TransactionUpdateManyWithWhereWithoutCampaignInput = {
     where: TransactionScalarWhereInput
     data: XOR<TransactionUpdateManyMutationInput, TransactionUncheckedUpdateManyWithoutCampaignInput>
+  }
+
+  export type CampaignCreateWithoutWithdrawalsInput = {
+    id?: string
+    category: string
+    title: string
+    description?: string | null
+    goalAmount?: Decimal | DecimalJsLike | number | string | null
+    minAmount?: Decimal | DecimalJsLike | number | string | null
+    currentAmount?: Decimal | DecimalJsLike | number | string
+    endDate?: Date | string | null
+    imageUrl?: string | null
+    coverImage?: string | null
+    images?: CampaignCreateimagesInput | string[]
+    visibility?: string
+    contributorsSeeEachOther?: boolean
+    status?: string
+    statusReason?: string | null
+    pausedBy?: string | null
+    isFlagged?: boolean
+    flagReason?: string | null
+    flaggedAt?: Date | string | null
+    flaggedBy?: string | null
+    campaignShortId?: string | null
+    campaignSlug?: string | null
+    claimableType?: string | null
+    claimableRecipientType?: string | null
+    recipientEmail?: string | null
+    senderEmail?: string | null
+    paymentReference?: string | null
+    currency?: string
+    giftCode?: string | null
+    redeemedAt?: Date | string | null
+    vendorRating?: number | null
+    message?: string | null
+    deliveryMethod?: string | null
+    recipientPhone?: string | null
+    recipientCountryCode?: string | null
+    whatsappFee?: Decimal | DecimalJsLike | number | string
+    senderName?: string | null
+    withdrawnAmount?: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutCampaignsInput
+    product?: VendorGiftCreateNestedOneWithoutCampaignsInput
+    redeemedByVendor?: UserCreateNestedOneWithoutRedeemedCampaignsInput
+    contributions?: ContributionCreateNestedManyWithoutCampaignInput
+    transactions?: TransactionCreateNestedManyWithoutCampaignInput
+  }
+
+  export type CampaignUncheckedCreateWithoutWithdrawalsInput = {
+    id?: string
+    userId: string
+    category: string
+    title: string
+    description?: string | null
+    goalAmount?: Decimal | DecimalJsLike | number | string | null
+    minAmount?: Decimal | DecimalJsLike | number | string | null
+    currentAmount?: Decimal | DecimalJsLike | number | string
+    endDate?: Date | string | null
+    imageUrl?: string | null
+    coverImage?: string | null
+    images?: CampaignCreateimagesInput | string[]
+    visibility?: string
+    contributorsSeeEachOther?: boolean
+    status?: string
+    statusReason?: string | null
+    pausedBy?: string | null
+    isFlagged?: boolean
+    flagReason?: string | null
+    flaggedAt?: Date | string | null
+    flaggedBy?: string | null
+    campaignShortId?: string | null
+    campaignSlug?: string | null
+    claimableType?: string | null
+    claimableGiftId?: number | null
+    claimableRecipientType?: string | null
+    recipientEmail?: string | null
+    senderEmail?: string | null
+    paymentReference?: string | null
+    currency?: string
+    giftCode?: string | null
+    redeemedAt?: Date | string | null
+    redeemedByVendorId?: string | null
+    vendorRating?: number | null
+    message?: string | null
+    deliveryMethod?: string | null
+    recipientPhone?: string | null
+    recipientCountryCode?: string | null
+    whatsappFee?: Decimal | DecimalJsLike | number | string
+    senderName?: string | null
+    withdrawnAmount?: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    contributions?: ContributionUncheckedCreateNestedManyWithoutCampaignInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutCampaignInput
+  }
+
+  export type CampaignCreateOrConnectWithoutWithdrawalsInput = {
+    where: CampaignWhereUniqueInput
+    create: XOR<CampaignCreateWithoutWithdrawalsInput, CampaignUncheckedCreateWithoutWithdrawalsInput>
+  }
+
+  export type TransactionCreateWithoutCampaignWithdrawalInput = {
+    id?: string
+    amount: bigint | number
+    currency?: string
+    type: string
+    status?: string
+    reference?: string | null
+    description?: string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    user?: UserCreateNestedOneWithoutTransactionsInput
+    campaign?: CampaignCreateNestedOneWithoutTransactionsInput
+    creatorSupport?: CreatorSupportCreateNestedOneWithoutTransactionInput
+    contribution?: ContributionCreateNestedOneWithoutTransactionInput
+    withdrawal?: WithdrawalCreateNestedOneWithoutTransactionInput
+    promotion?: PromotionCreateNestedOneWithoutTransactionInput
+  }
+
+  export type TransactionUncheckedCreateWithoutCampaignWithdrawalInput = {
+    id?: string
+    userId?: string | null
+    campaignId?: string | null
+    amount: bigint | number
+    currency?: string
+    type: string
+    status?: string
+    reference?: string | null
+    description?: string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    creatorSupport?: CreatorSupportUncheckedCreateNestedOneWithoutTransactionInput
+    contribution?: ContributionUncheckedCreateNestedOneWithoutTransactionInput
+    withdrawal?: WithdrawalUncheckedCreateNestedOneWithoutTransactionInput
+    promotion?: PromotionUncheckedCreateNestedOneWithoutTransactionInput
+  }
+
+  export type TransactionCreateOrConnectWithoutCampaignWithdrawalInput = {
+    where: TransactionWhereUniqueInput
+    create: XOR<TransactionCreateWithoutCampaignWithdrawalInput, TransactionUncheckedCreateWithoutCampaignWithdrawalInput>
+  }
+
+  export type CampaignUpsertWithoutWithdrawalsInput = {
+    update: XOR<CampaignUpdateWithoutWithdrawalsInput, CampaignUncheckedUpdateWithoutWithdrawalsInput>
+    create: XOR<CampaignCreateWithoutWithdrawalsInput, CampaignUncheckedCreateWithoutWithdrawalsInput>
+    where?: CampaignWhereInput
+  }
+
+  export type CampaignUpdateToOneWithWhereWithoutWithdrawalsInput = {
+    where?: CampaignWhereInput
+    data: XOR<CampaignUpdateWithoutWithdrawalsInput, CampaignUncheckedUpdateWithoutWithdrawalsInput>
+  }
+
+  export type CampaignUpdateWithoutWithdrawalsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    goalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    currentAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    coverImage?: NullableStringFieldUpdateOperationsInput | string | null
+    images?: CampaignUpdateimagesInput | string[]
+    visibility?: StringFieldUpdateOperationsInput | string
+    contributorsSeeEachOther?: BoolFieldUpdateOperationsInput | boolean
+    status?: StringFieldUpdateOperationsInput | string
+    statusReason?: NullableStringFieldUpdateOperationsInput | string | null
+    pausedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    isFlagged?: BoolFieldUpdateOperationsInput | boolean
+    flagReason?: NullableStringFieldUpdateOperationsInput | string | null
+    flaggedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    flaggedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    campaignShortId?: NullableStringFieldUpdateOperationsInput | string | null
+    campaignSlug?: NullableStringFieldUpdateOperationsInput | string | null
+    claimableType?: NullableStringFieldUpdateOperationsInput | string | null
+    claimableRecipientType?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    senderEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    giftCode?: NullableStringFieldUpdateOperationsInput | string | null
+    redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    vendorRating?: NullableIntFieldUpdateOperationsInput | number | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    withdrawnAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutCampaignsNestedInput
+    product?: VendorGiftUpdateOneWithoutCampaignsNestedInput
+    redeemedByVendor?: UserUpdateOneWithoutRedeemedCampaignsNestedInput
+    contributions?: ContributionUpdateManyWithoutCampaignNestedInput
+    transactions?: TransactionUpdateManyWithoutCampaignNestedInput
+  }
+
+  export type CampaignUncheckedUpdateWithoutWithdrawalsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    goalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    currentAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    coverImage?: NullableStringFieldUpdateOperationsInput | string | null
+    images?: CampaignUpdateimagesInput | string[]
+    visibility?: StringFieldUpdateOperationsInput | string
+    contributorsSeeEachOther?: BoolFieldUpdateOperationsInput | boolean
+    status?: StringFieldUpdateOperationsInput | string
+    statusReason?: NullableStringFieldUpdateOperationsInput | string | null
+    pausedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    isFlagged?: BoolFieldUpdateOperationsInput | boolean
+    flagReason?: NullableStringFieldUpdateOperationsInput | string | null
+    flaggedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    flaggedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    campaignShortId?: NullableStringFieldUpdateOperationsInput | string | null
+    campaignSlug?: NullableStringFieldUpdateOperationsInput | string | null
+    claimableType?: NullableStringFieldUpdateOperationsInput | string | null
+    claimableGiftId?: NullableIntFieldUpdateOperationsInput | number | null
+    claimableRecipientType?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    senderEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    giftCode?: NullableStringFieldUpdateOperationsInput | string | null
+    redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    redeemedByVendorId?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorRating?: NullableIntFieldUpdateOperationsInput | number | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    withdrawnAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contributions?: ContributionUncheckedUpdateManyWithoutCampaignNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutCampaignNestedInput
+  }
+
+  export type TransactionUpsertWithoutCampaignWithdrawalInput = {
+    update: XOR<TransactionUpdateWithoutCampaignWithdrawalInput, TransactionUncheckedUpdateWithoutCampaignWithdrawalInput>
+    create: XOR<TransactionCreateWithoutCampaignWithdrawalInput, TransactionUncheckedCreateWithoutCampaignWithdrawalInput>
+    where?: TransactionWhereInput
+  }
+
+  export type TransactionUpdateToOneWithWhereWithoutCampaignWithdrawalInput = {
+    where?: TransactionWhereInput
+    data: XOR<TransactionUpdateWithoutCampaignWithdrawalInput, TransactionUncheckedUpdateWithoutCampaignWithdrawalInput>
+  }
+
+  export type TransactionUpdateWithoutCampaignWithdrawalInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: BigIntFieldUpdateOperationsInput | bigint | number
+    currency?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneWithoutTransactionsNestedInput
+    campaign?: CampaignUpdateOneWithoutTransactionsNestedInput
+    creatorSupport?: CreatorSupportUpdateOneWithoutTransactionNestedInput
+    contribution?: ContributionUpdateOneWithoutTransactionNestedInput
+    withdrawal?: WithdrawalUpdateOneWithoutTransactionNestedInput
+    promotion?: PromotionUpdateOneWithoutTransactionNestedInput
+  }
+
+  export type TransactionUncheckedUpdateWithoutCampaignWithdrawalInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    campaignId?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: BigIntFieldUpdateOperationsInput | bigint | number
+    currency?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    creatorSupport?: CreatorSupportUncheckedUpdateOneWithoutTransactionNestedInput
+    contribution?: ContributionUncheckedUpdateOneWithoutTransactionNestedInput
+    withdrawal?: WithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
+    promotion?: PromotionUncheckedUpdateOneWithoutTransactionNestedInput
   }
 
   export type CampaignCreateWithoutContributionsInput = {
@@ -49762,11 +51738,13 @@ export namespace Prisma {
     recipientCountryCode?: string | null
     whatsappFee?: Decimal | DecimalJsLike | number | string
     senderName?: string | null
+    withdrawnAmount?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutCampaignsInput
     product?: VendorGiftCreateNestedOneWithoutCampaignsInput
     redeemedByVendor?: UserCreateNestedOneWithoutRedeemedCampaignsInput
+    withdrawals?: CampaignWithdrawalCreateNestedManyWithoutCampaignInput
     transactions?: TransactionCreateNestedManyWithoutCampaignInput
   }
 
@@ -49811,8 +51789,10 @@ export namespace Prisma {
     recipientCountryCode?: string | null
     whatsappFee?: Decimal | DecimalJsLike | number | string
     senderName?: string | null
+    withdrawnAmount?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
+    withdrawals?: CampaignWithdrawalUncheckedCreateNestedManyWithoutCampaignInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutCampaignInput
   }
 
@@ -49836,6 +51816,7 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportCreateNestedOneWithoutTransactionInput
     withdrawal?: WithdrawalCreateNestedOneWithoutTransactionInput
     promotion?: PromotionCreateNestedOneWithoutTransactionInput
+    campaignWithdrawal?: CampaignWithdrawalCreateNestedOneWithoutTransactionInput
   }
 
   export type TransactionUncheckedCreateWithoutContributionInput = {
@@ -49853,6 +51834,7 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportUncheckedCreateNestedOneWithoutTransactionInput
     withdrawal?: WithdrawalUncheckedCreateNestedOneWithoutTransactionInput
     promotion?: PromotionUncheckedCreateNestedOneWithoutTransactionInput
+    campaignWithdrawal?: CampaignWithdrawalUncheckedCreateNestedOneWithoutTransactionInput
   }
 
   export type TransactionCreateOrConnectWithoutContributionInput = {
@@ -49909,11 +51891,13 @@ export namespace Prisma {
     recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
     whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    withdrawnAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutCampaignsNestedInput
     product?: VendorGiftUpdateOneWithoutCampaignsNestedInput
     redeemedByVendor?: UserUpdateOneWithoutRedeemedCampaignsNestedInput
+    withdrawals?: CampaignWithdrawalUpdateManyWithoutCampaignNestedInput
     transactions?: TransactionUpdateManyWithoutCampaignNestedInput
   }
 
@@ -49958,8 +51942,10 @@ export namespace Prisma {
     recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
     whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    withdrawnAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    withdrawals?: CampaignWithdrawalUncheckedUpdateManyWithoutCampaignNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutCampaignNestedInput
   }
 
@@ -49989,6 +51975,7 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportUpdateOneWithoutTransactionNestedInput
     withdrawal?: WithdrawalUpdateOneWithoutTransactionNestedInput
     promotion?: PromotionUpdateOneWithoutTransactionNestedInput
+    campaignWithdrawal?: CampaignWithdrawalUpdateOneWithoutTransactionNestedInput
   }
 
   export type TransactionUncheckedUpdateWithoutContributionInput = {
@@ -50006,6 +51993,7 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportUncheckedUpdateOneWithoutTransactionNestedInput
     withdrawal?: WithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
     promotion?: PromotionUncheckedUpdateOneWithoutTransactionNestedInput
+    campaignWithdrawal?: CampaignWithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
   }
 
   export type UserCreateWithoutDirectGiftsSentInput = {
@@ -50786,6 +52774,7 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportCreateNestedOneWithoutTransactionInput
     contribution?: ContributionCreateNestedOneWithoutTransactionInput
     withdrawal?: WithdrawalCreateNestedOneWithoutTransactionInput
+    campaignWithdrawal?: CampaignWithdrawalCreateNestedOneWithoutTransactionInput
   }
 
   export type TransactionUncheckedCreateWithoutPromotionInput = {
@@ -50803,6 +52792,7 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportUncheckedCreateNestedOneWithoutTransactionInput
     contribution?: ContributionUncheckedCreateNestedOneWithoutTransactionInput
     withdrawal?: WithdrawalUncheckedCreateNestedOneWithoutTransactionInput
+    campaignWithdrawal?: CampaignWithdrawalUncheckedCreateNestedOneWithoutTransactionInput
   }
 
   export type TransactionCreateOrConnectWithoutPromotionInput = {
@@ -51017,6 +53007,7 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportUpdateOneWithoutTransactionNestedInput
     contribution?: ContributionUpdateOneWithoutTransactionNestedInput
     withdrawal?: WithdrawalUpdateOneWithoutTransactionNestedInput
+    campaignWithdrawal?: CampaignWithdrawalUpdateOneWithoutTransactionNestedInput
   }
 
   export type TransactionUncheckedUpdateWithoutPromotionInput = {
@@ -51034,6 +53025,7 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportUncheckedUpdateOneWithoutTransactionNestedInput
     contribution?: ContributionUncheckedUpdateOneWithoutTransactionNestedInput
     withdrawal?: WithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
+    campaignWithdrawal?: CampaignWithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
   }
 
   export type UserCreateWithoutAdminResolvedPromotionsInput = {
@@ -51437,12 +53429,14 @@ export namespace Prisma {
     recipientCountryCode?: string | null
     whatsappFee?: Decimal | DecimalJsLike | number | string
     senderName?: string | null
+    withdrawnAmount?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutCampaignsInput
     product?: VendorGiftCreateNestedOneWithoutCampaignsInput
     redeemedByVendor?: UserCreateNestedOneWithoutRedeemedCampaignsInput
     contributions?: ContributionCreateNestedManyWithoutCampaignInput
+    withdrawals?: CampaignWithdrawalCreateNestedManyWithoutCampaignInput
   }
 
   export type CampaignUncheckedCreateWithoutTransactionsInput = {
@@ -51486,9 +53480,11 @@ export namespace Prisma {
     recipientCountryCode?: string | null
     whatsappFee?: Decimal | DecimalJsLike | number | string
     senderName?: string | null
+    withdrawnAmount?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     contributions?: ContributionUncheckedCreateNestedManyWithoutCampaignInput
+    withdrawals?: CampaignWithdrawalUncheckedCreateNestedManyWithoutCampaignInput
   }
 
   export type CampaignCreateOrConnectWithoutTransactionsInput = {
@@ -51639,6 +53635,27 @@ export namespace Prisma {
   export type PromotionCreateOrConnectWithoutTransactionInput = {
     where: PromotionWhereUniqueInput
     create: XOR<PromotionCreateWithoutTransactionInput, PromotionUncheckedCreateWithoutTransactionInput>
+  }
+
+  export type CampaignWithdrawalCreateWithoutTransactionInput = {
+    id?: string
+    amount: Decimal | DecimalJsLike | number | string
+    currency?: string
+    createdAt?: Date | string
+    campaign: CampaignCreateNestedOneWithoutWithdrawalsInput
+  }
+
+  export type CampaignWithdrawalUncheckedCreateWithoutTransactionInput = {
+    id?: string
+    campaignId: string
+    amount: Decimal | DecimalJsLike | number | string
+    currency?: string
+    createdAt?: Date | string
+  }
+
+  export type CampaignWithdrawalCreateOrConnectWithoutTransactionInput = {
+    where: CampaignWithdrawalWhereUniqueInput
+    create: XOR<CampaignWithdrawalCreateWithoutTransactionInput, CampaignWithdrawalUncheckedCreateWithoutTransactionInput>
   }
 
   export type UserUpsertWithoutTransactionsInput = {
@@ -51815,12 +53832,14 @@ export namespace Prisma {
     recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
     whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    withdrawnAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutCampaignsNestedInput
     product?: VendorGiftUpdateOneWithoutCampaignsNestedInput
     redeemedByVendor?: UserUpdateOneWithoutRedeemedCampaignsNestedInput
     contributions?: ContributionUpdateManyWithoutCampaignNestedInput
+    withdrawals?: CampaignWithdrawalUpdateManyWithoutCampaignNestedInput
   }
 
   export type CampaignUncheckedUpdateWithoutTransactionsInput = {
@@ -51864,9 +53883,11 @@ export namespace Prisma {
     recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
     whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    withdrawnAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     contributions?: ContributionUncheckedUpdateManyWithoutCampaignNestedInput
+    withdrawals?: CampaignWithdrawalUncheckedUpdateManyWithoutCampaignNestedInput
   }
 
   export type CreatorSupportUpsertWithoutTransactionInput = {
@@ -52036,6 +54057,33 @@ export namespace Prisma {
     conversions?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CampaignWithdrawalUpsertWithoutTransactionInput = {
+    update: XOR<CampaignWithdrawalUpdateWithoutTransactionInput, CampaignWithdrawalUncheckedUpdateWithoutTransactionInput>
+    create: XOR<CampaignWithdrawalCreateWithoutTransactionInput, CampaignWithdrawalUncheckedCreateWithoutTransactionInput>
+    where?: CampaignWithdrawalWhereInput
+  }
+
+  export type CampaignWithdrawalUpdateToOneWithWhereWithoutTransactionInput = {
+    where?: CampaignWithdrawalWhereInput
+    data: XOR<CampaignWithdrawalUpdateWithoutTransactionInput, CampaignWithdrawalUncheckedUpdateWithoutTransactionInput>
+  }
+
+  export type CampaignWithdrawalUpdateWithoutTransactionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    campaign?: CampaignUpdateOneRequiredWithoutWithdrawalsNestedInput
+  }
+
+  export type CampaignWithdrawalUncheckedUpdateWithoutTransactionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    campaignId?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserCreateWithoutBankAccountsInput = {
@@ -52503,6 +54551,7 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportCreateNestedOneWithoutTransactionInput
     contribution?: ContributionCreateNestedOneWithoutTransactionInput
     promotion?: PromotionCreateNestedOneWithoutTransactionInput
+    campaignWithdrawal?: CampaignWithdrawalCreateNestedOneWithoutTransactionInput
   }
 
   export type TransactionUncheckedCreateWithoutWithdrawalInput = {
@@ -52520,6 +54569,7 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportUncheckedCreateNestedOneWithoutTransactionInput
     contribution?: ContributionUncheckedCreateNestedOneWithoutTransactionInput
     promotion?: PromotionUncheckedCreateNestedOneWithoutTransactionInput
+    campaignWithdrawal?: CampaignWithdrawalUncheckedCreateNestedOneWithoutTransactionInput
   }
 
   export type TransactionCreateOrConnectWithoutWithdrawalInput = {
@@ -52719,6 +54769,7 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportUpdateOneWithoutTransactionNestedInput
     contribution?: ContributionUpdateOneWithoutTransactionNestedInput
     promotion?: PromotionUpdateOneWithoutTransactionNestedInput
+    campaignWithdrawal?: CampaignWithdrawalUpdateOneWithoutTransactionNestedInput
   }
 
   export type TransactionUncheckedUpdateWithoutWithdrawalInput = {
@@ -52736,6 +54787,7 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportUncheckedUpdateOneWithoutTransactionNestedInput
     contribution?: ContributionUncheckedUpdateOneWithoutTransactionNestedInput
     promotion?: PromotionUncheckedUpdateOneWithoutTransactionNestedInput
+    campaignWithdrawal?: CampaignWithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
   }
 
   export type UserCreateWithoutReceivedFlexCardsInput = {
@@ -54961,6 +57013,7 @@ export namespace Prisma {
     contribution?: ContributionCreateNestedOneWithoutTransactionInput
     withdrawal?: WithdrawalCreateNestedOneWithoutTransactionInput
     promotion?: PromotionCreateNestedOneWithoutTransactionInput
+    campaignWithdrawal?: CampaignWithdrawalCreateNestedOneWithoutTransactionInput
   }
 
   export type TransactionUncheckedCreateWithoutCreatorSupportInput = {
@@ -54978,6 +57031,7 @@ export namespace Prisma {
     contribution?: ContributionUncheckedCreateNestedOneWithoutTransactionInput
     withdrawal?: WithdrawalUncheckedCreateNestedOneWithoutTransactionInput
     promotion?: PromotionUncheckedCreateNestedOneWithoutTransactionInput
+    campaignWithdrawal?: CampaignWithdrawalUncheckedCreateNestedOneWithoutTransactionInput
   }
 
   export type TransactionCreateOrConnectWithoutCreatorSupportInput = {
@@ -55136,6 +57190,7 @@ export namespace Prisma {
     contribution?: ContributionUpdateOneWithoutTransactionNestedInput
     withdrawal?: WithdrawalUpdateOneWithoutTransactionNestedInput
     promotion?: PromotionUpdateOneWithoutTransactionNestedInput
+    campaignWithdrawal?: CampaignWithdrawalUpdateOneWithoutTransactionNestedInput
   }
 
   export type TransactionUncheckedUpdateWithoutCreatorSupportInput = {
@@ -55153,6 +57208,7 @@ export namespace Prisma {
     contribution?: ContributionUncheckedUpdateOneWithoutTransactionNestedInput
     withdrawal?: WithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
     promotion?: PromotionUncheckedUpdateOneWithoutTransactionNestedInput
+    campaignWithdrawal?: CampaignWithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
   }
 
   export type UserCreateWithoutNotificationsInput = {
@@ -56000,11 +58056,13 @@ export namespace Prisma {
     recipientCountryCode?: string | null
     whatsappFee?: Decimal | DecimalJsLike | number | string
     senderName?: string | null
+    withdrawnAmount?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutCampaignsInput
     redeemedByVendor?: UserCreateNestedOneWithoutRedeemedCampaignsInput
     contributions?: ContributionCreateNestedManyWithoutCampaignInput
+    withdrawals?: CampaignWithdrawalCreateNestedManyWithoutCampaignInput
     transactions?: TransactionCreateNestedManyWithoutCampaignInput
   }
 
@@ -56048,9 +58106,11 @@ export namespace Prisma {
     recipientCountryCode?: string | null
     whatsappFee?: Decimal | DecimalJsLike | number | string
     senderName?: string | null
+    withdrawnAmount?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     contributions?: ContributionUncheckedCreateNestedManyWithoutCampaignInput
+    withdrawals?: CampaignWithdrawalUncheckedCreateNestedManyWithoutCampaignInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutCampaignInput
   }
 
@@ -56866,6 +58926,7 @@ export namespace Prisma {
     recipientCountryCode?: string | null
     whatsappFee?: Decimal | DecimalJsLike | number | string
     senderName?: string | null
+    withdrawnAmount?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -57079,6 +59140,7 @@ export namespace Prisma {
     recipientCountryCode?: string | null
     whatsappFee?: Decimal | DecimalJsLike | number | string
     senderName?: string | null
+    withdrawnAmount?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -57322,11 +59384,13 @@ export namespace Prisma {
     recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
     whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    withdrawnAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     product?: VendorGiftUpdateOneWithoutCampaignsNestedInput
     redeemedByVendor?: UserUpdateOneWithoutRedeemedCampaignsNestedInput
     contributions?: ContributionUpdateManyWithoutCampaignNestedInput
+    withdrawals?: CampaignWithdrawalUpdateManyWithoutCampaignNestedInput
     transactions?: TransactionUpdateManyWithoutCampaignNestedInput
   }
 
@@ -57370,9 +59434,11 @@ export namespace Prisma {
     recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
     whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    withdrawnAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     contributions?: ContributionUncheckedUpdateManyWithoutCampaignNestedInput
+    withdrawals?: CampaignWithdrawalUncheckedUpdateManyWithoutCampaignNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutCampaignNestedInput
   }
 
@@ -57416,6 +59482,7 @@ export namespace Prisma {
     recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
     whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    withdrawnAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -57479,6 +59546,7 @@ export namespace Prisma {
     contribution?: ContributionUpdateOneWithoutTransactionNestedInput
     withdrawal?: WithdrawalUpdateOneWithoutTransactionNestedInput
     promotion?: PromotionUpdateOneWithoutTransactionNestedInput
+    campaignWithdrawal?: CampaignWithdrawalUpdateOneWithoutTransactionNestedInput
   }
 
   export type TransactionUncheckedUpdateWithoutUserInput = {
@@ -57496,6 +59564,7 @@ export namespace Prisma {
     contribution?: ContributionUncheckedUpdateOneWithoutTransactionNestedInput
     withdrawal?: WithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
     promotion?: PromotionUncheckedUpdateOneWithoutTransactionNestedInput
+    campaignWithdrawal?: CampaignWithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
   }
 
   export type TransactionUncheckedUpdateManyWithoutUserInput = {
@@ -57983,11 +60052,13 @@ export namespace Prisma {
     recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
     whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    withdrawnAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutCampaignsNestedInput
     product?: VendorGiftUpdateOneWithoutCampaignsNestedInput
     contributions?: ContributionUpdateManyWithoutCampaignNestedInput
+    withdrawals?: CampaignWithdrawalUpdateManyWithoutCampaignNestedInput
     transactions?: TransactionUpdateManyWithoutCampaignNestedInput
   }
 
@@ -58031,9 +60102,11 @@ export namespace Prisma {
     recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
     whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    withdrawnAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     contributions?: ContributionUncheckedUpdateManyWithoutCampaignNestedInput
+    withdrawals?: CampaignWithdrawalUncheckedUpdateManyWithoutCampaignNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutCampaignNestedInput
   }
 
@@ -58077,6 +60150,7 @@ export namespace Prisma {
     recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
     whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    withdrawnAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -58470,6 +60544,14 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type CampaignWithdrawalCreateManyCampaignInput = {
+    id?: string
+    amount: Decimal | DecimalJsLike | number | string
+    currency?: string
+    transactionId: string
+    createdAt?: Date | string
+  }
+
   export type TransactionCreateManyCampaignInput = {
     id?: string
     userId?: string | null
@@ -58522,6 +60604,30 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type CampaignWithdrawalUpdateWithoutCampaignInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    transaction?: TransactionUpdateOneRequiredWithoutCampaignWithdrawalNestedInput
+  }
+
+  export type CampaignWithdrawalUncheckedUpdateWithoutCampaignInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    transactionId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CampaignWithdrawalUncheckedUpdateManyWithoutCampaignInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    transactionId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type TransactionUpdateWithoutCampaignInput = {
     id?: StringFieldUpdateOperationsInput | string
     amount?: BigIntFieldUpdateOperationsInput | bigint | number
@@ -58537,6 +60643,7 @@ export namespace Prisma {
     contribution?: ContributionUpdateOneWithoutTransactionNestedInput
     withdrawal?: WithdrawalUpdateOneWithoutTransactionNestedInput
     promotion?: PromotionUpdateOneWithoutTransactionNestedInput
+    campaignWithdrawal?: CampaignWithdrawalUpdateOneWithoutTransactionNestedInput
   }
 
   export type TransactionUncheckedUpdateWithoutCampaignInput = {
@@ -58554,6 +60661,7 @@ export namespace Prisma {
     contribution?: ContributionUncheckedUpdateOneWithoutTransactionNestedInput
     withdrawal?: WithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
     promotion?: PromotionUncheckedUpdateOneWithoutTransactionNestedInput
+    campaignWithdrawal?: CampaignWithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
   }
 
   export type TransactionUncheckedUpdateManyWithoutCampaignInput = {
@@ -58752,6 +60860,7 @@ export namespace Prisma {
     recipientCountryCode?: string | null
     whatsappFee?: Decimal | DecimalJsLike | number | string
     senderName?: string | null
+    withdrawnAmount?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -58918,11 +61027,13 @@ export namespace Prisma {
     recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
     whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    withdrawnAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutCampaignsNestedInput
     redeemedByVendor?: UserUpdateOneWithoutRedeemedCampaignsNestedInput
     contributions?: ContributionUpdateManyWithoutCampaignNestedInput
+    withdrawals?: CampaignWithdrawalUpdateManyWithoutCampaignNestedInput
     transactions?: TransactionUpdateManyWithoutCampaignNestedInput
   }
 
@@ -58966,9 +61077,11 @@ export namespace Prisma {
     recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
     whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    withdrawnAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     contributions?: ContributionUncheckedUpdateManyWithoutCampaignNestedInput
+    withdrawals?: CampaignWithdrawalUncheckedUpdateManyWithoutCampaignNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutCampaignNestedInput
   }
 
@@ -59012,6 +61125,7 @@ export namespace Prisma {
     recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
     whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    withdrawnAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

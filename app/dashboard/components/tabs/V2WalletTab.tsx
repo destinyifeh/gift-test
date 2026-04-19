@@ -72,7 +72,7 @@ export function V2WalletTab() {
     }
   }, [profile, hasSetDefaultCountry]);
 
-  const banks = banksData?.data || [];
+  const banks = Array.isArray(banksData) ? banksData : (banksData?.data || []);
   const walletData = walletProfile || {};
   
   // Debug log to see the shape of the data
@@ -876,7 +876,10 @@ export function V2WalletTab() {
                         className="flex items-center justify-between p-4 rounded-2xl bg-[var(--v2-surface-container-low)]">
                         <div className="flex items-center gap-3">
                           <div className={`w-10 h-10 rounded-full flex items-center justify-center ${getIconStyle()}`}>
-                            <span className="v2-icon">{getIcon()}</span>
+                            <span className="v2-icon text-[var(--v2-primary)]">
+                              {t.type === 'withdrawal' ? 'arrow_upward' : 
+                               t.type === 'campaign_withdrawal' ? 'volunteer_activism' : getIcon()}
+                            </span>
                           </div>
                           <div>
                             <p className="font-bold text-sm text-[var(--v2-on-surface)] truncate max-w-[150px] md:max-w-[200px]">

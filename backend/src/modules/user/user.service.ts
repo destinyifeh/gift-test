@@ -152,10 +152,15 @@ export class UserService {
       throw new BadRequestException('Cannot disable creator mode on Pro plan');
     }
 
-    return (this.prisma as any).user.update({
+    const updated = await (this.prisma as any).user.update({
       where: { id: userId },
       data: { isCreator: enabled },
     });
+
+    return {
+      ...updated,
+      platformBalance: updated.platformBalance?.toString() ?? '0',
+    };
   }
 
   /**
@@ -186,10 +191,15 @@ export class UserService {
       }
     }
 
-    return (this.prisma as any).user.update({
+    const updated = await (this.prisma as any).user.update({
       where: { id: userId },
       data: { bannerUrl },
     });
+
+    return {
+      ...updated,
+      platformBalance: updated.platformBalance?.toString() ?? '0',
+    };
   }
 
   /**
@@ -211,10 +221,15 @@ export class UserService {
       }
     }
 
-    return (this.prisma as any).user.update({
+    const updated = await (this.prisma as any).user.update({
       where: { id: userId },
       data: { avatarUrl },
     });
+
+    return {
+      ...updated,
+      platformBalance: updated.platformBalance?.toString() ?? '0',
+    };
   }
 
   /**
@@ -234,10 +249,15 @@ export class UserService {
       }
     }
 
-    return (this.prisma as any).user.update({
+    const updated = await (this.prisma as any).user.update({
       where: { id: userId },
       data: { bannerUrl: null },
     });
+
+    return {
+      ...updated,
+      platformBalance: updated.platformBalance?.toString() ?? '0',
+    };
   }
 
   /**
@@ -257,10 +277,15 @@ export class UserService {
       }
     }
 
-    return (this.prisma as any).user.update({
+    const updated = await (this.prisma as any).user.update({
       where: { id: userId },
       data: { avatarUrl: null },
     });
+
+    return {
+      ...updated,
+      platformBalance: updated.platformBalance?.toString() ?? '0',
+    };
   }
 
   /**

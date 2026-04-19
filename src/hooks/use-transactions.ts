@@ -156,3 +156,20 @@ export function useEligibleSwaps(vendorId: string, amount: number, currentGiftId
     enabled: !!vendorId && !!amount,
   });
 }
+export function useWithdrawCampaignFunds() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: {campaignId: string; amount: number}) => {
+      const res = await api.post('/transactions/campaign-withdraw', data);
+      return res.data;
+    },
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({queryKey: ['wallet-profile']});
+      queryClient.invalidateQueries({queryKey: ['my-campaigns']});
+      toast.success(data.message || 'Funds moved to wallet!');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Withdrawal failed');
+    },
+  });
+}

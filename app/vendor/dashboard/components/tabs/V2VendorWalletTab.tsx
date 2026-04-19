@@ -71,7 +71,7 @@ export function V2VendorWalletTab() {
     }
   }, [profile, hasSetDefaultCountry]);
 
-  const banks = banksData?.data || [];
+  const banks = Array.isArray(banksData) ? banksData : (banksData?.data || []);
   const walletData = walletProfile || {};
   const wallet = walletData.vendor || {
     balance: 0,
@@ -88,13 +88,15 @@ export function V2VendorWalletTab() {
   const totalRevenue = wallet.totalRevenue || 0;
   const pendingAmount = wallet.pending || 0;
   // Transactions are pre-calculated by backend now, simplify frontend
-  const vendorTransactions = walletTransactions;
+  const vendorTransactions = walletTransactions.filter((t: any) => 
+    ['vendor_redemption', 'withdrawal', 'payout'].includes(t.type)
+  );
 
   // Filter transactions based on type and date
   const filteredTransactions = useMemo(() => {
     let transactions = vendorTransactions.map((t: any) => ({
       id: `vendor-${t.id}`,
-      description: t.desc,
+      description: t.description || t.desc,
       amount: t.amount,
       date: t.date,
       type: t.type || 'sale',
@@ -413,13 +415,15 @@ export function V2VendorWalletTab() {
 
           {(() => {
             // Only show successful redemption transactions from vendor stats
-            const redemptionTransactions = vendorTransactions.map((t: any) => ({
-              id: `vendor-${t.id}`,
-              description: t.desc,
-              amount: t.amount,
-              date: t.date,
-              type: t.type,
-            })).sort((a: any, b: any) => (b.timestamp || 0) - (a.timestamp || 0));
+            const redemptionTransactions = vendorTransactions
+              .filter((t: any) => t.type === 'vendor_redemption' || t.type === 'flex_card_redemption' || t.type === 'flex_card')
+              .map((t: any) => ({
+                id: `vendor-${t.id}`,
+                description: t.description || t.desc,
+                amount: t.amount,
+                date: t.date,
+                type: t.type,
+              })).sort((a: any, b: any) => (new Date(b.date).getTime() || 0) - (new Date(a.date).getTime() || 0));
 
             if (redemptionTransactions.length === 0) {
               return (
@@ -438,7 +442,7 @@ export function V2VendorWalletTab() {
             return (
               <div className="space-y-3">
                 {redemptionTransactions.slice(0, 5).map((t: any) => {
-                  const isFlex = t.type === 'flex_card' || t.description.toLowerCase().includes('flex');
+                  const isFlex = t.type === 'flex_card_redemption' || (t.description || '').toLowerCase().includes('flex');
                   return (
                     <div
                       key={t.id}
@@ -448,12 +452,14 @@ export function V2VendorWalletTab() {
                           <span className="v2-icon">{isFlex ? 'credit_card' : 'check_circle'}</span>
                         </div>
                         <div>
-                          <p className="font-bold text-sm text-[var(--v2-on-surface)]">{t.description}</p>
+                          <p className="font-bold text-sm text-[var(--v2-on-surface)]">
+                            {t.description || (t.type === 'flex_card' ? 'Flex Card' : 'Transaction')}
+                          </p>
                           <p className="text-xs text-[var(--v2-on-surface-variant)]">{t.date}</p>
                         </div>
                       </div>
                       <span className={`font-bold ${isFlex ? 'text-purple-600' : 'text-[var(--v2-secondary)]'}`}>
-                        +{formatCurrency(t.amount, userCurrency)}
+                        +{formatCurrency(t.amount / 100, userCurrency)}
                       </span>
                     </div>
                   );
@@ -874,7 +880,7 @@ export function V2VendorWalletTab() {
                         </div>
                         <span className={`font-bold ${isWithdrawal ? 'text-[var(--v2-error)]' : 'text-[var(--v2-secondary)]'}`}>
                           {isWithdrawal ? '-' : '+'}
-                          {formatCurrency(t.amount, userCurrency)}
+                          {formatCurrency(t.amount / 100, userCurrency)}
                         </span>
                       </div>
                     );

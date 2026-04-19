@@ -14,7 +14,9 @@ import {
   updateCampaign,
   uploadCampaignImage,
 } from '@/lib/server/actions/campaigns';
+import {useWithdrawCampaignFunds} from '@/hooks/use-transactions';
 import {formatCurrency} from '@/lib/utils/currency';
+import {getCurrencySymbol} from '@/lib/currencies';
 import {generateSlug} from '@/lib/utils/slugs';
 import {useInfiniteQuery, useQueryClient} from '@tanstack/react-query';
 import Link from 'next/link';
@@ -90,7 +92,12 @@ export function V2MyCampaignsTab() {
     message: string;
   } | null>(null);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [withdrawingCampaign, setWithdrawingCampaign] = useState<any | null>(null);
+  const [withdrawForm, setWithdrawForm] = useState({
+    amount: '',
+  });
   const queryClient = useQueryClient();
+  const withdrawFundsMutation = useWithdrawCampaignFunds();
 
   const {
     data: campaignsRes,
@@ -493,7 +500,7 @@ export function V2MyCampaignsTab() {
                 {c.imageUrl ? (
                   <img
                     src={c.imageUrl}
-                    alt={c.name}
+                    alt={c.title || c.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
                 ) : (
@@ -514,7 +521,7 @@ export function V2MyCampaignsTab() {
               {/* Campaign Content */}
               <div className="p-6">
                 <h3 className="text-xl font-bold v2-headline mb-2 text-[var(--v2-on-surface)] group-hover:text-[var(--v2-primary)] transition-colors truncate">
-                  {c.name}
+                  {c.title || c.name}
                 </h3>
                 <p className="text-[var(--v2-on-surface-variant)] line-clamp-2 mb-4 text-sm leading-relaxed italic font-medium">
                   {c.description || 'No description provided'}
@@ -683,6 +690,22 @@ export function V2MyCampaignsTab() {
                                   </button>
                                 )}
 
+                              {(c.raisedAmount - (c.withdrawnAmount || 0)) > 0 && (
+                                <button
+                                  onClick={() => {
+                                    setWithdrawingCampaign(c);
+                                    setWithdrawForm({ amount: (c.raisedAmount - (c.withdrawnAmount || 0)).toString() });
+                                    setActiveDropdown(null);
+                                  }}
+                                  className="w-full h-11 px-3 text-left text-sm font-bold text-[var(--v2-primary)] hover:bg-[var(--v2-primary)]/10 rounded-xl flex items-center gap-3 transition-colors"
+                                >
+                                  <span className="v2-icon text-lg font-bold">
+                                    account_balance_wallet
+                                  </span>
+                                  Withdraw Funds
+                                </button>
+                              )}
+
                               <button
                                 onClick={() => {
                                   navigator.clipboard.writeText(
@@ -762,7 +785,7 @@ export function V2MyCampaignsTab() {
                   {c.imageUrl ? (
                     <img
                       src={c.imageUrl}
-                      alt={c.name}
+                      alt={c.title || c.name}
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -787,7 +810,7 @@ export function V2MyCampaignsTab() {
                       </p>
                     </div>
                     <h3 className="font-bold text-base text-[var(--v2-on-surface)] line-clamp-2">
-                      {c.name || 'Untitled Campaign'}
+                      {c.title || c.name || 'Untitled Campaign'}
                     </h3>
                   </div>
 
@@ -902,6 +925,22 @@ export function V2MyCampaignsTab() {
                                 Mark as Completed
                               </button>
                             )}
+
+                          {(c.raisedAmount - (c.withdrawnAmount || 0)) > 0 && (
+                            <button
+                              onClick={() => {
+                                setWithdrawingCampaign(c);
+                                setWithdrawForm({ amount: (c.raisedAmount - (c.withdrawnAmount || 0)).toString() });
+                                setActiveDropdown(null);
+                              }}
+                              className="w-full h-11 px-3 text-left text-sm font-bold text-[var(--v2-primary)] rounded-xl flex items-center gap-3 active:bg-[var(--v2-primary)]/10"
+                            >
+                              <span className="v2-icon text-lg font-bold">
+                                account_balance_wallet
+                              </span>
+                              Withdraw Funds
+                            </button>
+                          )}
 
                           <button
                             onClick={() => {
@@ -1188,6 +1227,112 @@ export function V2MyCampaignsTab() {
                 Cancel
               </button>
             </div>
+          </div>
+        </ResponsiveModalContent>
+      </ResponsiveModal>
+      {/* Withdrawal Modal */}
+      <ResponsiveModal open={!!withdrawingCampaign} onOpenChange={() => setWithdrawingCampaign(null)}>
+        <ResponsiveModalContent>
+          <ResponsiveModalHeader>
+            <ResponsiveModalTitle>Withdraw Campaign Funds</ResponsiveModalTitle>
+          </ResponsiveModalHeader>
+          <div className="p-6 space-y-6">
+            <div className="bg-[var(--v2-surface-container-low)] p-4 rounded-2xl">
+              <p className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider mb-1">Available for Withdrawal</p>
+              <p className="text-2xl font-black text-[var(--v2-on-surface)]">
+                {formatCurrency((withdrawingCampaign?.raisedAmount || 0) - (withdrawingCampaign?.withdrawnAmount || 0), withdrawingCampaign?.currency)}
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)] mb-2">
+                Enter Amount to move to Wallet
+              </label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)] font-bold">
+                  {getCurrencySymbol(withdrawingCampaign?.currency || 'NGN')}
+                </span>
+                <input
+                  type="number"
+                  value={withdrawForm.amount}
+                  onChange={e => setWithdrawForm({ ...withdrawForm, amount: e.target.value })}
+                  className={`w-full pl-10 pr-4 py-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-lg font-bold focus:ring-2 ${
+                    parseFloat(withdrawForm.amount) > ((withdrawingCampaign?.raisedAmount || 0) - (withdrawingCampaign?.withdrawnAmount || 0))
+                      ? 'ring-2 ring-red-500'
+                      : 'focus:ring-[var(--v2-primary)]'
+                  }`}
+                  placeholder="0.00"
+                />
+                <button
+                  onClick={() => setWithdrawForm({ ...withdrawForm, amount: ((withdrawingCampaign?.raisedAmount || 0) - (withdrawingCampaign?.withdrawnAmount || 0)).toString() })}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1 bg-[var(--v2-primary)]/10 text-[var(--v2-primary)] text-xs font-bold rounded-lg"
+                >
+                  MAX
+                </button>
+              </div>
+              {parseFloat(withdrawForm.amount) > ((withdrawingCampaign?.raisedAmount || 0) - (withdrawingCampaign?.withdrawnAmount || 0)) && (
+                <p className="mt-2 text-xs font-bold text-red-500">
+                  Amount exceeds available balance
+                </p>
+              )}
+            </div>
+
+            <button
+              onClick={async () => {
+                if (!withdrawingCampaign || !withdrawForm.amount) return;
+                const amountNum = parseFloat(withdrawForm.amount);
+                const available = (withdrawingCampaign?.raisedAmount || 0) - (withdrawingCampaign?.withdrawnAmount || 0);
+                
+                if (isNaN(amountNum) || amountNum <= 0) {
+                  toast.error('Invalid amount');
+                  return;
+                }
+                
+                if (amountNum > available) {
+                  toast.error('Amount exceeds available balance');
+                  return;
+                }
+                
+                withdrawFundsMutation.mutate({
+                  campaignId: withdrawingCampaign.id,
+                  amount: amountNum
+                }, {
+                  onSuccess: () => {
+                    setWithdrawingCampaign(null);
+                  }
+                });
+              }}
+              disabled={
+                withdrawFundsMutation.isPending || 
+                !withdrawForm.amount || 
+                parseFloat(withdrawForm.amount) <= 0 ||
+                parseFloat(withdrawForm.amount) > ((withdrawingCampaign?.raisedAmount || 0) - (withdrawingCampaign?.withdrawnAmount || 0))
+              }
+              className="w-full py-4 v2-hero-gradient text-white font-bold rounded-xl disabled:opacity-50 shadow-lg shadow-[var(--v2-primary)]/20">
+              {withdrawFundsMutation.isPending ? 'Processing...' : 'Withdraw to Wallet'}
+            </button>
+
+            {/* Withdrawal History per Campaign */}
+            {withdrawingCampaign?.withdrawals?.length > 0 && (
+              <div className="mt-6 pt-6 border-t border-[var(--v2-outline-variant)]/10">
+                <p className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider mb-4">Withdrawal History</p>
+                <div className="space-y-3 max-h-[200px] overflow-y-auto pr-2">
+                  {withdrawingCampaign.withdrawals.map((w: any) => (
+                    <div key={w.id} className="flex items-center justify-between p-3 rounded-xl bg-[var(--v2-surface-container-low)]">
+                      <div>
+                        <p className="font-bold text-sm text-[var(--v2-on-surface)]">Withdrawal</p>
+                        <p className="text-[10px] text-[var(--v2-on-surface-variant)]">
+                          {new Date(w.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <span className="font-bold text-[var(--v2-primary)]">
+                        -{formatCurrency(w.amount, w.currency)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </ResponsiveModalContent>
       </ResponsiveModal>

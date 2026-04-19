@@ -158,6 +158,9 @@ export class CampaignService {
         user: { select: { displayName: true, username: true, avatarUrl: true } },
         contributions: {
             select: { id: true, amount: true, isAnonymous: true, donorName: true, createdAt: true }
+        },
+        withdrawals: {
+          orderBy: { createdAt: 'desc' }
         }
       }
     });

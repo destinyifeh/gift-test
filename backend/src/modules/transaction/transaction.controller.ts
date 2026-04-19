@@ -105,6 +105,12 @@ export class TransactionController {
   }
 
   @UseGuards(AuthGuard)
+  @Post('campaign-withdraw')
+  async withdrawCampaignFunds(@Req() req: any, @Body() body: { campaignId: string; amount: number }) {
+    return this.transactionService.withdrawCampaignFunds(req.user.id, body.campaignId, body.amount);
+  }
+
+  @UseGuards(AuthGuard)
   @Get('eligible-swaps')
   async getEligibleSwaps(
     @Query('vendorId') vendorId: string,

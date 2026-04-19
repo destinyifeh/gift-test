@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException, ConflictException, Logger } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, ConflictException, ForbiddenException, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import { EmailService } from '../email/email.service';
@@ -20,6 +20,7 @@ import {
   TX_PLATFORM_CREDIT_CONVERSION,
   TX_RECEIPT,
   STATUS_REDEEMED,
+  TX_CAMPAIGN_WITHDRAWAL,
 } from '../../common/constants';
 import { paginate, getPaginationOptions } from '../../common/utils/pagination.util';
 
@@ -237,7 +238,7 @@ export class TransactionService {
         where: { 
           userId, 
           status: 'success',
-          type: { in: [TX_CREATOR_SUPPORT, TX_RECEIPT, TX_DEPOSIT, TX_PLATFORM_CREDIT_CONVERSION] },
+          type: { in: [TX_CREATOR_SUPPORT, TX_RECEIPT, TX_DEPOSIT, TX_PLATFORM_CREDIT_CONVERSION, TX_CAMPAIGN_WITHDRAWAL] },
         },
         _sum: { amount: true },
       }),
@@ -345,30 +346,13 @@ export class TransactionService {
 
     mergedTxs.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-    // --- 2. Balance Calculation ---
-    
-    // A. User Section
-    const crowdfundingKobo = (userCampaigns as any[]).reduce(
-      (acc: number, c: any) => acc + (Number(c.currentAmount) || 0) * 100, 0);
+    // 2. Balance Calculation
     const directInflowKobo = Number(inflowAggr._sum.amount || 0);
-
     const userWithdrawalsKobo = Number(outflowAggr._sum.amount || 0);
 
-    const userTotalInflowKobo = crowdfundingKobo + directInflowKobo;
+    const userTotalInflowKobo = directInflowKobo;
     const userBalanceKobo = Math.max(0, userTotalInflowKobo - userWithdrawalsKobo);
     const userPendingKobo = (pendingUserGifts as any[]).reduce((acc: number, g: any) => acc + (Number(g.amount || 0) * 100), 0);
-
-    // Audit check: Compare with platformBalance on user table
-    const platformBalanceKobo = Number(userProfile?.platformBalance || 0);
-    
-    this.logger.log(`Wallet Analysis [User ${userId}]: 
-      - Crowdfunding: ${crowdfundingKobo}
-      - Direct Inflow Sum: ${directInflowKobo}
-      - Total Inflow: ${userTotalInflowKobo}
-      - Withdrawals: ${userWithdrawalsKobo}
-      - Computed Balance: ${userBalanceKobo}
-      - PlatformBalance Field: ${platformBalanceKobo}
-      - Pending Gifts: ${userPendingKobo}`);
 
     // B. Vendor Section
     const vendorVoucherInflowKobo = (redeemedVouchers as any[]).reduce(
@@ -995,5 +979,63 @@ export class TransactionService {
     }));
 
     return paginate(formatted, total, page, limit);
+  }
+
+  async withdrawCampaignFunds(userId: string, campaignId: string, amount: number) {
+    const campaign = await (this.prisma as any).campaign.findUnique({
+      where: { id: campaignId },
+      include: { user: { select: { platformBalance: true } } },
+    });
+
+    if (!campaign) throw new NotFoundException('Campaign not found');
+    if (campaign.userId !== userId) throw new ForbiddenException('You do not own this campaign');
+
+    const availableBalance = Number(campaign.currentAmount) - Number(campaign.withdrawnAmount);
+    if (amount > availableBalance) throw new BadRequestException('Insufficient campaign balance');
+
+    return (this.prisma as any).$transaction(async (tx: any) => {
+      const amountKobo = BigInt(Math.round(amount * 100));
+
+      const transaction = await (tx as any).transaction.create({
+        data: {
+          userId,
+          campaignId,
+          amount: amountKobo,
+          currency: campaign.currency,
+          type: TX_CAMPAIGN_WITHDRAWAL,
+          status: 'success',
+          description: `Campaign Withdrawal: ${campaign.title}`,
+        },
+      });
+
+      await (tx as any).campaignWithdrawal.create({
+        data: {
+          campaignId,
+          amount,
+          currency: campaign.currency,
+          transactionId: transaction.id,
+        },
+      });
+
+      await (tx as any).campaign.update({
+        where: { id: campaignId },
+        data: {
+          withdrawnAmount: { increment: amount },
+        },
+      });
+
+      await (tx as any).user.update({
+        where: { id: userId },
+        data: {
+          platformBalance: { increment: amountKobo },
+        },
+      });
+
+      return { 
+        success: true, 
+        message: `${campaign.currency} ${amount} moved to your wallet`,
+        balance: amount
+      };
+    });
   }
 }

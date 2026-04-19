@@ -21,13 +21,45 @@ export function useAuth() {
 
 export function useUpdateCreatorStatus() {
   const queryClient = useQueryClient();
+  const {user, setUser} = useUserStore();
+
   return useMutation({
-    mutationFn: async (isCreator: boolean) => {
-      const res = await api.post('/users/status', {isCreator});
+    mutationFn: async (enabled: boolean) => {
+      const res = await api.patch('/users/creator-status', {enabled});
       return res.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: ['profile']});
+    onMutate: async (enabled) => {
+      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({ queryKey: ['profile'] });
+
+      // Snapshot the previous value
+      const previousProfile = queryClient.getQueryData(['profile']);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(['profile'], (old: any) => ({
+        ...old,
+        is_creator: enabled,
+      }));
+
+      // Also update Zustant store if user matches
+      if (user) {
+        setUser({ ...user, is_creator: enabled });
+      }
+
+      return { previousProfile };
+    },
+    onError: (err, newStatus, context) => {
+      // Rollback to the previous value if mutation fails
+      if (context?.previousProfile) {
+        queryClient.setQueryData(['profile'], context.previousProfile);
+        if (user) {
+          setUser(context.previousProfile as any);
+        }
+      }
+    },
+    onSettled: () => {
+      // Always refetch after error or success to keep server state in sync
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
     },
   });
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import {useUpdateCreatorStatus} from '@/hooks/use-auth';
 import {useProfile} from '@/hooks/use-profile';
 import {updateProfile} from '@/lib/server/actions/auth';
 import {useUserStore} from '@/lib/store/useUserStore';
@@ -21,6 +22,7 @@ export function V2SettingsTab() {
   const queryClient = useQueryClient();
   const {data: profile, isLoading} = useProfile();
   const setUser = useUserStore(state => state.setUser);
+  const updateCreatorStatus = useUpdateCreatorStatus();
 
   const [formData, setFormData] = useState({
     display_name: '',
@@ -329,6 +331,49 @@ export function V2SettingsTab() {
               <span className="v2-icon">lock</span>
               Change Account Password
             </button>
+          </div>
+
+          {/* Gift Page Status - New Section */}
+          <div className="bg-[var(--v2-surface-container-lowest)] rounded-[2rem] p-5 md:p-6 border-2 border-[var(--v2-primary)]/10">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${profile?.is_creator ? 'bg-[var(--v2-primary)]/20' : 'bg-[var(--v2-surface-container-high)]'}`}>
+                  <span className={`v2-icon text-2xl ${profile?.is_creator ? 'text-[var(--v2-primary)]' : 'text-[var(--v2-on-surface-variant)]'}`} style={{fontVariationSettings: "'FILL' 1"}}>
+                    auto_awesome
+                  </span>
+                </div>
+                <div>
+                  <h3 className="font-bold text-[var(--v2-on-surface)] v2-headline">
+                    Public Gift Page
+                  </h3>
+                  <p className="text-xs text-[var(--v2-on-surface-variant)]">
+                    {profile?.is_creator 
+                      ? `Active at gifthance.com/${profile?.username}`
+                      : 'Disabled (People cannot send you gifts)'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  const newStatus = !profile?.is_creator;
+                  updateCreatorStatus.mutate(newStatus, {
+                    onSuccess: () => {
+                      toast.success(newStatus ? 'Gift page enabled!' : 'Gift page disabled');
+                    }
+                  });
+                }}
+                disabled={updateCreatorStatus.isPending}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--v2-primary)] focus:ring-offset-2 ${
+                  profile?.is_creator ? 'bg-[var(--v2-primary)]' : 'bg-[var(--v2-surface-container-high)]'
+                }`}
+              >
+                <span
+                  className={`${
+                    profile?.is_creator ? 'translate-x-6' : 'translate-x-1'
+                  } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+                />
+              </button>
+            </div>
           </div>
 
           {/* Action Buttons */}

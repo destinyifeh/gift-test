@@ -30,6 +30,9 @@ export const TX_GIFT_REDEMPTION = 'gift_redemption';
 /** Platform credit conversion */
 export const TX_PLATFORM_CREDIT_CONVERSION = 'platform_credit_conversion';
 
+/** Withdrawal from a campaign to the wallet */
+export const TX_CAMPAIGN_WITHDRAWAL = 'campaign_withdrawal';
+
 /**
  * Campaign / gift statuses
  */

@@ -176,13 +176,29 @@ model Campaign {
   whatsappFee          Decimal @default(0) @map("whatsapp_fee")
   senderName           String? @map("sender_name")
 
+  withdrawnAmount Decimal @default(0) @map("withdrawn_amount")
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   contributions Contribution[]
+  withdrawals   CampaignWithdrawal[]
   transactions  Transaction[]
 
   @@map("campaigns")
+}
+
+model CampaignWithdrawal {
+  id            String      @id @default(uuid())
+  campaignId    String      @map("campaign_id")
+  campaign      Campaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  amount        Decimal
+  currency      String      @default("NGN")
+  transactionId String      @unique @map("transaction_id")
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now()) @map("created_at")
+
+  @@map("campaign_withdrawals")
 }
 
 model Contribution {
@@ -330,10 +346,11 @@ model Transaction {
 
   createdAt DateTime @default(now()) @map("created_at")
 
-  creatorSupport CreatorSupport?
-  contribution   Contribution?
-  withdrawal     Withdrawal?
-  promotion      Promotion?
+  creatorSupport     CreatorSupport?
+  contribution       Contribution?
+  withdrawal         Withdrawal?
+  promotion          Promotion?
+  campaignWithdrawal CampaignWithdrawal?
 
   @@map("transactions")
 }
