@@ -3,13 +3,16 @@
 import {useProfile} from '@/hooks/use-profile';
 import api from '@/lib/api-client';
 import {useQueryClient} from '@tanstack/react-query';
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useRef} from 'react';
 import {toast} from 'sonner';
+import {uploadShopLogo, deleteUploadedFile, updateProfile} from '@/lib/server/actions/auth';
 
 export function V2VendorShopTab() {
   const {data: profile} = useProfile();
   const queryClient = useQueryClient();
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form state
   const [shopName, setShopName] = useState('');
@@ -83,6 +86,79 @@ export function V2VendorShopTab() {
     toast.info('Changes discarded');
   };
 
+  const handleLogoClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Basic validation
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Image must be less than 2MB');
+      return;
+    }
+
+    setIsUploadingLogo(true);
+    try {
+      // 1. Delete old logo if it exists
+      if (profile?.shop_logo_url) {
+        await deleteUploadedFile(profile.shop_logo_url).catch(err => 
+          console.warn('Failed to cleanup old logo:', err)
+        );
+      }
+
+      // 2. Upload new logo to 'vendors' folder
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const result = await uploadShopLogo(formData);
+
+      if (result.success && result.url) {
+        // 3. Update profile with new logo URL
+        await updateProfile({ shop_logo_url: result.url });
+        toast.success('Shop logo updated successfully!');
+        queryClient.invalidateQueries({queryKey: ['profile']});
+      } else {
+        toast.error(result.error || 'Failed to upload logo');
+      }
+    } catch (error) {
+      toast.error('An error occurred during upload');
+    } finally {
+      setIsUploadingLogo(false);
+    }
+  };
+
+  const handleRemoveLogo = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!profile?.shop_logo_url) return;
+
+    const confirmRemove = confirm('Are you sure you want to remove your shop logo?');
+    if (!confirmRemove) return;
+
+    setIsUploadingLogo(true);
+    try {
+      // 1. Delete from storage
+      await deleteUploadedFile(profile.shop_logo_url);
+
+      // 2. Clear in database
+      await updateProfile({ shop_logo_url: '' });
+
+      toast.success('Shop logo removed');
+      queryClient.invalidateQueries({queryKey: ['profile']});
+    } catch (error) {
+      toast.error('Failed to remove logo');
+    } finally {
+      setIsUploadingLogo(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -115,30 +191,75 @@ export function V2VendorShopTab() {
         {/* Logo Upload */}
         <div className="col-span-12 lg:col-span-4 bg-[var(--v2-surface-container-lowest)] rounded-3xl p-6 md:p-8 flex flex-col items-center text-center">
           <h3 className="w-full text-left text-lg font-bold v2-headline mb-6">Shop Logo</h3>
-          <div className="relative group cursor-pointer">
-            <div className="w-48 h-48 rounded-2xl overflow-hidden bg-[var(--v2-surface-container-low)] flex items-center justify-center border-2 border-dashed border-[var(--v2-outline-variant)]/30 group-hover:border-[var(--v2-primary)]/50 transition-colors">
-              {profile?.avatar_url ? (
+          
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept="image/*"
+            className="hidden"
+          />
+
+          <div 
+            onClick={handleLogoClick}
+            className="relative group cursor-pointer"
+          >
+            <div className={`w-48 h-48 rounded-2xl overflow-hidden bg-[var(--v2-surface-container-low)] flex items-center justify-center border-2 border-dashed transition-all ${
+              isUploadingLogo 
+                ? 'border-[var(--v2-primary)] opacity-50' 
+                : 'border-[var(--v2-outline-variant)]/30 group-hover:border-[var(--v2-primary)]/50'
+            }`}>
+              {profile?.shop_logo_url ? (
                 <img
-                  src={profile.avatar_url}
+                  src={profile.shop_logo_url}
                   alt="Shop Logo"
-                  className="w-full h-full object-cover opacity-90 group-hover:opacity-60 transition-opacity"
+                  className="w-full h-full object-cover opacity-90 group-hover:opacity-40 transition-opacity"
                 />
               ) : (
                 <span className="v2-icon text-5xl text-[var(--v2-on-surface-variant)]/30">store</span>
               )}
-              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="v2-icon text-[var(--v2-primary)] text-4xl">cloud_upload</span>
-              </div>
+              
+              {isUploadingLogo ? (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="v2-icon text-[var(--v2-primary)] text-4xl animate-spin">progress_activity</span>
+                </div>
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex flex-col items-center gap-2">
+                    <span className="v2-icon text-[var(--v2-primary)] text-4xl mb-1">cloud_upload</span>
+                    <span className="text-xs font-bold text-[var(--v2-primary)] uppercase tracking-wider">Change Logo</span>
+                  </div>
+                </div>
+              )}
             </div>
+
+            {/* Remove Button Overlay */}
+            {profile?.shop_logo_url && !isUploadingLogo && (
+              <button
+                onClick={handleRemoveLogo}
+                className="absolute -top-3 -right-3 w-10 h-10 rounded-full bg-[var(--v2-error)] text-[var(--v2-on-error)] flex items-center justify-center shadow-lg hover:scale-110 transition-transform opacity-0 group-hover:opacity-100 z-10"
+                title="Remove Logo"
+              >
+                <span className="v2-icon text-xl">delete</span>
+              </button>
+            )}
           </div>
+
           <p className="text-xs text-[var(--v2-on-surface-variant)] font-medium mt-6 leading-relaxed">
             Recommended size: 512x512px.
             <br />
             Supports PNG, JPG, or WEBP.
           </p>
-          <button className="mt-6 text-sm font-bold text-[var(--v2-primary)] flex items-center gap-2 hover:underline">
-            Change Image
-          </button>
+          
+          {!isUploadingLogo && (
+            <button 
+              onClick={handleLogoClick}
+              className="mt-6 text-sm font-bold text-[var(--v2-primary)] flex items-center gap-2 hover:underline"
+            >
+              <span className="v2-icon text-sm">{profile?.shop_logo_url ? 'edit' : 'add_photo_alternate'}</span>
+              {profile?.shop_logo_url ? 'Change Image' : 'Add Logo'}
+            </button>
+          )}
         </div>
 
         {/* Basic Info */}
@@ -300,16 +421,16 @@ export function V2VendorShopTab() {
           <div className="relative z-10 md:w-1/3 w-full hidden md:block">
             <div className="bg-white/10 backdrop-blur-xl p-6 rounded-2xl border border-white/10 transform rotate-3 shadow-2xl">
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 rounded-lg bg-white overflow-hidden p-1">
-                  {profile?.avatar_url ? (
+                <div className="w-12 h-12 rounded-lg bg-white overflow-hidden p-1 flex items-center justify-center">
+                  {profile?.shop_logo_url ? (
                     <img
-                      src={profile.avatar_url}
+                      src={profile.shop_logo_url}
                       alt=""
                       className="w-full h-full object-contain"
                     />
                   ) : (
                     <div className="w-full h-full bg-[var(--v2-surface)] rounded flex items-center justify-center">
-                      <span className="v2-icon text-[var(--v2-primary)]">store</span>
+                      <span className="v2-icon text-[var(--v2-primary)] text-xl">store</span>
                     </div>
                   )}
                 </div>

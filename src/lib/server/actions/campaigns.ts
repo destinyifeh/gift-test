@@ -107,7 +107,27 @@ export async function adminUpdateCampaign(id: string, data: any) {
 }
 
 export async function uploadCampaignImage(formData: FormData): Promise<{success: boolean; error?: string; url?: string}> {
-  return { success: false, error: 'Migration Notice: Native file upload proxy needs backend Storage Service integration.' };
+  try {
+    const response = await serverFetch('/files/upload?folder=campaigns', {
+      method: 'POST',
+      body: formData,
+    });
+    return { success: true, url: response.url };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteCampaignImage(url: string) {
+  try {
+    await serverFetch('/files/delete', {
+      method: 'POST',
+      body: JSON.stringify({ url }),
+    });
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
 }
 
 export async function getTopCampaignsByAmountRaised(limit: number = 6) {
@@ -152,8 +172,4 @@ export async function getAllPublicCampaigns({
   } catch (error: any) {
     return { success: false, error: error.message, data: [] };
   }
-}
-
-export async function deleteCampaignImage(url: string) {
-  return { success: false, error: 'Storage removal requires backend Bucket proxy.' };
 }

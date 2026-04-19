@@ -1,7 +1,11 @@
+import {
+  DeleteObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 // Directory structure for R2 bucket: gifthance-assets
 export enum FileDirectory {
@@ -11,6 +15,7 @@ export enum FileDirectory {
   FLEX_CARDS = 'flex-cards',
   PROMOTIONS = 'promotions',
   MARKETING = 'marketing',
+  VENDORS = 'vendors',
 }
 
 // Sub-directories for users
@@ -35,9 +40,14 @@ export class FileService {
   constructor(private configService: ConfigService) {
     const endpoint = this.configService.get<string>('R2_ENDPOINT');
     const accessKeyId = this.configService.get<string>('R2_ACCESS_KEY_ID');
-    const secretAccessKey = this.configService.get<string>('R2_SECRET_ACCESS_KEY');
-    this.bucket = this.configService.get<string>('R2_BUCKET_NAME') || 'gifthance-assets';
-    this.publicUrl = this.configService.get<string>('R2_PUBLIC_URL') || `https://${this.bucket}.r2.dev`;
+    const secretAccessKey = this.configService.get<string>(
+      'R2_SECRET_ACCESS_KEY',
+    );
+    this.bucket =
+      this.configService.get<string>('R2_BUCKET_NAME') || 'gifthance-assets';
+    this.publicUrl =
+      this.configService.get<string>('R2_PUBLIC_URL') ||
+      `https://${this.bucket}.r2.dev`;
 
     if (endpoint && accessKeyId && secretAccessKey) {
       this.s3 = new S3Client({
@@ -49,14 +59,19 @@ export class FileService {
         },
       });
     } else {
-      this.logger.warn('R2 Storage not fully configured. File uploads will fail.');
+      this.logger.warn(
+        'R2 Storage not fully configured. File uploads will fail.',
+      );
     }
   }
 
   /**
    * Upload a campaign image
    */
-  async uploadCampaignImage(file: Express.Multer.File, campaignId: string): Promise<string> {
+  async uploadCampaignImage(
+    file: Express.Multer.File,
+    campaignId: string,
+  ): Promise<string> {
     const key = `${FileDirectory.CAMPAIGNS}/${campaignId}/${Date.now()}-${this.sanitizeFilename(file.originalname)}`;
     return this.upload(file, key);
   }
@@ -64,7 +79,10 @@ export class FileService {
   /**
    * Upload a product image
    */
-  async uploadProductImage(file: Express.Multer.File, vendorId: string): Promise<string> {
+  async uploadProductImage(
+    file: Express.Multer.File,
+    vendorId: string,
+  ): Promise<string> {
     const key = `${FileDirectory.PRODUCTS}/${vendorId}/${Date.now()}-${this.sanitizeFilename(file.originalname)}`;
     return this.upload(file, key);
   }
@@ -72,7 +90,10 @@ export class FileService {
   /**
    * Upload a user avatar
    */
-  async uploadUserAvatar(file: Express.Multer.File, userId: string): Promise<string> {
+  async uploadUserAvatar(
+    file: Express.Multer.File,
+    userId: string,
+  ): Promise<string> {
     const key = `${FileDirectory.USERS}/${UserFileType.AVATAR}/${userId}-${Date.now()}.${this.getExtension(file.originalname)}`;
     return this.upload(file, key);
   }
@@ -80,7 +101,10 @@ export class FileService {
   /**
    * Upload a user banner
    */
-  async uploadUserBanner(file: Express.Multer.File, userId: string): Promise<string> {
+  async uploadUserBanner(
+    file: Express.Multer.File,
+    userId: string,
+  ): Promise<string> {
     const key = `${FileDirectory.USERS}/${UserFileType.BANNER}/${userId}-${Date.now()}.${this.getExtension(file.originalname)}`;
     return this.upload(file, key);
   }
@@ -88,7 +112,10 @@ export class FileService {
   /**
    * Upload a flex card QR code
    */
-  async uploadFlexCardQR(file: Express.Multer.File, cardId: string): Promise<string> {
+  async uploadFlexCardQR(
+    file: Express.Multer.File,
+    cardId: string,
+  ): Promise<string> {
     const key = `${FileDirectory.FLEX_CARDS}/${FlexCardFileType.QR_CODES}/${cardId}.png`;
     return this.upload(file, key);
   }
@@ -96,7 +123,10 @@ export class FileService {
   /**
    * Upload a flex card image
    */
-  async uploadFlexCardImage(file: Express.Multer.File, cardId: string): Promise<string> {
+  async uploadFlexCardImage(
+    file: Express.Multer.File,
+    cardId: string,
+  ): Promise<string> {
     const key = `${FileDirectory.FLEX_CARDS}/${FlexCardFileType.CARD_IMAGES}/${cardId}-${Date.now()}.${this.getExtension(file.originalname)}`;
     return this.upload(file, key);
   }
@@ -104,7 +134,10 @@ export class FileService {
   /**
    * Upload a promotion image
    */
-  async uploadPromotionImage(file: Express.Multer.File, promotionId: string): Promise<string> {
+  async uploadPromotionImage(
+    file: Express.Multer.File,
+    promotionId: string,
+  ): Promise<string> {
     const key = `${FileDirectory.PROMOTIONS}/${promotionId}-${Date.now()}.${this.getExtension(file.originalname)}`;
     return this.upload(file, key);
   }
@@ -112,7 +145,10 @@ export class FileService {
   /**
    * Generic upload with custom path (for backwards compatibility)
    */
-  async uploadFile(file: Express.Multer.File, path: string = 'uploads'): Promise<string> {
+  async uploadFile(
+    file: Express.Multer.File,
+    path: string = 'uploads',
+  ): Promise<string> {
     const key = `${path}/${Date.now()}-${this.sanitizeFilename(file.originalname)}`;
     return this.upload(file, key);
   }
@@ -120,7 +156,10 @@ export class FileService {
   /**
    * Core upload method
    */
-  private async upload(file: Express.Multer.File, key: string): Promise<string> {
+  private async upload(
+    file: Express.Multer.File,
+    key: string,
+  ): Promise<string> {
     const command = new PutObjectCommand({
       Bucket: this.bucket,
       Key: key,
@@ -140,7 +179,11 @@ export class FileService {
   /**
    * Generate a presigned URL for direct upload from client
    */
-  async generatePresignedUrl(directory: FileDirectory, filename: string, subDir?: string): Promise<{ url: string; key: string }> {
+  async generatePresignedUrl(
+    directory: FileDirectory,
+    filename: string,
+    subDir?: string,
+  ): Promise<{ url: string; key: string }> {
     const key = subDir
       ? `${directory}/${subDir}/${Date.now()}-${this.sanitizeFilename(filename)}`
       : `${directory}/${Date.now()}-${this.sanitizeFilename(filename)}`;
@@ -199,9 +242,7 @@ export class FileService {
    */
   async deleteFiles(fileUrls: string[]): Promise<void> {
     const uniqueUrls = [...new Set(fileUrls.filter(Boolean))];
-    await Promise.allSettled(
-      uniqueUrls.map(url => this.deleteFile(url))
-    );
+    await Promise.allSettled(uniqueUrls.map((url) => this.deleteFile(url)));
   }
 
   /**

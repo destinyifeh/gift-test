@@ -156,7 +156,7 @@ export async function updateProfile(updates: {
 export async function uploadBannerImage(formData: FormData) {
   try {
     // Forward the formData to the backend file upload endpoint
-    const res = await serverFetch('/files/upload?folder=campaign-images', {
+    const res = await serverFetch('/files/upload?folder=banners', {
       method: 'POST',
       // When sending FormData, we should NOT set Content-Type header manually
       // but serverFetch currently sets it to application/json. 
@@ -167,11 +167,6 @@ export async function uploadBannerImage(formData: FormData) {
       } as any
     });
     
-    // If we're updating a banner, call the banner update endpoint
-    if (res.url) {
-      await updateProfile({ shop_logo_url: res.url }); // Assuming this is for shop banner/logo
-    }
-
     return { success: true, url: res.url };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -181,6 +176,19 @@ export async function uploadBannerImage(formData: FormData) {
 export async function uploadAvatar(formData: FormData) {
   try {
     const res = await serverFetch('/files/upload?folder=avatars', {
+      method: 'POST',
+      body: formData,
+    });
+    
+    return { success: true, url: res.url };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function uploadShopLogo(formData: FormData) {
+  try {
+    const res = await serverFetch('/files/upload?folder=vendors', {
       method: 'POST',
       body: formData,
     });

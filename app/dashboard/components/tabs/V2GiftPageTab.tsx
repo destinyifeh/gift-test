@@ -1,7 +1,7 @@
 'use client';
 
 import {useProfile} from '@/hooks/use-profile';
-import {updateProfile, uploadBannerImage} from '@/lib/server/actions/auth';
+import {updateProfile, uploadBannerImage, deleteUploadedFile} from '@/lib/server/actions/auth';
 import {verifyPaymentAndUpgrade} from '@/lib/server/actions/transactions';
 import {useUserStore} from '@/lib/store/useUserStore';
 import {useQueryClient} from '@tanstack/react-query';
@@ -195,6 +195,37 @@ export function V2GiftPageTab({creatorPlan, setCreatorPlan}: V2GiftPageTabProps)
       toast.error('An unexpected error occurred');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleDeleteBanner = async () => {
+    if (!proBannerUrl) return;
+
+    const confirmDelete = confirm('Are you sure you want to remove your banner image?');
+    if (!confirmDelete) return;
+
+    setIsUploadingBanner(true);
+    try {
+      // 1. Delete from storage
+      await deleteUploadedFile(proBannerUrl);
+
+      // 2. Clear in state
+      setProBannerUrl('');
+
+      // 3. Update profile
+      await updateProfile({
+        theme_settings: {
+          ...profile?.theme_settings,
+          proBannerUrl: '',
+        }
+      });
+
+      toast.success('Banner removed');
+      queryClient.invalidateQueries({queryKey: ['profile']});
+    } catch (error) {
+      toast.error('Failed to remove banner');
+    } finally {
+      setIsUploadingBanner(false);
     }
   };
 
@@ -585,13 +616,62 @@ export function V2GiftPageTab({creatorPlan, setCreatorPlan}: V2GiftPageTabProps)
                 </label>
                 <div className="relative">
                   {proBannerUrl ? (
-                    <div className="relative rounded-2xl overflow-hidden">
+                    <div className="relative rounded-2xl overflow-hidden group">
                       <img src={proBannerUrl} alt="Banner" className="w-full h-32 object-cover" />
-                      <button
-                        onClick={() => setProBannerUrl('')}
-                        className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors">
-                        <span className="v2-icon text-sm">close</span>
-                      </button>
+                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
+                        <label className="w-10 h-10 rounded-full bg-white text-[var(--v2-primary)] flex items-center justify-center cursor-pointer hover:scale-110 transition-transform shadow-lg" title="Replace Banner">
+                          <span className="v2-icon">edit</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={async e => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                setIsUploadingBanner(true);
+                                try {
+                                  // Clean up old banner first
+                                  if (proBannerUrl) {
+                                    await deleteUploadedFile(proBannerUrl);
+                                  }
+                                  const formData = new FormData();
+                                  formData.append('file', file);
+                                  const result = await uploadBannerImage(formData);
+                                  if (result.success && result.url) {
+                                    setProBannerUrl(result.url);
+                                    toast.success('Banner updated!');
+                                    // Save immediately
+                                    await updateProfile({
+                                      theme_settings: {
+                                        ...profile?.theme_settings,
+                                        proBannerUrl: result.url,
+                                      }
+                                    });
+                                    queryClient.invalidateQueries({queryKey: ['profile']});
+                                  } else {
+                                    toast.error(result.error || 'Failed to upload banner');
+                                  }
+                                } catch {
+                                  toast.error('Failed to upload banner');
+                                } finally {
+                                  setIsUploadingBanner(false);
+                                }
+                              }
+                            }}
+                          />
+                        </label>
+                        <button
+                          onClick={handleDeleteBanner}
+                          className="w-10 h-10 rounded-full bg-[var(--v2-error)] text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
+                          title="Delete Banner">
+                          <span className="v2-icon">delete</span>
+                        </button>
+                      </div>
+                      {isUploadingBanner && (
+                        <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px] flex items-center justify-center">
+                          <span className="v2-icon text-white animate-spin text-3xl">progress_activity</span>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <label className={`flex flex-col items-center justify-center h-32 rounded-2xl border-2 border-dashed border-[var(--v2-outline-variant)]/30 bg-[var(--v2-surface-container-low)] cursor-pointer hover:border-[var(--v2-primary)]/40 hover:bg-[var(--v2-primary)]/5 transition-all ${isUploadingBanner ? 'opacity-50 pointer-events-none' : ''}`}>
