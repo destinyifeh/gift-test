@@ -249,6 +249,35 @@ exports.Prisma.ContributionScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.DirectGiftScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  category: 'category',
+  title: 'title',
+  description: 'description',
+  amount: 'amount',
+  currency: 'currency',
+  status: 'status',
+  claimableType: 'claimableType',
+  claimableGiftId: 'claimableGiftId',
+  claimableRecipientType: 'claimableRecipientType',
+  recipientEmail: 'recipientEmail',
+  senderEmail: 'senderEmail',
+  paymentReference: 'paymentReference',
+  giftCode: 'giftCode',
+  redeemedAt: 'redeemedAt',
+  redeemedByVendorId: 'redeemedByVendorId',
+  vendorRating: 'vendorRating',
+  message: 'message',
+  deliveryMethod: 'deliveryMethod',
+  recipientPhone: 'recipientPhone',
+  recipientCountryCode: 'recipientCountryCode',
+  whatsappFee: 'whatsappFee',
+  senderName: 'senderName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.PromotionScalarFieldEnum = {
   id: 'id',
   vendorId: 'vendorId',
@@ -546,6 +575,7 @@ exports.Prisma.ModelName = {
   Verification: 'Verification',
   Campaign: 'Campaign',
   Contribution: 'Contribution',
+  DirectGift: 'DirectGift',
   Promotion: 'Promotion',
   ExternalPromotion: 'ExternalPromotion',
   FeaturedItem: 'FeaturedItem',

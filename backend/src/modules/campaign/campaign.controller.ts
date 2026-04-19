@@ -1,12 +1,16 @@
 import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
 import { CampaignService } from './campaign.service';
+import { GiftService } from '../gift/gift.service';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import type { Request } from 'express';
 
 @Controller('campaigns')
 export class CampaignController {
-  constructor(private readonly campaignService: CampaignService) {}
+  constructor(
+    private readonly campaignService: CampaignService,
+    private readonly giftService: GiftService,
+  ) {}
 
   @Get()
   async findAll(@Query('page') page: string, @Query('limit') limit: string) {
@@ -15,15 +19,19 @@ export class CampaignController {
 
   @UseGuards(AuthGuard)
   @Get('my')
-  async findMyCampaigns(@Req() req: Request) {
+  async findMyCampaigns(@Req() req: Request, @Query('category') category?: string) {
     const userId = (req as any).user.id;
-    return this.campaignService.findMyCampaigns(userId);
+    return this.campaignService.findMyCampaigns(userId, category);
   }
 
   @UseGuards(AuthGuard)
   @Post()
   async create(@Req() req: Request, @Body() data: CreateCampaignDto) {
     const userId = (req as any).user.id;
+    const isDirectGift = data.category.toLowerCase().includes('claimable') || data.claimableType;
+    if (isDirectGift) {
+      return this.giftService.createDirectGift(userId, data);
+    }
     return this.campaignService.create(userId, data);
   }
 
@@ -31,7 +39,7 @@ export class CampaignController {
   @Post('claim')
   async claimGift(@Req() req: Request, @Body('code') code: string) {
     const userId = (req as any).user.id;
-    return this.campaignService.claimGiftByCode(userId, code);
+    return this.giftService.claimGiftByCode(userId, code);
   }
 
   @Get('public/all')

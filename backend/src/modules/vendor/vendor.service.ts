@@ -31,9 +31,9 @@ export class VendorService {
 
     if (products.length === 0) return [];
 
-    // Sold counts
+    // Sold counts — from DirectGift table
     const productIds = products.map((p: any) => p.id);
-    const soldCounts = await (this.prisma as any).campaign.groupBy({
+    const soldCounts = await (this.prisma as any).directGift.groupBy({
       by: ['claimableGiftId'],
       where: { claimableGiftId: { in: productIds } },
       _count: { id: true },
@@ -98,7 +98,7 @@ export class VendorService {
     // Sold counts
     if (products.length > 0) {
       const productIds = products.map((p: any) => p.id);
-      const soldCounts = await (this.prisma as any).campaign.groupBy({
+      const soldCounts = await (this.prisma as any).directGift.groupBy({
         by: ['claimableGiftId'],
         where: { claimableGiftId: { in: productIds } },
         _count: { id: true },
@@ -261,8 +261,8 @@ export class VendorService {
     const trimmedCode = code.trim();
     const upperCode = trimmedCode.toUpperCase();
     
-    // 1. Try regular gift code (Campaign)
-    let campaign = await (this.prisma as any).campaign.findFirst({
+    // 1. Try regular gift code (DirectGift)
+    let directGift = await (this.prisma as any).directGift.findFirst({
       where: { 
         giftCode: { equals: trimmedCode, mode: 'insensitive' } 
       },
@@ -271,9 +271,9 @@ export class VendorService {
       },
     });
 
-    // Fallback: If code doesn't start with GFT-, try adding it for campaign
-    if (!campaign && !upperCode.startsWith('GFT-')) {
-      campaign = await (this.prisma as any).campaign.findFirst({
+    // Fallback: If code doesn't start with GFT-, try adding it
+    if (!directGift && !upperCode.startsWith('GFT-')) {
+      directGift = await (this.prisma as any).directGift.findFirst({
         where: { 
           giftCode: { equals: `GFT-${trimmedCode}`, mode: 'insensitive' } 
         },
@@ -283,14 +283,12 @@ export class VendorService {
       });
     }
 
-    // Fallback: Try campaignShortId or campaignSlug (users sometimes confuse these)
-    if (!campaign) {
-      campaign = await (this.prisma as any).campaign.findFirst({
+    // Fallback: Try by ID
+    if (!directGift) {
+      directGift = await (this.prisma as any).directGift.findFirst({
         where: {
           OR: [
             { id: trimmedCode },
-            { campaignShortId: { equals: trimmedCode, mode: 'insensitive' } },
-            { campaignSlug: { equals: trimmedCode, mode: 'insensitive' } }
           ]
         },
         include: {
@@ -299,11 +297,11 @@ export class VendorService {
       });
     }
 
-    if (campaign) {
+    if (directGift) {
       // Check vendor ownership if it's a specific vendor gift
-      if (campaign.claimableGiftId) {
+      if (directGift.claimableGiftId) {
         const gift = await (this.prisma as any).vendorGift.findUnique({
-          where: { id: campaign.claimableGiftId },
+          where: { id: directGift.claimableGiftId },
           select: { vendorId: true, name: true },
         });
         if (gift && gift.vendorId !== userId) {
@@ -311,14 +309,14 @@ export class VendorService {
         }
       }
       return { 
-        ...campaign, 
+        ...directGift, 
         type: 'gift',
-        goalAmount: campaign.goalAmount?.toString(),
-        currentAmount: campaign.currentAmount?.toString(),
+        goalAmount: directGift.amount?.toString(),
+        currentAmount: directGift.amount?.toString(),
       };
     }
 
-    // 2. Try Flex Card if not found in campaigns
+    // 2. Try Flex Card if not found in directGift
     const flexCard = await (this.prisma as any).flexCard.findFirst({
       where: {
         OR: [
@@ -353,21 +351,21 @@ export class VendorService {
   }
 
   async redeemVoucherCode(userId: string, code: string) {
-    const campaign = await (this.prisma as any).campaign.findFirst({
+    const gift = await (this.prisma as any).directGift.findFirst({
       where: { giftCode: code.trim() },
     });
 
-    if (!campaign) throw new NotFoundException('Invalid or expired code');
+    if (!gift) throw new NotFoundException('Invalid or expired code');
 
-    if (campaign.status !== 'claimed') {
-      const msg = campaign.status === 'active'
+    if (gift.status !== 'claimed') {
+      const msg = gift.status === 'active'
         ? 'This gift card is yet to be claimed by the recipient.'
-        : `This gift card cannot be redeemed (Status: ${campaign.status})`;
+        : `This gift card cannot be redeemed (Status: ${gift.status})`;
       throw new BadRequestException(msg);
     }
 
-    await (this.prisma as any).campaign.update({
-      where: { id: campaign.id },
+    await (this.prisma as any).directGift.update({
+      where: { id: gift.id },
       data: {
         status: 'redeemed',
         redeemedAt: new Date(),
@@ -376,15 +374,15 @@ export class VendorService {
     });
 
     // Record transaction for the gift owner
-    if (campaign.userId) {
+    if (gift.userId) {
       await (this.prisma as any).transaction.create({
         data: {
-          userId: campaign.userId,
-          amount: BigInt(Math.round(Number(campaign.goalAmount || 0) * 100)),
+          userId: gift.userId,
+          amount: BigInt(Math.round(Number(gift.amount || 0) * 100)),
           type: 'gift_redemption',
           status: 'success',
           reference: `RED-${code.trim()}-${Date.now()}`,
-          description: `Gift Redemption: ${campaign.title || 'Gift'} at vendor`,
+          description: `Gift Redemption: ${gift.title || 'Gift'} at vendor`,
         },
       });
     }
@@ -404,13 +402,13 @@ export class VendorService {
     const productIds = products.map((p: any) => p.id);
 
     const [redeemedVouchers, allOrders, withdrawals] = await Promise.all([
-      (this.prisma as any).campaign.findMany({
+      (this.prisma as any).directGift.findMany({
         where: { redeemedByVendorId: userId, status: 'redeemed' },
-        select: { goalAmount: true, currentAmount: true, status: true, redeemedAt: true, giftCode: true },
+        select: { amount: true, status: true, redeemedAt: true, giftCode: true },
       }),
-      (this.prisma as any).campaign.findMany({
+      (this.prisma as any).directGift.findMany({
         where: { claimableGiftId: { in: productIds } },
-        select: { goalAmount: true, currentAmount: true, status: true, createdAt: true, giftCode: true },
+        select: { amount: true, status: true, createdAt: true, giftCode: true },
       }),
       (this.prisma as any).transaction.findMany({
         where: { userId, type: { in: ['withdrawal', 'payout', 'fee'] }, status: { in: ['success', 'pending'] } },
@@ -418,8 +416,8 @@ export class VendorService {
       }),
     ]);
 
-    const totalSales = allOrders.reduce((acc: number, c: any) => acc + (Number(c.goalAmount || c.currentAmount || 0)), 0);
-    const available = redeemedVouchers.reduce((acc: number, c: any) => acc + (Number(c.goalAmount || c.currentAmount || 0)), 0);
+    const totalSales = allOrders.reduce((acc: number, c: any) => acc + (Number(c.amount || 0)), 0);
+    const available = redeemedVouchers.reduce((acc: number, c: any) => acc + (Number(c.amount || 0)), 0);
     const totalWithdrawn = withdrawals.reduce((acc: number, w: any) => acc + (Number(w.amount) / 100), 0);
     const pending = Math.max(0, totalSales - available);
 
@@ -438,7 +436,7 @@ export class VendorService {
       id: `vouch-${i}`,
       type: 'redeemed',
       desc: `Redemption: ${r.giftCode || 'GIFT'}`,
-      amount: Number(r.goalAmount || r.currentAmount || 0),
+      amount: Number(r.amount || 0),
       date: r.redeemedAt?.toISOString().split('T')[0],
       timestamp: new Date(r.redeemedAt || 0).getTime(),
     }));
@@ -480,7 +478,7 @@ export class VendorService {
     });
     const productIds = products.map((p: any) => p.id);
 
-    const orders = await (this.prisma as any).campaign.findMany({
+    const orders = await (this.prisma as any).directGift.findMany({
       where: { claimableGiftId: { in: productIds } },
       orderBy: { createdAt: 'desc' },
       include: { user: { select: { username: true, displayName: true } } },
@@ -488,8 +486,8 @@ export class VendorService {
 
     return orders.map((o: any) => ({
       ...o,
-      goalAmount: o.goalAmount?.toString(),
-      currentAmount: o.currentAmount?.toString(),
+      goalAmount: o.amount?.toString(),
+      currentAmount: o.amount?.toString(),
     }));
   }
 

@@ -6,7 +6,7 @@ import { NotificationService } from '../notification/notification.service';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { paginate, getPaginationOptions } from '../../common/utils/pagination.util';
 import { generateGiftCode, generateId } from '../../common/utils/token.util';
-import { generateUniqueSlug } from '../../common/utils/slug.util';
+import { generateUniqueSlug, generateShortId } from '../../common/utils/slug.util';
 
 @Injectable()
 export class CampaignService {
@@ -20,7 +20,7 @@ export class CampaignService {
   ) {}
 
   async create(userId: string, data: CreateCampaignDto) {
-    const campaignShortId = generateId();
+    const campaignShortId = generateShortId();
     
     // Generate unique slug
     const existingCampaigns = await (this.prisma as any).campaign.findMany({
@@ -34,18 +34,34 @@ export class CampaignService {
     const giftCode = data.category.toLowerCase().includes('claimable') || data.claimableType ? generateGiftCode() : null;
 
     // Prisma Campaign model doesn't have an isAnonymous or scheduledFor column
-    const { isAnonymous, scheduledFor, senderEmail, status, ...campaignData } = data as any;
+    // Also strip snake_case aliases sent from frontend
+    const {
+      isAnonymous, scheduledFor, senderEmail, status,
+      goal_amount, min_amount, end_date, contributors_see_each_other, image_url,
+      ...campaignData
+    } = data as any;
+
+    // Normalise snake_case → camelCase
+    const goalAmount = campaignData.goalAmount ?? goal_amount;
+    const minAmount = campaignData.minAmount ?? min_amount;
+    const endDate = campaignData.endDate ?? end_date;
+    const contributorsSeeEachOther = campaignData.contributorsSeeEachOther ?? contributors_see_each_other;
+    const imageUrl = campaignData.imageUrl ?? image_url;
 
     const campaign = await (this.prisma as any).campaign.create({
       data: {
         ...campaignData,
+        goalAmount,
+        minAmount,
+        contributorsSeeEachOther,
+        imageUrl,
         status: status || 'active',
         senderEmail,
         userId,
         campaignShortId,
         campaignSlug,
         giftCode,
-        endDate: data.endDate ? new Date(data.endDate) : null,
+        endDate: endDate ? new Date(endDate) : null,
       },
     });
 
@@ -111,6 +127,9 @@ export class CampaignService {
           user: {
             select: { id: true, displayName: true, username: true, avatarUrl: true },
           },
+          contributions: {
+            select: { id: true, amount: true, isAnonymous: true, donorName: true, createdAt: true }
+          }
         },
       }),
       (this.prisma as any).campaign.count({ where }),
@@ -126,10 +145,21 @@ export class CampaignService {
     return paginate(formatted, total, page, limit);
   }
 
-  async findMyCampaigns(userId: string) {
+  async findMyCampaigns(userId: string, category?: string) {
+    const where: any = { userId, giftCode: null };
+    if (category && category !== 'all') {
+      where.category = { equals: category, mode: 'insensitive' };
+    }
+
     const campaigns = await (this.prisma as any).campaign.findMany({
-      where: { userId, giftCode: null },
+      where,
       orderBy: { createdAt: 'desc' },
+      include: {
+        user: { select: { displayName: true, username: true, avatarUrl: true } },
+        contributions: {
+            select: { id: true, amount: true, isAnonymous: true, donorName: true, createdAt: true }
+        }
+      }
     });
 
     return campaigns.map((c: any) => ({
@@ -177,6 +207,10 @@ export class CampaignService {
     
     if (!campaign) throw new NotFoundException('Campaign not found');
     if (campaign.userId !== userId) throw new BadRequestException('Unauthorized');
+
+    if (status === 'cancelled' && Number(campaign.currentAmount) > 0) {
+      throw new BadRequestException('Cannot cancel a campaign that has received contributions');
+    }
 
     return (this.prisma as any).campaign.update({
       where: { id: campaignId },
@@ -261,8 +295,23 @@ export class CampaignService {
       throw new Error('Campaign not found or not yours');
     }
 
-    // Filter out immutable fields
-    const { id, userId: _, createdAt, giftCode, ...updateData } = data;
+    // Filter out immutable fields and normalize snake_case aliases
+    const { 
+      id, userId: _, createdAt, giftCode, 
+      goal_amount, min_amount, end_date, image_url, contributors_see_each_other, 
+      ...updateData 
+    } = data;
+
+    // Map aliases if present
+    if (goal_amount !== undefined && updateData.goalAmount === undefined) updateData.goalAmount = goal_amount;
+    if (min_amount !== undefined && updateData.minAmount === undefined) updateData.minAmount = min_amount;
+    if (image_url !== undefined && updateData.imageUrl === undefined) updateData.imageUrl = image_url;
+    if (contributors_see_each_other !== undefined && updateData.contributorsSeeEachOther === undefined) {
+      updateData.contributorsSeeEachOther = contributors_see_each_other;
+    }
+    if (end_date !== undefined && updateData.endDate === undefined) {
+      updateData.endDate = end_date ? new Date(end_date) : null;
+    }
 
     return (this.prisma as any).campaign.update({
       where: { id: campaignId },
@@ -344,6 +393,9 @@ export class CampaignService {
         take: limit,
         include: {
           user: { select: { displayName: true, username: true, avatarUrl: true } },
+          contributions: {
+            select: { id: true, amount: true, isAnonymous: true, donorName: true, createdAt: true }
+          }
         },
       }),
       (this.prisma as any).campaign.count({ where }),

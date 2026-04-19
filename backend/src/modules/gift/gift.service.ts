@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateFlexCardDto, ClaimFlexCardDto } from './dto/flex-card.dto';
-import { generateCode, generateId } from '../../common/utils/token.util';
+import { generateGiftCode, generateId } from '../../common/utils/token.util';
 import { paginate, getPaginationOptions } from '../../common/utils/pagination.util';
 import { EmailService } from '../email/email.service';
 import { ConfigService } from '@nestjs/config';
@@ -215,11 +215,71 @@ export class GiftService {
   }
 
   // ─────────────────────────────────────────────
-  // Voucher/Gift Card Logic (Ported from Frontend claim.ts)
+  // Direct Gift / Voucher Logic
   // ─────────────────────────────────────────────
 
+  async createDirectGift(userId: string, data: any) {
+    const giftCode = generateGiftCode();
+    
+    // Omit fields not needed for DirectGift
+    const { isAnonymous, scheduledFor, endDate, minAmount, goalAmount, currentAmount, contributorsSeeEachOther, visibility, coverImage, ...giftData } = data;
+
+    const amount = Number(data.goalAmount || data.currentAmount || 0);
+
+    const gift = await (this.prisma as any).directGift.create({
+      data: {
+        ...giftData,
+        userId,
+        giftCode,
+        amount,
+        status: data.status || 'active',
+      },
+    });
+
+    if (data.deliveryMethod === 'email' && data.recipientEmail) {
+      const siteUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      const claimUrl = `${siteUrl}/claim/${giftCode}`;
+      
+      try {
+        await this.emailService.sendGiftEmail({
+          to: data.recipientEmail,
+          senderName: data.senderName || 'Someone',
+          vendorShopName: data.claimableType === 'money' ? 'Gifthance Cash Gift' : 'Gift Partner',
+          giftName: data.claimableType === 'money' ? 'Cash Gift' : (data.title || 'Gift'),
+          giftAmount: amount,
+          message: data.message,
+          claimUrl,
+        });
+      } catch (err) {}
+
+      // Notification logic
+      try {
+        const recipient = await (this.prisma as any).user.findUnique({
+          where: { email: data.recipientEmail },
+          select: { id: true },
+        });
+
+        if (recipient) {
+          await this.notificationService.create({
+            userId: recipient.id,
+            type: 'gift_received',
+            title: 'New Gift Received! 🎁',
+            message: `${data.senderName || 'Someone'} sent you a ${data.claimableType === 'money' ? 'cash gift' : 'gift card'}.`,
+            data: {
+              giftId: gift.id,
+              giftCode: giftCode,
+              amount: amount,
+            },
+          });
+        }
+      } catch (err) {}
+    }
+
+    return gift;
+  }
+
   async fetchGiftByCode(code: string) {
-    const gift = await (this.prisma as any).campaign.findFirst({
+    const gift = await (this.prisma as any).directGift.findFirst({
       where: { giftCode: code.trim() },
       include: {
         user: { select: { displayName: true, email: true } },
@@ -235,14 +295,14 @@ export class GiftService {
 
     return {
       ...gift,
-      goalAmount: gift.goalAmount?.toString(),
-      currentAmount: gift.currentAmount.toString()
+      goalAmount: gift.amount?.toString(),
+      currentAmount: gift.amount?.toString()
     };
   }
 
   async claimGiftByCode(userId: string, code: string) {
-    const gift = await (this.prisma as any).campaign.findFirst({
-      where: { giftCode: code.trim() },
+    const gift = await (this.prisma as any).directGift.findFirst({
+      where: { giftCode: { equals: code.trim(), mode: 'insensitive' } },
     });
 
     if (!gift) throw new NotFoundException('Gift not found');
@@ -251,11 +311,11 @@ export class GiftService {
     }
 
     const isMoney = gift.claimableType === 'money';
-    const amountToClaim = Number(gift.goalAmount || gift.currentAmount || 0);
+    const amountToClaim = Number(gift.amount || 0);
 
     return (this.prisma as any).$transaction(async (tx: any) => {
-      // 1. Update campaign status
-      await (tx as any).campaign.update({
+      // 1. Update directGift status
+      await (tx as any).directGift.update({
         where: { id: gift.id },
         data: {
           userId,
@@ -279,10 +339,9 @@ export class GiftService {
 
       // 3. If money, also update balance and record creator support
       if (isMoney) {
-        const profile = await (tx as any).user.findUnique({ where: { id: userId }, select: { platformBalance: true } });
         await (tx as any).user.update({
           where: { id: userId },
-          data: { platformBalance: (profile?.platformBalance || BigInt(0)) + BigInt(Math.round(amountToClaim * 100)) }
+          data: { platformBalance: { increment: BigInt(Math.round(amountToClaim * 100)) } }
         });
 
         await (tx as any).creatorSupport.create({

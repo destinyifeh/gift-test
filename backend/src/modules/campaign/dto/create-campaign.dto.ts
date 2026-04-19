@@ -17,7 +17,15 @@ export class CreateCampaignDto {
 
   @IsNumber()
   @IsOptional()
+  goal_amount?: number;
+
+  @IsNumber()
+  @IsOptional()
   minAmount?: number;
+
+  @IsNumber()
+  @IsOptional()
+  min_amount?: number;
 
   @IsString()
   @IsOptional()
@@ -25,7 +33,15 @@ export class CreateCampaignDto {
 
   @IsString()
   @IsOptional()
+  end_date?: string;
+
+  @IsString()
+  @IsOptional()
   imageUrl?: string;
+
+  @IsString()
+  @IsOptional()
+  image_url?: string;
 
   @IsString()
   @IsOptional()
@@ -34,6 +50,10 @@ export class CreateCampaignDto {
   @IsBoolean()
   @IsOptional()
   contributorsSeeEachOther?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  contributors_see_each_other?: boolean;
 
   @IsString()
   @IsOptional()
@@ -103,3 +123,4 @@ export class CreateCampaignDto {
   @IsOptional()
   scheduledFor?: string;
 }
+

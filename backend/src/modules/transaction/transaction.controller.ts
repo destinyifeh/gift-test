@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Delete, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
 import { TransactionService } from './transaction.service';
 import { AuthGuard } from '../../common/guards/auth.guard';
+import { OptionalAuthGuard } from '../../common/guards/optional-auth.guard';
 
 @Controller('transactions')
 export class TransactionController {
@@ -10,8 +11,9 @@ export class TransactionController {
   @UseGuards(AuthGuard)
   @Get('wallet')
   async getWalletProfile(@Req() req: any) {
-    const data = await this.transactionService.fetchWalletProfile(req.user.id);
-    return { success: true, data };
+    const walletProfile = await this.transactionService.fetchWalletProfile(req.user.id);
+    console.log('Wallet Data Loaded:', walletProfile);
+    return walletProfile;
   }
 
   @UseGuards(AuthGuard)
@@ -66,6 +68,7 @@ export class TransactionController {
   }
 
   // ── Campaign Contribution ──
+  @UseGuards(OptionalAuthGuard)
   @Post('campaign-contribution')
   async recordCampaignContribution(@Req() req: any, @Body() data: any) {
     const userId = req.user?.id || null;
@@ -73,6 +76,7 @@ export class TransactionController {
   }
 
   // ── Creator Gift ──
+  @UseGuards(OptionalAuthGuard)
   @Post('creator-gift')
   async recordCreatorGift(@Req() req: any, @Body() data: any) {
     const donorId = req.user?.id || null;
@@ -80,6 +84,7 @@ export class TransactionController {
   }
 
   // ── Shop Gift Purchase ──
+  @UseGuards(OptionalAuthGuard)
   @Post('shop-gift')
   async recordShopGiftPurchase(@Req() req: any, @Body() data: any) {
     const buyerId = req.user?.id || null;
@@ -89,14 +94,14 @@ export class TransactionController {
   // ── Platform Credits ──
   @UseGuards(AuthGuard)
   @Post('convert-to-credit')
-  async convertToCredit(@Req() req: any, @Body('campaignId') campaignId: string) {
-    return this.transactionService.convertGiftToCredit(req.user.id, campaignId);
+  async convertToCredit(@Req() req: any, @Body('giftId') giftId: string) {
+    return this.transactionService.convertGiftToCredit(req.user.id, giftId);
   }
 
   @UseGuards(AuthGuard)
   @Post('swap-gift')
-  async swapGift(@Req() req: any, @Body() body: { campaignId: string; newVendorGiftId: number }) {
-    return this.transactionService.swapVendorGift(req.user.id, body.campaignId, body.newVendorGiftId);
+  async swapGift(@Req() req: any, @Body() body: { giftId: string; newVendorGiftId: number }) {
+    return this.transactionService.swapVendorGift(req.user.id, body.giftId, body.newVendorGiftId);
   }
 
   @UseGuards(AuthGuard)

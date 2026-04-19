@@ -71,6 +71,8 @@ model User {
   creatorSupportReceived  CreatorSupport[]      @relation("SupportRecipient")
   adminResolvedPromotions ExternalPromotion[]   @relation("AdminExternalPromotions")
   withdrawals             Withdrawal[]
+  directGiftsSent         DirectGift[]          @relation("UserDirectGifts")
+  directGiftsRedeemed     DirectGift[]          @relation("DirectGiftRedeemedByVendor")
 
   adminLogs         AdminLog[]
   notifications     Notification[]
@@ -200,6 +202,47 @@ model Contribution {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("contributions")
+}
+
+model DirectGift {
+  id          String  @id @default(uuid())
+  userId      String  @map("user_id")
+  user        User    @relation("UserDirectGifts", fields: [userId], references: [id], onDelete: Cascade)
+  category    String
+  title       String
+  description String?
+  amount      Decimal
+  currency    String  @default("NGN")
+  status      String  @default("active") // active, claimed, redeemed, failed
+
+  // Claimable logic
+  claimableType          String?     @map("claimable_type") // null for some legacy? Usually 'money' or 'gift-card'
+  claimableGiftId        Int?        @map("claimable_gift_id")
+  product                VendorGift? @relation("DirectGiftProduct", fields: [claimableGiftId], references: [id], onDelete: SetNull)
+  claimableRecipientType String?     @map("claimable_recipient_type")
+  recipientEmail         String?     @map("recipient_email")
+  senderEmail            String?     @map("sender_email")
+  paymentReference       String?     @map("payment_reference")
+  giftCode               String?     @unique @map("gift_code")
+
+  // Custom/Voucher redemption
+  redeemedAt         DateTime? @map("redeemed_at")
+  redeemedByVendorId String?   @map("redeemed_by_vendor_id")
+  redeemedByVendor   User?     @relation("DirectGiftRedeemedByVendor", fields: [redeemedByVendorId], references: [id], onDelete: SetNull)
+  vendorRating       Int?      @map("vendor_rating")
+  message            String?
+
+  // V2 WhatsApp/Delivery
+  deliveryMethod       String? @default("email") @map("delivery_method")
+  recipientPhone       String? @map("recipient_phone")
+  recipientCountryCode String? @map("recipient_country_code")
+  whatsappFee          Decimal @default(0) @map("whatsapp_fee")
+  senderName           String? @map("sender_name")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("direct_gifts")
 }
 
 model Promotion {
@@ -518,10 +561,11 @@ model VendorGift {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  giftImages VendorGiftImage[]
-  favorites  Favorite[]
-  promotions Promotion[]
-  campaigns  Campaign[]        @relation("CampaignProduct")
+  giftImages  VendorGiftImage[]
+  favorites   Favorite[]
+  promotions  Promotion[]
+  campaigns   Campaign[]        @relation("CampaignProduct")
+  directGifts DirectGift[]      @relation("DirectGiftProduct")
 
   @@map("vendor_gifts")
 }

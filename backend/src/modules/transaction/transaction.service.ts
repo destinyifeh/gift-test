@@ -12,6 +12,8 @@ import { generateShortId } from '../../common/utils/slug.util';
 import {
   TX_CAMPAIGN_CONTRIBUTION,
   TX_CREATOR_SUPPORT,
+  TX_DEPOSIT,
+  TX_WITHDRAWAL,
   TX_GIFT_REDEMPTION,
   TX_GIFT_SENT,
   TX_FLEX_CARD_REDEMPTION,
@@ -196,29 +198,24 @@ export class TransactionService {
     });
     const vendorProductIds = products.map((p: any) => p.id);
 
-    const [accounts, transactions, userCampaigns, redeemedVouchers, flexCardRedemptions, pendingUserGifts, vendorPendingGifts] = await Promise.all([
+    const [accounts, userCampaigns, redeemedVouchers, flexCardRedemptions, pendingUserGifts, vendorPendingGifts] = await Promise.all([
       (this.prisma as any).bankAccount.findMany({ where: { userId } }),
-      (this.prisma as any).transaction.findMany({
-        where: { userId },
-        orderBy: { createdAt: 'desc' },
-        take: 50,
-      }),
       (this.prisma as any).campaign.findMany({
         where: { userId, giftCode: null }, // Crowdfunding
         select: { currentAmount: true },
       }),
-      (this.prisma as any).campaign.findMany({
+      (this.prisma as any).directGift.findMany({
         where: { redeemedByVendorId: userId, status: STATUS_REDEEMED },
-        select: { goalAmount: true, currentAmount: true, giftCode: true, redeemedAt: true },
+        select: { amount: true, giftCode: true, redeemedAt: true },
       }),
       (this.prisma as any).flexCardTransaction.findMany({
         where: { vendorId: userId },
         include: { flexCard: { select: { code: true } } },
       }),
-      (this.prisma as any).campaign.findMany({
+      (this.prisma as any).directGift.findMany({
         where: { 
-          recipientEmail: userProfile?.email, 
-          status: 'active', 
+          recipientEmail: { equals: userProfile?.email, mode: 'insensitive' }, 
+          status: { in: ['active', 'pending', 'funded'] }, 
           giftCode: { not: null },
           // Only cash gifts count towards wallet pending balance
           OR: [
@@ -226,11 +223,36 @@ export class TransactionService {
             { claimableGiftId: null }
           ]
         },
-        select: { goalAmount: true, currentAmount: true },
+        select: { amount: true },
       }),
-      (this.prisma as any).campaign.findMany({
-        where: { claimableGiftId: { in: vendorProductIds }, status: 'claimed' }, // Clamed but not redeemed at vendor yet
-        select: { goalAmount: true, currentAmount: true },
+      (this.prisma as any).directGift.findMany({
+        where: { claimableGiftId: { in: vendorProductIds }, status: 'claimed' }, // Claimed but not redeemed at vendor yet
+        select: { amount: true },
+      }),
+    ]);
+
+    // Aggregate ALL transactions for balance (don't limit to 50 for math)
+    const [inflowAggr, outflowAggr, transactions] = await Promise.all([
+      (this.prisma as any).transaction.aggregate({
+        where: { 
+          userId, 
+          status: 'success',
+          type: { in: [TX_CREATOR_SUPPORT, TX_RECEIPT, TX_DEPOSIT, TX_PLATFORM_CREDIT_CONVERSION] },
+        },
+        _sum: { amount: true },
+      }),
+      (this.prisma as any).transaction.aggregate({
+        where: { 
+          userId, 
+          type: { in: [TX_WITHDRAWAL, 'payout', 'fee'] },
+          status: { in: ['success', 'pending'] }
+        },
+        _sum: { amount: true },
+      }),
+      (this.prisma as any).transaction.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        take: 50,
       }),
     ]);
 
@@ -300,7 +322,7 @@ export class TransactionService {
       mergedTxs.push({
         id: `vouch-red-${i}`,
         userId,
-        amount: Number(v.goalAmount || v.currentAmount || 0) * 100,
+        amount: Number(v.amount || 0) * 100,
         type: 'vendor_redemption',
         status: 'success',
         created_at: v.redeemedAt || new Date(),
@@ -328,33 +350,29 @@ export class TransactionService {
     // A. User Section
     const crowdfundingKobo = (userCampaigns as any[]).reduce(
       (acc: number, c: any) => acc + (Number(c.currentAmount) || 0) * 100, 0);
-    const directInflowKobo = transactions.reduce((acc: number, t: any) => {
-      const isCreatorSupport = t.type === TX_CREATOR_SUPPORT && !t.metadata?.is_outbound;
-      const isReceipt = t.type === TX_RECEIPT;
-      if ((isCreatorSupport || isReceipt) && t.status === 'success') {
-        return acc + Number(t.amount);
-      }
-      return acc;
-    }, 0);
+    const directInflowKobo = Number(inflowAggr._sum.amount || 0);
 
-    const userWithdrawalsKobo = transactions.reduce((acc: number, t: any) => {
-      // For simplicity, we'll assume withdrawals by user role if they don't have a vendorId or if they are from User Wallet tab
-      // In this app, we'll just track all withdrawals. But for the split, we need to be careful.
-      // For now, let's treat withdrawals as coming from a shared pool, or split them if we can.
-      // User said: "On the user wallet the only money that should be credited... only be cash gifts and campaign donation"
-      if (['withdrawal', 'payout', 'fee'].includes(t.type) && ['success', 'pending'].includes(t.status)) {
-        return acc + Number(t.amount);
-      }
-      return acc;
-    }, 0);
+    const userWithdrawalsKobo = Number(outflowAggr._sum.amount || 0);
 
     const userTotalInflowKobo = crowdfundingKobo + directInflowKobo;
     const userBalanceKobo = Math.max(0, userTotalInflowKobo - userWithdrawalsKobo);
-    const userPendingKobo = (pendingUserGifts as any[]).reduce((acc: number, g: any) => acc + (Number(g.goalAmount || g.currentAmount || 0) * 100), 0);
+    const userPendingKobo = (pendingUserGifts as any[]).reduce((acc: number, g: any) => acc + (Number(g.amount || 0) * 100), 0);
+
+    // Audit check: Compare with platformBalance on user table
+    const platformBalanceKobo = Number(userProfile?.platformBalance || 0);
+    
+    this.logger.log(`Wallet Analysis [User ${userId}]: 
+      - Crowdfunding: ${crowdfundingKobo}
+      - Direct Inflow Sum: ${directInflowKobo}
+      - Total Inflow: ${userTotalInflowKobo}
+      - Withdrawals: ${userWithdrawalsKobo}
+      - Computed Balance: ${userBalanceKobo}
+      - PlatformBalance Field: ${platformBalanceKobo}
+      - Pending Gifts: ${userPendingKobo}`);
 
     // B. Vendor Section
     const vendorVoucherInflowKobo = (redeemedVouchers as any[]).reduce(
-      (acc: number, v: any) => acc + (Number(v.goalAmount || v.currentAmount || 0) * 100), 0);
+      (acc: number, v: any) => acc + (Number(v.amount || 0) * 100), 0);
     const vendorFlexInflowKobo = (flexCardRedemptions as any[]).reduce(
       (acc: number, f: any) => acc + (Number(f.amount) || 0) * 100, 0);
 
@@ -366,7 +384,7 @@ export class TransactionService {
     // User said: "Total revenue is how much you have successfully made so far, the total amount of all the successful redeemed of the vendor"
     // Available balance for vendor should be redemptions.
 
-    const vendorPendingKobo = (vendorPendingGifts as any[]).reduce((acc: number, g: any) => acc + (Number(g.goalAmount || g.currentAmount || 0) * 100), 0);
+    const vendorPendingKobo = (vendorPendingGifts as any[]).reduce((acc: number, g: any) => acc + (Number(g.amount || 0) * 100), 0);
 
     return {
       balance: (userBalanceKobo + vendorBalanceKobo) / 100, // Total legacy balance if anyone still uses it
@@ -531,42 +549,40 @@ export class TransactionService {
     });
     if (!creator) throw new NotFoundException('Creator not found');
 
-    // If it's a vendor gift, generate a campaign record
+    // If it's a vendor gift, generate a directGift record
     let giftCode: string | null = null;
-    let newCampaignId: string | null = null;
+    let newGiftId: string | null = null;
 
     if (data.giftId) {
       giftCode = generateGiftCode();
       // Ensure uniqueness
       let isUnique = false;
       while (!isUnique) {
-        const existing = await (this.prisma as any).campaign.findFirst({ where: { giftCode } });
+        const existing = await (this.prisma as any).directGift.findFirst({ where: { giftCode } });
         if (!existing) isUnique = true;
         else giftCode = generateGiftCode();
       }
 
-      const newCampaign = await (this.prisma as any).campaign.create({
+      const newGift = await (this.prisma as any).directGift.create({
         data: {
           userId: creator.id,
           title: data.giftName || 'Gift Card',
-          campaignShortId: `${data.creatorUsername}-gift-${Date.now()}`,
-          campaignSlug: 'gift-received',
           status: 'claimed',
-          goalAmount: data.expectedAmount,
-          currentAmount: data.expectedAmount,
+          amount: data.expectedAmount,
           claimableType: 'gift-card',
           claimableGiftId: data.giftId,
           giftCode,
           currency: data.currency,
           category: 'gift-received',
-          visibility: 'private',
           senderName: data.isAnonymous ? 'Anonymous' : data.donorName,
+          senderEmail: data.donorEmail || null,
           recipientEmail: creator.email,
           message: data.message,
-        } as any,
+          paymentReference: data.reference,
+        },
       });
 
-      newCampaignId = newCampaign.id;
+      newGiftId = newGift.id;
     }
 
     // Handle message-only gifts (no payment needed)
@@ -639,6 +655,13 @@ export class TransactionService {
           description: `Direct support from ${data.isAnonymous ? 'Anonymous' : data.donorName}`,
         },
       });
+
+      // Update recipient's platform balance (use atomic increment)
+      await (this.prisma as any).user.update({
+        where: { id: creator.id },
+        data: { platformBalance: { increment: BigInt(paymentData.amount) } },
+      });
+
       recordId = record.id;
     } else {
       // Gift card — anchor 0-amount transaction
@@ -680,7 +703,7 @@ export class TransactionService {
       await (this.prisma as any).transaction.create({
         data: {
           userId: donorId,
-          campaignId: newCampaignId,
+          campaignId: newGiftId,
           amount: BigInt(paymentData.amount),
           currency: paymentData.currency || data.currency,
           type: TX_CAMPAIGN_CONTRIBUTION,
@@ -738,7 +761,7 @@ export class TransactionService {
 
   async recordShopGiftPurchase(data: {
     reference: string; recipientEmail?: string; recipientPhone?: string;
-    deliveryMethod?: string; senderName: string; message?: string;
+    deliveryMethod?: string; senderName: string; senderEmail?: string; message?: string;
     giftId: number; giftName: string; expectedAmount: number;
     whatsappFee?: number; currency: string;
   }, buyerId?: string) {
@@ -763,30 +786,30 @@ export class TransactionService {
     let giftCode = generateGiftCode();
     let isUnique = false;
     while (!isUnique) {
-      const existing = await (this.prisma as any).campaign.findFirst({ where: { giftCode } });
+      const existing = await (this.prisma as any).directGift.findFirst({ where: { giftCode } });
       if (!existing) isUnique = true;
       else giftCode = generateGiftCode();
     }
 
-    await (this.prisma as any).campaign.create({
+    await (this.prisma as any).directGift.create({
       data: {
         userId: gift.vendorId,
         title: data.giftName,
-        campaignShortId: `gift-${giftCode.toLowerCase()}-${Date.now()}`,
-        campaignSlug: 'prepaid-gift',
         status: 'active',
-        goalAmount: data.expectedAmount - whatsappFee,
-        currentAmount: data.expectedAmount - whatsappFee,
+        amount: data.expectedAmount - whatsappFee,
         claimableType: 'gift-card',
         claimableGiftId: data.giftId,
         giftCode,
         currency: data.currency,
         category: 'other',
-        visibility: 'private',
         recipientEmail: data.recipientEmail || data.recipientPhone || null,
+        senderEmail: data.senderEmail || null,
+        paymentReference: data.reference,
         senderName: data.senderName,
         message: data.message,
-      } as any,
+        deliveryMethod: data.deliveryMethod || 'email',
+        whatsappFee: whatsappFee,
+      },
     });
 
 
@@ -865,16 +888,16 @@ export class TransactionService {
   // Platform Credits
   // ─────────────────────────────────────────────
 
-  async convertGiftToCredit(userId: string, campaignId: string) {
-    const gift = await (this.prisma as any).campaign.findFirst({
-      where: { id: campaignId, userId },
-      select: { id: true, userId: true, status: true, goalAmount: true, currency: true, giftCode: true },
+  async convertGiftToCredit(userId: string, giftId: string) {
+    const gift = await (this.prisma as any).directGift.findFirst({
+      where: { id: giftId, userId },
+      select: { id: true, userId: true, status: true, amount: true, currency: true, giftCode: true },
     });
     if (!gift) throw new NotFoundException('Gift not found');
     if (gift.userId !== userId) throw new BadRequestException('Unauthorized');
     if (gift.status !== 'claimed') throw new BadRequestException('Only claimed, non-redeemed gifts can be converted');
 
-    const originalAmount = Number(gift.goalAmount);
+    const originalAmount = Number(gift.amount);
     const fee = originalAmount * 0.02;
     const creditAmount = originalAmount - fee;
 
@@ -888,11 +911,11 @@ export class TransactionService {
 
       await tx.user.update({
         where: { id: userId },
-        data: { platformBalance: BigInt(newBalance) },
+        data: { platformBalance: { increment: BigInt(Math.round(creditAmount * 100)) } },
       });
 
-      await tx.campaign.update({
-        where: { id: campaignId },
+      await tx.directGift.update({
+        where: { id: giftId },
         data: { status: 'converted' },
       });
 
@@ -905,7 +928,7 @@ export class TransactionService {
           status: 'success',
           reference: `conv-${gift.id}-${Date.now()}`,
           description: `Converted gift card ${gift.giftCode} to platform credit (2% fee applied)`,
-          metadata: { original_amount: originalAmount, fee, campaign_id: gift.id },
+          metadata: { original_amount: originalAmount, fee, gift_id: gift.id },
         },
       });
 
@@ -913,9 +936,9 @@ export class TransactionService {
     });
   }
 
-  async swapVendorGift(userId: string, campaignId: string, newVendorGiftId: number) {
-    const currentGift = await (this.prisma as any).campaign.findFirst({
-      where: { id: campaignId, userId },
+  async swapVendorGift(userId: string, giftId: string, newVendorGiftId: number) {
+    const currentGift = await (this.prisma as any).directGift.findFirst({
+      where: { id: giftId, userId },
     });
     if (!currentGift) throw new NotFoundException('Gift not found');
     if (currentGift.status !== 'claimed') throw new BadRequestException('Gift cannot be swapped');
@@ -933,10 +956,10 @@ export class TransactionService {
     });
     if (!newProduct) throw new NotFoundException('New product not found');
     if (newProduct.vendorId !== currentProduct?.vendorId) throw new BadRequestException('Swap must be with the same vendor');
-    if (Number(newProduct.price) !== Number(currentGift.goalAmount)) throw new BadRequestException('Swap must be for the exact same amount');
+    if (Number(newProduct.price) !== Number(currentGift.amount)) throw new BadRequestException('Swap must be for the exact same amount');
 
-    await (this.prisma as any).campaign.update({
-      where: { id: campaignId },
+    await (this.prisma as any).directGift.update({
+      where: { id: giftId },
       data: { claimableGiftId: newVendorGiftId, title: `Swap: ${newProduct.name}` },
     });
 

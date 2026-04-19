@@ -71,6 +71,8 @@ model User {
   creatorSupportReceived  CreatorSupport[]      @relation("SupportRecipient")
   adminResolvedPromotions ExternalPromotion[]   @relation("AdminExternalPromotions")
   withdrawals             Withdrawal[]
+  directGiftsSent         DirectGift[]          @relation("UserDirectGifts")
+  directGiftsRedeemed     DirectGift[]          @relation("DirectGiftRedeemedByVendor")
 
   adminLogs         AdminLog[]
   notifications     Notification[]

@@ -21,10 +21,16 @@ export class TransformInterceptor<T>
     next: CallHandler,
   ): Observable<Response<T>> {
     return next.handle().pipe(
-      map((data) => ({
-        success: true,
-        data,
-      })),
+      map((data) => {
+        // If the data already has the standard envelope, don't wrap it again
+        if (data && typeof data === 'object' && 'success' in data && 'data' in data) {
+          return data;
+        }
+        return {
+          success: true,
+          data,
+        };
+      }),
     );
   }
 }

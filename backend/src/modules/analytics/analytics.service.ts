@@ -35,11 +35,10 @@ export class AnalyticsService {
         orderBy: { createdAt: 'desc' },
         take: 5,
       }),
-      // Vendor gifts received (claimed/redeemed)
-      (this.prisma as any).campaign.findMany({
+      // Vendor gifts received (claimed/redeemed) — now from DirectGift table
+      (this.prisma as any).directGift.findMany({
         where: {
           userId,
-          giftCode: { not: null },
           status: { notIn: ['active'] },
         },
         orderBy: { createdAt: 'desc' },
@@ -205,15 +204,16 @@ export class AnalyticsService {
         const current = Number(t.campaign.currentAmount) || 0;
         grouped[campId] = {
           id: campId,
-          campaign: t.campaign.title,
-          progress: goal > 0 ? (current / goal) * 100 : 0,
-          contributed: 0,
+          campaignName: t.campaign.title,
+          progress: goal > 0 ? Math.round((current / goal) * 100) : 0,
+          amount: 0,
           goal,
           currentAmount: current,
           currency: (t.campaign as any).currency || t.currency,
+          date: t.createdAt.toLocaleDateString(),
         };
       }
-      grouped[campId].contributed += Number(t.amount) / 100;
+      grouped[campId].amount += Number(t.amount) / 100;
     });
 
     const groupedArray = Object.values(grouped);
@@ -224,41 +224,39 @@ export class AnalyticsService {
   async fetchMyGiftsList(userId: string, email: string, page: number = 1, limit: number = 10) {
     const { skip, take } = getPaginationOptions(page, limit);
 
-    const [allCampaigns, total] = await Promise.all([
-      (this.prisma as any).campaign.findMany({
+    const [allGifts, total] = await Promise.all([
+      (this.prisma as any).directGift.findMany({
         where: {
           userId,
-          giftCode: { not: null },
           status: { not: 'active' },
         },
         orderBy: { createdAt: 'desc' },
         skip,
         take,
       }),
-      (this.prisma as any).campaign.count({
+      (this.prisma as any).directGift.count({
         where: {
           userId,
-          giftCode: { not: null },
           status: { not: 'active' },
         },
       }),
     ]);
 
     // Fetch vendor info for these gifts
-    const giftIds = allCampaigns.map((c: any) => c.claimableGiftId).filter((id: any): id is number => !!id);
+    const giftIds = allGifts.map((c: any) => c.claimableGiftId).filter((id: any): id is number => !!id);
     const vendorGifts = await (this.prisma as any).vendorGift.findMany({
       where: { id: { in: giftIds } },
       include: { vendor: { select: { shopName: true, displayName: true, username: true } } },
     });
 
-    const formatted = allCampaigns.map((c: any) => {
+    const formatted = allGifts.map((c: any) => {
       const vg = vendorGifts.find((v: any) => v.id === c.claimableGiftId);
       return {
         id: `gift-${c.id}`,
         name: c.title || vg?.name || ((c as any).claimableType === 'money' ? 'Cash Gift' : 'Gift Card'),
         sender: (c as any).senderName || 'A Friend',
         date: (c as any).createdAt.toLocaleDateString(),
-        amount: Number(c.goalAmount),
+        amount: Number(c.amount),
         currency: (c as any).currency,
         status: (c as any).status,
         code: (c as any).giftCode,
@@ -277,11 +275,10 @@ export class AnalyticsService {
   async fetchSentGiftsList(userId: string, page: number = 1, limit: number = 10) {
     const { skip, take } = getPaginationOptions(page, limit);
 
-    const [campaigns, total] = await Promise.all([
-      (this.prisma as any).campaign.findMany({
+    const [gifts, total] = await Promise.all([
+      (this.prisma as any).directGift.findMany({
         where: {
-          senderId: userId,
-          giftCode: { not: null },
+          userId,
         },
         orderBy: { createdAt: 'desc' },
         skip,
@@ -294,20 +291,19 @@ export class AnalyticsService {
           },
         },
       }),
-      (this.prisma as any).campaign.count({
+      (this.prisma as any).directGift.count({
         where: {
-          senderId: userId,
-          giftCode: { not: null },
+          userId,
         },
       }),
     ]);
 
-    const formatted = campaigns.map((c: any) => ({
+    const formatted = gifts.map((c: any) => ({
       id: `sent-${c.id}`,
       name: c.title || c.product?.name || (c.claimableType === 'money' ? 'Cash Gift' : 'Gift Card'),
       recipient: c.recipientEmail || c.recipientPhone || 'Unknown',
       date: c.createdAt,
-      amount: Number(c.goalAmount),
+      amount: Number(c.amount),
       currency: c.currency || 'NGN',
       status: c.status,
       code: c.giftCode,
@@ -325,11 +321,10 @@ export class AnalyticsService {
   async fetchReceivedGiftsList(userId: string, email: string, page: number = 1, limit: number = 10) {
     const { skip, take } = getPaginationOptions(page, limit);
 
-    const [campaigns, total] = await Promise.all([
-      (this.prisma as any).campaign.findMany({
+    const [gifts, total] = await Promise.all([
+      (this.prisma as any).directGift.findMany({
         where: {
           userId,
-          giftCode: { not: null },
           status: { not: 'active' },
         },
         orderBy: { createdAt: 'desc' },
@@ -343,21 +338,20 @@ export class AnalyticsService {
           },
         },
       }),
-      (this.prisma as any).campaign.count({
+      (this.prisma as any).directGift.count({
         where: {
           userId,
-          giftCode: { not: null },
           status: { not: 'active' },
         },
       }),
     ]);
 
-    const formatted = campaigns.map((c: any) => ({
+    const formatted = gifts.map((c: any) => ({
       id: `received-${c.id}`,
       name: c.title || c.product?.name || (c.claimableType === 'money' ? 'Cash Gift' : 'Gift Card'),
       sender: c.senderName || 'A Friend',
       date: c.createdAt,
-      amount: Number(c.goalAmount),
+      amount: Number(c.amount),
       currency: c.currency || 'NGN',
       status: c.status,
       code: c.giftCode,
@@ -387,12 +381,12 @@ export class AnalyticsService {
 
     const formatted = supporters.map((s: any) => ({
       id: s.id,
-      donorName: s.donorName || 'Anonymous',
+      name: s.donorName || 'Anonymous',
       donorEmail: s.donorEmail,
       amount: Number(s.amount),
       currency: s.currency || 'NGN',
       message: s.message,
-      date: s.createdAt,
+      date: s.createdAt.toLocaleDateString(),
       vendorRating: s.vendorRating,
     }));
 
@@ -424,7 +418,7 @@ export class AnalyticsService {
         skip,
         take,
         include: {
-          campaign: { select: { title: true, shortId: true } },
+          campaign: { select: { title: true, campaignShortId: true } },
         },
       }),
       (this.prisma as any).contribution.count({
@@ -435,7 +429,7 @@ export class AnalyticsService {
     const formatted = contributions.map((c: any) => ({
       id: c.id,
       campaignTitle: c.campaign?.title,
-      campaignShortId: c.campaign?.shortId,
+      campaignShortId: c.campaign?.campaignShortId,
       contributorName: c.contributorName || 'Anonymous',
       contributorEmail: c.contributorEmail,
       amount: Number(c.amount),
@@ -470,9 +464,9 @@ export class AnalyticsService {
         where: { userId },
         select: { amount: true, createdAt: true },
       }),
-      (this.prisma as any).campaign.findMany({
-        where: { senderId: userId, giftCode: { not: null } },
-        select: { goalAmount: true, createdAt: true },
+      (this.prisma as any).directGift.findMany({
+        where: { userId },
+        select: { amount: true, createdAt: true },
       }),
       (this.prisma as any).flexCard.findMany({
         where: { senderId: userId },
@@ -486,7 +480,8 @@ export class AnalyticsService {
 
     // Calculate metrics
     const crowdfundingCampaigns = campaigns.filter((c: any) => !c.giftCode);
-    const receivedGifts = campaigns.filter((c: any) => c.giftCode);
+    // receivedGifts is now from directGift query
+    const receivedGifts = sentGifts; // sentGifts now holds directGifts belonging to user
 
     const totalCrowdfundingRaised = crowdfundingCampaigns.reduce(
       (sum: number, c: any) => sum + Number(c.currentAmount || 0),
@@ -495,9 +490,9 @@ export class AnalyticsService {
 
     const totalDirectSupport = directSupport.reduce((sum: number, s: any) => sum + Number(s.amount || 0), 0);
 
-    const totalGiftsSentValue = sentGifts.reduce((sum: number, g: any) => sum + Number(g.goalAmount || 0), 0);
+    const totalGiftsSentValue = sentGifts.reduce((sum: number, g: any) => sum + Number(g.amount || 0), 0);
 
-    const totalGiftsReceivedValue = receivedGifts.reduce((sum: number, g: any) => sum + Number(g.goalAmount || 0), 0);
+    const totalGiftsReceivedValue = receivedGifts.reduce((sum: number, g: any) => sum + Number(g.amount || 0), 0);
 
     const totalFlexCardsSentValue = flexCardsSent.reduce(
       (sum: number, c: any) => sum + Number(c.initialAmount || 0),
@@ -521,12 +516,12 @@ export class AnalyticsService {
         date: c.createdAt,
       })),
       ...directSupport.map((s: any) => ({ amount: Number(s.amount || 0), date: s.createdAt })),
-      ...receivedGifts.map((g: any) => ({ amount: Number(g.goalAmount || 0), date: g.createdAt })),
+      ...receivedGifts.map((g: any) => ({ amount: Number(g.amount || 0), date: g.createdAt })),
       ...flexCardsReceived.map((c: any) => ({ amount: Number(c.initialAmount || 0), date: c.createdAt })),
     ];
 
     const allSentItems = [
-      ...sentGifts.map((g: any) => ({ amount: Number(g.goalAmount || 0), date: g.createdAt })),
+      ...sentGifts.map((g: any) => ({ amount: Number(g.amount || 0), date: g.createdAt })),
       ...flexCardsSent.map((c: any) => ({ amount: Number(c.initialAmount || 0), date: c.createdAt })),
     ];
 
@@ -585,11 +580,10 @@ export class AnalyticsService {
     if (!email) return { data: [], flexCards: [] };
 
     const [unclaimedGifts, unclaimedFlexCards] = await Promise.all([
-      (this.prisma as any).campaign.findMany({
+      (this.prisma as any).directGift.findMany({
         where: {
           recipientEmail: { equals: email, mode: 'insensitive' },
           status: { in: ['active', 'pending', 'funded'] },
-          giftCode: { not: null },
         },
         orderBy: { createdAt: 'desc' },
         include: {
@@ -618,7 +612,7 @@ export class AnalyticsService {
       name: c.title || c.product?.name || (c.claimableType === 'money' ? 'Cash Gift' : 'Gift Card'),
       sender: c.senderName || 'A Friend',
       date: c.createdAt,
-      goal_amount: Number(c.goalAmount),
+      goal_amount: Number(c.amount),
       currency: c.currency || 'NGN',
       gift_code: c.giftCode,
       vendorShopName: c.product?.vendor?.shopName || c.product?.vendor?.displayName,

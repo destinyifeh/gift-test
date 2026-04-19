@@ -24,6 +24,7 @@ model VendorGift {
   favorites  Favorite[]
   promotions Promotion[]
   campaigns  Campaign[]        @relation("CampaignProduct")
+  directGifts DirectGift[]     @relation("DirectGiftProduct")
 
   @@map("vendor_gifts")
 }

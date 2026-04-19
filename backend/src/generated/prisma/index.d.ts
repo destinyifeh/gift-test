@@ -44,6 +44,11 @@ export type Campaign = $Result.DefaultSelection<Prisma.$CampaignPayload>
  */
 export type Contribution = $Result.DefaultSelection<Prisma.$ContributionPayload>
 /**
+ * Model DirectGift
+ * 
+ */
+export type DirectGift = $Result.DefaultSelection<Prisma.$DirectGiftPayload>
+/**
  * Model Promotion
  * 
  */
@@ -352,6 +357,16 @@ export class PrismaClient<
     * ```
     */
   get contribution(): Prisma.ContributionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.directGift`: Exposes CRUD operations for the **DirectGift** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DirectGifts
+    * const directGifts = await prisma.directGift.findMany()
+    * ```
+    */
+  get directGift(): Prisma.DirectGiftDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.promotion`: Exposes CRUD operations for the **Promotion** model.
@@ -982,6 +997,7 @@ export namespace Prisma {
     Verification: 'Verification',
     Campaign: 'Campaign',
     Contribution: 'Contribution',
+    DirectGift: 'DirectGift',
     Promotion: 'Promotion',
     ExternalPromotion: 'ExternalPromotion',
     FeaturedItem: 'FeaturedItem',
@@ -1016,7 +1032,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "session" | "account" | "verification" | "campaign" | "contribution" | "promotion" | "externalPromotion" | "featuredItem" | "transaction" | "bankAccount" | "withdrawal" | "flexCard" | "flexCardTransaction" | "moderationReport" | "moderationTicket" | "adminLog" | "creatorSupport" | "notification" | "notificationRead" | "systemSetting" | "vendorGift" | "vendorGiftImage" | "favorite" | "rating"
+      modelProps: "user" | "session" | "account" | "verification" | "campaign" | "contribution" | "directGift" | "promotion" | "externalPromotion" | "featuredItem" | "transaction" | "bankAccount" | "withdrawal" | "flexCard" | "flexCardTransaction" | "moderationReport" | "moderationTicket" | "adminLog" | "creatorSupport" | "notification" | "notificationRead" | "systemSetting" | "vendorGift" | "vendorGiftImage" | "favorite" | "rating"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1461,6 +1477,80 @@ export namespace Prisma {
           count: {
             args: Prisma.ContributionCountArgs<ExtArgs>
             result: $Utils.Optional<ContributionCountAggregateOutputType> | number
+          }
+        }
+      }
+      DirectGift: {
+        payload: Prisma.$DirectGiftPayload<ExtArgs>
+        fields: Prisma.DirectGiftFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DirectGiftFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DirectGiftPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DirectGiftFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DirectGiftPayload>
+          }
+          findFirst: {
+            args: Prisma.DirectGiftFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DirectGiftPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DirectGiftFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DirectGiftPayload>
+          }
+          findMany: {
+            args: Prisma.DirectGiftFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DirectGiftPayload>[]
+          }
+          create: {
+            args: Prisma.DirectGiftCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DirectGiftPayload>
+          }
+          createMany: {
+            args: Prisma.DirectGiftCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DirectGiftCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DirectGiftPayload>[]
+          }
+          delete: {
+            args: Prisma.DirectGiftDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DirectGiftPayload>
+          }
+          update: {
+            args: Prisma.DirectGiftUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DirectGiftPayload>
+          }
+          deleteMany: {
+            args: Prisma.DirectGiftDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DirectGiftUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.DirectGiftUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DirectGiftPayload>[]
+          }
+          upsert: {
+            args: Prisma.DirectGiftUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DirectGiftPayload>
+          }
+          aggregate: {
+            args: Prisma.DirectGiftAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDirectGift>
+          }
+          groupBy: {
+            args: Prisma.DirectGiftGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DirectGiftGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DirectGiftCountArgs<ExtArgs>
+            result: $Utils.Optional<DirectGiftCountAggregateOutputType> | number
           }
         }
       }
@@ -2984,6 +3074,7 @@ export namespace Prisma {
     verification?: VerificationOmit
     campaign?: CampaignOmit
     contribution?: ContributionOmit
+    directGift?: DirectGiftOmit
     promotion?: PromotionOmit
     externalPromotion?: ExternalPromotionOmit
     featuredItem?: FeaturedItemOmit
@@ -3102,6 +3193,8 @@ export namespace Prisma {
     creatorSupportReceived: number
     adminResolvedPromotions: number
     withdrawals: number
+    directGiftsSent: number
+    directGiftsRedeemed: number
     adminLogs: number
     notifications: number
     notificationReads: number
@@ -3127,6 +3220,8 @@ export namespace Prisma {
     creatorSupportReceived?: boolean | UserCountOutputTypeCountCreatorSupportReceivedArgs
     adminResolvedPromotions?: boolean | UserCountOutputTypeCountAdminResolvedPromotionsArgs
     withdrawals?: boolean | UserCountOutputTypeCountWithdrawalsArgs
+    directGiftsSent?: boolean | UserCountOutputTypeCountDirectGiftsSentArgs
+    directGiftsRedeemed?: boolean | UserCountOutputTypeCountDirectGiftsRedeemedArgs
     adminLogs?: boolean | UserCountOutputTypeCountAdminLogsArgs
     notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
     notificationReads?: boolean | UserCountOutputTypeCountNotificationReadsArgs
@@ -3274,6 +3369,20 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountWithdrawalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: WithdrawalWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountDirectGiftsSentArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DirectGiftWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountDirectGiftsRedeemedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DirectGiftWhereInput
   }
 
   /**
@@ -3440,6 +3549,7 @@ export namespace Prisma {
     favorites: number
     promotions: number
     campaigns: number
+    directGifts: number
   }
 
   export type VendorGiftCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3447,6 +3557,7 @@ export namespace Prisma {
     favorites?: boolean | VendorGiftCountOutputTypeCountFavoritesArgs
     promotions?: boolean | VendorGiftCountOutputTypeCountPromotionsArgs
     campaigns?: boolean | VendorGiftCountOutputTypeCountCampaignsArgs
+    directGifts?: boolean | VendorGiftCountOutputTypeCountDirectGiftsArgs
   }
 
   // Custom InputTypes
@@ -3486,6 +3597,13 @@ export namespace Prisma {
    */
   export type VendorGiftCountOutputTypeCountCampaignsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: CampaignWhereInput
+  }
+
+  /**
+   * VendorGiftCountOutputType without action
+   */
+  export type VendorGiftCountOutputTypeCountDirectGiftsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DirectGiftWhereInput
   }
 
 
@@ -3902,6 +4020,8 @@ export namespace Prisma {
     creatorSupportReceived?: boolean | User$creatorSupportReceivedArgs<ExtArgs>
     adminResolvedPromotions?: boolean | User$adminResolvedPromotionsArgs<ExtArgs>
     withdrawals?: boolean | User$withdrawalsArgs<ExtArgs>
+    directGiftsSent?: boolean | User$directGiftsSentArgs<ExtArgs>
+    directGiftsRedeemed?: boolean | User$directGiftsRedeemedArgs<ExtArgs>
     adminLogs?: boolean | User$adminLogsArgs<ExtArgs>
     notifications?: boolean | User$notificationsArgs<ExtArgs>
     notificationReads?: boolean | User$notificationReadsArgs<ExtArgs>
@@ -4031,6 +4151,8 @@ export namespace Prisma {
     creatorSupportReceived?: boolean | User$creatorSupportReceivedArgs<ExtArgs>
     adminResolvedPromotions?: boolean | User$adminResolvedPromotionsArgs<ExtArgs>
     withdrawals?: boolean | User$withdrawalsArgs<ExtArgs>
+    directGiftsSent?: boolean | User$directGiftsSentArgs<ExtArgs>
+    directGiftsRedeemed?: boolean | User$directGiftsRedeemedArgs<ExtArgs>
     adminLogs?: boolean | User$adminLogsArgs<ExtArgs>
     notifications?: boolean | User$notificationsArgs<ExtArgs>
     notificationReads?: boolean | User$notificationReadsArgs<ExtArgs>
@@ -4061,6 +4183,8 @@ export namespace Prisma {
       creatorSupportReceived: Prisma.$CreatorSupportPayload<ExtArgs>[]
       adminResolvedPromotions: Prisma.$ExternalPromotionPayload<ExtArgs>[]
       withdrawals: Prisma.$WithdrawalPayload<ExtArgs>[]
+      directGiftsSent: Prisma.$DirectGiftPayload<ExtArgs>[]
+      directGiftsRedeemed: Prisma.$DirectGiftPayload<ExtArgs>[]
       adminLogs: Prisma.$AdminLogPayload<ExtArgs>[]
       notifications: Prisma.$NotificationPayload<ExtArgs>[]
       notificationReads: Prisma.$NotificationReadPayload<ExtArgs>[]
@@ -4510,6 +4634,8 @@ export namespace Prisma {
     creatorSupportReceived<T extends User$creatorSupportReceivedArgs<ExtArgs> = {}>(args?: Subset<T, User$creatorSupportReceivedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CreatorSupportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     adminResolvedPromotions<T extends User$adminResolvedPromotionsArgs<ExtArgs> = {}>(args?: Subset<T, User$adminResolvedPromotionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExternalPromotionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     withdrawals<T extends User$withdrawalsArgs<ExtArgs> = {}>(args?: Subset<T, User$withdrawalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WithdrawalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    directGiftsSent<T extends User$directGiftsSentArgs<ExtArgs> = {}>(args?: Subset<T, User$directGiftsSentArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DirectGiftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    directGiftsRedeemed<T extends User$directGiftsRedeemedArgs<ExtArgs> = {}>(args?: Subset<T, User$directGiftsRedeemedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DirectGiftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     adminLogs<T extends User$adminLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$adminLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     notifications<T extends User$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     notificationReads<T extends User$notificationReadsArgs<ExtArgs> = {}>(args?: Subset<T, User$notificationReadsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationReadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -5419,6 +5545,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: WithdrawalScalarFieldEnum | WithdrawalScalarFieldEnum[]
+  }
+
+  /**
+   * User.directGiftsSent
+   */
+  export type User$directGiftsSentArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectGift
+     */
+    select?: DirectGiftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DirectGift
+     */
+    omit?: DirectGiftOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DirectGiftInclude<ExtArgs> | null
+    where?: DirectGiftWhereInput
+    orderBy?: DirectGiftOrderByWithRelationInput | DirectGiftOrderByWithRelationInput[]
+    cursor?: DirectGiftWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DirectGiftScalarFieldEnum | DirectGiftScalarFieldEnum[]
+  }
+
+  /**
+   * User.directGiftsRedeemed
+   */
+  export type User$directGiftsRedeemedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectGift
+     */
+    select?: DirectGiftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DirectGift
+     */
+    omit?: DirectGiftOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DirectGiftInclude<ExtArgs> | null
+    where?: DirectGiftWhereInput
+    orderBy?: DirectGiftOrderByWithRelationInput | DirectGiftOrderByWithRelationInput[]
+    cursor?: DirectGiftWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DirectGiftScalarFieldEnum | DirectGiftScalarFieldEnum[]
   }
 
   /**
@@ -11699,6 +11873,1442 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: ContributionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model DirectGift
+   */
+
+  export type AggregateDirectGift = {
+    _count: DirectGiftCountAggregateOutputType | null
+    _avg: DirectGiftAvgAggregateOutputType | null
+    _sum: DirectGiftSumAggregateOutputType | null
+    _min: DirectGiftMinAggregateOutputType | null
+    _max: DirectGiftMaxAggregateOutputType | null
+  }
+
+  export type DirectGiftAvgAggregateOutputType = {
+    amount: Decimal | null
+    claimableGiftId: number | null
+    vendorRating: number | null
+    whatsappFee: Decimal | null
+  }
+
+  export type DirectGiftSumAggregateOutputType = {
+    amount: Decimal | null
+    claimableGiftId: number | null
+    vendorRating: number | null
+    whatsappFee: Decimal | null
+  }
+
+  export type DirectGiftMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    category: string | null
+    title: string | null
+    description: string | null
+    amount: Decimal | null
+    currency: string | null
+    status: string | null
+    claimableType: string | null
+    claimableGiftId: number | null
+    claimableRecipientType: string | null
+    recipientEmail: string | null
+    senderEmail: string | null
+    paymentReference: string | null
+    giftCode: string | null
+    redeemedAt: Date | null
+    redeemedByVendorId: string | null
+    vendorRating: number | null
+    message: string | null
+    deliveryMethod: string | null
+    recipientPhone: string | null
+    recipientCountryCode: string | null
+    whatsappFee: Decimal | null
+    senderName: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DirectGiftMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    category: string | null
+    title: string | null
+    description: string | null
+    amount: Decimal | null
+    currency: string | null
+    status: string | null
+    claimableType: string | null
+    claimableGiftId: number | null
+    claimableRecipientType: string | null
+    recipientEmail: string | null
+    senderEmail: string | null
+    paymentReference: string | null
+    giftCode: string | null
+    redeemedAt: Date | null
+    redeemedByVendorId: string | null
+    vendorRating: number | null
+    message: string | null
+    deliveryMethod: string | null
+    recipientPhone: string | null
+    recipientCountryCode: string | null
+    whatsappFee: Decimal | null
+    senderName: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DirectGiftCountAggregateOutputType = {
+    id: number
+    userId: number
+    category: number
+    title: number
+    description: number
+    amount: number
+    currency: number
+    status: number
+    claimableType: number
+    claimableGiftId: number
+    claimableRecipientType: number
+    recipientEmail: number
+    senderEmail: number
+    paymentReference: number
+    giftCode: number
+    redeemedAt: number
+    redeemedByVendorId: number
+    vendorRating: number
+    message: number
+    deliveryMethod: number
+    recipientPhone: number
+    recipientCountryCode: number
+    whatsappFee: number
+    senderName: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type DirectGiftAvgAggregateInputType = {
+    amount?: true
+    claimableGiftId?: true
+    vendorRating?: true
+    whatsappFee?: true
+  }
+
+  export type DirectGiftSumAggregateInputType = {
+    amount?: true
+    claimableGiftId?: true
+    vendorRating?: true
+    whatsappFee?: true
+  }
+
+  export type DirectGiftMinAggregateInputType = {
+    id?: true
+    userId?: true
+    category?: true
+    title?: true
+    description?: true
+    amount?: true
+    currency?: true
+    status?: true
+    claimableType?: true
+    claimableGiftId?: true
+    claimableRecipientType?: true
+    recipientEmail?: true
+    senderEmail?: true
+    paymentReference?: true
+    giftCode?: true
+    redeemedAt?: true
+    redeemedByVendorId?: true
+    vendorRating?: true
+    message?: true
+    deliveryMethod?: true
+    recipientPhone?: true
+    recipientCountryCode?: true
+    whatsappFee?: true
+    senderName?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DirectGiftMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    category?: true
+    title?: true
+    description?: true
+    amount?: true
+    currency?: true
+    status?: true
+    claimableType?: true
+    claimableGiftId?: true
+    claimableRecipientType?: true
+    recipientEmail?: true
+    senderEmail?: true
+    paymentReference?: true
+    giftCode?: true
+    redeemedAt?: true
+    redeemedByVendorId?: true
+    vendorRating?: true
+    message?: true
+    deliveryMethod?: true
+    recipientPhone?: true
+    recipientCountryCode?: true
+    whatsappFee?: true
+    senderName?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DirectGiftCountAggregateInputType = {
+    id?: true
+    userId?: true
+    category?: true
+    title?: true
+    description?: true
+    amount?: true
+    currency?: true
+    status?: true
+    claimableType?: true
+    claimableGiftId?: true
+    claimableRecipientType?: true
+    recipientEmail?: true
+    senderEmail?: true
+    paymentReference?: true
+    giftCode?: true
+    redeemedAt?: true
+    redeemedByVendorId?: true
+    vendorRating?: true
+    message?: true
+    deliveryMethod?: true
+    recipientPhone?: true
+    recipientCountryCode?: true
+    whatsappFee?: true
+    senderName?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type DirectGiftAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DirectGift to aggregate.
+     */
+    where?: DirectGiftWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DirectGifts to fetch.
+     */
+    orderBy?: DirectGiftOrderByWithRelationInput | DirectGiftOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DirectGiftWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DirectGifts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DirectGifts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DirectGifts
+    **/
+    _count?: true | DirectGiftCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DirectGiftAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DirectGiftSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DirectGiftMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DirectGiftMaxAggregateInputType
+  }
+
+  export type GetDirectGiftAggregateType<T extends DirectGiftAggregateArgs> = {
+        [P in keyof T & keyof AggregateDirectGift]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDirectGift[P]>
+      : GetScalarType<T[P], AggregateDirectGift[P]>
+  }
+
+
+
+
+  export type DirectGiftGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DirectGiftWhereInput
+    orderBy?: DirectGiftOrderByWithAggregationInput | DirectGiftOrderByWithAggregationInput[]
+    by: DirectGiftScalarFieldEnum[] | DirectGiftScalarFieldEnum
+    having?: DirectGiftScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DirectGiftCountAggregateInputType | true
+    _avg?: DirectGiftAvgAggregateInputType
+    _sum?: DirectGiftSumAggregateInputType
+    _min?: DirectGiftMinAggregateInputType
+    _max?: DirectGiftMaxAggregateInputType
+  }
+
+  export type DirectGiftGroupByOutputType = {
+    id: string
+    userId: string
+    category: string
+    title: string
+    description: string | null
+    amount: Decimal
+    currency: string
+    status: string
+    claimableType: string | null
+    claimableGiftId: number | null
+    claimableRecipientType: string | null
+    recipientEmail: string | null
+    senderEmail: string | null
+    paymentReference: string | null
+    giftCode: string | null
+    redeemedAt: Date | null
+    redeemedByVendorId: string | null
+    vendorRating: number | null
+    message: string | null
+    deliveryMethod: string | null
+    recipientPhone: string | null
+    recipientCountryCode: string | null
+    whatsappFee: Decimal
+    senderName: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: DirectGiftCountAggregateOutputType | null
+    _avg: DirectGiftAvgAggregateOutputType | null
+    _sum: DirectGiftSumAggregateOutputType | null
+    _min: DirectGiftMinAggregateOutputType | null
+    _max: DirectGiftMaxAggregateOutputType | null
+  }
+
+  type GetDirectGiftGroupByPayload<T extends DirectGiftGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DirectGiftGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DirectGiftGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DirectGiftGroupByOutputType[P]>
+            : GetScalarType<T[P], DirectGiftGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DirectGiftSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    category?: boolean
+    title?: boolean
+    description?: boolean
+    amount?: boolean
+    currency?: boolean
+    status?: boolean
+    claimableType?: boolean
+    claimableGiftId?: boolean
+    claimableRecipientType?: boolean
+    recipientEmail?: boolean
+    senderEmail?: boolean
+    paymentReference?: boolean
+    giftCode?: boolean
+    redeemedAt?: boolean
+    redeemedByVendorId?: boolean
+    vendorRating?: boolean
+    message?: boolean
+    deliveryMethod?: boolean
+    recipientPhone?: boolean
+    recipientCountryCode?: boolean
+    whatsappFee?: boolean
+    senderName?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    product?: boolean | DirectGift$productArgs<ExtArgs>
+    redeemedByVendor?: boolean | DirectGift$redeemedByVendorArgs<ExtArgs>
+  }, ExtArgs["result"]["directGift"]>
+
+  export type DirectGiftSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    category?: boolean
+    title?: boolean
+    description?: boolean
+    amount?: boolean
+    currency?: boolean
+    status?: boolean
+    claimableType?: boolean
+    claimableGiftId?: boolean
+    claimableRecipientType?: boolean
+    recipientEmail?: boolean
+    senderEmail?: boolean
+    paymentReference?: boolean
+    giftCode?: boolean
+    redeemedAt?: boolean
+    redeemedByVendorId?: boolean
+    vendorRating?: boolean
+    message?: boolean
+    deliveryMethod?: boolean
+    recipientPhone?: boolean
+    recipientCountryCode?: boolean
+    whatsappFee?: boolean
+    senderName?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    product?: boolean | DirectGift$productArgs<ExtArgs>
+    redeemedByVendor?: boolean | DirectGift$redeemedByVendorArgs<ExtArgs>
+  }, ExtArgs["result"]["directGift"]>
+
+  export type DirectGiftSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    category?: boolean
+    title?: boolean
+    description?: boolean
+    amount?: boolean
+    currency?: boolean
+    status?: boolean
+    claimableType?: boolean
+    claimableGiftId?: boolean
+    claimableRecipientType?: boolean
+    recipientEmail?: boolean
+    senderEmail?: boolean
+    paymentReference?: boolean
+    giftCode?: boolean
+    redeemedAt?: boolean
+    redeemedByVendorId?: boolean
+    vendorRating?: boolean
+    message?: boolean
+    deliveryMethod?: boolean
+    recipientPhone?: boolean
+    recipientCountryCode?: boolean
+    whatsappFee?: boolean
+    senderName?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    product?: boolean | DirectGift$productArgs<ExtArgs>
+    redeemedByVendor?: boolean | DirectGift$redeemedByVendorArgs<ExtArgs>
+  }, ExtArgs["result"]["directGift"]>
+
+  export type DirectGiftSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    category?: boolean
+    title?: boolean
+    description?: boolean
+    amount?: boolean
+    currency?: boolean
+    status?: boolean
+    claimableType?: boolean
+    claimableGiftId?: boolean
+    claimableRecipientType?: boolean
+    recipientEmail?: boolean
+    senderEmail?: boolean
+    paymentReference?: boolean
+    giftCode?: boolean
+    redeemedAt?: boolean
+    redeemedByVendorId?: boolean
+    vendorRating?: boolean
+    message?: boolean
+    deliveryMethod?: boolean
+    recipientPhone?: boolean
+    recipientCountryCode?: boolean
+    whatsappFee?: boolean
+    senderName?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type DirectGiftOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "category" | "title" | "description" | "amount" | "currency" | "status" | "claimableType" | "claimableGiftId" | "claimableRecipientType" | "recipientEmail" | "senderEmail" | "paymentReference" | "giftCode" | "redeemedAt" | "redeemedByVendorId" | "vendorRating" | "message" | "deliveryMethod" | "recipientPhone" | "recipientCountryCode" | "whatsappFee" | "senderName" | "createdAt" | "updatedAt", ExtArgs["result"]["directGift"]>
+  export type DirectGiftInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    product?: boolean | DirectGift$productArgs<ExtArgs>
+    redeemedByVendor?: boolean | DirectGift$redeemedByVendorArgs<ExtArgs>
+  }
+  export type DirectGiftIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    product?: boolean | DirectGift$productArgs<ExtArgs>
+    redeemedByVendor?: boolean | DirectGift$redeemedByVendorArgs<ExtArgs>
+  }
+  export type DirectGiftIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    product?: boolean | DirectGift$productArgs<ExtArgs>
+    redeemedByVendor?: boolean | DirectGift$redeemedByVendorArgs<ExtArgs>
+  }
+
+  export type $DirectGiftPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DirectGift"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      product: Prisma.$VendorGiftPayload<ExtArgs> | null
+      redeemedByVendor: Prisma.$UserPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      category: string
+      title: string
+      description: string | null
+      amount: Prisma.Decimal
+      currency: string
+      status: string
+      claimableType: string | null
+      claimableGiftId: number | null
+      claimableRecipientType: string | null
+      recipientEmail: string | null
+      senderEmail: string | null
+      paymentReference: string | null
+      giftCode: string | null
+      redeemedAt: Date | null
+      redeemedByVendorId: string | null
+      vendorRating: number | null
+      message: string | null
+      deliveryMethod: string | null
+      recipientPhone: string | null
+      recipientCountryCode: string | null
+      whatsappFee: Prisma.Decimal
+      senderName: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["directGift"]>
+    composites: {}
+  }
+
+  type DirectGiftGetPayload<S extends boolean | null | undefined | DirectGiftDefaultArgs> = $Result.GetResult<Prisma.$DirectGiftPayload, S>
+
+  type DirectGiftCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DirectGiftFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DirectGiftCountAggregateInputType | true
+    }
+
+  export interface DirectGiftDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DirectGift'], meta: { name: 'DirectGift' } }
+    /**
+     * Find zero or one DirectGift that matches the filter.
+     * @param {DirectGiftFindUniqueArgs} args - Arguments to find a DirectGift
+     * @example
+     * // Get one DirectGift
+     * const directGift = await prisma.directGift.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DirectGiftFindUniqueArgs>(args: SelectSubset<T, DirectGiftFindUniqueArgs<ExtArgs>>): Prisma__DirectGiftClient<$Result.GetResult<Prisma.$DirectGiftPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DirectGift that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DirectGiftFindUniqueOrThrowArgs} args - Arguments to find a DirectGift
+     * @example
+     * // Get one DirectGift
+     * const directGift = await prisma.directGift.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DirectGiftFindUniqueOrThrowArgs>(args: SelectSubset<T, DirectGiftFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DirectGiftClient<$Result.GetResult<Prisma.$DirectGiftPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DirectGift that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DirectGiftFindFirstArgs} args - Arguments to find a DirectGift
+     * @example
+     * // Get one DirectGift
+     * const directGift = await prisma.directGift.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DirectGiftFindFirstArgs>(args?: SelectSubset<T, DirectGiftFindFirstArgs<ExtArgs>>): Prisma__DirectGiftClient<$Result.GetResult<Prisma.$DirectGiftPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DirectGift that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DirectGiftFindFirstOrThrowArgs} args - Arguments to find a DirectGift
+     * @example
+     * // Get one DirectGift
+     * const directGift = await prisma.directGift.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DirectGiftFindFirstOrThrowArgs>(args?: SelectSubset<T, DirectGiftFindFirstOrThrowArgs<ExtArgs>>): Prisma__DirectGiftClient<$Result.GetResult<Prisma.$DirectGiftPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DirectGifts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DirectGiftFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DirectGifts
+     * const directGifts = await prisma.directGift.findMany()
+     * 
+     * // Get first 10 DirectGifts
+     * const directGifts = await prisma.directGift.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const directGiftWithIdOnly = await prisma.directGift.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DirectGiftFindManyArgs>(args?: SelectSubset<T, DirectGiftFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DirectGiftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DirectGift.
+     * @param {DirectGiftCreateArgs} args - Arguments to create a DirectGift.
+     * @example
+     * // Create one DirectGift
+     * const DirectGift = await prisma.directGift.create({
+     *   data: {
+     *     // ... data to create a DirectGift
+     *   }
+     * })
+     * 
+     */
+    create<T extends DirectGiftCreateArgs>(args: SelectSubset<T, DirectGiftCreateArgs<ExtArgs>>): Prisma__DirectGiftClient<$Result.GetResult<Prisma.$DirectGiftPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DirectGifts.
+     * @param {DirectGiftCreateManyArgs} args - Arguments to create many DirectGifts.
+     * @example
+     * // Create many DirectGifts
+     * const directGift = await prisma.directGift.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DirectGiftCreateManyArgs>(args?: SelectSubset<T, DirectGiftCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DirectGifts and returns the data saved in the database.
+     * @param {DirectGiftCreateManyAndReturnArgs} args - Arguments to create many DirectGifts.
+     * @example
+     * // Create many DirectGifts
+     * const directGift = await prisma.directGift.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DirectGifts and only return the `id`
+     * const directGiftWithIdOnly = await prisma.directGift.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DirectGiftCreateManyAndReturnArgs>(args?: SelectSubset<T, DirectGiftCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DirectGiftPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a DirectGift.
+     * @param {DirectGiftDeleteArgs} args - Arguments to delete one DirectGift.
+     * @example
+     * // Delete one DirectGift
+     * const DirectGift = await prisma.directGift.delete({
+     *   where: {
+     *     // ... filter to delete one DirectGift
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DirectGiftDeleteArgs>(args: SelectSubset<T, DirectGiftDeleteArgs<ExtArgs>>): Prisma__DirectGiftClient<$Result.GetResult<Prisma.$DirectGiftPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DirectGift.
+     * @param {DirectGiftUpdateArgs} args - Arguments to update one DirectGift.
+     * @example
+     * // Update one DirectGift
+     * const directGift = await prisma.directGift.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DirectGiftUpdateArgs>(args: SelectSubset<T, DirectGiftUpdateArgs<ExtArgs>>): Prisma__DirectGiftClient<$Result.GetResult<Prisma.$DirectGiftPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DirectGifts.
+     * @param {DirectGiftDeleteManyArgs} args - Arguments to filter DirectGifts to delete.
+     * @example
+     * // Delete a few DirectGifts
+     * const { count } = await prisma.directGift.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DirectGiftDeleteManyArgs>(args?: SelectSubset<T, DirectGiftDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DirectGifts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DirectGiftUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DirectGifts
+     * const directGift = await prisma.directGift.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DirectGiftUpdateManyArgs>(args: SelectSubset<T, DirectGiftUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DirectGifts and returns the data updated in the database.
+     * @param {DirectGiftUpdateManyAndReturnArgs} args - Arguments to update many DirectGifts.
+     * @example
+     * // Update many DirectGifts
+     * const directGift = await prisma.directGift.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more DirectGifts and only return the `id`
+     * const directGiftWithIdOnly = await prisma.directGift.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends DirectGiftUpdateManyAndReturnArgs>(args: SelectSubset<T, DirectGiftUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DirectGiftPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one DirectGift.
+     * @param {DirectGiftUpsertArgs} args - Arguments to update or create a DirectGift.
+     * @example
+     * // Update or create a DirectGift
+     * const directGift = await prisma.directGift.upsert({
+     *   create: {
+     *     // ... data to create a DirectGift
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DirectGift we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DirectGiftUpsertArgs>(args: SelectSubset<T, DirectGiftUpsertArgs<ExtArgs>>): Prisma__DirectGiftClient<$Result.GetResult<Prisma.$DirectGiftPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DirectGifts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DirectGiftCountArgs} args - Arguments to filter DirectGifts to count.
+     * @example
+     * // Count the number of DirectGifts
+     * const count = await prisma.directGift.count({
+     *   where: {
+     *     // ... the filter for the DirectGifts we want to count
+     *   }
+     * })
+    **/
+    count<T extends DirectGiftCountArgs>(
+      args?: Subset<T, DirectGiftCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DirectGiftCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DirectGift.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DirectGiftAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DirectGiftAggregateArgs>(args: Subset<T, DirectGiftAggregateArgs>): Prisma.PrismaPromise<GetDirectGiftAggregateType<T>>
+
+    /**
+     * Group by DirectGift.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DirectGiftGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DirectGiftGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DirectGiftGroupByArgs['orderBy'] }
+        : { orderBy?: DirectGiftGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DirectGiftGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDirectGiftGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DirectGift model
+   */
+  readonly fields: DirectGiftFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DirectGift.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DirectGiftClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    product<T extends DirectGift$productArgs<ExtArgs> = {}>(args?: Subset<T, DirectGift$productArgs<ExtArgs>>): Prisma__VendorGiftClient<$Result.GetResult<Prisma.$VendorGiftPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    redeemedByVendor<T extends DirectGift$redeemedByVendorArgs<ExtArgs> = {}>(args?: Subset<T, DirectGift$redeemedByVendorArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DirectGift model
+   */
+  interface DirectGiftFieldRefs {
+    readonly id: FieldRef<"DirectGift", 'String'>
+    readonly userId: FieldRef<"DirectGift", 'String'>
+    readonly category: FieldRef<"DirectGift", 'String'>
+    readonly title: FieldRef<"DirectGift", 'String'>
+    readonly description: FieldRef<"DirectGift", 'String'>
+    readonly amount: FieldRef<"DirectGift", 'Decimal'>
+    readonly currency: FieldRef<"DirectGift", 'String'>
+    readonly status: FieldRef<"DirectGift", 'String'>
+    readonly claimableType: FieldRef<"DirectGift", 'String'>
+    readonly claimableGiftId: FieldRef<"DirectGift", 'Int'>
+    readonly claimableRecipientType: FieldRef<"DirectGift", 'String'>
+    readonly recipientEmail: FieldRef<"DirectGift", 'String'>
+    readonly senderEmail: FieldRef<"DirectGift", 'String'>
+    readonly paymentReference: FieldRef<"DirectGift", 'String'>
+    readonly giftCode: FieldRef<"DirectGift", 'String'>
+    readonly redeemedAt: FieldRef<"DirectGift", 'DateTime'>
+    readonly redeemedByVendorId: FieldRef<"DirectGift", 'String'>
+    readonly vendorRating: FieldRef<"DirectGift", 'Int'>
+    readonly message: FieldRef<"DirectGift", 'String'>
+    readonly deliveryMethod: FieldRef<"DirectGift", 'String'>
+    readonly recipientPhone: FieldRef<"DirectGift", 'String'>
+    readonly recipientCountryCode: FieldRef<"DirectGift", 'String'>
+    readonly whatsappFee: FieldRef<"DirectGift", 'Decimal'>
+    readonly senderName: FieldRef<"DirectGift", 'String'>
+    readonly createdAt: FieldRef<"DirectGift", 'DateTime'>
+    readonly updatedAt: FieldRef<"DirectGift", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DirectGift findUnique
+   */
+  export type DirectGiftFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectGift
+     */
+    select?: DirectGiftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DirectGift
+     */
+    omit?: DirectGiftOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DirectGiftInclude<ExtArgs> | null
+    /**
+     * Filter, which DirectGift to fetch.
+     */
+    where: DirectGiftWhereUniqueInput
+  }
+
+  /**
+   * DirectGift findUniqueOrThrow
+   */
+  export type DirectGiftFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectGift
+     */
+    select?: DirectGiftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DirectGift
+     */
+    omit?: DirectGiftOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DirectGiftInclude<ExtArgs> | null
+    /**
+     * Filter, which DirectGift to fetch.
+     */
+    where: DirectGiftWhereUniqueInput
+  }
+
+  /**
+   * DirectGift findFirst
+   */
+  export type DirectGiftFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectGift
+     */
+    select?: DirectGiftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DirectGift
+     */
+    omit?: DirectGiftOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DirectGiftInclude<ExtArgs> | null
+    /**
+     * Filter, which DirectGift to fetch.
+     */
+    where?: DirectGiftWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DirectGifts to fetch.
+     */
+    orderBy?: DirectGiftOrderByWithRelationInput | DirectGiftOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DirectGifts.
+     */
+    cursor?: DirectGiftWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DirectGifts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DirectGifts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DirectGifts.
+     */
+    distinct?: DirectGiftScalarFieldEnum | DirectGiftScalarFieldEnum[]
+  }
+
+  /**
+   * DirectGift findFirstOrThrow
+   */
+  export type DirectGiftFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectGift
+     */
+    select?: DirectGiftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DirectGift
+     */
+    omit?: DirectGiftOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DirectGiftInclude<ExtArgs> | null
+    /**
+     * Filter, which DirectGift to fetch.
+     */
+    where?: DirectGiftWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DirectGifts to fetch.
+     */
+    orderBy?: DirectGiftOrderByWithRelationInput | DirectGiftOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DirectGifts.
+     */
+    cursor?: DirectGiftWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DirectGifts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DirectGifts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DirectGifts.
+     */
+    distinct?: DirectGiftScalarFieldEnum | DirectGiftScalarFieldEnum[]
+  }
+
+  /**
+   * DirectGift findMany
+   */
+  export type DirectGiftFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectGift
+     */
+    select?: DirectGiftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DirectGift
+     */
+    omit?: DirectGiftOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DirectGiftInclude<ExtArgs> | null
+    /**
+     * Filter, which DirectGifts to fetch.
+     */
+    where?: DirectGiftWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DirectGifts to fetch.
+     */
+    orderBy?: DirectGiftOrderByWithRelationInput | DirectGiftOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DirectGifts.
+     */
+    cursor?: DirectGiftWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DirectGifts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DirectGifts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DirectGifts.
+     */
+    distinct?: DirectGiftScalarFieldEnum | DirectGiftScalarFieldEnum[]
+  }
+
+  /**
+   * DirectGift create
+   */
+  export type DirectGiftCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectGift
+     */
+    select?: DirectGiftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DirectGift
+     */
+    omit?: DirectGiftOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DirectGiftInclude<ExtArgs> | null
+    /**
+     * The data needed to create a DirectGift.
+     */
+    data: XOR<DirectGiftCreateInput, DirectGiftUncheckedCreateInput>
+  }
+
+  /**
+   * DirectGift createMany
+   */
+  export type DirectGiftCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DirectGifts.
+     */
+    data: DirectGiftCreateManyInput | DirectGiftCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DirectGift createManyAndReturn
+   */
+  export type DirectGiftCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectGift
+     */
+    select?: DirectGiftSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DirectGift
+     */
+    omit?: DirectGiftOmit<ExtArgs> | null
+    /**
+     * The data used to create many DirectGifts.
+     */
+    data: DirectGiftCreateManyInput | DirectGiftCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DirectGiftIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DirectGift update
+   */
+  export type DirectGiftUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectGift
+     */
+    select?: DirectGiftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DirectGift
+     */
+    omit?: DirectGiftOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DirectGiftInclude<ExtArgs> | null
+    /**
+     * The data needed to update a DirectGift.
+     */
+    data: XOR<DirectGiftUpdateInput, DirectGiftUncheckedUpdateInput>
+    /**
+     * Choose, which DirectGift to update.
+     */
+    where: DirectGiftWhereUniqueInput
+  }
+
+  /**
+   * DirectGift updateMany
+   */
+  export type DirectGiftUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DirectGifts.
+     */
+    data: XOR<DirectGiftUpdateManyMutationInput, DirectGiftUncheckedUpdateManyInput>
+    /**
+     * Filter which DirectGifts to update
+     */
+    where?: DirectGiftWhereInput
+    /**
+     * Limit how many DirectGifts to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DirectGift updateManyAndReturn
+   */
+  export type DirectGiftUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectGift
+     */
+    select?: DirectGiftSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DirectGift
+     */
+    omit?: DirectGiftOmit<ExtArgs> | null
+    /**
+     * The data used to update DirectGifts.
+     */
+    data: XOR<DirectGiftUpdateManyMutationInput, DirectGiftUncheckedUpdateManyInput>
+    /**
+     * Filter which DirectGifts to update
+     */
+    where?: DirectGiftWhereInput
+    /**
+     * Limit how many DirectGifts to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DirectGiftIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DirectGift upsert
+   */
+  export type DirectGiftUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectGift
+     */
+    select?: DirectGiftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DirectGift
+     */
+    omit?: DirectGiftOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DirectGiftInclude<ExtArgs> | null
+    /**
+     * The filter to search for the DirectGift to update in case it exists.
+     */
+    where: DirectGiftWhereUniqueInput
+    /**
+     * In case the DirectGift found by the `where` argument doesn't exist, create a new DirectGift with this data.
+     */
+    create: XOR<DirectGiftCreateInput, DirectGiftUncheckedCreateInput>
+    /**
+     * In case the DirectGift was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DirectGiftUpdateInput, DirectGiftUncheckedUpdateInput>
+  }
+
+  /**
+   * DirectGift delete
+   */
+  export type DirectGiftDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectGift
+     */
+    select?: DirectGiftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DirectGift
+     */
+    omit?: DirectGiftOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DirectGiftInclude<ExtArgs> | null
+    /**
+     * Filter which DirectGift to delete.
+     */
+    where: DirectGiftWhereUniqueInput
+  }
+
+  /**
+   * DirectGift deleteMany
+   */
+  export type DirectGiftDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DirectGifts to delete
+     */
+    where?: DirectGiftWhereInput
+    /**
+     * Limit how many DirectGifts to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DirectGift.product
+   */
+  export type DirectGift$productArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorGift
+     */
+    select?: VendorGiftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VendorGift
+     */
+    omit?: VendorGiftOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorGiftInclude<ExtArgs> | null
+    where?: VendorGiftWhereInput
+  }
+
+  /**
+   * DirectGift.redeemedByVendor
+   */
+  export type DirectGift$redeemedByVendorArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * DirectGift without action
+   */
+  export type DirectGiftDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectGift
+     */
+    select?: DirectGiftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DirectGift
+     */
+    omit?: DirectGiftOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DirectGiftInclude<ExtArgs> | null
   }
 
 
@@ -29836,6 +31446,7 @@ export namespace Prisma {
     favorites?: boolean | VendorGift$favoritesArgs<ExtArgs>
     promotions?: boolean | VendorGift$promotionsArgs<ExtArgs>
     campaigns?: boolean | VendorGift$campaignsArgs<ExtArgs>
+    directGifts?: boolean | VendorGift$directGiftsArgs<ExtArgs>
     _count?: boolean | VendorGiftCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["vendorGift"]>
 
@@ -29905,6 +31516,7 @@ export namespace Prisma {
     favorites?: boolean | VendorGift$favoritesArgs<ExtArgs>
     promotions?: boolean | VendorGift$promotionsArgs<ExtArgs>
     campaigns?: boolean | VendorGift$campaignsArgs<ExtArgs>
+    directGifts?: boolean | VendorGift$directGiftsArgs<ExtArgs>
     _count?: boolean | VendorGiftCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type VendorGiftIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -29922,6 +31534,7 @@ export namespace Prisma {
       favorites: Prisma.$FavoritePayload<ExtArgs>[]
       promotions: Prisma.$PromotionPayload<ExtArgs>[]
       campaigns: Prisma.$CampaignPayload<ExtArgs>[]
+      directGifts: Prisma.$DirectGiftPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -30339,6 +31952,7 @@ export namespace Prisma {
     favorites<T extends VendorGift$favoritesArgs<ExtArgs> = {}>(args?: Subset<T, VendorGift$favoritesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FavoritePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     promotions<T extends VendorGift$promotionsArgs<ExtArgs> = {}>(args?: Subset<T, VendorGift$promotionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PromotionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     campaigns<T extends VendorGift$campaignsArgs<ExtArgs> = {}>(args?: Subset<T, VendorGift$campaignsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CampaignPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    directGifts<T extends VendorGift$directGiftsArgs<ExtArgs> = {}>(args?: Subset<T, VendorGift$directGiftsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DirectGiftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -30878,6 +32492,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: CampaignScalarFieldEnum | CampaignScalarFieldEnum[]
+  }
+
+  /**
+   * VendorGift.directGifts
+   */
+  export type VendorGift$directGiftsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectGift
+     */
+    select?: DirectGiftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DirectGift
+     */
+    omit?: DirectGiftOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DirectGiftInclude<ExtArgs> | null
+    where?: DirectGiftWhereInput
+    orderBy?: DirectGiftOrderByWithRelationInput | DirectGiftOrderByWithRelationInput[]
+    cursor?: DirectGiftWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DirectGiftScalarFieldEnum | DirectGiftScalarFieldEnum[]
   }
 
   /**
@@ -34308,6 +35946,38 @@ export namespace Prisma {
   export type ContributionScalarFieldEnum = (typeof ContributionScalarFieldEnum)[keyof typeof ContributionScalarFieldEnum]
 
 
+  export const DirectGiftScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    category: 'category',
+    title: 'title',
+    description: 'description',
+    amount: 'amount',
+    currency: 'currency',
+    status: 'status',
+    claimableType: 'claimableType',
+    claimableGiftId: 'claimableGiftId',
+    claimableRecipientType: 'claimableRecipientType',
+    recipientEmail: 'recipientEmail',
+    senderEmail: 'senderEmail',
+    paymentReference: 'paymentReference',
+    giftCode: 'giftCode',
+    redeemedAt: 'redeemedAt',
+    redeemedByVendorId: 'redeemedByVendorId',
+    vendorRating: 'vendorRating',
+    message: 'message',
+    deliveryMethod: 'deliveryMethod',
+    recipientPhone: 'recipientPhone',
+    recipientCountryCode: 'recipientCountryCode',
+    whatsappFee: 'whatsappFee',
+    senderName: 'senderName',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type DirectGiftScalarFieldEnum = (typeof DirectGiftScalarFieldEnum)[keyof typeof DirectGiftScalarFieldEnum]
+
+
   export const PromotionScalarFieldEnum: {
     id: 'id',
     vendorId: 'vendorId',
@@ -34855,6 +36525,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportListRelationFilter
     adminResolvedPromotions?: ExternalPromotionListRelationFilter
     withdrawals?: WithdrawalListRelationFilter
+    directGiftsSent?: DirectGiftListRelationFilter
+    directGiftsRedeemed?: DirectGiftListRelationFilter
     adminLogs?: AdminLogListRelationFilter
     notifications?: NotificationListRelationFilter
     notificationReads?: NotificationReadListRelationFilter
@@ -34911,6 +36583,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportOrderByRelationAggregateInput
     adminResolvedPromotions?: ExternalPromotionOrderByRelationAggregateInput
     withdrawals?: WithdrawalOrderByRelationAggregateInput
+    directGiftsSent?: DirectGiftOrderByRelationAggregateInput
+    directGiftsRedeemed?: DirectGiftOrderByRelationAggregateInput
     adminLogs?: AdminLogOrderByRelationAggregateInput
     notifications?: NotificationOrderByRelationAggregateInput
     notificationReads?: NotificationReadOrderByRelationAggregateInput
@@ -34970,6 +36644,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportListRelationFilter
     adminResolvedPromotions?: ExternalPromotionListRelationFilter
     withdrawals?: WithdrawalListRelationFilter
+    directGiftsSent?: DirectGiftListRelationFilter
+    directGiftsRedeemed?: DirectGiftListRelationFilter
     adminLogs?: AdminLogListRelationFilter
     notifications?: NotificationListRelationFilter
     notificationReads?: NotificationReadListRelationFilter
@@ -35615,6 +37291,174 @@ export namespace Prisma {
     isAnonymous?: BoolWithAggregatesFilter<"Contribution"> | boolean
     hideAmount?: BoolWithAggregatesFilter<"Contribution"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Contribution"> | Date | string
+  }
+
+  export type DirectGiftWhereInput = {
+    AND?: DirectGiftWhereInput | DirectGiftWhereInput[]
+    OR?: DirectGiftWhereInput[]
+    NOT?: DirectGiftWhereInput | DirectGiftWhereInput[]
+    id?: StringFilter<"DirectGift"> | string
+    userId?: StringFilter<"DirectGift"> | string
+    category?: StringFilter<"DirectGift"> | string
+    title?: StringFilter<"DirectGift"> | string
+    description?: StringNullableFilter<"DirectGift"> | string | null
+    amount?: DecimalFilter<"DirectGift"> | Decimal | DecimalJsLike | number | string
+    currency?: StringFilter<"DirectGift"> | string
+    status?: StringFilter<"DirectGift"> | string
+    claimableType?: StringNullableFilter<"DirectGift"> | string | null
+    claimableGiftId?: IntNullableFilter<"DirectGift"> | number | null
+    claimableRecipientType?: StringNullableFilter<"DirectGift"> | string | null
+    recipientEmail?: StringNullableFilter<"DirectGift"> | string | null
+    senderEmail?: StringNullableFilter<"DirectGift"> | string | null
+    paymentReference?: StringNullableFilter<"DirectGift"> | string | null
+    giftCode?: StringNullableFilter<"DirectGift"> | string | null
+    redeemedAt?: DateTimeNullableFilter<"DirectGift"> | Date | string | null
+    redeemedByVendorId?: StringNullableFilter<"DirectGift"> | string | null
+    vendorRating?: IntNullableFilter<"DirectGift"> | number | null
+    message?: StringNullableFilter<"DirectGift"> | string | null
+    deliveryMethod?: StringNullableFilter<"DirectGift"> | string | null
+    recipientPhone?: StringNullableFilter<"DirectGift"> | string | null
+    recipientCountryCode?: StringNullableFilter<"DirectGift"> | string | null
+    whatsappFee?: DecimalFilter<"DirectGift"> | Decimal | DecimalJsLike | number | string
+    senderName?: StringNullableFilter<"DirectGift"> | string | null
+    createdAt?: DateTimeFilter<"DirectGift"> | Date | string
+    updatedAt?: DateTimeFilter<"DirectGift"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    product?: XOR<VendorGiftNullableScalarRelationFilter, VendorGiftWhereInput> | null
+    redeemedByVendor?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }
+
+  export type DirectGiftOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    category?: SortOrder
+    title?: SortOrder
+    description?: SortOrderInput | SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    status?: SortOrder
+    claimableType?: SortOrderInput | SortOrder
+    claimableGiftId?: SortOrderInput | SortOrder
+    claimableRecipientType?: SortOrderInput | SortOrder
+    recipientEmail?: SortOrderInput | SortOrder
+    senderEmail?: SortOrderInput | SortOrder
+    paymentReference?: SortOrderInput | SortOrder
+    giftCode?: SortOrderInput | SortOrder
+    redeemedAt?: SortOrderInput | SortOrder
+    redeemedByVendorId?: SortOrderInput | SortOrder
+    vendorRating?: SortOrderInput | SortOrder
+    message?: SortOrderInput | SortOrder
+    deliveryMethod?: SortOrderInput | SortOrder
+    recipientPhone?: SortOrderInput | SortOrder
+    recipientCountryCode?: SortOrderInput | SortOrder
+    whatsappFee?: SortOrder
+    senderName?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+    product?: VendorGiftOrderByWithRelationInput
+    redeemedByVendor?: UserOrderByWithRelationInput
+  }
+
+  export type DirectGiftWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    giftCode?: string
+    AND?: DirectGiftWhereInput | DirectGiftWhereInput[]
+    OR?: DirectGiftWhereInput[]
+    NOT?: DirectGiftWhereInput | DirectGiftWhereInput[]
+    userId?: StringFilter<"DirectGift"> | string
+    category?: StringFilter<"DirectGift"> | string
+    title?: StringFilter<"DirectGift"> | string
+    description?: StringNullableFilter<"DirectGift"> | string | null
+    amount?: DecimalFilter<"DirectGift"> | Decimal | DecimalJsLike | number | string
+    currency?: StringFilter<"DirectGift"> | string
+    status?: StringFilter<"DirectGift"> | string
+    claimableType?: StringNullableFilter<"DirectGift"> | string | null
+    claimableGiftId?: IntNullableFilter<"DirectGift"> | number | null
+    claimableRecipientType?: StringNullableFilter<"DirectGift"> | string | null
+    recipientEmail?: StringNullableFilter<"DirectGift"> | string | null
+    senderEmail?: StringNullableFilter<"DirectGift"> | string | null
+    paymentReference?: StringNullableFilter<"DirectGift"> | string | null
+    redeemedAt?: DateTimeNullableFilter<"DirectGift"> | Date | string | null
+    redeemedByVendorId?: StringNullableFilter<"DirectGift"> | string | null
+    vendorRating?: IntNullableFilter<"DirectGift"> | number | null
+    message?: StringNullableFilter<"DirectGift"> | string | null
+    deliveryMethod?: StringNullableFilter<"DirectGift"> | string | null
+    recipientPhone?: StringNullableFilter<"DirectGift"> | string | null
+    recipientCountryCode?: StringNullableFilter<"DirectGift"> | string | null
+    whatsappFee?: DecimalFilter<"DirectGift"> | Decimal | DecimalJsLike | number | string
+    senderName?: StringNullableFilter<"DirectGift"> | string | null
+    createdAt?: DateTimeFilter<"DirectGift"> | Date | string
+    updatedAt?: DateTimeFilter<"DirectGift"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    product?: XOR<VendorGiftNullableScalarRelationFilter, VendorGiftWhereInput> | null
+    redeemedByVendor?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }, "id" | "giftCode">
+
+  export type DirectGiftOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    category?: SortOrder
+    title?: SortOrder
+    description?: SortOrderInput | SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    status?: SortOrder
+    claimableType?: SortOrderInput | SortOrder
+    claimableGiftId?: SortOrderInput | SortOrder
+    claimableRecipientType?: SortOrderInput | SortOrder
+    recipientEmail?: SortOrderInput | SortOrder
+    senderEmail?: SortOrderInput | SortOrder
+    paymentReference?: SortOrderInput | SortOrder
+    giftCode?: SortOrderInput | SortOrder
+    redeemedAt?: SortOrderInput | SortOrder
+    redeemedByVendorId?: SortOrderInput | SortOrder
+    vendorRating?: SortOrderInput | SortOrder
+    message?: SortOrderInput | SortOrder
+    deliveryMethod?: SortOrderInput | SortOrder
+    recipientPhone?: SortOrderInput | SortOrder
+    recipientCountryCode?: SortOrderInput | SortOrder
+    whatsappFee?: SortOrder
+    senderName?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: DirectGiftCountOrderByAggregateInput
+    _avg?: DirectGiftAvgOrderByAggregateInput
+    _max?: DirectGiftMaxOrderByAggregateInput
+    _min?: DirectGiftMinOrderByAggregateInput
+    _sum?: DirectGiftSumOrderByAggregateInput
+  }
+
+  export type DirectGiftScalarWhereWithAggregatesInput = {
+    AND?: DirectGiftScalarWhereWithAggregatesInput | DirectGiftScalarWhereWithAggregatesInput[]
+    OR?: DirectGiftScalarWhereWithAggregatesInput[]
+    NOT?: DirectGiftScalarWhereWithAggregatesInput | DirectGiftScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"DirectGift"> | string
+    userId?: StringWithAggregatesFilter<"DirectGift"> | string
+    category?: StringWithAggregatesFilter<"DirectGift"> | string
+    title?: StringWithAggregatesFilter<"DirectGift"> | string
+    description?: StringNullableWithAggregatesFilter<"DirectGift"> | string | null
+    amount?: DecimalWithAggregatesFilter<"DirectGift"> | Decimal | DecimalJsLike | number | string
+    currency?: StringWithAggregatesFilter<"DirectGift"> | string
+    status?: StringWithAggregatesFilter<"DirectGift"> | string
+    claimableType?: StringNullableWithAggregatesFilter<"DirectGift"> | string | null
+    claimableGiftId?: IntNullableWithAggregatesFilter<"DirectGift"> | number | null
+    claimableRecipientType?: StringNullableWithAggregatesFilter<"DirectGift"> | string | null
+    recipientEmail?: StringNullableWithAggregatesFilter<"DirectGift"> | string | null
+    senderEmail?: StringNullableWithAggregatesFilter<"DirectGift"> | string | null
+    paymentReference?: StringNullableWithAggregatesFilter<"DirectGift"> | string | null
+    giftCode?: StringNullableWithAggregatesFilter<"DirectGift"> | string | null
+    redeemedAt?: DateTimeNullableWithAggregatesFilter<"DirectGift"> | Date | string | null
+    redeemedByVendorId?: StringNullableWithAggregatesFilter<"DirectGift"> | string | null
+    vendorRating?: IntNullableWithAggregatesFilter<"DirectGift"> | number | null
+    message?: StringNullableWithAggregatesFilter<"DirectGift"> | string | null
+    deliveryMethod?: StringNullableWithAggregatesFilter<"DirectGift"> | string | null
+    recipientPhone?: StringNullableWithAggregatesFilter<"DirectGift"> | string | null
+    recipientCountryCode?: StringNullableWithAggregatesFilter<"DirectGift"> | string | null
+    whatsappFee?: DecimalWithAggregatesFilter<"DirectGift"> | Decimal | DecimalJsLike | number | string
+    senderName?: StringNullableWithAggregatesFilter<"DirectGift"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"DirectGift"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"DirectGift"> | Date | string
   }
 
   export type PromotionWhereInput = {
@@ -36958,6 +38802,7 @@ export namespace Prisma {
     favorites?: FavoriteListRelationFilter
     promotions?: PromotionListRelationFilter
     campaigns?: CampaignListRelationFilter
+    directGifts?: DirectGiftListRelationFilter
   }
 
   export type VendorGiftOrderByWithRelationInput = {
@@ -36982,6 +38827,7 @@ export namespace Prisma {
     favorites?: FavoriteOrderByRelationAggregateInput
     promotions?: PromotionOrderByRelationAggregateInput
     campaigns?: CampaignOrderByRelationAggregateInput
+    directGifts?: DirectGiftOrderByRelationAggregateInput
   }
 
   export type VendorGiftWhereUniqueInput = Prisma.AtLeast<{
@@ -37009,6 +38855,7 @@ export namespace Prisma {
     favorites?: FavoriteListRelationFilter
     promotions?: PromotionListRelationFilter
     campaigns?: CampaignListRelationFilter
+    directGifts?: DirectGiftListRelationFilter
   }, "id">
 
   export type VendorGiftOrderByWithAggregationInput = {
@@ -37280,6 +39127,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
@@ -37336,6 +39185,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionUncheckedCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalUncheckedCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftUncheckedCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
@@ -37392,6 +39243,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
@@ -37448,6 +39301,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUncheckedUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
@@ -38219,6 +40074,206 @@ export namespace Prisma {
     isAnonymous?: BoolFieldUpdateOperationsInput | boolean
     hideAmount?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DirectGiftCreateInput = {
+    id?: string
+    category: string
+    title: string
+    description?: string | null
+    amount: Decimal | DecimalJsLike | number | string
+    currency?: string
+    status?: string
+    claimableType?: string | null
+    claimableRecipientType?: string | null
+    recipientEmail?: string | null
+    senderEmail?: string | null
+    paymentReference?: string | null
+    giftCode?: string | null
+    redeemedAt?: Date | string | null
+    vendorRating?: number | null
+    message?: string | null
+    deliveryMethod?: string | null
+    recipientPhone?: string | null
+    recipientCountryCode?: string | null
+    whatsappFee?: Decimal | DecimalJsLike | number | string
+    senderName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutDirectGiftsSentInput
+    product?: VendorGiftCreateNestedOneWithoutDirectGiftsInput
+    redeemedByVendor?: UserCreateNestedOneWithoutDirectGiftsRedeemedInput
+  }
+
+  export type DirectGiftUncheckedCreateInput = {
+    id?: string
+    userId: string
+    category: string
+    title: string
+    description?: string | null
+    amount: Decimal | DecimalJsLike | number | string
+    currency?: string
+    status?: string
+    claimableType?: string | null
+    claimableGiftId?: number | null
+    claimableRecipientType?: string | null
+    recipientEmail?: string | null
+    senderEmail?: string | null
+    paymentReference?: string | null
+    giftCode?: string | null
+    redeemedAt?: Date | string | null
+    redeemedByVendorId?: string | null
+    vendorRating?: number | null
+    message?: string | null
+    deliveryMethod?: string | null
+    recipientPhone?: string | null
+    recipientCountryCode?: string | null
+    whatsappFee?: Decimal | DecimalJsLike | number | string
+    senderName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DirectGiftUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    claimableType?: NullableStringFieldUpdateOperationsInput | string | null
+    claimableRecipientType?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    senderEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    giftCode?: NullableStringFieldUpdateOperationsInput | string | null
+    redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    vendorRating?: NullableIntFieldUpdateOperationsInput | number | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutDirectGiftsSentNestedInput
+    product?: VendorGiftUpdateOneWithoutDirectGiftsNestedInput
+    redeemedByVendor?: UserUpdateOneWithoutDirectGiftsRedeemedNestedInput
+  }
+
+  export type DirectGiftUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    claimableType?: NullableStringFieldUpdateOperationsInput | string | null
+    claimableGiftId?: NullableIntFieldUpdateOperationsInput | number | null
+    claimableRecipientType?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    senderEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    giftCode?: NullableStringFieldUpdateOperationsInput | string | null
+    redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    redeemedByVendorId?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorRating?: NullableIntFieldUpdateOperationsInput | number | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DirectGiftCreateManyInput = {
+    id?: string
+    userId: string
+    category: string
+    title: string
+    description?: string | null
+    amount: Decimal | DecimalJsLike | number | string
+    currency?: string
+    status?: string
+    claimableType?: string | null
+    claimableGiftId?: number | null
+    claimableRecipientType?: string | null
+    recipientEmail?: string | null
+    senderEmail?: string | null
+    paymentReference?: string | null
+    giftCode?: string | null
+    redeemedAt?: Date | string | null
+    redeemedByVendorId?: string | null
+    vendorRating?: number | null
+    message?: string | null
+    deliveryMethod?: string | null
+    recipientPhone?: string | null
+    recipientCountryCode?: string | null
+    whatsappFee?: Decimal | DecimalJsLike | number | string
+    senderName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DirectGiftUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    claimableType?: NullableStringFieldUpdateOperationsInput | string | null
+    claimableRecipientType?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    senderEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    giftCode?: NullableStringFieldUpdateOperationsInput | string | null
+    redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    vendorRating?: NullableIntFieldUpdateOperationsInput | number | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DirectGiftUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    claimableType?: NullableStringFieldUpdateOperationsInput | string | null
+    claimableGiftId?: NullableIntFieldUpdateOperationsInput | number | null
+    claimableRecipientType?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    senderEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    giftCode?: NullableStringFieldUpdateOperationsInput | string | null
+    redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    redeemedByVendorId?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorRating?: NullableIntFieldUpdateOperationsInput | number | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PromotionCreateInput = {
@@ -39649,6 +41704,7 @@ export namespace Prisma {
     favorites?: FavoriteCreateNestedManyWithoutVendorGiftInput
     promotions?: PromotionCreateNestedManyWithoutProductInput
     campaigns?: CampaignCreateNestedManyWithoutProductInput
+    directGifts?: DirectGiftCreateNestedManyWithoutProductInput
   }
 
   export type VendorGiftUncheckedCreateInput = {
@@ -39672,6 +41728,7 @@ export namespace Prisma {
     favorites?: FavoriteUncheckedCreateNestedManyWithoutVendorGiftInput
     promotions?: PromotionUncheckedCreateNestedManyWithoutProductInput
     campaigns?: CampaignUncheckedCreateNestedManyWithoutProductInput
+    directGifts?: DirectGiftUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type VendorGiftUpdateInput = {
@@ -39694,6 +41751,7 @@ export namespace Prisma {
     favorites?: FavoriteUpdateManyWithoutVendorGiftNestedInput
     promotions?: PromotionUpdateManyWithoutProductNestedInput
     campaigns?: CampaignUpdateManyWithoutProductNestedInput
+    directGifts?: DirectGiftUpdateManyWithoutProductNestedInput
   }
 
   export type VendorGiftUncheckedUpdateInput = {
@@ -39717,6 +41775,7 @@ export namespace Prisma {
     favorites?: FavoriteUncheckedUpdateManyWithoutVendorGiftNestedInput
     promotions?: PromotionUncheckedUpdateManyWithoutProductNestedInput
     campaigns?: CampaignUncheckedUpdateManyWithoutProductNestedInput
+    directGifts?: DirectGiftUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type VendorGiftCreateManyInput = {
@@ -40142,6 +42201,12 @@ export namespace Prisma {
     none?: WithdrawalWhereInput
   }
 
+  export type DirectGiftListRelationFilter = {
+    every?: DirectGiftWhereInput
+    some?: DirectGiftWhereInput
+    none?: DirectGiftWhereInput
+  }
+
   export type AdminLogListRelationFilter = {
     every?: AdminLogWhereInput
     some?: AdminLogWhereInput
@@ -40222,6 +42287,10 @@ export namespace Prisma {
   }
 
   export type WithdrawalOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type DirectGiftOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -40886,6 +42955,107 @@ export namespace Prisma {
 
   export type ContributionSumOrderByAggregateInput = {
     amount?: SortOrder
+  }
+
+  export type DirectGiftCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    category?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    status?: SortOrder
+    claimableType?: SortOrder
+    claimableGiftId?: SortOrder
+    claimableRecipientType?: SortOrder
+    recipientEmail?: SortOrder
+    senderEmail?: SortOrder
+    paymentReference?: SortOrder
+    giftCode?: SortOrder
+    redeemedAt?: SortOrder
+    redeemedByVendorId?: SortOrder
+    vendorRating?: SortOrder
+    message?: SortOrder
+    deliveryMethod?: SortOrder
+    recipientPhone?: SortOrder
+    recipientCountryCode?: SortOrder
+    whatsappFee?: SortOrder
+    senderName?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DirectGiftAvgOrderByAggregateInput = {
+    amount?: SortOrder
+    claimableGiftId?: SortOrder
+    vendorRating?: SortOrder
+    whatsappFee?: SortOrder
+  }
+
+  export type DirectGiftMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    category?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    status?: SortOrder
+    claimableType?: SortOrder
+    claimableGiftId?: SortOrder
+    claimableRecipientType?: SortOrder
+    recipientEmail?: SortOrder
+    senderEmail?: SortOrder
+    paymentReference?: SortOrder
+    giftCode?: SortOrder
+    redeemedAt?: SortOrder
+    redeemedByVendorId?: SortOrder
+    vendorRating?: SortOrder
+    message?: SortOrder
+    deliveryMethod?: SortOrder
+    recipientPhone?: SortOrder
+    recipientCountryCode?: SortOrder
+    whatsappFee?: SortOrder
+    senderName?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DirectGiftMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    category?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    status?: SortOrder
+    claimableType?: SortOrder
+    claimableGiftId?: SortOrder
+    claimableRecipientType?: SortOrder
+    recipientEmail?: SortOrder
+    senderEmail?: SortOrder
+    paymentReference?: SortOrder
+    giftCode?: SortOrder
+    redeemedAt?: SortOrder
+    redeemedByVendorId?: SortOrder
+    vendorRating?: SortOrder
+    message?: SortOrder
+    deliveryMethod?: SortOrder
+    recipientPhone?: SortOrder
+    recipientCountryCode?: SortOrder
+    whatsappFee?: SortOrder
+    senderName?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DirectGiftSumOrderByAggregateInput = {
+    amount?: SortOrder
+    claimableGiftId?: SortOrder
+    vendorRating?: SortOrder
+    whatsappFee?: SortOrder
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -42071,6 +44241,20 @@ export namespace Prisma {
     connect?: WithdrawalWhereUniqueInput | WithdrawalWhereUniqueInput[]
   }
 
+  export type DirectGiftCreateNestedManyWithoutUserInput = {
+    create?: XOR<DirectGiftCreateWithoutUserInput, DirectGiftUncheckedCreateWithoutUserInput> | DirectGiftCreateWithoutUserInput[] | DirectGiftUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: DirectGiftCreateOrConnectWithoutUserInput | DirectGiftCreateOrConnectWithoutUserInput[]
+    createMany?: DirectGiftCreateManyUserInputEnvelope
+    connect?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+  }
+
+  export type DirectGiftCreateNestedManyWithoutRedeemedByVendorInput = {
+    create?: XOR<DirectGiftCreateWithoutRedeemedByVendorInput, DirectGiftUncheckedCreateWithoutRedeemedByVendorInput> | DirectGiftCreateWithoutRedeemedByVendorInput[] | DirectGiftUncheckedCreateWithoutRedeemedByVendorInput[]
+    connectOrCreate?: DirectGiftCreateOrConnectWithoutRedeemedByVendorInput | DirectGiftCreateOrConnectWithoutRedeemedByVendorInput[]
+    createMany?: DirectGiftCreateManyRedeemedByVendorInputEnvelope
+    connect?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+  }
+
   export type AdminLogCreateNestedManyWithoutAdminInput = {
     create?: XOR<AdminLogCreateWithoutAdminInput, AdminLogUncheckedCreateWithoutAdminInput> | AdminLogCreateWithoutAdminInput[] | AdminLogUncheckedCreateWithoutAdminInput[]
     connectOrCreate?: AdminLogCreateOrConnectWithoutAdminInput | AdminLogCreateOrConnectWithoutAdminInput[]
@@ -42223,6 +44407,20 @@ export namespace Prisma {
     connectOrCreate?: WithdrawalCreateOrConnectWithoutUserInput | WithdrawalCreateOrConnectWithoutUserInput[]
     createMany?: WithdrawalCreateManyUserInputEnvelope
     connect?: WithdrawalWhereUniqueInput | WithdrawalWhereUniqueInput[]
+  }
+
+  export type DirectGiftUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<DirectGiftCreateWithoutUserInput, DirectGiftUncheckedCreateWithoutUserInput> | DirectGiftCreateWithoutUserInput[] | DirectGiftUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: DirectGiftCreateOrConnectWithoutUserInput | DirectGiftCreateOrConnectWithoutUserInput[]
+    createMany?: DirectGiftCreateManyUserInputEnvelope
+    connect?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+  }
+
+  export type DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput = {
+    create?: XOR<DirectGiftCreateWithoutRedeemedByVendorInput, DirectGiftUncheckedCreateWithoutRedeemedByVendorInput> | DirectGiftCreateWithoutRedeemedByVendorInput[] | DirectGiftUncheckedCreateWithoutRedeemedByVendorInput[]
+    connectOrCreate?: DirectGiftCreateOrConnectWithoutRedeemedByVendorInput | DirectGiftCreateOrConnectWithoutRedeemedByVendorInput[]
+    createMany?: DirectGiftCreateManyRedeemedByVendorInputEnvelope
+    connect?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
   }
 
   export type AdminLogUncheckedCreateNestedManyWithoutAdminInput = {
@@ -42559,6 +44757,34 @@ export namespace Prisma {
     deleteMany?: WithdrawalScalarWhereInput | WithdrawalScalarWhereInput[]
   }
 
+  export type DirectGiftUpdateManyWithoutUserNestedInput = {
+    create?: XOR<DirectGiftCreateWithoutUserInput, DirectGiftUncheckedCreateWithoutUserInput> | DirectGiftCreateWithoutUserInput[] | DirectGiftUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: DirectGiftCreateOrConnectWithoutUserInput | DirectGiftCreateOrConnectWithoutUserInput[]
+    upsert?: DirectGiftUpsertWithWhereUniqueWithoutUserInput | DirectGiftUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: DirectGiftCreateManyUserInputEnvelope
+    set?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+    disconnect?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+    delete?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+    connect?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+    update?: DirectGiftUpdateWithWhereUniqueWithoutUserInput | DirectGiftUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: DirectGiftUpdateManyWithWhereWithoutUserInput | DirectGiftUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: DirectGiftScalarWhereInput | DirectGiftScalarWhereInput[]
+  }
+
+  export type DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput = {
+    create?: XOR<DirectGiftCreateWithoutRedeemedByVendorInput, DirectGiftUncheckedCreateWithoutRedeemedByVendorInput> | DirectGiftCreateWithoutRedeemedByVendorInput[] | DirectGiftUncheckedCreateWithoutRedeemedByVendorInput[]
+    connectOrCreate?: DirectGiftCreateOrConnectWithoutRedeemedByVendorInput | DirectGiftCreateOrConnectWithoutRedeemedByVendorInput[]
+    upsert?: DirectGiftUpsertWithWhereUniqueWithoutRedeemedByVendorInput | DirectGiftUpsertWithWhereUniqueWithoutRedeemedByVendorInput[]
+    createMany?: DirectGiftCreateManyRedeemedByVendorInputEnvelope
+    set?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+    disconnect?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+    delete?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+    connect?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+    update?: DirectGiftUpdateWithWhereUniqueWithoutRedeemedByVendorInput | DirectGiftUpdateWithWhereUniqueWithoutRedeemedByVendorInput[]
+    updateMany?: DirectGiftUpdateManyWithWhereWithoutRedeemedByVendorInput | DirectGiftUpdateManyWithWhereWithoutRedeemedByVendorInput[]
+    deleteMany?: DirectGiftScalarWhereInput | DirectGiftScalarWhereInput[]
+  }
+
   export type AdminLogUpdateManyWithoutAdminNestedInput = {
     create?: XOR<AdminLogCreateWithoutAdminInput, AdminLogUncheckedCreateWithoutAdminInput> | AdminLogCreateWithoutAdminInput[] | AdminLogUncheckedCreateWithoutAdminInput[]
     connectOrCreate?: AdminLogCreateOrConnectWithoutAdminInput | AdminLogCreateOrConnectWithoutAdminInput[]
@@ -42867,6 +45093,34 @@ export namespace Prisma {
     deleteMany?: WithdrawalScalarWhereInput | WithdrawalScalarWhereInput[]
   }
 
+  export type DirectGiftUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<DirectGiftCreateWithoutUserInput, DirectGiftUncheckedCreateWithoutUserInput> | DirectGiftCreateWithoutUserInput[] | DirectGiftUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: DirectGiftCreateOrConnectWithoutUserInput | DirectGiftCreateOrConnectWithoutUserInput[]
+    upsert?: DirectGiftUpsertWithWhereUniqueWithoutUserInput | DirectGiftUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: DirectGiftCreateManyUserInputEnvelope
+    set?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+    disconnect?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+    delete?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+    connect?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+    update?: DirectGiftUpdateWithWhereUniqueWithoutUserInput | DirectGiftUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: DirectGiftUpdateManyWithWhereWithoutUserInput | DirectGiftUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: DirectGiftScalarWhereInput | DirectGiftScalarWhereInput[]
+  }
+
+  export type DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput = {
+    create?: XOR<DirectGiftCreateWithoutRedeemedByVendorInput, DirectGiftUncheckedCreateWithoutRedeemedByVendorInput> | DirectGiftCreateWithoutRedeemedByVendorInput[] | DirectGiftUncheckedCreateWithoutRedeemedByVendorInput[]
+    connectOrCreate?: DirectGiftCreateOrConnectWithoutRedeemedByVendorInput | DirectGiftCreateOrConnectWithoutRedeemedByVendorInput[]
+    upsert?: DirectGiftUpsertWithWhereUniqueWithoutRedeemedByVendorInput | DirectGiftUpsertWithWhereUniqueWithoutRedeemedByVendorInput[]
+    createMany?: DirectGiftCreateManyRedeemedByVendorInputEnvelope
+    set?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+    disconnect?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+    delete?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+    connect?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+    update?: DirectGiftUpdateWithWhereUniqueWithoutRedeemedByVendorInput | DirectGiftUpdateWithWhereUniqueWithoutRedeemedByVendorInput[]
+    updateMany?: DirectGiftUpdateManyWithWhereWithoutRedeemedByVendorInput | DirectGiftUpdateManyWithWhereWithoutRedeemedByVendorInput[]
+    deleteMany?: DirectGiftScalarWhereInput | DirectGiftScalarWhereInput[]
+  }
+
   export type AdminLogUncheckedUpdateManyWithoutAdminNestedInput = {
     create?: XOR<AdminLogCreateWithoutAdminInput, AdminLogUncheckedCreateWithoutAdminInput> | AdminLogCreateWithoutAdminInput[] | AdminLogUncheckedCreateWithoutAdminInput[]
     connectOrCreate?: AdminLogCreateOrConnectWithoutAdminInput | AdminLogCreateOrConnectWithoutAdminInput[]
@@ -43128,6 +45382,52 @@ export namespace Prisma {
     delete?: TransactionWhereInput | boolean
     connect?: TransactionWhereUniqueInput
     update?: XOR<XOR<TransactionUpdateToOneWithWhereWithoutContributionInput, TransactionUpdateWithoutContributionInput>, TransactionUncheckedUpdateWithoutContributionInput>
+  }
+
+  export type UserCreateNestedOneWithoutDirectGiftsSentInput = {
+    create?: XOR<UserCreateWithoutDirectGiftsSentInput, UserUncheckedCreateWithoutDirectGiftsSentInput>
+    connectOrCreate?: UserCreateOrConnectWithoutDirectGiftsSentInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type VendorGiftCreateNestedOneWithoutDirectGiftsInput = {
+    create?: XOR<VendorGiftCreateWithoutDirectGiftsInput, VendorGiftUncheckedCreateWithoutDirectGiftsInput>
+    connectOrCreate?: VendorGiftCreateOrConnectWithoutDirectGiftsInput
+    connect?: VendorGiftWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutDirectGiftsRedeemedInput = {
+    create?: XOR<UserCreateWithoutDirectGiftsRedeemedInput, UserUncheckedCreateWithoutDirectGiftsRedeemedInput>
+    connectOrCreate?: UserCreateOrConnectWithoutDirectGiftsRedeemedInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutDirectGiftsSentNestedInput = {
+    create?: XOR<UserCreateWithoutDirectGiftsSentInput, UserUncheckedCreateWithoutDirectGiftsSentInput>
+    connectOrCreate?: UserCreateOrConnectWithoutDirectGiftsSentInput
+    upsert?: UserUpsertWithoutDirectGiftsSentInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutDirectGiftsSentInput, UserUpdateWithoutDirectGiftsSentInput>, UserUncheckedUpdateWithoutDirectGiftsSentInput>
+  }
+
+  export type VendorGiftUpdateOneWithoutDirectGiftsNestedInput = {
+    create?: XOR<VendorGiftCreateWithoutDirectGiftsInput, VendorGiftUncheckedCreateWithoutDirectGiftsInput>
+    connectOrCreate?: VendorGiftCreateOrConnectWithoutDirectGiftsInput
+    upsert?: VendorGiftUpsertWithoutDirectGiftsInput
+    disconnect?: VendorGiftWhereInput | boolean
+    delete?: VendorGiftWhereInput | boolean
+    connect?: VendorGiftWhereUniqueInput
+    update?: XOR<XOR<VendorGiftUpdateToOneWithWhereWithoutDirectGiftsInput, VendorGiftUpdateWithoutDirectGiftsInput>, VendorGiftUncheckedUpdateWithoutDirectGiftsInput>
+  }
+
+  export type UserUpdateOneWithoutDirectGiftsRedeemedNestedInput = {
+    create?: XOR<UserCreateWithoutDirectGiftsRedeemedInput, UserUncheckedCreateWithoutDirectGiftsRedeemedInput>
+    connectOrCreate?: UserCreateOrConnectWithoutDirectGiftsRedeemedInput
+    upsert?: UserUpsertWithoutDirectGiftsRedeemedInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutDirectGiftsRedeemedInput, UserUpdateWithoutDirectGiftsRedeemedInput>, UserUncheckedUpdateWithoutDirectGiftsRedeemedInput>
   }
 
   export type UserCreateNestedOneWithoutPromotionsInput = {
@@ -43794,6 +46094,13 @@ export namespace Prisma {
     connect?: CampaignWhereUniqueInput | CampaignWhereUniqueInput[]
   }
 
+  export type DirectGiftCreateNestedManyWithoutProductInput = {
+    create?: XOR<DirectGiftCreateWithoutProductInput, DirectGiftUncheckedCreateWithoutProductInput> | DirectGiftCreateWithoutProductInput[] | DirectGiftUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: DirectGiftCreateOrConnectWithoutProductInput | DirectGiftCreateOrConnectWithoutProductInput[]
+    createMany?: DirectGiftCreateManyProductInputEnvelope
+    connect?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+  }
+
   export type VendorGiftImageUncheckedCreateNestedManyWithoutGiftInput = {
     create?: XOR<VendorGiftImageCreateWithoutGiftInput, VendorGiftImageUncheckedCreateWithoutGiftInput> | VendorGiftImageCreateWithoutGiftInput[] | VendorGiftImageUncheckedCreateWithoutGiftInput[]
     connectOrCreate?: VendorGiftImageCreateOrConnectWithoutGiftInput | VendorGiftImageCreateOrConnectWithoutGiftInput[]
@@ -43820,6 +46127,13 @@ export namespace Prisma {
     connectOrCreate?: CampaignCreateOrConnectWithoutProductInput | CampaignCreateOrConnectWithoutProductInput[]
     createMany?: CampaignCreateManyProductInputEnvelope
     connect?: CampaignWhereUniqueInput | CampaignWhereUniqueInput[]
+  }
+
+  export type DirectGiftUncheckedCreateNestedManyWithoutProductInput = {
+    create?: XOR<DirectGiftCreateWithoutProductInput, DirectGiftUncheckedCreateWithoutProductInput> | DirectGiftCreateWithoutProductInput[] | DirectGiftUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: DirectGiftCreateOrConnectWithoutProductInput | DirectGiftCreateOrConnectWithoutProductInput[]
+    createMany?: DirectGiftCreateManyProductInputEnvelope
+    connect?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
   }
 
   export type VendorGiftUpdatetagsInput = {
@@ -43896,6 +46210,20 @@ export namespace Prisma {
     deleteMany?: CampaignScalarWhereInput | CampaignScalarWhereInput[]
   }
 
+  export type DirectGiftUpdateManyWithoutProductNestedInput = {
+    create?: XOR<DirectGiftCreateWithoutProductInput, DirectGiftUncheckedCreateWithoutProductInput> | DirectGiftCreateWithoutProductInput[] | DirectGiftUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: DirectGiftCreateOrConnectWithoutProductInput | DirectGiftCreateOrConnectWithoutProductInput[]
+    upsert?: DirectGiftUpsertWithWhereUniqueWithoutProductInput | DirectGiftUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: DirectGiftCreateManyProductInputEnvelope
+    set?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+    disconnect?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+    delete?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+    connect?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+    update?: DirectGiftUpdateWithWhereUniqueWithoutProductInput | DirectGiftUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: DirectGiftUpdateManyWithWhereWithoutProductInput | DirectGiftUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: DirectGiftScalarWhereInput | DirectGiftScalarWhereInput[]
+  }
+
   export type VendorGiftImageUncheckedUpdateManyWithoutGiftNestedInput = {
     create?: XOR<VendorGiftImageCreateWithoutGiftInput, VendorGiftImageUncheckedCreateWithoutGiftInput> | VendorGiftImageCreateWithoutGiftInput[] | VendorGiftImageUncheckedCreateWithoutGiftInput[]
     connectOrCreate?: VendorGiftImageCreateOrConnectWithoutGiftInput | VendorGiftImageCreateOrConnectWithoutGiftInput[]
@@ -43950,6 +46278,20 @@ export namespace Prisma {
     update?: CampaignUpdateWithWhereUniqueWithoutProductInput | CampaignUpdateWithWhereUniqueWithoutProductInput[]
     updateMany?: CampaignUpdateManyWithWhereWithoutProductInput | CampaignUpdateManyWithWhereWithoutProductInput[]
     deleteMany?: CampaignScalarWhereInput | CampaignScalarWhereInput[]
+  }
+
+  export type DirectGiftUncheckedUpdateManyWithoutProductNestedInput = {
+    create?: XOR<DirectGiftCreateWithoutProductInput, DirectGiftUncheckedCreateWithoutProductInput> | DirectGiftCreateWithoutProductInput[] | DirectGiftUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: DirectGiftCreateOrConnectWithoutProductInput | DirectGiftCreateOrConnectWithoutProductInput[]
+    upsert?: DirectGiftUpsertWithWhereUniqueWithoutProductInput | DirectGiftUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: DirectGiftCreateManyProductInputEnvelope
+    set?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+    disconnect?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+    delete?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+    connect?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+    update?: DirectGiftUpdateWithWhereUniqueWithoutProductInput | DirectGiftUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: DirectGiftUpdateManyWithWhereWithoutProductInput | DirectGiftUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: DirectGiftScalarWhereInput | DirectGiftScalarWhereInput[]
   }
 
   export type VendorGiftCreateNestedOneWithoutGiftImagesInput = {
@@ -44614,6 +46956,7 @@ export namespace Prisma {
     favorites?: FavoriteCreateNestedManyWithoutVendorGiftInput
     promotions?: PromotionCreateNestedManyWithoutProductInput
     campaigns?: CampaignCreateNestedManyWithoutProductInput
+    directGifts?: DirectGiftCreateNestedManyWithoutProductInput
   }
 
   export type VendorGiftUncheckedCreateWithoutVendorInput = {
@@ -44636,6 +46979,7 @@ export namespace Prisma {
     favorites?: FavoriteUncheckedCreateNestedManyWithoutVendorGiftInput
     promotions?: PromotionUncheckedCreateNestedManyWithoutProductInput
     campaigns?: CampaignUncheckedCreateNestedManyWithoutProductInput
+    directGifts?: DirectGiftUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type VendorGiftCreateOrConnectWithoutVendorInput = {
@@ -45203,6 +47547,138 @@ export namespace Prisma {
 
   export type WithdrawalCreateManyUserInputEnvelope = {
     data: WithdrawalCreateManyUserInput | WithdrawalCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type DirectGiftCreateWithoutUserInput = {
+    id?: string
+    category: string
+    title: string
+    description?: string | null
+    amount: Decimal | DecimalJsLike | number | string
+    currency?: string
+    status?: string
+    claimableType?: string | null
+    claimableRecipientType?: string | null
+    recipientEmail?: string | null
+    senderEmail?: string | null
+    paymentReference?: string | null
+    giftCode?: string | null
+    redeemedAt?: Date | string | null
+    vendorRating?: number | null
+    message?: string | null
+    deliveryMethod?: string | null
+    recipientPhone?: string | null
+    recipientCountryCode?: string | null
+    whatsappFee?: Decimal | DecimalJsLike | number | string
+    senderName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    product?: VendorGiftCreateNestedOneWithoutDirectGiftsInput
+    redeemedByVendor?: UserCreateNestedOneWithoutDirectGiftsRedeemedInput
+  }
+
+  export type DirectGiftUncheckedCreateWithoutUserInput = {
+    id?: string
+    category: string
+    title: string
+    description?: string | null
+    amount: Decimal | DecimalJsLike | number | string
+    currency?: string
+    status?: string
+    claimableType?: string | null
+    claimableGiftId?: number | null
+    claimableRecipientType?: string | null
+    recipientEmail?: string | null
+    senderEmail?: string | null
+    paymentReference?: string | null
+    giftCode?: string | null
+    redeemedAt?: Date | string | null
+    redeemedByVendorId?: string | null
+    vendorRating?: number | null
+    message?: string | null
+    deliveryMethod?: string | null
+    recipientPhone?: string | null
+    recipientCountryCode?: string | null
+    whatsappFee?: Decimal | DecimalJsLike | number | string
+    senderName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DirectGiftCreateOrConnectWithoutUserInput = {
+    where: DirectGiftWhereUniqueInput
+    create: XOR<DirectGiftCreateWithoutUserInput, DirectGiftUncheckedCreateWithoutUserInput>
+  }
+
+  export type DirectGiftCreateManyUserInputEnvelope = {
+    data: DirectGiftCreateManyUserInput | DirectGiftCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type DirectGiftCreateWithoutRedeemedByVendorInput = {
+    id?: string
+    category: string
+    title: string
+    description?: string | null
+    amount: Decimal | DecimalJsLike | number | string
+    currency?: string
+    status?: string
+    claimableType?: string | null
+    claimableRecipientType?: string | null
+    recipientEmail?: string | null
+    senderEmail?: string | null
+    paymentReference?: string | null
+    giftCode?: string | null
+    redeemedAt?: Date | string | null
+    vendorRating?: number | null
+    message?: string | null
+    deliveryMethod?: string | null
+    recipientPhone?: string | null
+    recipientCountryCode?: string | null
+    whatsappFee?: Decimal | DecimalJsLike | number | string
+    senderName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutDirectGiftsSentInput
+    product?: VendorGiftCreateNestedOneWithoutDirectGiftsInput
+  }
+
+  export type DirectGiftUncheckedCreateWithoutRedeemedByVendorInput = {
+    id?: string
+    userId: string
+    category: string
+    title: string
+    description?: string | null
+    amount: Decimal | DecimalJsLike | number | string
+    currency?: string
+    status?: string
+    claimableType?: string | null
+    claimableGiftId?: number | null
+    claimableRecipientType?: string | null
+    recipientEmail?: string | null
+    senderEmail?: string | null
+    paymentReference?: string | null
+    giftCode?: string | null
+    redeemedAt?: Date | string | null
+    vendorRating?: number | null
+    message?: string | null
+    deliveryMethod?: string | null
+    recipientPhone?: string | null
+    recipientCountryCode?: string | null
+    whatsappFee?: Decimal | DecimalJsLike | number | string
+    senderName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DirectGiftCreateOrConnectWithoutRedeemedByVendorInput = {
+    where: DirectGiftWhereUniqueInput
+    create: XOR<DirectGiftCreateWithoutRedeemedByVendorInput, DirectGiftUncheckedCreateWithoutRedeemedByVendorInput>
+  }
+
+  export type DirectGiftCreateManyRedeemedByVendorInputEnvelope = {
+    data: DirectGiftCreateManyRedeemedByVendorInput | DirectGiftCreateManyRedeemedByVendorInput[]
     skipDuplicates?: boolean
   }
 
@@ -45888,6 +48364,70 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Withdrawal"> | Date | string
   }
 
+  export type DirectGiftUpsertWithWhereUniqueWithoutUserInput = {
+    where: DirectGiftWhereUniqueInput
+    update: XOR<DirectGiftUpdateWithoutUserInput, DirectGiftUncheckedUpdateWithoutUserInput>
+    create: XOR<DirectGiftCreateWithoutUserInput, DirectGiftUncheckedCreateWithoutUserInput>
+  }
+
+  export type DirectGiftUpdateWithWhereUniqueWithoutUserInput = {
+    where: DirectGiftWhereUniqueInput
+    data: XOR<DirectGiftUpdateWithoutUserInput, DirectGiftUncheckedUpdateWithoutUserInput>
+  }
+
+  export type DirectGiftUpdateManyWithWhereWithoutUserInput = {
+    where: DirectGiftScalarWhereInput
+    data: XOR<DirectGiftUpdateManyMutationInput, DirectGiftUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type DirectGiftScalarWhereInput = {
+    AND?: DirectGiftScalarWhereInput | DirectGiftScalarWhereInput[]
+    OR?: DirectGiftScalarWhereInput[]
+    NOT?: DirectGiftScalarWhereInput | DirectGiftScalarWhereInput[]
+    id?: StringFilter<"DirectGift"> | string
+    userId?: StringFilter<"DirectGift"> | string
+    category?: StringFilter<"DirectGift"> | string
+    title?: StringFilter<"DirectGift"> | string
+    description?: StringNullableFilter<"DirectGift"> | string | null
+    amount?: DecimalFilter<"DirectGift"> | Decimal | DecimalJsLike | number | string
+    currency?: StringFilter<"DirectGift"> | string
+    status?: StringFilter<"DirectGift"> | string
+    claimableType?: StringNullableFilter<"DirectGift"> | string | null
+    claimableGiftId?: IntNullableFilter<"DirectGift"> | number | null
+    claimableRecipientType?: StringNullableFilter<"DirectGift"> | string | null
+    recipientEmail?: StringNullableFilter<"DirectGift"> | string | null
+    senderEmail?: StringNullableFilter<"DirectGift"> | string | null
+    paymentReference?: StringNullableFilter<"DirectGift"> | string | null
+    giftCode?: StringNullableFilter<"DirectGift"> | string | null
+    redeemedAt?: DateTimeNullableFilter<"DirectGift"> | Date | string | null
+    redeemedByVendorId?: StringNullableFilter<"DirectGift"> | string | null
+    vendorRating?: IntNullableFilter<"DirectGift"> | number | null
+    message?: StringNullableFilter<"DirectGift"> | string | null
+    deliveryMethod?: StringNullableFilter<"DirectGift"> | string | null
+    recipientPhone?: StringNullableFilter<"DirectGift"> | string | null
+    recipientCountryCode?: StringNullableFilter<"DirectGift"> | string | null
+    whatsappFee?: DecimalFilter<"DirectGift"> | Decimal | DecimalJsLike | number | string
+    senderName?: StringNullableFilter<"DirectGift"> | string | null
+    createdAt?: DateTimeFilter<"DirectGift"> | Date | string
+    updatedAt?: DateTimeFilter<"DirectGift"> | Date | string
+  }
+
+  export type DirectGiftUpsertWithWhereUniqueWithoutRedeemedByVendorInput = {
+    where: DirectGiftWhereUniqueInput
+    update: XOR<DirectGiftUpdateWithoutRedeemedByVendorInput, DirectGiftUncheckedUpdateWithoutRedeemedByVendorInput>
+    create: XOR<DirectGiftCreateWithoutRedeemedByVendorInput, DirectGiftUncheckedCreateWithoutRedeemedByVendorInput>
+  }
+
+  export type DirectGiftUpdateWithWhereUniqueWithoutRedeemedByVendorInput = {
+    where: DirectGiftWhereUniqueInput
+    data: XOR<DirectGiftUpdateWithoutRedeemedByVendorInput, DirectGiftUncheckedUpdateWithoutRedeemedByVendorInput>
+  }
+
+  export type DirectGiftUpdateManyWithWhereWithoutRedeemedByVendorInput = {
+    where: DirectGiftScalarWhereInput
+    data: XOR<DirectGiftUpdateManyMutationInput, DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorInput>
+  }
+
   export type AdminLogUpsertWithWhereUniqueWithoutAdminInput = {
     where: AdminLogWhereUniqueInput
     update: XOR<AdminLogUpdateWithoutAdminInput, AdminLogUncheckedUpdateWithoutAdminInput>
@@ -46023,6 +48563,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
@@ -46078,6 +48620,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionUncheckedCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalUncheckedCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftUncheckedCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
@@ -46149,6 +48693,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
@@ -46204,6 +48750,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUncheckedUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
@@ -46259,6 +48807,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
@@ -46314,6 +48864,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionUncheckedCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalUncheckedCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftUncheckedCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
@@ -46385,6 +48937,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
@@ -46440,6 +48994,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUncheckedUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
@@ -46495,6 +49051,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
@@ -46550,6 +49108,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionUncheckedCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalUncheckedCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftUncheckedCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
@@ -46579,6 +49139,7 @@ export namespace Prisma {
     giftImages?: VendorGiftImageCreateNestedManyWithoutGiftInput
     favorites?: FavoriteCreateNestedManyWithoutVendorGiftInput
     promotions?: PromotionCreateNestedManyWithoutProductInput
+    directGifts?: DirectGiftCreateNestedManyWithoutProductInput
   }
 
   export type VendorGiftUncheckedCreateWithoutCampaignsInput = {
@@ -46601,6 +49162,7 @@ export namespace Prisma {
     giftImages?: VendorGiftImageUncheckedCreateNestedManyWithoutGiftInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutVendorGiftInput
     promotions?: PromotionUncheckedCreateNestedManyWithoutProductInput
+    directGifts?: DirectGiftUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type VendorGiftCreateOrConnectWithoutCampaignsInput = {
@@ -46658,6 +49220,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
@@ -46713,6 +49277,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionUncheckedCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalUncheckedCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftUncheckedCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
@@ -46864,6 +49430,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
@@ -46919,6 +49487,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUncheckedUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
@@ -46954,6 +49524,7 @@ export namespace Prisma {
     giftImages?: VendorGiftImageUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUpdateManyWithoutVendorGiftNestedInput
     promotions?: PromotionUpdateManyWithoutProductNestedInput
+    directGifts?: DirectGiftUpdateManyWithoutProductNestedInput
   }
 
   export type VendorGiftUncheckedUpdateWithoutCampaignsInput = {
@@ -46976,6 +49547,7 @@ export namespace Prisma {
     giftImages?: VendorGiftImageUncheckedUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutVendorGiftNestedInput
     promotions?: PromotionUncheckedUpdateManyWithoutProductNestedInput
+    directGifts?: DirectGiftUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type UserUpsertWithoutRedeemedCampaignsInput = {
@@ -47039,6 +49611,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
@@ -47094,6 +49668,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUncheckedUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
@@ -47432,6 +50008,600 @@ export namespace Prisma {
     promotion?: PromotionUncheckedUpdateOneWithoutTransactionNestedInput
   }
 
+  export type UserCreateWithoutDirectGiftsSentInput = {
+    id?: string
+    name: string
+    email: string
+    emailVerified?: boolean
+    image?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    username?: string | null
+    displayName?: string | null
+    avatarUrl?: string | null
+    bio?: string | null
+    isCreator?: boolean
+    suggestedAmounts?: UserCreatesuggestedAmountsInput | number[]
+    socialLinks?: NullableJsonNullValueInput | InputJsonValue
+    themeSettings?: NullableJsonNullValueInput | InputJsonValue
+    country?: string | null
+    roles?: UserCreaterolesInput | $Enums.UserRole[]
+    adminRole?: $Enums.AdminRole | null
+    platformBalance?: bigint | number
+    status?: string
+    walletStatus?: string
+    suspensionEnd?: Date | string | null
+    shopName?: string | null
+    shopDescription?: string | null
+    shopAddress?: string | null
+    shopSlug?: string | null
+    shopLogoUrl?: string | null
+    bannerUrl?: string | null
+    isVerifiedVendor?: boolean
+    vendorStatus?: string
+    vendorCategories?: UserCreatevendorCategoriesInput | string[]
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    campaigns?: CampaignCreateNestedManyWithoutUserInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutUserInput
+    transactions?: TransactionCreateNestedManyWithoutUserInput
+    vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
+    favorites?: FavoriteCreateNestedManyWithoutUserInput
+    promotions?: PromotionCreateNestedManyWithoutVendorInput
+    sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
+    receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
+    moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
+    moderationReportsFixed?: ModerationReportCreateNestedManyWithoutResolverInput
+    moderationTickets?: ModerationTicketCreateNestedManyWithoutReporterInput
+    adminResolvedTickets?: ModerationTicketCreateNestedManyWithoutResolverInput
+    flexCardTransactions?: FlexCardTransactionCreateNestedManyWithoutVendorInput
+    redeemedCampaigns?: CampaignCreateNestedManyWithoutRedeemedByVendorInput
+    creatorSupportReceived?: CreatorSupportCreateNestedManyWithoutUserInput
+    adminResolvedPromotions?: ExternalPromotionCreateNestedManyWithoutAdminInput
+    withdrawals?: WithdrawalCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
+    adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutDirectGiftsSentInput = {
+    id?: string
+    name: string
+    email: string
+    emailVerified?: boolean
+    image?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    username?: string | null
+    displayName?: string | null
+    avatarUrl?: string | null
+    bio?: string | null
+    isCreator?: boolean
+    suggestedAmounts?: UserCreatesuggestedAmountsInput | number[]
+    socialLinks?: NullableJsonNullValueInput | InputJsonValue
+    themeSettings?: NullableJsonNullValueInput | InputJsonValue
+    country?: string | null
+    roles?: UserCreaterolesInput | $Enums.UserRole[]
+    adminRole?: $Enums.AdminRole | null
+    platformBalance?: bigint | number
+    status?: string
+    walletStatus?: string
+    suspensionEnd?: Date | string | null
+    shopName?: string | null
+    shopDescription?: string | null
+    shopAddress?: string | null
+    shopSlug?: string | null
+    shopLogoUrl?: string | null
+    bannerUrl?: string | null
+    isVerifiedVendor?: boolean
+    vendorStatus?: string
+    vendorCategories?: UserCreatevendorCategoriesInput | string[]
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    campaigns?: CampaignUncheckedCreateNestedManyWithoutUserInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutUserInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
+    vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
+    favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
+    promotions?: PromotionUncheckedCreateNestedManyWithoutVendorInput
+    sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
+    receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
+    moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
+    moderationReportsFixed?: ModerationReportUncheckedCreateNestedManyWithoutResolverInput
+    moderationTickets?: ModerationTicketUncheckedCreateNestedManyWithoutReporterInput
+    adminResolvedTickets?: ModerationTicketUncheckedCreateNestedManyWithoutResolverInput
+    flexCardTransactions?: FlexCardTransactionUncheckedCreateNestedManyWithoutVendorInput
+    redeemedCampaigns?: CampaignUncheckedCreateNestedManyWithoutRedeemedByVendorInput
+    creatorSupportReceived?: CreatorSupportUncheckedCreateNestedManyWithoutUserInput
+    adminResolvedPromotions?: ExternalPromotionUncheckedCreateNestedManyWithoutAdminInput
+    withdrawals?: WithdrawalUncheckedCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
+    adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutDirectGiftsSentInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutDirectGiftsSentInput, UserUncheckedCreateWithoutDirectGiftsSentInput>
+  }
+
+  export type VendorGiftCreateWithoutDirectGiftsInput = {
+    name: string
+    slug?: string | null
+    price: Decimal | DecimalJsLike | number | string
+    description?: string | null
+    imageUrl?: string | null
+    category?: string | null
+    tags?: VendorGiftCreatetagsInput | string[]
+    type?: string
+    status?: string
+    stockQuantity?: number | null
+    unitsSold?: number
+    images?: VendorGiftCreateimagesInput | string[]
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    vendor: UserCreateNestedOneWithoutVendorGiftsInput
+    giftImages?: VendorGiftImageCreateNestedManyWithoutGiftInput
+    favorites?: FavoriteCreateNestedManyWithoutVendorGiftInput
+    promotions?: PromotionCreateNestedManyWithoutProductInput
+    campaigns?: CampaignCreateNestedManyWithoutProductInput
+  }
+
+  export type VendorGiftUncheckedCreateWithoutDirectGiftsInput = {
+    id?: number
+    vendorId: string
+    name: string
+    slug?: string | null
+    price: Decimal | DecimalJsLike | number | string
+    description?: string | null
+    imageUrl?: string | null
+    category?: string | null
+    tags?: VendorGiftCreatetagsInput | string[]
+    type?: string
+    status?: string
+    stockQuantity?: number | null
+    unitsSold?: number
+    images?: VendorGiftCreateimagesInput | string[]
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    giftImages?: VendorGiftImageUncheckedCreateNestedManyWithoutGiftInput
+    favorites?: FavoriteUncheckedCreateNestedManyWithoutVendorGiftInput
+    promotions?: PromotionUncheckedCreateNestedManyWithoutProductInput
+    campaigns?: CampaignUncheckedCreateNestedManyWithoutProductInput
+  }
+
+  export type VendorGiftCreateOrConnectWithoutDirectGiftsInput = {
+    where: VendorGiftWhereUniqueInput
+    create: XOR<VendorGiftCreateWithoutDirectGiftsInput, VendorGiftUncheckedCreateWithoutDirectGiftsInput>
+  }
+
+  export type UserCreateWithoutDirectGiftsRedeemedInput = {
+    id?: string
+    name: string
+    email: string
+    emailVerified?: boolean
+    image?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    username?: string | null
+    displayName?: string | null
+    avatarUrl?: string | null
+    bio?: string | null
+    isCreator?: boolean
+    suggestedAmounts?: UserCreatesuggestedAmountsInput | number[]
+    socialLinks?: NullableJsonNullValueInput | InputJsonValue
+    themeSettings?: NullableJsonNullValueInput | InputJsonValue
+    country?: string | null
+    roles?: UserCreaterolesInput | $Enums.UserRole[]
+    adminRole?: $Enums.AdminRole | null
+    platformBalance?: bigint | number
+    status?: string
+    walletStatus?: string
+    suspensionEnd?: Date | string | null
+    shopName?: string | null
+    shopDescription?: string | null
+    shopAddress?: string | null
+    shopSlug?: string | null
+    shopLogoUrl?: string | null
+    bannerUrl?: string | null
+    isVerifiedVendor?: boolean
+    vendorStatus?: string
+    vendorCategories?: UserCreatevendorCategoriesInput | string[]
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    campaigns?: CampaignCreateNestedManyWithoutUserInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutUserInput
+    transactions?: TransactionCreateNestedManyWithoutUserInput
+    vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
+    favorites?: FavoriteCreateNestedManyWithoutUserInput
+    promotions?: PromotionCreateNestedManyWithoutVendorInput
+    sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
+    receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
+    moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
+    moderationReportsFixed?: ModerationReportCreateNestedManyWithoutResolverInput
+    moderationTickets?: ModerationTicketCreateNestedManyWithoutReporterInput
+    adminResolvedTickets?: ModerationTicketCreateNestedManyWithoutResolverInput
+    flexCardTransactions?: FlexCardTransactionCreateNestedManyWithoutVendorInput
+    redeemedCampaigns?: CampaignCreateNestedManyWithoutRedeemedByVendorInput
+    creatorSupportReceived?: CreatorSupportCreateNestedManyWithoutUserInput
+    adminResolvedPromotions?: ExternalPromotionCreateNestedManyWithoutAdminInput
+    withdrawals?: WithdrawalCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftCreateNestedManyWithoutUserInput
+    adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutDirectGiftsRedeemedInput = {
+    id?: string
+    name: string
+    email: string
+    emailVerified?: boolean
+    image?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    username?: string | null
+    displayName?: string | null
+    avatarUrl?: string | null
+    bio?: string | null
+    isCreator?: boolean
+    suggestedAmounts?: UserCreatesuggestedAmountsInput | number[]
+    socialLinks?: NullableJsonNullValueInput | InputJsonValue
+    themeSettings?: NullableJsonNullValueInput | InputJsonValue
+    country?: string | null
+    roles?: UserCreaterolesInput | $Enums.UserRole[]
+    adminRole?: $Enums.AdminRole | null
+    platformBalance?: bigint | number
+    status?: string
+    walletStatus?: string
+    suspensionEnd?: Date | string | null
+    shopName?: string | null
+    shopDescription?: string | null
+    shopAddress?: string | null
+    shopSlug?: string | null
+    shopLogoUrl?: string | null
+    bannerUrl?: string | null
+    isVerifiedVendor?: boolean
+    vendorStatus?: string
+    vendorCategories?: UserCreatevendorCategoriesInput | string[]
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    campaigns?: CampaignUncheckedCreateNestedManyWithoutUserInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutUserInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
+    vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
+    favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
+    promotions?: PromotionUncheckedCreateNestedManyWithoutVendorInput
+    sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
+    receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
+    moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
+    moderationReportsFixed?: ModerationReportUncheckedCreateNestedManyWithoutResolverInput
+    moderationTickets?: ModerationTicketUncheckedCreateNestedManyWithoutReporterInput
+    adminResolvedTickets?: ModerationTicketUncheckedCreateNestedManyWithoutResolverInput
+    flexCardTransactions?: FlexCardTransactionUncheckedCreateNestedManyWithoutVendorInput
+    redeemedCampaigns?: CampaignUncheckedCreateNestedManyWithoutRedeemedByVendorInput
+    creatorSupportReceived?: CreatorSupportUncheckedCreateNestedManyWithoutUserInput
+    adminResolvedPromotions?: ExternalPromotionUncheckedCreateNestedManyWithoutAdminInput
+    withdrawals?: WithdrawalUncheckedCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftUncheckedCreateNestedManyWithoutUserInput
+    adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutDirectGiftsRedeemedInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutDirectGiftsRedeemedInput, UserUncheckedCreateWithoutDirectGiftsRedeemedInput>
+  }
+
+  export type UserUpsertWithoutDirectGiftsSentInput = {
+    update: XOR<UserUpdateWithoutDirectGiftsSentInput, UserUncheckedUpdateWithoutDirectGiftsSentInput>
+    create: XOR<UserCreateWithoutDirectGiftsSentInput, UserUncheckedCreateWithoutDirectGiftsSentInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutDirectGiftsSentInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutDirectGiftsSentInput, UserUncheckedUpdateWithoutDirectGiftsSentInput>
+  }
+
+  export type UserUpdateWithoutDirectGiftsSentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    isCreator?: BoolFieldUpdateOperationsInput | boolean
+    suggestedAmounts?: UserUpdatesuggestedAmountsInput | number[]
+    socialLinks?: NullableJsonNullValueInput | InputJsonValue
+    themeSettings?: NullableJsonNullValueInput | InputJsonValue
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    roles?: UserUpdaterolesInput | $Enums.UserRole[]
+    adminRole?: NullableEnumAdminRoleFieldUpdateOperationsInput | $Enums.AdminRole | null
+    platformBalance?: BigIntFieldUpdateOperationsInput | bigint | number
+    status?: StringFieldUpdateOperationsInput | string
+    walletStatus?: StringFieldUpdateOperationsInput | string
+    suspensionEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shopName?: NullableStringFieldUpdateOperationsInput | string | null
+    shopDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    shopAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSlug?: NullableStringFieldUpdateOperationsInput | string | null
+    shopLogoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isVerifiedVendor?: BoolFieldUpdateOperationsInput | boolean
+    vendorStatus?: StringFieldUpdateOperationsInput | string
+    vendorCategories?: UserUpdatevendorCategoriesInput | string[]
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    campaigns?: CampaignUpdateManyWithoutUserNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUpdateManyWithoutUserNestedInput
+    vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
+    favorites?: FavoriteUpdateManyWithoutUserNestedInput
+    promotions?: PromotionUpdateManyWithoutVendorNestedInput
+    sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
+    receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
+    moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
+    moderationReportsFixed?: ModerationReportUpdateManyWithoutResolverNestedInput
+    moderationTickets?: ModerationTicketUpdateManyWithoutReporterNestedInput
+    adminResolvedTickets?: ModerationTicketUpdateManyWithoutResolverNestedInput
+    flexCardTransactions?: FlexCardTransactionUpdateManyWithoutVendorNestedInput
+    redeemedCampaigns?: CampaignUpdateManyWithoutRedeemedByVendorNestedInput
+    creatorSupportReceived?: CreatorSupportUpdateManyWithoutUserNestedInput
+    adminResolvedPromotions?: ExternalPromotionUpdateManyWithoutAdminNestedInput
+    withdrawals?: WithdrawalUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
+    adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutDirectGiftsSentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    isCreator?: BoolFieldUpdateOperationsInput | boolean
+    suggestedAmounts?: UserUpdatesuggestedAmountsInput | number[]
+    socialLinks?: NullableJsonNullValueInput | InputJsonValue
+    themeSettings?: NullableJsonNullValueInput | InputJsonValue
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    roles?: UserUpdaterolesInput | $Enums.UserRole[]
+    adminRole?: NullableEnumAdminRoleFieldUpdateOperationsInput | $Enums.AdminRole | null
+    platformBalance?: BigIntFieldUpdateOperationsInput | bigint | number
+    status?: StringFieldUpdateOperationsInput | string
+    walletStatus?: StringFieldUpdateOperationsInput | string
+    suspensionEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shopName?: NullableStringFieldUpdateOperationsInput | string | null
+    shopDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    shopAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSlug?: NullableStringFieldUpdateOperationsInput | string | null
+    shopLogoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isVerifiedVendor?: BoolFieldUpdateOperationsInput | boolean
+    vendorStatus?: StringFieldUpdateOperationsInput | string
+    vendorCategories?: UserUpdatevendorCategoriesInput | string[]
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    campaigns?: CampaignUncheckedUpdateManyWithoutUserNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
+    vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
+    favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
+    promotions?: PromotionUncheckedUpdateManyWithoutVendorNestedInput
+    sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
+    receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
+    moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
+    moderationReportsFixed?: ModerationReportUncheckedUpdateManyWithoutResolverNestedInput
+    moderationTickets?: ModerationTicketUncheckedUpdateManyWithoutReporterNestedInput
+    adminResolvedTickets?: ModerationTicketUncheckedUpdateManyWithoutResolverNestedInput
+    flexCardTransactions?: FlexCardTransactionUncheckedUpdateManyWithoutVendorNestedInput
+    redeemedCampaigns?: CampaignUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
+    creatorSupportReceived?: CreatorSupportUncheckedUpdateManyWithoutUserNestedInput
+    adminResolvedPromotions?: ExternalPromotionUncheckedUpdateManyWithoutAdminNestedInput
+    withdrawals?: WithdrawalUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
+    adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type VendorGiftUpsertWithoutDirectGiftsInput = {
+    update: XOR<VendorGiftUpdateWithoutDirectGiftsInput, VendorGiftUncheckedUpdateWithoutDirectGiftsInput>
+    create: XOR<VendorGiftCreateWithoutDirectGiftsInput, VendorGiftUncheckedCreateWithoutDirectGiftsInput>
+    where?: VendorGiftWhereInput
+  }
+
+  export type VendorGiftUpdateToOneWithWhereWithoutDirectGiftsInput = {
+    where?: VendorGiftWhereInput
+    data: XOR<VendorGiftUpdateWithoutDirectGiftsInput, VendorGiftUncheckedUpdateWithoutDirectGiftsInput>
+  }
+
+  export type VendorGiftUpdateWithoutDirectGiftsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: VendorGiftUpdatetagsInput | string[]
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
+    unitsSold?: IntFieldUpdateOperationsInput | number
+    images?: VendorGiftUpdateimagesInput | string[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    vendor?: UserUpdateOneRequiredWithoutVendorGiftsNestedInput
+    giftImages?: VendorGiftImageUpdateManyWithoutGiftNestedInput
+    favorites?: FavoriteUpdateManyWithoutVendorGiftNestedInput
+    promotions?: PromotionUpdateManyWithoutProductNestedInput
+    campaigns?: CampaignUpdateManyWithoutProductNestedInput
+  }
+
+  export type VendorGiftUncheckedUpdateWithoutDirectGiftsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    vendorId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: VendorGiftUpdatetagsInput | string[]
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
+    unitsSold?: IntFieldUpdateOperationsInput | number
+    images?: VendorGiftUpdateimagesInput | string[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    giftImages?: VendorGiftImageUncheckedUpdateManyWithoutGiftNestedInput
+    favorites?: FavoriteUncheckedUpdateManyWithoutVendorGiftNestedInput
+    promotions?: PromotionUncheckedUpdateManyWithoutProductNestedInput
+    campaigns?: CampaignUncheckedUpdateManyWithoutProductNestedInput
+  }
+
+  export type UserUpsertWithoutDirectGiftsRedeemedInput = {
+    update: XOR<UserUpdateWithoutDirectGiftsRedeemedInput, UserUncheckedUpdateWithoutDirectGiftsRedeemedInput>
+    create: XOR<UserCreateWithoutDirectGiftsRedeemedInput, UserUncheckedCreateWithoutDirectGiftsRedeemedInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutDirectGiftsRedeemedInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutDirectGiftsRedeemedInput, UserUncheckedUpdateWithoutDirectGiftsRedeemedInput>
+  }
+
+  export type UserUpdateWithoutDirectGiftsRedeemedInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    isCreator?: BoolFieldUpdateOperationsInput | boolean
+    suggestedAmounts?: UserUpdatesuggestedAmountsInput | number[]
+    socialLinks?: NullableJsonNullValueInput | InputJsonValue
+    themeSettings?: NullableJsonNullValueInput | InputJsonValue
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    roles?: UserUpdaterolesInput | $Enums.UserRole[]
+    adminRole?: NullableEnumAdminRoleFieldUpdateOperationsInput | $Enums.AdminRole | null
+    platformBalance?: BigIntFieldUpdateOperationsInput | bigint | number
+    status?: StringFieldUpdateOperationsInput | string
+    walletStatus?: StringFieldUpdateOperationsInput | string
+    suspensionEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shopName?: NullableStringFieldUpdateOperationsInput | string | null
+    shopDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    shopAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSlug?: NullableStringFieldUpdateOperationsInput | string | null
+    shopLogoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isVerifiedVendor?: BoolFieldUpdateOperationsInput | boolean
+    vendorStatus?: StringFieldUpdateOperationsInput | string
+    vendorCategories?: UserUpdatevendorCategoriesInput | string[]
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    campaigns?: CampaignUpdateManyWithoutUserNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUpdateManyWithoutUserNestedInput
+    vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
+    favorites?: FavoriteUpdateManyWithoutUserNestedInput
+    promotions?: PromotionUpdateManyWithoutVendorNestedInput
+    sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
+    receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
+    moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
+    moderationReportsFixed?: ModerationReportUpdateManyWithoutResolverNestedInput
+    moderationTickets?: ModerationTicketUpdateManyWithoutReporterNestedInput
+    adminResolvedTickets?: ModerationTicketUpdateManyWithoutResolverNestedInput
+    flexCardTransactions?: FlexCardTransactionUpdateManyWithoutVendorNestedInput
+    redeemedCampaigns?: CampaignUpdateManyWithoutRedeemedByVendorNestedInput
+    creatorSupportReceived?: CreatorSupportUpdateManyWithoutUserNestedInput
+    adminResolvedPromotions?: ExternalPromotionUpdateManyWithoutAdminNestedInput
+    withdrawals?: WithdrawalUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUpdateManyWithoutUserNestedInput
+    adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutDirectGiftsRedeemedInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    isCreator?: BoolFieldUpdateOperationsInput | boolean
+    suggestedAmounts?: UserUpdatesuggestedAmountsInput | number[]
+    socialLinks?: NullableJsonNullValueInput | InputJsonValue
+    themeSettings?: NullableJsonNullValueInput | InputJsonValue
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    roles?: UserUpdaterolesInput | $Enums.UserRole[]
+    adminRole?: NullableEnumAdminRoleFieldUpdateOperationsInput | $Enums.AdminRole | null
+    platformBalance?: BigIntFieldUpdateOperationsInput | bigint | number
+    status?: StringFieldUpdateOperationsInput | string
+    walletStatus?: StringFieldUpdateOperationsInput | string
+    suspensionEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shopName?: NullableStringFieldUpdateOperationsInput | string | null
+    shopDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    shopAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSlug?: NullableStringFieldUpdateOperationsInput | string | null
+    shopLogoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isVerifiedVendor?: BoolFieldUpdateOperationsInput | boolean
+    vendorStatus?: StringFieldUpdateOperationsInput | string
+    vendorCategories?: UserUpdatevendorCategoriesInput | string[]
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    campaigns?: CampaignUncheckedUpdateManyWithoutUserNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
+    vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
+    favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
+    promotions?: PromotionUncheckedUpdateManyWithoutVendorNestedInput
+    sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
+    receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
+    moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
+    moderationReportsFixed?: ModerationReportUncheckedUpdateManyWithoutResolverNestedInput
+    moderationTickets?: ModerationTicketUncheckedUpdateManyWithoutReporterNestedInput
+    adminResolvedTickets?: ModerationTicketUncheckedUpdateManyWithoutResolverNestedInput
+    flexCardTransactions?: FlexCardTransactionUncheckedUpdateManyWithoutVendorNestedInput
+    redeemedCampaigns?: CampaignUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
+    creatorSupportReceived?: CreatorSupportUncheckedUpdateManyWithoutUserNestedInput
+    adminResolvedPromotions?: ExternalPromotionUncheckedUpdateManyWithoutAdminNestedInput
+    withdrawals?: WithdrawalUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUncheckedUpdateManyWithoutUserNestedInput
+    adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  }
+
   export type UserCreateWithoutPromotionsInput = {
     id?: string
     name: string
@@ -47482,6 +50652,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
@@ -47537,6 +50709,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionUncheckedCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalUncheckedCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftUncheckedCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
@@ -47566,6 +50740,7 @@ export namespace Prisma {
     giftImages?: VendorGiftImageCreateNestedManyWithoutGiftInput
     favorites?: FavoriteCreateNestedManyWithoutVendorGiftInput
     campaigns?: CampaignCreateNestedManyWithoutProductInput
+    directGifts?: DirectGiftCreateNestedManyWithoutProductInput
   }
 
   export type VendorGiftUncheckedCreateWithoutPromotionsInput = {
@@ -47588,6 +50763,7 @@ export namespace Prisma {
     giftImages?: VendorGiftImageUncheckedCreateNestedManyWithoutGiftInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutVendorGiftInput
     campaigns?: CampaignUncheckedCreateNestedManyWithoutProductInput
+    directGifts?: DirectGiftUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type VendorGiftCreateOrConnectWithoutPromotionsInput = {
@@ -47695,6 +50871,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
@@ -47750,6 +50928,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUncheckedUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
@@ -47785,6 +50965,7 @@ export namespace Prisma {
     giftImages?: VendorGiftImageUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUpdateManyWithoutVendorGiftNestedInput
     campaigns?: CampaignUpdateManyWithoutProductNestedInput
+    directGifts?: DirectGiftUpdateManyWithoutProductNestedInput
   }
 
   export type VendorGiftUncheckedUpdateWithoutPromotionsInput = {
@@ -47807,6 +50988,7 @@ export namespace Prisma {
     giftImages?: VendorGiftImageUncheckedUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutVendorGiftNestedInput
     campaigns?: CampaignUncheckedUpdateManyWithoutProductNestedInput
+    directGifts?: DirectGiftUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type TransactionUpsertWithoutPromotionInput = {
@@ -47904,6 +51086,8 @@ export namespace Prisma {
     redeemedCampaigns?: CampaignCreateNestedManyWithoutRedeemedByVendorInput
     creatorSupportReceived?: CreatorSupportCreateNestedManyWithoutUserInput
     withdrawals?: WithdrawalCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
@@ -47959,6 +51143,8 @@ export namespace Prisma {
     redeemedCampaigns?: CampaignUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     creatorSupportReceived?: CreatorSupportUncheckedCreateNestedManyWithoutUserInput
     withdrawals?: WithdrawalUncheckedCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftUncheckedCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
@@ -48030,6 +51216,8 @@ export namespace Prisma {
     redeemedCampaigns?: CampaignUpdateManyWithoutRedeemedByVendorNestedInput
     creatorSupportReceived?: CreatorSupportUpdateManyWithoutUserNestedInput
     withdrawals?: WithdrawalUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
@@ -48085,6 +51273,8 @@ export namespace Prisma {
     redeemedCampaigns?: CampaignUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     creatorSupportReceived?: CreatorSupportUncheckedUpdateManyWithoutUserNestedInput
     withdrawals?: WithdrawalUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
@@ -48140,6 +51330,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
@@ -48195,6 +51387,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionUncheckedCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalUncheckedCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftUncheckedCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
@@ -48508,6 +51702,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
@@ -48563,6 +51759,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUncheckedUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
@@ -48890,6 +52088,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
@@ -48945,6 +52145,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionUncheckedCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalUncheckedCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftUncheckedCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
@@ -49052,6 +52254,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
@@ -49107,6 +52311,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUncheckedUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
@@ -49178,6 +52384,8 @@ export namespace Prisma {
     redeemedCampaigns?: CampaignCreateNestedManyWithoutRedeemedByVendorInput
     creatorSupportReceived?: CreatorSupportCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionCreateNestedManyWithoutAdminInput
+    directGiftsSent?: DirectGiftCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
@@ -49233,6 +52441,8 @@ export namespace Prisma {
     redeemedCampaigns?: CampaignUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     creatorSupportReceived?: CreatorSupportUncheckedCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionUncheckedCreateNestedManyWithoutAdminInput
+    directGiftsSent?: DirectGiftUncheckedCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
@@ -49378,6 +52588,8 @@ export namespace Prisma {
     redeemedCampaigns?: CampaignUpdateManyWithoutRedeemedByVendorNestedInput
     creatorSupportReceived?: CreatorSupportUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUpdateManyWithoutAdminNestedInput
+    directGiftsSent?: DirectGiftUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
@@ -49433,6 +52645,8 @@ export namespace Prisma {
     redeemedCampaigns?: CampaignUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     creatorSupportReceived?: CreatorSupportUncheckedUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUncheckedUpdateManyWithoutAdminNestedInput
+    directGiftsSent?: DirectGiftUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
@@ -49574,6 +52788,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
@@ -49629,6 +52845,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionUncheckedCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalUncheckedCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftUncheckedCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
@@ -49689,6 +52907,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
@@ -49744,6 +52964,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionUncheckedCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalUncheckedCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftUncheckedCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
@@ -49842,6 +53064,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
@@ -49897,6 +53121,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUncheckedUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
@@ -49963,6 +53189,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
@@ -50018,6 +53246,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUncheckedUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
@@ -50133,6 +53363,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
@@ -50188,6 +53420,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionUncheckedCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalUncheckedCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftUncheckedCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
@@ -50309,6 +53543,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
@@ -50364,6 +53600,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUncheckedUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
@@ -50419,6 +53657,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
@@ -50474,6 +53714,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionUncheckedCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalUncheckedCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftUncheckedCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
@@ -50534,6 +53776,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
@@ -50589,6 +53833,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionUncheckedCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalUncheckedCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftUncheckedCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
@@ -50660,6 +53906,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
@@ -50715,6 +53963,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUncheckedUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
@@ -50781,6 +54031,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
@@ -50836,6 +54088,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUncheckedUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
@@ -50891,6 +54145,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
@@ -50946,6 +54202,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionUncheckedCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalUncheckedCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftUncheckedCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
@@ -51006,6 +54264,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
@@ -51061,6 +54321,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionUncheckedCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalUncheckedCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftUncheckedCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
@@ -51132,6 +54394,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
@@ -51187,6 +54451,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUncheckedUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
@@ -51253,6 +54519,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
@@ -51308,6 +54576,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUncheckedUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
@@ -51364,6 +54634,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
   }
@@ -51419,6 +54691,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionUncheckedCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalUncheckedCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftUncheckedCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
   }
@@ -51490,6 +54764,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
   }
@@ -51545,6 +54821,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUncheckedUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -51599,6 +54877,8 @@ export namespace Prisma {
     redeemedCampaigns?: CampaignCreateNestedManyWithoutRedeemedByVendorInput
     adminResolvedPromotions?: ExternalPromotionCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
@@ -51654,6 +54934,8 @@ export namespace Prisma {
     redeemedCampaigns?: CampaignUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     adminResolvedPromotions?: ExternalPromotionUncheckedCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalUncheckedCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftUncheckedCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
@@ -51764,6 +55046,8 @@ export namespace Prisma {
     redeemedCampaigns?: CampaignUpdateManyWithoutRedeemedByVendorNestedInput
     adminResolvedPromotions?: ExternalPromotionUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
@@ -51819,6 +55103,8 @@ export namespace Prisma {
     redeemedCampaigns?: CampaignUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     adminResolvedPromotions?: ExternalPromotionUncheckedUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
@@ -51920,6 +55206,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
   }
@@ -51975,6 +55263,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionUncheckedCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalUncheckedCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftUncheckedCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
   }
@@ -52067,6 +55357,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
   }
@@ -52122,6 +55414,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUncheckedUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -52225,6 +55519,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
   }
@@ -52280,6 +55576,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionUncheckedCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalUncheckedCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftUncheckedCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
   }
@@ -52389,6 +55687,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
   }
@@ -52444,6 +55744,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUncheckedUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -52498,6 +55800,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
@@ -52553,6 +55857,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionUncheckedCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalUncheckedCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftUncheckedCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
@@ -52758,6 +56064,72 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type DirectGiftCreateWithoutProductInput = {
+    id?: string
+    category: string
+    title: string
+    description?: string | null
+    amount: Decimal | DecimalJsLike | number | string
+    currency?: string
+    status?: string
+    claimableType?: string | null
+    claimableRecipientType?: string | null
+    recipientEmail?: string | null
+    senderEmail?: string | null
+    paymentReference?: string | null
+    giftCode?: string | null
+    redeemedAt?: Date | string | null
+    vendorRating?: number | null
+    message?: string | null
+    deliveryMethod?: string | null
+    recipientPhone?: string | null
+    recipientCountryCode?: string | null
+    whatsappFee?: Decimal | DecimalJsLike | number | string
+    senderName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutDirectGiftsSentInput
+    redeemedByVendor?: UserCreateNestedOneWithoutDirectGiftsRedeemedInput
+  }
+
+  export type DirectGiftUncheckedCreateWithoutProductInput = {
+    id?: string
+    userId: string
+    category: string
+    title: string
+    description?: string | null
+    amount: Decimal | DecimalJsLike | number | string
+    currency?: string
+    status?: string
+    claimableType?: string | null
+    claimableRecipientType?: string | null
+    recipientEmail?: string | null
+    senderEmail?: string | null
+    paymentReference?: string | null
+    giftCode?: string | null
+    redeemedAt?: Date | string | null
+    redeemedByVendorId?: string | null
+    vendorRating?: number | null
+    message?: string | null
+    deliveryMethod?: string | null
+    recipientPhone?: string | null
+    recipientCountryCode?: string | null
+    whatsappFee?: Decimal | DecimalJsLike | number | string
+    senderName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DirectGiftCreateOrConnectWithoutProductInput = {
+    where: DirectGiftWhereUniqueInput
+    create: XOR<DirectGiftCreateWithoutProductInput, DirectGiftUncheckedCreateWithoutProductInput>
+  }
+
+  export type DirectGiftCreateManyProductInputEnvelope = {
+    data: DirectGiftCreateManyProductInput | DirectGiftCreateManyProductInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserUpsertWithoutVendorGiftsInput = {
     update: XOR<UserUpdateWithoutVendorGiftsInput, UserUncheckedUpdateWithoutVendorGiftsInput>
     create: XOR<UserCreateWithoutVendorGiftsInput, UserUncheckedCreateWithoutVendorGiftsInput>
@@ -52819,6 +56191,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
@@ -52874,6 +56248,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUncheckedUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
@@ -52953,6 +56329,22 @@ export namespace Prisma {
     data: XOR<CampaignUpdateManyMutationInput, CampaignUncheckedUpdateManyWithoutProductInput>
   }
 
+  export type DirectGiftUpsertWithWhereUniqueWithoutProductInput = {
+    where: DirectGiftWhereUniqueInput
+    update: XOR<DirectGiftUpdateWithoutProductInput, DirectGiftUncheckedUpdateWithoutProductInput>
+    create: XOR<DirectGiftCreateWithoutProductInput, DirectGiftUncheckedCreateWithoutProductInput>
+  }
+
+  export type DirectGiftUpdateWithWhereUniqueWithoutProductInput = {
+    where: DirectGiftWhereUniqueInput
+    data: XOR<DirectGiftUpdateWithoutProductInput, DirectGiftUncheckedUpdateWithoutProductInput>
+  }
+
+  export type DirectGiftUpdateManyWithWhereWithoutProductInput = {
+    where: DirectGiftScalarWhereInput
+    data: XOR<DirectGiftUpdateManyMutationInput, DirectGiftUncheckedUpdateManyWithoutProductInput>
+  }
+
   export type VendorGiftCreateWithoutGiftImagesInput = {
     name: string
     slug?: string | null
@@ -52972,6 +56364,7 @@ export namespace Prisma {
     favorites?: FavoriteCreateNestedManyWithoutVendorGiftInput
     promotions?: PromotionCreateNestedManyWithoutProductInput
     campaigns?: CampaignCreateNestedManyWithoutProductInput
+    directGifts?: DirectGiftCreateNestedManyWithoutProductInput
   }
 
   export type VendorGiftUncheckedCreateWithoutGiftImagesInput = {
@@ -52994,6 +56387,7 @@ export namespace Prisma {
     favorites?: FavoriteUncheckedCreateNestedManyWithoutVendorGiftInput
     promotions?: PromotionUncheckedCreateNestedManyWithoutProductInput
     campaigns?: CampaignUncheckedCreateNestedManyWithoutProductInput
+    directGifts?: DirectGiftUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type VendorGiftCreateOrConnectWithoutGiftImagesInput = {
@@ -53031,6 +56425,7 @@ export namespace Prisma {
     favorites?: FavoriteUpdateManyWithoutVendorGiftNestedInput
     promotions?: PromotionUpdateManyWithoutProductNestedInput
     campaigns?: CampaignUpdateManyWithoutProductNestedInput
+    directGifts?: DirectGiftUpdateManyWithoutProductNestedInput
   }
 
   export type VendorGiftUncheckedUpdateWithoutGiftImagesInput = {
@@ -53053,6 +56448,7 @@ export namespace Prisma {
     favorites?: FavoriteUncheckedUpdateManyWithoutVendorGiftNestedInput
     promotions?: PromotionUncheckedUpdateManyWithoutProductNestedInput
     campaigns?: CampaignUncheckedUpdateManyWithoutProductNestedInput
+    directGifts?: DirectGiftUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type UserCreateWithoutFavoritesInput = {
@@ -53105,6 +56501,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
@@ -53160,6 +56558,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedCreateNestedManyWithoutUserInput
     adminResolvedPromotions?: ExternalPromotionUncheckedCreateNestedManyWithoutAdminInput
     withdrawals?: WithdrawalUncheckedCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftUncheckedCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
@@ -53189,6 +56589,7 @@ export namespace Prisma {
     giftImages?: VendorGiftImageCreateNestedManyWithoutGiftInput
     promotions?: PromotionCreateNestedManyWithoutProductInput
     campaigns?: CampaignCreateNestedManyWithoutProductInput
+    directGifts?: DirectGiftCreateNestedManyWithoutProductInput
   }
 
   export type VendorGiftUncheckedCreateWithoutFavoritesInput = {
@@ -53211,6 +56612,7 @@ export namespace Prisma {
     giftImages?: VendorGiftImageUncheckedCreateNestedManyWithoutGiftInput
     promotions?: PromotionUncheckedCreateNestedManyWithoutProductInput
     campaigns?: CampaignUncheckedCreateNestedManyWithoutProductInput
+    directGifts?: DirectGiftUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type VendorGiftCreateOrConnectWithoutFavoritesInput = {
@@ -53279,6 +56681,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
@@ -53334,6 +56738,8 @@ export namespace Prisma {
     creatorSupportReceived?: CreatorSupportUncheckedUpdateManyWithoutUserNestedInput
     adminResolvedPromotions?: ExternalPromotionUncheckedUpdateManyWithoutAdminNestedInput
     withdrawals?: WithdrawalUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
@@ -53369,6 +56775,7 @@ export namespace Prisma {
     giftImages?: VendorGiftImageUpdateManyWithoutGiftNestedInput
     promotions?: PromotionUpdateManyWithoutProductNestedInput
     campaigns?: CampaignUpdateManyWithoutProductNestedInput
+    directGifts?: DirectGiftUpdateManyWithoutProductNestedInput
   }
 
   export type VendorGiftUncheckedUpdateWithoutFavoritesInput = {
@@ -53391,6 +56798,7 @@ export namespace Prisma {
     giftImages?: VendorGiftImageUncheckedUpdateManyWithoutGiftNestedInput
     promotions?: PromotionUncheckedUpdateManyWithoutProductNestedInput
     campaigns?: CampaignUncheckedUpdateManyWithoutProductNestedInput
+    directGifts?: DirectGiftUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type SessionCreateManyUserInput = {
@@ -53716,6 +57124,62 @@ export namespace Prisma {
     reference?: string | null
     rejectionReason?: string | null
     transactionId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DirectGiftCreateManyUserInput = {
+    id?: string
+    category: string
+    title: string
+    description?: string | null
+    amount: Decimal | DecimalJsLike | number | string
+    currency?: string
+    status?: string
+    claimableType?: string | null
+    claimableGiftId?: number | null
+    claimableRecipientType?: string | null
+    recipientEmail?: string | null
+    senderEmail?: string | null
+    paymentReference?: string | null
+    giftCode?: string | null
+    redeemedAt?: Date | string | null
+    redeemedByVendorId?: string | null
+    vendorRating?: number | null
+    message?: string | null
+    deliveryMethod?: string | null
+    recipientPhone?: string | null
+    recipientCountryCode?: string | null
+    whatsappFee?: Decimal | DecimalJsLike | number | string
+    senderName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DirectGiftCreateManyRedeemedByVendorInput = {
+    id?: string
+    userId: string
+    category: string
+    title: string
+    description?: string | null
+    amount: Decimal | DecimalJsLike | number | string
+    currency?: string
+    status?: string
+    claimableType?: string | null
+    claimableGiftId?: number | null
+    claimableRecipientType?: string | null
+    recipientEmail?: string | null
+    senderEmail?: string | null
+    paymentReference?: string | null
+    giftCode?: string | null
+    redeemedAt?: Date | string | null
+    vendorRating?: number | null
+    message?: string | null
+    deliveryMethod?: string | null
+    recipientPhone?: string | null
+    recipientCountryCode?: string | null
+    whatsappFee?: Decimal | DecimalJsLike | number | string
+    senderName?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -54066,6 +57530,7 @@ export namespace Prisma {
     favorites?: FavoriteUpdateManyWithoutVendorGiftNestedInput
     promotions?: PromotionUpdateManyWithoutProductNestedInput
     campaigns?: CampaignUpdateManyWithoutProductNestedInput
+    directGifts?: DirectGiftUpdateManyWithoutProductNestedInput
   }
 
   export type VendorGiftUncheckedUpdateWithoutVendorInput = {
@@ -54088,6 +57553,7 @@ export namespace Prisma {
     favorites?: FavoriteUncheckedUpdateManyWithoutVendorGiftNestedInput
     promotions?: PromotionUncheckedUpdateManyWithoutProductNestedInput
     campaigns?: CampaignUncheckedUpdateManyWithoutProductNestedInput
+    directGifts?: DirectGiftUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type VendorGiftUncheckedUpdateManyWithoutVendorInput = {
@@ -54749,6 +58215,174 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type DirectGiftUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    claimableType?: NullableStringFieldUpdateOperationsInput | string | null
+    claimableRecipientType?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    senderEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    giftCode?: NullableStringFieldUpdateOperationsInput | string | null
+    redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    vendorRating?: NullableIntFieldUpdateOperationsInput | number | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    product?: VendorGiftUpdateOneWithoutDirectGiftsNestedInput
+    redeemedByVendor?: UserUpdateOneWithoutDirectGiftsRedeemedNestedInput
+  }
+
+  export type DirectGiftUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    claimableType?: NullableStringFieldUpdateOperationsInput | string | null
+    claimableGiftId?: NullableIntFieldUpdateOperationsInput | number | null
+    claimableRecipientType?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    senderEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    giftCode?: NullableStringFieldUpdateOperationsInput | string | null
+    redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    redeemedByVendorId?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorRating?: NullableIntFieldUpdateOperationsInput | number | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DirectGiftUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    claimableType?: NullableStringFieldUpdateOperationsInput | string | null
+    claimableGiftId?: NullableIntFieldUpdateOperationsInput | number | null
+    claimableRecipientType?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    senderEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    giftCode?: NullableStringFieldUpdateOperationsInput | string | null
+    redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    redeemedByVendorId?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorRating?: NullableIntFieldUpdateOperationsInput | number | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DirectGiftUpdateWithoutRedeemedByVendorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    claimableType?: NullableStringFieldUpdateOperationsInput | string | null
+    claimableRecipientType?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    senderEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    giftCode?: NullableStringFieldUpdateOperationsInput | string | null
+    redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    vendorRating?: NullableIntFieldUpdateOperationsInput | number | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutDirectGiftsSentNestedInput
+    product?: VendorGiftUpdateOneWithoutDirectGiftsNestedInput
+  }
+
+  export type DirectGiftUncheckedUpdateWithoutRedeemedByVendorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    claimableType?: NullableStringFieldUpdateOperationsInput | string | null
+    claimableGiftId?: NullableIntFieldUpdateOperationsInput | number | null
+    claimableRecipientType?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    senderEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    giftCode?: NullableStringFieldUpdateOperationsInput | string | null
+    redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    vendorRating?: NullableIntFieldUpdateOperationsInput | number | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    claimableType?: NullableStringFieldUpdateOperationsInput | string | null
+    claimableGiftId?: NullableIntFieldUpdateOperationsInput | number | null
+    claimableRecipientType?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    senderEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    giftCode?: NullableStringFieldUpdateOperationsInput | string | null
+    redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    vendorRating?: NullableIntFieldUpdateOperationsInput | number | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type AdminLogUpdateWithoutAdminInput = {
     action?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -55122,6 +58756,34 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type DirectGiftCreateManyProductInput = {
+    id?: string
+    userId: string
+    category: string
+    title: string
+    description?: string | null
+    amount: Decimal | DecimalJsLike | number | string
+    currency?: string
+    status?: string
+    claimableType?: string | null
+    claimableRecipientType?: string | null
+    recipientEmail?: string | null
+    senderEmail?: string | null
+    paymentReference?: string | null
+    giftCode?: string | null
+    redeemedAt?: Date | string | null
+    redeemedByVendorId?: string | null
+    vendorRating?: number | null
+    message?: string | null
+    deliveryMethod?: string | null
+    recipientPhone?: string | null
+    recipientCountryCode?: string | null
+    whatsappFee?: Decimal | DecimalJsLike | number | string
+    senderName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type VendorGiftImageUpdateWithoutGiftInput = {
     url?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -55340,6 +59002,90 @@ export namespace Prisma {
     senderEmail?: NullableStringFieldUpdateOperationsInput | string | null
     paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
     currency?: StringFieldUpdateOperationsInput | string
+    giftCode?: NullableStringFieldUpdateOperationsInput | string | null
+    redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    redeemedByVendorId?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorRating?: NullableIntFieldUpdateOperationsInput | number | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DirectGiftUpdateWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    claimableType?: NullableStringFieldUpdateOperationsInput | string | null
+    claimableRecipientType?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    senderEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    giftCode?: NullableStringFieldUpdateOperationsInput | string | null
+    redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    vendorRating?: NullableIntFieldUpdateOperationsInput | number | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutDirectGiftsSentNestedInput
+    redeemedByVendor?: UserUpdateOneWithoutDirectGiftsRedeemedNestedInput
+  }
+
+  export type DirectGiftUncheckedUpdateWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    claimableType?: NullableStringFieldUpdateOperationsInput | string | null
+    claimableRecipientType?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    senderEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    giftCode?: NullableStringFieldUpdateOperationsInput | string | null
+    redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    redeemedByVendorId?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorRating?: NullableIntFieldUpdateOperationsInput | number | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientCountryCode?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappFee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DirectGiftUncheckedUpdateManyWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    claimableType?: NullableStringFieldUpdateOperationsInput | string | null
+    claimableRecipientType?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    senderEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
     giftCode?: NullableStringFieldUpdateOperationsInput | string | null
     redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     redeemedByVendorId?: NullableStringFieldUpdateOperationsInput | string | null
