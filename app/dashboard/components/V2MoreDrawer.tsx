@@ -81,10 +81,14 @@ export function V2MoreDrawer({open, onOpenChange, onNavigate, activeSection}: V2
         <div className="px-4 py-4 space-y-4 overflow-y-auto">
           {/* User Profile Section */}
           <div className="flex items-center gap-4 p-4 bg-[var(--v2-surface-container-low)] rounded-2xl">
-            <div className="w-14 h-14 rounded-full bg-[var(--v2-primary)]/10 flex items-center justify-center">
-              <span className="text-2xl font-bold text-[var(--v2-primary)] capitalize">
-                {userName.charAt(0)}
-              </span>
+            <div className="w-14 h-14 rounded-full bg-[var(--v2-primary)]/10 flex items-center justify-center overflow-hidden">
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt={userName} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-2xl font-bold text-[var(--v2-primary)] capitalize">
+                  {userName.charAt(0)}
+                </span>
+              )}
             </div>
             <div className="min-w-0 flex-1">
               <p className="font-bold text-lg text-[var(--v2-on-surface)] truncate capitalize">

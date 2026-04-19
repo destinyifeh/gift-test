@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import {useState} from 'react';
 import {GifthanceLogo} from '@/components/GifthanceLogo';
+import {useProfile} from '@/hooks/use-profile';
 
 interface GiftShopNavProps {
   isLoggedIn: boolean;
@@ -11,6 +12,9 @@ interface GiftShopNavProps {
 }
 
 export function GiftShopDesktopNav({isLoggedIn, searchQuery, onSearchChange}: GiftShopNavProps) {
+  const {data: profile} = useProfile();
+  const avatarUrl = profile?.avatar_url;
+
   return (
     <nav className="fixed top-0 w-full z-50 bg-orange-50/80 backdrop-blur-xl hidden md:block">
       <div className="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
@@ -35,6 +39,14 @@ export function GiftShopDesktopNav({isLoggedIn, searchQuery, onSearchChange}: Gi
             >
               Send Gift
             </Link>
+            {isLoggedIn && (
+              <Link
+                href="/dashboard"
+                className="text-stone-600 font-medium hover:text-orange-700 transition-colors"
+              >
+                Dashboard
+              </Link>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-6">
@@ -52,7 +64,13 @@ export function GiftShopDesktopNav({isLoggedIn, searchQuery, onSearchChange}: Gi
           </div>
           {isLoggedIn ? (
             <Link href="/dashboard" className="flex items-center text-orange-700 hover:opacity-80 duration-200">
-              <span className="v2-icon text-2xl">account_circle</span>
+              {avatarUrl ? (
+                <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-orange-200 shadow-sm transition-transform hover:scale-105 active:scale-95">
+                  <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+                </div>
+              ) : (
+                <span className="v2-icon text-2xl">account_circle</span>
+              )}
             </Link>
           ) : (
             <Link href="/login" className="text-orange-700 font-semibold">
@@ -71,6 +89,8 @@ interface GiftShopMobileNavProps {
 
 export function GiftShopMobileNav({isLoggedIn}: GiftShopMobileNavProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const {data: profile} = useProfile();
+  const avatarUrl = profile?.avatar_url;
 
   return (
     <nav className="fixed top-0 w-full z-50 bg-orange-50/80 backdrop-blur-xl md:hidden">
@@ -78,7 +98,13 @@ export function GiftShopMobileNav({isLoggedIn}: GiftShopMobileNavProps) {
         <GifthanceLogo size="md" />
         <div className="flex items-center gap-3">
           <Link href={isLoggedIn ? '/dashboard' : '/login'} className="p-2 text-orange-700">
-            <span className="v2-icon text-2xl">account_circle</span>
+            {isLoggedIn && avatarUrl ? (
+              <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-orange-200 shadow-sm transition-transform active:scale-95">
+                <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+              </div>
+            ) : (
+              <span className="v2-icon text-2xl">account_circle</span>
+            )}
           </Link>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -93,9 +119,19 @@ export function GiftShopMobileNav({isLoggedIn}: GiftShopMobileNavProps) {
       {mobileMenuOpen && (
         <div className="px-4 pb-4 bg-[var(--v2-surface)]/95 backdrop-blur-xl border-t border-[var(--v2-outline-variant)]/10">
           <div className="flex flex-col gap-1 py-2">
+            {isLoggedIn && (
+              <Link
+                href="/dashboard"
+                className="px-4 py-3 rounded-xl text-[var(--v2-on-surface)] hover:bg-[var(--v2-surface-container-low)] transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Dashboard
+              </Link>
+            )}
             <Link
               href="/gift-shop"
               className="px-4 py-3 rounded-xl bg-[var(--v2-primary)]/10 text-[var(--v2-primary)] font-semibold"
+              onClick={() => setMobileMenuOpen(false)}
             >
               Gift Shop
             </Link>

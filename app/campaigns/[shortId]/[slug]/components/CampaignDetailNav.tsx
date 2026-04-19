@@ -3,9 +3,12 @@
 import Link from 'next/link';
 import {useAuth} from '@/hooks/use-auth';
 import {GifthanceLogo} from '@/components/GifthanceLogo';
+import {useProfile} from '@/hooks/use-profile';
 
 export function CampaignDetailDesktopNav() {
   const {isLoggedIn} = useAuth();
+  const {data: profile} = useProfile();
+  const avatarUrl = profile?.avatar_url;
 
   return (
     <nav className="hidden md:block fixed top-0 w-full z-50 v2-glass-nav shadow-sm">
@@ -30,11 +33,25 @@ export function CampaignDetailDesktopNav() {
           >
             Send Gift
           </Link>
+          {isLoggedIn && (
+            <Link
+              href="/dashboard"
+              className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors"
+            >
+              Dashboard
+            </Link>
+          )}
         </div>
         <div className="flex items-center space-x-6">
           {isLoggedIn ? (
             <Link href="/dashboard" className="flex items-center text-[var(--v2-primary)] hover:opacity-80 transition-opacity">
-              <span className="v2-icon text-2xl">account_circle</span>
+              {avatarUrl ? (
+                <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-[var(--v2-primary)]/20 shadow-sm transition-transform hover:scale-105 active:scale-95">
+                  <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+                </div>
+              ) : (
+                <span className="v2-icon text-2xl">account_circle</span>
+              )}
             </Link>
           ) : (
             <Link href="/login" className="text-[var(--v2-primary)] font-semibold hover:text-[var(--v2-primary-dim)] transition-colors">

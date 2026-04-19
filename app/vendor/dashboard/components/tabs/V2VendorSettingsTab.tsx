@@ -6,8 +6,9 @@ import api from '@/lib/api-client';
 import {useUserStore} from '@/lib/store/useUserStore';
 import {useQueryClient} from '@tanstack/react-query';
 import {useRouter} from 'next/navigation';
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {toast} from 'sonner';
+import {uploadAvatar, deleteUploadedFile} from '@/lib/server/actions/auth';
 
 const COUNTRIES = [
   'Nigeria',
@@ -37,6 +38,8 @@ export function V2VendorSettingsTab() {
     website: '',
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (profile) {
@@ -82,6 +85,74 @@ export function V2VendorSettingsTab() {
     }
   };
 
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Basic validation
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be less than 5MB');
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('folder', 'avatars');
+
+      const result = await uploadAvatar(formData);
+
+      if (result.success) {
+        toast.success('Avatar updated successfully!');
+        queryClient.invalidateQueries({queryKey: ['profile']});
+      } else {
+        toast.error(result.error || 'Failed to upload avatar');
+      }
+    } catch (error) {
+      toast.error('An error occurred during upload');
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
+  const handleRemoveAvatar = async (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering file input
+    if (!profile?.avatar_url) return;
+
+    const confirmRemove = confirm('Are you sure you want to remove your profile picture?');
+    if (!confirmRemove) return;
+
+    setIsUploadingAvatar(true);
+    try {
+      // 1. Delete from storage if it exists
+      if (profile.avatar_url) {
+        await deleteUploadedFile(profile.avatar_url);
+      }
+
+      // 2. Update profile in database
+      await api.patch('/users', {
+        avatarUrl: '',
+      });
+
+      toast.success('Avatar removed');
+      queryClient.invalidateQueries({queryKey: ['profile']});
+    } catch (error) {
+      toast.error('Failed to remove avatar');
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
   const handleSignOut = async () => {
     try {
       await authClient.signOut();
@@ -124,8 +195,18 @@ export function V2VendorSettingsTab() {
         <div className="lg:col-span-4 space-y-6">
           {/* Avatar Section */}
           <div className="bg-[var(--v2-surface-container-lowest)] rounded-[2rem] p-6 text-center">
-            <div className="relative inline-block mb-4">
-              <div className="w-28 h-28 rounded-full bg-[var(--v2-surface-container-high)] overflow-hidden mx-auto ring-4 ring-[var(--v2-surface-container-highest)]">
+            <div className="relative inline-block mb-4 group">
+              <div
+                className="w-28 h-28 rounded-full bg-[var(--v2-surface-container-high)] overflow-hidden mx-auto ring-4 ring-[var(--v2-surface-container-highest)] cursor-pointer relative"
+                onClick={handleAvatarClick}>
+                {isUploadingAvatar ? (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[2px] z-10">
+                    <span className="v2-icon text-white animate-spin text-3xl">
+                      progress_activity
+                    </span>
+                  </div>
+                ) : null}
+
                 {profile?.avatar_url ? (
                   <img
                     src={profile.avatar_url}
@@ -140,9 +221,29 @@ export function V2VendorSettingsTab() {
                   </div>
                 )}
               </div>
-              <button className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-[var(--v2-primary)] text-white flex items-center justify-center shadow-lg">
+
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                accept="image/*"
+                className="hidden"
+              />
+
+              <button
+                onClick={handleAvatarClick}
+                className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-[var(--v2-primary)] text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
                 <span className="v2-icon text-sm">edit</span>
               </button>
+
+              {profile?.avatar_url && !isUploadingAvatar && (
+                <button
+                  onClick={handleRemoveAvatar}
+                  className="absolute -top-1 -right-1 w-8 h-8 rounded-full bg-[var(--v2-error)] text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform opacity-0 group-hover:opacity-100 duration-200"
+                  title="Remove avatar">
+                  <span className="v2-icon text-sm">delete</span>
+                </button>
+              )}
             </div>
             <h3 className="text-xl font-bold v2-headline text-[var(--v2-on-surface)]">
               {formData.display_name || 'Your Name'}

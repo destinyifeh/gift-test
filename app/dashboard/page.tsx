@@ -226,10 +226,14 @@ function V2DashboardContent() {
           </Link>
 
           <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--v2-surface-container-high)] transition-colors cursor-pointer">
-            <div className="w-10 h-10 rounded-full bg-[var(--v2-primary)]/10 flex items-center justify-center">
-              <span className="text-lg font-bold text-[var(--v2-primary)] capitalize">
-                {userName.charAt(0)}
-              </span>
+            <div className="w-10 h-10 rounded-full bg-[var(--v2-primary)]/10 flex items-center justify-center overflow-hidden">
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt={userName} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-lg font-bold text-[var(--v2-primary)] capitalize">
+                  {userName.charAt(0)}
+                </span>
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-bold text-sm text-[var(--v2-on-surface)] truncate capitalize">

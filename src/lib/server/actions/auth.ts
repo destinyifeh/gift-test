@@ -177,3 +177,28 @@ export async function uploadBannerImage(formData: FormData) {
     return { success: false, error: error.message };
   }
 }
+
+export async function uploadAvatar(formData: FormData) {
+  try {
+    const res = await serverFetch('/files/upload?folder=avatars', {
+      method: 'POST',
+      body: formData,
+    });
+    
+    return { success: true, url: res.url };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteUploadedFile(url: string) {
+  try {
+    await serverFetch('/files/delete', {
+      method: 'POST',
+      body: JSON.stringify({ url }),
+    });
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}

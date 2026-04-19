@@ -2,10 +2,10 @@
 
 import {useUpdateCreatorStatus} from '@/hooks/use-auth';
 import {useProfile} from '@/hooks/use-profile';
-import {updateProfile} from '@/lib/server/actions/auth';
+import {updateProfile, uploadAvatar, deleteUploadedFile} from '@/lib/server/actions/auth';
 import {useUserStore} from '@/lib/store/useUserStore';
 import {useQueryClient} from '@tanstack/react-query';
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {toast} from 'sonner';
 
 const COUNTRIES = [
@@ -36,6 +36,8 @@ export function V2SettingsTab() {
     website: '',
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (profile) {
@@ -81,6 +83,87 @@ export function V2SettingsTab() {
     }
   };
 
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File too large', { description: 'Max size is 5MB' });
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const uploadRes = await uploadAvatar(formData);
+      if (uploadRes.success && uploadRes.url) {
+        const updateRes = await updateProfile({ avatar_url: uploadRes.url });
+        if (updateRes.success) {
+          toast.success('Avatar updated!');
+          queryClient.invalidateQueries({ queryKey: ['profile'] });
+          if (profile) {
+            setUser({
+              ...profile,
+              avatar_url: uploadRes.url,
+            } as any);
+          }
+        } else {
+          toast.error('Failed to update profile with new avatar');
+        }
+      } else {
+        toast.error(uploadRes.error || 'Upload failed');
+      }
+    } catch (err) {
+      toast.error('An error occurred during upload');
+    } finally {
+      setIsUploadingAvatar(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    if (!profile?.avatar_url) return;
+    
+    if (!confirm('Are you sure you want to remove your avatar?')) return;
+
+    const oldUrl = profile.avatar_url;
+    setIsUploadingAvatar(true);
+
+    try {
+      // 1. Update profile to clear the URL first (so UI updates fast)
+      const updateRes = await updateProfile({ avatar_url: '' });
+      if (updateRes.success) {
+        toast.success('Avatar removed');
+        queryClient.invalidateQueries({ queryKey: ['profile'] });
+        
+        // 2. Clear store
+        if (profile) {
+          setUser({
+            ...profile,
+            avatar_url: '',
+          } as any);
+        }
+
+        // 3. Delete from storage (async, don't block success)
+        deleteUploadedFile(oldUrl).catch(err => console.error('Failed to delete file from storage:', err));
+        
+      } else {
+        toast.error('Failed to clear avatar from profile');
+      }
+    } catch (err) {
+      toast.error('An error occurred while removing avatar');
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[300px]">
@@ -101,7 +184,14 @@ export function V2SettingsTab() {
           {/* Avatar Section */}
           <div className="bg-[var(--v2-surface-container-lowest)] rounded-[2rem] p-6 text-center">
             <div className="relative inline-block mb-4">
-              <div className="w-28 h-28 rounded-full bg-[var(--v2-surface-container-high)] overflow-hidden mx-auto ring-4 ring-[var(--v2-surface-container-highest)]">
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleAvatarChange}
+                accept="image/*"
+                className="hidden"
+              />
+              <div className="w-28 h-28 rounded-full bg-[var(--v2-surface-container-high)] overflow-hidden mx-auto ring-4 ring-[var(--v2-surface-container-highest)] relative">
                 {profile?.avatar_url ? (
                   <img
                     src={profile.avatar_url}
@@ -115,10 +205,29 @@ export function V2SettingsTab() {
                     </span>
                   </div>
                 )}
+                
+                {isUploadingAvatar && (
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                    <span className="v2-icon text-white animate-spin">progress_activity</span>
+                  </div>
+                )}
               </div>
-              <button className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-[var(--v2-primary)] text-white flex items-center justify-center shadow-lg">
-                <span className="v2-icon text-sm">edit</span>
-              </button>
+              
+              <div className="absolute bottom-0 right-0 flex flex-col gap-1 translate-x-2">
+                {profile?.avatar_url && !isUploadingAvatar && (
+                  <button 
+                    onClick={handleRemoveAvatar}
+                    className="w-7 h-7 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform active:scale-95">
+                    <span className="v2-icon text-sm">delete</span>
+                  </button>
+                )}
+                <button 
+                  onClick={handleAvatarClick}
+                  disabled={isUploadingAvatar}
+                  className="w-8 h-8 rounded-full bg-[var(--v2-primary)] text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform active:scale-95 disabled:opacity-50">
+                  <span className="v2-icon text-sm">edit</span>
+                </button>
+              </div>
             </div>
             <h3 className="text-xl font-bold v2-headline text-[var(--v2-on-surface)]">
               {formData.display_name || 'Your Name'}

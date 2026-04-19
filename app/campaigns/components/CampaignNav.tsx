@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import {useState} from 'react';
 import {GifthanceLogo} from '@/components/GifthanceLogo';
+import {useProfile} from '@/hooks/use-profile';
 
 interface CampaignNavProps {
   isLoggedIn: boolean;
@@ -11,6 +12,9 @@ interface CampaignNavProps {
 }
 
 export function CampaignDesktopNav({isLoggedIn, searchQuery, onSearchChange}: CampaignNavProps) {
+  const {data: profile} = useProfile();
+  const avatarUrl = profile?.avatar_url;
+
   return (
     <nav className="hidden md:block fixed top-0 w-full z-50 v2-glass-nav">
       <div className="flex justify-between items-center h-16 px-8 max-w-7xl mx-auto">
@@ -26,6 +30,11 @@ export function CampaignDesktopNav({isLoggedIn, searchQuery, onSearchChange}: Ca
             <Link href="/send-gift" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors">
               Send Gift
             </Link>
+            {isLoggedIn && (
+              <Link href="/dashboard" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors">
+                Dashboard
+              </Link>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -43,7 +52,13 @@ export function CampaignDesktopNav({isLoggedIn, searchQuery, onSearchChange}: Ca
           )}
           {isLoggedIn ? (
             <Link href="/dashboard" className="flex items-center text-[var(--v2-primary)] hover:opacity-80 transition-opacity">
-              <span className="v2-icon text-2xl">account_circle</span>
+              {avatarUrl ? (
+                <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-[var(--v2-primary)]/20 shadow-sm transition-transform hover:scale-105 active:scale-95">
+                  <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+                </div>
+              ) : (
+                <span className="v2-icon text-2xl">account_circle</span>
+              )}
             </Link>
           ) : (
             <Link href="/login" className="text-[var(--v2-primary)] font-semibold hover:text-[var(--v2-primary-dim)] transition-colors">
@@ -64,6 +79,8 @@ export function CampaignDesktopNav({isLoggedIn, searchQuery, onSearchChange}: Ca
 
 export function CampaignMobileNav({isLoggedIn}: CampaignNavProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const {data: profile} = useProfile();
+  const avatarUrl = profile?.avatar_url;
 
   return (
     <nav className="md:hidden fixed top-0 w-full z-50 v2-glass-nav">
@@ -72,7 +89,13 @@ export function CampaignMobileNav({isLoggedIn}: CampaignNavProps) {
         <div className="flex items-center gap-2">
           {isLoggedIn ? (
             <Link href="/dashboard" className="p-2 text-[var(--v2-primary)]">
-              <span className="v2-icon">account_circle</span>
+              {avatarUrl ? (
+                <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-[var(--v2-primary)]/20 shadow-sm transition-transform active:scale-95">
+                  <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+                </div>
+              ) : (
+                <span className="v2-icon">account_circle</span>
+              )}
             </Link>
           ) : (
             <Link href="/login" className="px-4 py-2 text-[var(--v2-primary)] font-semibold text-sm">
@@ -92,7 +115,12 @@ export function CampaignMobileNav({isLoggedIn}: CampaignNavProps) {
       {mobileMenuOpen && (
         <div className="px-4 pb-4 bg-[var(--v2-surface)]/95 backdrop-blur-xl border-t border-[var(--v2-outline-variant)]/10">
           <div className="flex flex-col gap-1 py-2">
-            <Link href="/gift-shop" className="px-4 py-3 rounded-xl text-[var(--v2-on-surface)] hover:bg-[var(--v2-surface-container-low)] transition-colors">
+            {isLoggedIn && (
+              <Link href="/dashboard" className="px-4 py-3 rounded-xl text-[var(--v2-on-surface)] hover:bg-[var(--v2-surface-container-low)] transition-colors" onClick={() => setMobileMenuOpen(false)}>
+                Dashboard
+              </Link>
+            )}
+            <Link href="/gift-shop" className="px-4 py-3 rounded-xl text-[var(--v2-on-surface)] hover:bg-[var(--v2-surface-container-low)] transition-colors" onClick={() => setMobileMenuOpen(false)}>
               Gift Shop
             </Link>
             <Link href="/campaigns" className="px-4 py-3 rounded-xl bg-[var(--v2-primary)]/10 text-[var(--v2-primary)] font-semibold">
