@@ -72,12 +72,33 @@ export function useAdminUsers(
 export function useUpdateUserRole() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ userId, roles, adminRole }: { userId: string; roles: string[]; adminRole: string | null }) => {
-      const res = await api.patch(`/admin/users/${userId}/role`, { roles, adminRole });
+    mutationFn: async ({
+      userId,
+      roles,
+      adminRole,
+      username,
+      fullName,
+      country,
+    }: {
+      userId: string;
+      roles: string[];
+      adminRole?: string | null;
+      username?: string;
+      fullName?: string;
+      country?: string;
+    }) => {
+      const res = await api.patch(`/admin/users/${userId}/role`, {
+        roles,
+        adminRole: adminRole || null,
+        username,
+        fullName,
+        country,
+      });
       return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-vendors'] });
     },
   });
 }
@@ -166,6 +187,35 @@ export function useVerifyVendor() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-vendors'] });
+    },
+  });
+}
+
+export function useCreateVendor() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: {
+      fullName: string;
+      username: string;
+      email: string;
+      country: string;
+      password?: string;
+    }) => {
+      const res = await api.post('/admin/vendors', data);
+      return res.data;
+    },
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-vendors'] });
+      if (data.created) {
+        toast.success(`Vendor account created successfully`);
+      } else if (data.upgraded) {
+        toast.success(`User upgraded to vendor role`);
+      } else {
+        toast.success('Vendor added successfully');
+      }
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to create vendor');
     },
   });
 }

@@ -40,6 +40,9 @@ export class AdminController {
     @Param('id') userId: string,
     @Body('roles') roles: string[],
     @Body('adminRole') adminRole: string | null,
+    @Body('username') username?: string,
+    @Body('fullName') fullName?: string,
+    @Body('country') country?: string,
   ) {
     const adminId = (req as any).user.id;
     return this.adminService.updateUserRole(
@@ -47,6 +50,7 @@ export class AdminController {
       userId,
       roles as UserRole[],
       adminRole as AdminRole | null,
+      { username, fullName, country }
     );
   }
 
@@ -319,6 +323,21 @@ export class AdminController {
   }
 
   // ── Vendor Management ──
+  @Post('vendors')
+  async createVendor(
+    @Req() req: Request,
+    @Body() data: {
+      fullName: string;
+      username: string;
+      email: string;
+      country: string;
+      password?: string;
+    },
+  ) {
+    const adminId = (req as any).user.id;
+    return this.adminService.createVendor(adminId, data);
+  }
+
   @Get('vendors')
   async fetchVendors(
     @Query('search') search?: string,

@@ -4,6 +4,7 @@ import { FileService } from '../file/file.service';
 import { paginate, getPaginationOptions } from '../../common/utils/pagination.util';
 import { NotificationService } from '../notification/notification.service';
 import { AuthService } from '../auth/auth.service';
+import { EmailService } from '../email/email.service';
 import { UserRole, AdminRole } from '../../generated/prisma';
 
 @Injectable()
@@ -15,6 +16,7 @@ export class AdminService {
     private notificationService: NotificationService,
     private fileService: FileService,
     private authService: AuthService,
+    private emailService: EmailService,
   ) {}
 
   // ─────────────────────────────────────────────
@@ -70,19 +72,29 @@ export class AdminService {
     return paginate(formatted, total, page, limit);
   }
 
-  async updateUserRole(adminId: string, userId: string, roles: UserRole[], adminRole: AdminRole | null) {
-    const finalRoles = [...new Set([...roles, 'user'])];
-    
-    const user = await (this.prisma as any).user.update({
+  async updateUserRole(
+    adminId: string,
+    userId: string,
+    roles: UserRole[],
+    adminRole: AdminRole | null,
+    profileData?: { username?: string; fullName?: string; country?: string }
+  ) {
+    const updatedUser = await (this.prisma as any).user.update({
       where: { id: userId },
       data: {
-        roles: finalRoles,
-        adminRole: finalRoles.includes('admin') ? adminRole : null,
+        roles,
+        adminRole: roles.includes('admin') ? adminRole : null,
+        ...(profileData?.username && { username: profileData.username.toLowerCase() }),
+        ...(profileData?.fullName && { 
+          displayName: profileData.fullName,
+          name: profileData.fullName 
+        }),
+        ...(profileData?.country && { country: profileData.country }),
       },
     });
 
-    await this.logAction(adminId, `Updated roles for user ${userId} to [${finalRoles.join(', ')}]`);
-    return user;
+    await this.logAction(adminId, `Updated profile/roles for user ${userId}`);
+    return updatedUser;
   }
 
   async updateUserStatus(adminId: string, userId: string, status: string, suspensionEnd?: Date) {
@@ -1299,5 +1311,90 @@ export class AdminService {
 
     await this.logAction(adminId, `Updated system settings: ${Object.keys(settings).join(', ')}`);
     return { success: true };
+  }
+
+  async createVendor(adminId: string, data: {
+    fullName: string;
+    username: string;
+    email: string;
+    country: string;
+    password?: string;
+  }) {
+    // 1. Check if user or username exists
+    const existingUser = await (this.prisma as any).user.findFirst({
+      where: { 
+        OR: [
+          { email: data.email },
+          { username: data.username.toLowerCase() }
+        ]
+      },
+    });
+
+    if (existingUser) {
+      if (existingUser.email === data.email) {
+        // Case 2: Existing User (email already exists)
+        const currentRoles = existingUser.roles || [];
+        if (currentRoles.includes('vendor')) {
+          throw new BadRequestException('User is already a vendor');
+        }
+
+        const updatedUser = await (this.prisma as any).user.update({
+          where: { id: existingUser.id },
+          data: {
+            roles: [...currentRoles, 'vendor'],
+            isVerifiedVendor: true,
+            vendorStatus: 'active',
+          },
+        });
+
+        await this.logAction(adminId, `Upgraded existing user ${existingUser.email} to Vendor role`);
+        return { success: true, userId: updatedUser.id, upgraded: true };
+      } else {
+        throw new BadRequestException('Username is already taken');
+      }
+    }
+
+    // Case 1: New Vendor (email does NOT exist)
+    try {
+      const newUser = await this.authService.signUpEmail({
+        email: data.email,
+        password: data.password,
+        name: data.fullName,
+        roles: ['user', 'vendor'],
+        isVerifiedVendor: true,
+      });
+
+      if (!newUser) {
+        throw new Error('Failed to create user account');
+      }
+
+      // Update the user with vendor specific fields
+      const updatedUser = await (this.prisma as any).user.update({
+        where: { email: data.email },
+        data: {
+          username: data.username.toLowerCase(),
+          displayName: data.fullName,
+          name: data.fullName,
+          country: data.country,
+          roles: ['user', 'vendor'],
+          emailVerified: true,
+          isVerifiedVendor: true,
+          vendorStatus: 'active',
+        }
+      });
+
+      // Send welcome email
+      await this.emailService.sendVendorWelcomeEmail({
+        to: data.email,
+        fullName: data.fullName,
+        temporaryPassword: data.password,
+      }).catch((err: any) => this.logger.error('Failed to send vendor welcome email', err));
+
+      await this.logAction(adminId, `Created new Vendor account for ${data.email}`);
+      return { success: true, userId: updatedUser.id, created: true, temporaryPassword: data.password };
+    } catch (error: any) {
+      this.logger.error('Vendor creation failed:', error);
+      throw new BadRequestException(error.message || 'Failed to create vendor account');
+    }
   }
 }

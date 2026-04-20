@@ -73,4 +73,21 @@ export class AuthService implements OnModuleInit {
     });
     return user?.roles.includes(role) || false;
   }
+
+  /**
+   * Admin-triggered sign up
+   */
+  async signUpEmail(data: { email: string; password?: string; name: string; roles?: string[]; isVerifiedVendor?: boolean }) {
+    return (auth.api as any).signUpEmail({
+      body: {
+        email: data.email,
+        password: data.password || 'TemporaryPassword123!',
+        name: data.name,
+        roles: data.roles || ['user'],
+        isVerifiedVendor: data.isVerifiedVendor || false,
+        suggestedAmounts: [5, 10, 25],
+        platformBalance: 0,
+      }
+    });
+  }
 }

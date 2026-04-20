@@ -35,6 +35,10 @@ function LoginForm() {
     },
   });
 
+  const [showRoleSelector, setShowRoleSelector] = useState(false);
+  const [currentUserRoles, setCurrentUserRoles] = useState<string[]>([]);
+  const { data: sessionData } = authClient.useSession();
+
   const onSubmit = async (data: LoginInput) => {
     setIsLoading(true);
     setErrorMsg(null);
@@ -48,11 +52,101 @@ function LoginForm() {
       setErrorMsg(error.message || 'An error occurred during login');
       setIsLoading(false);
     } else {
+      const roles = (session?.user as any)?.roles || [];
+      setCurrentUserRoles(roles);
       queryClient.clear();
       toast.success('Logged in successfully');
-      router.push(redirect || '/dashboard');
+
+      // Filter to unique logical roles (Admin, Vendor, User/Creator)
+      const availableDashboards = [];
+      if (roles.includes('admin')) availableDashboards.push('admin');
+      if (roles.includes('vendor')) availableDashboards.push('vendor');
+      if (roles.includes('user')) availableDashboards.push('user');
+
+      if (availableDashboards.length > 1) {
+        setShowRoleSelector(true);
+      } else if (availableDashboards.includes('admin')) {
+        router.push('/admin');
+      } else if (availableDashboards.includes('vendor')) {
+        router.push('/vendor/dashboard');
+      } else {
+        router.push(redirect || '/dashboard');
+      }
     }
   };
+
+  if (showRoleSelector) {
+    const roles = currentUserRoles.length > 0 ? currentUserRoles : (sessionData?.user as any)?.roles || [];
+    
+    return (
+      <div className="min-h-screen bg-[var(--v2-background)] flex items-center justify-center p-4">
+        <div className="w-full max-w-[440px] bg-white rounded-[2.5rem] p-10 shadow-2xl animate-in zoom-in-95 duration-300">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-black v2-headline text-[var(--v2-on-surface)]">
+              Welcome Back!
+            </h2>
+            <p className="text-[var(--v2-on-surface-variant)] mt-3">
+              Which dashboard would you like to use?
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {roles.includes('user') && (
+              <button
+                onClick={() => router.push('/dashboard')}
+                className="w-full flex items-center gap-5 p-6 bg-[var(--v2-primary-container)]/10 hover:bg-[var(--v2-primary-container)]/20 border-2 border-[var(--v2-primary-container)]/20 rounded-3xl transition-all group"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-[var(--v2-primary)] text-white flex items-center justify-center group-hover:scale-105 transition-transform shadow-lg shadow-[var(--v2-primary)]/20">
+                  <span className="v2-icon text-3xl">dashboard</span>
+                </div>
+                <div className="text-left flex-1">
+                  <p className="font-bold text-lg text-[var(--v2-on-surface)]">Creator Dashboard</p>
+                  <p className="text-sm text-[var(--v2-on-surface-variant)]">Manage your gifts and campaigns</p>
+                </div>
+                <span className="v2-icon text-[var(--v2-primary)] group-hover:translate-x-1 transition-transform">chevron_right</span>
+              </button>
+            )}
+
+            {roles.includes('vendor') && (
+              <button
+                onClick={() => router.push('/vendor/dashboard')}
+                className="w-full flex items-center gap-5 p-6 bg-[#FEF4E9] hover:bg-[#FCEAD8] border-2 border-transparent rounded-3xl transition-all group"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-[#7C4113] text-white flex items-center justify-center group-hover:scale-105 transition-transform shadow-lg shadow-[#7C4113]/20">
+                  <span className="v2-icon text-3xl">storefront</span>
+                </div>
+                <div className="text-left flex-1">
+                  <p className="font-bold text-lg text-[var(--v2-on-surface)]">Vendor Portal</p>
+                  <p className="text-sm text-[var(--v2-on-surface-variant)]">Manage your shop and orders</p>
+                </div>
+                <span className="v2-icon text-[#7C4113] group-hover:translate-x-1 transition-transform">chevron_right</span>
+              </button>
+            )}
+
+            {roles.includes('admin') && (
+              <button
+                onClick={() => router.push('/admin')}
+                className="w-full flex items-center gap-5 p-6 bg-[var(--v2-surface-container-high)] hover:bg-[var(--v2-surface-container-highest)] border-2 border-transparent rounded-3xl transition-all group"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-[var(--v2-on-surface)] text-white flex items-center justify-center group-hover:scale-105 transition-transform shadow-lg shadow-black/10">
+                  <span className="v2-icon text-3xl">shield</span>
+                </div>
+                <div className="text-left flex-1">
+                  <p className="font-bold text-lg text-[var(--v2-on-surface)]">Admin Dashboard</p>
+                  <p className="text-sm text-[var(--v2-on-surface-variant)]">System settings and management</p>
+                </div>
+                <span className="v2-icon text-[var(--v2-on-surface-variant)] group-hover:translate-x-1 transition-transform">chevron_right</span>
+              </button>
+            )}
+          </div>
+
+          <p className="text-center text-xs text-[var(--v2-on-surface-variant)] mt-10 font-medium leading-relaxed max-w-[280px] mx-auto">
+            You can always switch between dashboards later from the sidebar menu.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[var(--v2-background)]">

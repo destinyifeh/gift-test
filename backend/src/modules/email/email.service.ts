@@ -7,6 +7,7 @@ import GiftCardEmail from './templates/GiftCardEmail';
 import ThankYouEmail from './templates/ThankYouEmail';
 import ResetPasswordEmail from './templates/ResetPasswordEmail';
 import VerificationEmail from './templates/VerificationEmail';
+import VendorWelcomeEmail from './templates/VendorWelcomeEmail';
 
 
 
@@ -103,6 +104,22 @@ export class EmailService {
     return this.sendEmail({
       to: params.to,
       subject: '✨ Verify your Gifthance account',
+      html,
+    });
+  }
+
+  async sendVendorWelcomeEmail(params: { to: string; fullName: string; temporaryPassword?: string }) {
+    const html = await render(
+      React.createElement(VendorWelcomeEmail, {
+        fullName: params.fullName,
+        temporaryPassword: params.temporaryPassword,
+        loginUrl: `${this.configService.get('FRONTEND_URL')}/login`,
+      })
+    );
+
+    return this.sendEmail({
+      to: params.to,
+      subject: '👋 Welcome to the Gifthance Vendor Program!',
       html,
     });
   }

@@ -315,6 +315,31 @@ export async function fetchAdminVendors({
   }
 }
 
+export async function createVendor({
+  fullName,
+  username,
+  email,
+  country,
+  password,
+}: {
+  fullName: string;
+  username: string;
+  email: string;
+  country: string;
+  password?: string;
+}) {
+  try {
+    const data = await serverFetch('/admin/vendors', {
+      method: 'POST',
+      body: JSON.stringify({fullName, username, email, country, password}),
+    });
+    revalidatePath('/admin');
+    return {success: true, data};
+  } catch (error: any) {
+    return {success: false, error: error.message};
+  }
+}
+
 export async function updateVendorStatus(id: string, status: string) {
   try {
     const response = await serverFetch(`admin/vendors/${id}/status`, {

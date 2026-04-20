@@ -48,6 +48,10 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true,
     redirectTo: (process.env.BETTER_AUTH_TRUSTED_ORIGINS || 'http://localhost:3000').split(',')[0],
     async sendVerificationEmail({ user, url }) {
+      // Skip verification email if user is an admin-created vendor or already verified
+      if ((user as any).isVerifiedVendor || (user as any).emailVerified) {
+        return;
+      }
       await AuthEmailHelper.sendVerifyEmail({
         to: user.email,
         userName: user.name,

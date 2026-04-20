@@ -79,8 +79,16 @@ export async function middleware(request: NextRequest) {
 
   // Redirect logged-in users away from auth pages
   if (user && isAuthRoute) {
+    const roles = user.roles || [];
     const url = request.nextUrl.clone();
-    url.pathname = '/dashboard';
+
+    if (roles.includes('admin')) {
+      url.pathname = '/admin';
+    } else if (roles.includes('vendor') && !roles.includes('user')) {
+      url.pathname = '/vendor/dashboard';
+    } else {
+      url.pathname = '/dashboard';
+    }
     return NextResponse.redirect(url);
   }
 

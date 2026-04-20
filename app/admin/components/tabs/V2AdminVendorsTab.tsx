@@ -1,8 +1,17 @@
-import { useIsMobile } from '@/hooks/use-mobile';
-import { getCurrencyByCountry, getCurrencySymbol } from '@/lib/currencies';
-import { useAdminUsers, useAdminVendors, useUpdateUserRole, useUpdateVendorStatus } from '@/hooks/use-admin';
-import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
+import {
+  useAdminUsers,
+  useAdminVendors,
+  useCreateVendor,
+  useUpdateUserRole,
+  useUpdateVendorStatus,
+} from '@/hooks/use-admin';
+import {useIsMobile} from '@/hooks/use-mobile';
+import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
+import {useEffect, useState} from 'react';
+import {toast} from 'sonner';
+import {useForm} from 'react-hook-form';
+import {zodResolver} from '@hookform/resolvers/zod';
+import {createVendorSchema, type CreateVendorInput} from '@/lib/validations/admin';
 
 interface V2AdminVendorsTabProps {
   searchQuery: string;
@@ -11,7 +20,11 @@ interface V2AdminVendorsTabProps {
 }
 
 const statusColors: Record<string, {bg: string; text: string; dot: string}> = {
-  active: {bg: 'bg-emerald-100', text: 'text-emerald-700', dot: 'bg-emerald-600'},
+  active: {
+    bg: 'bg-emerald-100',
+    text: 'text-emerald-700',
+    dot: 'bg-emerald-600',
+  },
   suspended: {bg: 'bg-red-100', text: 'text-red-700', dot: 'bg-red-600'},
   pending: {bg: 'bg-amber-100', text: 'text-amber-700', dot: 'bg-amber-600'},
 };
@@ -36,13 +49,19 @@ export function V2AdminVendorsTab({
 
   // Action states
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
-  const [mobileActionSheet, setMobileActionSheet] = useState<{isOpen: boolean; vendor: any}>({
+  const [mobileActionSheet, setMobileActionSheet] = useState<{
+    isOpen: boolean;
+    vendor: any;
+  }>({
     isOpen: false,
     vendor: null,
   });
 
   // View Details Modal
-  const [viewDetailsModal, setViewDetailsModal] = useState<{isOpen: boolean; vendor: any}>({
+  const [viewDetailsModal, setViewDetailsModal] = useState<{
+    isOpen: boolean;
+    vendor: any;
+  }>({
     isOpen: false,
     vendor: null,
   });
@@ -52,10 +71,31 @@ export function V2AdminVendorsTab({
   const [addVendorSearch, setAddVendorSearch] = useState('');
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [newVendor, setNewVendor] = useState({
-    name: '',
+    fullName: '',
+    username: '',
     email: '',
-    products: 0,
-    status: 'active',
+    country: 'NG',
+    password: '',
+    confirmPassword: '',
+    type: 'new' as 'new' | 'existing',
+  });
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm<CreateVendorInput>({
+    resolver: zodResolver(createVendorSchema),
+    defaultValues: {
+      fullName: '',
+      username: '',
+      email: '',
+      country: 'Nigeria',
+      password: '',
+      confirmPassword: '',
+    },
   });
 
   // Confirm Action Modal
@@ -85,21 +125,31 @@ export function V2AdminVendorsTab({
   // Calculate real stats
   const stats = {
     totalVendors: allVendors.length,
-    activeVendors: allVendors.filter((v: any) => v.status === 'active' || !v.status).length,
-    suspendedVendors: allVendors.filter((v: any) => v.status === 'suspended').length,
-    pendingVendors: allVendors.filter((v: any) => v.status === 'pending').length,
-    totalSales: allVendors.reduce((acc: number, v: any) => acc + (v.sales_volume || 0), 0),
-    totalOrders: allVendors.reduce((acc: number, v: any) => acc + (v.orders_count || 0), 0),
+    activeVendors: allVendors.filter(
+      (v: any) => v.status === 'active' || !v.status,
+    ).length,
+    suspendedVendors: allVendors.filter((v: any) => v.status === 'suspended')
+      .length,
+    pendingVendors: allVendors.filter((v: any) => v.status === 'pending')
+      .length,
+    totalSales: allVendors.reduce(
+      (acc: number, v: any) => acc + (v.sales_volume || 0),
+      0,
+    ),
+    totalOrders: allVendors.reduce(
+      (acc: number, v: any) => acc + (v.orders_count || 0),
+      0,
+    ),
   };
 
   // Fetch users for add vendor modal
-  const { data: usersData, isLoading: usersLoading } = useAdminUsers(
-    { search: addVendorSearch },
-    { enabled: showAddVendorModal && addVendorSearch.length >= 2 }
+  const {data: usersData, isLoading: usersLoading} = useAdminUsers(
+    {search: addVendorSearch},
+    {enabled: showAddVendorModal && addVendorSearch.length >= 2},
   );
 
   const availableUsers = (usersData?.pages?.[0]?.data || []).filter(
-    (u: any) => !u.roles?.includes('vendor')
+    (u: any) => !u.roles?.includes('vendor'),
   );
 
   // Status mutation
@@ -107,6 +157,9 @@ export function V2AdminVendorsTab({
 
   // Add vendor role mutation
   const addVendorMutation = useUpdateUserRole();
+
+  // Create new vendor mutation
+  const createVendorMutation = useCreateVendor();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -143,9 +196,12 @@ export function V2AdminVendorsTab({
     }
     const newStatus = confirmModal.type === 'suspend' ? 'suspended' : 'active';
     statusMutation.mutate({id: confirmModal.vendor.id, status: newStatus});
-    const vendorName = confirmModal.vendor.shop_name || confirmModal.vendor.username;
+    const vendorName =
+      confirmModal.vendor.shop_name || confirmModal.vendor.username;
     if (confirmModal.type === 'suspend') {
-      addLog(`Suspended vendor "${vendorName}" for ${suspensionDays} days. Reason: ${suspensionReason}`);
+      addLog(
+        `Suspended vendor "${vendorName}" for ${suspensionDays} days. Reason: ${suspensionReason}`,
+      );
     } else {
       addLog(`Activated vendor: ${vendorName}`);
     }
@@ -153,22 +209,74 @@ export function V2AdminVendorsTab({
     setSuspensionReason('');
   };
 
-  const handleAddVendor = () => {
-    if (!selectedUser) {
-      toast.error('Please select a user');
-      return;
+  const handleAddVendor = async (formData?: CreateVendorInput) => {
+    if (newVendor.type === 'existing') {
+      if (!selectedUser) {
+        toast.error('Please select a user');
+        return;
+      }
+      const currentRoles = selectedUser.roles || ['user'];
+      addVendorMutation.mutate({
+        userId: selectedUser.id,
+        roles: [...currentRoles, 'vendor'],
+        username: selectedUser.username || newVendor.username,
+        fullName: selectedUser.displayName || newVendor.fullName,
+        country: selectedUser.country || newVendor.country,
+      }, {
+        onSuccess: () => {
+          setShowAddVendorModal(false);
+          setSelectedUser(null);
+          setAddVendorSearch('');
+          reset();
+          setNewVendor({
+            fullName: '',
+            username: '',
+            email: '',
+            country: 'Nigeria',
+            password: '',
+            confirmPassword: '',
+            type: 'new',
+          });
+          addLog(`Upgraded user ${selectedUser.email} to Vendor role`);
+        }
+      });
+    } else if (formData) {
+      createVendorMutation.mutate({
+        fullName: formData.fullName,
+        username: formData.username,
+        email: formData.email,
+        country: formData.country,
+        password: formData.password,
+      }, {
+        onSuccess: () => {
+          setShowAddVendorModal(false);
+          reset();
+          setNewVendor({
+            fullName: '',
+            username: '',
+            email: '',
+            country: 'Nigeria',
+            password: '',
+            confirmPassword: '',
+            type: 'new',
+          });
+          addLog(`Created new vendor account for ${formData.email}`);
+        }
+      });
     }
-    const currentRoles = selectedUser.roles || ['user'];
-    addVendorMutation.mutate({
-      userId: selectedUser.id,
-      roles: [...currentRoles, 'vendor'],
-      adminRole: null,
-    });
   };
 
   const handleExport = () => {
     const csvContent = [
-      ['Shop Name', 'Username', 'Email', 'Status', 'Orders', 'Sales', 'Joined'].join(','),
+      [
+        'Shop Name',
+        'Username',
+        'Email',
+        'Status',
+        'Orders',
+        'Sales',
+        'Joined',
+      ].join(','),
       ...vendors.map((v: any) =>
         [
           v.shop_name || v.display_name || '',
@@ -178,7 +286,7 @@ export function V2AdminVendorsTab({
           v.orders_count || 0,
           v.sales_volume || 0,
           v.created_at ? new Date(v.created_at).toLocaleDateString() : '',
-        ].join(',')
+        ].join(','),
       ),
     ].join('\n');
 
@@ -198,7 +306,9 @@ export function V2AdminVendorsTab({
         <span className="v2-icon text-4xl text-[var(--v2-primary)] animate-spin">
           progress_activity
         </span>
-        <p className="text-sm text-[var(--v2-on-surface-variant)] mt-3">Loading vendors...</p>
+        <p className="text-sm text-[var(--v2-on-surface-variant)] mt-3">
+          Loading vendors...
+        </p>
       </div>
     );
   }
@@ -219,16 +329,14 @@ export function V2AdminVendorsTab({
           <button
             type="button"
             onClick={handleExport}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface)] rounded-full font-bold text-sm hover:bg-[var(--v2-surface-container-highest)] transition-colors"
-          >
+            className="flex items-center gap-2 px-5 py-2.5 bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface)] rounded-full font-bold text-sm hover:bg-[var(--v2-surface-container-highest)] transition-colors">
             <span className="v2-icon text-lg">download</span>
             Export
           </button>
           <button
             type="button"
             onClick={() => setShowAddVendorModal(true)}
-            className="flex items-center gap-2 px-6 py-2.5 v2-hero-gradient text-white rounded-full font-bold text-sm shadow-lg shadow-[var(--v2-primary)]/20"
-          >
+            className="flex items-center gap-2 px-6 py-2.5 v2-hero-gradient text-white rounded-full font-bold text-sm shadow-lg shadow-[var(--v2-primary)]/20">
             <span className="v2-icon text-lg">person_add</span>
             Add Vendor
           </button>
@@ -240,7 +348,9 @@ export function V2AdminVendorsTab({
         <div className="bg-white p-6 rounded-xl shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <div className="w-10 h-10 bg-[var(--v2-primary-container)]/20 rounded-xl flex items-center justify-center">
-              <span className="v2-icon text-[var(--v2-primary)]">storefront</span>
+              <span className="v2-icon text-[var(--v2-primary)]">
+                storefront
+              </span>
             </div>
             <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-[10px] font-bold">
               Total
@@ -249,7 +359,9 @@ export function V2AdminVendorsTab({
           <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--v2-on-surface-variant)]/60">
             All Vendors
           </p>
-          <p className="text-3xl font-black v2-headline mt-1">{stats.totalVendors}</p>
+          <p className="text-3xl font-black v2-headline mt-1">
+            {stats.totalVendors}
+          </p>
         </div>
 
         <div className="bg-[var(--v2-primary-container)] p-6 rounded-xl shadow-lg shadow-[var(--v2-primary-container)]/20 text-white">
@@ -264,19 +376,25 @@ export function V2AdminVendorsTab({
           <p className="text-[10px] font-bold uppercase tracking-widest opacity-70">
             Active Vendors
           </p>
-          <p className="text-3xl font-black v2-headline mt-1">{stats.activeVendors}</p>
+          <p className="text-3xl font-black v2-headline mt-1">
+            {stats.activeVendors}
+          </p>
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <div className="w-10 h-10 bg-[var(--v2-primary-container)]/20 rounded-xl flex items-center justify-center">
-              <span className="v2-icon text-[var(--v2-primary)]">shopping_bag</span>
+              <span className="v2-icon text-[var(--v2-primary)]">
+                shopping_bag
+              </span>
             </div>
           </div>
           <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--v2-on-surface-variant)]/60">
             Total Orders
           </p>
-          <p className="text-3xl font-black v2-headline mt-1">{stats.totalOrders.toLocaleString()}</p>
+          <p className="text-3xl font-black v2-headline mt-1">
+            {stats.totalOrders.toLocaleString()}
+          </p>
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow-sm">
@@ -322,7 +440,9 @@ export function V2AdminVendorsTab({
             <span className="v2-icon text-6xl text-[var(--v2-on-surface-variant)]/20">
               storefront
             </span>
-            <p className="text-sm text-[var(--v2-on-surface-variant)] mt-4">No vendors found</p>
+            <p className="text-sm text-[var(--v2-on-surface-variant)] mt-4">
+              No vendors found
+            </p>
           </div>
         ) : isMobile ? (
           // Mobile Card View
@@ -336,16 +456,24 @@ export function V2AdminVendorsTab({
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <div className="w-12 h-12 rounded-xl bg-[var(--v2-primary-container)]/20 flex items-center justify-center overflow-hidden shrink-0">
                         {vendor.avatar_url ? (
-                          <img src={vendor.avatar_url} alt="" className="w-full h-full object-cover" />
+                          <img
+                            src={vendor.avatar_url}
+                            alt=""
+                            className="w-full h-full object-cover"
+                          />
                         ) : (
                           <span className="text-lg font-bold text-[var(--v2-primary)]">
-                            {(vendor.shop_name || vendor.display_name || 'V').charAt(0).toUpperCase()}
+                            {(vendor.shop_name || vendor.display_name || 'V')
+                              .charAt(0)
+                              .toUpperCase()}
                           </span>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-bold capitalize truncate">
-                          {vendor.shop_name || vendor.display_name || vendor.username}
+                          {vendor.shop_name ||
+                            vendor.display_name ||
+                            vendor.username}
                         </p>
                         <p className="text-sm text-[var(--v2-on-surface-variant)] truncate">
                           @{vendor.username}
@@ -354,23 +482,28 @@ export function V2AdminVendorsTab({
                     </div>
                     <button
                       type="button"
-                      onClick={() => setMobileActionSheet({isOpen: true, vendor})}
-                      className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-[var(--v2-surface-container)] transition-colors"
-                    >
+                      onClick={() =>
+                        setMobileActionSheet({isOpen: true, vendor})
+                      }
+                      className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-[var(--v2-surface-container)] transition-colors">
                       <span className="v2-icon">more_vert</span>
                     </button>
                   </div>
 
                   <div className="flex items-center gap-3 mt-3 pt-3 border-t border-[var(--v2-surface-container)]">
-                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase ${colors.bg} ${colors.text}`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${colors.dot}`} />
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase ${colors.bg} ${colors.text}`}>
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${colors.dot}`}
+                      />
                       {status}
                     </span>
                     <span className="text-xs text-[var(--v2-on-surface-variant)]">
                       {vendor.orders_count || 0} orders
                     </span>
                     <span className="text-xs font-bold text-[var(--v2-primary)]">
-                      {getVendorCurrency(vendor)}{(vendor.sales_volume || 0).toLocaleString()}
+                      {getVendorCurrency(vendor)}
+                      {(vendor.sales_volume || 0).toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -410,21 +543,31 @@ export function V2AdminVendorsTab({
                 const isDropdownOpen = openDropdownId === vendor.id;
 
                 return (
-                  <tr key={vendor.id} className="hover:bg-[var(--v2-surface-container)]/20">
+                  <tr
+                    key={vendor.id}
+                    className="hover:bg-[var(--v2-surface-container)]/20">
                     <td className="px-8 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-[var(--v2-primary-container)]/20 flex items-center justify-center overflow-hidden">
                           {vendor.avatar_url ? (
-                            <img src={vendor.avatar_url} alt="" className="w-full h-full object-cover" />
+                            <img
+                              src={vendor.avatar_url}
+                              alt=""
+                              className="w-full h-full object-cover"
+                            />
                           ) : (
                             <span className="font-bold text-[var(--v2-primary)]">
-                              {(vendor.shop_name || vendor.display_name || 'V').charAt(0).toUpperCase()}
+                              {(vendor.shop_name || vendor.display_name || 'V')
+                                .charAt(0)
+                                .toUpperCase()}
                             </span>
                           )}
                         </div>
                         <div>
                           <p className="font-bold capitalize">
-                            {vendor.shop_name || vendor.display_name || vendor.username}
+                            {vendor.shop_name ||
+                              vendor.display_name ||
+                              vendor.username}
                           </p>
                           <p className="text-xs text-[var(--v2-on-surface-variant)]">
                             @{vendor.username}
@@ -439,16 +582,22 @@ export function V2AdminVendorsTab({
                       {vendor.orders_count || 0}
                     </td>
                     <td className="px-6 py-4 font-bold text-[var(--v2-primary)]">
-                      {getVendorCurrency(vendor)}{(vendor.sales_volume || 0).toLocaleString()}
+                      {getVendorCurrency(vendor)}
+                      {(vendor.sales_volume || 0).toLocaleString()}
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase ${colors.bg} ${colors.text}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${colors.dot}`} />
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase ${colors.bg} ${colors.text}`}>
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${colors.dot}`}
+                        />
                         {status}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-[var(--v2-on-surface-variant)]">
-                      {vendor.created_at ? new Date(vendor.created_at).toLocaleDateString() : '—'}
+                      {vendor.created_at
+                        ? new Date(vendor.created_at).toLocaleDateString()
+                        : '—'}
                     </td>
                     <td className="px-8 py-4">
                       <button
@@ -457,8 +606,7 @@ export function V2AdminVendorsTab({
                           e.stopPropagation();
                           setOpenDropdownId(isDropdownOpen ? null : vendor.id);
                         }}
-                        className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-[var(--v2-surface-container)] transition-colors"
-                      >
+                        className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-[var(--v2-surface-container)] transition-colors">
                         <span className="v2-icon">more_vert</span>
                       </button>
                     </td>
@@ -475,8 +623,7 @@ export function V2AdminVendorsTab({
               type="button"
               onClick={() => fetchNextPage()}
               disabled={isFetchingNextPage}
-              className="px-6 py-2.5 bg-[var(--v2-primary)] text-white rounded-full font-bold text-sm disabled:opacity-50"
-            >
+              className="px-6 py-2.5 bg-[var(--v2-primary)] text-white rounded-full font-bold text-sm disabled:opacity-50">
               {isFetchingNextPage ? 'Loading...' : 'Load More'}
             </button>
           </div>
@@ -484,60 +631,66 @@ export function V2AdminVendorsTab({
       </div>
 
       {/* Desktop Action Dropdown (Portal-style) */}
-      {openDropdownId && !isMobile && (() => {
-        const vendor = vendors.find((v: any) => v.id === openDropdownId);
-        if (!vendor) return null;
-        const status = vendor.status || 'active';
-        return (
-          <>
-            <div
-              className="fixed inset-0"
-              style={{zIndex: 9998}}
-              onClick={() => setOpenDropdownId(null)}
-            />
-            <div
-              className="fixed bg-white rounded-2xl shadow-2xl border border-gray-200 py-2 w-48"
-              style={{
-                zIndex: 9999,
-                top: '50%',
-                right: '10%',
-                transform: 'translateY(-50%)',
-              }}
-            >
-              <button
-                type="button"
-                onClick={() => handleViewDetails(vendor)}
-                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[var(--v2-surface-container)] transition-colors text-left"
-              >
-                <span className="v2-icon text-lg text-[var(--v2-on-surface-variant)]">visibility</span>
-                <span className="text-sm font-medium">View Details</span>
-              </button>
-
-              <div className="h-px bg-gray-100 my-1" />
-
-              {status === 'active' || !status ? (
+      {openDropdownId &&
+        !isMobile &&
+        (() => {
+          const vendor = vendors.find((v: any) => v.id === openDropdownId);
+          if (!vendor) return null;
+          const status = vendor.status || 'active';
+          return (
+            <>
+              <div
+                className="fixed inset-0"
+                style={{zIndex: 9998}}
+                onClick={() => setOpenDropdownId(null)}
+              />
+              <div
+                className="fixed bg-white rounded-2xl shadow-2xl border border-gray-200 py-2 w-48"
+                style={{
+                  zIndex: 9999,
+                  top: '50%',
+                  right: '10%',
+                  transform: 'translateY(-50%)',
+                }}>
                 <button
                   type="button"
-                  onClick={() => handleSuspend(vendor)}
-                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-left"
-                >
-                  <span className="v2-icon text-lg text-red-600">block</span>
-                  <span className="text-sm font-medium text-red-600">Suspend Vendor</span>
+                  onClick={() => handleViewDetails(vendor)}
+                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[var(--v2-surface-container)] transition-colors text-left">
+                  <span className="v2-icon text-lg text-[var(--v2-on-surface-variant)]">
+                    visibility
+                  </span>
+                  <span className="text-sm font-medium">View Details</span>
                 </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => handleActivate(vendor)}
-                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-emerald-50 transition-colors text-left"
-                >
-                  <span className="v2-icon text-lg text-emerald-600">check_circle</span>
-                  <span className="text-sm font-medium text-emerald-600">Activate Vendor</span>
-                </button>
-              )}
-            </div>
-          </>
-        );
-      })()}
+
+                <div className="h-px bg-gray-100 my-1" />
+
+                {status === 'active' || !status ? (
+                  <button
+                    type="button"
+                    onClick={() => handleSuspend(vendor)}
+                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-left">
+                    <span className="v2-icon text-lg text-red-600">block</span>
+                    <span className="text-sm font-medium text-red-600">
+                      Suspend Vendor
+                    </span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => handleActivate(vendor)}
+                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-emerald-50 transition-colors text-left">
+                    <span className="v2-icon text-lg text-emerald-600">
+                      check_circle
+                    </span>
+                    <span className="text-sm font-medium text-emerald-600">
+                      Activate Vendor
+                    </span>
+                  </button>
+                )}
+              </div>
+            </>
+          );
+        })()}
 
       {/* Mobile Action Sheet */}
       {mobileActionSheet.isOpen && mobileActionSheet.vendor && (
@@ -555,14 +708,23 @@ export function V2AdminVendorsTab({
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-xl bg-[var(--v2-primary-container)]/20 flex items-center justify-center">
                   <span className="font-bold text-[var(--v2-primary)]">
-                    {(mobileActionSheet.vendor.shop_name || mobileActionSheet.vendor.username || 'V').charAt(0).toUpperCase()}
+                    {(
+                      mobileActionSheet.vendor.shop_name ||
+                      mobileActionSheet.vendor.username ||
+                      'V'
+                    )
+                      .charAt(0)
+                      .toUpperCase()}
                   </span>
                 </div>
                 <div>
                   <p className="font-bold capitalize">
-                    {mobileActionSheet.vendor.shop_name || mobileActionSheet.vendor.display_name}
+                    {mobileActionSheet.vendor.shop_name ||
+                      mobileActionSheet.vendor.display_name}
                   </p>
-                  <p className="text-sm text-gray-500">@{mobileActionSheet.vendor.username}</p>
+                  <p className="text-sm text-gray-500">
+                    @{mobileActionSheet.vendor.username}
+                  </p>
                 </div>
               </div>
             </div>
@@ -571,37 +733,43 @@ export function V2AdminVendorsTab({
               <button
                 type="button"
                 onClick={() => handleViewDetails(mobileActionSheet.vendor)}
-                className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-[var(--v2-surface-container)] transition-colors"
-              >
+                className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-[var(--v2-surface-container)] transition-colors">
                 <div className="w-10 h-10 rounded-full bg-[var(--v2-primary-container)]/20 flex items-center justify-center">
-                  <span className="v2-icon text-[var(--v2-primary)]">visibility</span>
+                  <span className="v2-icon text-[var(--v2-primary)]">
+                    visibility
+                  </span>
                 </div>
                 <span className="font-medium">View Details</span>
               </button>
 
               <div className="h-px bg-gray-100 my-2" />
 
-              {mobileActionSheet.vendor.status === 'active' || !mobileActionSheet.vendor.status ? (
+              {mobileActionSheet.vendor.status === 'active' ||
+              !mobileActionSheet.vendor.status ? (
                 <button
                   type="button"
                   onClick={() => handleSuspend(mobileActionSheet.vendor)}
-                  className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-red-50 transition-colors"
-                >
+                  className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-red-50 transition-colors">
                   <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
                     <span className="v2-icon text-red-600">block</span>
                   </div>
-                  <span className="font-medium text-red-600">Suspend Vendor</span>
+                  <span className="font-medium text-red-600">
+                    Suspend Vendor
+                  </span>
                 </button>
               ) : (
                 <button
                   type="button"
                   onClick={() => handleActivate(mobileActionSheet.vendor)}
-                  className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-emerald-50 transition-colors"
-                >
+                  className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-emerald-50 transition-colors">
                   <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                    <span className="v2-icon text-emerald-600">check_circle</span>
+                    <span className="v2-icon text-emerald-600">
+                      check_circle
+                    </span>
                   </div>
-                  <span className="font-medium text-emerald-600">Activate Vendor</span>
+                  <span className="font-medium text-emerald-600">
+                    Activate Vendor
+                  </span>
                 </button>
               )}
             </div>
@@ -609,9 +777,10 @@ export function V2AdminVendorsTab({
             <div className="p-4 pt-0">
               <button
                 type="button"
-                onClick={() => setMobileActionSheet({isOpen: false, vendor: null})}
-                className="w-full py-4 bg-[var(--v2-surface-container)] rounded-2xl font-bold text-[var(--v2-on-surface-variant)]"
-              >
+                onClick={() =>
+                  setMobileActionSheet({isOpen: false, vendor: null})
+                }
+                className="w-full py-4 bg-[var(--v2-surface-container)] rounded-2xl font-bold text-[var(--v2-on-surface-variant)]">
                 Cancel
               </button>
             </div>
@@ -622,7 +791,9 @@ export function V2AdminVendorsTab({
 
       {/* View Details Modal */}
       {viewDetailsModal.isOpen && viewDetailsModal.vendor && (
-        <div className="fixed inset-0 flex items-center justify-center p-4" style={{zIndex: 10000}}>
+        <div
+          className="fixed inset-0 flex items-center justify-center p-4"
+          style={{zIndex: 10000}}>
           <div
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setViewDetailsModal({isOpen: false, vendor: null})}
@@ -632,9 +803,10 @@ export function V2AdminVendorsTab({
               <h3 className="text-xl font-bold v2-headline">Vendor Details</h3>
               <button
                 type="button"
-                onClick={() => setViewDetailsModal({isOpen: false, vendor: null})}
-                className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
-              >
+                onClick={() =>
+                  setViewDetailsModal({isOpen: false, vendor: null})
+                }
+                className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
                 <span className="v2-icon">close</span>
               </button>
             </div>
@@ -643,45 +815,70 @@ export function V2AdminVendorsTab({
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-xl bg-[var(--v2-primary-container)]/20 flex items-center justify-center overflow-hidden">
                   {viewDetailsModal.vendor.avatar_url ? (
-                    <img src={viewDetailsModal.vendor.avatar_url} alt="" className="w-full h-full object-cover" />
+                    <img
+                      src={viewDetailsModal.vendor.avatar_url}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
                     <span className="text-2xl font-bold text-[var(--v2-primary)]">
-                      {(viewDetailsModal.vendor.shop_name || viewDetailsModal.vendor.username || 'V').charAt(0).toUpperCase()}
+                      {(
+                        viewDetailsModal.vendor.shop_name ||
+                        viewDetailsModal.vendor.username ||
+                        'V'
+                      )
+                        .charAt(0)
+                        .toUpperCase()}
                     </span>
                   )}
                 </div>
                 <div>
                   <p className="text-xl font-bold capitalize">
-                    {viewDetailsModal.vendor.shop_name || viewDetailsModal.vendor.display_name}
+                    {viewDetailsModal.vendor.shop_name ||
+                      viewDetailsModal.vendor.display_name}
                   </p>
-                  <p className="text-gray-500">@{viewDetailsModal.vendor.username}</p>
+                  <p className="text-gray-500">
+                    @{viewDetailsModal.vendor.username}
+                  </p>
                 </div>
               </div>
 
               <div className="space-y-4">
                 <div className="p-4 bg-gray-50 rounded-2xl">
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Email</p>
-                  <p className="font-medium">{viewDetailsModal.vendor.email || '—'}</p>
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
+                    Email
+                  </p>
+                  <p className="font-medium">
+                    {viewDetailsModal.vendor.email || '—'}
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-4 bg-gray-50 rounded-2xl">
-                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Status</p>
-                    <p className={`font-medium capitalize ${
-                      viewDetailsModal.vendor.status === 'active' || !viewDetailsModal.vendor.status
-                        ? 'text-emerald-600'
-                        : viewDetailsModal.vendor.status === 'suspended'
-                          ? 'text-red-600'
-                          : 'text-amber-600'
-                    }`}>
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
+                      Status
+                    </p>
+                    <p
+                      className={`font-medium capitalize ${
+                        viewDetailsModal.vendor.status === 'active' ||
+                        !viewDetailsModal.vendor.status
+                          ? 'text-emerald-600'
+                          : viewDetailsModal.vendor.status === 'suspended'
+                            ? 'text-red-600'
+                            : 'text-amber-600'
+                      }`}>
                       {viewDetailsModal.vendor.status || 'active'}
                     </p>
                   </div>
                   <div className="p-4 bg-gray-50 rounded-2xl">
-                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Joined</p>
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
+                      Joined
+                    </p>
                     <p className="font-medium">
                       {viewDetailsModal.vendor.created_at
-                        ? new Date(viewDetailsModal.vendor.created_at).toLocaleDateString('en-US', {
+                        ? new Date(
+                            viewDetailsModal.vendor.created_at,
+                          ).toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric',
@@ -693,38 +890,57 @@ export function V2AdminVendorsTab({
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-4 bg-[var(--v2-primary-container)]/10 rounded-2xl">
-                    <p className="text-xs font-bold text-[var(--v2-primary)] uppercase tracking-wider mb-1">Orders</p>
-                    <p className="text-2xl font-black">{viewDetailsModal.vendor.orders_count || 0}</p>
+                    <p className="text-xs font-bold text-[var(--v2-primary)] uppercase tracking-wider mb-1">
+                      Orders
+                    </p>
+                    <p className="text-2xl font-black">
+                      {viewDetailsModal.vendor.orders_count || 0}
+                    </p>
                   </div>
                   <div className="p-4 bg-[var(--v2-primary-container)]/10 rounded-2xl">
-                    <p className="text-xs font-bold text-[var(--v2-primary)] uppercase tracking-wider mb-1">Total Sales</p>
-                    <p className="text-2xl font-black">{getVendorCurrency(viewDetailsModal.vendor)}{(viewDetailsModal.vendor.sales_volume || 0).toLocaleString()}</p>
+                    <p className="text-xs font-bold text-[var(--v2-primary)] uppercase tracking-wider mb-1">
+                      Total Sales
+                    </p>
+                    <p className="text-2xl font-black">
+                      {getVendorCurrency(viewDetailsModal.vendor)}
+                      {(
+                        viewDetailsModal.vendor.sales_volume || 0
+                      ).toLocaleString()}
+                    </p>
                   </div>
                 </div>
 
                 {viewDetailsModal.vendor.shop_address && (
                   <div className="p-4 bg-gray-50 rounded-2xl">
-                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Shop Address</p>
-                    <p className="font-medium">{viewDetailsModal.vendor.shop_address}</p>
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
+                      Shop Address
+                    </p>
+                    <p className="font-medium">
+                      {viewDetailsModal.vendor.shop_address}
+                    </p>
                   </div>
                 )}
 
                 <div className="p-4 bg-gray-50 rounded-2xl">
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Vendor ID</p>
-                  <p className="font-medium font-mono text-sm">{viewDetailsModal.vendor.id}</p>
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
+                    Vendor ID
+                  </p>
+                  <p className="font-medium font-mono text-sm">
+                    {viewDetailsModal.vendor.id}
+                  </p>
                 </div>
               </div>
 
               <div className="flex gap-3 pt-4 border-t border-gray-100">
-                {viewDetailsModal.vendor.status === 'active' || !viewDetailsModal.vendor.status ? (
+                {viewDetailsModal.vendor.status === 'active' ||
+                !viewDetailsModal.vendor.status ? (
                   <button
                     type="button"
                     onClick={() => {
                       handleSuspend(viewDetailsModal.vendor);
                       setViewDetailsModal({isOpen: false, vendor: null});
                     }}
-                    className="flex-1 py-3 bg-red-100 text-red-600 rounded-full font-bold"
-                  >
+                    className="flex-1 py-3 bg-red-100 text-red-600 rounded-full font-bold">
                     Suspend
                   </button>
                 ) : (
@@ -734,16 +950,16 @@ export function V2AdminVendorsTab({
                       handleActivate(viewDetailsModal.vendor);
                       setViewDetailsModal({isOpen: false, vendor: null});
                     }}
-                    className="flex-1 py-3 bg-emerald-100 text-emerald-600 rounded-full font-bold"
-                  >
+                    className="flex-1 py-3 bg-emerald-100 text-emerald-600 rounded-full font-bold">
                     Activate
                   </button>
                 )}
                 <button
                   type="button"
-                  onClick={() => setViewDetailsModal({isOpen: false, vendor: null})}
-                  className="flex-1 py-3 v2-hero-gradient text-white rounded-full font-bold"
-                >
+                  onClick={() =>
+                    setViewDetailsModal({isOpen: false, vendor: null})
+                  }
+                  className="flex-1 py-3 v2-hero-gradient text-white rounded-full font-bold">
                   Close
                 </button>
               </div>
@@ -754,25 +970,41 @@ export function V2AdminVendorsTab({
 
       {/* Add Vendor Modal */}
       {showAddVendorModal && (
-        <div className="fixed inset-0 flex items-center justify-center p-4" style={{zIndex: 10000}}>
+        <div
+          className="fixed inset-0 flex items-center justify-center p-4"
+          style={{zIndex: 10000}}>
           <div
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => {
               setShowAddVendorModal(false);
               setSelectedUser(null);
               setAddVendorSearch('');
-              setNewVendor({name: '', email: '', products: 0, status: 'active'});
+              setNewVendor({
+                fullName: '',
+                username: '',
+                email: '',
+                country: 'NG',
+                password: '',
+                confirmPassword: '',
+                type: 'new',
+              });
             }}
           />
           <div className="relative bg-white rounded-3xl w-full max-w-md max-h-[85vh] overflow-y-auto">
             <div className="sticky top-0 bg-white px-6 py-4 border-b border-gray-100 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-[var(--v2-primary-container)]/20 flex items-center justify-center">
-                  <span className="v2-icon text-xl text-[var(--v2-primary)]">storefront</span>
+                  <span className="v2-icon text-xl text-[var(--v2-primary)]">
+                    storefront
+                  </span>
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold v2-headline">Add New Vendor</h3>
-                  <p className="text-xs text-[var(--v2-on-surface-variant)]">Create a new vendor account</p>
+                  <h3 className="text-lg font-bold v2-headline">
+                    Add New Vendor
+                  </h3>
+                  <p className="text-xs text-[var(--v2-on-surface-variant)]">
+                    Create a new vendor account
+                  </p>
                 </div>
               </div>
               <button
@@ -781,167 +1013,258 @@ export function V2AdminVendorsTab({
                   setShowAddVendorModal(false);
                   setSelectedUser(null);
                   setAddVendorSearch('');
-                  setNewVendor({name: '', email: '', products: 0, status: 'active'});
+                  setNewVendor({
+                    fullName: '',
+                    username: '',
+                    email: '',
+                    country: 'NG',
+                    password: '',
+                    confirmPassword: '',
+                    type: 'new',
+                  });
                 }}
-                className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
-              >
+                className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
                 <span className="v2-icon">close</span>
               </button>
             </div>
 
             <div className="p-6 space-y-5">
-              {/* Vendor Name */}
-              <div>
-                <label className="text-sm font-bold text-[var(--v2-on-surface)] block mb-2">
-                  Vendor Name
-                </label>
-                <input
-                  type="text"
-                  value={newVendor.name}
-                  onChange={e => setNewVendor({...newVendor, name: e.target.value})}
-                  placeholder="e.g. Sweet Delights"
-                  className="w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none"
-                />
+              {/* Toggle Type */}
+              <div className="flex bg-[var(--v2-surface-container)] p-1 rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => setNewVendor({...newVendor, type: 'new'})}
+                  className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${
+                    newVendor.type === 'new'
+                      ? 'bg-white text-[var(--v2-primary)] shadow-sm'
+                      : 'text-[var(--v2-on-surface-variant)]'
+                  }`}>
+                  New User
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setNewVendor({...newVendor, type: 'existing'})}
+                  className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${
+                    newVendor.type === 'existing'
+                      ? 'bg-white text-[var(--v2-primary)] shadow-sm'
+                      : 'text-[var(--v2-on-surface-variant)]'
+                  }`}>
+                  Existing User
+                </button>
               </div>
 
-              {/* Vendor Email */}
-              <div>
-                <label className="text-sm font-bold text-[var(--v2-on-surface)] block mb-2">
-                  Vendor Email
-                </label>
-                <input
-                  type="email"
-                  value={newVendor.email}
-                  onChange={e => setNewVendor({...newVendor, email: e.target.value})}
-                  placeholder="vendor@email.com"
-                  className="w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none"
-                />
-              </div>
-
-              {/* Initial Products & Status */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-bold text-[var(--v2-on-surface)] block mb-2">
-                    Initial Products
-                  </label>
-                  <input
-                    type="number"
-                    value={newVendor.products}
-                    onChange={e => setNewVendor({...newVendor, products: parseInt(e.target.value) || 0})}
-                    min="0"
-                    className="w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-bold text-[var(--v2-on-surface)] block mb-2">
-                    Status
-                  </label>
-                  <select
-                    value={newVendor.status}
-                    onChange={e => setNewVendor({...newVendor, status: e.target.value})}
-                    className="w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none"
-                  >
-                    <option value="active">Active</option>
-                    <option value="suspended">Suspended</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Divider */}
-              <div className="flex items-center gap-3 py-2">
-                <div className="flex-1 h-px bg-[var(--v2-surface-container)]" />
-                <span className="text-xs text-[var(--v2-on-surface-variant)]">OR assign existing user</span>
-                <div className="flex-1 h-px bg-[var(--v2-surface-container)]" />
-              </div>
-
-              {/* Search Existing User */}
-              <div>
-                <label className="text-sm font-bold text-[var(--v2-on-surface)] block mb-2">
-                  Search Existing User
-                </label>
-                <div className="relative">
-                  <span className="v2-icon absolute left-4 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)]">
-                    search
-                  </span>
-                  <input
-                    type="text"
-                    value={addVendorSearch}
-                    onChange={e => {
-                      setAddVendorSearch(e.target.value);
-                      setSelectedUser(null);
-                    }}
-                    placeholder="Search by username or email..."
-                    className="w-full pl-12 pr-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none"
-                  />
-                </div>
-              </div>
-
-              {addVendorSearch.length >= 2 && (
-                <div className="max-h-40 overflow-y-auto border border-[var(--v2-surface-container)] rounded-xl">
-                  {usersLoading ? (
-                    <div className="p-4 text-center">
-                      <span className="v2-icon text-2xl text-[var(--v2-primary)] animate-spin">progress_activity</span>
+              {newVendor.type === 'new' ? (
+                <>
+                  {/* Full Name */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-bold text-[var(--v2-on-surface)] block mb-2">
+                        Full Name
+                      </label>
+                      <input
+                        type="text"
+                        {...register('fullName')}
+                        placeholder="John Doe"
+                        className={`w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none ${errors.fullName ? 'ring-2 ring-red-500/20' : ''}`}
+                      />
+                      {errors.fullName && <p className="text-[10px] text-red-500 mt-1 ml-1">{errors.fullName.message}</p>}
                     </div>
-                  ) : availableUsers.length === 0 ? (
-                    <div className="p-4 text-center text-sm text-[var(--v2-on-surface-variant)]">
-                      No users found or all users are already vendors
+                    <div>
+                      <label className="text-sm font-bold text-[var(--v2-on-surface)] block mb-2">
+                        Username
+                      </label>
+                      <input
+                        type="text"
+                        {...register('username')}
+                        placeholder="shopriteIkeja"
+                        className={`w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none ${errors.username ? 'ring-2 ring-red-500/20' : ''}`}
+                      />
+                      {errors.username && <p className="text-[10px] text-red-500 mt-1 ml-1">{errors.username.message}</p>}
                     </div>
-                  ) : (
-                    <div className="divide-y divide-[var(--v2-surface-container)]">
-                      {availableUsers.map((user: any) => (
-                        <button
-                          key={user.id}
-                          type="button"
-                          onClick={() => setSelectedUser(user)}
-                          className={`w-full flex items-center gap-3 p-3 text-left transition-colors ${
-                            selectedUser?.id === user.id
-                              ? 'bg-[var(--v2-primary-container)]/20'
-                              : 'hover:bg-[var(--v2-surface-container)]'
-                          }`}
-                        >
-                          <div className="w-10 h-10 rounded-full bg-[var(--v2-primary-container)]/20 flex items-center justify-center">
-                            <span className="font-bold text-[var(--v2-primary)]">
-                              {(user.display_name || user.username || 'U').charAt(0).toUpperCase()}
-                            </span>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium truncate">{user.display_name || user.username}</p>
-                            <p className="text-xs text-[var(--v2-on-surface-variant)] truncate">
-                              @{user.username} • {user.email || 'No email'}
-                            </p>
-                          </div>
-                          {selectedUser?.id === user.id && (
-                            <span className="v2-icon text-[var(--v2-primary)]">check_circle</span>
-                          )}
-                        </button>
-                      ))}
+                  </div>
+
+                  {/* Email */}
+                  <div>
+                    <label className="text-sm font-bold text-[var(--v2-on-surface)] block mb-2">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      {...register('email')}
+                      placeholder="john@shoprite.com"
+                      className={`w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none ${errors.email ? 'ring-2 ring-red-500/20' : ''}`}
+                    />
+                    {errors.email && <p className="text-[10px] text-red-500 mt-1 ml-1">{errors.email.message}</p>}
+                  </div>
+
+                  {/* Country Selection */}
+                  <div>
+                    <label className="text-sm font-bold text-[var(--v2-on-surface)] block mb-2">
+                      Country
+                    </label>
+                    <select
+                      {...register('country')}
+                      className={`w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none ${errors.country ? 'ring-2 ring-red-500/20' : ''}`}>
+                      <option value="Nigeria">Nigeria</option>
+                      <option value="Ghana">Ghana</option>
+                      <option value="United Kingdom">United Kingdom</option>
+                      <option value="United States">United States</option>
+                    </select>
+                    {errors.country && <p className="text-[10px] text-red-500 mt-1 ml-1">{errors.country.message}</p>}
+                  </div>
+
+                  {/* Password */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-bold text-[var(--v2-on-surface)] block mb-2">
+                        Password
+                      </label>
+                      <input
+                        type="password"
+                        {...register('password')}
+                        placeholder="••••••••"
+                        className={`w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none ${errors.password ? 'ring-2 ring-red-500/20' : ''}`}
+                      />
+                      {errors.password && <p className="text-[10px] text-red-500 mt-1 ml-1">{errors.password.message}</p>}
+                    </div>
+                    <div>
+                      <label className="text-sm font-bold text-[var(--v2-on-surface)] block mb-2">
+                        Confirm
+                      </label>
+                      <input
+                        type="password"
+                        {...register('confirmPassword')}
+                        placeholder="••••••••"
+                        className={`w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none ${errors.confirmPassword ? 'ring-2 ring-red-500/20' : ''}`}
+                      />
+                      {errors.confirmPassword && <p className="text-[10px] text-red-500 mt-1 ml-1">{errors.confirmPassword.message}</p>}
+                    </div>
+                  </div>
+
+                  <p className="text-[10px] text-[var(--v2-on-surface-variant)] leading-relaxed p-3 bg-blue-50 rounded-xl">
+                    <span className="font-bold">Note:</span> An email will be
+                    sent to the vendor with their temporary password and a
+                    prompt to change it after login.
+                  </p>
+                </>
+              ) : (
+                <>
+                  {/* Search Existing User */}
+                  <div>
+                    <label className="text-sm font-bold text-[var(--v2-on-surface)] block mb-2">
+                      Search Existing User
+                    </label>
+                    <div className="relative">
+                      <span className="v2-icon absolute left-4 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)]">
+                        search
+                      </span>
+                      <input
+                        type="text"
+                        value={addVendorSearch}
+                        onChange={e => {
+                          setAddVendorSearch(e.target.value);
+                          setSelectedUser(null);
+                        }}
+                        placeholder="Search by username or email..."
+                        className="w-full pl-12 pr-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  {addVendorSearch.length >= 2 && (
+                    <div className="max-h-40 overflow-y-auto border border-[var(--v2-surface-container)] rounded-xl shadow-inner bg-gray-50/30">
+                      {usersLoading ? (
+                        <div className="p-4 text-center">
+                          <span className="v2-icon text-2xl text-[var(--v2-primary)] animate-spin">
+                            progress_activity
+                          </span>
+                        </div>
+                      ) : availableUsers.length === 0 ? (
+                        <div className="p-4 text-center text-sm text-[var(--v2-on-surface-variant)]">
+                          No users found or all users are already vendors
+                        </div>
+                      ) : (
+                        <div className="divide-y divide-[var(--v2-surface-container)]">
+                          {availableUsers.map((user: any) => (
+                            <button
+                              key={user.id}
+                              type="button"
+                              onClick={() => setSelectedUser(user)}
+                              className={`w-full flex items-center gap-3 p-3 text-left transition-colors ${
+                                selectedUser?.id === user.id
+                                  ? 'bg-[var(--v2-primary-container)]/20'
+                                  : 'hover:bg-[var(--v2-surface-container)]'
+                              }`}>
+                              <div className="w-10 h-10 rounded-full bg-[var(--v2-primary-container)]/20 flex items-center justify-center">
+                                <span className="font-bold text-[var(--v2-primary)]">
+                                  {(user.display_name || user.username || 'U')
+                                    .charAt(0)
+                                    .toUpperCase()}
+                                </span>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium truncate">
+                                  {user.display_name || user.username}
+                                </p>
+                                <p className="text-xs text-[var(--v2-on-surface-variant)] truncate">
+                                  @{user.username} • {user.email || 'No email'}
+                                </p>
+                              </div>
+                              {selectedUser?.id === user.id && (
+                                <span className="v2-icon text-[var(--v2-primary)]">
+                                  check_circle
+                                </span>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
-                </div>
-              )}
 
-              {selectedUser && (
-                <div className="p-4 bg-[var(--v2-primary-container)]/10 rounded-xl">
-                  <p className="text-xs font-bold text-[var(--v2-primary)] uppercase tracking-wider mb-2">Selected User</p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[var(--v2-primary-container)]/20 flex items-center justify-center">
-                      <span className="font-bold text-[var(--v2-primary)]">
-                        {(selectedUser.display_name || selectedUser.username || 'U').charAt(0).toUpperCase()}
-                      </span>
+                  {selectedUser && (
+                    <div className="p-4 bg-[var(--v2-primary-container)]/10 rounded-xl border border-[var(--v2-primary-container)]/20">
+                      <p className="text-xs font-bold text-[var(--v2-primary)] uppercase tracking-wider mb-2">
+                        Selected User
+                      </p>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-[var(--v2-primary-container)]/20 flex items-center justify-center">
+                          <span className="font-bold text-[var(--v2-primary)]">
+                            {(
+                              selectedUser.display_name ||
+                              selectedUser.username ||
+                              'U'
+                            )
+                              .charAt(0)
+                              .toUpperCase()}
+                          </span>
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-bold truncate">
+                            {selectedUser.display_name || selectedUser.username}
+                          </p>
+                          <p className="text-xs text-[var(--v2-on-surface-variant)]">
+                            @{selectedUser.username}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedUser(null)}
+                          className="p-1 rounded-full hover:bg-[var(--v2-surface-container)]">
+                          <span className="v2-icon text-[var(--v2-on-surface-variant)]">
+                            close
+                          </span>
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <p className="font-bold">{selectedUser.display_name || selectedUser.username}</p>
-                      <p className="text-xs text-[var(--v2-on-surface-variant)]">@{selectedUser.username}</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedUser(null)}
-                      className="p-1 rounded-full hover:bg-[var(--v2-surface-container)]"
-                    >
-                      <span className="v2-icon text-[var(--v2-on-surface-variant)]">close</span>
-                    </button>
-                  </div>
-                </div>
+                  )}
+
+                  <p className="text-[10px] text-[var(--v2-on-surface-variant)] leading-relaxed p-3 bg-amber-50 rounded-xl">
+                    <span className="font-bold">Warning:</span> Upgrading an
+                    existing user will keep their personal account data and add
+                    vendor privileges to their profile.
+                  </p>
+                </>
               )}
 
               <div className="flex gap-3 pt-4">
@@ -951,36 +1274,45 @@ export function V2AdminVendorsTab({
                     setShowAddVendorModal(false);
                     setSelectedUser(null);
                     setAddVendorSearch('');
-                    setNewVendor({name: '', email: '', products: 0, status: 'active'});
+                    setNewVendor({
+                      fullName: '',
+                      username: '',
+                      email: '',
+                      country: 'NG',
+                      password: '',
+                      confirmPassword: '',
+                      type: 'new',
+                    });
                   }}
-                  className="flex-1 py-3 bg-[var(--v2-surface-container)] rounded-full font-bold"
-                >
+                  className="flex-1 py-3 bg-[var(--v2-surface-container)] rounded-full font-bold">
                   Cancel
                 </button>
                 <button
                   type="button"
+                  disabled={
+                    addVendorMutation.isPending ||
+                    createVendorMutation.isPending
+                  }
                   onClick={() => {
-                    if (selectedUser) {
+                    if (newVendor.type === 'existing') {
                       handleAddVendor();
-                    } else if (newVendor.name && newVendor.email) {
-                      toast.success(`Vendor "${newVendor.name}" created successfully`);
-                      addLog(`Created new vendor: ${newVendor.name}`);
-                      setShowAddVendorModal(false);
-                      setNewVendor({name: '', email: '', products: 0, status: 'active'});
                     } else {
-                      toast.error('Please fill in vendor name and email, or select an existing user');
+                      handleSubmit(handleAddVendor)();
                     }
                   }}
-                  disabled={addVendorMutation.isPending}
-                  className="flex-1 py-3 v2-hero-gradient text-white rounded-full font-bold disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {addVendorMutation.isPending ? (
+                  className="flex-1 py-3 v2-hero-gradient text-white rounded-full font-bold disabled:opacity-50 flex items-center justify-center gap-2">
+                  {addVendorMutation.isPending ||
+                  createVendorMutation.isPending ? (
                     <>
-                      <span className="v2-icon text-lg animate-spin">progress_activity</span>
-                      Adding...
+                      <span className="v2-icon text-lg animate-spin">
+                        progress_activity
+                      </span>
+                      Processing...
                     </>
+                  ) : newVendor.type === 'new' ? (
+                    'Create Vendor'
                   ) : (
-                    'Add Vendor'
+                    'Add Role'
                   )}
                 </button>
               </div>
@@ -991,7 +1323,9 @@ export function V2AdminVendorsTab({
 
       {/* Confirm Action Modal */}
       {confirmModal.isOpen && confirmModal.vendor && (
-        <div className="fixed inset-0 flex items-center justify-center p-4" style={{zIndex: 10001}}>
+        <div
+          className="fixed inset-0 flex items-center justify-center p-4"
+          style={{zIndex: 10001}}>
           <div
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => {
@@ -1002,21 +1336,29 @@ export function V2AdminVendorsTab({
           />
           <div className="relative bg-white rounded-3xl p-6 w-full max-w-md">
             <div className="flex items-center gap-3 mb-6">
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                confirmModal.type === 'suspend' ? 'bg-red-100' : 'bg-emerald-100'
-              }`}>
-                <span className={`v2-icon text-2xl ${
-                  confirmModal.type === 'suspend' ? 'text-red-600' : 'text-emerald-600'
+              <div
+                className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                  confirmModal.type === 'suspend'
+                    ? 'bg-red-100'
+                    : 'bg-emerald-100'
                 }`}>
+                <span
+                  className={`v2-icon text-2xl ${
+                    confirmModal.type === 'suspend'
+                      ? 'text-red-600'
+                      : 'text-emerald-600'
+                  }`}>
                   {confirmModal.type === 'suspend' ? 'block' : 'check_circle'}
                 </span>
               </div>
               <div>
                 <h3 className="text-xl font-bold v2-headline">
-                  {confirmModal.type === 'suspend' ? 'Suspend' : 'Activate'} Vendor
+                  {confirmModal.type === 'suspend' ? 'Suspend' : 'Activate'}{' '}
+                  Vendor
                 </h3>
                 <p className="text-sm text-[var(--v2-on-surface-variant)]">
-                  {confirmModal.vendor.shop_name || confirmModal.vendor.username}
+                  {confirmModal.vendor.shop_name ||
+                    confirmModal.vendor.username}
                 </p>
               </div>
             </div>
@@ -1054,12 +1396,15 @@ export function V2AdminVendorsTab({
                   </div>
 
                   <p className="text-xs text-[var(--v2-on-surface-variant)] bg-red-50 p-3 rounded-xl">
-                    This will suspend the vendor and prevent them from selling on the platform for {suspensionDays} day{suspensionDays !== '1' ? 's' : ''}.
+                    This will suspend the vendor and prevent them from selling
+                    on the platform for {suspensionDays} day
+                    {suspensionDays !== '1' ? 's' : ''}.
                   </p>
                 </>
               ) : (
                 <p className="text-sm text-[var(--v2-on-surface-variant)] bg-emerald-50 p-4 rounded-xl">
-                  This will reactivate the vendor and allow them to sell on the platform again. Any previous suspension will be lifted.
+                  This will reactivate the vendor and allow them to sell on the
+                  platform again. Any previous suspension will be lifted.
                 </p>
               )}
             </div>
@@ -1068,26 +1413,35 @@ export function V2AdminVendorsTab({
               <button
                 type="button"
                 onClick={() => {
-                  setConfirmModal({isOpen: false, type: 'suspend', vendor: null});
+                  setConfirmModal({
+                    isOpen: false,
+                    type: 'suspend',
+                    vendor: null,
+                  });
                   setSuspensionDays('7');
                   setSuspensionReason('');
                 }}
                 disabled={statusMutation.isPending}
-                className="flex-1 py-3 bg-[var(--v2-surface-container)] rounded-full font-bold"
-              >
+                className="flex-1 py-3 bg-[var(--v2-surface-container)] rounded-full font-bold">
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={confirmStatusChange}
-                disabled={statusMutation.isPending || (confirmModal.type === 'suspend' && !suspensionReason.trim())}
+                disabled={
+                  statusMutation.isPending ||
+                  (confirmModal.type === 'suspend' && !suspensionReason.trim())
+                }
                 className={`flex-1 py-3 rounded-full font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50 ${
-                  confirmModal.type === 'suspend' ? 'bg-red-500' : 'bg-emerald-500'
-                }`}
-              >
+                  confirmModal.type === 'suspend'
+                    ? 'bg-red-500'
+                    : 'bg-emerald-500'
+                }`}>
                 {statusMutation.isPending ? (
                   <>
-                    <span className="v2-icon text-lg animate-spin">progress_activity</span>
+                    <span className="v2-icon text-lg animate-spin">
+                      progress_activity
+                    </span>
                     Processing...
                   </>
                 ) : confirmModal.type === 'suspend' ? (

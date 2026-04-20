@@ -2,10 +2,14 @@
 
 import {useProfile} from '@/hooks/use-profile';
 import api from '@/lib/api-client';
+import {
+  deleteUploadedFile,
+  updateProfile,
+  uploadShopLogo,
+} from '@/lib/server/actions/auth';
 import {useQueryClient} from '@tanstack/react-query';
-import {useState, useEffect, useRef} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {toast} from 'sonner';
-import {uploadShopLogo, deleteUploadedFile, updateProfile} from '@/lib/server/actions/auth';
 
 export function V2VendorShopTab() {
   const {data: profile} = useProfile();
@@ -30,7 +34,7 @@ export function V2VendorShopTab() {
       setShopName(profile.shop_name || '');
       setStoreUrl(profile.shop_slug || profile.username || '');
       setDescription(profile.shop_description || profile.bio || '');
-      
+
       if (profile.shop_address) {
         const parts = profile.shop_address.split(', ');
         setAddress(parts[0] || '');
@@ -46,8 +50,10 @@ export function V2VendorShopTab() {
     setIsSaving(true);
     try {
       // Combine address fields into a single shopAddress string
-      const fullAddress = [address, city, state, postalCode].filter(Boolean).join(', ');
-      
+      const fullAddress = [address, city, state, postalCode]
+        .filter(Boolean)
+        .join(', ');
+
       await api.patch('/users', {
         shopName,
         shopDescription: description,
@@ -61,8 +67,12 @@ export function V2VendorShopTab() {
     } catch (error: any) {
       console.error('API Error:', error.response?.data || error);
       const serverMessage = error.response?.data?.message;
-      const displayError = Array.isArray(serverMessage) ? serverMessage[0] : serverMessage;
-      toast.error(displayError || error.message || 'Failed to save shop details');
+      const displayError = Array.isArray(serverMessage)
+        ? serverMessage[0]
+        : serverMessage;
+      toast.error(
+        displayError || error.message || 'Failed to save shop details',
+      );
     } finally {
       setIsSaving(false);
     }
@@ -73,7 +83,7 @@ export function V2VendorShopTab() {
       setShopName(profile.shop_name || '');
       setStoreUrl(profile.shop_slug || profile.username || '');
       setDescription(profile.shop_description || profile.bio || '');
-      
+
       if (profile.shop_address) {
         const parts = profile.shop_address.split(', ');
         setAddress(parts[0] || '');
@@ -109,20 +119,20 @@ export function V2VendorShopTab() {
     try {
       // 1. Delete old logo if it exists
       if (profile?.shop_logo_url) {
-        await deleteUploadedFile(profile.shop_logo_url).catch(err => 
-          console.warn('Failed to cleanup old logo:', err)
+        await deleteUploadedFile(profile.shop_logo_url).catch(err =>
+          console.warn('Failed to cleanup old logo:', err),
         );
       }
 
       // 2. Upload new logo to 'vendors' folder
       const formData = new FormData();
       formData.append('file', file);
-      
+
       const result = await uploadShopLogo(formData);
 
       if (result.success && result.url) {
         // 3. Update profile with new logo URL
-        await updateProfile({ shop_logo_url: result.url });
+        await updateProfile({shop_logo_url: result.url});
         toast.success('Shop logo updated successfully!');
         queryClient.invalidateQueries({queryKey: ['profile']});
       } else {
@@ -139,7 +149,9 @@ export function V2VendorShopTab() {
     e.stopPropagation();
     if (!profile?.shop_logo_url) return;
 
-    const confirmRemove = confirm('Are you sure you want to remove your shop logo?');
+    const confirmRemove = confirm(
+      'Are you sure you want to remove your shop logo?',
+    );
     if (!confirmRemove) return;
 
     setIsUploadingLogo(true);
@@ -148,7 +160,7 @@ export function V2VendorShopTab() {
       await deleteUploadedFile(profile.shop_logo_url);
 
       // 2. Clear in database
-      await updateProfile({ shop_logo_url: '' });
+      await updateProfile({shop_logo_url: ''});
 
       toast.success('Shop logo removed');
       queryClient.invalidateQueries({queryKey: ['profile']});
@@ -190,8 +202,10 @@ export function V2VendorShopTab() {
       <div className="grid grid-cols-12 gap-6">
         {/* Logo Upload */}
         <div className="col-span-12 lg:col-span-4 bg-[var(--v2-surface-container-lowest)] rounded-3xl p-6 md:p-8 flex flex-col items-center text-center">
-          <h3 className="w-full text-left text-lg font-bold v2-headline mb-6">Shop Logo</h3>
-          
+          <h3 className="w-full text-left text-lg font-bold v2-headline mb-6">
+            Shop Logo
+          </h3>
+
           <input
             type="file"
             ref={fileInputRef}
@@ -200,15 +214,15 @@ export function V2VendorShopTab() {
             className="hidden"
           />
 
-          <div 
+          <div
             onClick={handleLogoClick}
-            className="relative group cursor-pointer"
-          >
-            <div className={`w-48 h-48 rounded-2xl overflow-hidden bg-[var(--v2-surface-container-low)] flex items-center justify-center border-2 border-dashed transition-all ${
-              isUploadingLogo 
-                ? 'border-[var(--v2-primary)] opacity-50' 
-                : 'border-[var(--v2-outline-variant)]/30 group-hover:border-[var(--v2-primary)]/50'
-            }`}>
+            className="relative group cursor-pointer">
+            <div
+              className={`w-48 h-48 rounded-2xl overflow-hidden bg-[var(--v2-surface-container-low)] flex items-center justify-center border-2 border-dashed transition-all ${
+                isUploadingLogo
+                  ? 'border-[var(--v2-primary)] opacity-50'
+                  : 'border-[var(--v2-outline-variant)]/30 group-hover:border-[var(--v2-primary)]/50'
+              }`}>
               {profile?.shop_logo_url ? (
                 <img
                   src={profile.shop_logo_url}
@@ -216,18 +230,26 @@ export function V2VendorShopTab() {
                   className="w-full h-full object-cover opacity-90 group-hover:opacity-40 transition-opacity"
                 />
               ) : (
-                <span className="v2-icon text-5xl text-[var(--v2-on-surface-variant)]/30">store</span>
+                <span className="v2-icon text-5xl text-[var(--v2-on-surface-variant)]/30">
+                  store
+                </span>
               )}
-              
+
               {isUploadingLogo ? (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="v2-icon text-[var(--v2-primary)] text-4xl animate-spin">progress_activity</span>
+                  <span className="v2-icon text-[var(--v2-primary)] text-4xl animate-spin">
+                    progress_activity
+                  </span>
                 </div>
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <div className="flex flex-col items-center gap-2">
-                    <span className="v2-icon text-[var(--v2-primary)] text-4xl mb-1">cloud_upload</span>
-                    <span className="text-xs font-bold text-[var(--v2-primary)] uppercase tracking-wider">Change Logo</span>
+                    <span className="v2-icon text-[var(--v2-primary)] text-4xl mb-1">
+                      cloud_upload
+                    </span>
+                    <span className="text-xs font-bold text-[var(--v2-primary)] uppercase tracking-wider">
+                      Change Logo
+                    </span>
                   </div>
                 </div>
               )}
@@ -238,8 +260,7 @@ export function V2VendorShopTab() {
               <button
                 onClick={handleRemoveLogo}
                 className="absolute -top-3 -right-3 w-10 h-10 rounded-full bg-[var(--v2-error)] text-[var(--v2-on-error)] flex items-center justify-center shadow-lg hover:scale-110 transition-transform opacity-0 group-hover:opacity-100 z-10"
-                title="Remove Logo"
-              >
+                title="Remove Logo">
                 <span className="v2-icon text-xl">delete</span>
               </button>
             )}
@@ -250,13 +271,14 @@ export function V2VendorShopTab() {
             <br />
             Supports PNG, JPG, or WEBP.
           </p>
-          
+
           {!isUploadingLogo && (
-            <button 
+            <button
               onClick={handleLogoClick}
-              className="mt-6 text-sm font-bold text-[var(--v2-primary)] flex items-center gap-2 hover:underline"
-            >
-              <span className="v2-icon text-sm">{profile?.shop_logo_url ? 'edit' : 'add_photo_alternate'}</span>
+              className="mt-6 text-sm font-bold text-[var(--v2-primary)] flex items-center gap-2 hover:underline">
+              <span className="v2-icon text-sm">
+                {profile?.shop_logo_url ? 'edit' : 'add_photo_alternate'}
+              </span>
               {profile?.shop_logo_url ? 'Change Image' : 'Add Logo'}
             </button>
           )}
@@ -265,7 +287,9 @@ export function V2VendorShopTab() {
         {/* Basic Info */}
         <div className="col-span-12 lg:col-span-8 space-y-6">
           <div className="bg-[var(--v2-surface-container-low)] rounded-3xl p-6 md:p-8 space-y-6 md:space-y-8">
-            <h3 className="text-lg font-bold v2-headline">Identity & Presence</h3>
+            <h3 className="text-lg font-bold v2-headline">
+              Identity & Presence
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-bold text-[var(--v2-on-surface-variant)] ml-1">
@@ -278,7 +302,12 @@ export function V2VendorShopTab() {
                     const value = e.target.value;
                     setShopName(value);
                     // Automatically generate matching URL slug
-                    setStoreUrl(value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''));
+                    setStoreUrl(
+                      value
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]+/g, '-')
+                        .replace(/(^-|-$)+/g, ''),
+                    );
                   }}
                   className="bg-[var(--v2-surface-container-lowest)] border-none rounded-xl px-4 py-4 text-[var(--v2-on-surface)] shadow-sm focus:ring-1 ring-[var(--v2-outline-variant)]/30 transition-all"
                   placeholder="Your Shop Name"
@@ -289,7 +318,9 @@ export function V2VendorShopTab() {
                   Shop URL
                 </label>
                 <div className="flex items-center bg-[var(--v2-surface-container-lowest)] rounded-xl px-4 py-4 shadow-sm border-none focus-within:ring-1 ring-[var(--v2-outline-variant)]/30 transition-all">
-                  <span className="text-[var(--v2-on-surface-variant)]/60 text-sm">gifthance.com/vendor/</span>
+                  <span className="text-[var(--v2-on-surface-variant)]/60 text-sm">
+                    gifthance.com/vendor/
+                  </span>
                   <input
                     type="text"
                     value={storeUrl}
@@ -325,9 +356,12 @@ export function V2VendorShopTab() {
         <div className="col-span-12 bg-[var(--v2-surface-container-low)] rounded-3xl p-6 md:p-8">
           <div className="flex flex-col md:flex-row md:items-start justify-between mb-6 md:mb-8 gap-4">
             <div>
-              <h3 className="text-lg font-bold v2-headline">Business Address</h3>
+              <h3 className="text-lg font-bold v2-headline">
+                Business Address
+              </h3>
               <p className="text-sm text-[var(--v2-on-surface-variant)]">
-                This information will be used for shipping and legal documentation.
+                This information will be used for shipping and legal
+                documentation.
               </p>
             </div>
             <div className="flex items-center gap-2 text-[var(--v2-primary)] bg-[var(--v2-primary)]/5 px-4 py-2 rounded-full">
@@ -349,7 +383,9 @@ export function V2VendorShopTab() {
               />
             </div>
             <div className="md:col-span-4 flex flex-col gap-2">
-              <label className="text-sm font-bold text-[var(--v2-on-surface-variant)] ml-1">City</label>
+              <label className="text-sm font-bold text-[var(--v2-on-surface-variant)] ml-1">
+                City
+              </label>
               <input
                 type="text"
                 value={city}
@@ -383,7 +419,9 @@ export function V2VendorShopTab() {
               />
             </div>
             <div className="md:col-span-5 flex flex-col gap-2">
-              <label className="text-sm font-bold text-[var(--v2-on-surface-variant)] ml-1">Country</label>
+              <label className="text-sm font-bold text-[var(--v2-on-surface-variant)] ml-1">
+                Country
+              </label>
               <select
                 value={country}
                 onChange={e => setCountry(e.target.value)}
@@ -410,8 +448,9 @@ export function V2VendorShopTab() {
               How your customers see you
             </h2>
             <p className="opacity-90 leading-relaxed max-w-lg mb-6 md:mb-8 text-sm md:text-base">
-              Your shop profile is the first impression customers get. We've optimized the layout to
-              highlight your unique brand story and high-quality product imagery.
+              Your shop profile is the first impression customers get. We've
+              optimized the layout to highlight your unique brand story and
+              high-quality product imagery.
             </p>
             <button className="flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 transition-colors rounded-xl font-bold border border-white/20">
               <span className="v2-icon">visibility</span>
@@ -430,7 +469,9 @@ export function V2VendorShopTab() {
                     />
                   ) : (
                     <div className="w-full h-full bg-[var(--v2-surface)] rounded flex items-center justify-center">
-                      <span className="v2-icon text-[var(--v2-primary)] text-xl">store</span>
+                      <span className="v2-icon text-[var(--v2-primary)] text-xl">
+                        store
+                      </span>
                     </div>
                   )}
                 </div>
