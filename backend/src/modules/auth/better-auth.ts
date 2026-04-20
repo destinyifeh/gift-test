@@ -5,6 +5,7 @@ import { PrismaClient } from '@generated/prisma';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { AuthEmailHelper } from './auth-email.helper.js';
+import { APIError } from 'better-auth/api';
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
@@ -82,5 +83,43 @@ export const auth = betterAuth({
       clientId: process.env.BETTER_AUTH_APPLE_CLIENT_ID!,
       clientSecret: process.env.BETTER_AUTH_APPLE_CLIENT_SECRET!,
     },
-  }
+  },
+  plugins: [
+    {
+      id: 'account-status',
+      hooks: {
+        before: [
+          {
+            matcher: (ctx: any) => ctx.path === '/sign-in/email',
+            handler: async (ctx: any) => {
+              const email = ctx.body?.email;
+              if (!email) return;
+
+              const user = await (prisma as any).user.findUnique({ where: { email } });
+              if (!user || user.status === 'active') return;
+
+              if (user.status === 'suspended') {
+                // Auto-reactivate if suspension period has passed
+                if (user.suspensionEnd && new Date(user.suspensionEnd) < new Date()) {
+                  await (prisma as any).user.update({
+                    where: { id: user.id },
+                    data: { status: 'active', suspensionEnd: null }
+                  });
+                  return;
+                }
+                
+                throw new APIError('FORBIDDEN', { 
+                  message: `SUSPENDED:${user.suspensionEnd ? new Date(user.suspensionEnd).toISOString() : 'PERMANENT'}`
+                });
+              }
+
+              if (user.status === 'banned') {
+                throw new APIError('FORBIDDEN', { message: 'BANNED' });
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
 });

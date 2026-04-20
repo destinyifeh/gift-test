@@ -45,7 +45,7 @@ export function V2AdminSettingsTab() {
   useEffect(() => {
     if (profile) {
       setPersonalInfo({
-        display_name: profile.display_name || '',
+        display_name: profile.displayName || '',
         username: profile.username || '',
         email: profile.email || '',
         bio: profile.bio || '',
@@ -69,7 +69,7 @@ export function V2AdminSettingsTab() {
 
   const handleSavePersonalInfo = () => {
     updateProfileMutation.mutate({
-      display_name: personalInfo.display_name,
+      display_name: personalInfo.displayName,
       bio: personalInfo.bio,
     });
   };
@@ -149,16 +149,16 @@ export function V2AdminSettingsTab() {
           <div className="flex flex-col md:flex-row gap-6 mb-8 pb-8 border-b border-[var(--v2-surface-container)]">
             <div className="flex items-center gap-4">
               <div className="relative">
-                {profile?.avatar_url ? (
+                {profile?.avatarUrl ? (
                   <img
-                    src={profile.avatar_url}
+                    src={profile.avatarUrl}
                     alt=""
                     className="w-20 h-20 rounded-full object-cover border-4 border-[var(--v2-primary-container)]/20"
                   />
                 ) : (
                   <div className="w-20 h-20 rounded-full bg-[var(--v2-primary)]/10 flex items-center justify-center border-4 border-[var(--v2-primary-container)]/20">
                     <span className="text-3xl font-bold text-[var(--v2-primary)]">
-                      {(profile?.display_name || profile?.username || 'A').charAt(0).toUpperCase()}
+                      {(profile?.displayName || profile?.username || 'A').charAt(0).toUpperCase()}
                     </span>
                   </div>
                 )}
@@ -168,11 +168,11 @@ export function V2AdminSettingsTab() {
               </div>
               <div>
                 <p className="font-bold text-lg text-[var(--v2-on-surface)]">
-                  {profile?.display_name || profile?.username || 'Admin'}
+                  {profile?.displayName || profile?.username || 'Admin'}
                 </p>
                 <p className="text-sm text-[var(--v2-on-surface-variant)]">@{profile?.username}</p>
                 <span className="inline-flex mt-2 px-3 py-1 rounded-full text-xs font-bold uppercase bg-[var(--v2-primary)]/10 text-[var(--v2-primary)]">
-                  {formatAdminRole(profile?.admin_role)}
+                  {formatAdminRole(profile?.adminRole)}
                 </span>
               </div>
             </div>
@@ -188,7 +188,7 @@ export function V2AdminSettingsTab() {
                 </label>
                 <input
                   type="text"
-                  value={personalInfo.display_name}
+                  value={personalInfo.displayName}
                   onChange={e => setPersonalInfo({ ...personalInfo, display_name: e.target.value })}
                   className="w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none"
                   placeholder="Your display name"

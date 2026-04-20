@@ -70,7 +70,7 @@ export function V2AdminCreatorGiftsTab({
       !localSearch ||
       g.donor_name?.toLowerCase().includes(localSearch.toLowerCase()) ||
       g.recipient?.username?.toLowerCase().includes(localSearch.toLowerCase()) ||
-      g.recipient?.display_name?.toLowerCase().includes(localSearch.toLowerCase());
+      g.recipient?.displayName?.toLowerCase().includes(localSearch.toLowerCase());
 
     const matchesType =
       typeFilter === 'all' ||
@@ -305,7 +305,7 @@ export function V2AdminCreatorGiftsTab({
                         {gift.donor_name || 'Anonymous'} {gift.is_anonymous && '(Anon)'}
                       </p>
                       <p className="text-xs text-[var(--v2-on-surface-variant)] truncate">
-                        → {gift.recipient?.display_name || gift.recipient?.username || 'Unknown'}
+                        → {gift.recipient?.displayName || gift.recipient?.username || 'Unknown'}
                       </p>
                     </div>
                   </div>
@@ -405,9 +405,9 @@ export function V2AdminCreatorGiftsTab({
                     <p className="font-medium text-[var(--v2-on-surface)]">
                       @{gift.recipient?.username || 'unknown'}
                     </p>
-                    {gift.recipient?.display_name && (
+                    {gift.recipient?.displayName && (
                       <p className="text-xs text-[var(--v2-on-surface-variant)]">
-                        {gift.recipient.display_name}
+                        {gift.recipient.displayName}
                       </p>
                     )}
                   </td>
@@ -428,7 +428,7 @@ export function V2AdminCreatorGiftsTab({
                     </p>
                   </td>
                   <td className="px-6 py-4 text-[var(--v2-on-surface-variant)]">
-                    {gift.created_at ? new Date(gift.created_at).toLocaleDateString() : '—'}
+                    {gift.createdAt ? new Date(gift.createdAt).toLocaleDateString() : '—'}
                   </td>
                   <td className="px-6 py-4">
                     {gift.is_flagged ? (

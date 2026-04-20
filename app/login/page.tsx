@@ -15,7 +15,7 @@ import {GifthanceLogo} from '@/components/GifthanceLogo';
 function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<React.ReactNode | null>(null);
 
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -49,7 +49,59 @@ function LoginForm() {
     });
 
     if (error) {
-      setErrorMsg(error.message || 'An error occurred during login');
+      let message = error.message || 'An error occurred during login';
+      let messageContent: React.ReactNode = message;
+      
+      if (message.startsWith('SUSPENDED:')) {
+        const dateStr = message.substring('SUSPENDED:'.length);
+        if (dateStr === 'PERMANENT') {
+          messageContent = (
+            <div className="space-y-4">
+              <p>Your account is temporarily suspended.</p>
+              <p>If you have questions, please{' '}
+                <a href="mailto:support@gatherly.com" className="underline font-bold hover:text-red-700 transition-colors">
+                  contact support
+                </a>.
+              </p>
+            </div>
+          );
+        } else {
+          const date = new Date(dateStr);
+          const formattedDate = date.toLocaleDateString(undefined, { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          messageContent = (
+            <div className="space-y-4">
+              <p>Your account is temporarily suspended.</p>
+              <p>You will regain access on <strong className="block mt-1 bg-red-100 p-2 rounded-lg text-red-800">{formattedDate}</strong></p>
+              <p>If you have questions, please{' '}
+                <a href="mailto:support@gatherly.com" className="underline font-bold hover:text-red-700 transition-colors">
+                  contact support
+                </a>.
+              </p>
+            </div>
+          );
+        }
+      } else if (message === 'BANNED') {
+        messageContent = (
+          <div className="space-y-4">
+            <p className="font-bold">Account Banned</p>
+            <p>Your account has been suspended due to a violation of our policies.</p>
+            <p>If you believe this is a mistake, please{' '}
+              <a href="mailto:support@gatherly.com" className="underline font-bold hover:text-red-700 transition-colors">
+                contact support
+              </a>.
+            </p>
+          </div>
+        );
+      }
+
+      setErrorMsg(messageContent);
       setIsLoading(false);
     } else {
       const roles = (session?.user as any)?.roles || [];
@@ -170,9 +222,9 @@ function LoginForm() {
 
           {/* Error Alert */}
           {errorMsg && (
-            <div className="mb-6 bg-[var(--v2-error)]/10 text-[var(--v2-error)] px-4 py-3 rounded-2xl flex items-center gap-3">
-              <span className="v2-icon text-lg">error</span>
-              <span className="text-sm font-medium">{errorMsg}</span>
+            <div className="mb-6 bg-[var(--v2-error)]/10 text-[var(--v2-error)] px-5 py-4 rounded-2xl flex items-start gap-4">
+              <span className="v2-icon text-2xl mt-0.5">error</span>
+              <div className="text-sm font-medium flex-1">{errorMsg}</div>
             </div>
           )}
 

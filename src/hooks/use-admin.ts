@@ -116,6 +116,24 @@ export function useUpdateUserStatus() {
   });
 }
 
+export function useDeleteUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (userId: string) => {
+      const res = await api.delete(`/admin/users/${userId}`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-vendors'] });
+      toast.success('User permanently deleted');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to delete user');
+    },
+  });
+}
+
 // ── Vendor Management ───────────
 
 export function useAdminVendors(

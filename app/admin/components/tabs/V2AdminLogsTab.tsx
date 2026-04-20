@@ -78,7 +78,7 @@ function groupLogsByDate(logs: any[]) {
   yesterday.setDate(yesterday.getDate() - 1);
 
   logs.forEach(log => {
-    const logDate = new Date(log.created_at);
+    const logDate = new Date(log.createdAt);
     let dateKey: string;
 
     if (logDate.toDateString() === today.toDateString()) {
@@ -217,8 +217,8 @@ export function V2AdminLogsTab() {
               <div className="space-y-4">
                 {dateLogs.map((log: any) => {
                   const style = getLogStyle(log.action || '');
-                  const logTime = log.created_at
-                    ? new Date(log.created_at).toLocaleTimeString('en-US', {
+                  const logTime = log.createdAt
+                    ? new Date(log.createdAt).toLocaleTimeString('en-US', {
                         hour: 'numeric',
                         minute: '2-digit',
                         hour12: true,
@@ -404,7 +404,7 @@ export function V2AdminLogsTab() {
         {/* Log Items */}
         {paginatedLogs.map((log: any) => {
           const style = getLogStyle(log.action || '');
-          const logDate = log.created_at ? new Date(log.created_at) : null;
+          const logDate = log.createdAt ? new Date(log.createdAt) : null;
 
           return (
             <div

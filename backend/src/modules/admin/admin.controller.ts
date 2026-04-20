@@ -70,6 +70,15 @@ export class AdminController {
     );
   }
 
+  @Delete('users/:id')
+  async deleteUser(
+    @Req() req: Request,
+    @Param('id') userId: string,
+  ) {
+    const adminId = (req as any).user.id;
+    return this.adminService.deleteUser(adminId, userId);
+  }
+
   // ── Subscription Management ──
   @Get('subscriptions')
   async fetchSubscriptions(

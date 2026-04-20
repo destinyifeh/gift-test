@@ -4,6 +4,9 @@ import {
   useCreateVendor,
   useUpdateUserRole,
   useUpdateVendorStatus,
+  useUpdateUserStatus,
+  useVerifyVendor,
+  useDeleteUser,
 } from '@/hooks/use-admin';
 import {useIsMobile} from '@/hooks/use-mobile';
 import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
@@ -101,7 +104,7 @@ export function V2AdminVendorsTab({
   // Confirm Action Modal
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
-    type: 'suspend' | 'activate';
+    type: 'suspend' | 'activate' | 'warn' | 'ban' | 'delete';
     vendor: any;
   }>({isOpen: false, type: 'suspend', vendor: null});
   const [suspensionDays, setSuspensionDays] = useState('7');
@@ -152,14 +155,13 @@ export function V2AdminVendorsTab({
     (u: any) => !u.roles?.includes('vendor'),
   );
 
-  // Status mutation
-  const statusMutation = useUpdateVendorStatus();
-
-  // Add vendor role mutation
+  // Mutations
+  const updateStatusMutation = useUpdateUserStatus();
+  const verifyMutation = useVerifyVendor();
+  const updateVendorMutation = useUpdateVendorStatus();
   const addVendorMutation = useUpdateUserRole();
-
-  // Create new vendor mutation
   const createVendorMutation = useCreateVendor();
+  const deleteUserMutation = useDeleteUser();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -188,25 +190,90 @@ export function V2AdminVendorsTab({
     setMobileActionSheet({isOpen: false, vendor: null});
   };
 
-  const confirmStatusChange = () => {
+  const handleWarn = (vendor: any) => {
+    setConfirmModal({isOpen: true, type: 'warn', vendor});
+    setOpenDropdownId(null);
+    setMobileActionSheet({isOpen: false, vendor: null});
+  };
+
+  const handleBan = (vendor: any) => {
+    setConfirmModal({isOpen: true, type: 'ban', vendor});
+    setOpenDropdownId(null);
+    setMobileActionSheet({isOpen: false, vendor: null});
+  };
+
+  const handleDelete = (vendor: any) => {
+    setConfirmModal({isOpen: true, type: 'delete', vendor});
+    setOpenDropdownId(null);
+    setMobileActionSheet({isOpen: false, vendor: null});
+  };
+
+  const handleConfirmAction = async () => {
     if (!confirmModal.vendor) return;
-    if (confirmModal.type === 'suspend' && !suspensionReason.trim()) {
-      toast.error('Please provide a reason for suspension');
+
+    if (confirmModal.type === 'delete') {
+      deleteUserMutation.mutate(confirmModal.vendor.id, {
+        onSuccess: () => {
+          setConfirmModal({isOpen: false, type: 'suspend', vendor: null});
+          addLog(`Permanently deleted vendor @${confirmModal.vendor.username}`);
+        },
+      });
       return;
     }
-    const newStatus = confirmModal.type === 'suspend' ? 'suspended' : 'active';
-    statusMutation.mutate({id: confirmModal.vendor.id, status: newStatus});
-    const vendorName =
-      confirmModal.vendor.shop_name || confirmModal.vendor.username;
-    if (confirmModal.type === 'suspend') {
-      addLog(
-        `Suspended vendor "${vendorName}" for ${suspensionDays} days. Reason: ${suspensionReason}`,
-      );
-    } else {
-      addLog(`Activated vendor: ${vendorName}`);
+
+    if (confirmModal.type === 'warn') {
+      if (!suspensionReason.trim()) {
+        toast.error('Please provide a reason');
+        return;
+      }
+      addLog(`Warned vendor @${confirmModal.vendor.username}. Reason: ${suspensionReason}`);
+      toast.success('Vendor warned successfully');
+      setConfirmModal({isOpen: false, type: 'suspend', vendor: null});
+      setSuspensionReason('');
+      return;
     }
-    setSuspensionDays('7');
-    setSuspensionReason('');
+
+    try {
+      if (confirmModal.type === 'suspend') {
+        if (!suspensionReason.trim()) {
+          toast.error('Please provide a reason');
+          return;
+        }
+        const suspensionEnd = new Date(
+          Date.now() + parseInt(suspensionDays) * 86400000,
+        ).toISOString();
+        await updateStatusMutation.mutateAsync({
+          userId: confirmModal.vendor.id,
+          status: 'suspended',
+          suspensionEnd,
+        });
+        addLog(
+          `Suspended vendor @${confirmModal.vendor.username} for ${suspensionDays} days. Reason: ${suspensionReason}`,
+        );
+      } else if (confirmModal.type === 'ban') {
+        if (!suspensionReason.trim()) {
+          toast.error('Please provide a reason');
+          return;
+        }
+        await updateStatusMutation.mutateAsync({
+          userId: confirmModal.vendor.id,
+          status: 'banned',
+        });
+        addLog(`Banned vendor @${confirmModal.vendor.username}. Reason: ${suspensionReason}`);
+      } else {
+        await updateStatusMutation.mutateAsync({
+          userId: confirmModal.vendor.id,
+          status: 'active',
+        });
+        addLog(`Restored access for vendor @${confirmModal.vendor.username}`);
+      }
+
+      toast.success('Vendor status updated successfully');
+      setConfirmModal({isOpen: false, type: 'suspend', vendor: null});
+      setSuspensionReason('');
+    } catch (error) {
+      toast.error('Failed to update vendor status');
+    }
   };
 
   const handleAddVendor = async (formData?: CreateVendorInput) => {
@@ -279,13 +346,13 @@ export function V2AdminVendorsTab({
       ].join(','),
       ...vendors.map((v: any) =>
         [
-          v.shop_name || v.display_name || '',
+          v.shop_name || v.displayName || '',
           v.username,
           v.email || '',
           v.status || 'active',
           v.orders_count || 0,
           v.sales_volume || 0,
-          v.created_at ? new Date(v.created_at).toLocaleDateString() : '',
+          v.createdAt ? new Date(v.createdAt).toLocaleDateString() : '',
         ].join(','),
       ),
     ].join('\n');
@@ -455,15 +522,15 @@ export function V2AdminVendorsTab({
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <div className="w-12 h-12 rounded-xl bg-[var(--v2-primary-container)]/20 flex items-center justify-center overflow-hidden shrink-0">
-                        {vendor.avatar_url ? (
+                        {vendor.avatarUrl ? (
                           <img
-                            src={vendor.avatar_url}
+                            src={vendor.avatarUrl}
                             alt=""
                             className="w-full h-full object-cover"
                           />
                         ) : (
                           <span className="text-lg font-bold text-[var(--v2-primary)]">
-                            {(vendor.shop_name || vendor.display_name || 'V')
+                            {(vendor.shop_name || vendor.displayName || 'V')
                               .charAt(0)
                               .toUpperCase()}
                           </span>
@@ -472,7 +539,7 @@ export function V2AdminVendorsTab({
                       <div className="flex-1 min-w-0">
                         <p className="font-bold capitalize truncate">
                           {vendor.shop_name ||
-                            vendor.display_name ||
+                            vendor.displayName ||
                             vendor.username}
                         </p>
                         <p className="text-sm text-[var(--v2-on-surface-variant)] truncate">
@@ -549,15 +616,15 @@ export function V2AdminVendorsTab({
                     <td className="px-8 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-[var(--v2-primary-container)]/20 flex items-center justify-center overflow-hidden">
-                          {vendor.avatar_url ? (
+                          {vendor.avatarUrl ? (
                             <img
-                              src={vendor.avatar_url}
+                              src={vendor.avatarUrl}
                               alt=""
                               className="w-full h-full object-cover"
                             />
                           ) : (
                             <span className="font-bold text-[var(--v2-primary)]">
-                              {(vendor.shop_name || vendor.display_name || 'V')
+                              {(vendor.shop_name || vendor.displayName || 'V')
                                 .charAt(0)
                                 .toUpperCase()}
                             </span>
@@ -566,7 +633,7 @@ export function V2AdminVendorsTab({
                         <div>
                           <p className="font-bold capitalize">
                             {vendor.shop_name ||
-                              vendor.display_name ||
+                              vendor.displayName ||
                               vendor.username}
                           </p>
                           <p className="text-xs text-[var(--v2-on-surface-variant)]">
@@ -595,8 +662,8 @@ export function V2AdminVendorsTab({
                       </span>
                     </td>
                     <td className="px-6 py-4 text-[var(--v2-on-surface-variant)]">
-                      {vendor.created_at
-                        ? new Date(vendor.created_at).toLocaleDateString()
+                      {vendor.createdAt
+                        ? new Date(vendor.createdAt).toLocaleDateString()
                         : '—'}
                     </td>
                     <td className="px-8 py-4">
@@ -682,11 +749,79 @@ export function V2AdminVendorsTab({
                     <span className="v2-icon text-lg text-emerald-600">
                       check_circle
                     </span>
-                    <span className="text-sm font-medium text-emerald-600">
+                    <span className="font-medium text-emerald-600">
                       Activate Vendor
                     </span>
                   </button>
                 )}
+
+                <div className="h-px bg-gray-100 my-2" />
+
+                <button
+                  type="button"
+                  onClick={() => handleWarn(mobileActionSheet.vendor)}
+                  className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-blue-50 transition-colors">
+                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                    <span className="v2-icon text-blue-600">warning</span>
+                  </div>
+                  <span className="font-medium text-blue-600">Warn Vendor</span>
+                </button>
+
+                {(mobileActionSheet.vendor.status === 'active' || !mobileActionSheet.vendor.status) && (
+                  <button
+                    type="button"
+                    onClick={() => handleBan(mobileActionSheet.vendor)}
+                    className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-red-50 transition-colors">
+                    <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                      <span className="v2-icon text-red-600">block</span>
+                    </div>
+                    <span className="font-medium text-red-600">Ban Vendor</span>
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => handleDelete(mobileActionSheet.vendor)}
+                  className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-red-50 transition-colors">
+                  <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                    <span className="v2-icon text-red-600">delete_forever</span>
+                  </div>
+                  <span className="font-medium text-red-600">Delete Vendor</span>
+                </button>
+
+                <div className="h-px bg-gray-100 my-1" />
+
+                <button
+                  type="button"
+                  onClick={() => handleWarn(vendor)}
+                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors text-left">
+                  <span className="v2-icon text-lg text-blue-600">warning</span>
+                  <span className="text-sm font-medium text-blue-600">
+                    Warn Vendor
+                  </span>
+                </button>
+
+                {status === 'active' || !status ? (
+                  <button
+                    type="button"
+                    onClick={() => handleBan(vendor)}
+                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-left">
+                    <span className="v2-icon text-lg text-red-600">block</span>
+                    <span className="text-sm font-medium text-red-600">
+                      Ban Vendor
+                    </span>
+                  </button>
+                ) : null}
+
+                <button
+                  type="button"
+                  onClick={() => handleDelete(vendor)}
+                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-left">
+                  <span className="v2-icon text-lg text-red-600">delete_forever</span>
+                  <span className="text-sm font-medium text-red-600">
+                    Delete Vendor
+                  </span>
+                </button>
               </div>
             </>
           );
@@ -720,7 +855,7 @@ export function V2AdminVendorsTab({
                 <div>
                   <p className="font-bold capitalize">
                     {mobileActionSheet.vendor.shop_name ||
-                      mobileActionSheet.vendor.display_name}
+                      mobileActionSheet.vendor.displayName}
                   </p>
                   <p className="text-sm text-gray-500">
                     @{mobileActionSheet.vendor.username}
@@ -814,9 +949,9 @@ export function V2AdminVendorsTab({
             <div className="p-6 space-y-6">
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-xl bg-[var(--v2-primary-container)]/20 flex items-center justify-center overflow-hidden">
-                  {viewDetailsModal.vendor.avatar_url ? (
+                  {viewDetailsModal.vendor.avatarUrl ? (
                     <img
-                      src={viewDetailsModal.vendor.avatar_url}
+                      src={viewDetailsModal.vendor.avatarUrl}
                       alt=""
                       className="w-full h-full object-cover"
                     />
@@ -835,7 +970,7 @@ export function V2AdminVendorsTab({
                 <div>
                   <p className="text-xl font-bold capitalize">
                     {viewDetailsModal.vendor.shop_name ||
-                      viewDetailsModal.vendor.display_name}
+                      viewDetailsModal.vendor.displayName}
                   </p>
                   <p className="text-gray-500">
                     @{viewDetailsModal.vendor.username}
@@ -875,9 +1010,9 @@ export function V2AdminVendorsTab({
                       Joined
                     </p>
                     <p className="font-medium">
-                      {viewDetailsModal.vendor.created_at
+                      {viewDetailsModal.vendor.createdAt
                         ? new Date(
-                            viewDetailsModal.vendor.created_at,
+                            viewDetailsModal.vendor.createdAt,
                           ).toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'short',
@@ -1197,14 +1332,14 @@ export function V2AdminVendorsTab({
                               }`}>
                               <div className="w-10 h-10 rounded-full bg-[var(--v2-primary-container)]/20 flex items-center justify-center">
                                 <span className="font-bold text-[var(--v2-primary)]">
-                                  {(user.display_name || user.username || 'U')
+                                  {(user.displayName || user.username || 'U')
                                     .charAt(0)
                                     .toUpperCase()}
                                 </span>
                               </div>
                               <div className="flex-1 min-w-0">
                                 <p className="font-medium truncate">
-                                  {user.display_name || user.username}
+                                  {user.displayName || user.username}
                                 </p>
                                 <p className="text-xs text-[var(--v2-on-surface-variant)] truncate">
                                   @{user.username} • {user.email || 'No email'}
@@ -1231,7 +1366,7 @@ export function V2AdminVendorsTab({
                         <div className="w-10 h-10 rounded-full bg-[var(--v2-primary-container)]/20 flex items-center justify-center">
                           <span className="font-bold text-[var(--v2-primary)]">
                             {(
-                              selectedUser.display_name ||
+                              selectedUser.displayName ||
                               selectedUser.username ||
                               'U'
                             )
@@ -1241,7 +1376,7 @@ export function V2AdminVendorsTab({
                         </div>
                         <div className="flex-1">
                           <p className="font-bold truncate">
-                            {selectedUser.display_name || selectedUser.username}
+                            {selectedUser.displayName || selectedUser.username}
                           </p>
                           <p className="text-xs text-[var(--v2-on-surface-variant)]">
                             @{selectedUser.username}
@@ -1338,23 +1473,29 @@ export function V2AdminVendorsTab({
             <div className="flex items-center gap-3 mb-6">
               <div
                 className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                  confirmModal.type === 'suspend'
+                  confirmModal.type === 'suspend' || confirmModal.type === 'ban' || confirmModal.type === 'delete'
                     ? 'bg-red-100'
+                    : confirmModal.type === 'warn'
+                    ? 'bg-blue-100'
                     : 'bg-emerald-100'
                 }`}>
                 <span
                   className={`v2-icon text-2xl ${
-                    confirmModal.type === 'suspend'
+                    confirmModal.type === 'suspend' || confirmModal.type === 'ban' || confirmModal.type === 'delete'
                       ? 'text-red-600'
+                      : confirmModal.type === 'warn'
+                      ? 'text-blue-600'
                       : 'text-emerald-600'
                   }`}>
-                  {confirmModal.type === 'suspend' ? 'block' : 'check_circle'}
+                  {confirmModal.type === 'suspend' ? 'pause_circle' : 
+                   confirmModal.type === 'ban' ? 'block' :
+                   confirmModal.type === 'delete' ? 'delete_forever' :
+                   confirmModal.type === 'warn' ? 'warning' : 'check_circle'}
                 </span>
               </div>
               <div>
-                <h3 className="text-xl font-bold v2-headline">
-                  {confirmModal.type === 'suspend' ? 'Suspend' : 'Activate'}{' '}
-                  Vendor
+                <h3 className="text-xl font-bold v2-headline capitalize">
+                  {confirmModal.type === 'activate' ? 'Restore Access' : `${confirmModal.type} Vendor`}
                 </h3>
                 <p className="text-sm text-[var(--v2-on-surface-variant)]">
                   {confirmModal.vendor.shop_name ||
@@ -1364,48 +1505,51 @@ export function V2AdminVendorsTab({
             </div>
 
             <div className="space-y-4">
-              {confirmModal.type === 'suspend' ? (
+              {confirmModal.type === 'suspend' || confirmModal.type === 'ban' || confirmModal.type === 'warn' ? (
                 <>
-                  {/* Suspension Duration */}
-                  <div>
-                    <label className="text-sm font-bold text-[var(--v2-on-surface)] block mb-2">
-                      Suspension Duration (days)
-                    </label>
-                    <input
-                      type="number"
-                      value={suspensionDays}
-                      onChange={e => setSuspensionDays(e.target.value)}
-                      min="1"
-                      max="365"
-                      className="w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none"
-                    />
-                  </div>
+                  {confirmModal.type === 'suspend' && (
+                    <div>
+                      <label className="text-sm font-bold text-[var(--v2-on-surface)] block mb-2">
+                        Suspension Duration (days)
+                      </label>
+                      <input
+                        type="number"
+                        value={suspensionDays}
+                        onChange={e => setSuspensionDays(e.target.value)}
+                        min="1"
+                        max="365"
+                        className="w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none"
+                      />
+                    </div>
+                  )}
 
                   {/* Reason */}
                   <div>
                     <label className="text-sm font-bold text-[var(--v2-on-surface)] block mb-2">
-                      Reason for Suspension
+                      Reason for {confirmModal.type.charAt(0).toUpperCase() + confirmModal.type.slice(1)}
                     </label>
                     <textarea
                       value={suspensionReason}
                       onChange={e => setSuspensionReason(e.target.value)}
-                      placeholder="Enter the reason for suspending this vendor..."
+                      placeholder={`Enter the reason for ${confirmModal.type}ing this vendor...`}
                       rows={3}
                       className="w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none resize-none"
                     />
                   </div>
-
-                  <p className="text-xs text-[var(--v2-on-surface-variant)] bg-red-50 p-3 rounded-xl">
-                    This will suspend the vendor and prevent them from selling
-                    on the platform for {suspensionDays} day
-                    {suspensionDays !== '1' ? 's' : ''}.
-                  </p>
                 </>
               ) : (
                 <p className="text-sm text-[var(--v2-on-surface-variant)] bg-emerald-50 p-4 rounded-xl">
-                  This will reactivate the vendor and allow them to sell on the
-                  platform again. Any previous suspension will be lifted.
+                  This will restore full access for @{confirmModal.vendor.username}. Any previous suspension or ban will be lifted.
                 </p>
+              )}
+
+              {confirmModal.type === 'delete' && (
+                <div className="bg-red-50 p-4 rounded-xl border border-red-100">
+                  <p className="text-sm text-red-700 font-bold mb-1">Warning: Permanent Deletion</p>
+                  <p className="text-xs text-red-600 leading-relaxed">
+                    This action cannot be undone. All data associated with @{confirmModal.vendor.username} will be permanently removed.
+                  </p>
+                </div>
               )}
             </div>
 
@@ -1413,42 +1557,34 @@ export function V2AdminVendorsTab({
               <button
                 type="button"
                 onClick={() => {
-                  setConfirmModal({
-                    isOpen: false,
-                    type: 'suspend',
-                    vendor: null,
-                  });
-                  setSuspensionDays('7');
+                  setConfirmModal({isOpen: false, type: 'suspend', vendor: null});
                   setSuspensionReason('');
                 }}
-                disabled={statusMutation.isPending}
+                disabled={updateStatusMutation.isPending || deleteUserMutation.isPending}
                 className="flex-1 py-3 bg-[var(--v2-surface-container)] rounded-full font-bold">
                 Cancel
               </button>
               <button
                 type="button"
-                onClick={confirmStatusChange}
+                onClick={handleConfirmAction}
                 disabled={
-                  statusMutation.isPending ||
-                  (confirmModal.type === 'suspend' && !suspensionReason.trim())
+                  updateStatusMutation.isPending || 
+                  deleteUserMutation.isPending || 
+                  (['suspend', 'ban', 'warn'].includes(confirmModal.type) && !suspensionReason.trim())
                 }
                 className={`flex-1 py-3 rounded-full font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50 ${
-                  confirmModal.type === 'suspend'
-                    ? 'bg-red-500'
-                    : 'bg-emerald-500'
+                  confirmModal.type === 'activate' ? 'bg-emerald-500' : 
+                  (confirmModal.type === 'delete' || confirmModal.type === 'ban') ? 'bg-red-500' : 
+                  confirmModal.type === 'warn' ? 'bg-blue-500' : 'bg-amber-500'
                 }`}>
-                {statusMutation.isPending ? (
+                {updateStatusMutation.isPending || deleteUserMutation.isPending ? (
                   <>
                     <span className="v2-icon text-lg animate-spin">
                       progress_activity
                     </span>
                     Processing...
                   </>
-                ) : confirmModal.type === 'suspend' ? (
-                  'Suspend Vendor'
-                ) : (
-                  'Activate Vendor'
-                )}
+                ) : confirmModal.type === 'activate' ? 'Restore Access' : confirmModal.type === 'delete' ? 'Delete Permanently' : `${confirmModal.type.charAt(0).toUpperCase() + confirmModal.type.slice(1)} Vendor`}
               </button>
             </div>
           </div>

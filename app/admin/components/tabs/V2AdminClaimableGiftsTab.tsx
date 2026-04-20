@@ -305,7 +305,7 @@ export function V2AdminClaimableGiftsTab({
                       {getDisplayStatus(gift.status)}
                     </span>
                     <span className="text-xs text-[var(--v2-on-surface-variant)] truncate">
-                      {gift.profiles?.display_name || gift.profiles?.username || 'System'}
+                      {gift.profiles?.displayName || gift.profiles?.username || 'System'}
                     </span>
                   </div>
                   <p className="font-bold text-[var(--v2-primary)]">
@@ -372,7 +372,7 @@ export function V2AdminClaimableGiftsTab({
                   <td className="px-6 py-4 text-[var(--v2-on-surface)]">{gift.title || 'Gift Card'}</td>
                   <td className="px-6 py-4">
                     <p className="font-medium text-[var(--v2-on-surface)]">
-                      {gift.profiles?.display_name || gift.profiles?.username || 'System'}
+                      {gift.profiles?.displayName || gift.profiles?.username || 'System'}
                     </p>
                     {gift.profiles?.shop_name && (
                       <p className="text-xs text-[var(--v2-on-surface-variant)]">{gift.profiles.shop_name}</p>
@@ -385,7 +385,7 @@ export function V2AdminClaimableGiftsTab({
                     </p>
                   </td>
                   <td className="px-6 py-4 text-[var(--v2-on-surface-variant)]">
-                    {gift.created_at ? new Date(gift.created_at).toLocaleDateString() : '—'}
+                    {gift.createdAt ? new Date(gift.createdAt).toLocaleDateString() : '—'}
                   </td>
                   <td className="px-6 py-4">
                     <span
@@ -446,7 +446,7 @@ export function V2AdminClaimableGiftsTab({
                         title: 'Gift Code Details',
                         data: {
                           ...gift,
-                          vendor_name: gift.profiles?.display_name || gift.profiles?.username,
+                          vendor_name: gift.profiles?.displayName || gift.profiles?.username,
                           shop_name: gift.profiles?.shop_name,
                         },
                       });
@@ -495,7 +495,7 @@ export function V2AdminClaimableGiftsTab({
                     title: 'Gift Code Details',
                     data: {
                       ...mobileSheet.gift,
-                      vendor_name: mobileSheet.gift?.profiles?.display_name || mobileSheet.gift?.profiles?.username,
+                      vendor_name: mobileSheet.gift?.profiles?.displayName || mobileSheet.gift?.profiles?.username,
                       shop_name: mobileSheet.gift?.profiles?.shop_name,
                     },
                   });

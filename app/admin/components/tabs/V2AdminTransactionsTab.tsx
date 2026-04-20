@@ -88,7 +88,7 @@ export function V2AdminTransactionsTab({
                   </div>
                   <p className="text-sm">Ref: {tx.reference || tx.id?.slice(0, 8)}</p>
                   <p className="text-xs text-[var(--v2-on-surface-variant)]">
-                    {tx.created_at ? new Date(tx.created_at).toLocaleString() : '—'}
+                    {tx.createdAt ? new Date(tx.createdAt).toLocaleString() : '—'}
                   </p>
                 </div>
               );
@@ -138,7 +138,7 @@ export function V2AdminTransactionsTab({
                     </td>
                     <td className="px-8 py-4">@{tx.user?.username || 'unknown'}</td>
                     <td className="px-8 py-4 text-[var(--v2-on-surface-variant)]">
-                      {tx.created_at ? new Date(tx.created_at).toLocaleDateString() : '—'}
+                      {tx.createdAt ? new Date(tx.createdAt).toLocaleDateString() : '—'}
                     </td>
                     <td className="px-8 py-4">
                       <span

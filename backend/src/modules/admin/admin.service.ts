@@ -94,7 +94,12 @@ export class AdminService {
     });
 
     await this.logAction(adminId, `Updated profile/roles for user ${userId}`);
-    return updatedUser;
+    
+    // Explicitly stringify BigInt values to prevent JSON serialization errors
+    return {
+      ...updatedUser,
+      platformBalance: updatedUser.platformBalance?.toString(),
+    };
   }
 
   async updateUserStatus(adminId: string, userId: string, status: string, suspensionEnd?: Date) {
@@ -104,7 +109,17 @@ export class AdminService {
     });
 
     await this.logAction(adminId, `Updated status for user ${userId} to ${status}`);
-    return user;
+    return { ...user, platformBalance: user.platformBalance?.toString() };
+  }
+
+  async deleteUser(adminId: string, userId: string) {
+    // Permanent deletion
+    const user = await (this.prisma as any).user.delete({
+      where: { id: userId },
+    });
+
+    await this.logAction(adminId, `Permanently deleted user ${userId} (${user.email})`);
+    return { success: true };
   }
 
   async updateWalletStatus(adminId: string, userId: string, walletStatus: string) {
@@ -114,7 +129,7 @@ export class AdminService {
     });
 
     await this.logAction(adminId, `Updated wallet status for user ${userId} to ${walletStatus}`);
-    return user;
+    return { ...user, platformBalance: user.platformBalance?.toString() };
   }
 
   // ─────────────────────────────────────────────

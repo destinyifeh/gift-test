@@ -85,7 +85,7 @@ export function V2AdminSubscriptionsTab({
     const search = localSearch.toLowerCase();
     return (
       sub.username?.toLowerCase().includes(search) ||
-      sub.display_name?.toLowerCase().includes(search) ||
+      sub.displayName?.toLowerCase().includes(search) ||
       sub.email?.toLowerCase().includes(search)
     );
   });
@@ -176,7 +176,7 @@ export function V2AdminSubscriptionsTab({
       ...subscriptions.map((s: any) =>
         [
           s.username,
-          s.display_name || '',
+          s.displayName || '',
           s.email || '',
           s.plan,
           s.status,
@@ -360,17 +360,17 @@ export function V2AdminSubscriptionsTab({
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <div className="w-12 h-12 rounded-full bg-[var(--v2-primary-container)]/20 flex items-center justify-center shrink-0">
-                        {sub.avatar_url ? (
-                          <img src={sub.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                        {sub.avatarUrl ? (
+                          <img src={sub.avatarUrl} alt="" className="w-full h-full rounded-full object-cover" />
                         ) : (
                           <span className="text-lg font-bold text-[var(--v2-primary)]">
-                            {(sub.display_name || sub.username || 'U').charAt(0).toUpperCase()}
+                            {(sub.displayName || sub.username || 'U').charAt(0).toUpperCase()}
                           </span>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-bold capitalize truncate">
-                          {sub.display_name || sub.username}
+                          {sub.displayName || sub.username}
                         </p>
                         <p className="text-sm text-[var(--v2-on-surface-variant)] truncate">
                           @{sub.username}
@@ -442,16 +442,16 @@ export function V2AdminSubscriptionsTab({
                     <td className="px-8 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-[var(--v2-primary-container)]/20 flex items-center justify-center overflow-hidden">
-                          {sub.avatar_url ? (
-                            <img src={sub.avatar_url} alt="" className="w-full h-full object-cover" />
+                          {sub.avatarUrl ? (
+                            <img src={sub.avatarUrl} alt="" className="w-full h-full object-cover" />
                           ) : (
                             <span className="font-bold text-[var(--v2-primary)]">
-                              {(sub.display_name || sub.username || 'U').charAt(0).toUpperCase()}
+                              {(sub.displayName || sub.username || 'U').charAt(0).toUpperCase()}
                             </span>
                           )}
                         </div>
                         <div>
-                          <p className="font-bold capitalize">{sub.display_name || sub.username}</p>
+                          <p className="font-bold capitalize">{sub.displayName || sub.username}</p>
                           <p className="text-xs text-[var(--v2-on-surface-variant)]">@{sub.username}</p>
                         </div>
                       </div>
@@ -590,12 +590,12 @@ export function V2AdminSubscriptionsTab({
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-[var(--v2-primary-container)]/20 flex items-center justify-center">
                   <span className="font-bold text-[var(--v2-primary)]">
-                    {(mobileActionSheet.subscription.display_name || mobileActionSheet.subscription.username || 'U').charAt(0).toUpperCase()}
+                    {(mobileActionSheet.subscription.displayName || mobileActionSheet.subscription.username || 'U').charAt(0).toUpperCase()}
                   </span>
                 </div>
                 <div>
                   <p className="font-bold capitalize">
-                    {mobileActionSheet.subscription.display_name || mobileActionSheet.subscription.username}
+                    {mobileActionSheet.subscription.displayName || mobileActionSheet.subscription.username}
                   </p>
                   <p className="text-sm text-gray-500">@{mobileActionSheet.subscription.username}</p>
                 </div>
@@ -679,17 +679,17 @@ export function V2AdminSubscriptionsTab({
             <div className="p-6 space-y-6">
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-full bg-[var(--v2-primary-container)]/20 flex items-center justify-center overflow-hidden">
-                  {viewDetailsModal.subscription.avatar_url ? (
-                    <img src={viewDetailsModal.subscription.avatar_url} alt="" className="w-full h-full object-cover" />
+                  {viewDetailsModal.subscription.avatarUrl ? (
+                    <img src={viewDetailsModal.subscription.avatarUrl} alt="" className="w-full h-full object-cover" />
                   ) : (
                     <span className="text-2xl font-bold text-[var(--v2-primary)]">
-                      {(viewDetailsModal.subscription.display_name || viewDetailsModal.subscription.username || 'U').charAt(0).toUpperCase()}
+                      {(viewDetailsModal.subscription.displayName || viewDetailsModal.subscription.username || 'U').charAt(0).toUpperCase()}
                     </span>
                   )}
                 </div>
                 <div>
                   <p className="text-xl font-bold capitalize">
-                    {viewDetailsModal.subscription.display_name || viewDetailsModal.subscription.username}
+                    {viewDetailsModal.subscription.displayName || viewDetailsModal.subscription.username}
                   </p>
                   <p className="text-gray-500">@{viewDetailsModal.subscription.username}</p>
                 </div>

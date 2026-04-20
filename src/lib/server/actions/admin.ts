@@ -57,7 +57,7 @@ export async function updateUserRole({
       method: 'PATCH',
       body: JSON.stringify({roles, adminRole}),
     });
-    return response;
+    return { success: true, data: response };
   } catch (error: any) {
     console.error('Error updating user role:', error);
     return {success: false, error: error.message};
@@ -164,7 +164,7 @@ export async function updateCampaignAdmin(campaignId: string, updates: any) {
       method: 'PATCH',
       body: JSON.stringify(updates),
     });
-    return response;
+    return { success: true, data: response };
   } catch (error: any) {
     console.error('Error updating campaign admin:', error);
     return {success: false, error: error.message};
@@ -229,7 +229,7 @@ export async function updateTransactionStatus(txId: string, status: string) {
       method: 'PATCH',
       body: JSON.stringify({status}),
     });
-    return response;
+    return { success: true, data: response };
   } catch (error: any) {
     return {success: false, error: error.message};
   }
@@ -364,7 +364,7 @@ export async function updateUserSystemStatus(
         suspensionEnd: updates.suspension_end,
       }),
     });
-    return response;
+    return { success: true, data: response };
   } catch (error: any) {
     return {success: false, error: error.message};
   }
@@ -376,7 +376,7 @@ export async function updateWalletStatus(id: string, wallet_status: string) {
       method: 'PATCH',
       body: JSON.stringify({status: wallet_status}),
     });
-    return response;
+    return { success: true, data: response };
   } catch (error: any) {
     return {success: false, error: error.message};
   }
@@ -399,9 +399,10 @@ export async function updateVendorShopAdmin(
         shopName: updates.shop_name,
         shopDescription: updates.shop_description,
         shopSlug: updates.shop_slug,
+        shopLogoUrl: updates.shop_logo_url,
       }),
     });
-    return response;
+    return { success: true, data: response };
   } catch (error: any) {
     console.error('Error updating vendor shop admin:', error);
     return {success: false, error: error.message};

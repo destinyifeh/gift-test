@@ -417,7 +417,7 @@ export function V2AdminPromotionsTab({searchQuery = '', addLog}: V2AdminPromotio
                             {promo.vendor_gifts?.name || 'Unknown Product'}
                           </h3>
                           <p className="text-sm text-[var(--v2-on-surface-variant)]">
-                            by {promo.profiles?.shop_name || promo.profiles?.display_name || 'Unknown Vendor'}
+                            by {promo.profiles?.shop_name || promo.profiles?.displayName || 'Unknown Vendor'}
                           </p>
                         </div>
                         <span className="px-3 py-1 rounded-full text-xs font-bold uppercase bg-amber-100 text-amber-700">

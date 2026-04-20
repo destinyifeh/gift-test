@@ -1,5 +1,5 @@
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useAdminUsers, useUpdateUserStatus } from '@/hooks/use-admin';
+import { useAdminUsers, useUpdateUserStatus, useDeleteUser } from '@/hooks/use-admin';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -45,7 +45,7 @@ export function V2AdminUsersTab({
   // Action Modal (Suspend/Ban)
   const [actionModal, setActionModal] = useState<{
     isOpen: boolean;
-    type: 'suspend' | 'ban' | 'activate';
+    type: 'suspend' | 'ban' | 'activate' | 'warn' | 'delete';
     user: any;
   }>({isOpen: false, type: 'suspend', user: null});
   const [actionReason, setActionReason] = useState('');
@@ -82,17 +82,19 @@ export function V2AdminUsersTab({
     activeUsers: allUsers.filter((u: any) => (u.status || 'active') === 'active').length,
     suspendedUsers: allUsers.filter((u: any) => u.status === 'suspended').length,
     bannedUsers: allUsers.filter((u: any) => u.status === 'banned').length,
-    admins: allUsers.filter((u: any) => u.roles?.includes('admin') || u.admin_role).length,
+    admins: allUsers.filter((u: any) => u.roles?.includes('admin') || u.adminRole).length,
     vendors: allUsers.filter((u: any) => u.roles?.includes('vendor')).length,
     creators: allUsers.filter((u: any) => u.is_creator).length,
   };
 
   // Status mutation
-  const mutation = useUpdateUserStatus();
+  // Mutations
+  const statusMutation = useUpdateUserStatus();
+  const deleteMutation = useDeleteUser();
 
   const handleUpdateStatus = async (userId: string, status: string, suspensionEnd?: string) => {
     try {
-      await mutation.mutateAsync({ userId, status, suspensionEnd });
+      await statusMutation.mutateAsync({ userId, status, suspensionEnd });
       toast.success('User status updated successfully');
       setActionModal({isOpen: false, type: 'suspend', user: null});
       setActionReason('');
@@ -136,13 +138,25 @@ export function V2AdminUsersTab({
     setOpenDropdownId(null);
     setMobileActionSheet({isOpen: false, user: null});
   };
+  
+  const handleWarn = (user: any) => {
+    setActionModal({isOpen: true, type: 'warn', user});
+    setOpenDropdownId(null);
+    setMobileActionSheet({isOpen: false, user: null});
+  };
+
+  const handleDelete = (user: any) => {
+    setActionModal({isOpen: true, type: 'delete', user});
+    setOpenDropdownId(null);
+    setMobileActionSheet({isOpen: false, user: null});
+  };
 
   const confirmAction = () => {
     if (!actionModal.user) return;
 
     if (actionModal.type === 'activate') {
       handleUpdateStatus(actionModal.user.id, 'active');
-      addLog(`Activated user @${actionModal.user.username}`);
+      addLog(`恢复了用户 @${actionModal.user.username} 的访问权限`);
     } else if (actionModal.type === 'suspend') {
       if (!actionReason.trim()) {
         toast.error('Please provide a reason');
@@ -158,6 +172,23 @@ export function V2AdminUsersTab({
       }
       handleUpdateStatus(actionModal.user.id, 'banned');
       addLog(`Banned user @${actionModal.user.username}. Reason: ${actionReason}`);
+    } else if (actionModal.type === 'warn') {
+      if (!actionReason.trim()) {
+        toast.error('Please provide a reason');
+        return;
+      }
+      // For warning, we just log it for now as requested
+      addLog(`Warned user @${actionModal.user.username}. Reason: ${actionReason}`);
+      toast.success('User warned successfully');
+      setActionModal({isOpen: false, type: 'warn', user: null});
+      setActionReason('');
+    } else if (actionModal.type === 'delete') {
+      deleteMutation.mutate(actionModal.user.id, {
+        onSuccess: () => {
+          addLog(`Permanently deleted user @${actionModal.user.username}`);
+          setActionModal({isOpen: false, type: 'delete', user: null});
+        }
+      });
     }
   };
 
@@ -167,12 +198,12 @@ export function V2AdminUsersTab({
       ...users.map((u: any) =>
         [
           u.username,
-          u.display_name || '',
+          u.displayName || '',
           u.email || '',
           (u.roles || []).join('; '),
           u.status || 'active',
           u.is_creator ? 'Yes' : 'No',
-          u.created_at ? new Date(u.created_at).toLocaleDateString() : '',
+          u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '',
         ].join(',')
       ),
     ].join('\n');
@@ -190,8 +221,8 @@ export function V2AdminUsersTab({
   // Get user roles display
   const getUserRoles = (user: any) => {
     const roles: string[] = [];
-    if (user.roles?.includes('admin') || user.admin_role) {
-      roles.push(user.admin_role ? `Admin (${user.admin_role.replace('_', ' ')})` : 'Admin');
+    if (user.roles?.includes('admin') || user.adminRole) {
+      roles.push(user.adminRole ? `Admin (${user.adminRole.replace('_', ' ')})` : 'Admin');
     }
     if (user.roles?.includes('vendor')) roles.push('Vendor');
     if (user.is_creator) roles.push('Creator');
@@ -403,16 +434,16 @@ export function V2AdminUsersTab({
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <div className="w-12 h-12 rounded-full bg-[var(--v2-primary-container)]/20 flex items-center justify-center shrink-0">
-                        {user.avatar_url ? (
-                          <img src={user.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                        {user.avatarUrl ? (
+                          <img src={user.avatarUrl} alt="" className="w-full h-full rounded-full object-cover" />
                         ) : (
                           <span className="text-lg font-bold text-[var(--v2-primary)]">
-                            {(user.display_name || user.username || 'U').charAt(0).toUpperCase()}
+                            {(user.displayName || user.username || 'U').charAt(0).toUpperCase()}
                           </span>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-bold capitalize truncate">{user.display_name || user.username}</p>
+                        <p className="font-bold capitalize truncate">{user.displayName || user.username}</p>
                         <p className="text-sm text-[var(--v2-on-surface-variant)] truncate">@{user.username}</p>
                       </div>
                     </div>
@@ -476,16 +507,16 @@ export function V2AdminUsersTab({
                     <td className="px-8 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-[var(--v2-primary-container)]/20 flex items-center justify-center overflow-hidden">
-                          {user.avatar_url ? (
-                            <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+                          {user.avatarUrl ? (
+                            <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
                           ) : (
                             <span className="font-bold text-[var(--v2-primary)]">
-                              {(user.display_name || user.username || 'U').charAt(0).toUpperCase()}
+                              {(user.displayName || user.username || 'U').charAt(0).toUpperCase()}
                             </span>
                           )}
                         </div>
                         <div>
-                          <p className="font-bold capitalize">{user.display_name || user.username}</p>
+                          <p className="font-bold capitalize">{user.displayName || user.username}</p>
                           <p className="text-xs text-[var(--v2-on-surface-variant)]">@{user.username}</p>
                         </div>
                       </div>
@@ -518,7 +549,7 @@ export function V2AdminUsersTab({
                       </span>
                     </td>
                     <td className="px-6 py-4 text-[var(--v2-on-surface-variant)]">
-                      {user.created_at ? new Date(user.created_at).toLocaleDateString() : '—'}
+                      {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '—'}
                     </td>
                     <td className="px-8 py-4">
                       <button
@@ -596,15 +627,35 @@ export function V2AdminUsersTab({
                   </button>
                 </>
               ) : (
+                  <button
+                    type="button"
+                    onClick={() => handleActivate(user)}
+                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-emerald-50 transition-colors text-left"
+                  >
+                    <span className="v2-icon text-lg text-emerald-600">check_circle</span>
+                    <span className="text-sm font-medium text-emerald-600">Restore Access</span>
+                  </button>
+                )}
+
+                <div className="h-px bg-gray-100 my-1" />
+
                 <button
                   type="button"
-                  onClick={() => handleActivate(user)}
-                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-emerald-50 transition-colors text-left"
+                  onClick={() => handleWarn(user)}
+                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors text-left"
                 >
-                  <span className="v2-icon text-lg text-emerald-600">check_circle</span>
-                  <span className="text-sm font-medium text-emerald-600">Restore Access</span>
+                  <span className="v2-icon text-lg text-blue-600">warning</span>
+                  <span className="text-sm font-medium text-blue-600">Warn User</span>
                 </button>
-              )}
+
+                <button
+                  type="button"
+                  onClick={() => handleDelete(user)}
+                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-left"
+                >
+                  <span className="v2-icon text-lg text-red-600">delete_forever</span>
+                  <span className="text-sm font-medium text-red-600">Delete Account</span>
+                </button>
             </div>
           </>
         );
@@ -623,11 +674,11 @@ export function V2AdminUsersTab({
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-[var(--v2-primary-container)]/20 flex items-center justify-center">
                   <span className="font-bold text-[var(--v2-primary)]">
-                    {(mobileActionSheet.user.display_name || mobileActionSheet.user.username || 'U').charAt(0).toUpperCase()}
+                    {(mobileActionSheet.user.displayName || mobileActionSheet.user.username || 'U').charAt(0).toUpperCase()}
                   </span>
                 </div>
                 <div>
-                  <p className="font-bold capitalize">{mobileActionSheet.user.display_name || mobileActionSheet.user.username}</p>
+                  <p className="font-bold capitalize">{mobileActionSheet.user.displayName || mobileActionSheet.user.username}</p>
                   <p className="text-sm text-gray-500">@{mobileActionSheet.user.username}</p>
                 </div>
               </div>
@@ -685,14 +736,40 @@ export function V2AdminUsersTab({
             </div>
 
             <div className="p-4 pt-0">
-              <button
-                type="button"
-                onClick={() => setMobileActionSheet({isOpen: false, user: null})}
-                className="w-full py-4 bg-[var(--v2-surface-container)] rounded-2xl font-bold text-[var(--v2-on-surface-variant)]"
-              >
-                Cancel
-              </button>
-            </div>
+                <button
+                  type="button"
+                  onClick={() => setMobileActionSheet({isOpen: false, user: null})}
+                  className="w-full py-4 bg-[var(--v2-surface-container)] rounded-2xl font-bold text-[var(--v2-on-surface-variant)]"
+                >
+                  Cancel
+                </button>
+              </div>
+
+              <div className="h-px bg-gray-100 my-2 mx-4" />
+
+              <div className="p-4 space-y-2">
+                <button
+                  type="button"
+                  onClick={() => handleWarn(mobileActionSheet.user)}
+                  className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-blue-50 transition-colors"
+                >
+                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                    <span className="v2-icon text-blue-600">warning</span>
+                  </div>
+                  <span className="font-medium text-blue-600">Warn User</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleDelete(mobileActionSheet.user)}
+                  className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-red-50 transition-colors"
+                >
+                  <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                    <span className="v2-icon text-red-600">delete_forever</span>
+                  </div>
+                  <span className="font-medium text-red-600">Delete Account</span>
+                </button>
+              </div>
             <div className="h-8" />
           </div>
         </div>
@@ -713,16 +790,16 @@ export function V2AdminUsersTab({
             <div className="p-6 space-y-6">
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-full bg-[var(--v2-primary-container)]/20 flex items-center justify-center overflow-hidden">
-                  {viewDetailsModal.user.avatar_url ? (
-                    <img src={viewDetailsModal.user.avatar_url} alt="" className="w-full h-full object-cover" />
+                  {viewDetailsModal.user.avatarUrl ? (
+                    <img src={viewDetailsModal.user.avatarUrl} alt="" className="w-full h-full object-cover" />
                   ) : (
                     <span className="text-2xl font-bold text-[var(--v2-primary)]">
-                      {(viewDetailsModal.user.display_name || viewDetailsModal.user.username || 'U').charAt(0).toUpperCase()}
+                      {(viewDetailsModal.user.displayName || viewDetailsModal.user.username || 'U').charAt(0).toUpperCase()}
                     </span>
                   )}
                 </div>
                 <div>
-                  <p className="text-xl font-bold capitalize">{viewDetailsModal.user.display_name || viewDetailsModal.user.username}</p>
+                  <p className="text-xl font-bold capitalize">{viewDetailsModal.user.displayName || viewDetailsModal.user.username}</p>
                   <p className="text-gray-500">@{viewDetailsModal.user.username}</p>
                 </div>
               </div>
@@ -769,8 +846,8 @@ export function V2AdminUsersTab({
                 <div className="p-4 bg-gray-50 rounded-2xl">
                   <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Joined</p>
                   <p className="font-medium">
-                    {viewDetailsModal.user.created_at
-                      ? new Date(viewDetailsModal.user.created_at).toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})
+                    {viewDetailsModal.user.createdAt
+                      ? new Date(viewDetailsModal.user.createdAt).toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})
                       : '—'}
                   </p>
                 </div>
@@ -798,12 +875,19 @@ export function V2AdminUsersTab({
           <div className="relative bg-white rounded-3xl p-6 w-full max-w-md">
             <div className="flex items-center gap-3 mb-6">
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                actionModal.type === 'activate' ? 'bg-emerald-100' : actionModal.type === 'ban' ? 'bg-red-100' : 'bg-amber-100'
+                actionModal.type === 'activate' ? 'bg-emerald-100' : 
+                (actionModal.type === 'ban' || actionModal.type === 'delete') ? 'bg-red-100' : 
+                actionModal.type === 'warn' ? 'bg-blue-100' : 'bg-amber-100'
               }`}>
                 <span className={`v2-icon text-2xl ${
-                  actionModal.type === 'activate' ? 'text-emerald-600' : actionModal.type === 'ban' ? 'text-red-600' : 'text-amber-600'
+                  actionModal.type === 'activate' ? 'text-emerald-600' : 
+                  (actionModal.type === 'ban' || actionModal.type === 'delete') ? 'text-red-600' : 
+                  actionModal.type === 'warn' ? 'text-blue-600' : 'text-amber-600'
                 }`}>
-                  {actionModal.type === 'activate' ? 'check_circle' : actionModal.type === 'ban' ? 'block' : 'pause_circle'}
+                  {actionModal.type === 'activate' ? 'check_circle' : 
+                   actionModal.type === 'ban' ? 'block' : 
+                   actionModal.type === 'delete' ? 'delete_forever' :
+                   actionModal.type === 'warn' ? 'warning' : 'pause_circle'}
                 </span>
               </div>
               <div>
@@ -842,10 +926,20 @@ export function V2AdminUsersTab({
                 </div>
               )}
 
+
               {actionModal.type === 'activate' && (
                 <p className="text-sm text-[var(--v2-on-surface-variant)] bg-emerald-50 p-4 rounded-xl">
                   This will restore full access for @{actionModal.user.username}. Any previous suspension or ban will be lifted.
                 </p>
+              )}
+
+              {actionModal.type === 'delete' && (
+                <div className="bg-red-50 p-4 rounded-xl border border-red-100">
+                  <p className="text-sm text-red-700 font-bold mb-1">Warning: Permanent Deletion</p>
+                  <p className="text-xs text-red-600 leading-relaxed">
+                    This action cannot be undone. All data associated with @{actionModal.user.username} (sessions, gifts, transactions, etc.) will be permanently removed from the database.
+                  </p>
+                </div>
               )}
             </div>
 
@@ -853,7 +947,7 @@ export function V2AdminUsersTab({
               <button
                 type="button"
                 onClick={() => {setActionModal({isOpen: false, type: 'suspend', user: null}); setActionReason('');}}
-                disabled={mutation.isPending}
+                disabled={statusMutation.isPending || deleteMutation.isPending}
                 className="flex-1 py-3 bg-[var(--v2-surface-container)] rounded-full font-bold"
               >
                 Cancel
@@ -861,17 +955,19 @@ export function V2AdminUsersTab({
               <button
                 type="button"
                 onClick={confirmAction}
-                disabled={mutation.isPending || (actionModal.type !== 'activate' && !actionReason.trim())}
+                disabled={statusMutation.isPending || deleteMutation.isPending || (['suspend', 'ban', 'warn'].includes(actionModal.type) && !actionReason.trim())}
                 className={`flex-1 py-3 rounded-full font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50 ${
-                  actionModal.type === 'activate' ? 'bg-emerald-500' : actionModal.type === 'ban' ? 'bg-red-500' : 'bg-amber-500'
+                  actionModal.type === 'activate' ? 'bg-emerald-500' : 
+                  actionModal.type === 'delete' || actionModal.type === 'ban' ? 'bg-red-500' : 
+                  actionModal.type === 'warn' ? 'bg-blue-500' : 'bg-amber-500'
                 }`}
               >
-                {mutation.isPending ? (
+                {statusMutation.isPending || deleteMutation.isPending ? (
                   <>
                     <span className="v2-icon text-lg animate-spin">progress_activity</span>
                     Processing...
                   </>
-                ) : actionModal.type === 'activate' ? 'Restore Access' : `${actionModal.type.charAt(0).toUpperCase() + actionModal.type.slice(1)} User`}
+                ) : actionModal.type === 'activate' ? 'Restore Access' : actionModal.type === 'delete' ? 'Delete Permanently' : `${actionModal.type.charAt(0).toUpperCase() + actionModal.type.slice(1)} User`}
               </button>
             </div>
           </div>

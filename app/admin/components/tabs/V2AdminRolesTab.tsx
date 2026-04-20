@@ -9,6 +9,7 @@ import {
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
 import {useEffect, useState} from 'react';
 import {toast} from 'sonner';
+import {useDeleteUser} from '@/hooks/use-admin';
 
 interface V2AdminRolesTabProps {
   searchQuery: string;
@@ -54,7 +55,7 @@ export function V2AdminRolesTab({
   });
   const [actionModal, setActionModal] = useState<{
     isOpen: boolean;
-    type: 'warn' | 'suspend' | 'ban' | 'activate';
+    type: 'warn' | 'suspend' | 'ban' | 'activate' | 'delete';
     user: any;
   }>({isOpen: false, type: 'warn', user: null});
   const [actionReason, setActionReason] = useState('');
@@ -92,18 +93,18 @@ export function V2AdminRolesTab({
     // Search filter
     const searchMatch = !localSearch ||
       user.username?.toLowerCase().includes(localSearch.toLowerCase()) ||
-      user.display_name?.toLowerCase().includes(localSearch.toLowerCase()) ||
+      user.displayName?.toLowerCase().includes(localSearch.toLowerCase()) ||
       user.email?.toLowerCase().includes(localSearch.toLowerCase());
 
     // Role filter
     let roleMatch = true;
     if (filterType === 'admin') {
-      roleMatch = user.roles?.includes('admin') || !!user.admin_role;
+      roleMatch = user.roles?.includes('admin') || !!user.adminRole;
     } else if (filterType === 'vendor') {
       roleMatch = user.roles?.includes('vendor');
     } else if (filterType === 'user') {
       // Users who are only regular users (no admin/vendor)
-      roleMatch = !user.roles?.includes('admin') && !user.roles?.includes('vendor') && !user.admin_role;
+      roleMatch = !user.roles?.includes('admin') && !user.roles?.includes('vendor') && !user.adminRole;
     }
 
     return searchMatch && roleMatch;
@@ -111,13 +112,13 @@ export function V2AdminRolesTab({
 
   // Calculate stats
   const stats = {
-    totalAdmins: allUsers.filter((u: any) => u.roles?.includes('admin') || u.admin_role).length,
-    superAdmins: allUsers.filter((u: any) => u.admin_role === 'superadmin').length,
-    supportAdmins: allUsers.filter((u: any) => u.admin_role === 'support').length,
-    financeAdmins: allUsers.filter((u: any) => u.admin_role === 'finance').length,
-    moderators: allUsers.filter((u: any) => u.admin_role === 'mod' || u.admin_role === 'moderator').length,
+    totalAdmins: allUsers.filter((u: any) => u.roles?.includes('admin') || u.adminRole).length,
+    superAdmins: allUsers.filter((u: any) => u.adminRole === 'superadmin').length,
+    supportAdmins: allUsers.filter((u: any) => u.adminRole === 'support').length,
+    financeAdmins: allUsers.filter((u: any) => u.adminRole === 'finance').length,
+    moderators: allUsers.filter((u: any) => u.adminRole === 'mod' || u.adminRole === 'moderator').length,
     vendors: allUsers.filter((u: any) => u.roles?.includes('vendor')).length,
-    regularUsers: allUsers.filter((u: any) => !u.roles?.includes('admin') && !u.roles?.includes('vendor') && !u.admin_role).length,
+    regularUsers: allUsers.filter((u: any) => !u.roles?.includes('admin') && !u.roles?.includes('vendor') && !u.adminRole).length,
     totalUsers: allUsers.length,
   };
 
@@ -159,11 +160,13 @@ export function V2AdminRolesTab({
     onError: () => toast.error('Failed to change user access'),
   });
 
+  const deleteMutation = useDeleteUser();
+
   // Initialize manage roles modal state when opened
   useEffect(() => {
     if (manageRolesModal.user && manageRolesModal.isOpen) {
       setSelectedRoles(manageRolesModal.user.roles || ['user']);
-      setAdminRole(manageRolesModal.user.admin_role || null);
+      setAdminRole(manageRolesModal.user.adminRole || null);
     }
   }, [manageRolesModal.user, manageRolesModal.isOpen]);
 
@@ -214,6 +217,14 @@ export function V2AdminRolesTab({
         id: user.id,
         updates: {status: 'active', suspension_end: null},
       });
+    } else if (type === 'delete') {
+      deleteMutation.mutate(user.id, {
+        onSuccess: () => {
+          queryClient.invalidateQueries({queryKey: ['admin-all-users']});
+          addLog(`Permanently deleted user @${user.username}`);
+          setActionModal({isOpen: false, type: 'warn', user: null});
+        }
+      });
     }
   };
 
@@ -223,12 +234,12 @@ export function V2AdminRolesTab({
       ...filteredUsers.map((u: any) =>
         [
           u.username,
-          u.display_name || '',
+          u.displayName || '',
           u.email || '',
           (u.roles || []).join('; '),
-          u.admin_role || '',
+          u.adminRole || '',
           u.status || 'active',
-          u.created_at ? new Date(u.created_at).toLocaleDateString() : '',
+          u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '',
         ].join(','),
       ),
     ].join('\n');
@@ -246,8 +257,8 @@ export function V2AdminRolesTab({
   // Get display roles for a user
   const getUserRoles = (user: any) => {
     const roles: string[] = [];
-    if (user.roles?.includes('admin') || user.admin_role) {
-      const adminLabel = user.admin_role ? `Admin (${user.admin_role.replace('_', ' ')})` : 'Admin';
+    if (user.roles?.includes('admin') || user.adminRole) {
+      const adminLabel = user.adminRole ? `Admin (${user.adminRole.replace('_', ' ')})` : 'Admin';
       roles.push(adminLabel);
     }
     if (user.roles?.includes('vendor')) roles.push('Vendor');
@@ -467,11 +478,11 @@ export function V2AdminRolesTab({
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <div className="w-12 h-12 rounded-full bg-[var(--v2-primary)]/10 flex items-center justify-center font-bold text-[var(--v2-primary)] shrink-0">
-                        {(user.display_name || user.username || 'U').charAt(0).toUpperCase()}
+                        {(user.displayName || user.username || 'U').charAt(0).toUpperCase()}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-bold capitalize truncate">
-                          {user.display_name || user.username}
+                          {user.displayName || user.username}
                         </p>
                         <p className="text-sm text-[var(--v2-on-surface-variant)] truncate">
                           @{user.username}
@@ -550,11 +561,11 @@ export function V2AdminRolesTab({
                     <td className="px-8 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-[var(--v2-primary)]/10 flex items-center justify-center font-bold text-[var(--v2-primary)]">
-                          {(user.display_name || user.username || 'U').charAt(0).toUpperCase()}
+                          {(user.displayName || user.username || 'U').charAt(0).toUpperCase()}
                         </div>
                         <div>
                           <p className="font-bold capitalize">
-                            {user.display_name || user.username}
+                            {user.displayName || user.username}
                           </p>
                           <p className="text-xs text-[var(--v2-on-surface-variant)]">
                             @{user.username}
@@ -589,7 +600,7 @@ export function V2AdminRolesTab({
                       </span>
                     </td>
                     <td className="px-8 py-4 text-[var(--v2-on-surface-variant)]">
-                      {user.created_at ? new Date(user.created_at).toLocaleDateString() : '—'}
+                      {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '—'}
                     </td>
                     <td className="px-8 py-4">
                       <div className="relative">
@@ -691,6 +702,20 @@ export function V2AdminRolesTab({
                                 </button>
                               </>
                             )}
+
+                            <div className="h-px bg-gray-100 my-2" />
+                            
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setActionModal({isOpen: true, type: 'delete', user});
+                                setOpenDropdownId(null);
+                              }}
+                              className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-red-50 transition-colors text-left"
+                            >
+                              <span className="v2-icon text-lg text-red-600">delete_forever</span>
+                              <span className="text-sm font-medium text-red-600">Delete</span>
+                            </button>
                           </div>
                         )}
                       </div>
@@ -718,11 +743,11 @@ export function V2AdminRolesTab({
             <div className="px-6 pb-4 border-b border-gray-100">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-[var(--v2-primary)]/10 flex items-center justify-center font-bold text-[var(--v2-primary)]">
-                  {(mobileActionSheet.user.display_name || mobileActionSheet.user.username || 'U').charAt(0).toUpperCase()}
+                  {(mobileActionSheet.user.displayName || mobileActionSheet.user.username || 'U').charAt(0).toUpperCase()}
                 </div>
                 <div>
                   <p className="font-bold capitalize">
-                    {mobileActionSheet.user.display_name || mobileActionSheet.user.username}
+                    {mobileActionSheet.user.displayName || mobileActionSheet.user.username}
                   </p>
                   <p className="text-sm text-gray-500">@{mobileActionSheet.user.username}</p>
                 </div>
@@ -819,6 +844,22 @@ export function V2AdminRolesTab({
                   </button>
                 </>
               )}
+
+              <div className="h-px bg-gray-100 my-2 mx-2" />
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActionModal({isOpen: true, type: 'delete', user: mobileActionSheet.user});
+                  setMobileActionSheet({isOpen: false, user: null});
+                }}
+                className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-red-50 transition-colors"
+              >
+                <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                  <span className="v2-icon text-red-600">delete_forever</span>
+                </div>
+                <span className="font-medium text-red-600">Delete User</span>
+              </button>
             </div>
 
             <div className="p-4 pt-0">
@@ -857,11 +898,11 @@ export function V2AdminRolesTab({
             <div className="p-6 space-y-6">
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-full bg-[var(--v2-primary)]/10 flex items-center justify-center font-bold text-2xl text-[var(--v2-primary)]">
-                  {(viewDetailsModal.user.display_name || viewDetailsModal.user.username || 'U').charAt(0).toUpperCase()}
+                  {(viewDetailsModal.user.displayName || viewDetailsModal.user.username || 'U').charAt(0).toUpperCase()}
                 </div>
                 <div>
                   <p className="text-xl font-bold capitalize">
-                    {viewDetailsModal.user.display_name || viewDetailsModal.user.username}
+                    {viewDetailsModal.user.displayName || viewDetailsModal.user.username}
                   </p>
                   <p className="text-gray-500">@{viewDetailsModal.user.username}</p>
                 </div>
@@ -909,8 +950,8 @@ export function V2AdminRolesTab({
                   <div className="p-4 bg-gray-50 rounded-2xl">
                     <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Joined</p>
                     <p className="font-medium">
-                      {viewDetailsModal.user.created_at
-                        ? new Date(viewDetailsModal.user.created_at).toLocaleDateString('en-US', {
+                      {viewDetailsModal.user.createdAt
+                        ? new Date(viewDetailsModal.user.createdAt).toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric',
@@ -1047,7 +1088,7 @@ export function V2AdminRolesTab({
               <div>
                 <h3 className="text-xl font-bold v2-headline">Manage Roles</h3>
                 <p className="text-sm text-[var(--v2-on-surface-variant)] capitalize">
-                  {manageRolesModal.user.display_name || manageRolesModal.user.username}
+                  {manageRolesModal.user.displayName || manageRolesModal.user.username}
                 </p>
               </div>
             </div>
@@ -1150,7 +1191,7 @@ export function V2AdminRolesTab({
                 className={`w-12 h-12 rounded-xl flex items-center justify-center ${
                   actionModal.type === 'activate'
                     ? 'bg-emerald-100 text-emerald-600'
-                    : actionModal.type === 'ban'
+                    : actionModal.type === 'ban' || actionModal.type === 'delete'
                       ? 'bg-red-100 text-red-600'
                       : actionModal.type === 'suspend'
                         ? 'bg-amber-100 text-amber-600'
@@ -1162,14 +1203,16 @@ export function V2AdminRolesTab({
                     ? 'restore'
                     : actionModal.type === 'ban'
                       ? 'block'
-                      : actionModal.type === 'suspend'
-                        ? 'pause_circle'
-                        : 'warning'}
+                      : actionModal.type === 'delete'
+                        ? 'delete_forever'
+                        : actionModal.type === 'suspend'
+                          ? 'pause_circle'
+                          : 'warning'}
                 </span>
               </div>
               <div>
                 <h3 className="text-xl font-bold v2-headline capitalize">
-                  {actionModal.type === 'activate' ? 'Restore Access' : `${actionModal.type} User`}
+                  {actionModal.type === 'activate' ? 'Restore Access' : actionModal.type === 'delete' ? 'Delete Permanently' : `${actionModal.type} User`}
                 </h3>
                 <p className="text-sm text-[var(--v2-on-surface-variant)]">
                   @{actionModal.user.username}
@@ -1194,7 +1237,7 @@ export function V2AdminRolesTab({
                 </div>
               )}
 
-              {actionModal.type !== 'activate' && (
+              {['warn', 'suspend', 'ban'].includes(actionModal.type) && (
                 <div>
                   <label className="text-sm font-bold text-[var(--v2-on-surface)] block mb-2">
                     Reason
@@ -1215,6 +1258,15 @@ export function V2AdminRolesTab({
                   suspension or ban will be lifted.
                 </p>
               )}
+
+              {actionModal.type === 'delete' && (
+                <div className="bg-red-50 p-4 rounded-xl border border-red-100">
+                  <p className="text-sm text-red-700 font-bold mb-1">Warning: Permanent Deletion</p>
+                  <p className="text-xs text-red-600 leading-relaxed">
+                    This action cannot be undone. All data associated with @{actionModal.user.username} will be permanently removed.
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="flex gap-3 mt-6">
@@ -1224,7 +1276,7 @@ export function V2AdminRolesTab({
                   setActionModal({isOpen: false, type: 'warn', user: null});
                   setActionReason('');
                 }}
-                disabled={statusMutation.isPending}
+                disabled={statusMutation.isPending || deleteMutation.isPending}
                 className="flex-1 py-3 bg-[var(--v2-surface-container)] rounded-full font-bold"
               >
                 Cancel
@@ -1232,22 +1284,24 @@ export function V2AdminRolesTab({
               <button
                 type="button"
                 onClick={handleStatusAction}
-                disabled={statusMutation.isPending || (actionModal.type !== 'activate' && !actionReason.trim())}
+                disabled={statusMutation.isPending || deleteMutation.isPending || (['warn', 'suspend', 'ban'].includes(actionModal.type) && !actionReason.trim())}
                 className={`flex-1 py-3 rounded-full font-bold flex items-center justify-center gap-2 ${
                   actionModal.type === 'activate'
                     ? 'bg-emerald-500 text-white'
-                    : actionModal.type === 'ban'
+                    : actionModal.type === 'ban' || actionModal.type === 'delete'
                       ? 'bg-red-500 text-white'
                       : 'v2-hero-gradient text-white'
                 } disabled:opacity-50`}
               >
-                {statusMutation.isPending ? (
+                {statusMutation.isPending || deleteMutation.isPending ? (
                   <>
                     <span className="v2-icon text-lg animate-spin">progress_activity</span>
                     Processing...
                   </>
                 ) : actionModal.type === 'activate' ? (
                   'Restore Access'
+                ) : actionModal.type === 'delete' ? (
+                  'Delete Permanently'
                 ) : (
                   `${actionModal.type.charAt(0).toUpperCase() + actionModal.type.slice(1)} User`
                 )}

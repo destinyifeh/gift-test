@@ -379,7 +379,7 @@ export function V2AdminCampaignsTab({
                         title: 'Campaign Details',
                         data: {
                           ...campaign,
-                          creator: campaign.vendor?.display_name || campaign.vendor?.username,
+                          creator: campaign.vendor?.displayName || campaign.vendor?.username,
                         },
                       })
                     }

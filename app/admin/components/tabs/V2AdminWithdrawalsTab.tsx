@@ -167,7 +167,7 @@ export function V2AdminWithdrawalsTab({
                 <tr key={withdrawal.id} className="hover:bg-[var(--v2-surface-container)]/20">
                   <td className="px-8 py-4">
                     <div>
-                      <p className="font-bold">{withdrawal.user?.display_name || 'Unknown'}</p>
+                      <p className="font-bold">{withdrawal.user?.displayName || 'Unknown'}</p>
                       <p className="text-xs text-[var(--v2-on-surface-variant)]">
                         @{withdrawal.user?.username}
                       </p>
@@ -183,8 +183,8 @@ export function V2AdminWithdrawalsTab({
                     </p>
                   </td>
                   <td className="px-8 py-4 text-[var(--v2-on-surface-variant)]">
-                    {withdrawal.created_at
-                      ? new Date(withdrawal.created_at).toLocaleDateString()
+                    {withdrawal.createdAt
+                      ? new Date(withdrawal.createdAt).toLocaleDateString()
                       : '—'}
                   </td>
                   <td className="px-8 py-4">
