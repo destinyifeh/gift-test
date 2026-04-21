@@ -11,9 +11,11 @@ export function V2AdminDashboardTab({setSection}: V2AdminDashboardTabProps) {
   const { data: analyticsResponse, isLoading: isAnalyticsLoading } = useAdminSystemAnalytics();
   const { data: logsResponse } = useAdminLogs({ limit: 4 });
 
-  const stats = statsResponse?.data;
-  const analytics = analyticsResponse?.data;
+  const stats = statsResponse;
+  const analytics = analyticsResponse;
   const recentLogs = logsResponse?.pages?.[0]?.data || [];
+
+  console.log('Admin Dashboard Debug:', { stats, analytics, recentLogs });
 
   const isLoading = isStatsLoading || isAnalyticsLoading;
 

@@ -156,7 +156,7 @@ export function V2AdminUsersTab({
 
     if (actionModal.type === 'activate') {
       handleUpdateStatus(actionModal.user.id, 'active');
-      addLog(`恢复了用户 @${actionModal.user.username} 的访问权限`);
+      addLog(`Restored access for user @${actionModal.user.username || actionModal.user.displayName || actionModal.user.email || 'unknown'}`);
     } else if (actionModal.type === 'suspend') {
       if (!actionReason.trim()) {
         toast.error('Please provide a reason');
@@ -164,28 +164,28 @@ export function V2AdminUsersTab({
       }
       const suspensionEnd = new Date(Date.now() + parseInt(suspensionDays) * 86400000).toISOString();
       handleUpdateStatus(actionModal.user.id, 'suspended', suspensionEnd);
-      addLog(`Suspended user @${actionModal.user.username} for ${suspensionDays} days. Reason: ${actionReason}`);
+      addLog(`Suspended user @${actionModal.user.username || actionModal.user.displayName || actionModal.user.email || 'unknown'} for ${suspensionDays} days. Reason: ${actionReason}`);
     } else if (actionModal.type === 'ban') {
       if (!actionReason.trim()) {
         toast.error('Please provide a reason');
         return;
       }
       handleUpdateStatus(actionModal.user.id, 'banned');
-      addLog(`Banned user @${actionModal.user.username}. Reason: ${actionReason}`);
+      addLog(`Banned user @${actionModal.user.username || actionModal.user.displayName || actionModal.user.email || 'unknown'}. Reason: ${actionReason}`);
     } else if (actionModal.type === 'warn') {
       if (!actionReason.trim()) {
         toast.error('Please provide a reason');
         return;
       }
       // For warning, we just log it for now as requested
-      addLog(`Warned user @${actionModal.user.username}. Reason: ${actionReason}`);
+      addLog(`Warned user @${actionModal.user.username || actionModal.user.displayName || actionModal.user.email || 'unknown'}. Reason: ${actionReason}`);
       toast.success('User warned successfully');
       setActionModal({isOpen: false, type: 'warn', user: null});
       setActionReason('');
     } else if (actionModal.type === 'delete') {
       deleteMutation.mutate(actionModal.user.id, {
         onSuccess: () => {
-          addLog(`Permanently deleted user @${actionModal.user.username}`);
+          addLog(`Permanently deleted user @${actionModal.user.username || actionModal.user.displayName || actionModal.user.email || 'unknown'}`);
           setActionModal({isOpen: false, type: 'delete', user: null});
         }
       });

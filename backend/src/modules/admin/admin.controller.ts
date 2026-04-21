@@ -18,6 +18,11 @@ export class AdminController {
     return this.adminService.getDashboardStats();
   }
 
+  @Get('health')
+  async getSystemHealth() {
+    return this.adminService.getSystemHealth();
+  }
+
   // ── User Management ──
   @Get('users')
   async fetchUsers(

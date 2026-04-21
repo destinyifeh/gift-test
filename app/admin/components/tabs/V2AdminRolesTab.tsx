@@ -153,7 +153,7 @@ export function V2AdminRolesTab({
       }
       queryClient.invalidateQueries({queryKey: ['admin-all-users']});
       toast.success('User status updated');
-      addLog(`Changed status of user ${vars.id.slice(0, 8)}… to "${vars.updates.status}"`);
+      addLog(`Changed status of user @${actionModal.user?.username || vars.id.slice(0, 8)} to "${vars.updates.status}"`);
       setActionModal({isOpen: false, type: 'warn', user: null});
       setActionReason('');
     },

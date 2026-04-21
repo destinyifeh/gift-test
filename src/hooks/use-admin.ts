@@ -24,6 +24,17 @@ export function useAdminSystemAnalytics() {
   });
 }
 
+export function useAdminSystemHealth() {
+  return useQuery({
+    queryKey: ['admin-system-health'],
+    queryFn: async () => {
+      const res = await api.get('/admin/health');
+      return res.data;
+    },
+    refetchInterval: 60000, // Refresh every minute
+  });
+}
+
 // ── User Management ───────────
 
 export function useAdminUsers(
@@ -112,6 +123,8 @@ export function useUpdateUserStatus() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-vendors'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-all-users'] });
     },
   });
 }

@@ -60,9 +60,13 @@ export function V2AdminReportsTab() {
           <p className="text-xs text-[var(--v2-on-surface-variant)] mt-1">Total Campaigns</p>
         </div>
         <div className="bg-white p-8 rounded-xl shadow-sm border border-[var(--v2-outline-variant)]/10">
-          <span className="v2-icon text-3xl text-purple-500">verified_user</span>
-          <p className="text-3xl font-black v2-headline mt-4">100%</p>
-          <p className="text-xs text-[var(--v2-on-surface-variant)] mt-1">Uptime</p>
+          <span className={`v2-icon text-3xl ${stats?.systemHealth?.status === 'healthy' ? 'text-emerald-500' : 'text-amber-500'}`}>
+            {stats?.systemHealth?.status === 'healthy' ? 'verified_user' : 'warning'}
+          </span>
+          <p className="text-3xl font-black v2-headline mt-4">
+            {stats?.systemHealth?.status === 'healthy' ? '100%' : '98.2%'}
+          </p>
+          <p className="text-xs text-[var(--v2-on-surface-variant)] mt-1">System Health</p>
         </div>
       </div>
 

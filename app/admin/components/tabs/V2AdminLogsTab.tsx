@@ -1,7 +1,8 @@
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useAdminLogs, useDeleteAdminLog } from '@/hooks/use-admin';
+import { useAdminLogs, useDeleteAdminLog, useAdminSystemHealth } from '@/hooks/use-admin';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { AdminSection } from '../../types';
 
 // Helper to get icon and color based on action type
 function getLogStyle(action: string) {
@@ -102,29 +103,48 @@ function groupLogsByDate(logs: any[]) {
   return groups;
 }
 
-export function V2AdminLogsTab() {
+export function V2AdminLogsTab({ setSection }: { setSection?: (section: AdminSection) => void }) {
   const isMobile = useIsMobile();
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
+  const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
+
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   const {
     data: infiniteData,
     isLoading,
+    isFetching,
     refetch,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useAdminLogs({ search: searchQuery });
+  } = useAdminLogs({ search: debouncedQuery });
 
+  const { data: health, refetch: refetchHealth } = useAdminSystemHealth();
   const deleteLog = useDeleteAdminLog();
+
+  const handleRefresh = async () => {
+    await Promise.all([refetch(), refetchHealth()]);
+    toast.success('Dashboard data refreshed');
+  };
 
   const logs = infiniteData?.pages.flatMap(page => page.data || []) || [];
   
-  // For pagination (web) - we'll stick to client-side pagination for now or refactor to server-side
-  // Since useAdminLogs is now infinite, we can just use the flat list if it's small, 
-  // or fetch more when needed.
-  const filteredLogs = logs;
+  // Health metrics
+  const isHealthy = health?.status === 'healthy';
+  const isCritical = health?.status === 'critical' || health?.database === 'disconnected';
+  const errorCount = health?.errorCount || 0;
 
+  // For pagination (web)
+  const filteredLogs = logs;
   const logsPerPage = 10;
   const totalPages = Math.ceil(filteredLogs.length / logsPerPage);
   const paginatedLogs = filteredLogs.slice(
@@ -155,9 +175,12 @@ export function V2AdminLogsTab() {
     return () => window.removeEventListener('admin-log', handleNewLog);
   }, [refetch]);
 
-  if (isLoading) {
+  // Initial loading only
+  const isInitialLoading = isLoading && logs.length === 0;
+
+  if (isInitialLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-16">
+      <div className="flex flex-col items-center justify-center py-32">
         <span className="v2-icon text-4xl text-[var(--v2-primary)] animate-spin">
           progress_activity
         </span>
@@ -172,12 +195,43 @@ export function V2AdminLogsTab() {
       <div className="space-y-6 pb-20">
         {/* Header */}
         <div>
-          <h2 className="text-3xl font-extrabold v2-headline text-[var(--v2-on-surface)] mb-2">
-            Audit Logs
-          </h2>
+          <div className="flex justify-between items-start mb-2">
+            <h2 className="text-3xl font-extrabold v2-headline text-[var(--v2-on-surface)]">
+              Audit Logs
+            </h2>
+            <button 
+              onClick={handleRefresh}
+              className="w-10 h-10 rounded-full bg-[var(--v2-surface-container-high)] flex items-center justify-center">
+              <span className="v2-icon text-xl text-[var(--v2-primary)]">refresh</span>
+            </button>
+          </div>
           <p className="text-sm text-[var(--v2-on-surface-variant)] leading-relaxed">
             System-wide transparency and activity tracking for the Editorial desk.
           </p>
+        </div>
+
+        {/* System Health Card (Mobile) */}
+        <div className={`rounded-xl p-5 mb-6 flex flex-col border-l-4 ${
+          isCritical ? 'bg-red-50 border-red-500' : isHealthy ? 'bg-[var(--v2-surface-container)] border-[var(--v2-primary)]' : 'bg-amber-50 border-amber-500'
+        }`}>
+          <div className="flex items-center gap-3 mb-3">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+              isCritical ? 'bg-red-100 text-red-700' : isHealthy ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+            }`}>
+              <span className="v2-icon text-xl">{isCritical ? 'report' : isHealthy ? 'verified_user' : 'warning'}</span>
+            </div>
+            <div>
+              <p className="text-sm font-bold">{isCritical ? 'Critical Issue' : isHealthy ? 'All Systems Normal' : 'Degraded Performance'}</p>
+              <p className="text-[10px] text-[var(--v2-on-surface-variant)]">
+                {isCritical ? 'Database connection failure' : isHealthy ? 'System stable' : `${errorCount} recent errors`}
+              </p>
+            </div>
+          </div>
+          <button 
+            onClick={() => setSearchQuery('error')}
+            className="text-[var(--v2-primary)] font-bold text-xs flex items-center gap-2 mt-2">
+            View Error Logs <span className="v2-icon text-xs">arrow_forward</span>
+          </button>
         </div>
 
         {/* Search & Filter Bar */}
@@ -188,20 +242,22 @@ export function V2AdminLogsTab() {
           <input
             type="text"
             value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
+            onChange={e => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
             className="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-[var(--v2-outline)] outline-none"
             placeholder="Search activity..."
           />
-          <button className="bg-[var(--v2-surface-container-highest)] p-2 rounded-lg text-[var(--v2-on-surface)]">
-            <span className="v2-icon text-xl">tune</span>
-          </button>
+          {isFetching && (
+            <span className="v2-icon animate-spin text-[var(--v2-primary)] mr-2">progress_activity</span>
+          )}
         </div>
 
         {/* Grouped Logs */}
         <div className="space-y-4">
           {Object.entries(groupedLogs).map(([dateLabel, dateLogs]) => (
             <div key={dateLabel}>
-              {/* Section Label */}
               <div className="flex items-center justify-between px-2 mb-4">
                 <span className="v2-headline text-xs uppercase tracking-widest text-[var(--v2-outline-variant)] font-bold">
                   {dateLabel}
@@ -213,7 +269,6 @@ export function V2AdminLogsTab() {
                 )}
               </div>
 
-              {/* Log Cards */}
               <div className="space-y-4">
                 {dateLogs.map((log: any) => {
                   const style = getLogStyle(log.action || '');
@@ -229,46 +284,15 @@ export function V2AdminLogsTab() {
                     <div
                       key={log.id}
                       className="bg-[var(--v2-surface-container-lowest)] rounded-lg p-5 shadow-[0_20px_40px_-15px_rgba(56,56,53,0.08)] flex gap-4 items-start border border-[var(--v2-surface-container-high)]/50">
-                      <div
-                        className={`w-12 h-12 shrink-0 rounded-full ${style.bgColor} flex items-center justify-center ${style.textColor}`}>
-                        <span
-                          className="v2-icon"
-                          style={{fontVariationSettings: "'FILL' 1"}}>
-                          {style.icon}
-                        </span>
+                      <div className={`w-12 h-12 shrink-0 rounded-full ${style.bgColor} flex items-center justify-center ${style.textColor}`}>
+                        <span className="v2-icon">{style.icon}</span>
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start mb-1">
-                          <p className="text-sm font-bold text-[var(--v2-on-surface)] v2-headline leading-tight">
-                            {log.action}
-                          </p>
-                          <span className="text-[10px] text-[var(--v2-outline-variant)] font-medium shrink-0 ml-2">
-                            {logTime}
-                          </span>
+                          <p className="text-sm font-bold text-[var(--v2-on-surface)] leading-tight">{log.action}</p>
+                          <span className="text-[10px] text-[var(--v2-outline-variant)] font-medium shrink-0 ml-2">{logTime}</span>
                         </div>
-                        <p className="text-xs text-[var(--v2-on-surface-variant)] mb-3">
-                          Action by{' '}
-                          <span className="text-[var(--v2-primary)] font-semibold underline decoration-[var(--v2-primary)]/20">
-                            {log.admin?.username || 'System'}
-                          </span>
-                          {log.ip_address && (
-                            <span className="text-[var(--v2-on-surface-variant)]">
-                              {' '}
-                              from {log.ip_address}
-                            </span>
-                          )}
-                        </p>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-[10px] bg-[var(--v2-surface-container)] rounded-full px-2 py-1 text-[var(--v2-on-surface-variant)] font-bold">
-                            #{log.id?.slice(0, 8).toUpperCase() || 'LOG'}
-                          </span>
-                          {style.badge && (
-                            <span
-                              className={`text-[10px] rounded-full px-2 py-1 font-bold ${style.badgeStyle}`}>
-                              {style.badge}
-                            </span>
-                          )}
-                        </div>
+                        <p className="text-xs text-[var(--v2-on-surface-variant)]">Action by {log.admin?.username || 'System'}</p>
                       </div>
                     </div>
                   );
@@ -276,23 +300,7 @@ export function V2AdminLogsTab() {
               </div>
             </div>
           ))}
-
-          {filteredLogs.length === 0 && (
-            <div className="text-center py-16">
-              <span className="v2-icon text-6xl text-[var(--v2-on-surface-variant)]/20">
-                history
-              </span>
-              <p className="text-sm text-[var(--v2-on-surface-variant)] mt-4">
-                No audit logs found
-              </p>
-            </div>
-          )}
         </div>
-
-        {/* FAB for Export */}
-        <button className="fixed right-6 bottom-28 w-14 h-14 rounded-2xl v2-hero-gradient text-white flex items-center justify-center shadow-[0_20px_40px_-15px_rgba(56,56,53,0.08)] active:scale-90 transition-all z-40">
-          <span className="v2-icon text-2xl">download</span>
-        </button>
       </div>
     );
   }
@@ -310,71 +318,66 @@ export function V2AdminLogsTab() {
             Audit Logs
           </h2>
           <p className="text-[var(--v2-on-surface-variant)] mt-2 max-w-lg">
-            Track every administrative action across the Gifthance platform for security and
-            compliance monitoring.
+            Track administrative actions and monitor the health of the platform for reliability.
           </p>
         </div>
         <div className="flex items-center gap-4">
           <button
-            onClick={() => refetch()}
+            onClick={handleRefresh}
             className="flex items-center gap-2 px-6 py-3 rounded-full bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface)] font-bold text-sm hover:bg-[var(--v2-surface-container-highest)] transition-all active:scale-95">
             <span className="v2-icon text-lg">refresh</span>
             Refresh
           </button>
-          <button className="flex items-center gap-2 px-8 py-3 rounded-full v2-hero-gradient text-white font-bold text-sm shadow-lg shadow-[var(--v2-primary)]/20 hover:opacity-90 transition-all active:scale-95">
-            <span className="v2-icon text-lg">download</span>
-            Export Logs
-          </button>
         </div>
       </div>
 
-      {/* Power Metrics */}
+      {/* Metrics Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Total Activities Card */}
-        <div className="lg:col-span-2 bg-[var(--v2-primary-container)] rounded-xl p-8 flex justify-between items-center text-[var(--v2-on-primary-container)] relative overflow-hidden shadow-2xl shadow-[var(--v2-primary-container)]/20">
+        <div className="lg:col-span-2 bg-[var(--v2-primary-container)] rounded-xl p-8 flex justify-between items-center text-[var(--v2-on-primary-container)] relative overflow-hidden">
           <div className="relative z-10">
-            <p className="text-sm font-bold uppercase tracking-widest opacity-80 mb-1">
-              Total Activities (24h)
-            </p>
+            <p className="text-sm font-bold uppercase tracking-widest opacity-80 mb-1">Total Activities (24h)</p>
             <h3 className="text-6xl font-black v2-headline">{logs.length.toLocaleString()}</h3>
-            <div className="flex items-center gap-2 mt-4 bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full w-fit">
-              <span className="v2-icon text-sm">trending_up</span>
-              <span className="text-xs font-bold">12% higher than yesterday</span>
-            </div>
           </div>
-          <span className="v2-icon text-[10rem] absolute -right-8 -bottom-8 opacity-10 pointer-events-none">
-            history
-          </span>
+          <span className="v2-icon text-[10rem] absolute -right-8 -bottom-8 opacity-10">history</span>
         </div>
 
-        {/* Security Status Card */}
-        <div className="bg-[var(--v2-surface-container)] rounded-xl p-8 flex flex-col justify-between border-l-8 border-[var(--v2-primary)]">
+        {/* System Health Card */}
+        <div className={`rounded-xl p-8 flex flex-col justify-between border-l-8 ${
+          isCritical ? 'bg-red-50 border-red-500' : isHealthy ? 'bg-[var(--v2-surface-container)] border-[var(--v2-primary)]' : 'bg-amber-50 border-amber-500'
+        }`}>
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-[var(--v2-on-surface-variant)] mb-4">
-              Security Status
-            </p>
+            <p className="text-xs font-bold uppercase tracking-widest text-[var(--v2-on-surface-variant)] mb-4">System Health</p>
             <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-700">
-                <span
-                  className="v2-icon"
-                  style={{fontVariationSettings: "'FILL' 1"}}>
-                  verified_user
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                isCritical ? 'bg-red-100 text-red-700' : isHealthy ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+              }`}>
+                <span className="v2-icon" style={{fontVariationSettings: "'FILL' 1"}}>
+                  {isCritical ? 'report' : isHealthy ? 'verified_user' : 'warning'}
                 </span>
               </div>
-              <span className="text-xl font-bold">All Systems Normal</span>
+              <div className="flex flex-col">
+                <span className="text-xl font-bold">{isCritical ? 'Critical Issue' : isHealthy ? 'All Systems Normal' : 'Degraded Performance'}</span>
+                <span className="text-xs text-[var(--v2-on-surface-variant)]">
+                  {isCritical ? 'Database connection failure' : isHealthy ? 'System stable' : `${errorCount} recent errors detected`}
+                </span>
+              </div>
             </div>
           </div>
-          <button className="text-[var(--v2-primary)] font-bold text-sm flex items-center gap-2 hover:translate-x-1 transition-transform">
-            View Security Report <span className="v2-icon text-sm">arrow_forward</span>
+          <button 
+            onClick={() => {
+              setSearchQuery('error');
+              window.scrollTo({ top: 500, behavior: 'smooth' });
+            }}
+            className="text-[var(--v2-primary)] font-bold text-sm flex items-center gap-2 hover:translate-x-1 transition-transform">
+            View Error Logs <span className="v2-icon text-sm">arrow_forward</span>
           </button>
         </div>
       </div>
 
       {/* Search Bar */}
-      <div className="relative w-full max-w-md">
-        <span className="v2-icon absolute left-4 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)]">
-          search
-        </span>
+      <div className="relative w-full max-w-md flex items-center">
+        <span className="v2-icon absolute left-4 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)]">search</span>
         <input
           type="text"
           value={searchQuery}
@@ -382,74 +385,43 @@ export function V2AdminLogsTab() {
             setSearchQuery(e.target.value);
             setCurrentPage(1);
           }}
-          className="w-full bg-[var(--v2-surface-container-lowest)] border-none rounded-full py-3 pl-12 pr-4 text-sm focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none"
+          className="w-full bg-[var(--v2-surface-container-lowest)] border-none rounded-full py-3 pl-12 pr-12 text-sm focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none"
           placeholder="Search audit entries..."
         />
+        {isFetching && (
+          <span className="v2-icon animate-spin absolute right-4 text-[var(--v2-primary)]">progress_activity</span>
+        )}
       </div>
 
-      {/* Log Entries List */}
+      {/* Logs Table */}
       <div className="space-y-4">
-        {/* Table Header */}
-        <div className="flex items-center justify-between px-8 mb-4">
-          <h4 className="text-xs font-black uppercase tracking-widest text-[var(--v2-on-surface-variant)]/60">
-            Activity Details
-          </h4>
-          <div className="flex gap-8 text-xs font-black uppercase tracking-widest text-[var(--v2-on-surface-variant)]/60">
-            <span className="w-32 text-center">User</span>
-            <span className="w-40 text-right">Timestamp</span>
-            <span className="w-12"></span>
-          </div>
-        </div>
-
-        {/* Log Items */}
         {paginatedLogs.map((log: any) => {
           const style = getLogStyle(log.action || '');
           const logDate = log.createdAt ? new Date(log.createdAt) : null;
 
           return (
-            <div
-              key={log.id}
-              className="bg-[var(--v2-surface-container-low)] hover:bg-[var(--v2-surface-container-lowest)] transition-all duration-300 rounded-lg p-6 flex items-center group">
-              <div
-                className={`w-14 h-14 rounded-2xl ${style.bgColor} flex items-center justify-center ${style.textColor} mr-6`}>
+            <div key={log.id} className="bg-[var(--v2-surface-container-low)] hover:bg-[var(--v2-surface-container-lowest)] transition-all rounded-lg p-6 flex items-center group">
+              <div className={`w-14 h-14 rounded-2xl ${style.bgColor} flex items-center justify-center ${style.textColor} mr-6`}>
                 <span className="v2-icon text-3xl">{style.icon}</span>
               </div>
               <div className="flex-grow">
                 <h5 className="text-lg font-bold text-[var(--v2-on-surface)]">{log.action}</h5>
                 <p className="text-sm text-[var(--v2-on-surface-variant)]">
-                  {log.details || `Action performed by ${log.admin?.username || 'system'}`}
+                  {log.details || `Action by ${log.admin?.username || 'System'}`}
                   {log.ip_address && ` (IP: ${log.ip_address})`}
                 </p>
               </div>
               <div className="flex items-center gap-8 ml-6">
-                <div className="w-32 text-center">
-                  <span className="inline-block px-3 py-1 rounded-full bg-[var(--v2-surface-container-highest)] text-[10px] font-black uppercase">
-                    {log.admin?.username || 'System'}
-                  </span>
-                </div>
-                <div className="w-40 text-right">
-                  {logDate && (
-                    <>
-                      <p className="text-sm font-bold text-[var(--v2-on-surface)]">
-                        {logDate.toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric',
-                        })}
-                      </p>
-                      <p className="text-xs text-[var(--v2-on-surface-variant)]">
-                        {logDate.toLocaleTimeString('en-US', {
-                          hour: 'numeric',
-                          minute: '2-digit',
-                          hour12: true,
-                        })}
-                      </p>
-                    </>
-                  )}
+                <span className="px-3 py-1 rounded-full bg-[var(--v2-surface-container-highest)] text-[10px] font-black uppercase">
+                  {log.admin?.username || 'System'}
+                </span>
+                <div className="text-right min-w-[100px]">
+                  <p className="text-sm font-bold text-[var(--v2-on-surface)]">{logDate?.toLocaleDateString()}</p>
+                  <p className="text-xs text-[var(--v2-on-surface-variant)]">{logDate?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                 </div>
                 <button 
                   onClick={() => handleDelete(log.id)}
-                  className="w-12 h-12 rounded-full flex items-center justify-center text-[var(--v2-on-surface-variant)] hover:bg-[var(--v2-error-container)] hover:text-[var(--v2-on-error)] transition-all opacity-0 group-hover:opacity-100">
+                  className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-red-50 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100">
                   <span className="v2-icon">delete</span>
                 </button>
               </div>
@@ -457,82 +429,27 @@ export function V2AdminLogsTab() {
           );
         })}
 
-        {hasNextPage && (
-          <div className="flex justify-center pt-4">
-            <button
-              onClick={() => fetchNextPage()}
-              disabled={isFetchingNextPage}
-              className="px-8 py-3 rounded-full bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface)] font-bold text-sm hover:bg-[var(--v2-surface-container-highest)] transition-all active:scale-95 disabled:opacity-50">
-              {isFetchingNextPage ? 'Loading more...' : 'Load More Logs'}
-            </button>
+        {filteredLogs.length === 0 && !isLoading && (
+          <div className="text-center py-16 opacity-30">
+            <span className="v2-icon text-6xl">history</span>
+            <p className="mt-4">No logs found</p>
           </div>
         )}
 
-        {filteredLogs.length === 0 && !isLoading && (
-          <div className="text-center py-16">
-            <span className="v2-icon text-6xl text-[var(--v2-on-surface-variant)]/20">history</span>
-            <p className="text-sm text-[var(--v2-on-surface-variant)] mt-4">No audit logs found</p>
+        {totalPages > 1 && (
+          <div className="flex justify-center gap-2 mt-8">
+            <button 
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="p-2 disabled:opacity-30"><span className="v2-icon">chevron_left</span></button>
+            <span className="px-4 py-2 text-sm font-bold">Page {currentPage} of {totalPages}</span>
+            <button 
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="p-2 disabled:opacity-30"><span className="v2-icon">chevron_right</span></button>
           </div>
         )}
       </div>
-
-      {/* Pagination (kept for local navigation if desired, but could be removed for pure scroll) */}
-      {filteredLogs.length > 0 && totalPages > 1 && (
-        <div className="mt-12 flex justify-between items-center py-6 border-t border-[var(--v2-outline-variant)]/10">
-          <p className="text-sm font-medium text-[var(--v2-on-surface-variant)]">
-            Showing {paginatedLogs.length} of {filteredLogs.length} entries
-          </p>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-[var(--v2-surface-container)] transition-colors disabled:opacity-30">
-              <span className="v2-icon">chevron_left</span>
-            </button>
-            {Array.from({length: Math.min(5, totalPages)}, (_, i) => {
-              let pageNum: number;
-              if (totalPages <= 5) {
-                pageNum = i + 1;
-              } else if (currentPage <= 3) {
-                pageNum = i + 1;
-              } else if (currentPage >= totalPages - 2) {
-                pageNum = totalPages - 4 + i;
-              } else {
-                pageNum = currentPage - 2 + i;
-              }
-
-              return (
-                <button
-                  key={pageNum}
-                  onClick={() => setCurrentPage(pageNum)}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${
-                    currentPage === pageNum
-                      ? 'v2-hero-gradient text-white'
-                      : 'hover:bg-[var(--v2-surface-container)]'
-                  }`}>
-                  {pageNum}
-                </button>
-              );
-            })}
-            {totalPages > 5 && currentPage < totalPages - 2 && (
-              <>
-                <span className="mx-2 text-[var(--v2-on-surface-variant)]">...</span>
-                <button
-                  onClick={() => setCurrentPage(totalPages)}
-                  className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-[var(--v2-surface-container)] transition-colors font-bold text-sm">
-                  {totalPages}
-                </button>
-              </>
-            )}
-            <button
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-[var(--v2-surface-container)] transition-colors disabled:opacity-30">
-              <span className="v2-icon">chevron_right</span>
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

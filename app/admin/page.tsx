@@ -609,7 +609,9 @@ function V2AdminContent() {
               setViewDetailsModal={setViewDetailsModal}
             />
           )}
-          {section === 'logs' && <V2AdminLogsTab />}
+          {section === 'logs' && (
+            <V2AdminLogsTab setSection={handleSectionChange} />
+          )}
         </div>
       </main>
 

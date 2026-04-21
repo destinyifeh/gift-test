@@ -215,7 +215,7 @@ export function V2AdminVendorsTab({
       deleteUserMutation.mutate(confirmModal.vendor.id, {
         onSuccess: () => {
           setConfirmModal({isOpen: false, type: 'suspend', vendor: null});
-          addLog(`Permanently deleted vendor @${confirmModal.vendor.username}`);
+          addLog(`Permanently deleted vendor @${confirmModal.vendor.username || confirmModal.vendor.displayName || confirmModal.vendor.shop_name || confirmModal.vendor.email || 'unknown'}`);
         },
       });
       return;
@@ -226,7 +226,7 @@ export function V2AdminVendorsTab({
         toast.error('Please provide a reason');
         return;
       }
-      addLog(`Warned vendor @${confirmModal.vendor.username}. Reason: ${suspensionReason}`);
+      addLog(`Warned vendor @${confirmModal.vendor.username || confirmModal.vendor.displayName || confirmModal.vendor.shop_name || confirmModal.vendor.email || 'unknown'}. Reason: ${suspensionReason}`);
       toast.success('Vendor warned successfully');
       setConfirmModal({isOpen: false, type: 'suspend', vendor: null});
       setSuspensionReason('');
@@ -248,7 +248,7 @@ export function V2AdminVendorsTab({
           suspensionEnd,
         });
         addLog(
-          `Suspended vendor @${confirmModal.vendor.username} for ${suspensionDays} days. Reason: ${suspensionReason}`,
+          `Suspended vendor @${confirmModal.vendor.username || confirmModal.vendor.displayName || confirmModal.vendor.shop_name || confirmModal.vendor.email || 'unknown'} for ${suspensionDays} days. Reason: ${suspensionReason}`,
         );
       } else if (confirmModal.type === 'ban') {
         if (!suspensionReason.trim()) {
@@ -259,13 +259,13 @@ export function V2AdminVendorsTab({
           userId: confirmModal.vendor.id,
           status: 'banned',
         });
-        addLog(`Banned vendor @${confirmModal.vendor.username}. Reason: ${suspensionReason}`);
+        addLog(`Banned vendor @${confirmModal.vendor.username || confirmModal.vendor.displayName || confirmModal.vendor.shop_name || confirmModal.vendor.email || 'unknown'}. Reason: ${suspensionReason}`);
       } else {
         await updateStatusMutation.mutateAsync({
           userId: confirmModal.vendor.id,
           status: 'active',
         });
-        addLog(`Restored access for vendor @${confirmModal.vendor.username}`);
+        addLog(`Restored access for vendor @${confirmModal.vendor.username || confirmModal.vendor.displayName || confirmModal.vendor.shop_name || confirmModal.vendor.email || 'unknown'}`);
       }
 
       toast.success('Vendor status updated successfully');
@@ -756,40 +756,6 @@ export function V2AdminVendorsTab({
                 )}
 
                 <div className="h-px bg-gray-100 my-2" />
-
-                <button
-                  type="button"
-                  onClick={() => handleWarn(mobileActionSheet.vendor)}
-                  className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-blue-50 transition-colors">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                    <span className="v2-icon text-blue-600">warning</span>
-                  </div>
-                  <span className="font-medium text-blue-600">Warn Vendor</span>
-                </button>
-
-                {(mobileActionSheet.vendor.status === 'active' || !mobileActionSheet.vendor.status) && (
-                  <button
-                    type="button"
-                    onClick={() => handleBan(mobileActionSheet.vendor)}
-                    className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-red-50 transition-colors">
-                    <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
-                      <span className="v2-icon text-red-600">block</span>
-                    </div>
-                    <span className="font-medium text-red-600">Ban Vendor</span>
-                  </button>
-                )}
-
-                <button
-                  type="button"
-                  onClick={() => handleDelete(mobileActionSheet.vendor)}
-                  className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-red-50 transition-colors">
-                  <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
-                    <span className="v2-icon text-red-600">delete_forever</span>
-                  </div>
-                  <span className="font-medium text-red-600">Delete Vendor</span>
-                </button>
-
-                <div className="h-px bg-gray-100 my-1" />
 
                 <button
                   type="button"

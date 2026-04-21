@@ -93,7 +93,7 @@ export class AdminService {
       },
     });
 
-    await this.logAction(adminId, `Updated profile/roles for user ${userId}`);
+    await this.logAction(adminId, `Updated profile/roles for user @${updatedUser.username || updatedUser.email || userId}`);
     
     // Explicitly stringify BigInt values to prevent JSON serialization errors
     return {
@@ -108,7 +108,7 @@ export class AdminService {
       data: { status, suspensionEnd },
     });
 
-    await this.logAction(adminId, `Updated status for user ${userId} to ${status}`);
+    await this.logAction(adminId, `Updated status for user @${user.username || user.email || userId} to ${status}`);
     return { ...user, platformBalance: user.platformBalance?.toString() };
   }
 
@@ -118,7 +118,7 @@ export class AdminService {
       where: { id: userId },
     });
 
-    await this.logAction(adminId, `Permanently deleted user ${userId} (${user.email})`);
+    await this.logAction(adminId, `Permanently deleted user @${user.username || userId} (${user.email})`);
     return { success: true };
   }
 
@@ -128,7 +128,7 @@ export class AdminService {
       data: { walletStatus },
     });
 
-    await this.logAction(adminId, `Updated wallet status for user ${userId} to ${walletStatus}`);
+    await this.logAction(adminId, `Updated wallet status for user @${user.username || user.email || userId} to ${walletStatus}`);
     return { ...user, platformBalance: user.platformBalance?.toString() };
   }
 
@@ -137,7 +137,7 @@ export class AdminService {
   // ─────────────────────────────────────────────
 
   async getDashboardStats() {
-    const [userCount, campaignCount, supportSum, campaignSum] = await Promise.all([
+    const [userCount, campaignCount, supportSum, campaignSum, directSum] = await Promise.all([
       (this.prisma as any).user.count(),
       (this.prisma as any).campaign.count({ where: { giftCode: null } }),
       (this.prisma as any).creatorSupport.aggregate({ _sum: { amount: true } }),
@@ -145,9 +145,13 @@ export class AdminService {
         where: { giftCode: null },
         _sum: { currentAmount: true } 
       }),
+      (this.prisma as any).directGift.aggregate({ _sum: { amount: true } }),
     ]);
 
-    const totalSupport = Number(supportSum._sum.amount || 0) + Number(campaignSum._sum.currentAmount || 0);
+    const totalSupport = 
+      Number(supportSum._sum.amount || 0) + 
+      Number(campaignSum._sum.currentAmount || 0) +
+      Number(directSum._sum.amount || 0);
 
     // Revenue Data (Monthly)
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -157,7 +161,7 @@ export class AdminService {
     const monthlyMap: Record<string, number> = {};
     months.forEach(m => (monthlyMap[m] = 0));
 
-    const [yearlySupport, yearlyCampaigns] = await Promise.all([
+    const [yearlySupport, yearlyCampaigns, yearlyDirects] = await Promise.all([
       (this.prisma as any).creatorSupport.findMany({
         where: { createdAt: { gte: new Date(currentYear, 0, 1) } },
         select: { amount: true, createdAt: true },
@@ -169,6 +173,10 @@ export class AdminService {
         },
         select: { currentAmount: true, createdAt: true },
       }),
+      (this.prisma as any).directGift.findMany({
+        where: { createdAt: { gte: new Date(currentYear, 0, 1) } },
+        select: { amount: true, createdAt: true },
+      }),
     ]);
 
     yearlySupport.forEach((s: any) => {
@@ -179,6 +187,11 @@ export class AdminService {
     yearlyCampaigns.forEach((c: any) => {
       const m = months[c.createdAt.getMonth()];
       monthlyMap[m] += Number(c.currentAmount);
+    });
+
+    yearlyDirects.forEach((d: any) => {
+      const m = months[d.createdAt.getMonth()];
+      monthlyMap[m] += Number(d.amount);
     });
 
     const revenueData = months
@@ -249,6 +262,9 @@ export class AdminService {
       slug: `/campaign/${c.campaignShortId}/${c.campaignSlug}`,
     }));
 
+    // System Health Snapshot
+    const health = await this.getSystemHealth();
+
     return {
       totalUsers: userCount,
       totalCampaigns: campaignCount,
@@ -257,6 +273,7 @@ export class AdminService {
       topCreators,
       topDonors,
       topCampaigns,
+      systemHealth: health,
     };
   }
 
@@ -286,8 +303,13 @@ export class AdminService {
 
     return paginate(campaigns.map((c: any) => ({
       ...c,
+      goal_amount: Number(c.goalAmount || 0),
+      current_amount: Number(c.currentAmount || 0),
       goalAmount: c.goalAmount?.toString(),
       currentAmount: c.currentAmount.toString(),
+      cover_image: c.coverImage,
+      is_featured: c.isFeatured,
+      vendor: c.user,
     })), total, page, limit);
   }
   async fetchShopGifts(options: { search?: string; page?: number; limit?: number }) {
@@ -302,8 +324,8 @@ export class AdminService {
       ];
     }
 
-    const [gifts, total] = await Promise.all([
-      (this.prisma as any).campaign.findMany({
+    const [directGifts, total] = await Promise.all([
+      (this.prisma as any).directGift.findMany({
         where,
         skip,
         take,
@@ -320,26 +342,35 @@ export class AdminService {
           } 
         },
       }),
-      (this.prisma as any).campaign.count({ where }),
+      (this.prisma as any).directGift.count({ where }),
     ]);
 
-    return paginate(gifts.map((g: any) => ({
+    const formatted = directGifts.map((g: any) => ({
       ...g,
-      goalAmount: g.goalAmount?.toString(),
-      currentAmount: g.currentAmount.toString(),
-    })), total, page, limit);
+      current_amount: String(g.amount || 0),
+      currentAmount: String(g.amount || 0),
+      gift_code: g.giftCode,
+      sender_name: g.senderName,
+      recipient_email: g.recipientEmail,
+      sender_email: g.senderEmail,
+      profiles: {
+        ...g.user,
+        shop_name: g.user?.shopName,
+      },
+    }));
+
+    return paginate(formatted, total, page, limit);
   }
 
   async invalidateShopGift(adminId: string, giftId: string, reason: string) {
-    const gift = await (this.prisma as any).campaign.update({
+    const gift = await (this.prisma as any).directGift.update({
       where: { id: giftId },
       data: { 
         status: 'expired',
-        statusReason: reason,
       },
     });
 
-    await this.logAction(adminId, `Invalidated shop gift ${giftId} for reason: ${reason}`);
+    await this.logAction(adminId, `Invalidated shop gift code ${gift.giftCode} (ID: ${giftId}) for reason: ${reason}`);
     return gift;
   }
 
@@ -486,59 +517,191 @@ export class AdminService {
         skip,
         take,
         orderBy: { username: 'asc' },
-        select: { id: true, username: true, country: true, platformBalance: true },
+        select: { id: true, username: true, email: true, country: true, platformBalance: true, walletStatus: true, roles: true },
       }),
       (this.prisma as any).user.count({ where }),
     ]);
 
-    // Aggregate stats for these users
     const userIds = users.map((u: any) => u.id);
+    if (userIds.length === 0) return paginate([], 0, page, limit);
 
-    const [supportReceived, supportSent, transactionStats] = await Promise.all([
-      (this.prisma as any).creatorSupport.groupBy({
-        by: ['userId'],
-        where: { userId: { in: userIds } },
-        _sum: { amount: true },
-      }),
-      (this.prisma as any).creatorSupport.groupBy({
-        by: ['transactionId'], // Need to join transaction to get sender. Simplified for now.
-        _sum: { amount: true },
-      }),
-      (this.prisma as any).transaction.groupBy({
-        by: ['userId', 'type'],
-        where: { 
-          userId: { in: userIds },
-          status: 'success',
-        },
-        _sum: { amount: true },
-      }),
-    ]);
-
-    const stats = users.map((u: any) => {
-      const received = supportReceived.find((s: any) => s.userId === u.id)?._sum.amount || 0;
-      const userStats = transactionStats.filter((t: any) => t.userId === u.id);
-      
-      const receiptSum = Number(userStats.find((t: any) => t.type === 'receipt')?._sum.amount || 0) / 100;
-      const withdrawalSum = Number(userStats.find((t: any) => t.type === 'withdrawal')?._sum.amount || 0) / 100;
-      const contributionSum = Number(userStats.find((t: any) => t.type === 'campaign_contribution')?._sum.amount || 0) / 100;
-      
-      const earned = Number(received) + receiptSum;
-      const withdrawn = withdrawalSum + contributionSum;
-      const balance = Number(u.platformBalance) / 100;
-
-      return {
-        id: u.id,
-        user: u.username,
-        country: u.country,
-        balance,
-        earned,
-        withdrawn,
-        pending: 0,
-        status: u.walletStatus || 'active',
-      };
+    // 1. Transaction aggregations (Withdrawals, Payouts, Receipts)
+    const transactionStats = await (this.prisma as any).transaction.groupBy({
+      by: ['userId', 'type', 'status'],
+      where: { 
+        userId: { in: userIds },
+      },
+      _sum: { amount: true },
     });
 
-    return paginate(stats, total, page, limit);
+    // 2. Creator Support aggregations
+    const supportReceived = await (this.prisma as any).creatorSupport.groupBy({
+      by: ['userId'],
+      where: { userId: { in: userIds } },
+      _sum: { amount: true },
+    });
+
+    // 3. Vendor Product Mapping
+    const vendorGifts = await (this.prisma as any).vendorGift.findMany({
+      where: { vendorId: { in: userIds } },
+      select: { id: true, vendorId: true },
+    });
+
+    const vendorToProductIds: Record<string, number[]> = {};
+    const allProductIds: number[] = [];
+    vendorGifts.forEach((vg: any) => {
+      if (!vendorToProductIds[vg.vendorId]) vendorToProductIds[vg.vendorId] = [];
+      vendorToProductIds[vg.vendorId].push(vg.id);
+      allProductIds.push(vg.id);
+    });
+
+    // 4. Vendor Sales (Product-specific DirectGift)
+    const productSales = await (this.prisma as any).directGift.groupBy({
+      by: ['claimableGiftId', 'status'],
+      where: { 
+        claimableGiftId: { in: allProductIds },
+        status: { in: ['active', 'claimed', 'redeemed'] } 
+      },
+      _sum: { amount: true },
+    });
+
+    // 5. Generic Gift Redemptions
+    const genericRedemptions = await (this.prisma as any).directGift.groupBy({
+      by: ['redeemedByVendorId'],
+      where: { 
+        redeemedByVendorId: { in: userIds },
+        status: 'redeemed',
+        claimableGiftId: null,
+      },
+      _sum: { amount: true },
+    });
+
+    // 6. Flex Card Transactions
+    const flexSales = await (this.prisma as any).flexCardTransaction.groupBy({
+      by: ['vendorId'],
+      where: { vendorId: { in: userIds } },
+      _sum: { amount: true },
+    });
+
+    // 7. Unclaimed Cash Gifts (Pending for User)
+    const userEmails = users.map((u: any) => u.email).filter(Boolean);
+    const unclaimedGifts = await (this.prisma as any).directGift.groupBy({
+      by: ['recipientEmail'],
+      where: { 
+        recipientEmail: { in: userEmails, mode: 'insensitive' },
+        status: 'active',
+        claimableType: 'money',
+      },
+      _sum: { amount: true },
+    });
+
+    // Map aggregates for quick lookup
+    const supportMap = new Map(supportReceived.map((s: any) => [s.userId, Number((s._sum as any).amount || 0)]));
+    const genericRedemptionMap = new Map(genericRedemptions.map((s: any) => [s.redeemedByVendorId, Number((s._sum as any).amount || 0)]));
+    const flexSalesMap = new Map(flexSales.map((s: any) => [s.vendorId, Number((s._sum as any).amount || 0)]));
+    const unclaimedMap = new Map(unclaimedGifts.map((s: any) => [(s.recipientEmail as string).toLowerCase(), Number((s._sum as any).amount || 0)]));
+    
+    const productSalesMap = new Map<number, any[]>();
+    productSales.forEach((s: any) => {
+      if (!productSalesMap.has(s.claimableGiftId)) productSalesMap.set(s.claimableGiftId, []);
+      productSalesMap.get(s.claimableGiftId)!.push(s);
+    });
+
+    const stats: any[] = [];
+    users.forEach((u: any) => {
+      const userTransactions = transactionStats.filter((t: any) => t.userId === u.id);
+      
+      // ─────────────────────────────────────────────
+      // 1. User Wallet (Creator/Personal)
+      // ─────────────────────────────────────────────
+      const userWithdrawn = userTransactions
+        .filter((t: any) => t.type === 'withdrawal' && t.status === 'success')
+        .reduce((sum: number, t: any) => sum + Number((t._sum as any).amount), 0) / 100;
+        
+      const userInflow = userTransactions
+        .filter((t: any) => t.status === 'success' && ['creator_support', 'receipt', 'deposit', 'platform_credit_conversion', 'campaign_withdrawal'].includes(t.type))
+        .reduce((sum: number, t: any) => sum + Number((t._sum as any).amount), 0) / 100;
+
+      const userOutflowSuccess = userTransactions
+        .filter((t: any) => t.status === 'success' && t.type === 'withdrawal')
+        .reduce((sum: number, t: any) => sum + Number((t._sum as any).amount), 0) / 100;
+
+      const userOutflowPending = userTransactions
+        .filter((t: any) => t.status === 'pending' && t.type === 'withdrawal')
+        .reduce((sum: number, t: any) => sum + Number((t._sum as any).amount), 0) / 100;
+
+      const userAvailableBalance = Math.max(0, userInflow - userOutflowSuccess - userOutflowPending);
+      
+      const unclaimedCash = u.email ? (Number(unclaimedMap.get(u.email.toLowerCase()) || 0)) : 0;
+      
+      stats.push({
+        id: `user-${u.id}`,
+        originalId: u.id,
+        user: `${u.username} (User)`,
+        username: u.username,
+        type: 'user',
+        country: u.country,
+        balance: userAvailableBalance,
+        earned: userInflow,
+        withdrawn: userOutflowSuccess,
+        pending: userOutflowPending + unclaimedCash, 
+        status: u.walletStatus || 'active',
+      });
+
+      // ─────────────────────────────────────────────
+      // 2. Vendor Wallet (Shop)
+      // ─────────────────────────────────────────────
+      if (u.roles?.includes('vendor')) {
+        const vendorPayouts = userTransactions
+          .filter((t: any) => (t.type === 'payout' || t.type === 'fee') && (t.status === 'success' || t.status === 'pending'))
+          .reduce((sum: number, t: any) => sum + Number((t._sum as any).amount), 0) / 100;
+
+        const vProductIds = vendorToProductIds[u.id] || [];
+        let vendorProductTotalSales = 0;
+        let vendorProductRedeemed = 0;
+        let vendorProductPending = 0; // Purchased but not redeemed (active/claimed)
+        
+        vProductIds.forEach(pid => {
+          const pStats = productSalesMap.get(pid) || [];
+          pStats.forEach((s: any) => {
+            const amt = Number(s._sum.amount || 0);
+            vendorProductTotalSales += amt;
+            if (s.status === 'redeemed') {
+              vendorProductRedeemed += amt;
+            } else if (s.status === 'active' || s.status === 'claimed') {
+              vendorProductPending += amt;
+            }
+          });
+        });
+
+        const genericRedeemed = (genericRedemptionMap.get(u.id) as number) || 0;
+        const flexRedeemed = (flexSalesMap.get(u.id) as number) || 0;
+
+        const vendorEarned = Number(vendorProductTotalSales) + Number(genericRedeemed) + Number(flexRedeemed);
+        const vendorAvailable = (Number(vendorProductRedeemed) + Number(genericRedeemed) + Number(flexRedeemed)) - Number(vendorPayouts);
+
+        stats.push({
+          id: `vendor-${u.id}`,
+          originalId: u.id,
+          user: `${u.username} (Vendor)`,
+          username: u.username,
+          type: 'vendor',
+          country: u.country,
+          balance: Math.max(0, vendorAvailable),
+          earned: vendorEarned,
+          withdrawn: vendorPayouts,
+          pending: vendorProductPending,
+          status: u.walletStatus || 'active',
+        });
+      }
+    });
+
+    // Calculate total wallets (users + those who are also vendors)
+    const totalVendors = await (this.prisma as any).user.count({ 
+      where: { ...where, roles: { has: 'vendor' } } 
+    });
+
+    return paginate(stats, total + totalVendors, page, limit);
   }
 
   async fetchCreatorGifts(options: { search?: string; page?: number; limit?: number }) {
@@ -559,7 +722,17 @@ export class AdminService {
         skip,
         take,
         orderBy: { createdAt: 'desc' },
-        include: { user: { select: { username: true, displayName: true } } },
+        include: { 
+          user: { 
+            select: { 
+              id: true,
+              username: true, 
+              displayName: true,
+              country: true,
+              avatarUrl: true,
+            } 
+          } 
+        },
       }),
       (this.prisma as any).creatorSupport.count({ where }),
     ]);
@@ -567,6 +740,12 @@ export class AdminService {
     const formatted = gifts.map((g: any) => ({
       ...g,
       amount: g.amount.toString(),
+      recipient: g.user, // Alias user to recipient for frontend mapping
+      donor_name: g.donorName, // Compatibility with frontend snake_case
+      donor_email: g.donorEmail,
+      is_flagged: g.isFlagged,
+      is_anonymous: g.isAnonymous,
+      gift_name: g.giftName,
     }));
 
     return paginate(formatted, total, page, limit);
@@ -934,11 +1113,108 @@ export class AdminService {
       (this.prisma as any).user.count({ where }),
     ]);
 
-    return {
-      data: vendors.map((v: any) => ({
+    // Consolidate Stats for returned vendors
+    const vendorIds = vendors.map((v: any) => v.id);
+    
+    // Get all product IDs for these vendors
+    const vendorGifts = await (this.prisma as any).vendorGift.findMany({
+      where: { vendorId: { in: vendorIds } },
+      select: { id: true, vendorId: true },
+    });
+
+    const vendorToProductIds: Record<string, number[]> = {};
+    const allProductIds: number[] = [];
+    vendorGifts.forEach((vg: any) => {
+      if (!vendorToProductIds[vg.vendorId]) vendorToProductIds[vg.vendorId] = [];
+      vendorToProductIds[vg.vendorId].push(vg.id);
+      allProductIds.push(vg.id);
+    });
+
+    // 1. Product-specific gifts (Sent/Claimed/Redeemed)
+    const productSales = await (this.prisma as any).directGift.groupBy({
+      by: ['claimableGiftId', 'status'],
+      where: { 
+        claimableGiftId: { in: allProductIds },
+        status: { in: ['active', 'claimed', 'redeemed'] } 
+      },
+      _sum: { amount: true },
+      _count: { id: true },
+    });
+
+    // 2. Generic gift redemptions (Redeemed at shop)
+    // Filter out gifts that already have a claimableGiftId to avoid double counting
+    const genericRedemptions = await (this.prisma as any).directGift.groupBy({
+      by: ['redeemedByVendorId'],
+      where: { 
+        redeemedByVendorId: { in: vendorIds },
+        status: 'redeemed',
+        claimableGiftId: null,
+      },
+      _sum: { amount: true },
+      _count: { id: true },
+    });
+
+    // 3. Flex Card transactions
+    const flexSales = await (this.prisma as any).flexCardTransaction.groupBy({
+      by: ['vendorId'],
+      where: { vendorId: { in: vendorIds } },
+      _sum: { amount: true },
+      _count: { id: true },
+    });
+
+    // Map stats in-memory
+    // productSales is now grouped by [id, status], so we need to handle multiple entries per product
+    const productSalesMap = new Map<number, any[]>();
+    productSales.forEach((s: any) => {
+      const pid = s.claimableGiftId;
+      if (!productSalesMap.has(pid)) productSalesMap.set(pid, []);
+      productSalesMap.get(pid)!.push(s);
+    });
+
+    const genericRedemptionMap = new Map(genericRedemptions.map((s: any) => [s.redeemedByVendorId, s]));
+    const flexSalesMap = new Map(flexSales.map((s: any) => [s.vendorId, s]));
+
+    const data = vendors.map((v: any) => {
+      const vProductIds = vendorToProductIds[v.id] || [];
+      
+      // Sum up stats for all products owned by this vendor
+      let productOrdersCount = 0;
+      let productSalesVolume = 0;
+      vProductIds.forEach(pid => {
+        const statsList = productSalesMap.get(pid) || [];
+        statsList.forEach((stats: any) => {
+          // All valid statuses count towards "Orders"
+          productOrdersCount += stats._count.id;
+          
+          // Only "Redeemed" status counts towards "Sales Volume"
+          if (stats.status === 'redeemed') {
+            productSalesVolume += Number(stats._sum.amount || 0);
+          }
+        });
+      });
+
+      // Add generic redemptions (counted as sales volume, separate from product orders)
+      const gStats = genericRedemptionMap.get(v.id) as any;
+      if (gStats) {
+        productSalesVolume += Number((gStats._sum as any).amount || 0);
+      }
+
+      // Add flex card sales (counted as sales volume, separate from product orders)
+      const fStats = flexSalesMap.get(v.id) as any;
+      if (fStats) {
+        productSalesVolume += Number((fStats._sum as any).amount || 0);
+      }
+
+      return {
         ...v,
+        orders_count: productOrdersCount,
+        sales_volume: productSalesVolume,
         productsCount: v._count?.vendorGifts || 0,
-      })),
+      };
+    });
+
+    return {
+      data,
       total,
       page,
       limit,
@@ -1217,8 +1493,8 @@ export class AdminService {
       (this.prisma as any).user.count({
         where: { roles: { has: 'vendor' }, vendorStatus: 'active' },
       }),
-      (this.prisma as any).campaign.count(),
-      (this.prisma as any).campaign.count({ where: { status: 'active' } }),
+      (this.prisma as any).campaign.count({ where: { giftCode: null } }),
+      (this.prisma as any).campaign.count({ where: { giftCode: null, status: 'active' } }),
       (this.prisma as any).transaction.count(),
       (this.prisma as any).transaction.count({ where: { createdAt: { gte: thirtyDaysAgo } } }),
       (this.prisma as any).flexCard.count(),
@@ -1227,16 +1503,26 @@ export class AdminService {
       (this.prisma as any).moderationReport.count({ where: { status: 'pending' } }),
     ]);
 
-    // Calculate revenue (sum of successful transactions)
-    const revenueResult = await (this.prisma as any).transaction.aggregate({
-      where: { status: 'success' },
+    const [supportSum, campaignSum, directSum] = await Promise.all([
+      (this.prisma as any).creatorSupport.aggregate({ _sum: { amount: true } }),
+      (this.prisma as any).campaign.aggregate({ _sum: { currentAmount: true } }),
+      (this.prisma as any).directGift.aggregate({ _sum: { amount: true } }),
+    ]);
+
+    const inflowTypes = ['campaign_contribution', 'creator_support', 'gift_sent', 'flex_card', 'receipt'];
+    const revenueThisMonthResult = await (this.prisma as any).transaction.aggregate({
+      where: { 
+        status: 'success', 
+        type: { in: inflowTypes },
+        createdAt: { gte: thirtyDaysAgo } 
+      },
       _sum: { amount: true },
     });
 
-    const revenueThisMonthResult = await (this.prisma as any).transaction.aggregate({
-      where: { status: 'success', createdAt: { gte: thirtyDaysAgo } },
-      _sum: { amount: true },
-    });
+    const totalRevenue = 
+      Number(supportSum._sum.amount || 0) + 
+      Number(campaignSum._sum.currentAmount || 0) +
+      Number(directSum._sum.amount || 0);
 
     return {
       users: {
@@ -1266,8 +1552,8 @@ export class AdminService {
         reports: pendingReports,
       },
       revenue: {
-        total: Number(revenueResult._sum?.amount || 0) / 100,
-        thisMonth: Number(revenueThisMonthResult._sum?.amount || 0) / 100,
+        total: totalRevenue,
+        thisMonth: Number(revenueThisMonthResult._sum?.amount || 0) / 100, // Keep ledger for monthly as it's more accurate for time grouping
       },
     };
   }
@@ -1410,6 +1696,46 @@ export class AdminService {
     } catch (error: any) {
       this.logger.error('Vendor creation failed:', error);
       throw new BadRequestException(error.message || 'Failed to create vendor account');
+    }
+  }
+
+  async getSystemHealth() {
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+    try {
+      // 1. Check Database Connectivity
+      await this.prisma.$queryRaw`SELECT 1`;
+
+      // 2. Check for recent critical errors in logs
+      const [errorCount, totalLogs] = await Promise.all([
+        (this.prisma as any).adminLog.count({
+          where: {
+            action: { contains: 'error', mode: 'insensitive' },
+            createdAt: { gte: twentyFourHoursAgo },
+          },
+        }),
+        (this.prisma as any).adminLog.count({
+          where: { createdAt: { gte: twentyFourHoursAgo } },
+        }),
+      ]);
+
+      const status = errorCount > 5 ? 'degraded' : 'healthy';
+
+      return {
+        status,
+        database: 'connected',
+        errorCount,
+        totalLogs24h: totalLogs,
+        uptime: process.uptime(),
+        serverTime: new Date().toISOString(),
+      };
+    } catch (error) {
+      return {
+        status: 'critical',
+        database: 'disconnected',
+        error: error.message,
+        serverTime: new Date().toISOString(),
+      };
     }
   }
 }
