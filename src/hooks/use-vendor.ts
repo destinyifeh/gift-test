@@ -31,7 +31,11 @@ export function useVendorProducts(vendorId?: string, includeDrafts = false) {
   return useQuery({
     queryKey: ['vendor-products', vendorId || 'all', includeDrafts],
     queryFn: async () => {
-      const endpoint = vendorId ? `/vendor/products?vendorId=${vendorId}` : '/vendor/products';
+      const endpoint = includeDrafts
+        ? '/vendor/my-products'
+        : vendorId
+        ? `/vendor/products?vendorId=${vendorId}`
+        : '/vendor/products';
       const res = await api.get(endpoint);
       const data = res.data.data || res.data;
       return Array.isArray(data) ? data.map(mapProduct) : [];
