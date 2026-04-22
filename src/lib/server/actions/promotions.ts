@@ -2,7 +2,11 @@
 
 import {serverFetch} from '@/lib/server/server-api';
 
-export type PromotionPlacement = 'featured' | 'new_arrivals' | 'sponsored' | 'category_banner';
+export type PromotionPlacement =
+  | 'featured'
+  | 'new_arrivals'
+  | 'sponsored'
+  | 'category_banner';
 
 export interface Promotion {
   id: number;
@@ -55,7 +59,10 @@ export async function fetchAllPromotions(status?: string) {
     return res;
   } catch (error: any) {
     console.error('Error fetching promotions:', error);
-    return {success: false, error: error.message || 'Failed to fetch promotions'};
+    return {
+      success: false,
+      error: error.message || 'Failed to fetch promotions',
+    };
   }
 }
 
@@ -65,7 +72,10 @@ export async function fetchAllExternalPromotions() {
     return res;
   } catch (error: any) {
     console.error('Error fetching external promotions:', error);
-    return {success: false, error: error.message || 'Failed to fetch external promotions'};
+    return {
+      success: false,
+      error: error.message || 'Failed to fetch external promotions',
+    };
   }
 }
 
@@ -77,7 +87,10 @@ export async function approvePromotion(id: number) {
     return res;
   } catch (error: any) {
     console.error('Error approving promotion:', error);
-    return {success: false, error: error.message || 'Failed to approve promotion'};
+    return {
+      success: false,
+      error: error.message || 'Failed to approve promotion',
+    };
   }
 }
 
@@ -90,11 +103,16 @@ export async function rejectPromotion(id: number, reason: string) {
     return res;
   } catch (error: any) {
     console.error('Error rejecting promotion:', error);
-    return {success: false, error: error.message || 'Failed to reject promotion'};
+    return {
+      success: false,
+      error: error.message || 'Failed to reject promotion',
+    };
   }
 }
 
-export async function createExternalPromotion(data: Partial<ExternalPromotion>) {
+export async function createExternalPromotion(
+  data: Partial<ExternalPromotion>,
+) {
   try {
     const res = await serverFetch('/promotions/external', {
       method: 'POST',
@@ -103,11 +121,17 @@ export async function createExternalPromotion(data: Partial<ExternalPromotion>) 
     return res;
   } catch (error: any) {
     console.error('Error creating external promotion:', error);
-    return {success: false, error: error.message || 'Failed to create external promotion'};
+    return {
+      success: false,
+      error: error.message || 'Failed to create external promotion',
+    };
   }
 }
 
-export async function updateExternalPromotion(id: number, data: Partial<ExternalPromotion>) {
+export async function updateExternalPromotion(
+  id: number,
+  data: Partial<ExternalPromotion>,
+) {
   try {
     const res = await serverFetch(`/promotions/external/${id}`, {
       method: 'PATCH',
@@ -116,7 +140,10 @@ export async function updateExternalPromotion(id: number, data: Partial<External
     return res;
   } catch (error: any) {
     console.error('Error updating external promotion:', error);
-    return {success: false, error: error.message || 'Failed to update external promotion'};
+    return {
+      success: false,
+      error: error.message || 'Failed to update external promotion',
+    };
   }
 }
 
@@ -128,7 +155,10 @@ export async function deleteExternalPromotion(id: number) {
     return res;
   } catch (error: any) {
     console.error('Error deleting external promotion:', error);
-    return {success: false, error: error.message || 'Failed to delete external promotion'};
+    return {
+      success: false,
+      error: error.message || 'Failed to delete external promotion',
+    };
   }
 }
 

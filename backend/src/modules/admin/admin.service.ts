@@ -6,6 +6,7 @@ import { NotificationService } from '../notification/notification.service';
 import { AuthService } from '../auth/auth.service';
 import { EmailService } from '../email/email.service';
 import { UserRole, AdminRole } from '../../generated/prisma';
+import { CountryConfigService } from '../country-config/country-config.service';
 
 @Injectable()
 export class AdminService {
@@ -17,6 +18,7 @@ export class AdminService {
     private fileService: FileService,
     private authService: AuthService,
     private emailService: EmailService,
+    private countryConfigService: CountryConfigService,
   ) {}
 
   // ─────────────────────────────────────────────
@@ -153,6 +155,29 @@ export class AdminService {
       Number(campaignSum._sum.currentAmount || 0) +
       Number(directSum._sum.amount || 0);
 
+    // Platform Earnings Calculation (Fees)
+    const platformFeeAggr = await (this.prisma as any).transaction.aggregate({
+      where: { type: 'fee', status: 'success' },
+      _sum: { amount: true }
+    });
+    
+    const platformRevenue = Number(platformFeeAggr._sum.amount || 0) / 100;
+
+    // Fees Breakdown
+    const [txFeeAggr, wdlFeeAggr] = await Promise.all([
+      (this.prisma as any).transaction.aggregate({
+        where: { type: 'fee', status: 'success', description: { contains: 'Service Fee' } },
+        _sum: { amount: true }
+      }),
+      (this.prisma as any).transaction.aggregate({
+        where: { type: 'fee', status: 'success', description: { contains: 'Withdrawal' } },
+        _sum: { amount: true }
+      })
+    ]);
+
+    const transactionFees = Number(txFeeAggr._sum.amount || 0) / 100;
+    const withdrawalFees = Number(wdlFeeAggr._sum.amount || 0) / 100;
+
     // Revenue Data (Monthly)
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const currentYear = new Date().getFullYear();
@@ -268,7 +293,13 @@ export class AdminService {
     return {
       totalUsers: userCount,
       totalCampaigns: campaignCount,
-      totalSupport,
+      totalGrossVolume: totalSupport,
+      platformRevenue,
+      revenueBreakdown: {
+        transactions: transactionFees,
+        withdrawals: withdrawalFees,
+        others: 0
+      },
       revenueData,
       topCreators,
       topDonors,
@@ -1519,10 +1550,17 @@ export class AdminService {
       _sum: { amount: true },
     });
 
-    const totalRevenue = 
+    const totalGrossVolume = 
       Number(supportSum._sum.amount || 0) + 
       Number(campaignSum._sum.currentAmount || 0) +
       Number(directSum._sum.amount || 0);
+
+    // Precise platform earnings from 'fee' transactions
+    const platformFeeAggr = await (this.prisma as any).transaction.aggregate({
+      where: { type: 'fee', status: 'success' },
+      _sum: { amount: true },
+    });
+    const platformEarnings = Number(platformFeeAggr._sum.amount || 0) / 100;
 
     return {
       users: {
@@ -1552,9 +1590,22 @@ export class AdminService {
         reports: pendingReports,
       },
       revenue: {
-        total: totalRevenue,
+        total: platformEarnings,
+        grossVolume: totalGrossVolume,
         thisMonth: Number(revenueThisMonthResult._sum?.amount || 0) / 100, // Keep ledger for monthly as it's more accurate for time grouping
       },
+    };
+  }
+
+  /**
+   * Get public system settings (safe for non-admins).
+   */
+  async getPublicSettings() {
+    const settings = await this.getSettings();
+    return {
+      platformFee: Number(settings.platformFee || 4),
+      withdrawalFee: Number(settings.withdrawalFee || 100),
+      countryConfigs: settings.countryConfigs || {},
     };
   }
 
@@ -1569,27 +1620,60 @@ export class AdminService {
         return acc;
       }, {});
 
-      // Merge with defaults
+      // Load per-country configs from DB
+      const countryConfigList = await this.countryConfigService.findAll(false);
+      const countryConfigs: Record<string, any> = {};
+      for (const config of countryConfigList) {
+        countryConfigs[config.countryName] = {
+          transactionFeePercent: config.transactionFeePercent,
+          withdrawalFeeFlat: config.withdrawalFeeFlat,
+          minWithdrawal: config.minWithdrawal,
+          maxWithdrawal: config.maxWithdrawal,
+          currency: config.currency,
+          currencySymbol: config.currencySymbol,
+          flag: config.flag,
+          suggestedAmounts: config.suggestedAmounts,
+          features: config.features,
+          isEnabled: config.isEnabled,
+        };
+      }
+
+      // Use Nigeria as the platform default for backward compat
+      const nigeriaConfig = countryConfigs['Nigeria'] || {};
+
       return {
-        platformFee: 5,
-        minWithdrawal: 1000,
-        maxWithdrawal: 500000,
+        platformFee: nigeriaConfig.transactionFeePercent ?? 4,
+        withdrawalFee: nigeriaConfig.withdrawalFeeFlat ?? 100,
+        minWithdrawal: nigeriaConfig.minWithdrawal ?? 1000,
+        maxWithdrawal: nigeriaConfig.maxWithdrawal ?? 500000,
         maintenanceMode: false,
         newRegistrations: true,
         vendorApplications: true,
         emailNotifications: true,
+        countryConfigs,
         ...settingsMap,
       };
     } catch (error) {
       this.logger.warn('Failed to fetch system settings, returning defaults', error);
       return {
-        platformFee: 5,
+        platformFee: 4,
+        withdrawalFee: 100,
         minWithdrawal: 1000,
         maxWithdrawal: 500000,
         maintenanceMode: false,
         newRegistrations: true,
         vendorApplications: true,
         emailNotifications: true,
+        countryConfigs: {
+          'Nigeria': {
+            transactionFeePercent: 4,
+            withdrawalFeeFlat: 100,
+            minWithdrawal: 1000,
+            maxWithdrawal: 500000,
+            currency: 'NGN',
+            currencySymbol: '₦',
+          }
+        },
       };
     }
   }

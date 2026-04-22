@@ -53,10 +53,10 @@ export async function signOut() {
     revalidatePath('/', 'layout');
     return { success: true };
   } catch (error: any) {
-    // If backend signout fails, we should still revalidate and return success true
-    // as the client will clear its own session.
+    // We still revalidate as the client will clear its own session
+    // but we return false to let the client know something went wrong on the server
     revalidatePath('/', 'layout');
-    return { success: true };
+    return { success: false, error: error.message || 'Failed to sign out on server' };
   }
 }
 
@@ -64,13 +64,29 @@ export async function forgotPassword(formData: FormData) {
   const email = formData.get('email') as string;
 
   try {
-    await serverFetch('/api/auth/forgot-password', {
+    await serverFetch('/api/auth/forgot-password-otp', {
       method: 'POST',
       body: JSON.stringify({ email }),
     });
-    return { success: true, message: 'Password reset link sent to your email.' };
+    return { success: true, message: 'Verification code sent to your email.' };
   } catch (error: any) {
     return { success: false, error: error.message };
+  }
+}
+
+export async function resetPasswordWithOTP(formData: FormData) {
+  const email = formData.get('email') as string;
+  const otp = formData.get('otp') as string;
+  const newPassword = formData.get('password') as string;
+
+  try {
+    await serverFetch('/api/auth/reset-password-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email, otp, newPassword }),
+    });
+    return { success: true, message: 'Password updated successfully.' };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Failed to reset password' };
   }
 }
 
@@ -206,6 +222,30 @@ export async function deleteUploadedFile(url: string) {
       body: JSON.stringify({ url }),
     });
     return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function resendOTP(email: string) {
+  try {
+    const data = await serverFetch('/api/auth/resend-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+    return { success: true, data };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function verifyOTP(email: string, otp: string) {
+  try {
+    const data = await serverFetch('/api/auth/verify-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email, otp }),
+    });
+    return { success: true, data };
   } catch (error: any) {
     return { success: false, error: error.message };
   }

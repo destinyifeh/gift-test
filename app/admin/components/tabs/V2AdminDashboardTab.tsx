@@ -99,42 +99,46 @@ export function V2AdminDashboardTab({setSection}: V2AdminDashboardTabProps) {
           </h3>
         </div>
 
-        {/* Metric 3 - Total Campaigns (Active) */}
+        {/* Metric 3 - Gross Transaction Volume */}
         <div className="bg-[var(--v2-primary-container)] p-8 rounded-xl shadow-lg shadow-[var(--v2-primary-container)]/20 text-white hover:scale-[1.02] transition-transform duration-300">
           <div className="flex justify-between items-start mb-4">
             <div className="p-3 bg-white/20 rounded-2xl">
-              <span className="v2-icon">card_giftcard</span>
+              <span className="v2-icon">insights</span>
             </div>
             <span className="text-xs font-bold bg-white/20 px-2 py-1 rounded-full">
-              {analytics?.campaigns?.active || 0} Active
+              Total Inflow
             </span>
           </div>
           <p className="text-white/80 text-xs font-bold uppercase tracking-widest mb-1">
-            Total Campaigns
+            Gross Volume (GTV)
           </p>
           <h3 className="text-3xl font-black v2-headline">
-            {(analytics?.campaigns?.total || stats?.totalCampaigns || 0).toLocaleString()}
+            ₦{(analytics?.revenue?.grossVolume || stats?.totalGrossVolume || 0).toLocaleString()}
           </h3>
         </div>
 
-        {/* Metric 4 - Platform Revenue */}
+        {/* Metric 4 - Platform Earnings (Fees) */}
         <div className="bg-white p-8 rounded-xl shadow-[0_32px_48px_-12px_rgba(56,56,53,0.04)] hover:scale-[1.02] transition-transform duration-300">
           <div className="flex justify-between items-start mb-4">
             <div className="p-3 bg-[var(--v2-secondary-container)]/20 rounded-2xl text-[var(--v2-secondary)]">
-              <span className="v2-icon">payments</span>
+              <span className="v2-icon">account_balance_wallet</span>
             </div>
-            {analytics?.revenue?.thisMonth > 0 && (
-              <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
-                ₦{analytics.revenue.thisMonth.toLocaleString()} this month
+            <div className="text-right">
+              <span className="text-[10px] block font-bold text-emerald-600 uppercase">
+                Fees Breakdown
               </span>
-            )}
+              <span className="text-[9px] block text-gray-400">
+                Tx: ₦{(stats?.revenueBreakdown?.transactions || 0).toLocaleString()} | Wdl: ₦{(stats?.revenueBreakdown?.withdrawals || 0).toLocaleString()}
+              </span>
+            </div>
           </div>
           <p className="text-[var(--v2-on-surface-variant)] text-xs font-bold uppercase tracking-widest mb-1">
-            Platform Revenue
+            Platform Earnings
           </p>
           <h3 className="text-3xl font-black v2-headline text-[var(--v2-on-surface)]">
-            ₦{(analytics?.revenue?.total || stats?.totalSupport || 0).toLocaleString()}
+            ₦{(analytics?.revenue?.total || stats?.platformRevenue || 0).toLocaleString()}
           </h3>
+          <p className="text-[9px] text-gray-400 mt-1 italic">Calculated at 4% service fee + ₦100 per withdrawal</p>
         </div>
       </div>
 

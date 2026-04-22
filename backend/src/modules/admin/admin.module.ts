@@ -4,9 +4,10 @@ import { AdminController } from './admin.controller';
 import { PrismaModule } from '../../prisma/prisma.module';
 import { NotificationModule } from '../notification/notification.module';
 import { FileModule } from '../file/file.module';
+import { CountryConfigModule } from '../country-config/country-config.module';
 
 @Module({
-  imports: [PrismaModule, NotificationModule, FileModule],
+  imports: [PrismaModule, NotificationModule, FileModule, CountryConfigModule],
   controllers: [AdminController],
   providers: [AdminService],
   exports: [AdminService],

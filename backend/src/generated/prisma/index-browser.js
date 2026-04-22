@@ -492,6 +492,23 @@ exports.Prisma.SystemSettingScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.CountryConfigScalarFieldEnum = {
+  id: 'id',
+  countryName: 'countryName',
+  countryCode: 'countryCode',
+  currency: 'currency',
+  currencySymbol: 'currencySymbol',
+  flag: 'flag',
+  transactionFeePercent: 'transactionFeePercent',
+  withdrawalFeeFlat: 'withdrawalFeeFlat',
+  minWithdrawal: 'minWithdrawal',
+  maxWithdrawal: 'maxWithdrawal',
+  features: 'features',
+  isEnabled: 'isEnabled',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.VendorGiftScalarFieldEnum = {
   id: 'id',
   vendorId: 'vendorId',
@@ -602,6 +619,7 @@ exports.Prisma.ModelName = {
   Notification: 'Notification',
   NotificationRead: 'NotificationRead',
   SystemSetting: 'SystemSetting',
+  CountryConfig: 'CountryConfig',
   VendorGift: 'VendorGift',
   VendorGiftImage: 'VendorGiftImage',
   Favorite: 'Favorite',

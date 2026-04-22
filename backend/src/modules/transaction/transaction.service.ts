@@ -5,7 +5,9 @@ import { EmailService } from '../email/email.service';
 import { NotificationService } from '../notification/notification.service';
 import { WhatsappService } from '../whatsapp/whatsapp.service';
 import { FileService } from '../file/file.service';
-import { getCurrencyByCountry } from '../../common/constants/currencies';
+import { getCurrencyByCountry, getCurrencySymbol } from '../../common/constants/currencies';
+import { AdminService } from '../admin/admin.service';
+import { CountryConfigService } from '../country-config/country-config.service';
 
 import { generateGiftCode } from '../../common/utils/token.util';
 import { generateShortId } from '../../common/utils/slug.util';
@@ -35,11 +37,17 @@ export class TransactionService {
     private notificationService: NotificationService,
     private whatsappService: WhatsappService,
     private fileService: FileService,
+    private adminService: AdminService,
+    private countryConfigService: CountryConfigService,
   ) {}
 
 
   private get paystackSecretKey() {
     return this.configService.get<string>('PAYSTACK_SECRET_KEY');
+  }
+
+  private async getCountryConfig(country: string) {
+    return this.countryConfigService.findByCountry(country);
   }
 
   private get siteUrl() {
@@ -413,6 +421,15 @@ export class TransactionService {
       throw new BadRequestException('Payout not supported. Please select a supported payout account.');
     }
 
+    const config = await this.getCountryConfig(profile?.country || 'Nigeria');
+    const withdrawalFee = Number(config.withdrawalFeeFlat || 100);
+    const netAmount = amount - withdrawalFee;
+    
+    if (netAmount <= 0) {
+      const symbol = getCurrencySymbol(userCurrency);
+      throw new BadRequestException(`Withdrawal amount must be greater than the fee (${symbol}${withdrawalFee})`);
+    }
+
     const transferResponse = await fetch('https://api.paystack.co/transfer', {
       method: 'POST',
       headers: {
@@ -421,9 +438,9 @@ export class TransactionService {
       },
       body: JSON.stringify({
         source: 'balance',
-        amount: Math.round(amount * 100),
+        amount: Math.round(netAmount * 100),
         recipient: account.recipientCode,
-        reason: 'Wallet withdrawal',
+        reason: `Wallet withdrawal (Net after ${getCurrencySymbol(userCurrency)}${withdrawalFee} fee)`,
       }),
     });
 
@@ -448,11 +465,23 @@ export class TransactionService {
         data: {
           userId,
           bankAccountId,
-          amount,
+          amount: amount, // Gross amount
           currency: account.currency,
           status: 'pending',
           reference: transferBody.data.reference,
           transactionId: record.id,
+        },
+      });
+
+      // Record the ₦100 platform fee as a separate transaction
+      await (tx as any).transaction.create({
+        data: {
+          userId,
+          amount: BigInt(withdrawalFee * 100),
+          type: 'fee',
+          status: 'success',
+          reference: `FEE-${transferBody.data.reference}`,
+          description: `Withdrawal Service Fee`,
         },
       });
 
@@ -485,11 +514,19 @@ export class TransactionService {
       const existing = await (tx as any).transaction.findUnique({ where: { reference: data.reference } });
       if (existing) throw new ConflictException('Payment already processed');
 
+      // Calculate fee (dynamic percentage of total paid based on country)
+      const user = await (tx as any).user.findUnique({ where: { id: userId || '' }, select: { country: true } });
+      const config = await this.getCountryConfig(user?.country || 'Nigeria');
+      const platformFeePercent = Number(config.transactionFeePercent || 4);
+      const totalPaidKobo = Number(paymentData.amount);
+      const feeKobo = Math.round(totalPaidKobo * (platformFeePercent / (100 + platformFeePercent)));
+      const baseAmountKobo = totalPaidKobo - feeKobo;
+
       const record = await (tx as any).transaction.create({
         data: {
           userId: userId || null,
           campaignId: campaign.id,
-          amount: BigInt(paymentData.amount),
+          amount: BigInt(baseAmountKobo),
           currency: paymentData.currency || data.currency,
           type: TX_CAMPAIGN_CONTRIBUTION,
           status: 'success',
@@ -498,11 +535,22 @@ export class TransactionService {
         },
       });
 
+      // Record platform fee
+      await (tx as any).transaction.create({
+        data: {
+          userId: userId || null,
+          amount: BigInt(feeKobo),
+          type: 'fee',
+          status: 'success',
+          description: `Platform Service Fee (${platformFeePercent}%)`,
+        },
+      });
+
       await (tx as any).contribution.create({
         data: {
           campaignId: campaign.id,
           transactionId: record.id,
-          amount: paidAmount,
+          amount: baseAmountKobo / 100,
           currency: paymentData.currency || data.currency,
           donorName: data.donorName,
           donorEmail: data.donorEmail,
@@ -512,10 +560,9 @@ export class TransactionService {
         } as any,
       });
 
-
       await (tx as any).campaign.update({
         where: { id: campaign.id },
-        data: { currentAmount: { increment: paidAmount } },
+        data: { currentAmount: { increment: baseAmountKobo / 100 } },
       });
 
       return { success: true };
@@ -632,10 +679,16 @@ export class TransactionService {
 
     if (!data.giftId) {
       // Monetary support — credit creator's wallet
+      const config = await this.getCountryConfig(creator?.country || 'Nigeria');
+      const platformFeePercent = Number(config.transactionFeePercent || 4);
+      const totalPaidKobo = Number(paymentData.amount);
+      const feeKobo = Math.round(totalPaidKobo * (platformFeePercent / (100 + platformFeePercent)));
+      const baseAmountKobo = totalPaidKobo - feeKobo;
+
       const record = await (this.prisma as any).transaction.create({
         data: {
           userId: creator.id,
-          amount: BigInt(paymentData.amount),
+          amount: BigInt(baseAmountKobo),
           currency: paymentData.currency || data.currency,
           type: TX_CREATOR_SUPPORT,
           status: 'success',
@@ -644,10 +697,22 @@ export class TransactionService {
         },
       });
 
+      // Record platform fee
+      await (this.prisma as any).transaction.create({
+        data: {
+          userId: creator.id,
+          amount: BigInt(feeKobo),
+          type: 'fee',
+          status: 'success',
+          reference: `FEE-${data.reference}`,
+          description: `Platform Service Fee (${platformFeePercent}%)`,
+        },
+      });
+
       // Update recipient's platform balance (use atomic increment)
       await (this.prisma as any).user.update({
         where: { id: creator.id },
-        data: { platformBalance: { increment: BigInt(paymentData.amount) } },
+        data: { platformBalance: { increment: BigInt(baseAmountKobo) } },
       });
 
       recordId = record.id;
@@ -775,45 +840,61 @@ export class TransactionService {
       else giftCode = generateGiftCode();
     }
 
-    await (this.prisma as any).directGift.create({
-      data: {
-        userId: gift.vendorId,
-        title: data.giftName,
-        status: 'active',
-        amount: data.expectedAmount - whatsappFee,
-        claimableType: 'gift-card',
-        claimableGiftId: data.giftId,
-        giftCode,
-        currency: data.currency,
-        category: 'other',
-        recipientEmail: data.recipientEmail || data.recipientPhone || null,
-        senderEmail: data.senderEmail || null,
-        paymentReference: data.reference,
-        senderName: data.senderName,
-        message: data.message,
-        deliveryMethod: data.deliveryMethod || 'email',
-        whatsappFee: whatsappFee,
-      },
-    });
+    await (this.prisma as any).$transaction(async (tx: any) => {
+      // Calculate fee based on vendor's country
+      const vendor = await (tx as any).user.findUnique({ where: { id: gift.vendorId }, select: { country: true } });
+      const config = await this.getCountryConfig(vendor?.country || 'Nigeria');
+      const platformFeePercent = Number(config.transactionFeePercent || 4);
+      const totalPaidKobo = Number(paymentData.amount);
+      const feeKobo = Math.round(totalPaidKobo * (platformFeePercent / (100 + platformFeePercent)));
+      const baseAmountKobo = totalPaidKobo - feeKobo;
 
-
-    // Record buyer transaction
-    await (this.prisma as any).transaction.create({
-      data: {
-        userId: buyerId || null,
-        amount: BigInt(paymentData.amount),
-        currency: paymentData.currency || data.currency,
-        type: TX_CAMPAIGN_CONTRIBUTION,
-        status: 'success',
-        reference: data.reference,
-        description: `Gift: ${data.giftName} for ${data.recipientEmail}`,
-        metadata: {
-          gift_code: giftCode,
-          recipient_email: data.recipientEmail,
-          sender_name: data.senderName,
-          gift_id: data.giftId,
+      await (tx as any).directGift.create({
+        data: {
+          userId: gift.vendorId,
+          title: data.giftName,
+          status: 'active',
+          amount: (baseAmountKobo / 100) - whatsappFee,
+          claimableType: 'gift-card',
+          claimableGiftId: data.giftId,
+          giftCode,
+          currency: data.currency,
+          category: 'other',
+          recipientEmail: data.recipientEmail || data.recipientPhone || null,
+          senderEmail: data.senderEmail || null,
+          paymentReference: data.reference,
+          senderName: data.senderName,
+          message: data.message,
+          deliveryMethod: data.deliveryMethod || 'email',
+          whatsappFee: whatsappFee,
         },
-      },
+      });
+
+      // Record platform fee
+      await (tx as any).transaction.create({
+        data: {
+          userId: gift.vendorId, // Attributing to vendor side for reporting
+          amount: BigInt(feeKobo),
+          type: 'fee',
+          status: 'success',
+          reference: `FEE-${data.reference}`,
+          description: `Platform Service Fee (${platformFeePercent}%)`,
+        },
+      });
+
+      // Record buyer transaction if buyer identified
+      if (buyerId) {
+        await (tx as any).transaction.create({
+          data: {
+            userId: buyerId,
+            amount: BigInt(totalPaidKobo),
+            type: 'gift_purchase',
+            status: 'success',
+            reference: data.reference,
+            description: `Purchased ${data.giftName} for ${data.recipientEmail || 'friend'}`,
+          },
+        });
+      }
     });
 
     // Send notification

@@ -2,10 +2,19 @@ import { Controller, Get, Post, Delete, Body, Param, Query, UseGuards, Req } fro
 import { TransactionService } from './transaction.service';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { OptionalAuthGuard } from '../../common/guards/optional-auth.guard';
+import { AdminService } from '../admin/admin.service';
 
 @Controller('transactions')
 export class TransactionController {
-  constructor(private readonly transactionService: TransactionService) {}
+  constructor(
+    private readonly transactionService: TransactionService,
+    private readonly adminService: AdminService
+  ) {}
+
+  @Get('settings')
+  async getPublicSettings() {
+    return this.adminService.getPublicSettings();
+  }
 
   // ── Wallet Profile ──
   @UseGuards(AuthGuard)

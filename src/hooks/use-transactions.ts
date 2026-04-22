@@ -2,6 +2,16 @@ import api from '@/lib/api-client';
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
 import {toast} from 'sonner';
 
+export function usePublicSettings() {
+  return useQuery({
+    queryKey: ['public-settings'],
+    queryFn: async () => {
+      const res = await api.get('/transactions/settings');
+      return res.data;
+    },
+  });
+}
+
 export function useWalletProfile() {
   return useQuery({
     queryKey: ['wallet-profile'],

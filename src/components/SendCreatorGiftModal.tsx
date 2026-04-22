@@ -17,6 +17,10 @@ import {useQueryClient} from '@tanstack/react-query';
 import {ArrowRight, Heart, Loader2} from 'lucide-react';
 import {useEffect, useState} from 'react';
 import {toast} from 'sonner';
+import {usePublicSettings} from '@/hooks/use-transactions';
+import {useProfile} from '@/hooks/use-profile';
+import {calculatePlatformFee, calculateTotalWithFee} from '@/lib/utils/fees';
+import {getCurrencySymbol} from '@/lib/constants/currencies';
 
 interface SendCreatorGiftModalProps {
   open: boolean;
@@ -55,6 +59,14 @@ const SendCreatorGiftModal = ({
   const [isProcessing, setIsProcessing] = useState(false);
 
   const queryClient = useQueryClient();
+  const {data: profile} = useProfile();
+  const {data: settings} = usePublicSettings();
+  
+  const userCountry = profile?.country || 'Nigeria';
+  const countryConfig = settings?.countryConfigs?.[userCountry] || settings?.countryConfigs?.['Nigeria'];
+  
+  const platformFeePercent = countryConfig?.transactionFeePercent || 4;
+  const currencyCode = countryConfig?.currency || 'NGN';
 
   useEffect(() => {
     setAmount(initialAmount);
@@ -120,9 +132,8 @@ const SendCreatorGiftModal = ({
       paystack.newTransaction({
         key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY as string,
         email: donorEmail,
-        amount: Math.round(finalAmount * 100),
-        // currency,
-        currency: 'NGN',
+        amount: Math.round(calculateTotalWithFee(finalAmount, platformFeePercent) * 100), // Charge total including fee
+        currency: currencyCode,
         onSuccess: async (response: any) => {
           const res = await recordCreatorGift({
             reference: response.reference,
@@ -133,7 +144,7 @@ const SendCreatorGiftModal = ({
             isAnonymous,
             hideAmount,
             expectedAmount: finalAmount,
-            currency,
+            currency: currencyCode,
             giftId: null,
             giftName: null,
           });
@@ -300,17 +311,34 @@ const SendCreatorGiftModal = ({
 
             {step === 'payment' && (
               <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold text-muted-foreground uppercase">
-                      Summary
-                    </p>
-                    <p className="font-bold text-lg">
-                      Cash Gift
-                    </p>
+                <div className="p-6 bg-[var(--v2-primary-container)]/5 rounded-3xl border border-[var(--v2-primary-container)]/10 space-y-4">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-[var(--v2-on-surface-variant)] font-medium">Recipient</span>
+                    <span className="font-bold">{creatorName}</span>
                   </div>
-                  <p className="text-2xl font-bold text-primary">
-                    {formatCurrency(finalAmount, currency)}
+                  
+                  <div className="h-px bg-[var(--v2-outline-variant)]/10" />
+                  
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-[var(--v2-on-surface-variant)]">Gift Amount</span>
+                      <span className="font-bold">{formatCurrency(finalAmount, currencyCode)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-[var(--v2-on-surface-variant)]">Service Fee ({platformFeePercent}%)</span>
+                      <span className="font-bold text-amber-600">+{formatCurrency(calculatePlatformFee(finalAmount, platformFeePercent), currencyCode)}</span>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t-2 border-dashed border-[var(--v2-outline-variant)]/20 flex justify-between items-center">
+                    <span className="text-lg font-black v2-headline">Total to Pay</span>
+                    <span className="text-3xl font-black text-[var(--v2-primary)] v2-headline">
+                      {formatCurrency(calculateTotalWithFee(finalAmount, platformFeePercent), currencyCode)}
+                    </span>
+                  </div>
+                  
+                  <p className="text-[10px] text-center text-[var(--v2-on-surface-variant)] italic">
+                    {creatorName} receives the full {formatCurrency(finalAmount, currencyCode)} gift
                   </p>
                 </div>
 
@@ -332,7 +360,7 @@ const SendCreatorGiftModal = ({
                         Processing...
                       </>
                     ) : (
-                      'Pay Now'
+                      `Pay ${formatCurrency(calculateTotalWithFee(finalAmount, platformFeePercent), currencyCode)}`
                     )}
                   </Button>
                 </div>
@@ -350,8 +378,8 @@ const SendCreatorGiftModal = ({
                     Your contribution of{' '}
                     <span className="text-foreground font-bold">
                       {formatCurrency(
-                        Number(amount || customAmount),
-                        currency,
+                        finalAmount,
+                        currencyCode,
                       )}
                     </span>{' '}
                     has been sent to {creatorName}.

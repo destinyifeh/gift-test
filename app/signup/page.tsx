@@ -1,18 +1,19 @@
 'use client';
 
-import {PAYSTACK_COUNTRIES} from '@/lib/currencies';
+import {useCountryConfigs} from '@/hooks/use-country-config';
 import {authClient} from '@/lib/auth-client';
 import {signupSchema, type SignupInput} from '@/lib/validations/auth';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {useQueryClient} from '@tanstack/react-query';
 import Link from 'next/link';
-import {useSearchParams} from 'next/navigation';
+import {useRouter, useSearchParams} from 'next/navigation';
 import {Suspense, useState} from 'react';
 import {Controller, useForm} from 'react-hook-form';
 import {toast} from 'sonner';
-import {GifthanceLogo} from '@/components/GifthanceLogo';
 
 function SignupForm() {
+  const router = useRouter();
+
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -21,6 +22,7 @@ function SignupForm() {
 
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
+  const {data: countries, isLoading: isLoadingCountries} = useCountryConfigs();
 
   const {
     register,
@@ -37,6 +39,12 @@ function SignupForm() {
   });
 
   const username = watch('username');
+  const password = watch('password') || '';
+
+  // Password strength indicators
+  const hasMinLength = password.length >= 8;
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
 
   const onSubmit = async (data: SignupInput) => {
     setIsLoading(true);
@@ -56,74 +64,10 @@ function SignupForm() {
       setIsLoading(false);
     } else {
       queryClient.clear();
-      setSubmittedEmail(data.email);
-      setIsEmailSent(true);
-      setIsLoading(false);
       toast.success('Account created! Please verify your email.');
+      router.push(`/verify-otp?email=${encodeURIComponent(data.email)}`);
     }
   };
-
-  // Success State - Email Verification
-  if (isEmailSent) {
-    return (
-      <div className="min-h-screen bg-[var(--v2-background)] flex flex-col">
-        {/* Header */}
-        <header className="flex items-center justify-center py-6 px-4 md:py-8">
-          <GifthanceLogo size="lg" />
-        </header>
-
-        <main className="flex-1 flex flex-col justify-center px-4 pb-8 md:pb-16">
-          <div className="w-full max-w-[420px] mx-auto text-center">
-            {/* Success Icon */}
-            <div className="w-24 h-24 bg-[var(--v2-primary)]/10 rounded-[2rem] flex items-center justify-center mx-auto mb-8">
-              <span className="v2-icon text-5xl text-[var(--v2-primary)]">mail</span>
-            </div>
-
-            {/* Title */}
-            <h1 className="text-3xl md:text-4xl font-black v2-headline text-[var(--v2-on-surface)] tracking-tight mb-4">
-              Check your email
-            </h1>
-            <p className="text-[var(--v2-on-surface-variant)] mb-2">
-              We've sent a verification link to
-            </p>
-            <p className="text-[var(--v2-on-surface)] font-bold text-lg mb-10">{submittedEmail}</p>
-
-            {/* Info Card */}
-            <div className="bg-[var(--v2-surface-container-low)] rounded-[2rem] p-6 mb-10 text-left">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-[var(--v2-primary)]/10 flex items-center justify-center flex-shrink-0">
-                  <span className="v2-icon text-[var(--v2-primary)]">check_circle</span>
-                </div>
-                <div>
-                  <p className="font-bold text-[var(--v2-on-surface)] mb-1">Next steps</p>
-                  <p className="text-sm text-[var(--v2-on-surface-variant)]">
-                    Click the link in your email to verify your account. If you don't see it, check
-                    your spam folder.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="space-y-3">
-              <button
-                onClick={() => setIsEmailSent(false)}
-                className="w-full h-14 bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] font-bold rounded-2xl flex items-center justify-center gap-2 hover:bg-[var(--v2-surface-container-high)] transition-colors"
-              >
-                <span className="v2-icon">arrow_back</span>
-                Back to Signup
-              </button>
-              <Link href="/login" className="block">
-                <button className="w-full h-14 text-[var(--v2-on-surface-variant)] font-semibold hover:text-[var(--v2-on-surface)] transition-colors">
-                  Already verified? Sign in
-                </button>
-              </Link>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[var(--v2-background)] flex flex-col">
@@ -132,8 +76,7 @@ function SignupForm() {
         <Link href="/" className="inline-flex items-center gap-2">
           <span
             className="v2-icon text-3xl text-[var(--v2-primary)]"
-            style={{fontVariationSettings: "'FILL' 1"}}
-          >
+            style={{fontVariationSettings: "'FILL' 1"}}>
             card_giftcard
           </span>
           <span className="text-xl md:text-2xl font-black v2-headline text-[var(--v2-on-surface)] tracking-tight">
@@ -167,8 +110,7 @@ function SignupForm() {
           <div className="space-y-3 mb-6">
             <button
               type="button"
-              className="w-full flex items-center justify-center gap-3 h-14 bg-[var(--v2-surface-container-low)] hover:bg-[var(--v2-surface-container-high)] rounded-2xl text-[var(--v2-on-surface)] font-semibold transition-colors active:scale-[0.98]"
-            >
+              className="w-full flex items-center justify-center gap-3 h-14 bg-[var(--v2-surface-container-low)] hover:bg-[var(--v2-surface-container-high)] rounded-2xl text-[var(--v2-on-surface)] font-semibold transition-colors active:scale-[0.98]">
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
@@ -191,8 +133,7 @@ function SignupForm() {
             </button>
             <button
               type="button"
-              className="w-full flex items-center justify-center gap-3 h-14 bg-[var(--v2-surface-container-low)] hover:bg-[var(--v2-surface-container-high)] rounded-2xl text-[var(--v2-on-surface)] font-semibold transition-colors active:scale-[0.98]"
-            >
+              className="w-full flex items-center justify-center gap-3 h-14 bg-[var(--v2-surface-container-low)] hover:bg-[var(--v2-surface-container-high)] rounded-2xl text-[var(--v2-on-surface)] font-semibold transition-colors active:scale-[0.98]">
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
               </svg>
@@ -218,8 +159,7 @@ function SignupForm() {
             <div className="space-y-2">
               <label
                 htmlFor="name"
-                className="block text-sm font-bold text-[var(--v2-on-surface)]"
-              >
+                className="block text-sm font-bold text-[var(--v2-on-surface)]">
                 Full Name
               </label>
               <div className="relative">
@@ -234,7 +174,9 @@ function SignupForm() {
                 />
               </div>
               {errors.display_name && (
-                <p className="text-xs text-[var(--v2-error)]">{errors.display_name.message}</p>
+                <p className="text-xs text-[var(--v2-error)]">
+                  {errors.display_name.message}
+                </p>
               )}
             </div>
 
@@ -242,8 +184,7 @@ function SignupForm() {
             <div className="space-y-2">
               <label
                 htmlFor="country"
-                className="block text-sm font-bold text-[var(--v2-on-surface)]"
-              >
+                className="block text-sm font-bold text-[var(--v2-on-surface)]">
                 Country
               </label>
               <Controller
@@ -256,14 +197,17 @@ function SignupForm() {
                     </span>
                     <select
                       {...field}
-                      className="w-full pl-12 pr-10 h-14 bg-[var(--v2-surface-container-low)] rounded-2xl text-[var(--v2-on-surface)] appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 focus:bg-[var(--v2-surface-container-lowest)] transition-colors cursor-pointer"
-                    >
+                      className="w-full pl-12 pr-10 h-14 bg-[var(--v2-surface-container-low)] rounded-2xl text-[var(--v2-on-surface)] appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 focus:bg-[var(--v2-surface-container-lowest)] transition-colors cursor-pointer">
                       <option value="">Select your country</option>
-                      {PAYSTACK_COUNTRIES.map((c) => (
-                        <option key={c.code} value={c.name}>
-                          {c.name}
-                        </option>
-                      ))}
+                      {isLoadingCountries ? (
+                        <option disabled>Loading countries...</option>
+                      ) : (
+                        (countries || []).map(c => (
+                          <option key={c.countryCode} value={c.countryName}>
+                            {c.flag} {c.countryName}
+                          </option>
+                        ))
+                      )}
                     </select>
                     <span className="v2-icon absolute right-4 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)] pointer-events-none">
                       expand_more
@@ -271,8 +215,18 @@ function SignupForm() {
                   </div>
                 )}
               />
+              <p className="text-[13px] text-[var(--v2-on-surface-variant)] leading-relaxed bg-[var(--v2-surface-container-lowest)] px-3 py-2 rounded-xl mt-1 border border-[var(--v2-surface-container-low)]">
+                <span className="font-semibold text-[var(--v2-on-surface)]">
+                  Important:
+                </span>{' '}
+                Select your country of residence. This is used to personalize
+                your currency display, available features, and the campaigns
+                shown to you.
+              </p>
               {errors.country && (
-                <p className="text-xs text-[var(--v2-error)]">{errors.country.message}</p>
+                <p className="text-xs text-[var(--v2-error)]">
+                  {errors.country.message}
+                </p>
               )}
             </div>
 
@@ -280,8 +234,7 @@ function SignupForm() {
             <div className="space-y-2">
               <label
                 htmlFor="username"
-                className="block text-sm font-bold text-[var(--v2-on-surface)]"
-              >
+                className="block text-sm font-bold text-[var(--v2-on-surface)]">
                 Username
               </label>
               <div className="relative">
@@ -296,7 +249,9 @@ function SignupForm() {
                 />
               </div>
               {errors.username ? (
-                <p className="text-xs text-[var(--v2-error)]">{errors.username.message}</p>
+                <p className="text-xs text-[var(--v2-error)]">
+                  {errors.username.message}
+                </p>
               ) : (
                 <p className="text-xs text-[var(--v2-on-surface-variant)]">
                   gifthance.com/{username || 'yourname'}
@@ -308,8 +263,7 @@ function SignupForm() {
             <div className="space-y-2">
               <label
                 htmlFor="email"
-                className="block text-sm font-bold text-[var(--v2-on-surface)]"
-              >
+                className="block text-sm font-bold text-[var(--v2-on-surface)]">
                 Email
               </label>
               <div className="relative">
@@ -325,7 +279,9 @@ function SignupForm() {
                 />
               </div>
               {errors.email && (
-                <p className="text-xs text-[var(--v2-error)]">{errors.email.message}</p>
+                <p className="text-xs text-[var(--v2-error)]">
+                  {errors.email.message}
+                </p>
               )}
             </div>
 
@@ -333,8 +289,7 @@ function SignupForm() {
             <div className="space-y-2">
               <label
                 htmlFor="password"
-                className="block text-sm font-bold text-[var(--v2-on-surface)]"
-              >
+                className="block text-sm font-bold text-[var(--v2-on-surface)]">
                 Password
               </label>
               <div className="relative">
@@ -351,13 +306,26 @@ function SignupForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-on-surface)] p-1"
-                >
-                  <span className="v2-icon">{showPassword ? 'visibility_off' : 'visibility'}</span>
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-on-surface)] p-1">
+                  <span className="v2-icon">
+                    {showPassword ? 'visibility_off' : 'visibility'}
+                  </span>
                 </button>
               </div>
+
+              {/* Password Requirements */}
+              {password && (
+                <div className="space-y-2 pt-1 pb-2">
+                  <PasswordRequirement met={hasMinLength} text="At least 8 characters" />
+                  <PasswordRequirement met={hasUppercase} text="One uppercase letter" />
+                  <PasswordRequirement met={hasNumber} text="One number" />
+                </div>
+              )}
+
               {errors.password && (
-                <p className="text-xs text-[var(--v2-error)]">{errors.password.message}</p>
+                <p className="text-xs text-[var(--v2-error)]">
+                  {errors.password.message}
+                </p>
               )}
             </div>
 
@@ -365,11 +333,12 @@ function SignupForm() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full h-14 v2-hero-gradient text-[var(--v2-on-primary)] v2-headline font-bold rounded-2xl flex items-center justify-center gap-2 transition-transform active:scale-[0.98] disabled:opacity-70 shadow-lg shadow-[var(--v2-primary)]/20 mt-2"
-            >
+              className="w-full h-14 v2-hero-gradient text-[var(--v2-on-primary)] v2-headline font-bold rounded-2xl flex items-center justify-center gap-2 transition-transform active:scale-[0.98] disabled:opacity-70 shadow-lg shadow-[var(--v2-primary)]/20 mt-2">
               {isLoading ? (
                 <>
-                  <span className="v2-icon animate-spin">progress_activity</span>
+                  <span className="v2-icon animate-spin">
+                    progress_activity
+                  </span>
                   Creating Account...
                 </>
               ) : (
@@ -380,11 +349,15 @@ function SignupForm() {
             {/* Terms */}
             <p className="text-xs text-[var(--v2-on-surface-variant)] text-center pt-2">
               By creating an account, you agree to our{' '}
-              <Link href="/terms" className="text-[var(--v2-primary)] hover:underline">
+              <Link
+                href="/terms"
+                className="text-[var(--v2-primary)] hover:underline">
                 Terms of Service
               </Link>{' '}
               and{' '}
-              <Link href="/privacy" className="text-[var(--v2-primary)] hover:underline">
+              <Link
+                href="/privacy"
+                className="text-[var(--v2-primary)] hover:underline">
                 Privacy Policy
               </Link>
             </p>
@@ -393,7 +366,9 @@ function SignupForm() {
           {/* Sign In Link */}
           <p className="text-center text-sm text-[var(--v2-on-surface-variant)] mt-8">
             Already have an account?{' '}
-            <Link href="/login" className="text-[var(--v2-primary)] font-bold hover:underline">
+            <Link
+              href="/login"
+              className="text-[var(--v2-primary)] font-bold hover:underline">
               Sign in
             </Link>
           </p>
@@ -410,6 +385,29 @@ function SignupForm() {
   );
 }
 
+function PasswordRequirement({met, text}: {met: boolean; text: string}) {
+  return (
+    <div className="flex items-center gap-2">
+      <div
+        className={`w-5 h-5 rounded-full flex items-center justify-center transition-colors ${
+          met ? 'bg-[var(--v2-secondary)]' : 'bg-[var(--v2-surface-container-high)]'
+        }`}>
+        {met && (
+          <span className="v2-icon text-xs text-[var(--v2-on-secondary)]">
+            check
+          </span>
+        )}
+      </div>
+      <span
+        className={`text-xs transition-colors ${
+          met ? 'text-[var(--v2-secondary)]' : 'text-[var(--v2-on-surface-variant)]'
+        }`}>
+        {text}
+      </span>
+    </div>
+  );
+}
+
 export default function SignupPage() {
   return (
     <Suspense
@@ -419,8 +417,7 @@ export default function SignupPage() {
             progress_activity
           </span>
         </div>
-      }
-    >
+      }>
       <SignupForm />
     </Suspense>
   );

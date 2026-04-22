@@ -99,6 +99,11 @@ function LoginForm() {
             </p>
           </div>
         );
+      } else if (message === 'EMAIL_NOT_VERIFIED' || message.toLowerCase().includes('email not verified')) {
+        const email = data.email;
+        // Redirect to OTP verification page
+        router.push(`/verify-otp?email=${encodeURIComponent(email)}`);
+        return;
       }
 
       setErrorMsg(messageContent);

@@ -1,7 +1,8 @@
 'use client';
 
+import { useAllCountryConfigs, CountryConfig, useCountryConfigs } from '@/hooks/use-country-config';
 import { useProfile } from '@/hooks/use-profile';
-import { useAdminSettings, useUpdateAdminSettings, useAdminUpdateProfile, useAdminChangePassword } from '@/hooks/use-admin';
+import { useAdminSettings, useUpdateAdminSettings, useAdminUpdateProfile, useAdminChangePassword, useAdminUpdateCountryConfig } from '@/hooks/use-admin';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -12,6 +13,11 @@ export function V2AdminSettingsTab() {
   const updateSettingsMutation = useUpdateAdminSettings();
   const updateProfileMutation = useAdminUpdateProfile();
   const changePasswordMutation = useAdminChangePassword();
+  
+  const { data: countryConfigsData, isLoading: countriesLoading } = useAllCountryConfigs();
+  const { data: countries, isLoading: isLoadingCountries } = useCountryConfigs();
+  const updateCountryMutation = useAdminUpdateCountryConfig();
+  const [expandedCountry, setExpandedCountry] = useState<string | null>(null);
 
   // Platform settings
   const [settings, setSettings] = useState({
@@ -30,6 +36,7 @@ export function V2AdminSettingsTab() {
     username: '',
     email: '',
     bio: '',
+    country: '',
   });
 
   // Password change state
@@ -45,10 +52,11 @@ export function V2AdminSettingsTab() {
   useEffect(() => {
     if (profile) {
       setPersonalInfo({
-        display_name: profile.displayName || '',
+        display_name: profile.display_name || '',
         username: profile.username || '',
         email: profile.email || '',
         bio: profile.bio || '',
+        country: profile.country || '',
       });
     }
   }, [profile]);
@@ -63,13 +71,27 @@ export function V2AdminSettingsTab() {
     }
   }, [dbSettings]);
 
+  const handleUpdateCountryToggle = (code: string, field: string, value: any, isFeature: boolean = false) => {
+    const country = countryConfigsData?.find(c => c.countryCode === code);
+    if (!country) return;
+    
+    let updates = {};
+    if (isFeature) {
+      updates = { features: { ...country.features, [field]: value } };
+    } else {
+      updates = { [field]: value };
+    }
+    
+    updateCountryMutation.mutate({ countryCode: code, ...updates });
+  };
+
   const handleSaveSettings = () => {
     updateSettingsMutation.mutate(settings);
   };
 
   const handleSavePersonalInfo = () => {
     updateProfileMutation.mutate({
-      display_name: personalInfo.displayName,
+      display_name: personalInfo.display_name,
       bio: personalInfo.bio,
     });
   };
@@ -149,16 +171,16 @@ export function V2AdminSettingsTab() {
           <div className="flex flex-col md:flex-row gap-6 mb-8 pb-8 border-b border-[var(--v2-surface-container)]">
             <div className="flex items-center gap-4">
               <div className="relative">
-                {profile?.avatarUrl ? (
+                {profile?.avatar_url ? (
                   <img
-                    src={profile.avatarUrl}
+                    src={profile.avatar_url}
                     alt=""
                     className="w-20 h-20 rounded-full object-cover border-4 border-[var(--v2-primary-container)]/20"
                   />
                 ) : (
                   <div className="w-20 h-20 rounded-full bg-[var(--v2-primary)]/10 flex items-center justify-center border-4 border-[var(--v2-primary-container)]/20">
                     <span className="text-3xl font-bold text-[var(--v2-primary)]">
-                      {(profile?.displayName || profile?.username || 'A').charAt(0).toUpperCase()}
+                      {(profile?.display_name || profile?.username || 'A').charAt(0).toUpperCase()}
                     </span>
                   </div>
                 )}
@@ -168,11 +190,11 @@ export function V2AdminSettingsTab() {
               </div>
               <div>
                 <p className="font-bold text-lg text-[var(--v2-on-surface)]">
-                  {profile?.displayName || profile?.username || 'Admin'}
+                  {profile?.display_name || profile?.username || 'Admin'}
                 </p>
                 <p className="text-sm text-[var(--v2-on-surface-variant)]">@{profile?.username}</p>
                 <span className="inline-flex mt-2 px-3 py-1 rounded-full text-xs font-bold uppercase bg-[var(--v2-primary)]/10 text-[var(--v2-primary)]">
-                  {formatAdminRole(profile?.adminRole)}
+                  {formatAdminRole(profile?.admin_role)}
                 </span>
               </div>
             </div>
@@ -188,7 +210,7 @@ export function V2AdminSettingsTab() {
                 </label>
                 <input
                   type="text"
-                  value={personalInfo.displayName}
+                  value={personalInfo.display_name}
                   onChange={e => setPersonalInfo({ ...personalInfo, display_name: e.target.value })}
                   className="w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none"
                   placeholder="Your display name"
@@ -212,20 +234,62 @@ export function V2AdminSettingsTab() {
               </div>
             </div>
 
-            {/* Email (Read-only) */}
-            <div>
-              <label className="block text-sm font-medium text-[var(--v2-on-surface)] mb-2">
-                Email Address
-              </label>
-              <input
-                type="email"
-                value={personalInfo.email}
-                disabled
-                className="w-full px-4 py-3 bg-[var(--v2-surface-container)]/50 rounded-xl border-none text-[var(--v2-on-surface-variant)] cursor-not-allowed"
-              />
-              <p className="text-xs text-[var(--v2-on-surface-variant)] mt-1">
-                Contact support to change your email
-              </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Email (Read-only) */}
+              <div>
+                <label className="block text-sm font-medium text-[var(--v2-on-surface)] mb-2">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  value={personalInfo.email}
+                  disabled
+                  className="w-full px-4 py-3 bg-[var(--v2-surface-container)]/50 rounded-xl border-none text-[var(--v2-on-surface-variant)] cursor-not-allowed"
+                />
+              </div>
+
+              {/* Country (Read-only) */}
+              <div>
+                <label className="block text-sm font-medium text-[var(--v2-on-surface)] mb-2">
+                  Country
+                </label>
+                <div className="relative">
+                  <select
+                    value={personalInfo.country}
+                    disabled
+                    className="w-full px-4 py-3 bg-[var(--v2-surface-container)]/50 rounded-xl border-none text-[var(--v2-on-surface-variant)] cursor-not-allowed appearance-none"
+                  >
+                    <option value="">Select country</option>
+                    {isLoadingCountries ? (
+                       <option disabled>Loading countries...</option>
+                    ) : (
+                      (countries || []).map(c => (
+                        <option key={c.countryCode} value={c.countryName}>
+                          {c.flag} {c.countryName}
+                        </option>
+                      ))
+                    )}
+                  </select>
+                  <span className="v2-icon absolute right-4 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)]/40 text-base">
+                    lock
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Member Since (Read-only) */}
+              <div>
+                <label className="block text-sm font-medium text-[var(--v2-on-surface)] mb-2">
+                  Member Since
+                </label>
+                <div className="px-4 py-3 bg-[var(--v2-surface-container)]/50 rounded-xl text-[var(--v2-on-surface-variant)] flex items-center justify-between">
+                  <span>Registration Year</span>
+                  <span className="font-bold">
+                    {profile?.created_at ? new Date(profile.created_at).getFullYear() : '2024'}
+                  </span>
+                </div>
+              </div>
             </div>
 
             {/* Bio */}
@@ -503,6 +567,141 @@ export function V2AdminSettingsTab() {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Country Configurations */}
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="px-8 py-6 border-b border-[var(--v2-surface-container)] flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
+              <span className="v2-icon text-2xl text-purple-600">public</span>
+            </div>
+            <div>
+              <h4 className="v2-headline font-bold text-lg">Country Configurations</h4>
+              <p className="text-sm text-[var(--v2-on-surface-variant)]">
+                Manage supported countries, active features, and withdrawal rules
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        {countriesLoading ? (
+          <div className="p-8 text-center text-[var(--v2-on-surface-variant)]">Loading countries...</div>
+        ) : (
+          <div className="divide-y divide-[var(--v2-surface-container)]">
+            {(countryConfigsData || []).map((country: CountryConfig) => (
+              <div key={country.countryCode} className="border-b border-[var(--v2-surface-container)] last:border-b-0">
+                <div 
+                  onClick={() => setExpandedCountry(expandedCountry === country.countryCode ? null : country.countryCode)}
+                  className="px-8 py-5 flex items-center justify-between cursor-pointer hover:bg-[var(--v2-surface-container)]/30 transition-colors"
+                >
+                  <div className="flex items-center gap-4">
+                    <span className="text-3xl">{country.flag}</span>
+                    <div>
+                      <p className="font-bold">{country.countryName} <span className="text-xs ml-2 text-[var(--v2-on-surface-variant)] font-normal">{country.currency}</span></p>
+                      <p className="text-sm text-[var(--v2-on-surface-variant)]">
+                        Status: <span className={country.isEnabled ? 'text-emerald-600 font-semibold' : 'text-rose-500 font-semibold'}>{country.isEnabled ? 'Active' : 'Disabled'}</span>
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleUpdateCountryToggle(country.countryCode, 'isEnabled', !country.isEnabled);
+                      }}
+                      className={`w-14 h-8 rounded-full transition-colors relative ${country.isEnabled ? 'bg-emerald-500' : 'bg-[var(--v2-surface-container)]'}`}
+                    >
+                      <span className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow transition-all ${country.isEnabled ? 'right-1' : 'left-1'}`} />
+                    </button>
+                    <span className={`v2-icon transition-transform ${expandedCountry === country.countryCode ? 'rotate-180' : ''}`}>expand_more</span>
+                  </div>
+                </div>
+
+                {expandedCountry === country.countryCode && (
+                  <div className="px-8 py-6 bg-[var(--v2-surface-container)]/10 space-y-6 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                      
+                      {/* Financial Rules */}
+                      <div className="space-y-4">
+                        <h5 className="font-bold text-[var(--v2-on-surface)] flex items-center gap-2">
+                          <span className="v2-icon text-[var(--v2-primary)] text-lg">payments</span> Financial Rules
+                        </h5>
+                        
+                        <div className="flex items-center justify-between col-span-1">
+                          <p className="text-sm font-medium">Transaction Fee (%)</p>
+                          <input 
+                            type="number" 
+                            defaultValue={country.transactionFeePercent} 
+                            onBlur={(e) => handleUpdateCountryToggle(country.countryCode, 'transactionFeePercent', parseFloat(e.target.value))}
+                            className="w-20 px-3 py-1 bg-[var(--v2-surface-container)] rounded-lg text-right outline-none focus:ring-1 focus:ring-[var(--v2-primary)]"
+                          />
+                        </div>
+                        <div className="flex items-center justify-between col-span-1">
+                          <p className="text-sm font-medium">Withdrawal Fee Flat</p>
+                          <input 
+                            type="number" 
+                            defaultValue={country.withdrawalFeeFlat} 
+                            onBlur={(e) => handleUpdateCountryToggle(country.countryCode, 'withdrawalFeeFlat', parseFloat(e.target.value))}
+                            className="w-24 px-3 py-1 bg-[var(--v2-surface-container)] rounded-lg text-right outline-none focus:ring-1 focus:ring-[var(--v2-primary)]"
+                          />
+                        </div>
+                        <div className="flex items-center justify-between col-span-1">
+                          <p className="text-sm font-medium">Min Withdrawal</p>
+                          <input 
+                            type="number" 
+                            defaultValue={country.minWithdrawal} 
+                            onBlur={(e) => handleUpdateCountryToggle(country.countryCode, 'minWithdrawal', parseInt(e.target.value))}
+                            className="w-28 px-3 py-1 bg-[var(--v2-surface-container)] rounded-lg text-right outline-none focus:ring-1 focus:ring-[var(--v2-primary)]"
+                          />
+                        </div>
+                        <div className="flex items-center justify-between col-span-1">
+                          <p className="text-sm font-medium">Max Withdrawal</p>
+                          <input 
+                            type="number" 
+                            defaultValue={country.maxWithdrawal} 
+                            onBlur={(e) => handleUpdateCountryToggle(country.countryCode, 'maxWithdrawal', parseInt(e.target.value))}
+                            className="w-28 px-3 py-1 bg-[var(--v2-surface-container)] rounded-lg text-right outline-none focus:ring-1 focus:ring-[var(--v2-primary)]"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Feature Access */}
+                      <div className="space-y-4">
+                        <h5 className="font-bold text-[var(--v2-on-surface)] flex items-center gap-2">
+                          <span className="v2-icon text-[var(--v2-primary)] text-lg">extension</span> Feature Toggles
+                        </h5>
+                        
+                        {[
+                          { key: 'creatorSupport', label: 'Creator Support' },
+                          { key: 'vendorShop', label: 'Vendor Shop' },
+                          { key: 'campaigns', label: 'Campaigns' },
+                          { key: 'flexCard', label: 'Flex Card' },
+                          { key: 'directGift', label: 'Direct Gift' },
+                          { key: 'withdrawals', label: 'Withdrawals' }
+                        ].map((feature) => (
+                          <div key={feature.key} className="flex items-center justify-between">
+                            <p className="text-sm font-medium">{feature.label}</p>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleUpdateCountryToggle(country.countryCode, feature.key, !country.features[feature.key as keyof typeof country.features], true);
+                              }}
+                              className={`w-10 h-6 rounded-full transition-colors relative ${(country.features as any)?.[feature.key] ? 'bg-emerald-500' : 'bg-[var(--v2-outline-variant)]'}`}
+                            >
+                              <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${(country.features as any)?.[feature.key] ? 'right-1' : 'left-1'}`} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Save Button */}

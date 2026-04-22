@@ -749,3 +749,22 @@ export function useInvalidateShopGift() {
     },
   });
 }
+
+export function useAdminUpdateCountryConfig() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: { countryCode: string; [key: string]: any }) => {
+      const { countryCode, ...updates } = data;
+      const res = await api.put(`/country-configs/${countryCode}`, updates);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['country-configs'] });
+      queryClient.invalidateQueries({ queryKey: ['country-configs-all'] });
+      toast.success('Country configuration updated successfully');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to update country configuration');
+    },
+  });
+}

@@ -45,6 +45,7 @@ export function useProfile() {
         shop_logo_url: user.shopLogoUrl || null,
         platform_balance: Number(user.platformBalance) || 0,
         bank_accounts: accounts || [],
+        created_at: user.createdAt,
       };
     },
     enabled: !!userId,
@@ -86,6 +87,7 @@ export function useProfileByUsername(username: string | null) {
         shop_slug: user.shopSlug || null,
         shop_logo_url: user.shopLogoUrl || null,
         bank_accounts: user.bankAccounts || [], // Assuming backend includes it or separate call
+        created_at: user.createdAt,
       };
     },
     enabled: !!username,
@@ -122,6 +124,7 @@ export function useProfileByShopSlug(shopSlug: string | null) {
         shop_slug: user.shopSlug || null,
         shop_logo_url: user.shopLogoUrl || null,
         bank_accounts: user.bankAccounts || [],
+        created_at: user.createdAt,
       };
     },
     enabled: !!shopSlug,

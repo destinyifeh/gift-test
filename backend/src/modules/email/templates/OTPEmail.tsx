@@ -1,7 +1,6 @@
 import * as React from 'react';
 import {
   Body,
-  Button,
   Container,
   Head,
   Heading,
@@ -11,35 +10,33 @@ import {
   Text,
 } from '@react-email/components';
 
-interface ResetPasswordEmailProps {
+interface OTPEmailProps {
   userFirstname?: string;
-  resetPasswordLink?: string;
+  otp?: string;
 }
 
-export const ResetPasswordEmail = ({
+export const OTPEmail = ({
   userFirstname = 'there',
-  resetPasswordLink = '#',
-}: ResetPasswordEmailProps) => {
+  otp = '000000',
+}: OTPEmailProps) => {
   return (
     <Html>
       <Head />
-      <Preview>Reset your Gifthance password</Preview>
+      <Preview>Your Gifthance verification code</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Heading style={h1}>Reset your password</Heading>
+          <Heading style={h1}>Verify your email</Heading>
           <Text style={text}>
             Hi {userFirstname},
           </Text>
           <Text style={text}>
-            Someone requested a password reset for your Gifthance account. If this was you, you can set a new password here:
+            Welcome to Gifthance! Please use the following 6-digit verification code to complete your registration and start receiving gifts.
           </Text>
-          <Section style={buttonContainer}>
-            <Button style={button} href={resetPasswordLink}>
-              Reset password
-            </Button>
+          <Section style={otpContainer}>
+            <Text style={otpText}>{otp}</Text>
           </Section>
           <Text style={text}>
-            If you didn't request this, you can safely ignore this email. Your password will remain unchanged.
+            This code will expire in 5 minutes. If you didn't create an account, you can safely ignore this email.
           </Text>
           <Text style={footer}>
             &copy; 2026 Gifthance. All rights reserved.
@@ -50,7 +47,7 @@ export const ResetPasswordEmail = ({
   );
 };
 
-export default ResetPasswordEmail;
+export default OTPEmail;
 
 const main = {
   backgroundColor: '#f6f9fc',
@@ -80,21 +77,20 @@ const text = {
   padding: '0 48px',
 };
 
-const buttonContainer = {
+const otpContainer = {
   padding: '24px 48px',
+  textAlign: 'center' as const,
 };
 
-const button = {
-  backgroundColor: '#f97316',
-  borderRadius: '5px',
-  color: '#fff',
-  fontSize: '16px',
+const otpText = {
+  fontSize: '32px',
   fontWeight: 'bold',
-  textDecoration: 'none',
-  textAlign: 'center' as const,
-  display: 'block',
-  width: '200px',
+  color: '#f97316',
+  letterSpacing: '8px',
   padding: '12px',
+  backgroundColor: '#f6f9fc',
+  borderRadius: '8px',
+  display: 'inline-block',
 };
 
 const footer = {

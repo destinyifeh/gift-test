@@ -25,11 +25,16 @@ export async function serverFetch(endpoint: string, options: RequestInit = {}) {
     let errorMsg = res.statusText;
     try {
       const errorData = await res.json();
-      errorMsg = errorData.message || errorMsg;
+      console.log('[serverFetch] Error data:', errorData);
+      if (Array.isArray(errorData.message)) {
+        errorMsg = errorData.message.join(', ');
+      } else {
+        errorMsg = errorData.message || errorData.error || errorMsg;
+      }
     } catch (e) {
       // Ignore JSON parse error
     }
-    throw new Error(`API Error: ${errorMsg}`);
+    throw new Error(errorMsg);
   }
 
   const data = await res.json();

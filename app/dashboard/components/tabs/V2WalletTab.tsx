@@ -16,10 +16,7 @@ import {
   useWithdraw,
   useDeleteBankAccount,
 } from '@/hooks/use-transactions';
-import {
-  getCurrencyByCountry,
-  getCurrencySymbol,
-} from '@/lib/currencies';
+import {useMyCountryConfig} from '@/hooks/use-country-config';
 import {formatCurrency} from '@/lib/utils/currency';
 import {useEffect, useMemo, useState} from 'react';
 import {toast} from 'sonner';
@@ -61,6 +58,12 @@ export function V2WalletTab() {
   const addBankAccountMutation = useAddBankAccount();
   const withdrawMutation = useWithdraw();
   const deleteBankAccountMutation = useDeleteBankAccount();
+
+  // Country-specific config from DB
+  const {data: myCountryConfig} = useMyCountryConfig();
+  const withdrawalFee = myCountryConfig?.withdrawalFeeFlat || 100;
+  const minWithdrawal = myCountryConfig?.minWithdrawal || 1000;
+  const maxWithdrawal = myCountryConfig?.maxWithdrawal || 500000;
 
   const {data: profile} = useProfile();
   const [hasSetDefaultCountry, setHasSetDefaultCountry] = useState(false);
@@ -135,8 +138,8 @@ export function V2WalletTab() {
       .reduce((sum: number, card: any) => sum + (card.current_balance || 0), 0);
   }, [flexCards]);
 
-  const userCurrency = getCurrencyByCountry(profile?.country);
-  const currencySymbol = getCurrencySymbol(userCurrency);
+  const userCurrency = myCountryConfig?.currency || 'NGN';
+  const currencySymbol = myCountryConfig?.currencySymbol || '₦';
 
   const handleResolveAccount = async () => {
     if (bankForm.accountNumber.length !== 10 || !bankForm.bankCode) return;
@@ -166,7 +169,7 @@ export function V2WalletTab() {
       accountNumber: bankForm.accountNumber,
       accountName: bankForm.holderName,
       country: selectedCountry,
-      currency: getCurrencyByCountry(selectedCountry)
+      currency: myCountryConfig?.currency || 'NGN'
     }, {
       onSuccess: () => {
         setBankForm({bankCode: '', bankName: '', accountNumber: '', holderName: ''});
@@ -631,24 +634,49 @@ export function V2WalletTab() {
               </select>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-[var(--v2-on-surface)]">Amount</label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)] font-bold">
-                  {currencySymbol}
-                </span>
-                <input
-                  type="number"
-                  placeholder="0.00"
-                  className="w-full h-14 pl-12 pr-4 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] text-xl font-bold border-none focus:ring-2 focus:ring-[var(--v2-primary)]"
-                  value={withdrawAmount}
-                  onChange={e => setWithdrawAmount(e.target.value)}
-                  max={wallet.balance}
-                />
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-[var(--v2-on-surface)]">Amount to Withdraw</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)] font-bold">
+                    {currencySymbol}
+                  </span>
+                  <input
+                    type="number"
+                    placeholder="0.00"
+                    className="w-full h-14 pl-12 pr-4 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] text-xl font-bold border-none focus:ring-2 focus:ring-[var(--v2-primary)]"
+                    value={withdrawAmount}
+                    onChange={e => setWithdrawAmount(e.target.value)}
+                    max={wallet.balance}
+                  />
+                </div>
+                <div className="flex justify-between items-center px-1">
+                   <p className="text-[10px] text-[var(--v2-on-surface-variant)]">
+                    Min Withdrawal: {formatCurrency(withdrawalFee, userCurrency)}
+                   </p>
+                   <p className="text-[10px] text-[var(--v2-on-surface-variant)]">
+                    Max: {formatCurrency(wallet.balance, userCurrency)}
+                   </p>
+                </div>
               </div>
-              <p className="text-xs text-[var(--v2-on-surface-variant)] text-right">
-                Max: {formatCurrency(wallet.balance, userCurrency)}
-              </p>
+
+              {/* Withdrawal Fee Breakdown */}
+              <div className="p-4 bg-[var(--v2-primary-container)]/5 rounded-2xl border border-[var(--v2-outline-variant)]/10 space-y-3">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-[var(--v2-on-surface-variant)]">Withdrawal Amount</span>
+                  <span className="font-bold">{formatCurrency(Number(withdrawAmount || 0), userCurrency)}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-[var(--v2-on-surface-variant)]">Withdrawal Fee</span>
+                  <span className="font-bold text-[var(--v2-error)]">-{formatCurrency(withdrawalFee, userCurrency)}</span>
+                </div>
+                <div className="pt-2 border-t border-[var(--v2-outline-variant)]/20 flex justify-between items-center">
+                  <span className="font-bold">Estimated Arrival</span>
+                  <span className="font-black text-lg text-[var(--v2-primary)]">
+                    {formatCurrency(Math.max(0, Number(withdrawAmount || 0) - withdrawalFee), userCurrency)}
+                  </span>
+                </div>
+              </div>
             </div>
 
             <div className="flex gap-3 pt-4">

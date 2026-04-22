@@ -1,22 +1,80 @@
 'use client';
 
-import {authClient} from '@/lib/auth-client';
+import {forgotPassword, resetPasswordWithOTP} from '@/lib/server/actions/auth';
 import Link from 'next/link';
 import {useRouter, useSearchParams} from 'next/navigation';
-import {Suspense, useState} from 'react';
+import {Suspense, useState, useRef, useEffect} from 'react';
 import {toast} from 'sonner';
 
 function ResetPasswordForm() {
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const searchParams = useSearchParams();
   const router = useRouter();
+  const email = searchParams.get('email') || '';
   const error = searchParams.get('error');
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  useEffect(() => {
+    if (!email) {
+      router.push('/forgot-password');
+    }
+  }, [email, router]);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (cooldown > 0) {
+      timer = setInterval(() => {
+        setCooldown(prev => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [cooldown]);
+
+  const handleResend = async () => {
+    if (cooldown > 0) return;
+
+    try {
+      const formData = new FormData();
+      formData.append('email', email);
+      const result = await forgotPassword(formData);
+
+      if (result.success) {
+        toast.success('New code sent to your email');
+        setCooldown(60);
+      } else {
+        toast.error(result.error || 'Failed to resend code');
+      }
+    } catch (err: any) {
+      toast.error('Failed to resend code');
+    }
+  };
+
+  const handleOtpChange = (index: number, value: string) => {
+    if (!/^\d*$/.test(value)) return;
+
+    const newOtp = [...otp];
+    newOtp[index] = value.slice(-1);
+    setOtp(newOtp);
+
+    // Auto-focus next input
+    if (value && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
 
   // Password strength indicators
   const hasMinLength = password.length >= 8;
@@ -28,22 +86,24 @@ function ResetPasswordForm() {
     e.preventDefault();
     if (password !== confirmPassword) return;
 
-    const token = searchParams.get('token');
-    if (!token) {
-      setErrorMsg('Invalid or missing reset token');
+    const otpValue = otp.join('');
+    if (otpValue.length !== 6) {
+      toast.error('Please enter the 6-digit verification code');
       return;
     }
 
     setIsLoading(true);
     setErrorMsg(null);
 
-    const {data, error} = await (authClient as any).resetPassword({
-      newPassword: password,
-      token,
-    });
+    const formData = new FormData();
+    formData.append('email', email);
+    formData.append('otp', otpValue);
+    formData.append('password', password);
 
-    if (error) {
-      setErrorMsg(error.message || 'An error occurred');
+    const result = await resetPasswordWithOTP(formData);
+
+    if (!result.success) {
+      setErrorMsg(result.error || 'An error occurred');
       setIsLoading(false);
     } else {
       toast.success('Password updated successfully');
@@ -76,6 +136,17 @@ function ResetPasswordForm() {
             <span className="v2-icon text-4xl text-[var(--v2-primary)]">shield</span>
           </div>
 
+          {/* Back Button */}
+          <div className="mb-6">
+            <Link 
+              href="/forgot-password" 
+              className="inline-flex items-center gap-2 text-sm font-bold text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors group"
+            >
+              <span className="v2-icon text-lg group-hover:-translate-x-1 transition-transform">arrow_back</span>
+              Back to Forgot Password
+            </Link>
+          </div>
+
           {/* Title */}
           <div className="text-center mb-10">
             <h1 className="text-3xl md:text-4xl font-black v2-headline text-[var(--v2-on-surface)] tracking-tight">
@@ -95,7 +166,45 @@ function ResetPasswordForm() {
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Email Display */}
+            <div className="text-center mb-6">
+              <p className="text-sm text-[var(--v2-on-surface-variant)]">
+                Resetting password for <span className="font-bold text-[var(--v2-on-surface)]">{email}</span>
+              </p>
+            </div>
+
+            {/* OTP Code */}
+            <div className="space-y-3">
+              <label className="block text-sm font-bold text-[var(--v2-on-surface)] text-center">
+                Verification Code
+              </label>
+              <div className="flex gap-2 justify-center">
+                {otp.map((digit, i) => (
+                  <input
+                    key={i}
+                    ref={(el) => { inputRefs.current[i] = el; }}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handleOtpChange(i, e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(i, e)}
+                    className="w-12 h-16 bg-[var(--v2-surface-container-low)] rounded-2xl text-[var(--v2-on-surface)] text-2xl font-extrabold flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 focus:bg-[var(--v2-surface-container-lowest)] transition-all text-center"
+                    autoComplete="one-time-code"
+                  />
+                ))}
+              </div>
+              <div className="flex justify-center">
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  disabled={cooldown > 0}
+                  className="text-sm text-[var(--v2-primary)] font-bold hover:underline disabled:opacity-50 disabled:no-underline px-4 py-2">
+                  {cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend Code'}
+                </button>
+              </div>
+            </div>
             {/* New Password */}
             <div className="space-y-2">
               <label

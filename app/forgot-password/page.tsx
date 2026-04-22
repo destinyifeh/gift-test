@@ -1,8 +1,8 @@
 'use client';
 
-import {authClient} from '@/lib/auth-client';
+import {forgotPassword} from '@/lib/server/actions/auth';
 import Link from 'next/link';
-import {useSearchParams} from 'next/navigation';
+import {useSearchParams, useRouter} from 'next/navigation';
 import {Suspense, useState} from 'react';
 import {toast} from 'sonner';
 
@@ -13,6 +13,7 @@ function ForgotPasswordForm() {
   const [isSuccess, setIsSuccess] = useState(false);
 
   const searchParams = useSearchParams();
+  const router = useRouter();
   const error = searchParams.get('error');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -20,94 +21,20 @@ function ForgotPasswordForm() {
     setIsLoading(true);
     setErrorMsg(null);
 
-    const {data, error} = await (authClient as any).forgetPassword({
-      email,
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
+    const formData = new FormData();
+    formData.append('email', email);
 
-    if (error) {
-      setErrorMsg(error.message || 'An error occurred');
+    const result = await forgotPassword(formData);
+
+    if (!result.success) {
+      setErrorMsg(result.error || 'An error occurred');
       setIsLoading(false);
     } else {
-      setIsSuccess(true);
-      setIsLoading(false);
-      toast.success('Check your email for reset instructions');
+      toast.success('Verification code sent to your email');
+      router.push(`/reset-password?email=${encodeURIComponent(email)}`);
     }
   };
 
-  // Success State
-  if (isSuccess) {
-    return (
-      <div className="min-h-screen bg-[var(--v2-background)] flex flex-col">
-        {/* Header */}
-        <header className="flex items-center justify-center py-6 px-4 md:py-8">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <span
-              className="v2-icon text-3xl text-[var(--v2-primary)]"
-              style={{fontVariationSettings: "'FILL' 1"}}
-            >
-              card_giftcard
-            </span>
-            <span className="text-xl md:text-2xl font-black v2-headline text-[var(--v2-on-surface)] tracking-tight">
-              Gifthance
-            </span>
-          </Link>
-        </header>
-
-        <main className="flex-1 flex flex-col justify-center px-4 pb-8 md:pb-16">
-          <div className="w-full max-w-[420px] mx-auto text-center">
-            {/* Success Icon */}
-            <div className="w-24 h-24 bg-[var(--v2-primary)]/10 rounded-[2rem] flex items-center justify-center mx-auto mb-8">
-              <span className="v2-icon text-5xl text-[var(--v2-primary)]">mail</span>
-            </div>
-
-            {/* Title */}
-            <h1 className="text-3xl md:text-4xl font-black v2-headline text-[var(--v2-on-surface)] tracking-tight mb-4">
-              Check your email
-            </h1>
-            <p className="text-[var(--v2-on-surface-variant)] mb-2">
-              We've sent a password reset link to
-            </p>
-            <p className="text-[var(--v2-on-surface)] font-bold text-lg mb-10">{email}</p>
-
-            {/* Info Card */}
-            <div className="bg-[var(--v2-surface-container-low)] rounded-[2rem] p-6 mb-10 text-left">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-[var(--v2-primary)]/10 flex items-center justify-center flex-shrink-0">
-                  <span className="v2-icon text-[var(--v2-primary)]">check_circle</span>
-                </div>
-                <div>
-                  <p className="font-bold text-[var(--v2-on-surface)] mb-1">What's next?</p>
-                  <p className="text-sm text-[var(--v2-on-surface-variant)]">
-                    Click the link in your email to reset your password. The link will expire in 1
-                    hour.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="space-y-3">
-              <Link href="/login" className="block">
-                <button className="w-full h-14 v2-hero-gradient text-[var(--v2-on-primary)] v2-headline font-bold rounded-2xl transition-transform active:scale-[0.98] shadow-lg shadow-[var(--v2-primary)]/20">
-                  Back to Login
-                </button>
-              </Link>
-              <button
-                onClick={() => {
-                  setIsSuccess(false);
-                  setEmail('');
-                }}
-                className="w-full h-14 text-[var(--v2-on-surface-variant)] font-semibold hover:text-[var(--v2-on-surface)] transition-colors"
-              >
-                Didn't receive email? Try again
-              </button>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[var(--v2-background)] flex flex-col">
@@ -144,7 +71,7 @@ function ForgotPasswordForm() {
               Forgot password?
             </h1>
             <p className="text-[var(--v2-on-surface-variant)] mt-3">
-              No worries, we'll send you reset instructions.
+              Enter your email and we'll send you a verification code to reset your password.
             </p>
           </div>
 
@@ -193,7 +120,7 @@ function ForgotPasswordForm() {
                   Sending...
                 </>
               ) : (
-                'Send Reset Link'
+                'Send Code'
               )}
             </button>
           </form>

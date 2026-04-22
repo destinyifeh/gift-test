@@ -5,9 +5,11 @@ import { PrismaModule } from '../../prisma/prisma.module';
 import { EmailModule } from '../email/email.module';
 import { NotificationModule } from '../notification/notification.module';
 import { FileModule } from '../file/file.module';
+import { AdminModule } from '../admin/admin.module';
+import { CountryConfigModule } from '../country-config/country-config.module';
 
 @Module({
-  imports: [PrismaModule, EmailModule, NotificationModule, FileModule],
+  imports: [PrismaModule, EmailModule, NotificationModule, FileModule, AdminModule, CountryConfigModule],
   controllers: [TransactionController],
   providers: [TransactionService],
   exports: [TransactionService],

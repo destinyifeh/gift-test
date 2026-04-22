@@ -18,3 +18,42 @@ export async function verifyPaymentAndUpgrade(reference: string) {
     };
   }
 }
+
+export async function recordCampaignContribution(data: any) {
+  try {
+    const res = await serverFetch('transactions/campaign-contribution', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    return { success: true, data: res };
+  } catch (error: any) {
+    console.error('Error recording campaign contribution:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function recordCreatorGift(data: any) {
+  try {
+    const res = await serverFetch('transactions/creator-gift', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    return { success: true, data: res };
+  } catch (error: any) {
+    console.error('Error recording creator gift:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function recordShopGiftPurchase(data: any) {
+  try {
+    const res = await serverFetch('transactions/shop-gift', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    return { success: true, data: res };
+  } catch (error: any) {
+    console.error('Error recording shop gift purchase:', error);
+    return { success: false, error: error.message };
+  }
+}

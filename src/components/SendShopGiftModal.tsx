@@ -16,6 +16,11 @@ import {ArrowRight, Gift, Heart, Loader2, Mail, MessageCircle} from 'lucide-reac
 import {useEffect, useState} from 'react';
 import {toast} from 'sonner';
 import {CountryPhoneInput, formatE164} from './CountryPhoneInput';
+import {usePublicSettings} from '@/hooks/use-transactions';
+import {calculatePlatformFee, calculateTotalWithFee, WHATSAPP_FEE} from '@/lib/utils/fees';
+import {formatCurrency} from '@/lib/utils/currency';
+
+type DeliveryMethod = 'email' | 'whatsapp';
 
 interface SendShopGiftModalProps {
   open: boolean;
@@ -31,10 +36,6 @@ interface SendShopGiftModalProps {
   };
 }
 
-type DeliveryMethod = 'email' | 'whatsapp';
-
-const WHATSAPP_FEE = 100; // ₦100 flat fee for WhatsApp delivery
-
 const SendShopGiftModal = ({
   open,
   onOpenChange,
@@ -45,6 +46,13 @@ const SendShopGiftModal = ({
   );
   const [isLoading, setIsLoading] = useState(false);
   const {data: profile} = useProfile();
+  const {data: settings} = usePublicSettings();
+  
+  const userCountry = profile?.country || 'Nigeria';
+  const countryConfig = settings?.countryConfigs?.[userCountry] || settings?.countryConfigs?.['Nigeria'];
+  
+  const platformFeePercent = countryConfig?.transactionFeePercent || 4;
+  const currencyCode = countryConfig?.currency || 'NGN';
 
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>('email');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -77,9 +85,10 @@ const SendShopGiftModal = ({
     }
   }, [open, profile]);
 
-  // Calculate total with WhatsApp fee
+  // Calculate total with fees
+  const serviceFee = calculatePlatformFee(gift.price, platformFeePercent);
   const whatsappFee = deliveryMethod === 'whatsapp' ? WHATSAPP_FEE : 0;
-  const totalAmount = gift.price + whatsappFee;
+  const totalAmount = calculateTotalWithFee(gift.price, platformFeePercent) + whatsappFee;
 
   const validateRecipient = () => {
     if (deliveryMethod === 'email') {
@@ -144,8 +153,8 @@ const SendShopGiftModal = ({
     paystack.newTransaction({
       key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || '',
       email: formData.senderEmail, // Use sender email for Paystack receipt
-      amount: totalAmount * 100, // Paystack amount is in kobo/cents
-      currency: 'NGN',
+      amount: Math.round(totalAmount * 100), // Paystack amount is in kobo/cents
+      currency: currencyCode,
       onSuccess: (transaction: any) => {
         setIsLoading(false);
         console.log('Payment successful', transaction);
@@ -287,7 +296,7 @@ const SendShopGiftModal = ({
                         <div className="flex-1">
                           <span className="font-medium text-sm">WhatsApp</span>
                           <p className="text-[11px] text-muted-foreground mt-0.5">
-                            WhatsApp Delivery Fee: ₦{WHATSAPP_FEE}
+                            WhatsApp Delivery Fee: {formatCurrency(WHATSAPP_FEE, currencyCode)}
                           </p>
                         </div>
                       </label>
@@ -418,39 +427,44 @@ const SendShopGiftModal = ({
 
             {step === 'payment' && (
               <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-bold text-muted-foreground uppercase">
-                        Gift Item
-                      </p>
-                      <p className="font-bold text-base">{gift.name}</p>
-                    </div>
-                    <p className="text-xl font-bold">
-                      {gift.symbol || '₦'}
-                      {gift.price.toLocaleString()}
-                    </p>
+                <div className="p-6 bg-[var(--v2-primary-container)]/5 rounded-3xl border border-[var(--v2-primary-container)]/10 space-y-4">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-[var(--v2-on-surface-variant)] font-medium">Gift Item</span>
+                    <span className="font-bold truncate max-w-[200px]">{gift.name}</span>
                   </div>
-
-                  {deliveryMethod === 'whatsapp' && (
-                    <div className="flex items-center justify-between pt-2 border-t border-primary/10">
-                      <div className="flex items-center gap-2">
-                        <MessageCircle className="w-4 h-4 text-green-600" />
-                        <p className="text-sm text-muted-foreground">WhatsApp Delivery</p>
+                  
+                  <div className="h-px bg-[var(--v2-outline-variant)]/10" />
+                  
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-[var(--v2-on-surface-variant)]">Gift Price</span>
+                      <span className="font-bold">{formatCurrency(gift.price, currencyCode)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-[var(--v2-on-surface-variant)]">Service Fee ({platformFeePercent}%)</span>
+                      <span className="font-bold text-amber-600">+{formatCurrency(serviceFee, currencyCode)}</span>
+                    </div>
+                    {deliveryMethod === 'whatsapp' && (
+                      <div className="flex justify-between items-center text-sm">
+                        <div className="flex items-center gap-1.5">
+                          <MessageCircle className="w-3.5 h-3.5 text-green-600" />
+                          <span className="text-[var(--v2-on-surface-variant)]">WhatsApp Delivery</span>
+                        </div>
+                        <span className="font-bold text-green-600">+{formatCurrency(WHATSAPP_FEE, currencyCode)}</span>
                       </div>
-                      <p className="font-semibold text-green-600">
-                        +{gift.symbol || '₦'}{WHATSAPP_FEE}
-                      </p>
-                    </div>
-                  )}
-
-                  <div className="flex items-center justify-between pt-3 border-t border-primary/10">
-                    <p className="font-bold">Total</p>
-                    <p className="text-2xl font-bold text-primary">
-                      {gift.symbol || '₦'}
-                      {totalAmount.toLocaleString()}
-                    </p>
+                    )}
                   </div>
+
+                  <div className="pt-4 border-t-2 border-dashed border-[var(--v2-outline-variant)]/20 flex justify-between items-center">
+                    <span className="text-lg font-black v2-headline">Total to Pay</span>
+                    <span className="text-3xl font-black text-[var(--v2-primary)] v2-headline">
+                      {formatCurrency(totalAmount, currencyCode)}
+                    </span>
+                  </div>
+                  
+                  <p className="text-[10px] text-center text-[var(--v2-on-surface-variant)] italic">
+                    Recipient receives the full {gift.name} worth {formatCurrency(gift.price, currencyCode)}
+                  </p>
                 </div>
 
                 {/* Delivery summary */}
@@ -489,8 +503,7 @@ const SendShopGiftModal = ({
                     {isLoading ? (
                       <Loader2 className="w-5 h-5 animate-spin mr-2" />
                     ) : null}
-                    Pay {gift.symbol || '₦'}
-                    {totalAmount.toLocaleString()}
+                    Pay {formatCurrency(totalAmount, currencyCode)}
                   </Button>
                 </div>
               </div>
@@ -508,8 +521,7 @@ const SendShopGiftModal = ({
                   <span className="text-foreground font-bold">{gift.name}</span>{' '}
                   worth{' '}
                   <span className="text-foreground font-bold">
-                    {gift.symbol || '₦'}
-                    {gift.price.toLocaleString()}
+                    {formatCurrency(gift.price, currencyCode)}
                   </span>{' '}
                   has been successfully sent.
                 </p>

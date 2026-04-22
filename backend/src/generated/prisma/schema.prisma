@@ -556,6 +556,32 @@ model SystemSetting {
   @@map("system_settings")
 }
 
+model CountryConfig {
+  id             String @id @default(uuid())
+  countryName    String @unique @map("country_name")
+  countryCode    String @unique @map("country_code") // ISO 2-letter code: NG, GH, KE
+  currency       String // ISO currency code: NGN, GHS, KES
+  currencySymbol String @map("currency_symbol") // ₦, GH₵, KSh
+  flag           String @default("🏳️")
+
+  // Financial rules
+  transactionFeePercent Decimal @default(4) @map("transaction_fee_percent")
+  withdrawalFeeFlat     Decimal @default(0) @map("withdrawal_fee_flat")
+  minWithdrawal         Decimal @default(0) @map("min_withdrawal")
+  maxWithdrawal         Decimal @default(0) @map("max_withdrawal")
+
+  // Feature flags
+  features Json @default("{\"creatorSupport\": true, \"vendorShop\": true, \"campaigns\": true, \"flexCard\": true}") @map("features")
+
+  // Status
+  isEnabled Boolean @default(true) @map("is_enabled")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("country_configs")
+}
+
 model VendorGift {
   id          Int      @id @default(autoincrement())
   vendorId    String   @map("vendor_id")

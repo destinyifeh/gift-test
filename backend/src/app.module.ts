@@ -23,6 +23,7 @@ import { FileModule } from './modules/file/file.module';
 import { WhatsappModule } from './modules/whatsapp/whatsapp.module';
 import { ModerationModule } from './modules/moderation/moderation.module';
 import { FlexCardModule } from './modules/flex-card/flex-card.module';
+import { CountryConfigModule } from './modules/country-config/country-config.module';
 
 
 
@@ -50,6 +51,7 @@ import { FlexCardModule } from './modules/flex-card/flex-card.module';
     WhatsappModule,
     ModerationModule,
     FlexCardModule,
+    CountryConfigModule,
   ],
 
 

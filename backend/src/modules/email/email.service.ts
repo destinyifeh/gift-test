@@ -8,6 +8,7 @@ import ThankYouEmail from './templates/ThankYouEmail';
 import ResetPasswordEmail from './templates/ResetPasswordEmail';
 import VerificationEmail from './templates/VerificationEmail';
 import VendorWelcomeEmail from './templates/VendorWelcomeEmail';
+import OTPEmail from './templates/OTPEmail';
 
 
 
@@ -108,6 +109,21 @@ export class EmailService {
     });
   }
 
+  async sendOTPEmail(params: { to: string; userName: string; otp: string }) {
+    const html = await render(
+      React.createElement(OTPEmail, {
+        userFirstname: params.userName,
+        otp: params.otp,
+      })
+    );
+
+    return this.sendEmail({
+      to: params.to,
+      subject: `🔢 Your verification code: ${params.otp}`,
+      html,
+    });
+  }
+
   async sendVendorWelcomeEmail(params: { to: string; fullName: string; temporaryPassword?: string }) {
     const html = await render(
       React.createElement(VendorWelcomeEmail, {
@@ -128,6 +144,7 @@ export class EmailService {
 
 
     try {
+      console.log('[EmailService] Sending email to:', params.to, 'Subject:', params.subject);
       const { data, error } = await this.resend.emails.send({
         from: this.fromEmail,
         to: [params.to],

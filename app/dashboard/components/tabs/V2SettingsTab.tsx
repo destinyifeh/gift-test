@@ -1,6 +1,7 @@
 'use client';
 
 import {useUpdateCreatorStatus} from '@/hooks/use-auth';
+import {useCountryConfigs} from '@/hooks/use-country-config';
 import {useProfile} from '@/hooks/use-profile';
 import {updateProfile, uploadAvatar, deleteUploadedFile} from '@/lib/server/actions/auth';
 import {useUserStore} from '@/lib/store/useUserStore';
@@ -8,21 +9,14 @@ import {useQueryClient} from '@tanstack/react-query';
 import {useEffect, useRef, useState} from 'react';
 import {toast} from 'sonner';
 
-const COUNTRIES = [
-  'Nigeria',
-  'Ghana',
-  'Kenya',
-  'South Africa',
-  'United States',
-  'United Kingdom',
-  'Canada',
-];
+
 
 export function V2SettingsTab() {
   const queryClient = useQueryClient();
   const {data: profile, isLoading} = useProfile();
   const setUser = useUserStore(state => state.setUser);
   const updateCreatorStatus = useUpdateCreatorStatus();
+  const {data: countries, isLoading: isLoadingCountries} = useCountryConfigs();
 
   const [formData, setFormData] = useState({
     display_name: '',
@@ -247,7 +241,7 @@ export function V2SettingsTab() {
               <div className="flex justify-between items-center">
                 <span className="text-sm text-[var(--v2-on-surface-variant)]">Member Since</span>
                 <span className="text-sm font-bold text-[var(--v2-on-surface)]">
-                  2024
+                  {profile?.created_at ? new Date(profile.created_at).getFullYear() : '2024'}
                 </span>
               </div>
             </div>
@@ -324,19 +318,27 @@ export function V2SettingsTab() {
                   <div className="relative">
                     <select
                       value={formData.country}
+                      disabled
                       onChange={e => setFormData({...formData, country: e.target.value})}
-                      className="w-full h-12 px-4 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] border-none focus:ring-2 focus:ring-[var(--v2-primary)] appearance-none cursor-pointer">
+                      className="w-full h-12 px-4 pl-4 rounded-xl bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface-variant)] border-none cursor-not-allowed appearance-none">
                       <option value="">Select country</option>
-                      {COUNTRIES.map(c => (
-                        <option key={c} value={c}>
-                          {c}
-                        </option>
-                      ))}
+                      {isLoadingCountries ? (
+                         <option disabled>Loading countries...</option>
+                      ) : (
+                        (countries || []).map(c => (
+                          <option key={c.countryCode} value={c.countryName}>
+                            {c.flag} {c.countryName}
+                          </option>
+                        ))
+                      )}
                     </select>
-                    <span className="v2-icon absolute right-4 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)] pointer-events-none">
-                      expand_more
+                    <span className="v2-icon absolute right-4 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)]/40 pointer-events-none text-base">
+                      lock
                     </span>
                   </div>
+                  <p className="text-[11px] text-[var(--v2-on-surface-variant)] leading-tight mt-1 opacity-70">
+                    This determines your currency and available gifting features.
+                  </p>
                 </div>
               </div>
             </div>

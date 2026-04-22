@@ -51,14 +51,16 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = async () => {
+    // Clear local state immediately for better UX
+    queryClient.clear();
+    clearUser();
+    router.push('/login');
+
     const result = await signOut();
     if (result.success) {
-      queryClient.clear();
-      clearUser();
       toast.success('Signed out successfully');
-      router.push('/login');
     } else {
-      toast.error(result.error || 'Failed to sign out');
+      toast.error(result.error || 'Failed to sign out on server');
     }
   };
 

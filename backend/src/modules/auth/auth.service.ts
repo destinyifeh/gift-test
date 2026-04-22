@@ -23,6 +23,10 @@ export class AuthService implements OnModuleInit {
     AuthEmailHelper.registerVerify(async (params) => {
       return this.emailService.sendVerificationEmail(params);
     });
+
+    AuthEmailHelper.registerOTP(async (params) => {
+      return this.emailService.sendOTPEmail(params);
+    });
   }
 
   /**
@@ -72,6 +76,83 @@ export class AuthService implements OnModuleInit {
       select: { roles: true },
     });
     return user?.roles.includes(role) || false;
+  }
+
+  /**
+   * Send Verification OTP
+   */
+  async sendVerificationOTP(email: string) {
+    try {
+      await (auth.api as any).sendVerificationOTP({
+        body: {
+          email,
+          type: 'email-verification',
+        },
+      });
+      return { success: true };
+    } catch (error: any) {
+      const message = error.body?.message || error.message || 'Could not send verification code';
+      throw new BadRequestException(message);
+    }
+  }
+
+  /**
+   * Verify Email OTP
+   */
+  async verifyEmailOTP(email: string, otp: string) {
+    try {
+      await (auth.api as any).verifyEmailOTP({
+        body: {
+          email,
+          otp,
+        },
+      });
+      return { success: true };
+    } catch (error: any) {
+      const message = error.body?.message || error.message || 'Invalid or expired verification code';
+      console.error('[AuthService] Throwing BadRequestException with message:', message);
+      throw new BadRequestException(message);
+    }
+  }
+
+  /**
+   * Send Password Reset OTP
+   */
+  async sendResetPasswordOTP(email: string) {
+    console.log('[AuthService] sendResetPasswordOTP starting for:', email);
+    try {
+      await (auth.api as any).sendVerificationOTP({
+        body: {
+          email,
+          type: 'forget-password',
+        },
+      });
+      console.log('[AuthService] sendResetPasswordOTP success');
+      return { success: true };
+    } catch (error: any) {
+      console.error('[AuthService] sendResetPasswordOTP error:', error);
+      const message = error.body?.message || error.message || 'Could not send reset code';
+      throw new BadRequestException(message);
+    }
+  }
+
+  /**
+   * Reset Password with OTP
+   */
+  async resetPasswordWithOTP(email: string, otp: string, newPassword: string) {
+    try {
+      await (auth.api as any).resetPasswordEmailOTP({
+        body: {
+          email,
+          otp,
+          password: newPassword,
+        },
+      });
+      return { success: true };
+    } catch (error: any) {
+      const message = error.body?.message || error.message || 'Could not reset password';
+      throw new BadRequestException(message);
+    }
   }
 
   /**

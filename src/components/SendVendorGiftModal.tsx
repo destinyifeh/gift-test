@@ -18,6 +18,11 @@ import {ArrowRight, CreditCard, Heart, Loader2} from 'lucide-react';
 import {useEffect, useState} from 'react';
 import {toast} from 'sonner';
 import GiftSelection from './GiftSelection';
+import {usePublicSettings} from '@/hooks/use-transactions';
+import {useProfile} from '@/hooks/use-profile';
+import {calculatePlatformFee, calculateTotalWithFee} from '@/lib/utils/fees';
+import {formatCurrency} from '@/lib/utils/currency';
+import {getCurrencySymbol} from '@/lib/constants/currencies';
 
 interface SendVendorGiftModalProps {
   open: boolean;
@@ -40,6 +45,16 @@ const SendVendorGiftModal = ({
   const [message, setMessage] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  const { data: profile } = useProfile();
+  const { data: settings } = usePublicSettings();
+  
+  const userCountry = profile?.country || 'Nigeria';
+  const countryConfig = settings?.countryConfigs?.[userCountry] || settings?.countryConfigs?.['Nigeria'];
+  
+  const platformFeePercent = countryConfig?.transactionFeePercent || 4;
+  const currencyCode = countryConfig?.currency || 'NGN';
+  const currencySymbol = getCurrencySymbol(currencyCode);
 
   useEffect(() => {
     if (open) {
@@ -220,17 +235,34 @@ const SendVendorGiftModal = ({
 
             {step === 'payment' && (
               <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold text-muted-foreground uppercase">
-                      Gift Card
-                    </p>
-                    <p className="font-bold text-lg">
-                      {selectedGiftData?.name}
-                    </p>
+                <div className="p-6 bg-[var(--v2-primary-container)]/5 rounded-3xl border border-[var(--v2-primary-container)]/10 space-y-4">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-[var(--v2-on-surface-variant)] font-medium">Gift Card Item</span>
+                    <span className="font-bold">{selectedGiftData?.name}</span>
                   </div>
-                  <p className="text-2xl font-bold text-primary">
-                    ${selectedGiftData?.price}
+                  
+                  <div className="h-px bg-[var(--v2-outline-variant)]/10" />
+                  
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-[var(--v2-on-surface-variant)]">Gift Price</span>
+                      <span className="font-bold">{formatCurrency(selectedGiftData?.price, currencyCode)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-[var(--v2-on-surface-variant)]">Service Fee ({platformFeePercent}%)</span>
+                      <span className="font-bold text-amber-600">+{formatCurrency(calculatePlatformFee(Number(selectedGiftData?.price || 0), platformFeePercent), currencyCode)}</span>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t-2 border-dashed border-[var(--v2-outline-variant)]/20 flex justify-between items-center">
+                    <span className="text-lg font-black v2-headline">Total</span>
+                    <span className="text-3xl font-black text-[var(--v2-primary)] v2-headline">
+                      {formatCurrency(calculateTotalWithFee(Number(selectedGiftData?.price || 0), platformFeePercent), currencyCode)}
+                    </span>
+                  </div>
+                  
+                  <p className="text-[10px] text-center text-[var(--v2-on-surface-variant)] italic">
+                    Recipient receives the full {selectedGiftData?.name} worth {formatCurrency(selectedGiftData?.price, currencyCode)}
                   </p>
                 </div>
 
@@ -264,8 +296,8 @@ const SendVendorGiftModal = ({
                       paystack.newTransaction({
                         key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || '',
                         email: recipientEmail, // Or current user email
-                        amount: Math.round(selectedGiftData.price * 100),
-                        currency: 'USD',
+                        amount: Math.round(calculateTotalWithFee(Number(selectedGiftData.price), platformFeePercent) * 100),
+                        currency: currencyCode,
                         onSuccess: async (response: any) => {
                           const result = await recordShopGiftPurchase({
                             reference: response.reference,
@@ -275,7 +307,7 @@ const SendVendorGiftModal = ({
                             giftId: selectedGiftData.id,
                             giftName: selectedGiftData.name,
                             expectedAmount: selectedGiftData.price,
-                            currency: 'USD',
+                            currency: currencyCode,
                           });
 
                           if (result.success) {
@@ -297,7 +329,7 @@ const SendVendorGiftModal = ({
                     {isProcessing ? (
                       <Loader2 className="w-5 h-5 animate-spin" />
                     ) : (
-                      `Pay $${selectedGiftData?.price}`
+                      `Pay ${formatCurrency(calculateTotalWithFee(Number(selectedGiftData?.price || 0), platformFeePercent), currencyCode)}`
                     )}
                   </Button>
                 </div>

@@ -36,13 +36,26 @@ export function formatCurrency(
     return `${symbol}${numericAmount}`;
   }
 
-  // Use Intl.NumberFormat for proper grouping (commas)
-  const formatter = new Intl.NumberFormat('en-US', {
+  // Get locale based on currency for proper localized formatting
+  const getLocale = (code: string) => {
+    switch (code.toUpperCase()) {
+      case 'NGN': return 'en-NG';
+      case 'GHS': return 'en-GH';
+      case 'KES': return 'en-KE';
+      case 'ZAR': return 'en-ZA';
+      case 'USD': return 'en-US';
+      case 'GBP': return 'en-GB';
+      case 'EUR': return 'de-DE';
+      default: return 'en-US';
+    }
+  };
+
+  const formatter = new Intl.NumberFormat(getLocale(currencyCode), {
+    style: 'currency',
+    currency: currencyCode.toUpperCase(),
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   });
 
-  // Custom formatting: Symbol + Formatted Number
-  // We use en-US locale for consistent comma separation
-  return `${symbol}${formatter.format(numericAmount)}`;
+  return formatter.format(numericAmount);
 }
