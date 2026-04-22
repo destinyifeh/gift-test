@@ -1,10 +1,10 @@
-import { Injectable, UnauthorizedException, BadRequestException, OnModuleInit } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { auth } from './better-auth.js';
-import { EmailService } from '../email/email.service.js';
+import { BadRequestException, Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AuthEmailHelper } from './auth-email.helper.js';
 import type { Request } from 'express';
+import { PrismaService } from '../../prisma/prisma.service.js';
+import { EmailService } from '../email/email.service.js';
+import { AuthEmailHelper } from './auth-email.helper.js';
+import { auth } from './better-auth.js';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -52,18 +52,44 @@ export class AuthService implements OnModuleInit {
    * Manual Password Update (When logged in)
    * Mirrors frontend: auth.ts → updatePassword
    */
-  async updatePassword(userId: string, currentPassword: string, newPassword: string, headers?: any) {
+  async updatePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+    headers?: any,
+  ) {
     try {
+      // 1. Check if user actually has a password in the DB
+      const account = await (this.prisma as any).account.findFirst({
+        where: { userId, password: { not: null } },
+      });
+
+      if (!account) {
+        // User logged in via OTP/OAuth and doesn't have a password yet!
+        // We use setPassword instead of changePassword
+        await (auth.api as any).setPassword({
+          headers: headers ? new Headers(headers) : undefined,
+          body: { newPassword },
+        });
+        return { success: true };
+      }
+      console.log('Normal change password flow');
+      // 2. Normal change password flow
       await (auth.api as any).changePassword({
         headers: headers ? new Headers(headers) : undefined,
         body: {
           currentPassword,
           newPassword,
-        }
+        },
       });
       return { success: true };
     } catch (error: any) {
-      throw new BadRequestException(error.message || 'Could not update password');
+      let message =
+        error.body?.message || error.message || 'Could not update password';
+      if (message === 'Invalid password' || message === 'INVALID_PASSWORD') {
+        message = 'Incorrect current password';
+      }
+      throw new BadRequestException(message);
     }
   }
 
@@ -91,7 +117,10 @@ export class AuthService implements OnModuleInit {
       });
       return { success: true };
     } catch (error: any) {
-      const message = error.body?.message || error.message || 'Could not send verification code';
+      const message =
+        error.body?.message ||
+        error.message ||
+        'Could not send verification code';
       throw new BadRequestException(message);
     }
   }
@@ -109,8 +138,14 @@ export class AuthService implements OnModuleInit {
       });
       return { success: true };
     } catch (error: any) {
-      const message = error.body?.message || error.message || 'Invalid or expired verification code';
-      console.error('[AuthService] Throwing BadRequestException with message:', message);
+      const message =
+        error.body?.message ||
+        error.message ||
+        'Invalid or expired verification code';
+      console.error(
+        '[AuthService] Throwing BadRequestException with message:',
+        message,
+      );
       throw new BadRequestException(message);
     }
   }
@@ -131,7 +166,8 @@ export class AuthService implements OnModuleInit {
       return { success: true };
     } catch (error: any) {
       console.error('[AuthService] sendResetPasswordOTP error:', error);
-      const message = error.body?.message || error.message || 'Could not send reset code';
+      const message =
+        error.body?.message || error.message || 'Could not send reset code';
       throw new BadRequestException(message);
     }
   }
@@ -150,7 +186,8 @@ export class AuthService implements OnModuleInit {
       });
       return { success: true };
     } catch (error: any) {
-      const message = error.body?.message || error.message || 'Could not reset password';
+      const message =
+        error.body?.message || error.message || 'Could not reset password';
       throw new BadRequestException(message);
     }
   }
@@ -158,7 +195,13 @@ export class AuthService implements OnModuleInit {
   /**
    * Admin-triggered sign up
    */
-  async signUpEmail(data: { email: string; password?: string; name: string; roles?: string[]; isVerifiedVendor?: boolean }) {
+  async signUpEmail(data: {
+    email: string;
+    password?: string;
+    name: string;
+    roles?: string[];
+    isVerifiedVendor?: boolean;
+  }) {
     return (auth.api as any).signUpEmail({
       body: {
         email: data.email,
@@ -168,7 +211,7 @@ export class AuthService implements OnModuleInit {
         isVerifiedVendor: data.isVerifiedVendor || false,
         suggestedAmounts: [5, 10, 25],
         platformBalance: 0,
-      }
+      },
     });
   }
 }

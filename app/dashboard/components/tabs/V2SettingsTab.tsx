@@ -96,12 +96,18 @@ export function V2SettingsTab() {
     formData.append('file', file);
 
     try {
+      const oldUrl = profile?.avatar_url;
       const uploadRes = await uploadAvatar(formData);
       if (uploadRes.success && uploadRes.url) {
         const updateRes = await updateProfile({ avatar_url: uploadRes.url });
         if (updateRes.success) {
           toast.success('Avatar updated!');
           queryClient.invalidateQueries({ queryKey: ['profile'] });
+          
+          if (oldUrl) {
+            deleteUploadedFile(oldUrl).catch(err => console.error('Failed to delete old avatar:', err));
+          }
+
           if (profile) {
             setUser({
               ...profile,

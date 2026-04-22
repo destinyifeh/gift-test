@@ -99,6 +99,8 @@ export function V2VendorSettingsTab() {
     }
 
     setIsUploadingAvatar(true);
+    const oldUrl = profile?.avatar_url;
+
     try {
       const formData = new FormData();
       formData.append('file', file);
@@ -106,9 +108,19 @@ export function V2VendorSettingsTab() {
 
       const result = await uploadAvatar(formData);
 
-      if (result.success) {
+      if (result.success && result.url) {
+        // Actually save it to the profile (this was missing)
+        await api.patch('/users', {
+          avatarUrl: result.url,
+        });
+
         toast.success('Avatar updated successfully!');
         queryClient.invalidateQueries({queryKey: ['profile']});
+        
+        // Delete the old one
+        if (oldUrl) {
+          deleteUploadedFile(oldUrl).catch(err => console.error('Failed to delete old avatar:', err));
+        }
       } else {
         toast.error(result.error || 'Failed to upload avatar');
       }

@@ -479,8 +479,8 @@ export const useUpdateAdminSettings = () => {
 export const useAdminUpdateProfile = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (updates: { display_name?: string; bio?: string }) => 
-      api.patch('/profile', updates), // Most backends handle profile at /profile
+    mutationFn: (updates: { display_name?: string; bio?: string; avatarUrl?: string }) => 
+      api.patch('/users', updates), // Most backends handle profile at /users
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile'] });
       toast.success('Profile updated');
@@ -700,7 +700,7 @@ export function useAdminChangePassword() {
       toast.success('Password updated successfully');
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Failed to update password');
+      toast.error(error.response?.data?.error || error.response?.data?.message || 'Failed to update password');
     },
   });
 }

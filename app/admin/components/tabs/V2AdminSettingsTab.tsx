@@ -3,10 +3,13 @@
 import { useAllCountryConfigs, CountryConfig, useCountryConfigs } from '@/hooks/use-country-config';
 import { useProfile } from '@/hooks/use-profile';
 import { useAdminSettings, useUpdateAdminSettings, useAdminUpdateProfile, useAdminChangePassword, useAdminUpdateCountryConfig } from '@/hooks/use-admin';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { toast } from 'sonner';
+import { uploadAvatar, updateProfile, deleteUploadedFile } from '@/lib/server/actions/auth';
+import { useQueryClient } from '@tanstack/react-query';
 
 export function V2AdminSettingsTab() {
+  const queryClient = useQueryClient();
   const { data: profile, isLoading: profileLoading } = useProfile();
   const { data: dbSettings, isLoading: settingsLoading } = useAdminSettings();
   
@@ -47,6 +50,14 @@ export function V2AdminSettingsTab() {
   });
 
   const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  
+  // Password strength indicators
+  const hasMinLength = passwordForm.newPassword.length >= 8;
+  const hasUppercase = /[A-Z]/.test(passwordForm.newPassword);
+  const hasNumber = /[0-9]/.test(passwordForm.newPassword);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Update personal info when profile loads
   useEffect(() => {
@@ -75,14 +86,11 @@ export function V2AdminSettingsTab() {
     const country = countryConfigsData?.find(c => c.countryCode === code);
     if (!country) return;
     
-    let updates = {};
-    if (isFeature) {
-      updates = { features: { ...country.features, [field]: value } };
-    } else {
-      updates = { [field]: value };
-    }
+    const updates = isFeature 
+      ? { ...country, features: { ...country.features, [field]: value } }
+      : { ...country, [field]: value };
     
-    updateCountryMutation.mutate({ countryCode: code, ...updates });
+    updateCountryMutation.mutate(updates);
   };
 
   const handleSaveSettings = () => {
@@ -99,6 +107,10 @@ export function V2AdminSettingsTab() {
   const handleChangePassword = () => {
     if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
       toast.error('Please fill in all password fields');
+      return;
+    }
+    if (passwordForm.currentPassword === passwordForm.newPassword) {
+      toast.error('New password must be different from current password');
       return;
     }
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
@@ -119,6 +131,70 @@ export function V2AdminSettingsTab() {
         setShowPasswordForm(false);
       }
     });
+  };
+
+  const onAvatarUpload = async (file: File) => {
+    // Validate size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File too large', { description: 'Max size is 5MB' });
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const oldUrl = profile?.avatar_url;
+      const uploadRes = await uploadAvatar(formData);
+
+      if (uploadRes.success && uploadRes.url) {
+        const updateRes = await updateProfile({ avatar_url: uploadRes.url });
+        if (updateRes.success) {
+          toast.success('Profile photo updated');
+          queryClient.invalidateQueries({ queryKey: ['profile'] });
+          
+          if (oldUrl) {
+             deleteUploadedFile(oldUrl).catch(err => console.error('Failed to delete old avatar:', err));
+          }
+        } else {
+          toast.error('Failed to update profile with new photo');
+        }
+      } else {
+        toast.error(uploadRes.error || 'Failed to upload photo');
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'An error occurred during upload');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    if (!profile?.avatar_url) return;
+    
+    if (!confirm('Are you sure you want to remove your avatar?')) return;
+
+    const oldUrl = profile.avatar_url;
+    setIsUploading(true);
+
+    try {
+      const updateRes = await updateProfile({ avatar_url: '' });
+      if (updateRes.success) {
+        toast.success('Avatar removed');
+        queryClient.invalidateQueries({ queryKey: ['profile'] });
+        
+        deleteUploadedFile(oldUrl).catch(err => console.error('Failed to delete file from storage:', err));
+        
+      } else {
+        toast.error('Failed to clear avatar from profile');
+      }
+    } catch (err) {
+      toast.error('An error occurred while removing avatar');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const formatAdminRole = (role: string | null) => {
@@ -169,8 +245,18 @@ export function V2AdminSettingsTab() {
         <div className="p-8">
           {/* Avatar & Role Display */}
           <div className="flex flex-col md:flex-row gap-6 mb-8 pb-8 border-b border-[var(--v2-surface-container)]">
-            <div className="flex items-center gap-4">
-              <div className="relative">
+              <div className="relative group">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) onAvatarUpload(file);
+                  }}
+                  accept="image/*"
+                  className="hidden"
+                />
+                
                 {profile?.avatar_url ? (
                   <img
                     src={profile.avatar_url}
@@ -184,9 +270,26 @@ export function V2AdminSettingsTab() {
                     </span>
                   </div>
                 )}
-                <button className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[var(--v2-primary)] text-white flex items-center justify-center shadow-lg hover:bg-[var(--v2-primary)]/90 transition-colors">
-                  <span className="v2-icon text-sm">photo_camera</span>
-                </button>
+                
+                <div className="absolute -bottom-1 -right-1 flex flex-col gap-1 translate-x-2">
+                  {profile?.avatar_url && !isUploading && (
+                    <button 
+                      onClick={handleRemoveAvatar}
+                      className="w-7 h-7 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform active:scale-95">
+                      <span className="v2-icon text-sm">delete</span>
+                    </button>
+                  )}
+                  <button 
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                    className="w-8 h-8 rounded-full bg-[var(--v2-primary)] text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform active:scale-95 disabled:opacity-50">
+                    {isUploading ? (
+                      <span className="v2-icon text-sm animate-spin">progress_activity</span>
+                    ) : (
+                      <span className="v2-icon text-sm">edit</span>
+                    )}
+                  </button>
+                </div>
               </div>
               <div>
                 <p className="font-bold text-lg text-[var(--v2-on-surface)]">
@@ -198,7 +301,6 @@ export function V2AdminSettingsTab() {
                 </span>
               </div>
             </div>
-          </div>
 
           {/* Form Fields */}
           <div className="space-y-6">
@@ -371,6 +473,16 @@ export function V2AdminSettingsTab() {
                   className="w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none"
                 />
               </div>
+
+              {/* Password Requirements */}
+              {passwordForm.newPassword && (
+                <div className="space-y-2 pt-1 pb-2">
+                  <PasswordRequirement met={hasMinLength} text="At least 8 characters" />
+                  <PasswordRequirement met={hasUppercase} text="One uppercase letter" />
+                  <PasswordRequirement met={hasNumber} text="One number" />
+                </div>
+              )}
+
               <div>
                 <label className="block text-sm font-medium text-[var(--v2-on-surface)] mb-2">
                   Confirm New Password
@@ -713,6 +825,29 @@ export function V2AdminSettingsTab() {
           {updateSettingsMutation.isPending ? 'Saving...' : 'Save Platform Settings'}
         </button>
       </div>
+    </div>
+  );
+}
+
+function PasswordRequirement({ met, text }: { met: boolean; text: string }) {
+  return (
+    <div className="flex items-center gap-2">
+      <div
+        className={`w-5 h-5 rounded-full flex items-center justify-center transition-colors ${
+          met ? 'bg-[var(--v2-secondary)]' : 'bg-[var(--v2-surface-container-high)]'
+        }`}>
+        {met && (
+          <span className="v2-icon text-xs text-[var(--v2-on-secondary)]">
+            check
+          </span>
+        )}
+      </div>
+      <span
+        className={`text-xs transition-colors ${
+          met ? 'text-[var(--v2-secondary)]' : 'text-[var(--v2-on-surface-variant)]'
+        }`}>
+        {text}
+      </span>
     </div>
   );
 }

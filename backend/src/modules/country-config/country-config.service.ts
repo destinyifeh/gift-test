@@ -154,32 +154,39 @@ export class CountryConfigService {
    * Creates or updates a country config. Used by the Admin Settings panel.
    */
   async upsert(data: CountryConfigDto) {
+    const countryCode = data.countryCode.toUpperCase();
+    
+    // Fetch existing safely
+    const existing = await (this.prisma as any).countryConfig.findUnique({
+      where: { countryCode },
+    });
+
     const record = await (this.prisma as any).countryConfig.upsert({
-      where: { countryCode: data.countryCode.toUpperCase() },
+      where: { countryCode },
       update: {
-        countryName: data.countryName,
-        currency: data.currency,
-        currencySymbol: data.currencySymbol,
-        flag: data.flag ?? '🏳️',
-        transactionFeePercent: data.transactionFeePercent ?? 4,
-        withdrawalFeeFlat: data.withdrawalFeeFlat ?? 0,
-        minWithdrawal: data.minWithdrawal ?? 0,
-        maxWithdrawal: data.maxWithdrawal ?? 0,
-        features: data.features ?? { creatorSupport: true, vendorShop: true, campaigns: true, flexCard: true, directGift: true, withdrawals: true, accessRules: {} },
-        isEnabled: data.isEnabled ?? true,
+        countryName: data.countryName ?? existing?.countryName,
+        currency: data.currency ?? existing?.currency,
+        currencySymbol: data.currencySymbol ?? existing?.currencySymbol,
+        flag: data.flag ?? existing?.flag ?? '🏳️',
+        transactionFeePercent: data.transactionFeePercent ?? existing?.transactionFeePercent ?? 4,
+        withdrawalFeeFlat: data.withdrawalFeeFlat ?? existing?.withdrawalFeeFlat ?? 0,
+        minWithdrawal: data.minWithdrawal ?? existing?.minWithdrawal ?? 0,
+        maxWithdrawal: data.maxWithdrawal ?? existing?.maxWithdrawal ?? 0,
+        features: data.features ?? existing?.features ?? { creatorSupport: true, vendorShop: true, campaigns: true, flexCard: true, directGift: true, withdrawals: true, accessRules: {} },
+        isEnabled: data.isEnabled ?? existing?.isEnabled ?? true,
       },
       create: {
-        countryName: data.countryName,
-        countryCode: data.countryCode.toUpperCase(),
-        currency: data.currency,
-        currencySymbol: data.currencySymbol,
-        flag: data.flag ?? '🏳️',
-        transactionFeePercent: data.transactionFeePercent ?? 4,
-        withdrawalFeeFlat: data.withdrawalFeeFlat ?? 0,
-        minWithdrawal: data.minWithdrawal ?? 0,
-        maxWithdrawal: data.maxWithdrawal ?? 0,
-        features: data.features ?? { creatorSupport: true, vendorShop: true, campaigns: true, flexCard: true, directGift: true, withdrawals: true, accessRules: {} },
-        isEnabled: data.isEnabled ?? true,
+        countryCode,
+        countryName: data.countryName || existing?.countryName || 'Unknown',
+        currency: data.currency || existing?.currency || 'USD',
+        currencySymbol: data.currencySymbol || existing?.currencySymbol || '$',
+        flag: data.flag ?? existing?.flag ?? '🏳️',
+        transactionFeePercent: data.transactionFeePercent ?? existing?.transactionFeePercent ?? 4,
+        withdrawalFeeFlat: data.withdrawalFeeFlat ?? existing?.withdrawalFeeFlat ?? 0,
+        minWithdrawal: data.minWithdrawal ?? existing?.minWithdrawal ?? 0,
+        maxWithdrawal: data.maxWithdrawal ?? existing?.maxWithdrawal ?? 0,
+        features: data.features ?? existing?.features ?? { creatorSupport: true, vendorShop: true, campaigns: true, flexCard: true, directGift: true, withdrawals: true, accessRules: {} },
+        isEnabled: data.isEnabled ?? existing?.isEnabled ?? true,
       },
     });
     return this.serialize(record);
