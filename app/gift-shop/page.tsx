@@ -2,11 +2,15 @@
 
 import {useEffect, useState, useMemo, useCallback} from 'react';
 import {useAuth} from '@/hooks/use-auth';
+import {useProfile} from '@/hooks/use-profile';
 import {useInfiniteVendorProducts} from '@/hooks/use-vendor';
-import {usePromotedProducts} from '@/hooks/use-promotions';
-import {useExternalPromotions} from '@/hooks/use-promotions';
+import {
+  useActiveFeaturedAds,
+  useActiveSponsoredAds,
+} from '@/hooks/use-promotions';
 import {useFeaturedItems} from '@/hooks/use-featured-items';
 import {InfiniteScroll} from '@/components/ui/infinite-scroll';
+import {NewArrivalShelf} from './components/NewArrivalShelf';
 
 import {
   GiftShopDesktopNav,
@@ -37,6 +41,7 @@ export default function V2GiftShopPage() {
 
   // Centralized auth
   const {isLoggedIn} = useAuth();
+  const {data: profile} = useProfile();
 
   // Debounce search input
   useEffect(() => {
@@ -59,38 +64,21 @@ export default function V2GiftShopPage() {
     search: debouncedSearch,
   });
 
-  // TanStack Query: Featured, New Arrivals & Native Sponsored
-  const {data: featuredPromos} = usePromotedProducts('featured');
-  const {data: newArrivals} = usePromotedProducts('new_arrivals');
-  const {data: sponsoredPromos} = usePromotedProducts('sponsored');
+  // Use user's country or default to Nigeria
+  const userCountryCode = profile?.country === 'Ghana' ? 'GH' : 'NG'; 
 
-  // External promotions (admin-created items like Flex Card)
-  const {data: externalFeatured} = useExternalPromotions('featured');
-  const {data: externalNewArrivals} = useExternalPromotions('new_arrivals');
+  // TanStack Query: New Ads System (Featured & Sponsored)
+  const {data: activeFeaturedAds} = useActiveFeaturedAds(userCountryCode);
+  const {data: activeSponsoredAds} = useActiveSponsoredAds(userCountryCode);
 
-  // Admin-managed featured items (internal awareness items)
+  // Admin-managed featured items (internal awareness items - keep for non-ad content)
   const {data: adminFeaturedItems} = useFeaturedItems('featured');
-  const {data: adminNewArrivalsItems} = useFeaturedItems('new_arrivals');
 
   // Flatten paginated products
   const baseProducts = useMemo(() => {
     if (!productsData?.pages) return [];
     return productsData.pages.flatMap(page => page.data || []);
   }, [productsData]);
-
-  // Get sponsored product IDs (native placement) to mark in feed
-  const sponsoredProductIds = useMemo(() => {
-    if (!sponsoredPromos) return new Set<number>();
-    return new Set(sponsoredPromos.map(promo => promo.vendor_gifts?.id).filter(Boolean));
-  }, [sponsoredPromos]);
-
-  // Mark products as sponsored if they have an active "sponsored" placement promotion
-  const products = useMemo(() => {
-    return baseProducts.map(product => ({
-      ...product,
-      isSponsored: sponsoredProductIds.has(product.id),
-    }));
-  }, [baseProducts, sponsoredProductIds]);
 
   const totalCount = productsData?.pages?.[0]?.pagination?.totalCount || 0;
 
@@ -99,32 +87,17 @@ export default function V2GiftShopPage() {
     fetchNextPage();
   }, [fetchNextPage]);
 
-  // Get all featured and new arrival promoted products
+  // Merge Featured Ads into the featured carousel
   const featuredProducts = useMemo(() => {
-    const vendorFeatured = (featuredPromos || [])
-      .map(promo => ({
-        ...promo.vendor_gifts,
-        vendor_id: promo.vendor_gifts?.vendor_id || promo.vendor_id,
+    const vendorFeatured = (activeFeaturedAds || [])
+      .map((ad: any) => ({
+        ...ad.product,
+        vendor_id: ad.vendorId,
         isSponsored: true,
-        promotion_id: promo.id,
-        isExternal: false,
+        ad_id: ad.id,
         isFeaturedItem: false,
       }))
-      .filter(p => p.id);
-
-    // Add external featured items (like Flex Card from promotions)
-    const externalItems = (externalFeatured || []).map(ext => ({
-      id: `external-${ext.id}`,
-      name: ext.title,
-      description: ext.description,
-      image_url: ext.image_url,
-      price: ext.price,
-      redirect_url: ext.redirect_url,
-      isSponsored: true,
-      isExternal: true,
-      isFeaturedItem: false,
-      external_id: ext.id,
-    }));
+      .filter((p: any) => p.id);
 
     // Add admin-managed featured items (internal awareness)
     const adminItems = (adminFeaturedItems || []).map(item => ({
@@ -136,63 +109,55 @@ export default function V2GiftShopPage() {
       cta_text: item.cta_text,
       redirect_url: item.cta_url,
       isSponsored: false,
-      isExternal: false,
       isFeaturedItem: true,
       featured_id: item.id,
     }));
 
-    return [...adminItems, ...externalItems, ...vendorFeatured];
-  }, [featuredPromos, externalFeatured, adminFeaturedItems]);
+    return [...adminItems, ...vendorFeatured];
+  }, [activeFeaturedAds, adminFeaturedItems]);
 
-  const newArrivalProducts = useMemo(() => {
-    const vendorNewArrivals = (newArrivals || [])
-      .map(promo => ({
-        ...promo.vendor_gifts,
-        vendor_id: promo.vendor_gifts?.vendor_id || promo.vendor_id,
-        isSponsored: true,
-        promotion_id: promo.id,
-        isExternal: false,
-        isFeaturedItem: false,
-      }))
-      .filter(p => p.id);
-
-    // Add external new arrival items
-    const externalItems = (externalNewArrivals || []).map(ext => ({
-      id: `external-${ext.id}`,
-      name: ext.title,
-      description: ext.description,
-      image_url: ext.image_url,
-      price: ext.price,
-      redirect_url: ext.redirect_url,
+  // Merge sponsored ads into the feed with true injection (every 6 items)
+  const products = useMemo(() => {
+    if (!baseProducts.length) return [];
+    
+    // 1. Prepare sponsored ads
+    const sponsoredAds = (activeSponsoredAds || []).map((ad: any) => ({
+      ...ad.product,
+      vendor_id: ad.vendorId,
       isSponsored: true,
-      isExternal: true,
-      isFeaturedItem: false,
-      external_id: ext.id,
+      ad_id: ad.id,
     }));
 
-    // Add admin-managed new arrival items (internal awareness)
-    const adminItems = (adminNewArrivalsItems || []).map(item => ({
-      id: `featured-${item.id}`,
-      name: item.title,
-      subtitle: item.subtitle,
-      description: item.description,
-      image_url: item.image_url,
-      cta_text: item.cta_text,
-      redirect_url: item.cta_url,
-      isSponsored: false,
-      isExternal: false,
-      isFeaturedItem: true,
-      featured_id: item.id,
-    }));
+    // 2. Collect all IDs that should be excluded from the main grid feed
+    // This includes both sponsored ads and items currently in the featured carousel
+    const excludedIds = new Set([
+      ...sponsoredAds.map((ad: any) => ad.id),
+      ...featuredProducts.map((p: any) => p.id)
+    ]);
 
-    return [...adminItems, ...externalItems, ...vendorNewArrivals];
-  }, [newArrivals, externalNewArrivals, adminNewArrivalsItems]);
+    // 3. Filter base products to remove those that are already visible in promoted slots
+    const filteredBase = baseProducts.filter(p => !excludedIds.has(p.id));
 
-  // Fallback to regular products if no promotions
-  const featuredItem = featuredProducts[0] || baseProducts[0];
-  const newArrivalItem = newArrivalProducts[0] || baseProducts[2];
-  const isFeaturedSponsored = featuredProducts.length > 0;
-  const isNewArrivalSponsored = newArrivalProducts.length > 0;
+    // 4. Inject ads into the filtered feed
+    const injectedFeed: any[] = [];
+    let adIndex = 0;
+    
+    filteredBase.forEach((item, index) => {
+      injectedFeed.push(item);
+      
+      // Inject an ad every 6 items (if we have ads left)
+      if ((index + 1) % 6 === 0 && adIndex < sponsoredAds.length) {
+        injectedFeed.push({...sponsoredAds[adIndex], isInjection: true});
+        adIndex++;
+      }
+    });
+
+    return injectedFeed;
+  }, [baseProducts, activeSponsoredAds, featuredProducts]);
+
+
+
+  const featuredItem = featuredProducts[0];
 
   // Clear filters handler
   const handleClearFilters = () => {
@@ -236,14 +201,13 @@ export default function V2GiftShopPage() {
           />
         ) : (
           <>
+            {/* New Arrival Shelf (Organic) */}
+            <NewArrivalShelf />
+
             <DesktopProductGrid
               products={products}
               featuredItem={featuredItem}
               featuredProducts={featuredProducts}
-              newArrivalItem={newArrivalItem}
-              newArrivalProducts={newArrivalProducts}
-              isFeaturedSponsored={isFeaturedSponsored}
-              isNewArrivalSponsored={isNewArrivalSponsored}
             />
 
             {/* Infinite Scroll */}
@@ -282,14 +246,13 @@ export default function V2GiftShopPage() {
           />
         ) : (
           <>
+            {/* New Arrival Shelf (Organic) */}
+            <NewArrivalShelf />
+
             <MobileProductGrid
               products={products}
               featuredItem={featuredItem}
               featuredProducts={featuredProducts}
-              newArrivalItem={newArrivalItem}
-              newArrivalProducts={newArrivalProducts}
-              isFeaturedSponsored={isFeaturedSponsored}
-              isNewArrivalSponsored={isNewArrivalSponsored}
             />
 
             {/* Infinite Scroll */}

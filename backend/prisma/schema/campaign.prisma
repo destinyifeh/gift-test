@@ -25,15 +25,15 @@ model Campaign {
   campaignSlug             String?   @map("campaign_slug")
 
   // Claimable logic
-  claimableType          String?   @map("claimable_type")
-  claimableGiftId        Int?      @map("claimable_gift_id")
+  claimableType          String?     @map("claimable_type")
+  claimableGiftId        Int?        @map("claimable_gift_id")
   product                VendorGift? @relation("CampaignProduct", fields: [claimableGiftId], references: [id], onDelete: SetNull)
-  claimableRecipientType String?   @map("claimable_recipient_type")
-  recipientEmail         String?   @map("recipient_email")
-  senderEmail            String?   @map("sender_email")
-  paymentReference       String?   @map("payment_reference")
+  claimableRecipientType String?     @map("claimable_recipient_type")
+  recipientEmail         String?     @map("recipient_email")
+  senderEmail            String?     @map("sender_email")
+  paymentReference       String?     @map("payment_reference")
   currency               String      @default("NGN")
-  giftCode               String?   @map("gift_code")
+  giftCode               String?     @map("gift_code")
 
   // Custom/Voucher redemption
   redeemedAt         DateTime? @map("redeemed_at")
@@ -50,7 +50,7 @@ model Campaign {
   senderName           String? @map("sender_name")
 
   withdrawnAmount Decimal @default(0) @map("withdrawn_amount")
-  
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -62,14 +62,14 @@ model Campaign {
 }
 
 model CampaignWithdrawal {
-  id              String   @id @default(uuid())
-  campaignId      String   @map("campaign_id")
-  campaign        Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  amount          Decimal
-  currency        String   @default("NGN")
-  transactionId   String   @unique @map("transaction_id")
-  transaction     Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
-  createdAt       DateTime @default(now()) @map("created_at")
+  id            String      @id @default(uuid())
+  campaignId    String      @map("campaign_id")
+  campaign      Campaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  amount        Decimal
+  currency      String      @default("NGN")
+  transactionId String      @unique @map("transaction_id")
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now()) @map("created_at")
 
   @@map("campaign_withdrawals")
 }

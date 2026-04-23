@@ -395,7 +395,7 @@ export function V2WalletTab() {
             </div>
           )}
 
-          {flexCards.length > 3 && flexCards.filter(card => card.status === 'active' || card.status === 'partially_used').length > 0 && (
+          {flexCards.length > 3 && flexCards.filter((card: any) => card.status === 'active' || card.status === 'partially_used').length > 0 && (
             <button
               onClick={() => setActiveModal('flex_cards')}
               className="w-full py-3 text-center text-[var(--v2-primary)] font-bold text-sm hover:underline">
@@ -961,7 +961,7 @@ export function V2WalletTab() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {flexCards.map(card => (
+              {flexCards.map((card: any) => (
                 <FlexCardComponent 
                   key={card.id} 
                   card={card} 

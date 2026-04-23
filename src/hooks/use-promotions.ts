@@ -111,3 +111,59 @@ export function useExternalPromotions(placement?: PromotionPlacement) {
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
+
+/**
+ * Fetch vendor's featured ads.
+ */
+export function useVendorFeaturedAds() {
+  return useQuery({
+    queryKey: ['vendor-featured-ads'],
+    queryFn: async () => {
+      const res = await api.get('/ads/vendor/featured');
+      return res.data?.data || res.data || [];
+    },
+    staleTime: 1000 * 30,
+  });
+}
+
+/**
+ * Fetch vendor's sponsored ads.
+ */
+export function useVendorSponsoredAds() {
+  return useQuery({
+    queryKey: ['vendor-sponsored-ads'],
+    queryFn: async () => {
+      const res = await api.get('/ads/vendor/sponsored');
+      return res.data?.data || res.data || [];
+    },
+    staleTime: 1000 * 30,
+  });
+}
+
+/**
+ * Fetch public active featured ads for a country.
+ */
+export function useActiveFeaturedAds(country: string = 'NG') {
+  return useQuery({
+    queryKey: ['active-featured-ads', country],
+    queryFn: async () => {
+      const res = await api.get(`/ads/featured/active?country=${country}`);
+      return res.data?.data || res.data || [];
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+}
+
+/**
+ * Fetch public active sponsored ads for feed injection.
+ */
+export function useActiveSponsoredAds(country: string = 'NG', limit: number = 20) {
+  return useQuery({
+    queryKey: ['active-sponsored-ads', country, limit],
+    queryFn: async () => {
+      const res = await api.get(`/ads/sponsored/active?country=${country}&limit=${limit}`);
+      return res.data?.data || res.data || [];
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+}

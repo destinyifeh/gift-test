@@ -67,4 +67,9 @@ export class GiftController {
     const userId = (req as any).user.id;
     return this.giftService.getCardDetails(code, userId);
   }
+
+  @Get('new-arrivals')
+  async getNewArrivals(@Query('country') country: string) {
+    return this.giftService.getNewArrivals(country);
+  }
 }

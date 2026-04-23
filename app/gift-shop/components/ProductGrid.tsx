@@ -17,10 +17,7 @@ interface ProductGridProps {
   products: any[];
   featuredItem?: any;
   featuredProducts?: any[];
-  newArrivalItem?: any;
-  newArrivalProducts?: any[];
   isFeaturedSponsored?: boolean;
-  isNewArrivalSponsored?: boolean;
 }
 
 // Carousel interval in milliseconds
@@ -106,8 +103,6 @@ export function DesktopProductGrid({
   products,
   featuredItem,
   featuredProducts = [],
-  newArrivalItem,
-  newArrivalProducts = [],
 }: ProductGridProps) {
   const gridProducts = products;
 
@@ -116,37 +111,23 @@ export function DesktopProductGrid({
     ? featuredProducts
     : featuredItem
     ? [featuredItem]
-    : gridProducts[0]
-    ? [gridProducts[0]]
-    : [];
-
-  // All new arrival items (promoted + fallback)
-  const allNewArrivals = newArrivalProducts.length > 0
-    ? newArrivalProducts
-    : newArrivalItem
-    ? [newArrivalItem]
-    : gridProducts[2]
-    ? [gridProducts[2]]
     : [];
 
   const featuredCarousel = useCarousel(allFeatured.length);
-  const newArrivalCarousel = useCarousel(allNewArrivals.length);
 
   const currentFeatured = allFeatured[featuredCarousel.activeIndex];
-  const currentNewArrival = allNewArrivals[newArrivalCarousel.activeIndex];
 
   const hasFeaturedPromo = featuredProducts.length > 0;
-  const hasNewArrivalPromo = newArrivalProducts.length > 0;
 
   return (
     <div className="grid grid-cols-12 gap-6">
-      {/* Hero Feature Card with Carousel */}
-      <div
-        className="col-span-12 lg:col-span-8"
-        onMouseEnter={featuredCarousel.pause}
-        onMouseLeave={featuredCarousel.resume}
-      >
-        {currentFeatured && (
+      {/* Hero Feature Card with Carousel - Only if promoted item exists */}
+      {currentFeatured && (
+        <div
+          className="col-span-12 lg:col-span-8"
+          onMouseEnter={featuredCarousel.pause}
+          onMouseLeave={featuredCarousel.resume}
+        >
           <HeroFeatureCard
             product={currentFeatured}
             isSponsored={hasFeaturedPromo}
@@ -158,8 +139,8 @@ export function DesktopProductGrid({
               />
             ) : undefined}
           />
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Small Square Card 1 */}
       {gridProducts[0] && (
@@ -171,28 +152,6 @@ export function DesktopProductGrid({
         <WideProductCard product={gridProducts[1]} isSponsored={gridProducts[1]?.isSponsored} />
       )}
 
-      {/* New Arrival Card with Carousel */}
-      {currentNewArrival && (
-        <div
-          className="col-span-12 md:col-span-6 lg:col-span-4 relative"
-          onMouseEnter={newArrivalCarousel.pause}
-          onMouseLeave={newArrivalCarousel.resume}
-        >
-          <NewArrivalCard
-            product={currentNewArrival}
-            isSponsored={hasNewArrivalPromo}
-          />
-          {/* Carousel Dots */}
-          {allNewArrivals.length > 1 && (
-            <CarouselDots
-              count={allNewArrivals.length}
-              activeIndex={newArrivalCarousel.activeIndex}
-              onDotClick={newArrivalCarousel.goTo}
-              className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10"
-            />
-          )}
-        </div>
-      )}
 
       {/* Standard Card */}
       {gridProducts[3] && (
@@ -211,47 +170,31 @@ export function MobileProductGrid({
   products,
   featuredItem,
   featuredProducts = [],
-  newArrivalItem,
-  newArrivalProducts = [],
 }: ProductGridProps) {
   const gridProducts = products;
 
-  // All featured items (promoted + fallback)
+  // All featured items (promoted only)
   const allFeatured = featuredProducts.length > 0
     ? featuredProducts
     : featuredItem
     ? [featuredItem]
-    : gridProducts[0]
-    ? [gridProducts[0]]
-    : [];
-
-  // All new arrival items (promoted + fallback)
-  const allNewArrivals = newArrivalProducts.length > 0
-    ? newArrivalProducts
-    : newArrivalItem
-    ? [newArrivalItem]
-    : gridProducts[2]
-    ? [gridProducts[2]]
     : [];
 
   const featuredCarousel = useCarousel(allFeatured.length);
-  const newArrivalCarousel = useCarousel(allNewArrivals.length);
 
   const currentFeatured = allFeatured[featuredCarousel.activeIndex];
-  const currentNewArrival = allNewArrivals[newArrivalCarousel.activeIndex];
 
   const hasFeaturedPromo = featuredProducts.length > 0;
-  const hasNewArrivalPromo = newArrivalProducts.length > 0;
 
   return (
     <div className="grid grid-cols-2 gap-4">
-      {/* Featured Large Card with Carousel */}
-      <div
-        className="col-span-2"
-        onTouchStart={featuredCarousel.pause}
-        onTouchEnd={() => setTimeout(featuredCarousel.resume, 3000)}
-      >
-        {currentFeatured && (
+      {/* Featured Large Card with Carousel - Only if promoted item exists */}
+      {currentFeatured && (
+        <div
+          className="col-span-2"
+          onTouchStart={featuredCarousel.pause}
+          onTouchEnd={() => setTimeout(featuredCarousel.resume, 3000)}
+        >
           <MobileFeaturedCard
             product={currentFeatured}
             isSponsored={hasFeaturedPromo}
@@ -263,36 +206,14 @@ export function MobileProductGrid({
               />
             ) : undefined}
           />
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Product Cards */}
       {gridProducts.slice(0, 2).map((product) => (
         <MobileProductCard key={product.id} product={product} isSponsored={product.isSponsored} />
       ))}
 
-      {/* New Arrival Card with Carousel */}
-      <div
-        className="col-span-2 relative"
-        onTouchStart={newArrivalCarousel.pause}
-        onTouchEnd={() => setTimeout(newArrivalCarousel.resume, 3000)}
-      >
-        {currentNewArrival && (
-          <MobileNewArrivalCard
-            product={currentNewArrival}
-            isSponsored={hasNewArrivalPromo}
-          />
-        )}
-        {/* Carousel Dots */}
-        {allNewArrivals.length > 1 && (
-          <CarouselDots
-            count={allNewArrivals.length}
-            activeIndex={newArrivalCarousel.activeIndex}
-            onDotClick={newArrivalCarousel.goTo}
-            className="absolute bottom-4 right-16 z-10"
-          />
-        )}
-      </div>
 
       {/* More Product Cards */}
       {gridProducts.slice(3).map((product) => (

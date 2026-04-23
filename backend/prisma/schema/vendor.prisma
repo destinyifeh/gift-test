@@ -1,30 +1,38 @@
 model VendorGift {
-  id          Int     @id @default(autoincrement())
-  vendorId    String  @map("vendor_id")
-  vendor      User    @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  id          Int      @id @default(autoincrement())
+  vendorId    String   @map("vendor_id")
+  vendor      User     @relation(fields: [vendorId], references: [id], onDelete: Cascade)
   name        String
   slug        String?
   price       Decimal
   description String?
-  imageUrl    String? @map("image_url")
+  imageUrl    String?  @map("image_url")
   category    String?
   tags        String[] @default([])
-  type        String  @default("digital") // 'digital' or 'physical'
-  status      String  @default("active")
+  type        String   @default("digital") // 'digital' or 'physical'
+  status      String   @default("active")
 
   // V2 specific
   stockQuantity Int?     @map("stock_quantity")
-  unitsSold     Int      @default(0) @map("units_sold")
+  unitsSold     Int      @default(0) @map("units_sold") // Legacy, will use salesCount for ranking
   images        String[] @default([])
+
+  // Ranking & Engagement
+  viewsCount    Int      @default(0) @map("views_count")
+  clicksCount   Int      @default(0) @map("clicks_count")
+  salesCount    Int      @default(0) @map("sales_count")
+  rankingScore  Float    @default(0) @map("ranking_score")
+  lastEngagementAt DateTime @default(now()) @map("last_engagement_at")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  giftImages VendorGiftImage[]
-  favorites  Favorite[]
-  promotions Promotion[]
-  campaigns  Campaign[]        @relation("CampaignProduct")
-  directGifts DirectGift[]     @relation("DirectGiftProduct")
+  giftImages   VendorGiftImage[]
+  favorites    Favorite[]
+  featuredAds  FeaturedAd[]      @relation("GiftFeaturedAds")
+  sponsoredAds SponsoredAd[]     @relation("GiftSponsoredAds")
+  campaigns    Campaign[]        @relation("CampaignProduct")
+  directGifts  DirectGift[]      @relation("DirectGiftProduct")
 
   @@map("vendor_gifts")
 }
@@ -53,8 +61,8 @@ model Favorite {
 
 model Rating {
   id         Int      @id @default(autoincrement())
-  targetId   String   @map("target_id")// Can be vendorId or campaignId
-  targetType String   @map("target_type")// 'vendor', 'campaign'
+  targetId   String   @map("target_id") // Can be vendorId or campaignId
+  targetType String   @map("target_type") // 'vendor', 'campaign'
   userId     String   @map("user_id")
   rating     Int
   comment    String?

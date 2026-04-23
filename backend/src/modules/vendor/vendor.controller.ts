@@ -25,13 +25,27 @@ export class VendorController {
   }
 
   @Get('products/:id')
-  async fetchProductById(@Param('id') id: string) {
-    return this.vendorService.fetchProductById(Number(id));
+  async fetchProductById(@Param('id') id: string, @Query('recordView') recordView?: string) {
+    return this.vendorService.fetchProductById(Number(id), recordView === 'true');
   }
 
   @Get('shop/:vendorSlug/:productSlug')
-  async fetchProductBySlugs(@Param('vendorSlug') vendorSlug: string, @Param('productSlug') productSlug: string) {
-    return this.vendorService.fetchProductBySlugs(vendorSlug, productSlug);
+  async fetchProductBySlugs(
+    @Param('vendorSlug') vendorSlug: string, 
+    @Param('productSlug') productSlug: string,
+    @Query('recordView') recordView?: string
+  ) {
+    return this.vendorService.fetchProductBySlugs(vendorSlug, productSlug, recordView === 'true');
+  }
+
+  @Post('products/:id/click')
+  async recordProductClick(@Param('id') id: string) {
+    return this.vendorService.recordProductClick(Number(id));
+  }
+
+  @Post('products/:id/view')
+  async recordProductView(@Param('id') id: string) {
+    return this.vendorService.recordProductView(Number(id));
   }
 
   // ── Vendor Product Management ──

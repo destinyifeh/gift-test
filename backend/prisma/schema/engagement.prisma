@@ -1,32 +1,58 @@
-model Promotion {
-  id               Int         @id @default(autoincrement())
-  vendorId         String
-  vendor           User        @relation("VendorPromotions", fields: [vendorId], references: [id], onDelete: Cascade)
-  productId        Int?
-  vendorGiftId     Int?
-  product          VendorGift? @relation(fields: [vendorGiftId], references: [id], onDelete: SetNull)
-  placement        String // 'featured', 'new_arrivals', 'sponsored'
-  durationDays     Int         @default(7)
-  startDate        DateTime?
-  endDate          DateTime?
-  status           String      @default("pending_approval") // 'pending_approval', 'active', 'paused', 'completed', 'rejected'
-  amountPaid       Decimal
-  currency         String      @default("NGN")
-  paymentReference String?
-  rejectionReason  String?
+model FeaturedAd {
+  id               Int        @id @default(autoincrement())
+  vendorId         String     @map("vendor_id")
+  vendor           User       @relation("VendorFeaturedAds", fields: [vendorId], references: [id], onDelete: Cascade)
+  vendorGiftId     Int        @map("vendor_gift_id")
+  product          VendorGift @relation("GiftFeaturedAds", fields: [vendorGiftId], references: [id], onDelete: Cascade)
+  country          String
+  slotNumber       Int        @map("slot_number")
+  startDate        DateTime   @map("start_date")
+  endDate          DateTime   @map("end_date")
+  status           String     @default("active") // 'scheduled', 'active', 'expired'
+  amountPaid       Decimal    @map("amount_paid")
+  currency         String     @default("NGN")
+  paymentReference String?    @map("payment_reference")
 
   // Stats
-  views       Int @default(0)
-  clicks      Int @default(0)
-  conversions Int @default(0)
+  views  Int @default(0)
+  clicks Int @default(0)
 
-  transactionId String?      @unique
+  transactionId String?      @unique @map("transaction_id")
   transaction   Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("promotions")
+  @@map("featured_ads")
+}
+
+model SponsoredAd {
+  id               Int        @id @default(autoincrement())
+  vendorId         String     @map("vendor_id")
+  vendor           User       @relation("VendorSponsoredAds", fields: [vendorId], references: [id], onDelete: Cascade)
+  vendorGiftId     Int        @map("vendor_gift_id")
+  product          VendorGift @relation("GiftSponsoredAds", fields: [vendorGiftId], references: [id], onDelete: Cascade)
+  country          String
+  budget           Decimal
+  remainingBudget  Decimal    @map("remaining_budget")
+  costPerClick     Decimal    @map("cost_per_click")
+  currency         String     @default("NGN")
+  startDate        DateTime   @default(now()) @map("start_date")
+  endDate          DateTime?  @map("end_date") // Optional if running until budget ends
+  status           String     @default("active") // 'active', 'paused', 'completed'
+  paymentReference String?    @map("payment_reference")
+
+  // Stats
+  views  Int @default(0)
+  clicks Int @default(0)
+
+  transactionId String?      @unique @map("transaction_id")
+  transaction   Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("sponsored_ads")
 }
 
 model ExternalPromotion {

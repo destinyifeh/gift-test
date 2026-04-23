@@ -33,7 +33,7 @@ export default function NotificationsPage() {
   const markAllAsRead = useMarkAllNotificationsAsRead();
 
   // Filter notifications
-  const filteredNotifications = notifications.filter((notification) => {
+  const filteredNotifications = notifications.filter((notification: any) => {
     // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -52,7 +52,7 @@ export default function NotificationsPage() {
     return true;
   });
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unreadCount = notifications.filter((n: any) => !n.read).length;
 
   const handleNotificationClick = async (notificationId: number, isRead: boolean) => {
     if (!isRead) {
@@ -164,7 +164,7 @@ export default function NotificationsPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {filteredNotifications.map((notification) => {
+            {filteredNotifications.map((notification: any) => {
               const iconConfig = notificationIcons[notification.type] || notificationIcons.system;
               return (
                 <button

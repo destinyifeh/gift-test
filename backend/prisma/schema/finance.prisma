@@ -14,10 +14,11 @@ model Transaction {
 
   createdAt DateTime @default(now()) @map("created_at")
 
-  creatorSupport CreatorSupport?
-  contribution   Contribution?
+  creatorSupport     CreatorSupport?
+  contribution       Contribution?
   withdrawal         Withdrawal?
-  promotion          Promotion?
+  featuredAd         FeaturedAd?
+  sponsoredAd        SponsoredAd?
   campaignWithdrawal CampaignWithdrawal?
 
   @@map("transactions")

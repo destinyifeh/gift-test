@@ -102,7 +102,7 @@ export function V2SupportersTab({setSection}: V2SupportersTabProps) {
     }
 
     const headers = ['Name', 'Gift Tier', 'Amount', 'Currency', 'Message', 'Date'];
-    const rows = supportersList.map(s => [
+    const rows = supportersList.map((s: any) => [
       s.anonymous ? 'Anonymous' : s.name,
       s.giftName || 'Support',
       s.hideAmount ? 'Hidden' : s.amount,

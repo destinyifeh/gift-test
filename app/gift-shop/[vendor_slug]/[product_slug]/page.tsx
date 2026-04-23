@@ -10,6 +10,7 @@ import {toast} from 'sonner';
 import {useFavorites, useIsFavorited} from '@/hooks/use-favorites';
 import {useUserStore} from '@/lib/store/useUserStore';
 import { V2ReportModal } from '@/components/modals/V2ReportModal';
+import {useRecordClick, useRecordView} from '@/hooks/use-vendor';
 
 // Helper to get all images from product
 function getProductImages(product: any): string[] {
@@ -28,7 +29,7 @@ export default function V2ProductDetailsPage({
   params: Promise<{vendor_slug: string; product_slug: string}>;
 }) {
   const {vendor_slug, product_slug} = use(params);
-  const {data: product, isLoading} = useVendorProductBySlugs(vendor_slug, product_slug);
+  const {data: product, isLoading} = useVendorProductBySlugs(vendor_slug, product_slug, true);
   const [showGiftModal, setShowGiftModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -36,6 +37,8 @@ export default function V2ProductDetailsPage({
   const {data: isFavorited} = useIsFavorited(product?.id);
   const user = useUserStore(state => state.user);
   const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
+  const {mutate: recordView} = useRecordView();
+  const {mutate: recordClick} = useRecordClick();
 
   const images = product ? getProductImages(product) : [];
   const currency = getCurrencyByCountry(product?.profiles?.country || 'Nigeria');
@@ -55,6 +58,13 @@ export default function V2ProductDetailsPage({
     const related = [...sameCategory, ...sameVendor, ...others].slice(0, 4);
     setRelatedProducts(related);
   }, [product, allProducts]);
+
+  // Record product view on load
+  useEffect(() => {
+    if (product?.id) {
+      recordView(product.id);
+    }
+  }, [product?.id, recordView]);
 
   const onShare = async () => {
     const shareData = {
@@ -514,6 +524,7 @@ export default function V2ProductDetailsPage({
                 <Link
                   key={relatedProduct.id}
                   href={`/gift-shop/${relatedProduct.profiles?.shop_slug || relatedProduct.vendor_id}/${relatedProduct.slug || relatedProduct.id}`}
+                  onClick={() => recordClick(relatedProduct.id)}
                   className="bg-[var(--v2-surface-container-lowest)] rounded-[2rem] overflow-hidden group shadow-sm hover:shadow-lg transition-all hover:-translate-y-1"
                 >
                   <div className="relative aspect-square overflow-hidden">
@@ -547,6 +558,7 @@ export default function V2ProductDetailsPage({
                 <Link
                   key={relatedProduct.id}
                   href={`/gift-shop/${relatedProduct.profiles?.shop_slug || relatedProduct.vendor_id}/${relatedProduct.slug || relatedProduct.id}`}
+                  onClick={() => recordClick(relatedProduct.id)}
                   className="flex-shrink-0 w-40 bg-[var(--v2-surface-container-lowest)] rounded-2xl overflow-hidden shadow-sm"
                 >
                   <div className="relative h-32 overflow-hidden">

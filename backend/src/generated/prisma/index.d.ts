@@ -54,10 +54,15 @@ export type Contribution = $Result.DefaultSelection<Prisma.$ContributionPayload>
  */
 export type DirectGift = $Result.DefaultSelection<Prisma.$DirectGiftPayload>
 /**
- * Model Promotion
+ * Model FeaturedAd
  * 
  */
-export type Promotion = $Result.DefaultSelection<Prisma.$PromotionPayload>
+export type FeaturedAd = $Result.DefaultSelection<Prisma.$FeaturedAdPayload>
+/**
+ * Model SponsoredAd
+ * 
+ */
+export type SponsoredAd = $Result.DefaultSelection<Prisma.$SponsoredAdPayload>
 /**
  * Model ExternalPromotion
  * 
@@ -389,14 +394,24 @@ export class PrismaClient<
   get directGift(): Prisma.DirectGiftDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.promotion`: Exposes CRUD operations for the **Promotion** model.
+   * `prisma.featuredAd`: Exposes CRUD operations for the **FeaturedAd** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more Promotions
-    * const promotions = await prisma.promotion.findMany()
+    * // Fetch zero or more FeaturedAds
+    * const featuredAds = await prisma.featuredAd.findMany()
     * ```
     */
-  get promotion(): Prisma.PromotionDelegate<ExtArgs, ClientOptions>;
+  get featuredAd(): Prisma.FeaturedAdDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.sponsoredAd`: Exposes CRUD operations for the **SponsoredAd** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SponsoredAds
+    * const sponsoredAds = await prisma.sponsoredAd.findMany()
+    * ```
+    */
+  get sponsoredAd(): Prisma.SponsoredAdDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.externalPromotion`: Exposes CRUD operations for the **ExternalPromotion** model.
@@ -1029,7 +1044,8 @@ export namespace Prisma {
     CampaignWithdrawal: 'CampaignWithdrawal',
     Contribution: 'Contribution',
     DirectGift: 'DirectGift',
-    Promotion: 'Promotion',
+    FeaturedAd: 'FeaturedAd',
+    SponsoredAd: 'SponsoredAd',
     ExternalPromotion: 'ExternalPromotion',
     FeaturedItem: 'FeaturedItem',
     Transaction: 'Transaction',
@@ -1064,7 +1080,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "session" | "account" | "verification" | "campaign" | "campaignWithdrawal" | "contribution" | "directGift" | "promotion" | "externalPromotion" | "featuredItem" | "transaction" | "bankAccount" | "withdrawal" | "flexCard" | "flexCardTransaction" | "moderationReport" | "moderationTicket" | "adminLog" | "creatorSupport" | "notification" | "notificationRead" | "systemSetting" | "countryConfig" | "vendorGift" | "vendorGiftImage" | "favorite" | "rating"
+      modelProps: "user" | "session" | "account" | "verification" | "campaign" | "campaignWithdrawal" | "contribution" | "directGift" | "featuredAd" | "sponsoredAd" | "externalPromotion" | "featuredItem" | "transaction" | "bankAccount" | "withdrawal" | "flexCard" | "flexCardTransaction" | "moderationReport" | "moderationTicket" | "adminLog" | "creatorSupport" | "notification" | "notificationRead" | "systemSetting" | "countryConfig" | "vendorGift" | "vendorGiftImage" | "favorite" | "rating"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1660,77 +1676,151 @@ export namespace Prisma {
           }
         }
       }
-      Promotion: {
-        payload: Prisma.$PromotionPayload<ExtArgs>
-        fields: Prisma.PromotionFieldRefs
+      FeaturedAd: {
+        payload: Prisma.$FeaturedAdPayload<ExtArgs>
+        fields: Prisma.FeaturedAdFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.PromotionFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PromotionPayload> | null
+            args: Prisma.FeaturedAdFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeaturedAdPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.PromotionFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PromotionPayload>
+            args: Prisma.FeaturedAdFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeaturedAdPayload>
           }
           findFirst: {
-            args: Prisma.PromotionFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PromotionPayload> | null
+            args: Prisma.FeaturedAdFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeaturedAdPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.PromotionFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PromotionPayload>
+            args: Prisma.FeaturedAdFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeaturedAdPayload>
           }
           findMany: {
-            args: Prisma.PromotionFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PromotionPayload>[]
+            args: Prisma.FeaturedAdFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeaturedAdPayload>[]
           }
           create: {
-            args: Prisma.PromotionCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PromotionPayload>
+            args: Prisma.FeaturedAdCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeaturedAdPayload>
           }
           createMany: {
-            args: Prisma.PromotionCreateManyArgs<ExtArgs>
+            args: Prisma.FeaturedAdCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.PromotionCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PromotionPayload>[]
+            args: Prisma.FeaturedAdCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeaturedAdPayload>[]
           }
           delete: {
-            args: Prisma.PromotionDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PromotionPayload>
+            args: Prisma.FeaturedAdDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeaturedAdPayload>
           }
           update: {
-            args: Prisma.PromotionUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PromotionPayload>
+            args: Prisma.FeaturedAdUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeaturedAdPayload>
           }
           deleteMany: {
-            args: Prisma.PromotionDeleteManyArgs<ExtArgs>
+            args: Prisma.FeaturedAdDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.PromotionUpdateManyArgs<ExtArgs>
+            args: Prisma.FeaturedAdUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateManyAndReturn: {
-            args: Prisma.PromotionUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PromotionPayload>[]
+            args: Prisma.FeaturedAdUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeaturedAdPayload>[]
           }
           upsert: {
-            args: Prisma.PromotionUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PromotionPayload>
+            args: Prisma.FeaturedAdUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeaturedAdPayload>
           }
           aggregate: {
-            args: Prisma.PromotionAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregatePromotion>
+            args: Prisma.FeaturedAdAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateFeaturedAd>
           }
           groupBy: {
-            args: Prisma.PromotionGroupByArgs<ExtArgs>
-            result: $Utils.Optional<PromotionGroupByOutputType>[]
+            args: Prisma.FeaturedAdGroupByArgs<ExtArgs>
+            result: $Utils.Optional<FeaturedAdGroupByOutputType>[]
           }
           count: {
-            args: Prisma.PromotionCountArgs<ExtArgs>
-            result: $Utils.Optional<PromotionCountAggregateOutputType> | number
+            args: Prisma.FeaturedAdCountArgs<ExtArgs>
+            result: $Utils.Optional<FeaturedAdCountAggregateOutputType> | number
+          }
+        }
+      }
+      SponsoredAd: {
+        payload: Prisma.$SponsoredAdPayload<ExtArgs>
+        fields: Prisma.SponsoredAdFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SponsoredAdFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SponsoredAdPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SponsoredAdFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SponsoredAdPayload>
+          }
+          findFirst: {
+            args: Prisma.SponsoredAdFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SponsoredAdPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SponsoredAdFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SponsoredAdPayload>
+          }
+          findMany: {
+            args: Prisma.SponsoredAdFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SponsoredAdPayload>[]
+          }
+          create: {
+            args: Prisma.SponsoredAdCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SponsoredAdPayload>
+          }
+          createMany: {
+            args: Prisma.SponsoredAdCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SponsoredAdCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SponsoredAdPayload>[]
+          }
+          delete: {
+            args: Prisma.SponsoredAdDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SponsoredAdPayload>
+          }
+          update: {
+            args: Prisma.SponsoredAdUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SponsoredAdPayload>
+          }
+          deleteMany: {
+            args: Prisma.SponsoredAdDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SponsoredAdUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SponsoredAdUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SponsoredAdPayload>[]
+          }
+          upsert: {
+            args: Prisma.SponsoredAdUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SponsoredAdPayload>
+          }
+          aggregate: {
+            args: Prisma.SponsoredAdAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSponsoredAd>
+          }
+          groupBy: {
+            args: Prisma.SponsoredAdGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SponsoredAdGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SponsoredAdCountArgs<ExtArgs>
+            result: $Utils.Optional<SponsoredAdCountAggregateOutputType> | number
           }
         }
       }
@@ -3256,7 +3346,8 @@ export namespace Prisma {
     campaignWithdrawal?: CampaignWithdrawalOmit
     contribution?: ContributionOmit
     directGift?: DirectGiftOmit
-    promotion?: PromotionOmit
+    featuredAd?: FeaturedAdOmit
+    sponsoredAd?: SponsoredAdOmit
     externalPromotion?: ExternalPromotionOmit
     featuredItem?: FeaturedItemOmit
     transaction?: TransactionOmit
@@ -3363,7 +3454,8 @@ export namespace Prisma {
     transactions: number
     vendorGifts: number
     favorites: number
-    promotions: number
+    featuredAds: number
+    sponsoredAds: number
     sentFlexCards: number
     receivedFlexCards: number
     moderationReportsMade: number
@@ -3390,7 +3482,8 @@ export namespace Prisma {
     transactions?: boolean | UserCountOutputTypeCountTransactionsArgs
     vendorGifts?: boolean | UserCountOutputTypeCountVendorGiftsArgs
     favorites?: boolean | UserCountOutputTypeCountFavoritesArgs
-    promotions?: boolean | UserCountOutputTypeCountPromotionsArgs
+    featuredAds?: boolean | UserCountOutputTypeCountFeaturedAdsArgs
+    sponsoredAds?: boolean | UserCountOutputTypeCountSponsoredAdsArgs
     sentFlexCards?: boolean | UserCountOutputTypeCountSentFlexCardsArgs
     receivedFlexCards?: boolean | UserCountOutputTypeCountReceivedFlexCardsArgs
     moderationReportsMade?: boolean | UserCountOutputTypeCountModerationReportsMadeArgs
@@ -3472,8 +3565,15 @@ export namespace Prisma {
   /**
    * UserCountOutputType without action
    */
-  export type UserCountOutputTypeCountPromotionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: PromotionWhereInput
+  export type UserCountOutputTypeCountFeaturedAdsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FeaturedAdWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountSponsoredAdsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SponsoredAdWhereInput
   }
 
   /**
@@ -3738,7 +3838,8 @@ export namespace Prisma {
   export type VendorGiftCountOutputType = {
     giftImages: number
     favorites: number
-    promotions: number
+    featuredAds: number
+    sponsoredAds: number
     campaigns: number
     directGifts: number
   }
@@ -3746,7 +3847,8 @@ export namespace Prisma {
   export type VendorGiftCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     giftImages?: boolean | VendorGiftCountOutputTypeCountGiftImagesArgs
     favorites?: boolean | VendorGiftCountOutputTypeCountFavoritesArgs
-    promotions?: boolean | VendorGiftCountOutputTypeCountPromotionsArgs
+    featuredAds?: boolean | VendorGiftCountOutputTypeCountFeaturedAdsArgs
+    sponsoredAds?: boolean | VendorGiftCountOutputTypeCountSponsoredAdsArgs
     campaigns?: boolean | VendorGiftCountOutputTypeCountCampaignsArgs
     directGifts?: boolean | VendorGiftCountOutputTypeCountDirectGiftsArgs
   }
@@ -3779,8 +3881,15 @@ export namespace Prisma {
   /**
    * VendorGiftCountOutputType without action
    */
-  export type VendorGiftCountOutputTypeCountPromotionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: PromotionWhereInput
+  export type VendorGiftCountOutputTypeCountFeaturedAdsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FeaturedAdWhereInput
+  }
+
+  /**
+   * VendorGiftCountOutputType without action
+   */
+  export type VendorGiftCountOutputTypeCountSponsoredAdsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SponsoredAdWhereInput
   }
 
   /**
@@ -4199,7 +4308,8 @@ export namespace Prisma {
     transactions?: boolean | User$transactionsArgs<ExtArgs>
     vendorGifts?: boolean | User$vendorGiftsArgs<ExtArgs>
     favorites?: boolean | User$favoritesArgs<ExtArgs>
-    promotions?: boolean | User$promotionsArgs<ExtArgs>
+    featuredAds?: boolean | User$featuredAdsArgs<ExtArgs>
+    sponsoredAds?: boolean | User$sponsoredAdsArgs<ExtArgs>
     sentFlexCards?: boolean | User$sentFlexCardsArgs<ExtArgs>
     receivedFlexCards?: boolean | User$receivedFlexCardsArgs<ExtArgs>
     moderationReportsMade?: boolean | User$moderationReportsMadeArgs<ExtArgs>
@@ -4330,7 +4440,8 @@ export namespace Prisma {
     transactions?: boolean | User$transactionsArgs<ExtArgs>
     vendorGifts?: boolean | User$vendorGiftsArgs<ExtArgs>
     favorites?: boolean | User$favoritesArgs<ExtArgs>
-    promotions?: boolean | User$promotionsArgs<ExtArgs>
+    featuredAds?: boolean | User$featuredAdsArgs<ExtArgs>
+    sponsoredAds?: boolean | User$sponsoredAdsArgs<ExtArgs>
     sentFlexCards?: boolean | User$sentFlexCardsArgs<ExtArgs>
     receivedFlexCards?: boolean | User$receivedFlexCardsArgs<ExtArgs>
     moderationReportsMade?: boolean | User$moderationReportsMadeArgs<ExtArgs>
@@ -4362,7 +4473,8 @@ export namespace Prisma {
       transactions: Prisma.$TransactionPayload<ExtArgs>[]
       vendorGifts: Prisma.$VendorGiftPayload<ExtArgs>[]
       favorites: Prisma.$FavoritePayload<ExtArgs>[]
-      promotions: Prisma.$PromotionPayload<ExtArgs>[]
+      featuredAds: Prisma.$FeaturedAdPayload<ExtArgs>[]
+      sponsoredAds: Prisma.$SponsoredAdPayload<ExtArgs>[]
       sentFlexCards: Prisma.$FlexCardPayload<ExtArgs>[]
       receivedFlexCards: Prisma.$FlexCardPayload<ExtArgs>[]
       moderationReportsMade: Prisma.$ModerationReportPayload<ExtArgs>[]
@@ -4813,7 +4925,8 @@ export namespace Prisma {
     transactions<T extends User$transactionsArgs<ExtArgs> = {}>(args?: Subset<T, User$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     vendorGifts<T extends User$vendorGiftsArgs<ExtArgs> = {}>(args?: Subset<T, User$vendorGiftsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VendorGiftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     favorites<T extends User$favoritesArgs<ExtArgs> = {}>(args?: Subset<T, User$favoritesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FavoritePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    promotions<T extends User$promotionsArgs<ExtArgs> = {}>(args?: Subset<T, User$promotionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PromotionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    featuredAds<T extends User$featuredAdsArgs<ExtArgs> = {}>(args?: Subset<T, User$featuredAdsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeaturedAdPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    sponsoredAds<T extends User$sponsoredAdsArgs<ExtArgs> = {}>(args?: Subset<T, User$sponsoredAdsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SponsoredAdPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     sentFlexCards<T extends User$sentFlexCardsArgs<ExtArgs> = {}>(args?: Subset<T, User$sentFlexCardsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FlexCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     receivedFlexCards<T extends User$receivedFlexCardsArgs<ExtArgs> = {}>(args?: Subset<T, User$receivedFlexCardsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FlexCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     moderationReportsMade<T extends User$moderationReportsMadeArgs<ExtArgs> = {}>(args?: Subset<T, User$moderationReportsMadeArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModerationReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -5451,27 +5564,51 @@ export namespace Prisma {
   }
 
   /**
-   * User.promotions
+   * User.featuredAds
    */
-  export type User$promotionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type User$featuredAdsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Promotion
+     * Select specific fields to fetch from the FeaturedAd
      */
-    select?: PromotionSelect<ExtArgs> | null
+    select?: FeaturedAdSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Promotion
+     * Omit specific fields from the FeaturedAd
      */
-    omit?: PromotionOmit<ExtArgs> | null
+    omit?: FeaturedAdOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PromotionInclude<ExtArgs> | null
-    where?: PromotionWhereInput
-    orderBy?: PromotionOrderByWithRelationInput | PromotionOrderByWithRelationInput[]
-    cursor?: PromotionWhereUniqueInput
+    include?: FeaturedAdInclude<ExtArgs> | null
+    where?: FeaturedAdWhereInput
+    orderBy?: FeaturedAdOrderByWithRelationInput | FeaturedAdOrderByWithRelationInput[]
+    cursor?: FeaturedAdWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: PromotionScalarFieldEnum | PromotionScalarFieldEnum[]
+    distinct?: FeaturedAdScalarFieldEnum | FeaturedAdScalarFieldEnum[]
+  }
+
+  /**
+   * User.sponsoredAds
+   */
+  export type User$sponsoredAdsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SponsoredAd
+     */
+    select?: SponsoredAdSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SponsoredAd
+     */
+    omit?: SponsoredAdOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SponsoredAdInclude<ExtArgs> | null
+    where?: SponsoredAdWhereInput
+    orderBy?: SponsoredAdOrderByWithRelationInput | SponsoredAdOrderByWithRelationInput[]
+    cursor?: SponsoredAdWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SponsoredAdScalarFieldEnum | SponsoredAdScalarFieldEnum[]
   }
 
   /**
@@ -14667,100 +14804,87 @@ export namespace Prisma {
 
 
   /**
-   * Model Promotion
+   * Model FeaturedAd
    */
 
-  export type AggregatePromotion = {
-    _count: PromotionCountAggregateOutputType | null
-    _avg: PromotionAvgAggregateOutputType | null
-    _sum: PromotionSumAggregateOutputType | null
-    _min: PromotionMinAggregateOutputType | null
-    _max: PromotionMaxAggregateOutputType | null
+  export type AggregateFeaturedAd = {
+    _count: FeaturedAdCountAggregateOutputType | null
+    _avg: FeaturedAdAvgAggregateOutputType | null
+    _sum: FeaturedAdSumAggregateOutputType | null
+    _min: FeaturedAdMinAggregateOutputType | null
+    _max: FeaturedAdMaxAggregateOutputType | null
   }
 
-  export type PromotionAvgAggregateOutputType = {
+  export type FeaturedAdAvgAggregateOutputType = {
     id: number | null
-    productId: number | null
     vendorGiftId: number | null
-    durationDays: number | null
+    slotNumber: number | null
     amountPaid: Decimal | null
     views: number | null
     clicks: number | null
-    conversions: number | null
   }
 
-  export type PromotionSumAggregateOutputType = {
+  export type FeaturedAdSumAggregateOutputType = {
     id: number | null
-    productId: number | null
     vendorGiftId: number | null
-    durationDays: number | null
+    slotNumber: number | null
     amountPaid: Decimal | null
     views: number | null
     clicks: number | null
-    conversions: number | null
   }
 
-  export type PromotionMinAggregateOutputType = {
+  export type FeaturedAdMinAggregateOutputType = {
     id: number | null
     vendorId: string | null
-    productId: number | null
     vendorGiftId: number | null
-    placement: string | null
-    durationDays: number | null
+    country: string | null
+    slotNumber: number | null
     startDate: Date | null
     endDate: Date | null
     status: string | null
     amountPaid: Decimal | null
     currency: string | null
     paymentReference: string | null
-    rejectionReason: string | null
     views: number | null
     clicks: number | null
-    conversions: number | null
     transactionId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
 
-  export type PromotionMaxAggregateOutputType = {
+  export type FeaturedAdMaxAggregateOutputType = {
     id: number | null
     vendorId: string | null
-    productId: number | null
     vendorGiftId: number | null
-    placement: string | null
-    durationDays: number | null
+    country: string | null
+    slotNumber: number | null
     startDate: Date | null
     endDate: Date | null
     status: string | null
     amountPaid: Decimal | null
     currency: string | null
     paymentReference: string | null
-    rejectionReason: string | null
     views: number | null
     clicks: number | null
-    conversions: number | null
     transactionId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
 
-  export type PromotionCountAggregateOutputType = {
+  export type FeaturedAdCountAggregateOutputType = {
     id: number
     vendorId: number
-    productId: number
     vendorGiftId: number
-    placement: number
-    durationDays: number
+    country: number
+    slotNumber: number
     startDate: number
     endDate: number
     status: number
     amountPaid: number
     currency: number
     paymentReference: number
-    rejectionReason: number
     views: number
     clicks: number
-    conversions: number
     transactionId: number
     createdAt: number
     updatedAt: number
@@ -14768,493 +14892,462 @@ export namespace Prisma {
   }
 
 
-  export type PromotionAvgAggregateInputType = {
+  export type FeaturedAdAvgAggregateInputType = {
     id?: true
-    productId?: true
     vendorGiftId?: true
-    durationDays?: true
+    slotNumber?: true
     amountPaid?: true
     views?: true
     clicks?: true
-    conversions?: true
   }
 
-  export type PromotionSumAggregateInputType = {
+  export type FeaturedAdSumAggregateInputType = {
     id?: true
-    productId?: true
     vendorGiftId?: true
-    durationDays?: true
+    slotNumber?: true
     amountPaid?: true
     views?: true
     clicks?: true
-    conversions?: true
   }
 
-  export type PromotionMinAggregateInputType = {
+  export type FeaturedAdMinAggregateInputType = {
     id?: true
     vendorId?: true
-    productId?: true
     vendorGiftId?: true
-    placement?: true
-    durationDays?: true
+    country?: true
+    slotNumber?: true
     startDate?: true
     endDate?: true
     status?: true
     amountPaid?: true
     currency?: true
     paymentReference?: true
-    rejectionReason?: true
     views?: true
     clicks?: true
-    conversions?: true
     transactionId?: true
     createdAt?: true
     updatedAt?: true
   }
 
-  export type PromotionMaxAggregateInputType = {
+  export type FeaturedAdMaxAggregateInputType = {
     id?: true
     vendorId?: true
-    productId?: true
     vendorGiftId?: true
-    placement?: true
-    durationDays?: true
+    country?: true
+    slotNumber?: true
     startDate?: true
     endDate?: true
     status?: true
     amountPaid?: true
     currency?: true
     paymentReference?: true
-    rejectionReason?: true
     views?: true
     clicks?: true
-    conversions?: true
     transactionId?: true
     createdAt?: true
     updatedAt?: true
   }
 
-  export type PromotionCountAggregateInputType = {
+  export type FeaturedAdCountAggregateInputType = {
     id?: true
     vendorId?: true
-    productId?: true
     vendorGiftId?: true
-    placement?: true
-    durationDays?: true
+    country?: true
+    slotNumber?: true
     startDate?: true
     endDate?: true
     status?: true
     amountPaid?: true
     currency?: true
     paymentReference?: true
-    rejectionReason?: true
     views?: true
     clicks?: true
-    conversions?: true
     transactionId?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
   }
 
-  export type PromotionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FeaturedAdAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which Promotion to aggregate.
+     * Filter which FeaturedAd to aggregate.
      */
-    where?: PromotionWhereInput
+    where?: FeaturedAdWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Promotions to fetch.
+     * Determine the order of FeaturedAds to fetch.
      */
-    orderBy?: PromotionOrderByWithRelationInput | PromotionOrderByWithRelationInput[]
+    orderBy?: FeaturedAdOrderByWithRelationInput | FeaturedAdOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: PromotionWhereUniqueInput
+    cursor?: FeaturedAdWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Promotions from the position of the cursor.
+     * Take `±n` FeaturedAds from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Promotions.
+     * Skip the first `n` FeaturedAds.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned Promotions
+     * Count returned FeaturedAds
     **/
-    _count?: true | PromotionCountAggregateInputType
+    _count?: true | FeaturedAdCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: PromotionAvgAggregateInputType
+    _avg?: FeaturedAdAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: PromotionSumAggregateInputType
+    _sum?: FeaturedAdSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: PromotionMinAggregateInputType
+    _min?: FeaturedAdMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: PromotionMaxAggregateInputType
+    _max?: FeaturedAdMaxAggregateInputType
   }
 
-  export type GetPromotionAggregateType<T extends PromotionAggregateArgs> = {
-        [P in keyof T & keyof AggregatePromotion]: P extends '_count' | 'count'
+  export type GetFeaturedAdAggregateType<T extends FeaturedAdAggregateArgs> = {
+        [P in keyof T & keyof AggregateFeaturedAd]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregatePromotion[P]>
-      : GetScalarType<T[P], AggregatePromotion[P]>
+        : GetScalarType<T[P], AggregateFeaturedAd[P]>
+      : GetScalarType<T[P], AggregateFeaturedAd[P]>
   }
 
 
 
 
-  export type PromotionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: PromotionWhereInput
-    orderBy?: PromotionOrderByWithAggregationInput | PromotionOrderByWithAggregationInput[]
-    by: PromotionScalarFieldEnum[] | PromotionScalarFieldEnum
-    having?: PromotionScalarWhereWithAggregatesInput
+  export type FeaturedAdGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FeaturedAdWhereInput
+    orderBy?: FeaturedAdOrderByWithAggregationInput | FeaturedAdOrderByWithAggregationInput[]
+    by: FeaturedAdScalarFieldEnum[] | FeaturedAdScalarFieldEnum
+    having?: FeaturedAdScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: PromotionCountAggregateInputType | true
-    _avg?: PromotionAvgAggregateInputType
-    _sum?: PromotionSumAggregateInputType
-    _min?: PromotionMinAggregateInputType
-    _max?: PromotionMaxAggregateInputType
+    _count?: FeaturedAdCountAggregateInputType | true
+    _avg?: FeaturedAdAvgAggregateInputType
+    _sum?: FeaturedAdSumAggregateInputType
+    _min?: FeaturedAdMinAggregateInputType
+    _max?: FeaturedAdMaxAggregateInputType
   }
 
-  export type PromotionGroupByOutputType = {
+  export type FeaturedAdGroupByOutputType = {
     id: number
     vendorId: string
-    productId: number | null
-    vendorGiftId: number | null
-    placement: string
-    durationDays: number
-    startDate: Date | null
-    endDate: Date | null
+    vendorGiftId: number
+    country: string
+    slotNumber: number
+    startDate: Date
+    endDate: Date
     status: string
     amountPaid: Decimal
     currency: string
     paymentReference: string | null
-    rejectionReason: string | null
     views: number
     clicks: number
-    conversions: number
     transactionId: string | null
     createdAt: Date
     updatedAt: Date
-    _count: PromotionCountAggregateOutputType | null
-    _avg: PromotionAvgAggregateOutputType | null
-    _sum: PromotionSumAggregateOutputType | null
-    _min: PromotionMinAggregateOutputType | null
-    _max: PromotionMaxAggregateOutputType | null
+    _count: FeaturedAdCountAggregateOutputType | null
+    _avg: FeaturedAdAvgAggregateOutputType | null
+    _sum: FeaturedAdSumAggregateOutputType | null
+    _min: FeaturedAdMinAggregateOutputType | null
+    _max: FeaturedAdMaxAggregateOutputType | null
   }
 
-  type GetPromotionGroupByPayload<T extends PromotionGroupByArgs> = Prisma.PrismaPromise<
+  type GetFeaturedAdGroupByPayload<T extends FeaturedAdGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<PromotionGroupByOutputType, T['by']> &
+      PickEnumerable<FeaturedAdGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof PromotionGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof FeaturedAdGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], PromotionGroupByOutputType[P]>
-            : GetScalarType<T[P], PromotionGroupByOutputType[P]>
+              : GetScalarType<T[P], FeaturedAdGroupByOutputType[P]>
+            : GetScalarType<T[P], FeaturedAdGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type PromotionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type FeaturedAdSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     vendorId?: boolean
-    productId?: boolean
     vendorGiftId?: boolean
-    placement?: boolean
-    durationDays?: boolean
+    country?: boolean
+    slotNumber?: boolean
     startDate?: boolean
     endDate?: boolean
     status?: boolean
     amountPaid?: boolean
     currency?: boolean
     paymentReference?: boolean
-    rejectionReason?: boolean
     views?: boolean
     clicks?: boolean
-    conversions?: boolean
     transactionId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     vendor?: boolean | UserDefaultArgs<ExtArgs>
-    product?: boolean | Promotion$productArgs<ExtArgs>
-    transaction?: boolean | Promotion$transactionArgs<ExtArgs>
-  }, ExtArgs["result"]["promotion"]>
+    product?: boolean | VendorGiftDefaultArgs<ExtArgs>
+    transaction?: boolean | FeaturedAd$transactionArgs<ExtArgs>
+  }, ExtArgs["result"]["featuredAd"]>
 
-  export type PromotionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type FeaturedAdSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     vendorId?: boolean
-    productId?: boolean
     vendorGiftId?: boolean
-    placement?: boolean
-    durationDays?: boolean
+    country?: boolean
+    slotNumber?: boolean
     startDate?: boolean
     endDate?: boolean
     status?: boolean
     amountPaid?: boolean
     currency?: boolean
     paymentReference?: boolean
-    rejectionReason?: boolean
     views?: boolean
     clicks?: boolean
-    conversions?: boolean
     transactionId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     vendor?: boolean | UserDefaultArgs<ExtArgs>
-    product?: boolean | Promotion$productArgs<ExtArgs>
-    transaction?: boolean | Promotion$transactionArgs<ExtArgs>
-  }, ExtArgs["result"]["promotion"]>
+    product?: boolean | VendorGiftDefaultArgs<ExtArgs>
+    transaction?: boolean | FeaturedAd$transactionArgs<ExtArgs>
+  }, ExtArgs["result"]["featuredAd"]>
 
-  export type PromotionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type FeaturedAdSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     vendorId?: boolean
-    productId?: boolean
     vendorGiftId?: boolean
-    placement?: boolean
-    durationDays?: boolean
+    country?: boolean
+    slotNumber?: boolean
     startDate?: boolean
     endDate?: boolean
     status?: boolean
     amountPaid?: boolean
     currency?: boolean
     paymentReference?: boolean
-    rejectionReason?: boolean
     views?: boolean
     clicks?: boolean
-    conversions?: boolean
     transactionId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     vendor?: boolean | UserDefaultArgs<ExtArgs>
-    product?: boolean | Promotion$productArgs<ExtArgs>
-    transaction?: boolean | Promotion$transactionArgs<ExtArgs>
-  }, ExtArgs["result"]["promotion"]>
+    product?: boolean | VendorGiftDefaultArgs<ExtArgs>
+    transaction?: boolean | FeaturedAd$transactionArgs<ExtArgs>
+  }, ExtArgs["result"]["featuredAd"]>
 
-  export type PromotionSelectScalar = {
+  export type FeaturedAdSelectScalar = {
     id?: boolean
     vendorId?: boolean
-    productId?: boolean
     vendorGiftId?: boolean
-    placement?: boolean
-    durationDays?: boolean
+    country?: boolean
+    slotNumber?: boolean
     startDate?: boolean
     endDate?: boolean
     status?: boolean
     amountPaid?: boolean
     currency?: boolean
     paymentReference?: boolean
-    rejectionReason?: boolean
     views?: boolean
     clicks?: boolean
-    conversions?: boolean
     transactionId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type PromotionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "vendorId" | "productId" | "vendorGiftId" | "placement" | "durationDays" | "startDate" | "endDate" | "status" | "amountPaid" | "currency" | "paymentReference" | "rejectionReason" | "views" | "clicks" | "conversions" | "transactionId" | "createdAt" | "updatedAt", ExtArgs["result"]["promotion"]>
-  export type PromotionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FeaturedAdOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "vendorId" | "vendorGiftId" | "country" | "slotNumber" | "startDate" | "endDate" | "status" | "amountPaid" | "currency" | "paymentReference" | "views" | "clicks" | "transactionId" | "createdAt" | "updatedAt", ExtArgs["result"]["featuredAd"]>
+  export type FeaturedAdInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     vendor?: boolean | UserDefaultArgs<ExtArgs>
-    product?: boolean | Promotion$productArgs<ExtArgs>
-    transaction?: boolean | Promotion$transactionArgs<ExtArgs>
+    product?: boolean | VendorGiftDefaultArgs<ExtArgs>
+    transaction?: boolean | FeaturedAd$transactionArgs<ExtArgs>
   }
-  export type PromotionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FeaturedAdIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     vendor?: boolean | UserDefaultArgs<ExtArgs>
-    product?: boolean | Promotion$productArgs<ExtArgs>
-    transaction?: boolean | Promotion$transactionArgs<ExtArgs>
+    product?: boolean | VendorGiftDefaultArgs<ExtArgs>
+    transaction?: boolean | FeaturedAd$transactionArgs<ExtArgs>
   }
-  export type PromotionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FeaturedAdIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     vendor?: boolean | UserDefaultArgs<ExtArgs>
-    product?: boolean | Promotion$productArgs<ExtArgs>
-    transaction?: boolean | Promotion$transactionArgs<ExtArgs>
+    product?: boolean | VendorGiftDefaultArgs<ExtArgs>
+    transaction?: boolean | FeaturedAd$transactionArgs<ExtArgs>
   }
 
-  export type $PromotionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "Promotion"
+  export type $FeaturedAdPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "FeaturedAd"
     objects: {
       vendor: Prisma.$UserPayload<ExtArgs>
-      product: Prisma.$VendorGiftPayload<ExtArgs> | null
+      product: Prisma.$VendorGiftPayload<ExtArgs>
       transaction: Prisma.$TransactionPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
       vendorId: string
-      productId: number | null
-      vendorGiftId: number | null
-      placement: string
-      durationDays: number
-      startDate: Date | null
-      endDate: Date | null
+      vendorGiftId: number
+      country: string
+      slotNumber: number
+      startDate: Date
+      endDate: Date
       status: string
       amountPaid: Prisma.Decimal
       currency: string
       paymentReference: string | null
-      rejectionReason: string | null
       views: number
       clicks: number
-      conversions: number
       transactionId: string | null
       createdAt: Date
       updatedAt: Date
-    }, ExtArgs["result"]["promotion"]>
+    }, ExtArgs["result"]["featuredAd"]>
     composites: {}
   }
 
-  type PromotionGetPayload<S extends boolean | null | undefined | PromotionDefaultArgs> = $Result.GetResult<Prisma.$PromotionPayload, S>
+  type FeaturedAdGetPayload<S extends boolean | null | undefined | FeaturedAdDefaultArgs> = $Result.GetResult<Prisma.$FeaturedAdPayload, S>
 
-  type PromotionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<PromotionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: PromotionCountAggregateInputType | true
+  type FeaturedAdCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<FeaturedAdFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: FeaturedAdCountAggregateInputType | true
     }
 
-  export interface PromotionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Promotion'], meta: { name: 'Promotion' } }
+  export interface FeaturedAdDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['FeaturedAd'], meta: { name: 'FeaturedAd' } }
     /**
-     * Find zero or one Promotion that matches the filter.
-     * @param {PromotionFindUniqueArgs} args - Arguments to find a Promotion
+     * Find zero or one FeaturedAd that matches the filter.
+     * @param {FeaturedAdFindUniqueArgs} args - Arguments to find a FeaturedAd
      * @example
-     * // Get one Promotion
-     * const promotion = await prisma.promotion.findUnique({
+     * // Get one FeaturedAd
+     * const featuredAd = await prisma.featuredAd.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends PromotionFindUniqueArgs>(args: SelectSubset<T, PromotionFindUniqueArgs<ExtArgs>>): Prisma__PromotionClient<$Result.GetResult<Prisma.$PromotionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends FeaturedAdFindUniqueArgs>(args: SelectSubset<T, FeaturedAdFindUniqueArgs<ExtArgs>>): Prisma__FeaturedAdClient<$Result.GetResult<Prisma.$FeaturedAdPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one Promotion that matches the filter or throw an error with `error.code='P2025'`
+     * Find one FeaturedAd that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
-     * @param {PromotionFindUniqueOrThrowArgs} args - Arguments to find a Promotion
+     * @param {FeaturedAdFindUniqueOrThrowArgs} args - Arguments to find a FeaturedAd
      * @example
-     * // Get one Promotion
-     * const promotion = await prisma.promotion.findUniqueOrThrow({
+     * // Get one FeaturedAd
+     * const featuredAd = await prisma.featuredAd.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends PromotionFindUniqueOrThrowArgs>(args: SelectSubset<T, PromotionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PromotionClient<$Result.GetResult<Prisma.$PromotionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends FeaturedAdFindUniqueOrThrowArgs>(args: SelectSubset<T, FeaturedAdFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FeaturedAdClient<$Result.GetResult<Prisma.$FeaturedAdPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first Promotion that matches the filter.
+     * Find the first FeaturedAd that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PromotionFindFirstArgs} args - Arguments to find a Promotion
+     * @param {FeaturedAdFindFirstArgs} args - Arguments to find a FeaturedAd
      * @example
-     * // Get one Promotion
-     * const promotion = await prisma.promotion.findFirst({
+     * // Get one FeaturedAd
+     * const featuredAd = await prisma.featuredAd.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends PromotionFindFirstArgs>(args?: SelectSubset<T, PromotionFindFirstArgs<ExtArgs>>): Prisma__PromotionClient<$Result.GetResult<Prisma.$PromotionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends FeaturedAdFindFirstArgs>(args?: SelectSubset<T, FeaturedAdFindFirstArgs<ExtArgs>>): Prisma__FeaturedAdClient<$Result.GetResult<Prisma.$FeaturedAdPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first Promotion that matches the filter or
+     * Find the first FeaturedAd that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PromotionFindFirstOrThrowArgs} args - Arguments to find a Promotion
+     * @param {FeaturedAdFindFirstOrThrowArgs} args - Arguments to find a FeaturedAd
      * @example
-     * // Get one Promotion
-     * const promotion = await prisma.promotion.findFirstOrThrow({
+     * // Get one FeaturedAd
+     * const featuredAd = await prisma.featuredAd.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends PromotionFindFirstOrThrowArgs>(args?: SelectSubset<T, PromotionFindFirstOrThrowArgs<ExtArgs>>): Prisma__PromotionClient<$Result.GetResult<Prisma.$PromotionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends FeaturedAdFindFirstOrThrowArgs>(args?: SelectSubset<T, FeaturedAdFindFirstOrThrowArgs<ExtArgs>>): Prisma__FeaturedAdClient<$Result.GetResult<Prisma.$FeaturedAdPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find zero or more Promotions that matches the filter.
+     * Find zero or more FeaturedAds that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PromotionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {FeaturedAdFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all Promotions
-     * const promotions = await prisma.promotion.findMany()
+     * // Get all FeaturedAds
+     * const featuredAds = await prisma.featuredAd.findMany()
      * 
-     * // Get first 10 Promotions
-     * const promotions = await prisma.promotion.findMany({ take: 10 })
+     * // Get first 10 FeaturedAds
+     * const featuredAds = await prisma.featuredAd.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const promotionWithIdOnly = await prisma.promotion.findMany({ select: { id: true } })
+     * const featuredAdWithIdOnly = await prisma.featuredAd.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends PromotionFindManyArgs>(args?: SelectSubset<T, PromotionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PromotionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends FeaturedAdFindManyArgs>(args?: SelectSubset<T, FeaturedAdFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeaturedAdPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
-     * Create a Promotion.
-     * @param {PromotionCreateArgs} args - Arguments to create a Promotion.
+     * Create a FeaturedAd.
+     * @param {FeaturedAdCreateArgs} args - Arguments to create a FeaturedAd.
      * @example
-     * // Create one Promotion
-     * const Promotion = await prisma.promotion.create({
+     * // Create one FeaturedAd
+     * const FeaturedAd = await prisma.featuredAd.create({
      *   data: {
-     *     // ... data to create a Promotion
+     *     // ... data to create a FeaturedAd
      *   }
      * })
      * 
      */
-    create<T extends PromotionCreateArgs>(args: SelectSubset<T, PromotionCreateArgs<ExtArgs>>): Prisma__PromotionClient<$Result.GetResult<Prisma.$PromotionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends FeaturedAdCreateArgs>(args: SelectSubset<T, FeaturedAdCreateArgs<ExtArgs>>): Prisma__FeaturedAdClient<$Result.GetResult<Prisma.$FeaturedAdPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Create many Promotions.
-     * @param {PromotionCreateManyArgs} args - Arguments to create many Promotions.
+     * Create many FeaturedAds.
+     * @param {FeaturedAdCreateManyArgs} args - Arguments to create many FeaturedAds.
      * @example
-     * // Create many Promotions
-     * const promotion = await prisma.promotion.createMany({
+     * // Create many FeaturedAds
+     * const featuredAd = await prisma.featuredAd.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends PromotionCreateManyArgs>(args?: SelectSubset<T, PromotionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends FeaturedAdCreateManyArgs>(args?: SelectSubset<T, FeaturedAdCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many Promotions and returns the data saved in the database.
-     * @param {PromotionCreateManyAndReturnArgs} args - Arguments to create many Promotions.
+     * Create many FeaturedAds and returns the data saved in the database.
+     * @param {FeaturedAdCreateManyAndReturnArgs} args - Arguments to create many FeaturedAds.
      * @example
-     * // Create many Promotions
-     * const promotion = await prisma.promotion.createManyAndReturn({
+     * // Create many FeaturedAds
+     * const featuredAd = await prisma.featuredAd.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many Promotions and only return the `id`
-     * const promotionWithIdOnly = await prisma.promotion.createManyAndReturn({
+     * // Create many FeaturedAds and only return the `id`
+     * const featuredAdWithIdOnly = await prisma.featuredAd.createManyAndReturn({
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -15264,28 +15357,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends PromotionCreateManyAndReturnArgs>(args?: SelectSubset<T, PromotionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PromotionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+    createManyAndReturn<T extends FeaturedAdCreateManyAndReturnArgs>(args?: SelectSubset<T, FeaturedAdCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeaturedAdPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Delete a Promotion.
-     * @param {PromotionDeleteArgs} args - Arguments to delete one Promotion.
+     * Delete a FeaturedAd.
+     * @param {FeaturedAdDeleteArgs} args - Arguments to delete one FeaturedAd.
      * @example
-     * // Delete one Promotion
-     * const Promotion = await prisma.promotion.delete({
+     * // Delete one FeaturedAd
+     * const FeaturedAd = await prisma.featuredAd.delete({
      *   where: {
-     *     // ... filter to delete one Promotion
+     *     // ... filter to delete one FeaturedAd
      *   }
      * })
      * 
      */
-    delete<T extends PromotionDeleteArgs>(args: SelectSubset<T, PromotionDeleteArgs<ExtArgs>>): Prisma__PromotionClient<$Result.GetResult<Prisma.$PromotionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends FeaturedAdDeleteArgs>(args: SelectSubset<T, FeaturedAdDeleteArgs<ExtArgs>>): Prisma__FeaturedAdClient<$Result.GetResult<Prisma.$FeaturedAdPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Update one Promotion.
-     * @param {PromotionUpdateArgs} args - Arguments to update one Promotion.
+     * Update one FeaturedAd.
+     * @param {FeaturedAdUpdateArgs} args - Arguments to update one FeaturedAd.
      * @example
-     * // Update one Promotion
-     * const promotion = await prisma.promotion.update({
+     * // Update one FeaturedAd
+     * const featuredAd = await prisma.featuredAd.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -15295,30 +15388,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends PromotionUpdateArgs>(args: SelectSubset<T, PromotionUpdateArgs<ExtArgs>>): Prisma__PromotionClient<$Result.GetResult<Prisma.$PromotionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends FeaturedAdUpdateArgs>(args: SelectSubset<T, FeaturedAdUpdateArgs<ExtArgs>>): Prisma__FeaturedAdClient<$Result.GetResult<Prisma.$FeaturedAdPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Delete zero or more Promotions.
-     * @param {PromotionDeleteManyArgs} args - Arguments to filter Promotions to delete.
+     * Delete zero or more FeaturedAds.
+     * @param {FeaturedAdDeleteManyArgs} args - Arguments to filter FeaturedAds to delete.
      * @example
-     * // Delete a few Promotions
-     * const { count } = await prisma.promotion.deleteMany({
+     * // Delete a few FeaturedAds
+     * const { count } = await prisma.featuredAd.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends PromotionDeleteManyArgs>(args?: SelectSubset<T, PromotionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends FeaturedAdDeleteManyArgs>(args?: SelectSubset<T, FeaturedAdDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more Promotions.
+     * Update zero or more FeaturedAds.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PromotionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {FeaturedAdUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many Promotions
-     * const promotion = await prisma.promotion.updateMany({
+     * // Update many FeaturedAds
+     * const featuredAd = await prisma.featuredAd.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -15328,14 +15421,14 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends PromotionUpdateManyArgs>(args: SelectSubset<T, PromotionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends FeaturedAdUpdateManyArgs>(args: SelectSubset<T, FeaturedAdUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more Promotions and returns the data updated in the database.
-     * @param {PromotionUpdateManyAndReturnArgs} args - Arguments to update many Promotions.
+     * Update zero or more FeaturedAds and returns the data updated in the database.
+     * @param {FeaturedAdUpdateManyAndReturnArgs} args - Arguments to update many FeaturedAds.
      * @example
-     * // Update many Promotions
-     * const promotion = await prisma.promotion.updateManyAndReturn({
+     * // Update many FeaturedAds
+     * const featuredAd = await prisma.featuredAd.updateManyAndReturn({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -15344,8 +15437,8 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Update zero or more Promotions and only return the `id`
-     * const promotionWithIdOnly = await prisma.promotion.updateManyAndReturn({
+     * // Update zero or more FeaturedAds and only return the `id`
+     * const featuredAdWithIdOnly = await prisma.featuredAd.updateManyAndReturn({
      *   select: { id: true },
      *   where: {
      *     // ... provide filter here
@@ -15358,56 +15451,56 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    updateManyAndReturn<T extends PromotionUpdateManyAndReturnArgs>(args: SelectSubset<T, PromotionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PromotionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+    updateManyAndReturn<T extends FeaturedAdUpdateManyAndReturnArgs>(args: SelectSubset<T, FeaturedAdUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeaturedAdPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Create or update one Promotion.
-     * @param {PromotionUpsertArgs} args - Arguments to update or create a Promotion.
+     * Create or update one FeaturedAd.
+     * @param {FeaturedAdUpsertArgs} args - Arguments to update or create a FeaturedAd.
      * @example
-     * // Update or create a Promotion
-     * const promotion = await prisma.promotion.upsert({
+     * // Update or create a FeaturedAd
+     * const featuredAd = await prisma.featuredAd.upsert({
      *   create: {
-     *     // ... data to create a Promotion
+     *     // ... data to create a FeaturedAd
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the Promotion we want to update
+     *     // ... the filter for the FeaturedAd we want to update
      *   }
      * })
      */
-    upsert<T extends PromotionUpsertArgs>(args: SelectSubset<T, PromotionUpsertArgs<ExtArgs>>): Prisma__PromotionClient<$Result.GetResult<Prisma.$PromotionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends FeaturedAdUpsertArgs>(args: SelectSubset<T, FeaturedAdUpsertArgs<ExtArgs>>): Prisma__FeaturedAdClient<$Result.GetResult<Prisma.$FeaturedAdPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
-     * Count the number of Promotions.
+     * Count the number of FeaturedAds.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PromotionCountArgs} args - Arguments to filter Promotions to count.
+     * @param {FeaturedAdCountArgs} args - Arguments to filter FeaturedAds to count.
      * @example
-     * // Count the number of Promotions
-     * const count = await prisma.promotion.count({
+     * // Count the number of FeaturedAds
+     * const count = await prisma.featuredAd.count({
      *   where: {
-     *     // ... the filter for the Promotions we want to count
+     *     // ... the filter for the FeaturedAds we want to count
      *   }
      * })
     **/
-    count<T extends PromotionCountArgs>(
-      args?: Subset<T, PromotionCountArgs>,
+    count<T extends FeaturedAdCountArgs>(
+      args?: Subset<T, FeaturedAdCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], PromotionCountAggregateOutputType>
+          : GetScalarType<T['select'], FeaturedAdCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a Promotion.
+     * Allows you to perform aggregations operations on a FeaturedAd.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PromotionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {FeaturedAdAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -15427,13 +15520,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends PromotionAggregateArgs>(args: Subset<T, PromotionAggregateArgs>): Prisma.PrismaPromise<GetPromotionAggregateType<T>>
+    aggregate<T extends FeaturedAdAggregateArgs>(args: Subset<T, FeaturedAdAggregateArgs>): Prisma.PrismaPromise<GetFeaturedAdAggregateType<T>>
 
     /**
-     * Group by Promotion.
+     * Group by FeaturedAd.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PromotionGroupByArgs} args - Group by arguments.
+     * @param {FeaturedAdGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -15448,14 +15541,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends PromotionGroupByArgs,
+      T extends FeaturedAdGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: PromotionGroupByArgs['orderBy'] }
-        : { orderBy?: PromotionGroupByArgs['orderBy'] },
+        ? { orderBy: FeaturedAdGroupByArgs['orderBy'] }
+        : { orderBy?: FeaturedAdGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -15504,24 +15597,24 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, PromotionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPromotionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, FeaturedAdGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFeaturedAdGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the Promotion model
+   * Fields of the FeaturedAd model
    */
-  readonly fields: PromotionFieldRefs;
+  readonly fields: FeaturedAdFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for Promotion.
+   * The delegate class that acts as a "Promise-like" for FeaturedAd.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__PromotionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__FeaturedAdClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     vendor<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    product<T extends Promotion$productArgs<ExtArgs> = {}>(args?: Subset<T, Promotion$productArgs<ExtArgs>>): Prisma__VendorGiftClient<$Result.GetResult<Prisma.$VendorGiftPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    transaction<T extends Promotion$transactionArgs<ExtArgs> = {}>(args?: Subset<T, Promotion$transactionArgs<ExtArgs>>): Prisma__TransactionClient<$Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    product<T extends VendorGiftDefaultArgs<ExtArgs> = {}>(args?: Subset<T, VendorGiftDefaultArgs<ExtArgs>>): Prisma__VendorGiftClient<$Result.GetResult<Prisma.$VendorGiftPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    transaction<T extends FeaturedAd$transactionArgs<ExtArgs> = {}>(args?: Subset<T, FeaturedAd$transactionArgs<ExtArgs>>): Prisma__TransactionClient<$Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -15548,451 +15641,429 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the Promotion model
+   * Fields of the FeaturedAd model
    */
-  interface PromotionFieldRefs {
-    readonly id: FieldRef<"Promotion", 'Int'>
-    readonly vendorId: FieldRef<"Promotion", 'String'>
-    readonly productId: FieldRef<"Promotion", 'Int'>
-    readonly vendorGiftId: FieldRef<"Promotion", 'Int'>
-    readonly placement: FieldRef<"Promotion", 'String'>
-    readonly durationDays: FieldRef<"Promotion", 'Int'>
-    readonly startDate: FieldRef<"Promotion", 'DateTime'>
-    readonly endDate: FieldRef<"Promotion", 'DateTime'>
-    readonly status: FieldRef<"Promotion", 'String'>
-    readonly amountPaid: FieldRef<"Promotion", 'Decimal'>
-    readonly currency: FieldRef<"Promotion", 'String'>
-    readonly paymentReference: FieldRef<"Promotion", 'String'>
-    readonly rejectionReason: FieldRef<"Promotion", 'String'>
-    readonly views: FieldRef<"Promotion", 'Int'>
-    readonly clicks: FieldRef<"Promotion", 'Int'>
-    readonly conversions: FieldRef<"Promotion", 'Int'>
-    readonly transactionId: FieldRef<"Promotion", 'String'>
-    readonly createdAt: FieldRef<"Promotion", 'DateTime'>
-    readonly updatedAt: FieldRef<"Promotion", 'DateTime'>
+  interface FeaturedAdFieldRefs {
+    readonly id: FieldRef<"FeaturedAd", 'Int'>
+    readonly vendorId: FieldRef<"FeaturedAd", 'String'>
+    readonly vendorGiftId: FieldRef<"FeaturedAd", 'Int'>
+    readonly country: FieldRef<"FeaturedAd", 'String'>
+    readonly slotNumber: FieldRef<"FeaturedAd", 'Int'>
+    readonly startDate: FieldRef<"FeaturedAd", 'DateTime'>
+    readonly endDate: FieldRef<"FeaturedAd", 'DateTime'>
+    readonly status: FieldRef<"FeaturedAd", 'String'>
+    readonly amountPaid: FieldRef<"FeaturedAd", 'Decimal'>
+    readonly currency: FieldRef<"FeaturedAd", 'String'>
+    readonly paymentReference: FieldRef<"FeaturedAd", 'String'>
+    readonly views: FieldRef<"FeaturedAd", 'Int'>
+    readonly clicks: FieldRef<"FeaturedAd", 'Int'>
+    readonly transactionId: FieldRef<"FeaturedAd", 'String'>
+    readonly createdAt: FieldRef<"FeaturedAd", 'DateTime'>
+    readonly updatedAt: FieldRef<"FeaturedAd", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * Promotion findUnique
+   * FeaturedAd findUnique
    */
-  export type PromotionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FeaturedAdFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Promotion
+     * Select specific fields to fetch from the FeaturedAd
      */
-    select?: PromotionSelect<ExtArgs> | null
+    select?: FeaturedAdSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Promotion
+     * Omit specific fields from the FeaturedAd
      */
-    omit?: PromotionOmit<ExtArgs> | null
+    omit?: FeaturedAdOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PromotionInclude<ExtArgs> | null
+    include?: FeaturedAdInclude<ExtArgs> | null
     /**
-     * Filter, which Promotion to fetch.
+     * Filter, which FeaturedAd to fetch.
      */
-    where: PromotionWhereUniqueInput
+    where: FeaturedAdWhereUniqueInput
   }
 
   /**
-   * Promotion findUniqueOrThrow
+   * FeaturedAd findUniqueOrThrow
    */
-  export type PromotionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FeaturedAdFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Promotion
+     * Select specific fields to fetch from the FeaturedAd
      */
-    select?: PromotionSelect<ExtArgs> | null
+    select?: FeaturedAdSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Promotion
+     * Omit specific fields from the FeaturedAd
      */
-    omit?: PromotionOmit<ExtArgs> | null
+    omit?: FeaturedAdOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PromotionInclude<ExtArgs> | null
+    include?: FeaturedAdInclude<ExtArgs> | null
     /**
-     * Filter, which Promotion to fetch.
+     * Filter, which FeaturedAd to fetch.
      */
-    where: PromotionWhereUniqueInput
+    where: FeaturedAdWhereUniqueInput
   }
 
   /**
-   * Promotion findFirst
+   * FeaturedAd findFirst
    */
-  export type PromotionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FeaturedAdFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Promotion
+     * Select specific fields to fetch from the FeaturedAd
      */
-    select?: PromotionSelect<ExtArgs> | null
+    select?: FeaturedAdSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Promotion
+     * Omit specific fields from the FeaturedAd
      */
-    omit?: PromotionOmit<ExtArgs> | null
+    omit?: FeaturedAdOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PromotionInclude<ExtArgs> | null
+    include?: FeaturedAdInclude<ExtArgs> | null
     /**
-     * Filter, which Promotion to fetch.
+     * Filter, which FeaturedAd to fetch.
      */
-    where?: PromotionWhereInput
+    where?: FeaturedAdWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Promotions to fetch.
+     * Determine the order of FeaturedAds to fetch.
      */
-    orderBy?: PromotionOrderByWithRelationInput | PromotionOrderByWithRelationInput[]
+    orderBy?: FeaturedAdOrderByWithRelationInput | FeaturedAdOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for Promotions.
+     * Sets the position for searching for FeaturedAds.
      */
-    cursor?: PromotionWhereUniqueInput
+    cursor?: FeaturedAdWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Promotions from the position of the cursor.
+     * Take `±n` FeaturedAds from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Promotions.
+     * Skip the first `n` FeaturedAds.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Promotions.
+     * Filter by unique combinations of FeaturedAds.
      */
-    distinct?: PromotionScalarFieldEnum | PromotionScalarFieldEnum[]
+    distinct?: FeaturedAdScalarFieldEnum | FeaturedAdScalarFieldEnum[]
   }
 
   /**
-   * Promotion findFirstOrThrow
+   * FeaturedAd findFirstOrThrow
    */
-  export type PromotionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FeaturedAdFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Promotion
+     * Select specific fields to fetch from the FeaturedAd
      */
-    select?: PromotionSelect<ExtArgs> | null
+    select?: FeaturedAdSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Promotion
+     * Omit specific fields from the FeaturedAd
      */
-    omit?: PromotionOmit<ExtArgs> | null
+    omit?: FeaturedAdOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PromotionInclude<ExtArgs> | null
+    include?: FeaturedAdInclude<ExtArgs> | null
     /**
-     * Filter, which Promotion to fetch.
+     * Filter, which FeaturedAd to fetch.
      */
-    where?: PromotionWhereInput
+    where?: FeaturedAdWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Promotions to fetch.
+     * Determine the order of FeaturedAds to fetch.
      */
-    orderBy?: PromotionOrderByWithRelationInput | PromotionOrderByWithRelationInput[]
+    orderBy?: FeaturedAdOrderByWithRelationInput | FeaturedAdOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for Promotions.
+     * Sets the position for searching for FeaturedAds.
      */
-    cursor?: PromotionWhereUniqueInput
+    cursor?: FeaturedAdWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Promotions from the position of the cursor.
+     * Take `±n` FeaturedAds from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Promotions.
+     * Skip the first `n` FeaturedAds.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Promotions.
+     * Filter by unique combinations of FeaturedAds.
      */
-    distinct?: PromotionScalarFieldEnum | PromotionScalarFieldEnum[]
+    distinct?: FeaturedAdScalarFieldEnum | FeaturedAdScalarFieldEnum[]
   }
 
   /**
-   * Promotion findMany
+   * FeaturedAd findMany
    */
-  export type PromotionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FeaturedAdFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Promotion
+     * Select specific fields to fetch from the FeaturedAd
      */
-    select?: PromotionSelect<ExtArgs> | null
+    select?: FeaturedAdSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Promotion
+     * Omit specific fields from the FeaturedAd
      */
-    omit?: PromotionOmit<ExtArgs> | null
+    omit?: FeaturedAdOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PromotionInclude<ExtArgs> | null
+    include?: FeaturedAdInclude<ExtArgs> | null
     /**
-     * Filter, which Promotions to fetch.
+     * Filter, which FeaturedAds to fetch.
      */
-    where?: PromotionWhereInput
+    where?: FeaturedAdWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Promotions to fetch.
+     * Determine the order of FeaturedAds to fetch.
      */
-    orderBy?: PromotionOrderByWithRelationInput | PromotionOrderByWithRelationInput[]
+    orderBy?: FeaturedAdOrderByWithRelationInput | FeaturedAdOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing Promotions.
+     * Sets the position for listing FeaturedAds.
      */
-    cursor?: PromotionWhereUniqueInput
+    cursor?: FeaturedAdWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Promotions from the position of the cursor.
+     * Take `±n` FeaturedAds from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Promotions.
+     * Skip the first `n` FeaturedAds.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Promotions.
+     * Filter by unique combinations of FeaturedAds.
      */
-    distinct?: PromotionScalarFieldEnum | PromotionScalarFieldEnum[]
+    distinct?: FeaturedAdScalarFieldEnum | FeaturedAdScalarFieldEnum[]
   }
 
   /**
-   * Promotion create
+   * FeaturedAd create
    */
-  export type PromotionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FeaturedAdCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Promotion
+     * Select specific fields to fetch from the FeaturedAd
      */
-    select?: PromotionSelect<ExtArgs> | null
+    select?: FeaturedAdSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Promotion
+     * Omit specific fields from the FeaturedAd
      */
-    omit?: PromotionOmit<ExtArgs> | null
+    omit?: FeaturedAdOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PromotionInclude<ExtArgs> | null
+    include?: FeaturedAdInclude<ExtArgs> | null
     /**
-     * The data needed to create a Promotion.
+     * The data needed to create a FeaturedAd.
      */
-    data: XOR<PromotionCreateInput, PromotionUncheckedCreateInput>
+    data: XOR<FeaturedAdCreateInput, FeaturedAdUncheckedCreateInput>
   }
 
   /**
-   * Promotion createMany
+   * FeaturedAd createMany
    */
-  export type PromotionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FeaturedAdCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many Promotions.
+     * The data used to create many FeaturedAds.
      */
-    data: PromotionCreateManyInput | PromotionCreateManyInput[]
+    data: FeaturedAdCreateManyInput | FeaturedAdCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * Promotion createManyAndReturn
+   * FeaturedAd createManyAndReturn
    */
-  export type PromotionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FeaturedAdCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Promotion
+     * Select specific fields to fetch from the FeaturedAd
      */
-    select?: PromotionSelectCreateManyAndReturn<ExtArgs> | null
+    select?: FeaturedAdSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the Promotion
+     * Omit specific fields from the FeaturedAd
      */
-    omit?: PromotionOmit<ExtArgs> | null
+    omit?: FeaturedAdOmit<ExtArgs> | null
     /**
-     * The data used to create many Promotions.
+     * The data used to create many FeaturedAds.
      */
-    data: PromotionCreateManyInput | PromotionCreateManyInput[]
+    data: FeaturedAdCreateManyInput | FeaturedAdCreateManyInput[]
     skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PromotionIncludeCreateManyAndReturn<ExtArgs> | null
+    include?: FeaturedAdIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * Promotion update
+   * FeaturedAd update
    */
-  export type PromotionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FeaturedAdUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Promotion
+     * Select specific fields to fetch from the FeaturedAd
      */
-    select?: PromotionSelect<ExtArgs> | null
+    select?: FeaturedAdSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Promotion
+     * Omit specific fields from the FeaturedAd
      */
-    omit?: PromotionOmit<ExtArgs> | null
+    omit?: FeaturedAdOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PromotionInclude<ExtArgs> | null
+    include?: FeaturedAdInclude<ExtArgs> | null
     /**
-     * The data needed to update a Promotion.
+     * The data needed to update a FeaturedAd.
      */
-    data: XOR<PromotionUpdateInput, PromotionUncheckedUpdateInput>
+    data: XOR<FeaturedAdUpdateInput, FeaturedAdUncheckedUpdateInput>
     /**
-     * Choose, which Promotion to update.
+     * Choose, which FeaturedAd to update.
      */
-    where: PromotionWhereUniqueInput
+    where: FeaturedAdWhereUniqueInput
   }
 
   /**
-   * Promotion updateMany
+   * FeaturedAd updateMany
    */
-  export type PromotionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FeaturedAdUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update Promotions.
+     * The data used to update FeaturedAds.
      */
-    data: XOR<PromotionUpdateManyMutationInput, PromotionUncheckedUpdateManyInput>
+    data: XOR<FeaturedAdUpdateManyMutationInput, FeaturedAdUncheckedUpdateManyInput>
     /**
-     * Filter which Promotions to update
+     * Filter which FeaturedAds to update
      */
-    where?: PromotionWhereInput
+    where?: FeaturedAdWhereInput
     /**
-     * Limit how many Promotions to update.
+     * Limit how many FeaturedAds to update.
      */
     limit?: number
   }
 
   /**
-   * Promotion updateManyAndReturn
+   * FeaturedAd updateManyAndReturn
    */
-  export type PromotionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FeaturedAdUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Promotion
+     * Select specific fields to fetch from the FeaturedAd
      */
-    select?: PromotionSelectUpdateManyAndReturn<ExtArgs> | null
+    select?: FeaturedAdSelectUpdateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the Promotion
+     * Omit specific fields from the FeaturedAd
      */
-    omit?: PromotionOmit<ExtArgs> | null
+    omit?: FeaturedAdOmit<ExtArgs> | null
     /**
-     * The data used to update Promotions.
+     * The data used to update FeaturedAds.
      */
-    data: XOR<PromotionUpdateManyMutationInput, PromotionUncheckedUpdateManyInput>
+    data: XOR<FeaturedAdUpdateManyMutationInput, FeaturedAdUncheckedUpdateManyInput>
     /**
-     * Filter which Promotions to update
+     * Filter which FeaturedAds to update
      */
-    where?: PromotionWhereInput
+    where?: FeaturedAdWhereInput
     /**
-     * Limit how many Promotions to update.
+     * Limit how many FeaturedAds to update.
      */
     limit?: number
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PromotionIncludeUpdateManyAndReturn<ExtArgs> | null
+    include?: FeaturedAdIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * Promotion upsert
+   * FeaturedAd upsert
    */
-  export type PromotionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FeaturedAdUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Promotion
+     * Select specific fields to fetch from the FeaturedAd
      */
-    select?: PromotionSelect<ExtArgs> | null
+    select?: FeaturedAdSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Promotion
+     * Omit specific fields from the FeaturedAd
      */
-    omit?: PromotionOmit<ExtArgs> | null
+    omit?: FeaturedAdOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PromotionInclude<ExtArgs> | null
+    include?: FeaturedAdInclude<ExtArgs> | null
     /**
-     * The filter to search for the Promotion to update in case it exists.
+     * The filter to search for the FeaturedAd to update in case it exists.
      */
-    where: PromotionWhereUniqueInput
+    where: FeaturedAdWhereUniqueInput
     /**
-     * In case the Promotion found by the `where` argument doesn't exist, create a new Promotion with this data.
+     * In case the FeaturedAd found by the `where` argument doesn't exist, create a new FeaturedAd with this data.
      */
-    create: XOR<PromotionCreateInput, PromotionUncheckedCreateInput>
+    create: XOR<FeaturedAdCreateInput, FeaturedAdUncheckedCreateInput>
     /**
-     * In case the Promotion was found with the provided `where` argument, update it with this data.
+     * In case the FeaturedAd was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<PromotionUpdateInput, PromotionUncheckedUpdateInput>
+    update: XOR<FeaturedAdUpdateInput, FeaturedAdUncheckedUpdateInput>
   }
 
   /**
-   * Promotion delete
+   * FeaturedAd delete
    */
-  export type PromotionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FeaturedAdDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Promotion
+     * Select specific fields to fetch from the FeaturedAd
      */
-    select?: PromotionSelect<ExtArgs> | null
+    select?: FeaturedAdSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Promotion
+     * Omit specific fields from the FeaturedAd
      */
-    omit?: PromotionOmit<ExtArgs> | null
+    omit?: FeaturedAdOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PromotionInclude<ExtArgs> | null
+    include?: FeaturedAdInclude<ExtArgs> | null
     /**
-     * Filter which Promotion to delete.
+     * Filter which FeaturedAd to delete.
      */
-    where: PromotionWhereUniqueInput
+    where: FeaturedAdWhereUniqueInput
   }
 
   /**
-   * Promotion deleteMany
+   * FeaturedAd deleteMany
    */
-  export type PromotionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FeaturedAdDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which Promotions to delete
+     * Filter which FeaturedAds to delete
      */
-    where?: PromotionWhereInput
+    where?: FeaturedAdWhereInput
     /**
-     * Limit how many Promotions to delete.
+     * Limit how many FeaturedAds to delete.
      */
     limit?: number
   }
 
   /**
-   * Promotion.product
+   * FeaturedAd.transaction
    */
-  export type Promotion$productArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the VendorGift
-     */
-    select?: VendorGiftSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the VendorGift
-     */
-    omit?: VendorGiftOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: VendorGiftInclude<ExtArgs> | null
-    where?: VendorGiftWhereInput
-  }
-
-  /**
-   * Promotion.transaction
-   */
-  export type Promotion$transactionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FeaturedAd$transactionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the Transaction
      */
@@ -16009,21 +16080,1333 @@ export namespace Prisma {
   }
 
   /**
-   * Promotion without action
+   * FeaturedAd without action
    */
-  export type PromotionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FeaturedAdDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Promotion
+     * Select specific fields to fetch from the FeaturedAd
      */
-    select?: PromotionSelect<ExtArgs> | null
+    select?: FeaturedAdSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Promotion
+     * Omit specific fields from the FeaturedAd
      */
-    omit?: PromotionOmit<ExtArgs> | null
+    omit?: FeaturedAdOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PromotionInclude<ExtArgs> | null
+    include?: FeaturedAdInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SponsoredAd
+   */
+
+  export type AggregateSponsoredAd = {
+    _count: SponsoredAdCountAggregateOutputType | null
+    _avg: SponsoredAdAvgAggregateOutputType | null
+    _sum: SponsoredAdSumAggregateOutputType | null
+    _min: SponsoredAdMinAggregateOutputType | null
+    _max: SponsoredAdMaxAggregateOutputType | null
+  }
+
+  export type SponsoredAdAvgAggregateOutputType = {
+    id: number | null
+    vendorGiftId: number | null
+    budget: Decimal | null
+    remainingBudget: Decimal | null
+    costPerClick: Decimal | null
+    views: number | null
+    clicks: number | null
+  }
+
+  export type SponsoredAdSumAggregateOutputType = {
+    id: number | null
+    vendorGiftId: number | null
+    budget: Decimal | null
+    remainingBudget: Decimal | null
+    costPerClick: Decimal | null
+    views: number | null
+    clicks: number | null
+  }
+
+  export type SponsoredAdMinAggregateOutputType = {
+    id: number | null
+    vendorId: string | null
+    vendorGiftId: number | null
+    country: string | null
+    budget: Decimal | null
+    remainingBudget: Decimal | null
+    costPerClick: Decimal | null
+    currency: string | null
+    startDate: Date | null
+    endDate: Date | null
+    status: string | null
+    paymentReference: string | null
+    views: number | null
+    clicks: number | null
+    transactionId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SponsoredAdMaxAggregateOutputType = {
+    id: number | null
+    vendorId: string | null
+    vendorGiftId: number | null
+    country: string | null
+    budget: Decimal | null
+    remainingBudget: Decimal | null
+    costPerClick: Decimal | null
+    currency: string | null
+    startDate: Date | null
+    endDate: Date | null
+    status: string | null
+    paymentReference: string | null
+    views: number | null
+    clicks: number | null
+    transactionId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SponsoredAdCountAggregateOutputType = {
+    id: number
+    vendorId: number
+    vendorGiftId: number
+    country: number
+    budget: number
+    remainingBudget: number
+    costPerClick: number
+    currency: number
+    startDate: number
+    endDate: number
+    status: number
+    paymentReference: number
+    views: number
+    clicks: number
+    transactionId: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type SponsoredAdAvgAggregateInputType = {
+    id?: true
+    vendorGiftId?: true
+    budget?: true
+    remainingBudget?: true
+    costPerClick?: true
+    views?: true
+    clicks?: true
+  }
+
+  export type SponsoredAdSumAggregateInputType = {
+    id?: true
+    vendorGiftId?: true
+    budget?: true
+    remainingBudget?: true
+    costPerClick?: true
+    views?: true
+    clicks?: true
+  }
+
+  export type SponsoredAdMinAggregateInputType = {
+    id?: true
+    vendorId?: true
+    vendorGiftId?: true
+    country?: true
+    budget?: true
+    remainingBudget?: true
+    costPerClick?: true
+    currency?: true
+    startDate?: true
+    endDate?: true
+    status?: true
+    paymentReference?: true
+    views?: true
+    clicks?: true
+    transactionId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SponsoredAdMaxAggregateInputType = {
+    id?: true
+    vendorId?: true
+    vendorGiftId?: true
+    country?: true
+    budget?: true
+    remainingBudget?: true
+    costPerClick?: true
+    currency?: true
+    startDate?: true
+    endDate?: true
+    status?: true
+    paymentReference?: true
+    views?: true
+    clicks?: true
+    transactionId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SponsoredAdCountAggregateInputType = {
+    id?: true
+    vendorId?: true
+    vendorGiftId?: true
+    country?: true
+    budget?: true
+    remainingBudget?: true
+    costPerClick?: true
+    currency?: true
+    startDate?: true
+    endDate?: true
+    status?: true
+    paymentReference?: true
+    views?: true
+    clicks?: true
+    transactionId?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type SponsoredAdAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SponsoredAd to aggregate.
+     */
+    where?: SponsoredAdWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SponsoredAds to fetch.
+     */
+    orderBy?: SponsoredAdOrderByWithRelationInput | SponsoredAdOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SponsoredAdWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SponsoredAds from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SponsoredAds.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SponsoredAds
+    **/
+    _count?: true | SponsoredAdCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: SponsoredAdAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SponsoredAdSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SponsoredAdMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SponsoredAdMaxAggregateInputType
+  }
+
+  export type GetSponsoredAdAggregateType<T extends SponsoredAdAggregateArgs> = {
+        [P in keyof T & keyof AggregateSponsoredAd]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSponsoredAd[P]>
+      : GetScalarType<T[P], AggregateSponsoredAd[P]>
+  }
+
+
+
+
+  export type SponsoredAdGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SponsoredAdWhereInput
+    orderBy?: SponsoredAdOrderByWithAggregationInput | SponsoredAdOrderByWithAggregationInput[]
+    by: SponsoredAdScalarFieldEnum[] | SponsoredAdScalarFieldEnum
+    having?: SponsoredAdScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SponsoredAdCountAggregateInputType | true
+    _avg?: SponsoredAdAvgAggregateInputType
+    _sum?: SponsoredAdSumAggregateInputType
+    _min?: SponsoredAdMinAggregateInputType
+    _max?: SponsoredAdMaxAggregateInputType
+  }
+
+  export type SponsoredAdGroupByOutputType = {
+    id: number
+    vendorId: string
+    vendorGiftId: number
+    country: string
+    budget: Decimal
+    remainingBudget: Decimal
+    costPerClick: Decimal
+    currency: string
+    startDate: Date
+    endDate: Date | null
+    status: string
+    paymentReference: string | null
+    views: number
+    clicks: number
+    transactionId: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: SponsoredAdCountAggregateOutputType | null
+    _avg: SponsoredAdAvgAggregateOutputType | null
+    _sum: SponsoredAdSumAggregateOutputType | null
+    _min: SponsoredAdMinAggregateOutputType | null
+    _max: SponsoredAdMaxAggregateOutputType | null
+  }
+
+  type GetSponsoredAdGroupByPayload<T extends SponsoredAdGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SponsoredAdGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SponsoredAdGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SponsoredAdGroupByOutputType[P]>
+            : GetScalarType<T[P], SponsoredAdGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SponsoredAdSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    vendorId?: boolean
+    vendorGiftId?: boolean
+    country?: boolean
+    budget?: boolean
+    remainingBudget?: boolean
+    costPerClick?: boolean
+    currency?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    status?: boolean
+    paymentReference?: boolean
+    views?: boolean
+    clicks?: boolean
+    transactionId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    vendor?: boolean | UserDefaultArgs<ExtArgs>
+    product?: boolean | VendorGiftDefaultArgs<ExtArgs>
+    transaction?: boolean | SponsoredAd$transactionArgs<ExtArgs>
+  }, ExtArgs["result"]["sponsoredAd"]>
+
+  export type SponsoredAdSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    vendorId?: boolean
+    vendorGiftId?: boolean
+    country?: boolean
+    budget?: boolean
+    remainingBudget?: boolean
+    costPerClick?: boolean
+    currency?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    status?: boolean
+    paymentReference?: boolean
+    views?: boolean
+    clicks?: boolean
+    transactionId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    vendor?: boolean | UserDefaultArgs<ExtArgs>
+    product?: boolean | VendorGiftDefaultArgs<ExtArgs>
+    transaction?: boolean | SponsoredAd$transactionArgs<ExtArgs>
+  }, ExtArgs["result"]["sponsoredAd"]>
+
+  export type SponsoredAdSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    vendorId?: boolean
+    vendorGiftId?: boolean
+    country?: boolean
+    budget?: boolean
+    remainingBudget?: boolean
+    costPerClick?: boolean
+    currency?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    status?: boolean
+    paymentReference?: boolean
+    views?: boolean
+    clicks?: boolean
+    transactionId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    vendor?: boolean | UserDefaultArgs<ExtArgs>
+    product?: boolean | VendorGiftDefaultArgs<ExtArgs>
+    transaction?: boolean | SponsoredAd$transactionArgs<ExtArgs>
+  }, ExtArgs["result"]["sponsoredAd"]>
+
+  export type SponsoredAdSelectScalar = {
+    id?: boolean
+    vendorId?: boolean
+    vendorGiftId?: boolean
+    country?: boolean
+    budget?: boolean
+    remainingBudget?: boolean
+    costPerClick?: boolean
+    currency?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    status?: boolean
+    paymentReference?: boolean
+    views?: boolean
+    clicks?: boolean
+    transactionId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type SponsoredAdOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "vendorId" | "vendorGiftId" | "country" | "budget" | "remainingBudget" | "costPerClick" | "currency" | "startDate" | "endDate" | "status" | "paymentReference" | "views" | "clicks" | "transactionId" | "createdAt" | "updatedAt", ExtArgs["result"]["sponsoredAd"]>
+  export type SponsoredAdInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    vendor?: boolean | UserDefaultArgs<ExtArgs>
+    product?: boolean | VendorGiftDefaultArgs<ExtArgs>
+    transaction?: boolean | SponsoredAd$transactionArgs<ExtArgs>
+  }
+  export type SponsoredAdIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    vendor?: boolean | UserDefaultArgs<ExtArgs>
+    product?: boolean | VendorGiftDefaultArgs<ExtArgs>
+    transaction?: boolean | SponsoredAd$transactionArgs<ExtArgs>
+  }
+  export type SponsoredAdIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    vendor?: boolean | UserDefaultArgs<ExtArgs>
+    product?: boolean | VendorGiftDefaultArgs<ExtArgs>
+    transaction?: boolean | SponsoredAd$transactionArgs<ExtArgs>
+  }
+
+  export type $SponsoredAdPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SponsoredAd"
+    objects: {
+      vendor: Prisma.$UserPayload<ExtArgs>
+      product: Prisma.$VendorGiftPayload<ExtArgs>
+      transaction: Prisma.$TransactionPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      vendorId: string
+      vendorGiftId: number
+      country: string
+      budget: Prisma.Decimal
+      remainingBudget: Prisma.Decimal
+      costPerClick: Prisma.Decimal
+      currency: string
+      startDate: Date
+      endDate: Date | null
+      status: string
+      paymentReference: string | null
+      views: number
+      clicks: number
+      transactionId: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["sponsoredAd"]>
+    composites: {}
+  }
+
+  type SponsoredAdGetPayload<S extends boolean | null | undefined | SponsoredAdDefaultArgs> = $Result.GetResult<Prisma.$SponsoredAdPayload, S>
+
+  type SponsoredAdCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SponsoredAdFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SponsoredAdCountAggregateInputType | true
+    }
+
+  export interface SponsoredAdDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SponsoredAd'], meta: { name: 'SponsoredAd' } }
+    /**
+     * Find zero or one SponsoredAd that matches the filter.
+     * @param {SponsoredAdFindUniqueArgs} args - Arguments to find a SponsoredAd
+     * @example
+     * // Get one SponsoredAd
+     * const sponsoredAd = await prisma.sponsoredAd.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SponsoredAdFindUniqueArgs>(args: SelectSubset<T, SponsoredAdFindUniqueArgs<ExtArgs>>): Prisma__SponsoredAdClient<$Result.GetResult<Prisma.$SponsoredAdPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SponsoredAd that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SponsoredAdFindUniqueOrThrowArgs} args - Arguments to find a SponsoredAd
+     * @example
+     * // Get one SponsoredAd
+     * const sponsoredAd = await prisma.sponsoredAd.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SponsoredAdFindUniqueOrThrowArgs>(args: SelectSubset<T, SponsoredAdFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SponsoredAdClient<$Result.GetResult<Prisma.$SponsoredAdPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SponsoredAd that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SponsoredAdFindFirstArgs} args - Arguments to find a SponsoredAd
+     * @example
+     * // Get one SponsoredAd
+     * const sponsoredAd = await prisma.sponsoredAd.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SponsoredAdFindFirstArgs>(args?: SelectSubset<T, SponsoredAdFindFirstArgs<ExtArgs>>): Prisma__SponsoredAdClient<$Result.GetResult<Prisma.$SponsoredAdPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SponsoredAd that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SponsoredAdFindFirstOrThrowArgs} args - Arguments to find a SponsoredAd
+     * @example
+     * // Get one SponsoredAd
+     * const sponsoredAd = await prisma.sponsoredAd.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SponsoredAdFindFirstOrThrowArgs>(args?: SelectSubset<T, SponsoredAdFindFirstOrThrowArgs<ExtArgs>>): Prisma__SponsoredAdClient<$Result.GetResult<Prisma.$SponsoredAdPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SponsoredAds that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SponsoredAdFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SponsoredAds
+     * const sponsoredAds = await prisma.sponsoredAd.findMany()
+     * 
+     * // Get first 10 SponsoredAds
+     * const sponsoredAds = await prisma.sponsoredAd.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const sponsoredAdWithIdOnly = await prisma.sponsoredAd.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SponsoredAdFindManyArgs>(args?: SelectSubset<T, SponsoredAdFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SponsoredAdPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SponsoredAd.
+     * @param {SponsoredAdCreateArgs} args - Arguments to create a SponsoredAd.
+     * @example
+     * // Create one SponsoredAd
+     * const SponsoredAd = await prisma.sponsoredAd.create({
+     *   data: {
+     *     // ... data to create a SponsoredAd
+     *   }
+     * })
+     * 
+     */
+    create<T extends SponsoredAdCreateArgs>(args: SelectSubset<T, SponsoredAdCreateArgs<ExtArgs>>): Prisma__SponsoredAdClient<$Result.GetResult<Prisma.$SponsoredAdPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SponsoredAds.
+     * @param {SponsoredAdCreateManyArgs} args - Arguments to create many SponsoredAds.
+     * @example
+     * // Create many SponsoredAds
+     * const sponsoredAd = await prisma.sponsoredAd.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SponsoredAdCreateManyArgs>(args?: SelectSubset<T, SponsoredAdCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SponsoredAds and returns the data saved in the database.
+     * @param {SponsoredAdCreateManyAndReturnArgs} args - Arguments to create many SponsoredAds.
+     * @example
+     * // Create many SponsoredAds
+     * const sponsoredAd = await prisma.sponsoredAd.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SponsoredAds and only return the `id`
+     * const sponsoredAdWithIdOnly = await prisma.sponsoredAd.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SponsoredAdCreateManyAndReturnArgs>(args?: SelectSubset<T, SponsoredAdCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SponsoredAdPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a SponsoredAd.
+     * @param {SponsoredAdDeleteArgs} args - Arguments to delete one SponsoredAd.
+     * @example
+     * // Delete one SponsoredAd
+     * const SponsoredAd = await prisma.sponsoredAd.delete({
+     *   where: {
+     *     // ... filter to delete one SponsoredAd
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SponsoredAdDeleteArgs>(args: SelectSubset<T, SponsoredAdDeleteArgs<ExtArgs>>): Prisma__SponsoredAdClient<$Result.GetResult<Prisma.$SponsoredAdPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SponsoredAd.
+     * @param {SponsoredAdUpdateArgs} args - Arguments to update one SponsoredAd.
+     * @example
+     * // Update one SponsoredAd
+     * const sponsoredAd = await prisma.sponsoredAd.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SponsoredAdUpdateArgs>(args: SelectSubset<T, SponsoredAdUpdateArgs<ExtArgs>>): Prisma__SponsoredAdClient<$Result.GetResult<Prisma.$SponsoredAdPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SponsoredAds.
+     * @param {SponsoredAdDeleteManyArgs} args - Arguments to filter SponsoredAds to delete.
+     * @example
+     * // Delete a few SponsoredAds
+     * const { count } = await prisma.sponsoredAd.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SponsoredAdDeleteManyArgs>(args?: SelectSubset<T, SponsoredAdDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SponsoredAds.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SponsoredAdUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SponsoredAds
+     * const sponsoredAd = await prisma.sponsoredAd.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SponsoredAdUpdateManyArgs>(args: SelectSubset<T, SponsoredAdUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SponsoredAds and returns the data updated in the database.
+     * @param {SponsoredAdUpdateManyAndReturnArgs} args - Arguments to update many SponsoredAds.
+     * @example
+     * // Update many SponsoredAds
+     * const sponsoredAd = await prisma.sponsoredAd.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more SponsoredAds and only return the `id`
+     * const sponsoredAdWithIdOnly = await prisma.sponsoredAd.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SponsoredAdUpdateManyAndReturnArgs>(args: SelectSubset<T, SponsoredAdUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SponsoredAdPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one SponsoredAd.
+     * @param {SponsoredAdUpsertArgs} args - Arguments to update or create a SponsoredAd.
+     * @example
+     * // Update or create a SponsoredAd
+     * const sponsoredAd = await prisma.sponsoredAd.upsert({
+     *   create: {
+     *     // ... data to create a SponsoredAd
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SponsoredAd we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SponsoredAdUpsertArgs>(args: SelectSubset<T, SponsoredAdUpsertArgs<ExtArgs>>): Prisma__SponsoredAdClient<$Result.GetResult<Prisma.$SponsoredAdPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SponsoredAds.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SponsoredAdCountArgs} args - Arguments to filter SponsoredAds to count.
+     * @example
+     * // Count the number of SponsoredAds
+     * const count = await prisma.sponsoredAd.count({
+     *   where: {
+     *     // ... the filter for the SponsoredAds we want to count
+     *   }
+     * })
+    **/
+    count<T extends SponsoredAdCountArgs>(
+      args?: Subset<T, SponsoredAdCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SponsoredAdCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SponsoredAd.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SponsoredAdAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SponsoredAdAggregateArgs>(args: Subset<T, SponsoredAdAggregateArgs>): Prisma.PrismaPromise<GetSponsoredAdAggregateType<T>>
+
+    /**
+     * Group by SponsoredAd.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SponsoredAdGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SponsoredAdGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SponsoredAdGroupByArgs['orderBy'] }
+        : { orderBy?: SponsoredAdGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SponsoredAdGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSponsoredAdGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SponsoredAd model
+   */
+  readonly fields: SponsoredAdFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SponsoredAd.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SponsoredAdClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    vendor<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    product<T extends VendorGiftDefaultArgs<ExtArgs> = {}>(args?: Subset<T, VendorGiftDefaultArgs<ExtArgs>>): Prisma__VendorGiftClient<$Result.GetResult<Prisma.$VendorGiftPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    transaction<T extends SponsoredAd$transactionArgs<ExtArgs> = {}>(args?: Subset<T, SponsoredAd$transactionArgs<ExtArgs>>): Prisma__TransactionClient<$Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SponsoredAd model
+   */
+  interface SponsoredAdFieldRefs {
+    readonly id: FieldRef<"SponsoredAd", 'Int'>
+    readonly vendorId: FieldRef<"SponsoredAd", 'String'>
+    readonly vendorGiftId: FieldRef<"SponsoredAd", 'Int'>
+    readonly country: FieldRef<"SponsoredAd", 'String'>
+    readonly budget: FieldRef<"SponsoredAd", 'Decimal'>
+    readonly remainingBudget: FieldRef<"SponsoredAd", 'Decimal'>
+    readonly costPerClick: FieldRef<"SponsoredAd", 'Decimal'>
+    readonly currency: FieldRef<"SponsoredAd", 'String'>
+    readonly startDate: FieldRef<"SponsoredAd", 'DateTime'>
+    readonly endDate: FieldRef<"SponsoredAd", 'DateTime'>
+    readonly status: FieldRef<"SponsoredAd", 'String'>
+    readonly paymentReference: FieldRef<"SponsoredAd", 'String'>
+    readonly views: FieldRef<"SponsoredAd", 'Int'>
+    readonly clicks: FieldRef<"SponsoredAd", 'Int'>
+    readonly transactionId: FieldRef<"SponsoredAd", 'String'>
+    readonly createdAt: FieldRef<"SponsoredAd", 'DateTime'>
+    readonly updatedAt: FieldRef<"SponsoredAd", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SponsoredAd findUnique
+   */
+  export type SponsoredAdFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SponsoredAd
+     */
+    select?: SponsoredAdSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SponsoredAd
+     */
+    omit?: SponsoredAdOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SponsoredAdInclude<ExtArgs> | null
+    /**
+     * Filter, which SponsoredAd to fetch.
+     */
+    where: SponsoredAdWhereUniqueInput
+  }
+
+  /**
+   * SponsoredAd findUniqueOrThrow
+   */
+  export type SponsoredAdFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SponsoredAd
+     */
+    select?: SponsoredAdSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SponsoredAd
+     */
+    omit?: SponsoredAdOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SponsoredAdInclude<ExtArgs> | null
+    /**
+     * Filter, which SponsoredAd to fetch.
+     */
+    where: SponsoredAdWhereUniqueInput
+  }
+
+  /**
+   * SponsoredAd findFirst
+   */
+  export type SponsoredAdFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SponsoredAd
+     */
+    select?: SponsoredAdSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SponsoredAd
+     */
+    omit?: SponsoredAdOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SponsoredAdInclude<ExtArgs> | null
+    /**
+     * Filter, which SponsoredAd to fetch.
+     */
+    where?: SponsoredAdWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SponsoredAds to fetch.
+     */
+    orderBy?: SponsoredAdOrderByWithRelationInput | SponsoredAdOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SponsoredAds.
+     */
+    cursor?: SponsoredAdWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SponsoredAds from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SponsoredAds.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SponsoredAds.
+     */
+    distinct?: SponsoredAdScalarFieldEnum | SponsoredAdScalarFieldEnum[]
+  }
+
+  /**
+   * SponsoredAd findFirstOrThrow
+   */
+  export type SponsoredAdFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SponsoredAd
+     */
+    select?: SponsoredAdSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SponsoredAd
+     */
+    omit?: SponsoredAdOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SponsoredAdInclude<ExtArgs> | null
+    /**
+     * Filter, which SponsoredAd to fetch.
+     */
+    where?: SponsoredAdWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SponsoredAds to fetch.
+     */
+    orderBy?: SponsoredAdOrderByWithRelationInput | SponsoredAdOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SponsoredAds.
+     */
+    cursor?: SponsoredAdWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SponsoredAds from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SponsoredAds.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SponsoredAds.
+     */
+    distinct?: SponsoredAdScalarFieldEnum | SponsoredAdScalarFieldEnum[]
+  }
+
+  /**
+   * SponsoredAd findMany
+   */
+  export type SponsoredAdFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SponsoredAd
+     */
+    select?: SponsoredAdSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SponsoredAd
+     */
+    omit?: SponsoredAdOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SponsoredAdInclude<ExtArgs> | null
+    /**
+     * Filter, which SponsoredAds to fetch.
+     */
+    where?: SponsoredAdWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SponsoredAds to fetch.
+     */
+    orderBy?: SponsoredAdOrderByWithRelationInput | SponsoredAdOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SponsoredAds.
+     */
+    cursor?: SponsoredAdWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SponsoredAds from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SponsoredAds.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SponsoredAds.
+     */
+    distinct?: SponsoredAdScalarFieldEnum | SponsoredAdScalarFieldEnum[]
+  }
+
+  /**
+   * SponsoredAd create
+   */
+  export type SponsoredAdCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SponsoredAd
+     */
+    select?: SponsoredAdSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SponsoredAd
+     */
+    omit?: SponsoredAdOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SponsoredAdInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SponsoredAd.
+     */
+    data: XOR<SponsoredAdCreateInput, SponsoredAdUncheckedCreateInput>
+  }
+
+  /**
+   * SponsoredAd createMany
+   */
+  export type SponsoredAdCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SponsoredAds.
+     */
+    data: SponsoredAdCreateManyInput | SponsoredAdCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SponsoredAd createManyAndReturn
+   */
+  export type SponsoredAdCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SponsoredAd
+     */
+    select?: SponsoredAdSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SponsoredAd
+     */
+    omit?: SponsoredAdOmit<ExtArgs> | null
+    /**
+     * The data used to create many SponsoredAds.
+     */
+    data: SponsoredAdCreateManyInput | SponsoredAdCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SponsoredAdIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SponsoredAd update
+   */
+  export type SponsoredAdUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SponsoredAd
+     */
+    select?: SponsoredAdSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SponsoredAd
+     */
+    omit?: SponsoredAdOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SponsoredAdInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SponsoredAd.
+     */
+    data: XOR<SponsoredAdUpdateInput, SponsoredAdUncheckedUpdateInput>
+    /**
+     * Choose, which SponsoredAd to update.
+     */
+    where: SponsoredAdWhereUniqueInput
+  }
+
+  /**
+   * SponsoredAd updateMany
+   */
+  export type SponsoredAdUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SponsoredAds.
+     */
+    data: XOR<SponsoredAdUpdateManyMutationInput, SponsoredAdUncheckedUpdateManyInput>
+    /**
+     * Filter which SponsoredAds to update
+     */
+    where?: SponsoredAdWhereInput
+    /**
+     * Limit how many SponsoredAds to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SponsoredAd updateManyAndReturn
+   */
+  export type SponsoredAdUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SponsoredAd
+     */
+    select?: SponsoredAdSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SponsoredAd
+     */
+    omit?: SponsoredAdOmit<ExtArgs> | null
+    /**
+     * The data used to update SponsoredAds.
+     */
+    data: XOR<SponsoredAdUpdateManyMutationInput, SponsoredAdUncheckedUpdateManyInput>
+    /**
+     * Filter which SponsoredAds to update
+     */
+    where?: SponsoredAdWhereInput
+    /**
+     * Limit how many SponsoredAds to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SponsoredAdIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SponsoredAd upsert
+   */
+  export type SponsoredAdUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SponsoredAd
+     */
+    select?: SponsoredAdSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SponsoredAd
+     */
+    omit?: SponsoredAdOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SponsoredAdInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SponsoredAd to update in case it exists.
+     */
+    where: SponsoredAdWhereUniqueInput
+    /**
+     * In case the SponsoredAd found by the `where` argument doesn't exist, create a new SponsoredAd with this data.
+     */
+    create: XOR<SponsoredAdCreateInput, SponsoredAdUncheckedCreateInput>
+    /**
+     * In case the SponsoredAd was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SponsoredAdUpdateInput, SponsoredAdUncheckedUpdateInput>
+  }
+
+  /**
+   * SponsoredAd delete
+   */
+  export type SponsoredAdDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SponsoredAd
+     */
+    select?: SponsoredAdSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SponsoredAd
+     */
+    omit?: SponsoredAdOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SponsoredAdInclude<ExtArgs> | null
+    /**
+     * Filter which SponsoredAd to delete.
+     */
+    where: SponsoredAdWhereUniqueInput
+  }
+
+  /**
+   * SponsoredAd deleteMany
+   */
+  export type SponsoredAdDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SponsoredAds to delete
+     */
+    where?: SponsoredAdWhereInput
+    /**
+     * Limit how many SponsoredAds to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SponsoredAd.transaction
+   */
+  export type SponsoredAd$transactionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Transaction
+     */
+    select?: TransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Transaction
+     */
+    omit?: TransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TransactionInclude<ExtArgs> | null
+    where?: TransactionWhereInput
+  }
+
+  /**
+   * SponsoredAd without action
+   */
+  export type SponsoredAdDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SponsoredAd
+     */
+    select?: SponsoredAdSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SponsoredAd
+     */
+    omit?: SponsoredAdOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SponsoredAdInclude<ExtArgs> | null
   }
 
 
@@ -18595,7 +19978,8 @@ export namespace Prisma {
     creatorSupport?: boolean | Transaction$creatorSupportArgs<ExtArgs>
     contribution?: boolean | Transaction$contributionArgs<ExtArgs>
     withdrawal?: boolean | Transaction$withdrawalArgs<ExtArgs>
-    promotion?: boolean | Transaction$promotionArgs<ExtArgs>
+    featuredAd?: boolean | Transaction$featuredAdArgs<ExtArgs>
+    sponsoredAd?: boolean | Transaction$sponsoredAdArgs<ExtArgs>
     campaignWithdrawal?: boolean | Transaction$campaignWithdrawalArgs<ExtArgs>
   }, ExtArgs["result"]["transaction"]>
 
@@ -18652,7 +20036,8 @@ export namespace Prisma {
     creatorSupport?: boolean | Transaction$creatorSupportArgs<ExtArgs>
     contribution?: boolean | Transaction$contributionArgs<ExtArgs>
     withdrawal?: boolean | Transaction$withdrawalArgs<ExtArgs>
-    promotion?: boolean | Transaction$promotionArgs<ExtArgs>
+    featuredAd?: boolean | Transaction$featuredAdArgs<ExtArgs>
+    sponsoredAd?: boolean | Transaction$sponsoredAdArgs<ExtArgs>
     campaignWithdrawal?: boolean | Transaction$campaignWithdrawalArgs<ExtArgs>
   }
   export type TransactionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -18672,7 +20057,8 @@ export namespace Prisma {
       creatorSupport: Prisma.$CreatorSupportPayload<ExtArgs> | null
       contribution: Prisma.$ContributionPayload<ExtArgs> | null
       withdrawal: Prisma.$WithdrawalPayload<ExtArgs> | null
-      promotion: Prisma.$PromotionPayload<ExtArgs> | null
+      featuredAd: Prisma.$FeaturedAdPayload<ExtArgs> | null
+      sponsoredAd: Prisma.$SponsoredAdPayload<ExtArgs> | null
       campaignWithdrawal: Prisma.$CampaignWithdrawalPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -19086,7 +20472,8 @@ export namespace Prisma {
     creatorSupport<T extends Transaction$creatorSupportArgs<ExtArgs> = {}>(args?: Subset<T, Transaction$creatorSupportArgs<ExtArgs>>): Prisma__CreatorSupportClient<$Result.GetResult<Prisma.$CreatorSupportPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     contribution<T extends Transaction$contributionArgs<ExtArgs> = {}>(args?: Subset<T, Transaction$contributionArgs<ExtArgs>>): Prisma__ContributionClient<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     withdrawal<T extends Transaction$withdrawalArgs<ExtArgs> = {}>(args?: Subset<T, Transaction$withdrawalArgs<ExtArgs>>): Prisma__WithdrawalClient<$Result.GetResult<Prisma.$WithdrawalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    promotion<T extends Transaction$promotionArgs<ExtArgs> = {}>(args?: Subset<T, Transaction$promotionArgs<ExtArgs>>): Prisma__PromotionClient<$Result.GetResult<Prisma.$PromotionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    featuredAd<T extends Transaction$featuredAdArgs<ExtArgs> = {}>(args?: Subset<T, Transaction$featuredAdArgs<ExtArgs>>): Prisma__FeaturedAdClient<$Result.GetResult<Prisma.$FeaturedAdPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    sponsoredAd<T extends Transaction$sponsoredAdArgs<ExtArgs> = {}>(args?: Subset<T, Transaction$sponsoredAdArgs<ExtArgs>>): Prisma__SponsoredAdClient<$Result.GetResult<Prisma.$SponsoredAdPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     campaignWithdrawal<T extends Transaction$campaignWithdrawalArgs<ExtArgs> = {}>(args?: Subset<T, Transaction$campaignWithdrawalArgs<ExtArgs>>): Prisma__CampaignWithdrawalClient<$Result.GetResult<Prisma.$CampaignWithdrawalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -19624,22 +21011,41 @@ export namespace Prisma {
   }
 
   /**
-   * Transaction.promotion
+   * Transaction.featuredAd
    */
-  export type Transaction$promotionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Transaction$featuredAdArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Promotion
+     * Select specific fields to fetch from the FeaturedAd
      */
-    select?: PromotionSelect<ExtArgs> | null
+    select?: FeaturedAdSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Promotion
+     * Omit specific fields from the FeaturedAd
      */
-    omit?: PromotionOmit<ExtArgs> | null
+    omit?: FeaturedAdOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PromotionInclude<ExtArgs> | null
-    where?: PromotionWhereInput
+    include?: FeaturedAdInclude<ExtArgs> | null
+    where?: FeaturedAdWhereInput
+  }
+
+  /**
+   * Transaction.sponsoredAd
+   */
+  export type Transaction$sponsoredAdArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SponsoredAd
+     */
+    select?: SponsoredAdSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SponsoredAd
+     */
+    omit?: SponsoredAdOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SponsoredAdInclude<ExtArgs> | null
+    where?: SponsoredAdWhereInput
   }
 
   /**
@@ -32598,6 +34004,7 @@ export namespace Prisma {
     minWithdrawal: number
     maxWithdrawal: number
     features: number
+    adConfig: number
     isEnabled: number
     createdAt: number
     updatedAt: number
@@ -32663,6 +34070,7 @@ export namespace Prisma {
     minWithdrawal?: true
     maxWithdrawal?: true
     features?: true
+    adConfig?: true
     isEnabled?: true
     createdAt?: true
     updatedAt?: true
@@ -32767,6 +34175,7 @@ export namespace Prisma {
     minWithdrawal: Decimal
     maxWithdrawal: Decimal
     features: JsonValue
+    adConfig: JsonValue | null
     isEnabled: boolean
     createdAt: Date
     updatedAt: Date
@@ -32803,6 +34212,7 @@ export namespace Prisma {
     minWithdrawal?: boolean
     maxWithdrawal?: boolean
     features?: boolean
+    adConfig?: boolean
     isEnabled?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -32820,6 +34230,7 @@ export namespace Prisma {
     minWithdrawal?: boolean
     maxWithdrawal?: boolean
     features?: boolean
+    adConfig?: boolean
     isEnabled?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -32837,6 +34248,7 @@ export namespace Prisma {
     minWithdrawal?: boolean
     maxWithdrawal?: boolean
     features?: boolean
+    adConfig?: boolean
     isEnabled?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -32854,12 +34266,13 @@ export namespace Prisma {
     minWithdrawal?: boolean
     maxWithdrawal?: boolean
     features?: boolean
+    adConfig?: boolean
     isEnabled?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type CountryConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "countryName" | "countryCode" | "currency" | "currencySymbol" | "flag" | "transactionFeePercent" | "withdrawalFeeFlat" | "minWithdrawal" | "maxWithdrawal" | "features" | "isEnabled" | "createdAt" | "updatedAt", ExtArgs["result"]["countryConfig"]>
+  export type CountryConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "countryName" | "countryCode" | "currency" | "currencySymbol" | "flag" | "transactionFeePercent" | "withdrawalFeeFlat" | "minWithdrawal" | "maxWithdrawal" | "features" | "adConfig" | "isEnabled" | "createdAt" | "updatedAt", ExtArgs["result"]["countryConfig"]>
 
   export type $CountryConfigPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "CountryConfig"
@@ -32876,6 +34289,7 @@ export namespace Prisma {
       minWithdrawal: Prisma.Decimal
       maxWithdrawal: Prisma.Decimal
       features: Prisma.JsonValue
+      adConfig: Prisma.JsonValue | null
       isEnabled: boolean
       createdAt: Date
       updatedAt: Date
@@ -33313,6 +34727,7 @@ export namespace Prisma {
     readonly minWithdrawal: FieldRef<"CountryConfig", 'Decimal'>
     readonly maxWithdrawal: FieldRef<"CountryConfig", 'Decimal'>
     readonly features: FieldRef<"CountryConfig", 'Json'>
+    readonly adConfig: FieldRef<"CountryConfig", 'Json'>
     readonly isEnabled: FieldRef<"CountryConfig", 'Boolean'>
     readonly createdAt: FieldRef<"CountryConfig", 'DateTime'>
     readonly updatedAt: FieldRef<"CountryConfig", 'DateTime'>
@@ -33704,6 +35119,10 @@ export namespace Prisma {
     price: Decimal | null
     stockQuantity: number | null
     unitsSold: number | null
+    viewsCount: number | null
+    clicksCount: number | null
+    salesCount: number | null
+    rankingScore: number | null
   }
 
   export type VendorGiftSumAggregateOutputType = {
@@ -33711,6 +35130,10 @@ export namespace Prisma {
     price: Decimal | null
     stockQuantity: number | null
     unitsSold: number | null
+    viewsCount: number | null
+    clicksCount: number | null
+    salesCount: number | null
+    rankingScore: number | null
   }
 
   export type VendorGiftMinAggregateOutputType = {
@@ -33726,6 +35149,11 @@ export namespace Prisma {
     status: string | null
     stockQuantity: number | null
     unitsSold: number | null
+    viewsCount: number | null
+    clicksCount: number | null
+    salesCount: number | null
+    rankingScore: number | null
+    lastEngagementAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -33743,6 +35171,11 @@ export namespace Prisma {
     status: string | null
     stockQuantity: number | null
     unitsSold: number | null
+    viewsCount: number | null
+    clicksCount: number | null
+    salesCount: number | null
+    rankingScore: number | null
+    lastEngagementAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -33762,6 +35195,11 @@ export namespace Prisma {
     stockQuantity: number
     unitsSold: number
     images: number
+    viewsCount: number
+    clicksCount: number
+    salesCount: number
+    rankingScore: number
+    lastEngagementAt: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -33773,6 +35211,10 @@ export namespace Prisma {
     price?: true
     stockQuantity?: true
     unitsSold?: true
+    viewsCount?: true
+    clicksCount?: true
+    salesCount?: true
+    rankingScore?: true
   }
 
   export type VendorGiftSumAggregateInputType = {
@@ -33780,6 +35222,10 @@ export namespace Prisma {
     price?: true
     stockQuantity?: true
     unitsSold?: true
+    viewsCount?: true
+    clicksCount?: true
+    salesCount?: true
+    rankingScore?: true
   }
 
   export type VendorGiftMinAggregateInputType = {
@@ -33795,6 +35241,11 @@ export namespace Prisma {
     status?: true
     stockQuantity?: true
     unitsSold?: true
+    viewsCount?: true
+    clicksCount?: true
+    salesCount?: true
+    rankingScore?: true
+    lastEngagementAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -33812,6 +35263,11 @@ export namespace Prisma {
     status?: true
     stockQuantity?: true
     unitsSold?: true
+    viewsCount?: true
+    clicksCount?: true
+    salesCount?: true
+    rankingScore?: true
+    lastEngagementAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -33831,6 +35287,11 @@ export namespace Prisma {
     stockQuantity?: true
     unitsSold?: true
     images?: true
+    viewsCount?: true
+    clicksCount?: true
+    salesCount?: true
+    rankingScore?: true
+    lastEngagementAt?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -33937,6 +35398,11 @@ export namespace Prisma {
     stockQuantity: number | null
     unitsSold: number
     images: string[]
+    viewsCount: number
+    clicksCount: number
+    salesCount: number
+    rankingScore: number
+    lastEngagementAt: Date
     createdAt: Date
     updatedAt: Date
     _count: VendorGiftCountAggregateOutputType | null
@@ -33975,12 +35441,18 @@ export namespace Prisma {
     stockQuantity?: boolean
     unitsSold?: boolean
     images?: boolean
+    viewsCount?: boolean
+    clicksCount?: boolean
+    salesCount?: boolean
+    rankingScore?: boolean
+    lastEngagementAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     vendor?: boolean | UserDefaultArgs<ExtArgs>
     giftImages?: boolean | VendorGift$giftImagesArgs<ExtArgs>
     favorites?: boolean | VendorGift$favoritesArgs<ExtArgs>
-    promotions?: boolean | VendorGift$promotionsArgs<ExtArgs>
+    featuredAds?: boolean | VendorGift$featuredAdsArgs<ExtArgs>
+    sponsoredAds?: boolean | VendorGift$sponsoredAdsArgs<ExtArgs>
     campaigns?: boolean | VendorGift$campaignsArgs<ExtArgs>
     directGifts?: boolean | VendorGift$directGiftsArgs<ExtArgs>
     _count?: boolean | VendorGiftCountOutputTypeDefaultArgs<ExtArgs>
@@ -34001,6 +35473,11 @@ export namespace Prisma {
     stockQuantity?: boolean
     unitsSold?: boolean
     images?: boolean
+    viewsCount?: boolean
+    clicksCount?: boolean
+    salesCount?: boolean
+    rankingScore?: boolean
+    lastEngagementAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     vendor?: boolean | UserDefaultArgs<ExtArgs>
@@ -34021,6 +35498,11 @@ export namespace Prisma {
     stockQuantity?: boolean
     unitsSold?: boolean
     images?: boolean
+    viewsCount?: boolean
+    clicksCount?: boolean
+    salesCount?: boolean
+    rankingScore?: boolean
+    lastEngagementAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     vendor?: boolean | UserDefaultArgs<ExtArgs>
@@ -34041,16 +35523,22 @@ export namespace Prisma {
     stockQuantity?: boolean
     unitsSold?: boolean
     images?: boolean
+    viewsCount?: boolean
+    clicksCount?: boolean
+    salesCount?: boolean
+    rankingScore?: boolean
+    lastEngagementAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type VendorGiftOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "vendorId" | "name" | "slug" | "price" | "description" | "imageUrl" | "category" | "tags" | "type" | "status" | "stockQuantity" | "unitsSold" | "images" | "createdAt" | "updatedAt", ExtArgs["result"]["vendorGift"]>
+  export type VendorGiftOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "vendorId" | "name" | "slug" | "price" | "description" | "imageUrl" | "category" | "tags" | "type" | "status" | "stockQuantity" | "unitsSold" | "images" | "viewsCount" | "clicksCount" | "salesCount" | "rankingScore" | "lastEngagementAt" | "createdAt" | "updatedAt", ExtArgs["result"]["vendorGift"]>
   export type VendorGiftInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     vendor?: boolean | UserDefaultArgs<ExtArgs>
     giftImages?: boolean | VendorGift$giftImagesArgs<ExtArgs>
     favorites?: boolean | VendorGift$favoritesArgs<ExtArgs>
-    promotions?: boolean | VendorGift$promotionsArgs<ExtArgs>
+    featuredAds?: boolean | VendorGift$featuredAdsArgs<ExtArgs>
+    sponsoredAds?: boolean | VendorGift$sponsoredAdsArgs<ExtArgs>
     campaigns?: boolean | VendorGift$campaignsArgs<ExtArgs>
     directGifts?: boolean | VendorGift$directGiftsArgs<ExtArgs>
     _count?: boolean | VendorGiftCountOutputTypeDefaultArgs<ExtArgs>
@@ -34068,7 +35556,8 @@ export namespace Prisma {
       vendor: Prisma.$UserPayload<ExtArgs>
       giftImages: Prisma.$VendorGiftImagePayload<ExtArgs>[]
       favorites: Prisma.$FavoritePayload<ExtArgs>[]
-      promotions: Prisma.$PromotionPayload<ExtArgs>[]
+      featuredAds: Prisma.$FeaturedAdPayload<ExtArgs>[]
+      sponsoredAds: Prisma.$SponsoredAdPayload<ExtArgs>[]
       campaigns: Prisma.$CampaignPayload<ExtArgs>[]
       directGifts: Prisma.$DirectGiftPayload<ExtArgs>[]
     }
@@ -34087,6 +35576,11 @@ export namespace Prisma {
       stockQuantity: number | null
       unitsSold: number
       images: string[]
+      viewsCount: number
+      clicksCount: number
+      salesCount: number
+      rankingScore: number
+      lastEngagementAt: Date
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["vendorGift"]>
@@ -34486,7 +35980,8 @@ export namespace Prisma {
     vendor<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     giftImages<T extends VendorGift$giftImagesArgs<ExtArgs> = {}>(args?: Subset<T, VendorGift$giftImagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VendorGiftImagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     favorites<T extends VendorGift$favoritesArgs<ExtArgs> = {}>(args?: Subset<T, VendorGift$favoritesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FavoritePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    promotions<T extends VendorGift$promotionsArgs<ExtArgs> = {}>(args?: Subset<T, VendorGift$promotionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PromotionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    featuredAds<T extends VendorGift$featuredAdsArgs<ExtArgs> = {}>(args?: Subset<T, VendorGift$featuredAdsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeaturedAdPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    sponsoredAds<T extends VendorGift$sponsoredAdsArgs<ExtArgs> = {}>(args?: Subset<T, VendorGift$sponsoredAdsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SponsoredAdPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     campaigns<T extends VendorGift$campaignsArgs<ExtArgs> = {}>(args?: Subset<T, VendorGift$campaignsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CampaignPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     directGifts<T extends VendorGift$directGiftsArgs<ExtArgs> = {}>(args?: Subset<T, VendorGift$directGiftsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DirectGiftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
@@ -34532,6 +36027,11 @@ export namespace Prisma {
     readonly stockQuantity: FieldRef<"VendorGift", 'Int'>
     readonly unitsSold: FieldRef<"VendorGift", 'Int'>
     readonly images: FieldRef<"VendorGift", 'String[]'>
+    readonly viewsCount: FieldRef<"VendorGift", 'Int'>
+    readonly clicksCount: FieldRef<"VendorGift", 'Int'>
+    readonly salesCount: FieldRef<"VendorGift", 'Int'>
+    readonly rankingScore: FieldRef<"VendorGift", 'Float'>
+    readonly lastEngagementAt: FieldRef<"VendorGift", 'DateTime'>
     readonly createdAt: FieldRef<"VendorGift", 'DateTime'>
     readonly updatedAt: FieldRef<"VendorGift", 'DateTime'>
   }
@@ -34983,27 +36483,51 @@ export namespace Prisma {
   }
 
   /**
-   * VendorGift.promotions
+   * VendorGift.featuredAds
    */
-  export type VendorGift$promotionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type VendorGift$featuredAdsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Promotion
+     * Select specific fields to fetch from the FeaturedAd
      */
-    select?: PromotionSelect<ExtArgs> | null
+    select?: FeaturedAdSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Promotion
+     * Omit specific fields from the FeaturedAd
      */
-    omit?: PromotionOmit<ExtArgs> | null
+    omit?: FeaturedAdOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PromotionInclude<ExtArgs> | null
-    where?: PromotionWhereInput
-    orderBy?: PromotionOrderByWithRelationInput | PromotionOrderByWithRelationInput[]
-    cursor?: PromotionWhereUniqueInput
+    include?: FeaturedAdInclude<ExtArgs> | null
+    where?: FeaturedAdWhereInput
+    orderBy?: FeaturedAdOrderByWithRelationInput | FeaturedAdOrderByWithRelationInput[]
+    cursor?: FeaturedAdWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: PromotionScalarFieldEnum | PromotionScalarFieldEnum[]
+    distinct?: FeaturedAdScalarFieldEnum | FeaturedAdScalarFieldEnum[]
+  }
+
+  /**
+   * VendorGift.sponsoredAds
+   */
+  export type VendorGift$sponsoredAdsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SponsoredAd
+     */
+    select?: SponsoredAdSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SponsoredAd
+     */
+    omit?: SponsoredAdOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SponsoredAdInclude<ExtArgs> | null
+    where?: SponsoredAdWhereInput
+    orderBy?: SponsoredAdOrderByWithRelationInput | SponsoredAdOrderByWithRelationInput[]
+    cursor?: SponsoredAdWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SponsoredAdScalarFieldEnum | SponsoredAdScalarFieldEnum[]
   }
 
   /**
@@ -38527,29 +40051,49 @@ export namespace Prisma {
   export type DirectGiftScalarFieldEnum = (typeof DirectGiftScalarFieldEnum)[keyof typeof DirectGiftScalarFieldEnum]
 
 
-  export const PromotionScalarFieldEnum: {
+  export const FeaturedAdScalarFieldEnum: {
     id: 'id',
     vendorId: 'vendorId',
-    productId: 'productId',
     vendorGiftId: 'vendorGiftId',
-    placement: 'placement',
-    durationDays: 'durationDays',
+    country: 'country',
+    slotNumber: 'slotNumber',
     startDate: 'startDate',
     endDate: 'endDate',
     status: 'status',
     amountPaid: 'amountPaid',
     currency: 'currency',
     paymentReference: 'paymentReference',
-    rejectionReason: 'rejectionReason',
     views: 'views',
     clicks: 'clicks',
-    conversions: 'conversions',
     transactionId: 'transactionId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
-  export type PromotionScalarFieldEnum = (typeof PromotionScalarFieldEnum)[keyof typeof PromotionScalarFieldEnum]
+  export type FeaturedAdScalarFieldEnum = (typeof FeaturedAdScalarFieldEnum)[keyof typeof FeaturedAdScalarFieldEnum]
+
+
+  export const SponsoredAdScalarFieldEnum: {
+    id: 'id',
+    vendorId: 'vendorId',
+    vendorGiftId: 'vendorGiftId',
+    country: 'country',
+    budget: 'budget',
+    remainingBudget: 'remainingBudget',
+    costPerClick: 'costPerClick',
+    currency: 'currency',
+    startDate: 'startDate',
+    endDate: 'endDate',
+    status: 'status',
+    paymentReference: 'paymentReference',
+    views: 'views',
+    clicks: 'clicks',
+    transactionId: 'transactionId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type SponsoredAdScalarFieldEnum = (typeof SponsoredAdScalarFieldEnum)[keyof typeof SponsoredAdScalarFieldEnum]
 
 
   export const ExternalPromotionScalarFieldEnum: {
@@ -38788,6 +40332,7 @@ export namespace Prisma {
     minWithdrawal: 'minWithdrawal',
     maxWithdrawal: 'maxWithdrawal',
     features: 'features',
+    adConfig: 'adConfig',
     isEnabled: 'isEnabled',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -38811,6 +40356,11 @@ export namespace Prisma {
     stockQuantity: 'stockQuantity',
     unitsSold: 'unitsSold',
     images: 'images',
+    viewsCount: 'viewsCount',
+    clicksCount: 'clicksCount',
+    salesCount: 'salesCount',
+    rankingScore: 'rankingScore',
+    lastEngagementAt: 'lastEngagementAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -39082,7 +40632,8 @@ export namespace Prisma {
     transactions?: TransactionListRelationFilter
     vendorGifts?: VendorGiftListRelationFilter
     favorites?: FavoriteListRelationFilter
-    promotions?: PromotionListRelationFilter
+    featuredAds?: FeaturedAdListRelationFilter
+    sponsoredAds?: SponsoredAdListRelationFilter
     sentFlexCards?: FlexCardListRelationFilter
     receivedFlexCards?: FlexCardListRelationFilter
     moderationReportsMade?: ModerationReportListRelationFilter
@@ -39140,7 +40691,8 @@ export namespace Prisma {
     transactions?: TransactionOrderByRelationAggregateInput
     vendorGifts?: VendorGiftOrderByRelationAggregateInput
     favorites?: FavoriteOrderByRelationAggregateInput
-    promotions?: PromotionOrderByRelationAggregateInput
+    featuredAds?: FeaturedAdOrderByRelationAggregateInput
+    sponsoredAds?: SponsoredAdOrderByRelationAggregateInput
     sentFlexCards?: FlexCardOrderByRelationAggregateInput
     receivedFlexCards?: FlexCardOrderByRelationAggregateInput
     moderationReportsMade?: ModerationReportOrderByRelationAggregateInput
@@ -39201,7 +40753,8 @@ export namespace Prisma {
     transactions?: TransactionListRelationFilter
     vendorGifts?: VendorGiftListRelationFilter
     favorites?: FavoriteListRelationFilter
-    promotions?: PromotionListRelationFilter
+    featuredAds?: FeaturedAdListRelationFilter
+    sponsoredAds?: SponsoredAdListRelationFilter
     sentFlexCards?: FlexCardListRelationFilter
     receivedFlexCards?: FlexCardListRelationFilter
     moderationReportsMade?: ModerationReportListRelationFilter
@@ -40103,51 +41656,45 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"DirectGift"> | Date | string
   }
 
-  export type PromotionWhereInput = {
-    AND?: PromotionWhereInput | PromotionWhereInput[]
-    OR?: PromotionWhereInput[]
-    NOT?: PromotionWhereInput | PromotionWhereInput[]
-    id?: IntFilter<"Promotion"> | number
-    vendorId?: StringFilter<"Promotion"> | string
-    productId?: IntNullableFilter<"Promotion"> | number | null
-    vendorGiftId?: IntNullableFilter<"Promotion"> | number | null
-    placement?: StringFilter<"Promotion"> | string
-    durationDays?: IntFilter<"Promotion"> | number
-    startDate?: DateTimeNullableFilter<"Promotion"> | Date | string | null
-    endDate?: DateTimeNullableFilter<"Promotion"> | Date | string | null
-    status?: StringFilter<"Promotion"> | string
-    amountPaid?: DecimalFilter<"Promotion"> | Decimal | DecimalJsLike | number | string
-    currency?: StringFilter<"Promotion"> | string
-    paymentReference?: StringNullableFilter<"Promotion"> | string | null
-    rejectionReason?: StringNullableFilter<"Promotion"> | string | null
-    views?: IntFilter<"Promotion"> | number
-    clicks?: IntFilter<"Promotion"> | number
-    conversions?: IntFilter<"Promotion"> | number
-    transactionId?: StringNullableFilter<"Promotion"> | string | null
-    createdAt?: DateTimeFilter<"Promotion"> | Date | string
-    updatedAt?: DateTimeFilter<"Promotion"> | Date | string
+  export type FeaturedAdWhereInput = {
+    AND?: FeaturedAdWhereInput | FeaturedAdWhereInput[]
+    OR?: FeaturedAdWhereInput[]
+    NOT?: FeaturedAdWhereInput | FeaturedAdWhereInput[]
+    id?: IntFilter<"FeaturedAd"> | number
+    vendorId?: StringFilter<"FeaturedAd"> | string
+    vendorGiftId?: IntFilter<"FeaturedAd"> | number
+    country?: StringFilter<"FeaturedAd"> | string
+    slotNumber?: IntFilter<"FeaturedAd"> | number
+    startDate?: DateTimeFilter<"FeaturedAd"> | Date | string
+    endDate?: DateTimeFilter<"FeaturedAd"> | Date | string
+    status?: StringFilter<"FeaturedAd"> | string
+    amountPaid?: DecimalFilter<"FeaturedAd"> | Decimal | DecimalJsLike | number | string
+    currency?: StringFilter<"FeaturedAd"> | string
+    paymentReference?: StringNullableFilter<"FeaturedAd"> | string | null
+    views?: IntFilter<"FeaturedAd"> | number
+    clicks?: IntFilter<"FeaturedAd"> | number
+    transactionId?: StringNullableFilter<"FeaturedAd"> | string | null
+    createdAt?: DateTimeFilter<"FeaturedAd"> | Date | string
+    updatedAt?: DateTimeFilter<"FeaturedAd"> | Date | string
     vendor?: XOR<UserScalarRelationFilter, UserWhereInput>
-    product?: XOR<VendorGiftNullableScalarRelationFilter, VendorGiftWhereInput> | null
+    product?: XOR<VendorGiftScalarRelationFilter, VendorGiftWhereInput>
     transaction?: XOR<TransactionNullableScalarRelationFilter, TransactionWhereInput> | null
   }
 
-  export type PromotionOrderByWithRelationInput = {
+  export type FeaturedAdOrderByWithRelationInput = {
     id?: SortOrder
     vendorId?: SortOrder
-    productId?: SortOrderInput | SortOrder
-    vendorGiftId?: SortOrderInput | SortOrder
-    placement?: SortOrder
-    durationDays?: SortOrder
-    startDate?: SortOrderInput | SortOrder
-    endDate?: SortOrderInput | SortOrder
+    vendorGiftId?: SortOrder
+    country?: SortOrder
+    slotNumber?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
     status?: SortOrder
     amountPaid?: SortOrder
     currency?: SortOrder
     paymentReference?: SortOrderInput | SortOrder
-    rejectionReason?: SortOrderInput | SortOrder
     views?: SortOrder
     clicks?: SortOrder
-    conversions?: SortOrder
     transactionId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -40156,84 +41703,198 @@ export namespace Prisma {
     transaction?: TransactionOrderByWithRelationInput
   }
 
-  export type PromotionWhereUniqueInput = Prisma.AtLeast<{
+  export type FeaturedAdWhereUniqueInput = Prisma.AtLeast<{
     id?: number
     transactionId?: string
-    AND?: PromotionWhereInput | PromotionWhereInput[]
-    OR?: PromotionWhereInput[]
-    NOT?: PromotionWhereInput | PromotionWhereInput[]
-    vendorId?: StringFilter<"Promotion"> | string
-    productId?: IntNullableFilter<"Promotion"> | number | null
-    vendorGiftId?: IntNullableFilter<"Promotion"> | number | null
-    placement?: StringFilter<"Promotion"> | string
-    durationDays?: IntFilter<"Promotion"> | number
-    startDate?: DateTimeNullableFilter<"Promotion"> | Date | string | null
-    endDate?: DateTimeNullableFilter<"Promotion"> | Date | string | null
-    status?: StringFilter<"Promotion"> | string
-    amountPaid?: DecimalFilter<"Promotion"> | Decimal | DecimalJsLike | number | string
-    currency?: StringFilter<"Promotion"> | string
-    paymentReference?: StringNullableFilter<"Promotion"> | string | null
-    rejectionReason?: StringNullableFilter<"Promotion"> | string | null
-    views?: IntFilter<"Promotion"> | number
-    clicks?: IntFilter<"Promotion"> | number
-    conversions?: IntFilter<"Promotion"> | number
-    createdAt?: DateTimeFilter<"Promotion"> | Date | string
-    updatedAt?: DateTimeFilter<"Promotion"> | Date | string
+    AND?: FeaturedAdWhereInput | FeaturedAdWhereInput[]
+    OR?: FeaturedAdWhereInput[]
+    NOT?: FeaturedAdWhereInput | FeaturedAdWhereInput[]
+    vendorId?: StringFilter<"FeaturedAd"> | string
+    vendorGiftId?: IntFilter<"FeaturedAd"> | number
+    country?: StringFilter<"FeaturedAd"> | string
+    slotNumber?: IntFilter<"FeaturedAd"> | number
+    startDate?: DateTimeFilter<"FeaturedAd"> | Date | string
+    endDate?: DateTimeFilter<"FeaturedAd"> | Date | string
+    status?: StringFilter<"FeaturedAd"> | string
+    amountPaid?: DecimalFilter<"FeaturedAd"> | Decimal | DecimalJsLike | number | string
+    currency?: StringFilter<"FeaturedAd"> | string
+    paymentReference?: StringNullableFilter<"FeaturedAd"> | string | null
+    views?: IntFilter<"FeaturedAd"> | number
+    clicks?: IntFilter<"FeaturedAd"> | number
+    createdAt?: DateTimeFilter<"FeaturedAd"> | Date | string
+    updatedAt?: DateTimeFilter<"FeaturedAd"> | Date | string
     vendor?: XOR<UserScalarRelationFilter, UserWhereInput>
-    product?: XOR<VendorGiftNullableScalarRelationFilter, VendorGiftWhereInput> | null
+    product?: XOR<VendorGiftScalarRelationFilter, VendorGiftWhereInput>
     transaction?: XOR<TransactionNullableScalarRelationFilter, TransactionWhereInput> | null
   }, "id" | "transactionId">
 
-  export type PromotionOrderByWithAggregationInput = {
+  export type FeaturedAdOrderByWithAggregationInput = {
     id?: SortOrder
     vendorId?: SortOrder
-    productId?: SortOrderInput | SortOrder
-    vendorGiftId?: SortOrderInput | SortOrder
-    placement?: SortOrder
-    durationDays?: SortOrder
-    startDate?: SortOrderInput | SortOrder
-    endDate?: SortOrderInput | SortOrder
+    vendorGiftId?: SortOrder
+    country?: SortOrder
+    slotNumber?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
     status?: SortOrder
     amountPaid?: SortOrder
     currency?: SortOrder
     paymentReference?: SortOrderInput | SortOrder
-    rejectionReason?: SortOrderInput | SortOrder
     views?: SortOrder
     clicks?: SortOrder
-    conversions?: SortOrder
     transactionId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    _count?: PromotionCountOrderByAggregateInput
-    _avg?: PromotionAvgOrderByAggregateInput
-    _max?: PromotionMaxOrderByAggregateInput
-    _min?: PromotionMinOrderByAggregateInput
-    _sum?: PromotionSumOrderByAggregateInput
+    _count?: FeaturedAdCountOrderByAggregateInput
+    _avg?: FeaturedAdAvgOrderByAggregateInput
+    _max?: FeaturedAdMaxOrderByAggregateInput
+    _min?: FeaturedAdMinOrderByAggregateInput
+    _sum?: FeaturedAdSumOrderByAggregateInput
   }
 
-  export type PromotionScalarWhereWithAggregatesInput = {
-    AND?: PromotionScalarWhereWithAggregatesInput | PromotionScalarWhereWithAggregatesInput[]
-    OR?: PromotionScalarWhereWithAggregatesInput[]
-    NOT?: PromotionScalarWhereWithAggregatesInput | PromotionScalarWhereWithAggregatesInput[]
-    id?: IntWithAggregatesFilter<"Promotion"> | number
-    vendorId?: StringWithAggregatesFilter<"Promotion"> | string
-    productId?: IntNullableWithAggregatesFilter<"Promotion"> | number | null
-    vendorGiftId?: IntNullableWithAggregatesFilter<"Promotion"> | number | null
-    placement?: StringWithAggregatesFilter<"Promotion"> | string
-    durationDays?: IntWithAggregatesFilter<"Promotion"> | number
-    startDate?: DateTimeNullableWithAggregatesFilter<"Promotion"> | Date | string | null
-    endDate?: DateTimeNullableWithAggregatesFilter<"Promotion"> | Date | string | null
-    status?: StringWithAggregatesFilter<"Promotion"> | string
-    amountPaid?: DecimalWithAggregatesFilter<"Promotion"> | Decimal | DecimalJsLike | number | string
-    currency?: StringWithAggregatesFilter<"Promotion"> | string
-    paymentReference?: StringNullableWithAggregatesFilter<"Promotion"> | string | null
-    rejectionReason?: StringNullableWithAggregatesFilter<"Promotion"> | string | null
-    views?: IntWithAggregatesFilter<"Promotion"> | number
-    clicks?: IntWithAggregatesFilter<"Promotion"> | number
-    conversions?: IntWithAggregatesFilter<"Promotion"> | number
-    transactionId?: StringNullableWithAggregatesFilter<"Promotion"> | string | null
-    createdAt?: DateTimeWithAggregatesFilter<"Promotion"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"Promotion"> | Date | string
+  export type FeaturedAdScalarWhereWithAggregatesInput = {
+    AND?: FeaturedAdScalarWhereWithAggregatesInput | FeaturedAdScalarWhereWithAggregatesInput[]
+    OR?: FeaturedAdScalarWhereWithAggregatesInput[]
+    NOT?: FeaturedAdScalarWhereWithAggregatesInput | FeaturedAdScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"FeaturedAd"> | number
+    vendorId?: StringWithAggregatesFilter<"FeaturedAd"> | string
+    vendorGiftId?: IntWithAggregatesFilter<"FeaturedAd"> | number
+    country?: StringWithAggregatesFilter<"FeaturedAd"> | string
+    slotNumber?: IntWithAggregatesFilter<"FeaturedAd"> | number
+    startDate?: DateTimeWithAggregatesFilter<"FeaturedAd"> | Date | string
+    endDate?: DateTimeWithAggregatesFilter<"FeaturedAd"> | Date | string
+    status?: StringWithAggregatesFilter<"FeaturedAd"> | string
+    amountPaid?: DecimalWithAggregatesFilter<"FeaturedAd"> | Decimal | DecimalJsLike | number | string
+    currency?: StringWithAggregatesFilter<"FeaturedAd"> | string
+    paymentReference?: StringNullableWithAggregatesFilter<"FeaturedAd"> | string | null
+    views?: IntWithAggregatesFilter<"FeaturedAd"> | number
+    clicks?: IntWithAggregatesFilter<"FeaturedAd"> | number
+    transactionId?: StringNullableWithAggregatesFilter<"FeaturedAd"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"FeaturedAd"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"FeaturedAd"> | Date | string
+  }
+
+  export type SponsoredAdWhereInput = {
+    AND?: SponsoredAdWhereInput | SponsoredAdWhereInput[]
+    OR?: SponsoredAdWhereInput[]
+    NOT?: SponsoredAdWhereInput | SponsoredAdWhereInput[]
+    id?: IntFilter<"SponsoredAd"> | number
+    vendorId?: StringFilter<"SponsoredAd"> | string
+    vendorGiftId?: IntFilter<"SponsoredAd"> | number
+    country?: StringFilter<"SponsoredAd"> | string
+    budget?: DecimalFilter<"SponsoredAd"> | Decimal | DecimalJsLike | number | string
+    remainingBudget?: DecimalFilter<"SponsoredAd"> | Decimal | DecimalJsLike | number | string
+    costPerClick?: DecimalFilter<"SponsoredAd"> | Decimal | DecimalJsLike | number | string
+    currency?: StringFilter<"SponsoredAd"> | string
+    startDate?: DateTimeFilter<"SponsoredAd"> | Date | string
+    endDate?: DateTimeNullableFilter<"SponsoredAd"> | Date | string | null
+    status?: StringFilter<"SponsoredAd"> | string
+    paymentReference?: StringNullableFilter<"SponsoredAd"> | string | null
+    views?: IntFilter<"SponsoredAd"> | number
+    clicks?: IntFilter<"SponsoredAd"> | number
+    transactionId?: StringNullableFilter<"SponsoredAd"> | string | null
+    createdAt?: DateTimeFilter<"SponsoredAd"> | Date | string
+    updatedAt?: DateTimeFilter<"SponsoredAd"> | Date | string
+    vendor?: XOR<UserScalarRelationFilter, UserWhereInput>
+    product?: XOR<VendorGiftScalarRelationFilter, VendorGiftWhereInput>
+    transaction?: XOR<TransactionNullableScalarRelationFilter, TransactionWhereInput> | null
+  }
+
+  export type SponsoredAdOrderByWithRelationInput = {
+    id?: SortOrder
+    vendorId?: SortOrder
+    vendorGiftId?: SortOrder
+    country?: SortOrder
+    budget?: SortOrder
+    remainingBudget?: SortOrder
+    costPerClick?: SortOrder
+    currency?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrderInput | SortOrder
+    status?: SortOrder
+    paymentReference?: SortOrderInput | SortOrder
+    views?: SortOrder
+    clicks?: SortOrder
+    transactionId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    vendor?: UserOrderByWithRelationInput
+    product?: VendorGiftOrderByWithRelationInput
+    transaction?: TransactionOrderByWithRelationInput
+  }
+
+  export type SponsoredAdWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    transactionId?: string
+    AND?: SponsoredAdWhereInput | SponsoredAdWhereInput[]
+    OR?: SponsoredAdWhereInput[]
+    NOT?: SponsoredAdWhereInput | SponsoredAdWhereInput[]
+    vendorId?: StringFilter<"SponsoredAd"> | string
+    vendorGiftId?: IntFilter<"SponsoredAd"> | number
+    country?: StringFilter<"SponsoredAd"> | string
+    budget?: DecimalFilter<"SponsoredAd"> | Decimal | DecimalJsLike | number | string
+    remainingBudget?: DecimalFilter<"SponsoredAd"> | Decimal | DecimalJsLike | number | string
+    costPerClick?: DecimalFilter<"SponsoredAd"> | Decimal | DecimalJsLike | number | string
+    currency?: StringFilter<"SponsoredAd"> | string
+    startDate?: DateTimeFilter<"SponsoredAd"> | Date | string
+    endDate?: DateTimeNullableFilter<"SponsoredAd"> | Date | string | null
+    status?: StringFilter<"SponsoredAd"> | string
+    paymentReference?: StringNullableFilter<"SponsoredAd"> | string | null
+    views?: IntFilter<"SponsoredAd"> | number
+    clicks?: IntFilter<"SponsoredAd"> | number
+    createdAt?: DateTimeFilter<"SponsoredAd"> | Date | string
+    updatedAt?: DateTimeFilter<"SponsoredAd"> | Date | string
+    vendor?: XOR<UserScalarRelationFilter, UserWhereInput>
+    product?: XOR<VendorGiftScalarRelationFilter, VendorGiftWhereInput>
+    transaction?: XOR<TransactionNullableScalarRelationFilter, TransactionWhereInput> | null
+  }, "id" | "transactionId">
+
+  export type SponsoredAdOrderByWithAggregationInput = {
+    id?: SortOrder
+    vendorId?: SortOrder
+    vendorGiftId?: SortOrder
+    country?: SortOrder
+    budget?: SortOrder
+    remainingBudget?: SortOrder
+    costPerClick?: SortOrder
+    currency?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrderInput | SortOrder
+    status?: SortOrder
+    paymentReference?: SortOrderInput | SortOrder
+    views?: SortOrder
+    clicks?: SortOrder
+    transactionId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: SponsoredAdCountOrderByAggregateInput
+    _avg?: SponsoredAdAvgOrderByAggregateInput
+    _max?: SponsoredAdMaxOrderByAggregateInput
+    _min?: SponsoredAdMinOrderByAggregateInput
+    _sum?: SponsoredAdSumOrderByAggregateInput
+  }
+
+  export type SponsoredAdScalarWhereWithAggregatesInput = {
+    AND?: SponsoredAdScalarWhereWithAggregatesInput | SponsoredAdScalarWhereWithAggregatesInput[]
+    OR?: SponsoredAdScalarWhereWithAggregatesInput[]
+    NOT?: SponsoredAdScalarWhereWithAggregatesInput | SponsoredAdScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"SponsoredAd"> | number
+    vendorId?: StringWithAggregatesFilter<"SponsoredAd"> | string
+    vendorGiftId?: IntWithAggregatesFilter<"SponsoredAd"> | number
+    country?: StringWithAggregatesFilter<"SponsoredAd"> | string
+    budget?: DecimalWithAggregatesFilter<"SponsoredAd"> | Decimal | DecimalJsLike | number | string
+    remainingBudget?: DecimalWithAggregatesFilter<"SponsoredAd"> | Decimal | DecimalJsLike | number | string
+    costPerClick?: DecimalWithAggregatesFilter<"SponsoredAd"> | Decimal | DecimalJsLike | number | string
+    currency?: StringWithAggregatesFilter<"SponsoredAd"> | string
+    startDate?: DateTimeWithAggregatesFilter<"SponsoredAd"> | Date | string
+    endDate?: DateTimeNullableWithAggregatesFilter<"SponsoredAd"> | Date | string | null
+    status?: StringWithAggregatesFilter<"SponsoredAd"> | string
+    paymentReference?: StringNullableWithAggregatesFilter<"SponsoredAd"> | string | null
+    views?: IntWithAggregatesFilter<"SponsoredAd"> | number
+    clicks?: IntWithAggregatesFilter<"SponsoredAd"> | number
+    transactionId?: StringNullableWithAggregatesFilter<"SponsoredAd"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"SponsoredAd"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"SponsoredAd"> | Date | string
   }
 
   export type ExternalPromotionWhereInput = {
@@ -40437,7 +42098,8 @@ export namespace Prisma {
     creatorSupport?: XOR<CreatorSupportNullableScalarRelationFilter, CreatorSupportWhereInput> | null
     contribution?: XOR<ContributionNullableScalarRelationFilter, ContributionWhereInput> | null
     withdrawal?: XOR<WithdrawalNullableScalarRelationFilter, WithdrawalWhereInput> | null
-    promotion?: XOR<PromotionNullableScalarRelationFilter, PromotionWhereInput> | null
+    featuredAd?: XOR<FeaturedAdNullableScalarRelationFilter, FeaturedAdWhereInput> | null
+    sponsoredAd?: XOR<SponsoredAdNullableScalarRelationFilter, SponsoredAdWhereInput> | null
     campaignWithdrawal?: XOR<CampaignWithdrawalNullableScalarRelationFilter, CampaignWithdrawalWhereInput> | null
   }
 
@@ -40458,7 +42120,8 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportOrderByWithRelationInput
     contribution?: ContributionOrderByWithRelationInput
     withdrawal?: WithdrawalOrderByWithRelationInput
-    promotion?: PromotionOrderByWithRelationInput
+    featuredAd?: FeaturedAdOrderByWithRelationInput
+    sponsoredAd?: SponsoredAdOrderByWithRelationInput
     campaignWithdrawal?: CampaignWithdrawalOrderByWithRelationInput
   }
 
@@ -40482,7 +42145,8 @@ export namespace Prisma {
     creatorSupport?: XOR<CreatorSupportNullableScalarRelationFilter, CreatorSupportWhereInput> | null
     contribution?: XOR<ContributionNullableScalarRelationFilter, ContributionWhereInput> | null
     withdrawal?: XOR<WithdrawalNullableScalarRelationFilter, WithdrawalWhereInput> | null
-    promotion?: XOR<PromotionNullableScalarRelationFilter, PromotionWhereInput> | null
+    featuredAd?: XOR<FeaturedAdNullableScalarRelationFilter, FeaturedAdWhereInput> | null
+    sponsoredAd?: XOR<SponsoredAdNullableScalarRelationFilter, SponsoredAdWhereInput> | null
     campaignWithdrawal?: XOR<CampaignWithdrawalNullableScalarRelationFilter, CampaignWithdrawalWhereInput> | null
   }, "id" | "reference">
 
@@ -41437,6 +43101,7 @@ export namespace Prisma {
     minWithdrawal?: DecimalFilter<"CountryConfig"> | Decimal | DecimalJsLike | number | string
     maxWithdrawal?: DecimalFilter<"CountryConfig"> | Decimal | DecimalJsLike | number | string
     features?: JsonFilter<"CountryConfig">
+    adConfig?: JsonNullableFilter<"CountryConfig">
     isEnabled?: BoolFilter<"CountryConfig"> | boolean
     createdAt?: DateTimeFilter<"CountryConfig"> | Date | string
     updatedAt?: DateTimeFilter<"CountryConfig"> | Date | string
@@ -41454,6 +43119,7 @@ export namespace Prisma {
     minWithdrawal?: SortOrder
     maxWithdrawal?: SortOrder
     features?: SortOrder
+    adConfig?: SortOrderInput | SortOrder
     isEnabled?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -41474,6 +43140,7 @@ export namespace Prisma {
     minWithdrawal?: DecimalFilter<"CountryConfig"> | Decimal | DecimalJsLike | number | string
     maxWithdrawal?: DecimalFilter<"CountryConfig"> | Decimal | DecimalJsLike | number | string
     features?: JsonFilter<"CountryConfig">
+    adConfig?: JsonNullableFilter<"CountryConfig">
     isEnabled?: BoolFilter<"CountryConfig"> | boolean
     createdAt?: DateTimeFilter<"CountryConfig"> | Date | string
     updatedAt?: DateTimeFilter<"CountryConfig"> | Date | string
@@ -41491,6 +43158,7 @@ export namespace Prisma {
     minWithdrawal?: SortOrder
     maxWithdrawal?: SortOrder
     features?: SortOrder
+    adConfig?: SortOrderInput | SortOrder
     isEnabled?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -41516,6 +43184,7 @@ export namespace Prisma {
     minWithdrawal?: DecimalWithAggregatesFilter<"CountryConfig"> | Decimal | DecimalJsLike | number | string
     maxWithdrawal?: DecimalWithAggregatesFilter<"CountryConfig"> | Decimal | DecimalJsLike | number | string
     features?: JsonWithAggregatesFilter<"CountryConfig">
+    adConfig?: JsonNullableWithAggregatesFilter<"CountryConfig">
     isEnabled?: BoolWithAggregatesFilter<"CountryConfig"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"CountryConfig"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"CountryConfig"> | Date | string
@@ -41539,12 +43208,18 @@ export namespace Prisma {
     stockQuantity?: IntNullableFilter<"VendorGift"> | number | null
     unitsSold?: IntFilter<"VendorGift"> | number
     images?: StringNullableListFilter<"VendorGift">
+    viewsCount?: IntFilter<"VendorGift"> | number
+    clicksCount?: IntFilter<"VendorGift"> | number
+    salesCount?: IntFilter<"VendorGift"> | number
+    rankingScore?: FloatFilter<"VendorGift"> | number
+    lastEngagementAt?: DateTimeFilter<"VendorGift"> | Date | string
     createdAt?: DateTimeFilter<"VendorGift"> | Date | string
     updatedAt?: DateTimeFilter<"VendorGift"> | Date | string
     vendor?: XOR<UserScalarRelationFilter, UserWhereInput>
     giftImages?: VendorGiftImageListRelationFilter
     favorites?: FavoriteListRelationFilter
-    promotions?: PromotionListRelationFilter
+    featuredAds?: FeaturedAdListRelationFilter
+    sponsoredAds?: SponsoredAdListRelationFilter
     campaigns?: CampaignListRelationFilter
     directGifts?: DirectGiftListRelationFilter
   }
@@ -41564,12 +43239,18 @@ export namespace Prisma {
     stockQuantity?: SortOrderInput | SortOrder
     unitsSold?: SortOrder
     images?: SortOrder
+    viewsCount?: SortOrder
+    clicksCount?: SortOrder
+    salesCount?: SortOrder
+    rankingScore?: SortOrder
+    lastEngagementAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     vendor?: UserOrderByWithRelationInput
     giftImages?: VendorGiftImageOrderByRelationAggregateInput
     favorites?: FavoriteOrderByRelationAggregateInput
-    promotions?: PromotionOrderByRelationAggregateInput
+    featuredAds?: FeaturedAdOrderByRelationAggregateInput
+    sponsoredAds?: SponsoredAdOrderByRelationAggregateInput
     campaigns?: CampaignOrderByRelationAggregateInput
     directGifts?: DirectGiftOrderByRelationAggregateInput
   }
@@ -41592,12 +43273,18 @@ export namespace Prisma {
     stockQuantity?: IntNullableFilter<"VendorGift"> | number | null
     unitsSold?: IntFilter<"VendorGift"> | number
     images?: StringNullableListFilter<"VendorGift">
+    viewsCount?: IntFilter<"VendorGift"> | number
+    clicksCount?: IntFilter<"VendorGift"> | number
+    salesCount?: IntFilter<"VendorGift"> | number
+    rankingScore?: FloatFilter<"VendorGift"> | number
+    lastEngagementAt?: DateTimeFilter<"VendorGift"> | Date | string
     createdAt?: DateTimeFilter<"VendorGift"> | Date | string
     updatedAt?: DateTimeFilter<"VendorGift"> | Date | string
     vendor?: XOR<UserScalarRelationFilter, UserWhereInput>
     giftImages?: VendorGiftImageListRelationFilter
     favorites?: FavoriteListRelationFilter
-    promotions?: PromotionListRelationFilter
+    featuredAds?: FeaturedAdListRelationFilter
+    sponsoredAds?: SponsoredAdListRelationFilter
     campaigns?: CampaignListRelationFilter
     directGifts?: DirectGiftListRelationFilter
   }, "id">
@@ -41617,6 +43304,11 @@ export namespace Prisma {
     stockQuantity?: SortOrderInput | SortOrder
     unitsSold?: SortOrder
     images?: SortOrder
+    viewsCount?: SortOrder
+    clicksCount?: SortOrder
+    salesCount?: SortOrder
+    rankingScore?: SortOrder
+    lastEngagementAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: VendorGiftCountOrderByAggregateInput
@@ -41644,6 +43336,11 @@ export namespace Prisma {
     stockQuantity?: IntNullableWithAggregatesFilter<"VendorGift"> | number | null
     unitsSold?: IntWithAggregatesFilter<"VendorGift"> | number
     images?: StringNullableListFilter<"VendorGift">
+    viewsCount?: IntWithAggregatesFilter<"VendorGift"> | number
+    clicksCount?: IntWithAggregatesFilter<"VendorGift"> | number
+    salesCount?: IntWithAggregatesFilter<"VendorGift"> | number
+    rankingScore?: FloatWithAggregatesFilter<"VendorGift"> | number
+    lastEngagementAt?: DateTimeWithAggregatesFilter<"VendorGift"> | Date | string
     createdAt?: DateTimeWithAggregatesFilter<"VendorGift"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"VendorGift"> | Date | string
   }
@@ -41859,7 +43556,8 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
     favorites?: FavoriteCreateNestedManyWithoutUserInput
-    promotions?: PromotionCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
@@ -41917,7 +43615,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
@@ -41975,7 +43674,8 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
@@ -42033,7 +43733,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
@@ -43092,149 +44793,262 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PromotionCreateInput = {
-    productId?: number | null
-    placement: string
-    durationDays?: number
-    startDate?: Date | string | null
-    endDate?: Date | string | null
+  export type FeaturedAdCreateInput = {
+    country: string
+    slotNumber: number
+    startDate: Date | string
+    endDate: Date | string
     status?: string
     amountPaid: Decimal | DecimalJsLike | number | string
     currency?: string
     paymentReference?: string | null
-    rejectionReason?: string | null
     views?: number
     clicks?: number
-    conversions?: number
     createdAt?: Date | string
     updatedAt?: Date | string
-    vendor: UserCreateNestedOneWithoutPromotionsInput
-    product?: VendorGiftCreateNestedOneWithoutPromotionsInput
-    transaction?: TransactionCreateNestedOneWithoutPromotionInput
+    vendor: UserCreateNestedOneWithoutFeaturedAdsInput
+    product: VendorGiftCreateNestedOneWithoutFeaturedAdsInput
+    transaction?: TransactionCreateNestedOneWithoutFeaturedAdInput
   }
 
-  export type PromotionUncheckedCreateInput = {
+  export type FeaturedAdUncheckedCreateInput = {
     id?: number
     vendorId: string
-    productId?: number | null
-    vendorGiftId?: number | null
-    placement: string
-    durationDays?: number
-    startDate?: Date | string | null
-    endDate?: Date | string | null
+    vendorGiftId: number
+    country: string
+    slotNumber: number
+    startDate: Date | string
+    endDate: Date | string
     status?: string
     amountPaid: Decimal | DecimalJsLike | number | string
     currency?: string
     paymentReference?: string | null
-    rejectionReason?: string | null
     views?: number
     clicks?: number
-    conversions?: number
     transactionId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
-  export type PromotionUpdateInput = {
-    productId?: NullableIntFieldUpdateOperationsInput | number | null
-    placement?: StringFieldUpdateOperationsInput | string
-    durationDays?: IntFieldUpdateOperationsInput | number
-    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  export type FeaturedAdUpdateInput = {
+    country?: StringFieldUpdateOperationsInput | string
+    slotNumber?: IntFieldUpdateOperationsInput | number
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
     amountPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
     paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
-    rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     views?: IntFieldUpdateOperationsInput | number
     clicks?: IntFieldUpdateOperationsInput | number
-    conversions?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    vendor?: UserUpdateOneRequiredWithoutPromotionsNestedInput
-    product?: VendorGiftUpdateOneWithoutPromotionsNestedInput
-    transaction?: TransactionUpdateOneWithoutPromotionNestedInput
+    vendor?: UserUpdateOneRequiredWithoutFeaturedAdsNestedInput
+    product?: VendorGiftUpdateOneRequiredWithoutFeaturedAdsNestedInput
+    transaction?: TransactionUpdateOneWithoutFeaturedAdNestedInput
   }
 
-  export type PromotionUncheckedUpdateInput = {
+  export type FeaturedAdUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     vendorId?: StringFieldUpdateOperationsInput | string
-    productId?: NullableIntFieldUpdateOperationsInput | number | null
-    vendorGiftId?: NullableIntFieldUpdateOperationsInput | number | null
-    placement?: StringFieldUpdateOperationsInput | string
-    durationDays?: IntFieldUpdateOperationsInput | number
-    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    vendorGiftId?: IntFieldUpdateOperationsInput | number
+    country?: StringFieldUpdateOperationsInput | string
+    slotNumber?: IntFieldUpdateOperationsInput | number
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
     amountPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
     paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
-    rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     views?: IntFieldUpdateOperationsInput | number
     clicks?: IntFieldUpdateOperationsInput | number
-    conversions?: IntFieldUpdateOperationsInput | number
     transactionId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PromotionCreateManyInput = {
+  export type FeaturedAdCreateManyInput = {
     id?: number
     vendorId: string
-    productId?: number | null
-    vendorGiftId?: number | null
-    placement: string
-    durationDays?: number
-    startDate?: Date | string | null
-    endDate?: Date | string | null
+    vendorGiftId: number
+    country: string
+    slotNumber: number
+    startDate: Date | string
+    endDate: Date | string
     status?: string
     amountPaid: Decimal | DecimalJsLike | number | string
     currency?: string
     paymentReference?: string | null
-    rejectionReason?: string | null
     views?: number
     clicks?: number
-    conversions?: number
     transactionId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
-  export type PromotionUpdateManyMutationInput = {
-    productId?: NullableIntFieldUpdateOperationsInput | number | null
-    placement?: StringFieldUpdateOperationsInput | string
-    durationDays?: IntFieldUpdateOperationsInput | number
-    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  export type FeaturedAdUpdateManyMutationInput = {
+    country?: StringFieldUpdateOperationsInput | string
+    slotNumber?: IntFieldUpdateOperationsInput | number
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
     amountPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
     paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
-    rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     views?: IntFieldUpdateOperationsInput | number
     clicks?: IntFieldUpdateOperationsInput | number
-    conversions?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PromotionUncheckedUpdateManyInput = {
+  export type FeaturedAdUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
     vendorId?: StringFieldUpdateOperationsInput | string
-    productId?: NullableIntFieldUpdateOperationsInput | number | null
-    vendorGiftId?: NullableIntFieldUpdateOperationsInput | number | null
-    placement?: StringFieldUpdateOperationsInput | string
-    durationDays?: IntFieldUpdateOperationsInput | number
-    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    vendorGiftId?: IntFieldUpdateOperationsInput | number
+    country?: StringFieldUpdateOperationsInput | string
+    slotNumber?: IntFieldUpdateOperationsInput | number
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
     amountPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
     paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
-    rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     views?: IntFieldUpdateOperationsInput | number
     clicks?: IntFieldUpdateOperationsInput | number
-    conversions?: IntFieldUpdateOperationsInput | number
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SponsoredAdCreateInput = {
+    country: string
+    budget: Decimal | DecimalJsLike | number | string
+    remainingBudget: Decimal | DecimalJsLike | number | string
+    costPerClick: Decimal | DecimalJsLike | number | string
+    currency?: string
+    startDate?: Date | string
+    endDate?: Date | string | null
+    status?: string
+    paymentReference?: string | null
+    views?: number
+    clicks?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    vendor: UserCreateNestedOneWithoutSponsoredAdsInput
+    product: VendorGiftCreateNestedOneWithoutSponsoredAdsInput
+    transaction?: TransactionCreateNestedOneWithoutSponsoredAdInput
+  }
+
+  export type SponsoredAdUncheckedCreateInput = {
+    id?: number
+    vendorId: string
+    vendorGiftId: number
+    country: string
+    budget: Decimal | DecimalJsLike | number | string
+    remainingBudget: Decimal | DecimalJsLike | number | string
+    costPerClick: Decimal | DecimalJsLike | number | string
+    currency?: string
+    startDate?: Date | string
+    endDate?: Date | string | null
+    status?: string
+    paymentReference?: string | null
+    views?: number
+    clicks?: number
+    transactionId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SponsoredAdUpdateInput = {
+    country?: StringFieldUpdateOperationsInput | string
+    budget?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    remainingBudget?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    costPerClick?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    views?: IntFieldUpdateOperationsInput | number
+    clicks?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    vendor?: UserUpdateOneRequiredWithoutSponsoredAdsNestedInput
+    product?: VendorGiftUpdateOneRequiredWithoutSponsoredAdsNestedInput
+    transaction?: TransactionUpdateOneWithoutSponsoredAdNestedInput
+  }
+
+  export type SponsoredAdUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    vendorId?: StringFieldUpdateOperationsInput | string
+    vendorGiftId?: IntFieldUpdateOperationsInput | number
+    country?: StringFieldUpdateOperationsInput | string
+    budget?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    remainingBudget?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    costPerClick?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    views?: IntFieldUpdateOperationsInput | number
+    clicks?: IntFieldUpdateOperationsInput | number
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SponsoredAdCreateManyInput = {
+    id?: number
+    vendorId: string
+    vendorGiftId: number
+    country: string
+    budget: Decimal | DecimalJsLike | number | string
+    remainingBudget: Decimal | DecimalJsLike | number | string
+    costPerClick: Decimal | DecimalJsLike | number | string
+    currency?: string
+    startDate?: Date | string
+    endDate?: Date | string | null
+    status?: string
+    paymentReference?: string | null
+    views?: number
+    clicks?: number
+    transactionId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SponsoredAdUpdateManyMutationInput = {
+    country?: StringFieldUpdateOperationsInput | string
+    budget?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    remainingBudget?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    costPerClick?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    views?: IntFieldUpdateOperationsInput | number
+    clicks?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SponsoredAdUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    vendorId?: StringFieldUpdateOperationsInput | string
+    vendorGiftId?: IntFieldUpdateOperationsInput | number
+    country?: StringFieldUpdateOperationsInput | string
+    budget?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    remainingBudget?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    costPerClick?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    views?: IntFieldUpdateOperationsInput | number
+    clicks?: IntFieldUpdateOperationsInput | number
     transactionId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43458,7 +45272,8 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportCreateNestedOneWithoutTransactionInput
     contribution?: ContributionCreateNestedOneWithoutTransactionInput
     withdrawal?: WithdrawalCreateNestedOneWithoutTransactionInput
-    promotion?: PromotionCreateNestedOneWithoutTransactionInput
+    featuredAd?: FeaturedAdCreateNestedOneWithoutTransactionInput
+    sponsoredAd?: SponsoredAdCreateNestedOneWithoutTransactionInput
     campaignWithdrawal?: CampaignWithdrawalCreateNestedOneWithoutTransactionInput
   }
 
@@ -43477,7 +45292,8 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportUncheckedCreateNestedOneWithoutTransactionInput
     contribution?: ContributionUncheckedCreateNestedOneWithoutTransactionInput
     withdrawal?: WithdrawalUncheckedCreateNestedOneWithoutTransactionInput
-    promotion?: PromotionUncheckedCreateNestedOneWithoutTransactionInput
+    featuredAd?: FeaturedAdUncheckedCreateNestedOneWithoutTransactionInput
+    sponsoredAd?: SponsoredAdUncheckedCreateNestedOneWithoutTransactionInput
     campaignWithdrawal?: CampaignWithdrawalUncheckedCreateNestedOneWithoutTransactionInput
   }
 
@@ -43496,7 +45312,8 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportUpdateOneWithoutTransactionNestedInput
     contribution?: ContributionUpdateOneWithoutTransactionNestedInput
     withdrawal?: WithdrawalUpdateOneWithoutTransactionNestedInput
-    promotion?: PromotionUpdateOneWithoutTransactionNestedInput
+    featuredAd?: FeaturedAdUpdateOneWithoutTransactionNestedInput
+    sponsoredAd?: SponsoredAdUpdateOneWithoutTransactionNestedInput
     campaignWithdrawal?: CampaignWithdrawalUpdateOneWithoutTransactionNestedInput
   }
 
@@ -43515,7 +45332,8 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportUncheckedUpdateOneWithoutTransactionNestedInput
     contribution?: ContributionUncheckedUpdateOneWithoutTransactionNestedInput
     withdrawal?: WithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
-    promotion?: PromotionUncheckedUpdateOneWithoutTransactionNestedInput
+    featuredAd?: FeaturedAdUncheckedUpdateOneWithoutTransactionNestedInput
+    sponsoredAd?: SponsoredAdUncheckedUpdateOneWithoutTransactionNestedInput
     campaignWithdrawal?: CampaignWithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
   }
 
@@ -44516,6 +46334,7 @@ export namespace Prisma {
     minWithdrawal?: Decimal | DecimalJsLike | number | string
     maxWithdrawal?: Decimal | DecimalJsLike | number | string
     features?: JsonNullValueInput | InputJsonValue
+    adConfig?: NullableJsonNullValueInput | InputJsonValue
     isEnabled?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -44533,6 +46352,7 @@ export namespace Prisma {
     minWithdrawal?: Decimal | DecimalJsLike | number | string
     maxWithdrawal?: Decimal | DecimalJsLike | number | string
     features?: JsonNullValueInput | InputJsonValue
+    adConfig?: NullableJsonNullValueInput | InputJsonValue
     isEnabled?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -44550,6 +46370,7 @@ export namespace Prisma {
     minWithdrawal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     maxWithdrawal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     features?: JsonNullValueInput | InputJsonValue
+    adConfig?: NullableJsonNullValueInput | InputJsonValue
     isEnabled?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -44567,6 +46388,7 @@ export namespace Prisma {
     minWithdrawal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     maxWithdrawal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     features?: JsonNullValueInput | InputJsonValue
+    adConfig?: NullableJsonNullValueInput | InputJsonValue
     isEnabled?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -44584,6 +46406,7 @@ export namespace Prisma {
     minWithdrawal?: Decimal | DecimalJsLike | number | string
     maxWithdrawal?: Decimal | DecimalJsLike | number | string
     features?: JsonNullValueInput | InputJsonValue
+    adConfig?: NullableJsonNullValueInput | InputJsonValue
     isEnabled?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -44601,6 +46424,7 @@ export namespace Prisma {
     minWithdrawal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     maxWithdrawal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     features?: JsonNullValueInput | InputJsonValue
+    adConfig?: NullableJsonNullValueInput | InputJsonValue
     isEnabled?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -44618,6 +46442,7 @@ export namespace Prisma {
     minWithdrawal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     maxWithdrawal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     features?: JsonNullValueInput | InputJsonValue
+    adConfig?: NullableJsonNullValueInput | InputJsonValue
     isEnabled?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -44636,12 +46461,18 @@ export namespace Prisma {
     stockQuantity?: number | null
     unitsSold?: number
     images?: VendorGiftCreateimagesInput | string[]
+    viewsCount?: number
+    clicksCount?: number
+    salesCount?: number
+    rankingScore?: number
+    lastEngagementAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
     vendor: UserCreateNestedOneWithoutVendorGiftsInput
     giftImages?: VendorGiftImageCreateNestedManyWithoutGiftInput
     favorites?: FavoriteCreateNestedManyWithoutVendorGiftInput
-    promotions?: PromotionCreateNestedManyWithoutProductInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutProductInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutProductInput
     campaigns?: CampaignCreateNestedManyWithoutProductInput
     directGifts?: DirectGiftCreateNestedManyWithoutProductInput
   }
@@ -44661,11 +46492,17 @@ export namespace Prisma {
     stockQuantity?: number | null
     unitsSold?: number
     images?: VendorGiftCreateimagesInput | string[]
+    viewsCount?: number
+    clicksCount?: number
+    salesCount?: number
+    rankingScore?: number
+    lastEngagementAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
     giftImages?: VendorGiftImageUncheckedCreateNestedManyWithoutGiftInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutVendorGiftInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutProductInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutProductInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutProductInput
     campaigns?: CampaignUncheckedCreateNestedManyWithoutProductInput
     directGifts?: DirectGiftUncheckedCreateNestedManyWithoutProductInput
   }
@@ -44683,12 +46520,18 @@ export namespace Prisma {
     stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
     unitsSold?: IntFieldUpdateOperationsInput | number
     images?: VendorGiftUpdateimagesInput | string[]
+    viewsCount?: IntFieldUpdateOperationsInput | number
+    clicksCount?: IntFieldUpdateOperationsInput | number
+    salesCount?: IntFieldUpdateOperationsInput | number
+    rankingScore?: FloatFieldUpdateOperationsInput | number
+    lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     vendor?: UserUpdateOneRequiredWithoutVendorGiftsNestedInput
     giftImages?: VendorGiftImageUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUpdateManyWithoutVendorGiftNestedInput
-    promotions?: PromotionUpdateManyWithoutProductNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutProductNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutProductNestedInput
     campaigns?: CampaignUpdateManyWithoutProductNestedInput
     directGifts?: DirectGiftUpdateManyWithoutProductNestedInput
   }
@@ -44708,11 +46551,17 @@ export namespace Prisma {
     stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
     unitsSold?: IntFieldUpdateOperationsInput | number
     images?: VendorGiftUpdateimagesInput | string[]
+    viewsCount?: IntFieldUpdateOperationsInput | number
+    clicksCount?: IntFieldUpdateOperationsInput | number
+    salesCount?: IntFieldUpdateOperationsInput | number
+    rankingScore?: FloatFieldUpdateOperationsInput | number
+    lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     giftImages?: VendorGiftImageUncheckedUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutVendorGiftNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutProductNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutProductNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutProductNestedInput
     campaigns?: CampaignUncheckedUpdateManyWithoutProductNestedInput
     directGifts?: DirectGiftUncheckedUpdateManyWithoutProductNestedInput
   }
@@ -44732,6 +46581,11 @@ export namespace Prisma {
     stockQuantity?: number | null
     unitsSold?: number
     images?: VendorGiftCreateimagesInput | string[]
+    viewsCount?: number
+    clicksCount?: number
+    salesCount?: number
+    rankingScore?: number
+    lastEngagementAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -44749,6 +46603,11 @@ export namespace Prisma {
     stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
     unitsSold?: IntFieldUpdateOperationsInput | number
     images?: VendorGiftUpdateimagesInput | string[]
+    viewsCount?: IntFieldUpdateOperationsInput | number
+    clicksCount?: IntFieldUpdateOperationsInput | number
+    salesCount?: IntFieldUpdateOperationsInput | number
+    rankingScore?: FloatFieldUpdateOperationsInput | number
+    lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -44768,6 +46627,11 @@ export namespace Prisma {
     stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
     unitsSold?: IntFieldUpdateOperationsInput | number
     images?: VendorGiftUpdateimagesInput | string[]
+    viewsCount?: IntFieldUpdateOperationsInput | number
+    clicksCount?: IntFieldUpdateOperationsInput | number
+    salesCount?: IntFieldUpdateOperationsInput | number
+    rankingScore?: FloatFieldUpdateOperationsInput | number
+    lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -45092,10 +46956,16 @@ export namespace Prisma {
     none?: FavoriteWhereInput
   }
 
-  export type PromotionListRelationFilter = {
-    every?: PromotionWhereInput
-    some?: PromotionWhereInput
-    none?: PromotionWhereInput
+  export type FeaturedAdListRelationFilter = {
+    every?: FeaturedAdWhereInput
+    some?: FeaturedAdWhereInput
+    none?: FeaturedAdWhereInput
+  }
+
+  export type SponsoredAdListRelationFilter = {
+    every?: SponsoredAdWhereInput
+    some?: SponsoredAdWhereInput
+    none?: SponsoredAdWhereInput
   }
 
   export type FlexCardListRelationFilter = {
@@ -45197,7 +47067,11 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
-  export type PromotionOrderByRelationAggregateInput = {
+  export type FeaturedAdOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type SponsoredAdOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -46063,92 +47937,84 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
-  export type PromotionCountOrderByAggregateInput = {
+  export type VendorGiftScalarRelationFilter = {
+    is?: VendorGiftWhereInput
+    isNot?: VendorGiftWhereInput
+  }
+
+  export type FeaturedAdCountOrderByAggregateInput = {
     id?: SortOrder
     vendorId?: SortOrder
-    productId?: SortOrder
     vendorGiftId?: SortOrder
-    placement?: SortOrder
-    durationDays?: SortOrder
+    country?: SortOrder
+    slotNumber?: SortOrder
     startDate?: SortOrder
     endDate?: SortOrder
     status?: SortOrder
     amountPaid?: SortOrder
     currency?: SortOrder
     paymentReference?: SortOrder
-    rejectionReason?: SortOrder
     views?: SortOrder
     clicks?: SortOrder
-    conversions?: SortOrder
     transactionId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
-  export type PromotionAvgOrderByAggregateInput = {
+  export type FeaturedAdAvgOrderByAggregateInput = {
     id?: SortOrder
-    productId?: SortOrder
     vendorGiftId?: SortOrder
-    durationDays?: SortOrder
+    slotNumber?: SortOrder
     amountPaid?: SortOrder
     views?: SortOrder
     clicks?: SortOrder
-    conversions?: SortOrder
   }
 
-  export type PromotionMaxOrderByAggregateInput = {
+  export type FeaturedAdMaxOrderByAggregateInput = {
     id?: SortOrder
     vendorId?: SortOrder
-    productId?: SortOrder
     vendorGiftId?: SortOrder
-    placement?: SortOrder
-    durationDays?: SortOrder
+    country?: SortOrder
+    slotNumber?: SortOrder
     startDate?: SortOrder
     endDate?: SortOrder
     status?: SortOrder
     amountPaid?: SortOrder
     currency?: SortOrder
     paymentReference?: SortOrder
-    rejectionReason?: SortOrder
     views?: SortOrder
     clicks?: SortOrder
-    conversions?: SortOrder
     transactionId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
-  export type PromotionMinOrderByAggregateInput = {
+  export type FeaturedAdMinOrderByAggregateInput = {
     id?: SortOrder
     vendorId?: SortOrder
-    productId?: SortOrder
     vendorGiftId?: SortOrder
-    placement?: SortOrder
-    durationDays?: SortOrder
+    country?: SortOrder
+    slotNumber?: SortOrder
     startDate?: SortOrder
     endDate?: SortOrder
     status?: SortOrder
     amountPaid?: SortOrder
     currency?: SortOrder
     paymentReference?: SortOrder
-    rejectionReason?: SortOrder
     views?: SortOrder
     clicks?: SortOrder
-    conversions?: SortOrder
     transactionId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
-  export type PromotionSumOrderByAggregateInput = {
+  export type FeaturedAdSumOrderByAggregateInput = {
     id?: SortOrder
-    productId?: SortOrder
     vendorGiftId?: SortOrder
-    durationDays?: SortOrder
+    slotNumber?: SortOrder
     amountPaid?: SortOrder
     views?: SortOrder
     clicks?: SortOrder
-    conversions?: SortOrder
   }
 
   export type IntWithAggregatesFilter<$PrismaModel = never> = {
@@ -46165,6 +48031,86 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type SponsoredAdCountOrderByAggregateInput = {
+    id?: SortOrder
+    vendorId?: SortOrder
+    vendorGiftId?: SortOrder
+    country?: SortOrder
+    budget?: SortOrder
+    remainingBudget?: SortOrder
+    costPerClick?: SortOrder
+    currency?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    status?: SortOrder
+    paymentReference?: SortOrder
+    views?: SortOrder
+    clicks?: SortOrder
+    transactionId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SponsoredAdAvgOrderByAggregateInput = {
+    id?: SortOrder
+    vendorGiftId?: SortOrder
+    budget?: SortOrder
+    remainingBudget?: SortOrder
+    costPerClick?: SortOrder
+    views?: SortOrder
+    clicks?: SortOrder
+  }
+
+  export type SponsoredAdMaxOrderByAggregateInput = {
+    id?: SortOrder
+    vendorId?: SortOrder
+    vendorGiftId?: SortOrder
+    country?: SortOrder
+    budget?: SortOrder
+    remainingBudget?: SortOrder
+    costPerClick?: SortOrder
+    currency?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    status?: SortOrder
+    paymentReference?: SortOrder
+    views?: SortOrder
+    clicks?: SortOrder
+    transactionId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SponsoredAdMinOrderByAggregateInput = {
+    id?: SortOrder
+    vendorId?: SortOrder
+    vendorGiftId?: SortOrder
+    country?: SortOrder
+    budget?: SortOrder
+    remainingBudget?: SortOrder
+    costPerClick?: SortOrder
+    currency?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    status?: SortOrder
+    paymentReference?: SortOrder
+    views?: SortOrder
+    clicks?: SortOrder
+    transactionId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SponsoredAdSumOrderByAggregateInput = {
+    id?: SortOrder
+    vendorGiftId?: SortOrder
+    budget?: SortOrder
+    remainingBudget?: SortOrder
+    costPerClick?: SortOrder
+    views?: SortOrder
+    clicks?: SortOrder
   }
 
   export type ExternalPromotionCountOrderByAggregateInput = {
@@ -46297,9 +48243,14 @@ export namespace Prisma {
     isNot?: WithdrawalWhereInput | null
   }
 
-  export type PromotionNullableScalarRelationFilter = {
-    is?: PromotionWhereInput | null
-    isNot?: PromotionWhereInput | null
+  export type FeaturedAdNullableScalarRelationFilter = {
+    is?: FeaturedAdWhereInput | null
+    isNot?: FeaturedAdWhereInput | null
+  }
+
+  export type SponsoredAdNullableScalarRelationFilter = {
+    is?: SponsoredAdWhereInput | null
+    isNot?: SponsoredAdWhereInput | null
   }
 
   export type CampaignWithdrawalNullableScalarRelationFilter = {
@@ -46918,6 +48869,7 @@ export namespace Prisma {
     minWithdrawal?: SortOrder
     maxWithdrawal?: SortOrder
     features?: SortOrder
+    adConfig?: SortOrder
     isEnabled?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -46969,6 +48921,17 @@ export namespace Prisma {
     maxWithdrawal?: SortOrder
   }
 
+  export type FloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
   export type VendorGiftImageListRelationFilter = {
     every?: VendorGiftImageWhereInput
     some?: VendorGiftImageWhereInput
@@ -46994,6 +48957,11 @@ export namespace Prisma {
     stockQuantity?: SortOrder
     unitsSold?: SortOrder
     images?: SortOrder
+    viewsCount?: SortOrder
+    clicksCount?: SortOrder
+    salesCount?: SortOrder
+    rankingScore?: SortOrder
+    lastEngagementAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -47003,6 +48971,10 @@ export namespace Prisma {
     price?: SortOrder
     stockQuantity?: SortOrder
     unitsSold?: SortOrder
+    viewsCount?: SortOrder
+    clicksCount?: SortOrder
+    salesCount?: SortOrder
+    rankingScore?: SortOrder
   }
 
   export type VendorGiftMaxOrderByAggregateInput = {
@@ -47018,6 +48990,11 @@ export namespace Prisma {
     status?: SortOrder
     stockQuantity?: SortOrder
     unitsSold?: SortOrder
+    viewsCount?: SortOrder
+    clicksCount?: SortOrder
+    salesCount?: SortOrder
+    rankingScore?: SortOrder
+    lastEngagementAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -47035,6 +49012,11 @@ export namespace Prisma {
     status?: SortOrder
     stockQuantity?: SortOrder
     unitsSold?: SortOrder
+    viewsCount?: SortOrder
+    clicksCount?: SortOrder
+    salesCount?: SortOrder
+    rankingScore?: SortOrder
+    lastEngagementAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -47044,11 +49026,26 @@ export namespace Prisma {
     price?: SortOrder
     stockQuantity?: SortOrder
     unitsSold?: SortOrder
+    viewsCount?: SortOrder
+    clicksCount?: SortOrder
+    salesCount?: SortOrder
+    rankingScore?: SortOrder
   }
 
-  export type VendorGiftScalarRelationFilter = {
-    is?: VendorGiftWhereInput
-    isNot?: VendorGiftWhereInput
+  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
   }
 
   export type VendorGiftImageCountOrderByAggregateInput = {
@@ -47219,11 +49216,18 @@ export namespace Prisma {
     connect?: FavoriteWhereUniqueInput | FavoriteWhereUniqueInput[]
   }
 
-  export type PromotionCreateNestedManyWithoutVendorInput = {
-    create?: XOR<PromotionCreateWithoutVendorInput, PromotionUncheckedCreateWithoutVendorInput> | PromotionCreateWithoutVendorInput[] | PromotionUncheckedCreateWithoutVendorInput[]
-    connectOrCreate?: PromotionCreateOrConnectWithoutVendorInput | PromotionCreateOrConnectWithoutVendorInput[]
-    createMany?: PromotionCreateManyVendorInputEnvelope
-    connect?: PromotionWhereUniqueInput | PromotionWhereUniqueInput[]
+  export type FeaturedAdCreateNestedManyWithoutVendorInput = {
+    create?: XOR<FeaturedAdCreateWithoutVendorInput, FeaturedAdUncheckedCreateWithoutVendorInput> | FeaturedAdCreateWithoutVendorInput[] | FeaturedAdUncheckedCreateWithoutVendorInput[]
+    connectOrCreate?: FeaturedAdCreateOrConnectWithoutVendorInput | FeaturedAdCreateOrConnectWithoutVendorInput[]
+    createMany?: FeaturedAdCreateManyVendorInputEnvelope
+    connect?: FeaturedAdWhereUniqueInput | FeaturedAdWhereUniqueInput[]
+  }
+
+  export type SponsoredAdCreateNestedManyWithoutVendorInput = {
+    create?: XOR<SponsoredAdCreateWithoutVendorInput, SponsoredAdUncheckedCreateWithoutVendorInput> | SponsoredAdCreateWithoutVendorInput[] | SponsoredAdUncheckedCreateWithoutVendorInput[]
+    connectOrCreate?: SponsoredAdCreateOrConnectWithoutVendorInput | SponsoredAdCreateOrConnectWithoutVendorInput[]
+    createMany?: SponsoredAdCreateManyVendorInputEnvelope
+    connect?: SponsoredAdWhereUniqueInput | SponsoredAdWhereUniqueInput[]
   }
 
   export type FlexCardCreateNestedManyWithoutSenderInput = {
@@ -47387,11 +49391,18 @@ export namespace Prisma {
     connect?: FavoriteWhereUniqueInput | FavoriteWhereUniqueInput[]
   }
 
-  export type PromotionUncheckedCreateNestedManyWithoutVendorInput = {
-    create?: XOR<PromotionCreateWithoutVendorInput, PromotionUncheckedCreateWithoutVendorInput> | PromotionCreateWithoutVendorInput[] | PromotionUncheckedCreateWithoutVendorInput[]
-    connectOrCreate?: PromotionCreateOrConnectWithoutVendorInput | PromotionCreateOrConnectWithoutVendorInput[]
-    createMany?: PromotionCreateManyVendorInputEnvelope
-    connect?: PromotionWhereUniqueInput | PromotionWhereUniqueInput[]
+  export type FeaturedAdUncheckedCreateNestedManyWithoutVendorInput = {
+    create?: XOR<FeaturedAdCreateWithoutVendorInput, FeaturedAdUncheckedCreateWithoutVendorInput> | FeaturedAdCreateWithoutVendorInput[] | FeaturedAdUncheckedCreateWithoutVendorInput[]
+    connectOrCreate?: FeaturedAdCreateOrConnectWithoutVendorInput | FeaturedAdCreateOrConnectWithoutVendorInput[]
+    createMany?: FeaturedAdCreateManyVendorInputEnvelope
+    connect?: FeaturedAdWhereUniqueInput | FeaturedAdWhereUniqueInput[]
+  }
+
+  export type SponsoredAdUncheckedCreateNestedManyWithoutVendorInput = {
+    create?: XOR<SponsoredAdCreateWithoutVendorInput, SponsoredAdUncheckedCreateWithoutVendorInput> | SponsoredAdCreateWithoutVendorInput[] | SponsoredAdUncheckedCreateWithoutVendorInput[]
+    connectOrCreate?: SponsoredAdCreateOrConnectWithoutVendorInput | SponsoredAdCreateOrConnectWithoutVendorInput[]
+    createMany?: SponsoredAdCreateManyVendorInputEnvelope
+    connect?: SponsoredAdWhereUniqueInput | SponsoredAdWhereUniqueInput[]
   }
 
   export type FlexCardUncheckedCreateNestedManyWithoutSenderInput = {
@@ -47651,18 +49662,32 @@ export namespace Prisma {
     deleteMany?: FavoriteScalarWhereInput | FavoriteScalarWhereInput[]
   }
 
-  export type PromotionUpdateManyWithoutVendorNestedInput = {
-    create?: XOR<PromotionCreateWithoutVendorInput, PromotionUncheckedCreateWithoutVendorInput> | PromotionCreateWithoutVendorInput[] | PromotionUncheckedCreateWithoutVendorInput[]
-    connectOrCreate?: PromotionCreateOrConnectWithoutVendorInput | PromotionCreateOrConnectWithoutVendorInput[]
-    upsert?: PromotionUpsertWithWhereUniqueWithoutVendorInput | PromotionUpsertWithWhereUniqueWithoutVendorInput[]
-    createMany?: PromotionCreateManyVendorInputEnvelope
-    set?: PromotionWhereUniqueInput | PromotionWhereUniqueInput[]
-    disconnect?: PromotionWhereUniqueInput | PromotionWhereUniqueInput[]
-    delete?: PromotionWhereUniqueInput | PromotionWhereUniqueInput[]
-    connect?: PromotionWhereUniqueInput | PromotionWhereUniqueInput[]
-    update?: PromotionUpdateWithWhereUniqueWithoutVendorInput | PromotionUpdateWithWhereUniqueWithoutVendorInput[]
-    updateMany?: PromotionUpdateManyWithWhereWithoutVendorInput | PromotionUpdateManyWithWhereWithoutVendorInput[]
-    deleteMany?: PromotionScalarWhereInput | PromotionScalarWhereInput[]
+  export type FeaturedAdUpdateManyWithoutVendorNestedInput = {
+    create?: XOR<FeaturedAdCreateWithoutVendorInput, FeaturedAdUncheckedCreateWithoutVendorInput> | FeaturedAdCreateWithoutVendorInput[] | FeaturedAdUncheckedCreateWithoutVendorInput[]
+    connectOrCreate?: FeaturedAdCreateOrConnectWithoutVendorInput | FeaturedAdCreateOrConnectWithoutVendorInput[]
+    upsert?: FeaturedAdUpsertWithWhereUniqueWithoutVendorInput | FeaturedAdUpsertWithWhereUniqueWithoutVendorInput[]
+    createMany?: FeaturedAdCreateManyVendorInputEnvelope
+    set?: FeaturedAdWhereUniqueInput | FeaturedAdWhereUniqueInput[]
+    disconnect?: FeaturedAdWhereUniqueInput | FeaturedAdWhereUniqueInput[]
+    delete?: FeaturedAdWhereUniqueInput | FeaturedAdWhereUniqueInput[]
+    connect?: FeaturedAdWhereUniqueInput | FeaturedAdWhereUniqueInput[]
+    update?: FeaturedAdUpdateWithWhereUniqueWithoutVendorInput | FeaturedAdUpdateWithWhereUniqueWithoutVendorInput[]
+    updateMany?: FeaturedAdUpdateManyWithWhereWithoutVendorInput | FeaturedAdUpdateManyWithWhereWithoutVendorInput[]
+    deleteMany?: FeaturedAdScalarWhereInput | FeaturedAdScalarWhereInput[]
+  }
+
+  export type SponsoredAdUpdateManyWithoutVendorNestedInput = {
+    create?: XOR<SponsoredAdCreateWithoutVendorInput, SponsoredAdUncheckedCreateWithoutVendorInput> | SponsoredAdCreateWithoutVendorInput[] | SponsoredAdUncheckedCreateWithoutVendorInput[]
+    connectOrCreate?: SponsoredAdCreateOrConnectWithoutVendorInput | SponsoredAdCreateOrConnectWithoutVendorInput[]
+    upsert?: SponsoredAdUpsertWithWhereUniqueWithoutVendorInput | SponsoredAdUpsertWithWhereUniqueWithoutVendorInput[]
+    createMany?: SponsoredAdCreateManyVendorInputEnvelope
+    set?: SponsoredAdWhereUniqueInput | SponsoredAdWhereUniqueInput[]
+    disconnect?: SponsoredAdWhereUniqueInput | SponsoredAdWhereUniqueInput[]
+    delete?: SponsoredAdWhereUniqueInput | SponsoredAdWhereUniqueInput[]
+    connect?: SponsoredAdWhereUniqueInput | SponsoredAdWhereUniqueInput[]
+    update?: SponsoredAdUpdateWithWhereUniqueWithoutVendorInput | SponsoredAdUpdateWithWhereUniqueWithoutVendorInput[]
+    updateMany?: SponsoredAdUpdateManyWithWhereWithoutVendorInput | SponsoredAdUpdateManyWithWhereWithoutVendorInput[]
+    deleteMany?: SponsoredAdScalarWhereInput | SponsoredAdScalarWhereInput[]
   }
 
   export type FlexCardUpdateManyWithoutSenderNestedInput = {
@@ -47987,18 +50012,32 @@ export namespace Prisma {
     deleteMany?: FavoriteScalarWhereInput | FavoriteScalarWhereInput[]
   }
 
-  export type PromotionUncheckedUpdateManyWithoutVendorNestedInput = {
-    create?: XOR<PromotionCreateWithoutVendorInput, PromotionUncheckedCreateWithoutVendorInput> | PromotionCreateWithoutVendorInput[] | PromotionUncheckedCreateWithoutVendorInput[]
-    connectOrCreate?: PromotionCreateOrConnectWithoutVendorInput | PromotionCreateOrConnectWithoutVendorInput[]
-    upsert?: PromotionUpsertWithWhereUniqueWithoutVendorInput | PromotionUpsertWithWhereUniqueWithoutVendorInput[]
-    createMany?: PromotionCreateManyVendorInputEnvelope
-    set?: PromotionWhereUniqueInput | PromotionWhereUniqueInput[]
-    disconnect?: PromotionWhereUniqueInput | PromotionWhereUniqueInput[]
-    delete?: PromotionWhereUniqueInput | PromotionWhereUniqueInput[]
-    connect?: PromotionWhereUniqueInput | PromotionWhereUniqueInput[]
-    update?: PromotionUpdateWithWhereUniqueWithoutVendorInput | PromotionUpdateWithWhereUniqueWithoutVendorInput[]
-    updateMany?: PromotionUpdateManyWithWhereWithoutVendorInput | PromotionUpdateManyWithWhereWithoutVendorInput[]
-    deleteMany?: PromotionScalarWhereInput | PromotionScalarWhereInput[]
+  export type FeaturedAdUncheckedUpdateManyWithoutVendorNestedInput = {
+    create?: XOR<FeaturedAdCreateWithoutVendorInput, FeaturedAdUncheckedCreateWithoutVendorInput> | FeaturedAdCreateWithoutVendorInput[] | FeaturedAdUncheckedCreateWithoutVendorInput[]
+    connectOrCreate?: FeaturedAdCreateOrConnectWithoutVendorInput | FeaturedAdCreateOrConnectWithoutVendorInput[]
+    upsert?: FeaturedAdUpsertWithWhereUniqueWithoutVendorInput | FeaturedAdUpsertWithWhereUniqueWithoutVendorInput[]
+    createMany?: FeaturedAdCreateManyVendorInputEnvelope
+    set?: FeaturedAdWhereUniqueInput | FeaturedAdWhereUniqueInput[]
+    disconnect?: FeaturedAdWhereUniqueInput | FeaturedAdWhereUniqueInput[]
+    delete?: FeaturedAdWhereUniqueInput | FeaturedAdWhereUniqueInput[]
+    connect?: FeaturedAdWhereUniqueInput | FeaturedAdWhereUniqueInput[]
+    update?: FeaturedAdUpdateWithWhereUniqueWithoutVendorInput | FeaturedAdUpdateWithWhereUniqueWithoutVendorInput[]
+    updateMany?: FeaturedAdUpdateManyWithWhereWithoutVendorInput | FeaturedAdUpdateManyWithWhereWithoutVendorInput[]
+    deleteMany?: FeaturedAdScalarWhereInput | FeaturedAdScalarWhereInput[]
+  }
+
+  export type SponsoredAdUncheckedUpdateManyWithoutVendorNestedInput = {
+    create?: XOR<SponsoredAdCreateWithoutVendorInput, SponsoredAdUncheckedCreateWithoutVendorInput> | SponsoredAdCreateWithoutVendorInput[] | SponsoredAdUncheckedCreateWithoutVendorInput[]
+    connectOrCreate?: SponsoredAdCreateOrConnectWithoutVendorInput | SponsoredAdCreateOrConnectWithoutVendorInput[]
+    upsert?: SponsoredAdUpsertWithWhereUniqueWithoutVendorInput | SponsoredAdUpsertWithWhereUniqueWithoutVendorInput[]
+    createMany?: SponsoredAdCreateManyVendorInputEnvelope
+    set?: SponsoredAdWhereUniqueInput | SponsoredAdWhereUniqueInput[]
+    disconnect?: SponsoredAdWhereUniqueInput | SponsoredAdWhereUniqueInput[]
+    delete?: SponsoredAdWhereUniqueInput | SponsoredAdWhereUniqueInput[]
+    connect?: SponsoredAdWhereUniqueInput | SponsoredAdWhereUniqueInput[]
+    update?: SponsoredAdUpdateWithWhereUniqueWithoutVendorInput | SponsoredAdUpdateWithWhereUniqueWithoutVendorInput[]
+    updateMany?: SponsoredAdUpdateManyWithWhereWithoutVendorInput | SponsoredAdUpdateManyWithWhereWithoutVendorInput[]
+    deleteMany?: SponsoredAdScalarWhereInput | SponsoredAdScalarWhereInput[]
   }
 
   export type FlexCardUncheckedUpdateManyWithoutSenderNestedInput = {
@@ -48562,21 +50601,21 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutDirectGiftsRedeemedInput, UserUpdateWithoutDirectGiftsRedeemedInput>, UserUncheckedUpdateWithoutDirectGiftsRedeemedInput>
   }
 
-  export type UserCreateNestedOneWithoutPromotionsInput = {
-    create?: XOR<UserCreateWithoutPromotionsInput, UserUncheckedCreateWithoutPromotionsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutPromotionsInput
+  export type UserCreateNestedOneWithoutFeaturedAdsInput = {
+    create?: XOR<UserCreateWithoutFeaturedAdsInput, UserUncheckedCreateWithoutFeaturedAdsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutFeaturedAdsInput
     connect?: UserWhereUniqueInput
   }
 
-  export type VendorGiftCreateNestedOneWithoutPromotionsInput = {
-    create?: XOR<VendorGiftCreateWithoutPromotionsInput, VendorGiftUncheckedCreateWithoutPromotionsInput>
-    connectOrCreate?: VendorGiftCreateOrConnectWithoutPromotionsInput
+  export type VendorGiftCreateNestedOneWithoutFeaturedAdsInput = {
+    create?: XOR<VendorGiftCreateWithoutFeaturedAdsInput, VendorGiftUncheckedCreateWithoutFeaturedAdsInput>
+    connectOrCreate?: VendorGiftCreateOrConnectWithoutFeaturedAdsInput
     connect?: VendorGiftWhereUniqueInput
   }
 
-  export type TransactionCreateNestedOneWithoutPromotionInput = {
-    create?: XOR<TransactionCreateWithoutPromotionInput, TransactionUncheckedCreateWithoutPromotionInput>
-    connectOrCreate?: TransactionCreateOrConnectWithoutPromotionInput
+  export type TransactionCreateNestedOneWithoutFeaturedAdInput = {
+    create?: XOR<TransactionCreateWithoutFeaturedAdInput, TransactionUncheckedCreateWithoutFeaturedAdInput>
+    connectOrCreate?: TransactionCreateOrConnectWithoutFeaturedAdInput
     connect?: TransactionWhereUniqueInput
   }
 
@@ -48588,32 +50627,74 @@ export namespace Prisma {
     divide?: number
   }
 
-  export type UserUpdateOneRequiredWithoutPromotionsNestedInput = {
-    create?: XOR<UserCreateWithoutPromotionsInput, UserUncheckedCreateWithoutPromotionsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutPromotionsInput
-    upsert?: UserUpsertWithoutPromotionsInput
+  export type UserUpdateOneRequiredWithoutFeaturedAdsNestedInput = {
+    create?: XOR<UserCreateWithoutFeaturedAdsInput, UserUncheckedCreateWithoutFeaturedAdsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutFeaturedAdsInput
+    upsert?: UserUpsertWithoutFeaturedAdsInput
     connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutPromotionsInput, UserUpdateWithoutPromotionsInput>, UserUncheckedUpdateWithoutPromotionsInput>
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutFeaturedAdsInput, UserUpdateWithoutFeaturedAdsInput>, UserUncheckedUpdateWithoutFeaturedAdsInput>
   }
 
-  export type VendorGiftUpdateOneWithoutPromotionsNestedInput = {
-    create?: XOR<VendorGiftCreateWithoutPromotionsInput, VendorGiftUncheckedCreateWithoutPromotionsInput>
-    connectOrCreate?: VendorGiftCreateOrConnectWithoutPromotionsInput
-    upsert?: VendorGiftUpsertWithoutPromotionsInput
-    disconnect?: VendorGiftWhereInput | boolean
-    delete?: VendorGiftWhereInput | boolean
+  export type VendorGiftUpdateOneRequiredWithoutFeaturedAdsNestedInput = {
+    create?: XOR<VendorGiftCreateWithoutFeaturedAdsInput, VendorGiftUncheckedCreateWithoutFeaturedAdsInput>
+    connectOrCreate?: VendorGiftCreateOrConnectWithoutFeaturedAdsInput
+    upsert?: VendorGiftUpsertWithoutFeaturedAdsInput
     connect?: VendorGiftWhereUniqueInput
-    update?: XOR<XOR<VendorGiftUpdateToOneWithWhereWithoutPromotionsInput, VendorGiftUpdateWithoutPromotionsInput>, VendorGiftUncheckedUpdateWithoutPromotionsInput>
+    update?: XOR<XOR<VendorGiftUpdateToOneWithWhereWithoutFeaturedAdsInput, VendorGiftUpdateWithoutFeaturedAdsInput>, VendorGiftUncheckedUpdateWithoutFeaturedAdsInput>
   }
 
-  export type TransactionUpdateOneWithoutPromotionNestedInput = {
-    create?: XOR<TransactionCreateWithoutPromotionInput, TransactionUncheckedCreateWithoutPromotionInput>
-    connectOrCreate?: TransactionCreateOrConnectWithoutPromotionInput
-    upsert?: TransactionUpsertWithoutPromotionInput
+  export type TransactionUpdateOneWithoutFeaturedAdNestedInput = {
+    create?: XOR<TransactionCreateWithoutFeaturedAdInput, TransactionUncheckedCreateWithoutFeaturedAdInput>
+    connectOrCreate?: TransactionCreateOrConnectWithoutFeaturedAdInput
+    upsert?: TransactionUpsertWithoutFeaturedAdInput
     disconnect?: TransactionWhereInput | boolean
     delete?: TransactionWhereInput | boolean
     connect?: TransactionWhereUniqueInput
-    update?: XOR<XOR<TransactionUpdateToOneWithWhereWithoutPromotionInput, TransactionUpdateWithoutPromotionInput>, TransactionUncheckedUpdateWithoutPromotionInput>
+    update?: XOR<XOR<TransactionUpdateToOneWithWhereWithoutFeaturedAdInput, TransactionUpdateWithoutFeaturedAdInput>, TransactionUncheckedUpdateWithoutFeaturedAdInput>
+  }
+
+  export type UserCreateNestedOneWithoutSponsoredAdsInput = {
+    create?: XOR<UserCreateWithoutSponsoredAdsInput, UserUncheckedCreateWithoutSponsoredAdsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutSponsoredAdsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type VendorGiftCreateNestedOneWithoutSponsoredAdsInput = {
+    create?: XOR<VendorGiftCreateWithoutSponsoredAdsInput, VendorGiftUncheckedCreateWithoutSponsoredAdsInput>
+    connectOrCreate?: VendorGiftCreateOrConnectWithoutSponsoredAdsInput
+    connect?: VendorGiftWhereUniqueInput
+  }
+
+  export type TransactionCreateNestedOneWithoutSponsoredAdInput = {
+    create?: XOR<TransactionCreateWithoutSponsoredAdInput, TransactionUncheckedCreateWithoutSponsoredAdInput>
+    connectOrCreate?: TransactionCreateOrConnectWithoutSponsoredAdInput
+    connect?: TransactionWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutSponsoredAdsNestedInput = {
+    create?: XOR<UserCreateWithoutSponsoredAdsInput, UserUncheckedCreateWithoutSponsoredAdsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutSponsoredAdsInput
+    upsert?: UserUpsertWithoutSponsoredAdsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSponsoredAdsInput, UserUpdateWithoutSponsoredAdsInput>, UserUncheckedUpdateWithoutSponsoredAdsInput>
+  }
+
+  export type VendorGiftUpdateOneRequiredWithoutSponsoredAdsNestedInput = {
+    create?: XOR<VendorGiftCreateWithoutSponsoredAdsInput, VendorGiftUncheckedCreateWithoutSponsoredAdsInput>
+    connectOrCreate?: VendorGiftCreateOrConnectWithoutSponsoredAdsInput
+    upsert?: VendorGiftUpsertWithoutSponsoredAdsInput
+    connect?: VendorGiftWhereUniqueInput
+    update?: XOR<XOR<VendorGiftUpdateToOneWithWhereWithoutSponsoredAdsInput, VendorGiftUpdateWithoutSponsoredAdsInput>, VendorGiftUncheckedUpdateWithoutSponsoredAdsInput>
+  }
+
+  export type TransactionUpdateOneWithoutSponsoredAdNestedInput = {
+    create?: XOR<TransactionCreateWithoutSponsoredAdInput, TransactionUncheckedCreateWithoutSponsoredAdInput>
+    connectOrCreate?: TransactionCreateOrConnectWithoutSponsoredAdInput
+    upsert?: TransactionUpsertWithoutSponsoredAdInput
+    disconnect?: TransactionWhereInput | boolean
+    delete?: TransactionWhereInput | boolean
+    connect?: TransactionWhereUniqueInput
+    update?: XOR<XOR<TransactionUpdateToOneWithWhereWithoutSponsoredAdInput, TransactionUpdateWithoutSponsoredAdInput>, TransactionUncheckedUpdateWithoutSponsoredAdInput>
   }
 
   export type UserCreateNestedOneWithoutAdminResolvedPromotionsInput = {
@@ -48660,10 +50741,16 @@ export namespace Prisma {
     connect?: WithdrawalWhereUniqueInput
   }
 
-  export type PromotionCreateNestedOneWithoutTransactionInput = {
-    create?: XOR<PromotionCreateWithoutTransactionInput, PromotionUncheckedCreateWithoutTransactionInput>
-    connectOrCreate?: PromotionCreateOrConnectWithoutTransactionInput
-    connect?: PromotionWhereUniqueInput
+  export type FeaturedAdCreateNestedOneWithoutTransactionInput = {
+    create?: XOR<FeaturedAdCreateWithoutTransactionInput, FeaturedAdUncheckedCreateWithoutTransactionInput>
+    connectOrCreate?: FeaturedAdCreateOrConnectWithoutTransactionInput
+    connect?: FeaturedAdWhereUniqueInput
+  }
+
+  export type SponsoredAdCreateNestedOneWithoutTransactionInput = {
+    create?: XOR<SponsoredAdCreateWithoutTransactionInput, SponsoredAdUncheckedCreateWithoutTransactionInput>
+    connectOrCreate?: SponsoredAdCreateOrConnectWithoutTransactionInput
+    connect?: SponsoredAdWhereUniqueInput
   }
 
   export type CampaignWithdrawalCreateNestedOneWithoutTransactionInput = {
@@ -48690,10 +50777,16 @@ export namespace Prisma {
     connect?: WithdrawalWhereUniqueInput
   }
 
-  export type PromotionUncheckedCreateNestedOneWithoutTransactionInput = {
-    create?: XOR<PromotionCreateWithoutTransactionInput, PromotionUncheckedCreateWithoutTransactionInput>
-    connectOrCreate?: PromotionCreateOrConnectWithoutTransactionInput
-    connect?: PromotionWhereUniqueInput
+  export type FeaturedAdUncheckedCreateNestedOneWithoutTransactionInput = {
+    create?: XOR<FeaturedAdCreateWithoutTransactionInput, FeaturedAdUncheckedCreateWithoutTransactionInput>
+    connectOrCreate?: FeaturedAdCreateOrConnectWithoutTransactionInput
+    connect?: FeaturedAdWhereUniqueInput
+  }
+
+  export type SponsoredAdUncheckedCreateNestedOneWithoutTransactionInput = {
+    create?: XOR<SponsoredAdCreateWithoutTransactionInput, SponsoredAdUncheckedCreateWithoutTransactionInput>
+    connectOrCreate?: SponsoredAdCreateOrConnectWithoutTransactionInput
+    connect?: SponsoredAdWhereUniqueInput
   }
 
   export type CampaignWithdrawalUncheckedCreateNestedOneWithoutTransactionInput = {
@@ -48752,14 +50845,24 @@ export namespace Prisma {
     update?: XOR<XOR<WithdrawalUpdateToOneWithWhereWithoutTransactionInput, WithdrawalUpdateWithoutTransactionInput>, WithdrawalUncheckedUpdateWithoutTransactionInput>
   }
 
-  export type PromotionUpdateOneWithoutTransactionNestedInput = {
-    create?: XOR<PromotionCreateWithoutTransactionInput, PromotionUncheckedCreateWithoutTransactionInput>
-    connectOrCreate?: PromotionCreateOrConnectWithoutTransactionInput
-    upsert?: PromotionUpsertWithoutTransactionInput
-    disconnect?: PromotionWhereInput | boolean
-    delete?: PromotionWhereInput | boolean
-    connect?: PromotionWhereUniqueInput
-    update?: XOR<XOR<PromotionUpdateToOneWithWhereWithoutTransactionInput, PromotionUpdateWithoutTransactionInput>, PromotionUncheckedUpdateWithoutTransactionInput>
+  export type FeaturedAdUpdateOneWithoutTransactionNestedInput = {
+    create?: XOR<FeaturedAdCreateWithoutTransactionInput, FeaturedAdUncheckedCreateWithoutTransactionInput>
+    connectOrCreate?: FeaturedAdCreateOrConnectWithoutTransactionInput
+    upsert?: FeaturedAdUpsertWithoutTransactionInput
+    disconnect?: FeaturedAdWhereInput | boolean
+    delete?: FeaturedAdWhereInput | boolean
+    connect?: FeaturedAdWhereUniqueInput
+    update?: XOR<XOR<FeaturedAdUpdateToOneWithWhereWithoutTransactionInput, FeaturedAdUpdateWithoutTransactionInput>, FeaturedAdUncheckedUpdateWithoutTransactionInput>
+  }
+
+  export type SponsoredAdUpdateOneWithoutTransactionNestedInput = {
+    create?: XOR<SponsoredAdCreateWithoutTransactionInput, SponsoredAdUncheckedCreateWithoutTransactionInput>
+    connectOrCreate?: SponsoredAdCreateOrConnectWithoutTransactionInput
+    upsert?: SponsoredAdUpsertWithoutTransactionInput
+    disconnect?: SponsoredAdWhereInput | boolean
+    delete?: SponsoredAdWhereInput | boolean
+    connect?: SponsoredAdWhereUniqueInput
+    update?: XOR<XOR<SponsoredAdUpdateToOneWithWhereWithoutTransactionInput, SponsoredAdUpdateWithoutTransactionInput>, SponsoredAdUncheckedUpdateWithoutTransactionInput>
   }
 
   export type CampaignWithdrawalUpdateOneWithoutTransactionNestedInput = {
@@ -48802,14 +50905,24 @@ export namespace Prisma {
     update?: XOR<XOR<WithdrawalUpdateToOneWithWhereWithoutTransactionInput, WithdrawalUpdateWithoutTransactionInput>, WithdrawalUncheckedUpdateWithoutTransactionInput>
   }
 
-  export type PromotionUncheckedUpdateOneWithoutTransactionNestedInput = {
-    create?: XOR<PromotionCreateWithoutTransactionInput, PromotionUncheckedCreateWithoutTransactionInput>
-    connectOrCreate?: PromotionCreateOrConnectWithoutTransactionInput
-    upsert?: PromotionUpsertWithoutTransactionInput
-    disconnect?: PromotionWhereInput | boolean
-    delete?: PromotionWhereInput | boolean
-    connect?: PromotionWhereUniqueInput
-    update?: XOR<XOR<PromotionUpdateToOneWithWhereWithoutTransactionInput, PromotionUpdateWithoutTransactionInput>, PromotionUncheckedUpdateWithoutTransactionInput>
+  export type FeaturedAdUncheckedUpdateOneWithoutTransactionNestedInput = {
+    create?: XOR<FeaturedAdCreateWithoutTransactionInput, FeaturedAdUncheckedCreateWithoutTransactionInput>
+    connectOrCreate?: FeaturedAdCreateOrConnectWithoutTransactionInput
+    upsert?: FeaturedAdUpsertWithoutTransactionInput
+    disconnect?: FeaturedAdWhereInput | boolean
+    delete?: FeaturedAdWhereInput | boolean
+    connect?: FeaturedAdWhereUniqueInput
+    update?: XOR<XOR<FeaturedAdUpdateToOneWithWhereWithoutTransactionInput, FeaturedAdUpdateWithoutTransactionInput>, FeaturedAdUncheckedUpdateWithoutTransactionInput>
+  }
+
+  export type SponsoredAdUncheckedUpdateOneWithoutTransactionNestedInput = {
+    create?: XOR<SponsoredAdCreateWithoutTransactionInput, SponsoredAdUncheckedCreateWithoutTransactionInput>
+    connectOrCreate?: SponsoredAdCreateOrConnectWithoutTransactionInput
+    upsert?: SponsoredAdUpsertWithoutTransactionInput
+    disconnect?: SponsoredAdWhereInput | boolean
+    delete?: SponsoredAdWhereInput | boolean
+    connect?: SponsoredAdWhereUniqueInput
+    update?: XOR<XOR<SponsoredAdUpdateToOneWithWhereWithoutTransactionInput, SponsoredAdUpdateWithoutTransactionInput>, SponsoredAdUncheckedUpdateWithoutTransactionInput>
   }
 
   export type CampaignWithdrawalUncheckedUpdateOneWithoutTransactionNestedInput = {
@@ -49244,11 +51357,18 @@ export namespace Prisma {
     connect?: FavoriteWhereUniqueInput | FavoriteWhereUniqueInput[]
   }
 
-  export type PromotionCreateNestedManyWithoutProductInput = {
-    create?: XOR<PromotionCreateWithoutProductInput, PromotionUncheckedCreateWithoutProductInput> | PromotionCreateWithoutProductInput[] | PromotionUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: PromotionCreateOrConnectWithoutProductInput | PromotionCreateOrConnectWithoutProductInput[]
-    createMany?: PromotionCreateManyProductInputEnvelope
-    connect?: PromotionWhereUniqueInput | PromotionWhereUniqueInput[]
+  export type FeaturedAdCreateNestedManyWithoutProductInput = {
+    create?: XOR<FeaturedAdCreateWithoutProductInput, FeaturedAdUncheckedCreateWithoutProductInput> | FeaturedAdCreateWithoutProductInput[] | FeaturedAdUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: FeaturedAdCreateOrConnectWithoutProductInput | FeaturedAdCreateOrConnectWithoutProductInput[]
+    createMany?: FeaturedAdCreateManyProductInputEnvelope
+    connect?: FeaturedAdWhereUniqueInput | FeaturedAdWhereUniqueInput[]
+  }
+
+  export type SponsoredAdCreateNestedManyWithoutProductInput = {
+    create?: XOR<SponsoredAdCreateWithoutProductInput, SponsoredAdUncheckedCreateWithoutProductInput> | SponsoredAdCreateWithoutProductInput[] | SponsoredAdUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: SponsoredAdCreateOrConnectWithoutProductInput | SponsoredAdCreateOrConnectWithoutProductInput[]
+    createMany?: SponsoredAdCreateManyProductInputEnvelope
+    connect?: SponsoredAdWhereUniqueInput | SponsoredAdWhereUniqueInput[]
   }
 
   export type CampaignCreateNestedManyWithoutProductInput = {
@@ -49279,11 +51399,18 @@ export namespace Prisma {
     connect?: FavoriteWhereUniqueInput | FavoriteWhereUniqueInput[]
   }
 
-  export type PromotionUncheckedCreateNestedManyWithoutProductInput = {
-    create?: XOR<PromotionCreateWithoutProductInput, PromotionUncheckedCreateWithoutProductInput> | PromotionCreateWithoutProductInput[] | PromotionUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: PromotionCreateOrConnectWithoutProductInput | PromotionCreateOrConnectWithoutProductInput[]
-    createMany?: PromotionCreateManyProductInputEnvelope
-    connect?: PromotionWhereUniqueInput | PromotionWhereUniqueInput[]
+  export type FeaturedAdUncheckedCreateNestedManyWithoutProductInput = {
+    create?: XOR<FeaturedAdCreateWithoutProductInput, FeaturedAdUncheckedCreateWithoutProductInput> | FeaturedAdCreateWithoutProductInput[] | FeaturedAdUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: FeaturedAdCreateOrConnectWithoutProductInput | FeaturedAdCreateOrConnectWithoutProductInput[]
+    createMany?: FeaturedAdCreateManyProductInputEnvelope
+    connect?: FeaturedAdWhereUniqueInput | FeaturedAdWhereUniqueInput[]
+  }
+
+  export type SponsoredAdUncheckedCreateNestedManyWithoutProductInput = {
+    create?: XOR<SponsoredAdCreateWithoutProductInput, SponsoredAdUncheckedCreateWithoutProductInput> | SponsoredAdCreateWithoutProductInput[] | SponsoredAdUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: SponsoredAdCreateOrConnectWithoutProductInput | SponsoredAdCreateOrConnectWithoutProductInput[]
+    createMany?: SponsoredAdCreateManyProductInputEnvelope
+    connect?: SponsoredAdWhereUniqueInput | SponsoredAdWhereUniqueInput[]
   }
 
   export type CampaignUncheckedCreateNestedManyWithoutProductInput = {
@@ -49308,6 +51435,14 @@ export namespace Prisma {
   export type VendorGiftUpdateimagesInput = {
     set?: string[]
     push?: string | string[]
+  }
+
+  export type FloatFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type UserUpdateOneRequiredWithoutVendorGiftsNestedInput = {
@@ -49346,18 +51481,32 @@ export namespace Prisma {
     deleteMany?: FavoriteScalarWhereInput | FavoriteScalarWhereInput[]
   }
 
-  export type PromotionUpdateManyWithoutProductNestedInput = {
-    create?: XOR<PromotionCreateWithoutProductInput, PromotionUncheckedCreateWithoutProductInput> | PromotionCreateWithoutProductInput[] | PromotionUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: PromotionCreateOrConnectWithoutProductInput | PromotionCreateOrConnectWithoutProductInput[]
-    upsert?: PromotionUpsertWithWhereUniqueWithoutProductInput | PromotionUpsertWithWhereUniqueWithoutProductInput[]
-    createMany?: PromotionCreateManyProductInputEnvelope
-    set?: PromotionWhereUniqueInput | PromotionWhereUniqueInput[]
-    disconnect?: PromotionWhereUniqueInput | PromotionWhereUniqueInput[]
-    delete?: PromotionWhereUniqueInput | PromotionWhereUniqueInput[]
-    connect?: PromotionWhereUniqueInput | PromotionWhereUniqueInput[]
-    update?: PromotionUpdateWithWhereUniqueWithoutProductInput | PromotionUpdateWithWhereUniqueWithoutProductInput[]
-    updateMany?: PromotionUpdateManyWithWhereWithoutProductInput | PromotionUpdateManyWithWhereWithoutProductInput[]
-    deleteMany?: PromotionScalarWhereInput | PromotionScalarWhereInput[]
+  export type FeaturedAdUpdateManyWithoutProductNestedInput = {
+    create?: XOR<FeaturedAdCreateWithoutProductInput, FeaturedAdUncheckedCreateWithoutProductInput> | FeaturedAdCreateWithoutProductInput[] | FeaturedAdUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: FeaturedAdCreateOrConnectWithoutProductInput | FeaturedAdCreateOrConnectWithoutProductInput[]
+    upsert?: FeaturedAdUpsertWithWhereUniqueWithoutProductInput | FeaturedAdUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: FeaturedAdCreateManyProductInputEnvelope
+    set?: FeaturedAdWhereUniqueInput | FeaturedAdWhereUniqueInput[]
+    disconnect?: FeaturedAdWhereUniqueInput | FeaturedAdWhereUniqueInput[]
+    delete?: FeaturedAdWhereUniqueInput | FeaturedAdWhereUniqueInput[]
+    connect?: FeaturedAdWhereUniqueInput | FeaturedAdWhereUniqueInput[]
+    update?: FeaturedAdUpdateWithWhereUniqueWithoutProductInput | FeaturedAdUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: FeaturedAdUpdateManyWithWhereWithoutProductInput | FeaturedAdUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: FeaturedAdScalarWhereInput | FeaturedAdScalarWhereInput[]
+  }
+
+  export type SponsoredAdUpdateManyWithoutProductNestedInput = {
+    create?: XOR<SponsoredAdCreateWithoutProductInput, SponsoredAdUncheckedCreateWithoutProductInput> | SponsoredAdCreateWithoutProductInput[] | SponsoredAdUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: SponsoredAdCreateOrConnectWithoutProductInput | SponsoredAdCreateOrConnectWithoutProductInput[]
+    upsert?: SponsoredAdUpsertWithWhereUniqueWithoutProductInput | SponsoredAdUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: SponsoredAdCreateManyProductInputEnvelope
+    set?: SponsoredAdWhereUniqueInput | SponsoredAdWhereUniqueInput[]
+    disconnect?: SponsoredAdWhereUniqueInput | SponsoredAdWhereUniqueInput[]
+    delete?: SponsoredAdWhereUniqueInput | SponsoredAdWhereUniqueInput[]
+    connect?: SponsoredAdWhereUniqueInput | SponsoredAdWhereUniqueInput[]
+    update?: SponsoredAdUpdateWithWhereUniqueWithoutProductInput | SponsoredAdUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: SponsoredAdUpdateManyWithWhereWithoutProductInput | SponsoredAdUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: SponsoredAdScalarWhereInput | SponsoredAdScalarWhereInput[]
   }
 
   export type CampaignUpdateManyWithoutProductNestedInput = {
@@ -49416,18 +51565,32 @@ export namespace Prisma {
     deleteMany?: FavoriteScalarWhereInput | FavoriteScalarWhereInput[]
   }
 
-  export type PromotionUncheckedUpdateManyWithoutProductNestedInput = {
-    create?: XOR<PromotionCreateWithoutProductInput, PromotionUncheckedCreateWithoutProductInput> | PromotionCreateWithoutProductInput[] | PromotionUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: PromotionCreateOrConnectWithoutProductInput | PromotionCreateOrConnectWithoutProductInput[]
-    upsert?: PromotionUpsertWithWhereUniqueWithoutProductInput | PromotionUpsertWithWhereUniqueWithoutProductInput[]
-    createMany?: PromotionCreateManyProductInputEnvelope
-    set?: PromotionWhereUniqueInput | PromotionWhereUniqueInput[]
-    disconnect?: PromotionWhereUniqueInput | PromotionWhereUniqueInput[]
-    delete?: PromotionWhereUniqueInput | PromotionWhereUniqueInput[]
-    connect?: PromotionWhereUniqueInput | PromotionWhereUniqueInput[]
-    update?: PromotionUpdateWithWhereUniqueWithoutProductInput | PromotionUpdateWithWhereUniqueWithoutProductInput[]
-    updateMany?: PromotionUpdateManyWithWhereWithoutProductInput | PromotionUpdateManyWithWhereWithoutProductInput[]
-    deleteMany?: PromotionScalarWhereInput | PromotionScalarWhereInput[]
+  export type FeaturedAdUncheckedUpdateManyWithoutProductNestedInput = {
+    create?: XOR<FeaturedAdCreateWithoutProductInput, FeaturedAdUncheckedCreateWithoutProductInput> | FeaturedAdCreateWithoutProductInput[] | FeaturedAdUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: FeaturedAdCreateOrConnectWithoutProductInput | FeaturedAdCreateOrConnectWithoutProductInput[]
+    upsert?: FeaturedAdUpsertWithWhereUniqueWithoutProductInput | FeaturedAdUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: FeaturedAdCreateManyProductInputEnvelope
+    set?: FeaturedAdWhereUniqueInput | FeaturedAdWhereUniqueInput[]
+    disconnect?: FeaturedAdWhereUniqueInput | FeaturedAdWhereUniqueInput[]
+    delete?: FeaturedAdWhereUniqueInput | FeaturedAdWhereUniqueInput[]
+    connect?: FeaturedAdWhereUniqueInput | FeaturedAdWhereUniqueInput[]
+    update?: FeaturedAdUpdateWithWhereUniqueWithoutProductInput | FeaturedAdUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: FeaturedAdUpdateManyWithWhereWithoutProductInput | FeaturedAdUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: FeaturedAdScalarWhereInput | FeaturedAdScalarWhereInput[]
+  }
+
+  export type SponsoredAdUncheckedUpdateManyWithoutProductNestedInput = {
+    create?: XOR<SponsoredAdCreateWithoutProductInput, SponsoredAdUncheckedCreateWithoutProductInput> | SponsoredAdCreateWithoutProductInput[] | SponsoredAdUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: SponsoredAdCreateOrConnectWithoutProductInput | SponsoredAdCreateOrConnectWithoutProductInput[]
+    upsert?: SponsoredAdUpsertWithWhereUniqueWithoutProductInput | SponsoredAdUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: SponsoredAdCreateManyProductInputEnvelope
+    set?: SponsoredAdWhereUniqueInput | SponsoredAdWhereUniqueInput[]
+    disconnect?: SponsoredAdWhereUniqueInput | SponsoredAdWhereUniqueInput[]
+    delete?: SponsoredAdWhereUniqueInput | SponsoredAdWhereUniqueInput[]
+    connect?: SponsoredAdWhereUniqueInput | SponsoredAdWhereUniqueInput[]
+    update?: SponsoredAdUpdateWithWhereUniqueWithoutProductInput | SponsoredAdUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: SponsoredAdUpdateManyWithWhereWithoutProductInput | SponsoredAdUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: SponsoredAdScalarWhereInput | SponsoredAdScalarWhereInput[]
   }
 
   export type CampaignUncheckedUpdateManyWithoutProductNestedInput = {
@@ -49845,6 +52008,22 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
+  }
+
   export type SessionCreateWithoutUserInput = {
     id?: string
     expiresAt: Date | string
@@ -50075,7 +52254,8 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportCreateNestedOneWithoutTransactionInput
     contribution?: ContributionCreateNestedOneWithoutTransactionInput
     withdrawal?: WithdrawalCreateNestedOneWithoutTransactionInput
-    promotion?: PromotionCreateNestedOneWithoutTransactionInput
+    featuredAd?: FeaturedAdCreateNestedOneWithoutTransactionInput
+    sponsoredAd?: SponsoredAdCreateNestedOneWithoutTransactionInput
     campaignWithdrawal?: CampaignWithdrawalCreateNestedOneWithoutTransactionInput
   }
 
@@ -50093,7 +52273,8 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportUncheckedCreateNestedOneWithoutTransactionInput
     contribution?: ContributionUncheckedCreateNestedOneWithoutTransactionInput
     withdrawal?: WithdrawalUncheckedCreateNestedOneWithoutTransactionInput
-    promotion?: PromotionUncheckedCreateNestedOneWithoutTransactionInput
+    featuredAd?: FeaturedAdUncheckedCreateNestedOneWithoutTransactionInput
+    sponsoredAd?: SponsoredAdUncheckedCreateNestedOneWithoutTransactionInput
     campaignWithdrawal?: CampaignWithdrawalUncheckedCreateNestedOneWithoutTransactionInput
   }
 
@@ -50120,11 +52301,17 @@ export namespace Prisma {
     stockQuantity?: number | null
     unitsSold?: number
     images?: VendorGiftCreateimagesInput | string[]
+    viewsCount?: number
+    clicksCount?: number
+    salesCount?: number
+    rankingScore?: number
+    lastEngagementAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
     giftImages?: VendorGiftImageCreateNestedManyWithoutGiftInput
     favorites?: FavoriteCreateNestedManyWithoutVendorGiftInput
-    promotions?: PromotionCreateNestedManyWithoutProductInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutProductInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutProductInput
     campaigns?: CampaignCreateNestedManyWithoutProductInput
     directGifts?: DirectGiftCreateNestedManyWithoutProductInput
   }
@@ -50143,11 +52330,17 @@ export namespace Prisma {
     stockQuantity?: number | null
     unitsSold?: number
     images?: VendorGiftCreateimagesInput | string[]
+    viewsCount?: number
+    clicksCount?: number
+    salesCount?: number
+    rankingScore?: number
+    lastEngagementAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
     giftImages?: VendorGiftImageUncheckedCreateNestedManyWithoutGiftInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutVendorGiftInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutProductInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutProductInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutProductInput
     campaigns?: CampaignUncheckedCreateNestedManyWithoutProductInput
     directGifts?: DirectGiftUncheckedCreateNestedManyWithoutProductInput
   }
@@ -50183,54 +52376,95 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type PromotionCreateWithoutVendorInput = {
-    productId?: number | null
-    placement: string
-    durationDays?: number
-    startDate?: Date | string | null
-    endDate?: Date | string | null
+  export type FeaturedAdCreateWithoutVendorInput = {
+    country: string
+    slotNumber: number
+    startDate: Date | string
+    endDate: Date | string
     status?: string
     amountPaid: Decimal | DecimalJsLike | number | string
     currency?: string
     paymentReference?: string | null
-    rejectionReason?: string | null
     views?: number
     clicks?: number
-    conversions?: number
     createdAt?: Date | string
     updatedAt?: Date | string
-    product?: VendorGiftCreateNestedOneWithoutPromotionsInput
-    transaction?: TransactionCreateNestedOneWithoutPromotionInput
+    product: VendorGiftCreateNestedOneWithoutFeaturedAdsInput
+    transaction?: TransactionCreateNestedOneWithoutFeaturedAdInput
   }
 
-  export type PromotionUncheckedCreateWithoutVendorInput = {
+  export type FeaturedAdUncheckedCreateWithoutVendorInput = {
     id?: number
-    productId?: number | null
-    vendorGiftId?: number | null
-    placement: string
-    durationDays?: number
-    startDate?: Date | string | null
-    endDate?: Date | string | null
+    vendorGiftId: number
+    country: string
+    slotNumber: number
+    startDate: Date | string
+    endDate: Date | string
     status?: string
     amountPaid: Decimal | DecimalJsLike | number | string
     currency?: string
     paymentReference?: string | null
-    rejectionReason?: string | null
     views?: number
     clicks?: number
-    conversions?: number
     transactionId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
-  export type PromotionCreateOrConnectWithoutVendorInput = {
-    where: PromotionWhereUniqueInput
-    create: XOR<PromotionCreateWithoutVendorInput, PromotionUncheckedCreateWithoutVendorInput>
+  export type FeaturedAdCreateOrConnectWithoutVendorInput = {
+    where: FeaturedAdWhereUniqueInput
+    create: XOR<FeaturedAdCreateWithoutVendorInput, FeaturedAdUncheckedCreateWithoutVendorInput>
   }
 
-  export type PromotionCreateManyVendorInputEnvelope = {
-    data: PromotionCreateManyVendorInput | PromotionCreateManyVendorInput[]
+  export type FeaturedAdCreateManyVendorInputEnvelope = {
+    data: FeaturedAdCreateManyVendorInput | FeaturedAdCreateManyVendorInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type SponsoredAdCreateWithoutVendorInput = {
+    country: string
+    budget: Decimal | DecimalJsLike | number | string
+    remainingBudget: Decimal | DecimalJsLike | number | string
+    costPerClick: Decimal | DecimalJsLike | number | string
+    currency?: string
+    startDate?: Date | string
+    endDate?: Date | string | null
+    status?: string
+    paymentReference?: string | null
+    views?: number
+    clicks?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    product: VendorGiftCreateNestedOneWithoutSponsoredAdsInput
+    transaction?: TransactionCreateNestedOneWithoutSponsoredAdInput
+  }
+
+  export type SponsoredAdUncheckedCreateWithoutVendorInput = {
+    id?: number
+    vendorGiftId: number
+    country: string
+    budget: Decimal | DecimalJsLike | number | string
+    remainingBudget: Decimal | DecimalJsLike | number | string
+    costPerClick: Decimal | DecimalJsLike | number | string
+    currency?: string
+    startDate?: Date | string
+    endDate?: Date | string | null
+    status?: string
+    paymentReference?: string | null
+    views?: number
+    clicks?: number
+    transactionId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SponsoredAdCreateOrConnectWithoutVendorInput = {
+    where: SponsoredAdWhereUniqueInput
+    create: XOR<SponsoredAdCreateWithoutVendorInput, SponsoredAdUncheckedCreateWithoutVendorInput>
+  }
+
+  export type SponsoredAdCreateManyVendorInputEnvelope = {
+    data: SponsoredAdCreateManyVendorInput | SponsoredAdCreateManyVendorInput[]
     skipDuplicates?: boolean
   }
 
@@ -51166,6 +53400,11 @@ export namespace Prisma {
     stockQuantity?: IntNullableFilter<"VendorGift"> | number | null
     unitsSold?: IntFilter<"VendorGift"> | number
     images?: StringNullableListFilter<"VendorGift">
+    viewsCount?: IntFilter<"VendorGift"> | number
+    clicksCount?: IntFilter<"VendorGift"> | number
+    salesCount?: IntFilter<"VendorGift"> | number
+    rankingScore?: FloatFilter<"VendorGift"> | number
+    lastEngagementAt?: DateTimeFilter<"VendorGift"> | Date | string
     createdAt?: DateTimeFilter<"VendorGift"> | Date | string
     updatedAt?: DateTimeFilter<"VendorGift"> | Date | string
   }
@@ -51196,45 +53435,81 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Favorite"> | Date | string
   }
 
-  export type PromotionUpsertWithWhereUniqueWithoutVendorInput = {
-    where: PromotionWhereUniqueInput
-    update: XOR<PromotionUpdateWithoutVendorInput, PromotionUncheckedUpdateWithoutVendorInput>
-    create: XOR<PromotionCreateWithoutVendorInput, PromotionUncheckedCreateWithoutVendorInput>
+  export type FeaturedAdUpsertWithWhereUniqueWithoutVendorInput = {
+    where: FeaturedAdWhereUniqueInput
+    update: XOR<FeaturedAdUpdateWithoutVendorInput, FeaturedAdUncheckedUpdateWithoutVendorInput>
+    create: XOR<FeaturedAdCreateWithoutVendorInput, FeaturedAdUncheckedCreateWithoutVendorInput>
   }
 
-  export type PromotionUpdateWithWhereUniqueWithoutVendorInput = {
-    where: PromotionWhereUniqueInput
-    data: XOR<PromotionUpdateWithoutVendorInput, PromotionUncheckedUpdateWithoutVendorInput>
+  export type FeaturedAdUpdateWithWhereUniqueWithoutVendorInput = {
+    where: FeaturedAdWhereUniqueInput
+    data: XOR<FeaturedAdUpdateWithoutVendorInput, FeaturedAdUncheckedUpdateWithoutVendorInput>
   }
 
-  export type PromotionUpdateManyWithWhereWithoutVendorInput = {
-    where: PromotionScalarWhereInput
-    data: XOR<PromotionUpdateManyMutationInput, PromotionUncheckedUpdateManyWithoutVendorInput>
+  export type FeaturedAdUpdateManyWithWhereWithoutVendorInput = {
+    where: FeaturedAdScalarWhereInput
+    data: XOR<FeaturedAdUpdateManyMutationInput, FeaturedAdUncheckedUpdateManyWithoutVendorInput>
   }
 
-  export type PromotionScalarWhereInput = {
-    AND?: PromotionScalarWhereInput | PromotionScalarWhereInput[]
-    OR?: PromotionScalarWhereInput[]
-    NOT?: PromotionScalarWhereInput | PromotionScalarWhereInput[]
-    id?: IntFilter<"Promotion"> | number
-    vendorId?: StringFilter<"Promotion"> | string
-    productId?: IntNullableFilter<"Promotion"> | number | null
-    vendorGiftId?: IntNullableFilter<"Promotion"> | number | null
-    placement?: StringFilter<"Promotion"> | string
-    durationDays?: IntFilter<"Promotion"> | number
-    startDate?: DateTimeNullableFilter<"Promotion"> | Date | string | null
-    endDate?: DateTimeNullableFilter<"Promotion"> | Date | string | null
-    status?: StringFilter<"Promotion"> | string
-    amountPaid?: DecimalFilter<"Promotion"> | Decimal | DecimalJsLike | number | string
-    currency?: StringFilter<"Promotion"> | string
-    paymentReference?: StringNullableFilter<"Promotion"> | string | null
-    rejectionReason?: StringNullableFilter<"Promotion"> | string | null
-    views?: IntFilter<"Promotion"> | number
-    clicks?: IntFilter<"Promotion"> | number
-    conversions?: IntFilter<"Promotion"> | number
-    transactionId?: StringNullableFilter<"Promotion"> | string | null
-    createdAt?: DateTimeFilter<"Promotion"> | Date | string
-    updatedAt?: DateTimeFilter<"Promotion"> | Date | string
+  export type FeaturedAdScalarWhereInput = {
+    AND?: FeaturedAdScalarWhereInput | FeaturedAdScalarWhereInput[]
+    OR?: FeaturedAdScalarWhereInput[]
+    NOT?: FeaturedAdScalarWhereInput | FeaturedAdScalarWhereInput[]
+    id?: IntFilter<"FeaturedAd"> | number
+    vendorId?: StringFilter<"FeaturedAd"> | string
+    vendorGiftId?: IntFilter<"FeaturedAd"> | number
+    country?: StringFilter<"FeaturedAd"> | string
+    slotNumber?: IntFilter<"FeaturedAd"> | number
+    startDate?: DateTimeFilter<"FeaturedAd"> | Date | string
+    endDate?: DateTimeFilter<"FeaturedAd"> | Date | string
+    status?: StringFilter<"FeaturedAd"> | string
+    amountPaid?: DecimalFilter<"FeaturedAd"> | Decimal | DecimalJsLike | number | string
+    currency?: StringFilter<"FeaturedAd"> | string
+    paymentReference?: StringNullableFilter<"FeaturedAd"> | string | null
+    views?: IntFilter<"FeaturedAd"> | number
+    clicks?: IntFilter<"FeaturedAd"> | number
+    transactionId?: StringNullableFilter<"FeaturedAd"> | string | null
+    createdAt?: DateTimeFilter<"FeaturedAd"> | Date | string
+    updatedAt?: DateTimeFilter<"FeaturedAd"> | Date | string
+  }
+
+  export type SponsoredAdUpsertWithWhereUniqueWithoutVendorInput = {
+    where: SponsoredAdWhereUniqueInput
+    update: XOR<SponsoredAdUpdateWithoutVendorInput, SponsoredAdUncheckedUpdateWithoutVendorInput>
+    create: XOR<SponsoredAdCreateWithoutVendorInput, SponsoredAdUncheckedCreateWithoutVendorInput>
+  }
+
+  export type SponsoredAdUpdateWithWhereUniqueWithoutVendorInput = {
+    where: SponsoredAdWhereUniqueInput
+    data: XOR<SponsoredAdUpdateWithoutVendorInput, SponsoredAdUncheckedUpdateWithoutVendorInput>
+  }
+
+  export type SponsoredAdUpdateManyWithWhereWithoutVendorInput = {
+    where: SponsoredAdScalarWhereInput
+    data: XOR<SponsoredAdUpdateManyMutationInput, SponsoredAdUncheckedUpdateManyWithoutVendorInput>
+  }
+
+  export type SponsoredAdScalarWhereInput = {
+    AND?: SponsoredAdScalarWhereInput | SponsoredAdScalarWhereInput[]
+    OR?: SponsoredAdScalarWhereInput[]
+    NOT?: SponsoredAdScalarWhereInput | SponsoredAdScalarWhereInput[]
+    id?: IntFilter<"SponsoredAd"> | number
+    vendorId?: StringFilter<"SponsoredAd"> | string
+    vendorGiftId?: IntFilter<"SponsoredAd"> | number
+    country?: StringFilter<"SponsoredAd"> | string
+    budget?: DecimalFilter<"SponsoredAd"> | Decimal | DecimalJsLike | number | string
+    remainingBudget?: DecimalFilter<"SponsoredAd"> | Decimal | DecimalJsLike | number | string
+    costPerClick?: DecimalFilter<"SponsoredAd"> | Decimal | DecimalJsLike | number | string
+    currency?: StringFilter<"SponsoredAd"> | string
+    startDate?: DateTimeFilter<"SponsoredAd"> | Date | string
+    endDate?: DateTimeNullableFilter<"SponsoredAd"> | Date | string | null
+    status?: StringFilter<"SponsoredAd"> | string
+    paymentReference?: StringNullableFilter<"SponsoredAd"> | string | null
+    views?: IntFilter<"SponsoredAd"> | number
+    clicks?: IntFilter<"SponsoredAd"> | number
+    transactionId?: StringNullableFilter<"SponsoredAd"> | string | null
+    createdAt?: DateTimeFilter<"SponsoredAd"> | Date | string
+    updatedAt?: DateTimeFilter<"SponsoredAd"> | Date | string
   }
 
   export type FlexCardUpsertWithWhereUniqueWithoutSenderInput = {
@@ -51726,7 +54001,8 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
     favorites?: FavoriteCreateNestedManyWithoutUserInput
-    promotions?: PromotionCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
@@ -51783,7 +54059,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
@@ -51856,7 +54133,8 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
@@ -51913,7 +54191,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
@@ -51970,7 +54249,8 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
     favorites?: FavoriteCreateNestedManyWithoutUserInput
-    promotions?: PromotionCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
@@ -52027,7 +54307,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
@@ -52100,7 +54381,8 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
@@ -52157,7 +54439,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
@@ -52214,7 +54497,8 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
     favorites?: FavoriteCreateNestedManyWithoutUserInput
-    promotions?: PromotionCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
@@ -52271,7 +54555,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
@@ -52308,12 +54593,18 @@ export namespace Prisma {
     stockQuantity?: number | null
     unitsSold?: number
     images?: VendorGiftCreateimagesInput | string[]
+    viewsCount?: number
+    clicksCount?: number
+    salesCount?: number
+    rankingScore?: number
+    lastEngagementAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
     vendor: UserCreateNestedOneWithoutVendorGiftsInput
     giftImages?: VendorGiftImageCreateNestedManyWithoutGiftInput
     favorites?: FavoriteCreateNestedManyWithoutVendorGiftInput
-    promotions?: PromotionCreateNestedManyWithoutProductInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutProductInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutProductInput
     directGifts?: DirectGiftCreateNestedManyWithoutProductInput
   }
 
@@ -52332,11 +54623,17 @@ export namespace Prisma {
     stockQuantity?: number | null
     unitsSold?: number
     images?: VendorGiftCreateimagesInput | string[]
+    viewsCount?: number
+    clicksCount?: number
+    salesCount?: number
+    rankingScore?: number
+    lastEngagementAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
     giftImages?: VendorGiftImageUncheckedCreateNestedManyWithoutGiftInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutVendorGiftInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutProductInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutProductInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutProductInput
     directGifts?: DirectGiftUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -52384,7 +54681,8 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
     favorites?: FavoriteCreateNestedManyWithoutUserInput
-    promotions?: PromotionCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
@@ -52441,7 +54739,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
@@ -52540,7 +54839,8 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportCreateNestedOneWithoutTransactionInput
     contribution?: ContributionCreateNestedOneWithoutTransactionInput
     withdrawal?: WithdrawalCreateNestedOneWithoutTransactionInput
-    promotion?: PromotionCreateNestedOneWithoutTransactionInput
+    featuredAd?: FeaturedAdCreateNestedOneWithoutTransactionInput
+    sponsoredAd?: SponsoredAdCreateNestedOneWithoutTransactionInput
     campaignWithdrawal?: CampaignWithdrawalCreateNestedOneWithoutTransactionInput
   }
 
@@ -52558,7 +54858,8 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportUncheckedCreateNestedOneWithoutTransactionInput
     contribution?: ContributionUncheckedCreateNestedOneWithoutTransactionInput
     withdrawal?: WithdrawalUncheckedCreateNestedOneWithoutTransactionInput
-    promotion?: PromotionUncheckedCreateNestedOneWithoutTransactionInput
+    featuredAd?: FeaturedAdUncheckedCreateNestedOneWithoutTransactionInput
+    sponsoredAd?: SponsoredAdUncheckedCreateNestedOneWithoutTransactionInput
     campaignWithdrawal?: CampaignWithdrawalUncheckedCreateNestedOneWithoutTransactionInput
   }
 
@@ -52621,7 +54922,8 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
@@ -52678,7 +54980,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
@@ -52721,12 +55024,18 @@ export namespace Prisma {
     stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
     unitsSold?: IntFieldUpdateOperationsInput | number
     images?: VendorGiftUpdateimagesInput | string[]
+    viewsCount?: IntFieldUpdateOperationsInput | number
+    clicksCount?: IntFieldUpdateOperationsInput | number
+    salesCount?: IntFieldUpdateOperationsInput | number
+    rankingScore?: FloatFieldUpdateOperationsInput | number
+    lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     vendor?: UserUpdateOneRequiredWithoutVendorGiftsNestedInput
     giftImages?: VendorGiftImageUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUpdateManyWithoutVendorGiftNestedInput
-    promotions?: PromotionUpdateManyWithoutProductNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutProductNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutProductNestedInput
     directGifts?: DirectGiftUpdateManyWithoutProductNestedInput
   }
 
@@ -52745,11 +55054,17 @@ export namespace Prisma {
     stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
     unitsSold?: IntFieldUpdateOperationsInput | number
     images?: VendorGiftUpdateimagesInput | string[]
+    viewsCount?: IntFieldUpdateOperationsInput | number
+    clicksCount?: IntFieldUpdateOperationsInput | number
+    salesCount?: IntFieldUpdateOperationsInput | number
+    rankingScore?: FloatFieldUpdateOperationsInput | number
+    lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     giftImages?: VendorGiftImageUncheckedUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutVendorGiftNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutProductNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutProductNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutProductNestedInput
     directGifts?: DirectGiftUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -52803,7 +55118,8 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
@@ -52860,7 +55176,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
@@ -53071,7 +55388,8 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportCreateNestedOneWithoutTransactionInput
     contribution?: ContributionCreateNestedOneWithoutTransactionInput
     withdrawal?: WithdrawalCreateNestedOneWithoutTransactionInput
-    promotion?: PromotionCreateNestedOneWithoutTransactionInput
+    featuredAd?: FeaturedAdCreateNestedOneWithoutTransactionInput
+    sponsoredAd?: SponsoredAdCreateNestedOneWithoutTransactionInput
   }
 
   export type TransactionUncheckedCreateWithoutCampaignWithdrawalInput = {
@@ -53089,7 +55407,8 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportUncheckedCreateNestedOneWithoutTransactionInput
     contribution?: ContributionUncheckedCreateNestedOneWithoutTransactionInput
     withdrawal?: WithdrawalUncheckedCreateNestedOneWithoutTransactionInput
-    promotion?: PromotionUncheckedCreateNestedOneWithoutTransactionInput
+    featuredAd?: FeaturedAdUncheckedCreateNestedOneWithoutTransactionInput
+    sponsoredAd?: SponsoredAdUncheckedCreateNestedOneWithoutTransactionInput
   }
 
   export type TransactionCreateOrConnectWithoutCampaignWithdrawalInput = {
@@ -53230,7 +55549,8 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportUpdateOneWithoutTransactionNestedInput
     contribution?: ContributionUpdateOneWithoutTransactionNestedInput
     withdrawal?: WithdrawalUpdateOneWithoutTransactionNestedInput
-    promotion?: PromotionUpdateOneWithoutTransactionNestedInput
+    featuredAd?: FeaturedAdUpdateOneWithoutTransactionNestedInput
+    sponsoredAd?: SponsoredAdUpdateOneWithoutTransactionNestedInput
   }
 
   export type TransactionUncheckedUpdateWithoutCampaignWithdrawalInput = {
@@ -53248,7 +55568,8 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportUncheckedUpdateOneWithoutTransactionNestedInput
     contribution?: ContributionUncheckedUpdateOneWithoutTransactionNestedInput
     withdrawal?: WithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
-    promotion?: PromotionUncheckedUpdateOneWithoutTransactionNestedInput
+    featuredAd?: FeaturedAdUncheckedUpdateOneWithoutTransactionNestedInput
+    sponsoredAd?: SponsoredAdUncheckedUpdateOneWithoutTransactionNestedInput
   }
 
   export type CampaignCreateWithoutContributionsInput = {
@@ -53366,7 +55687,8 @@ export namespace Prisma {
     campaign?: CampaignCreateNestedOneWithoutTransactionsInput
     creatorSupport?: CreatorSupportCreateNestedOneWithoutTransactionInput
     withdrawal?: WithdrawalCreateNestedOneWithoutTransactionInput
-    promotion?: PromotionCreateNestedOneWithoutTransactionInput
+    featuredAd?: FeaturedAdCreateNestedOneWithoutTransactionInput
+    sponsoredAd?: SponsoredAdCreateNestedOneWithoutTransactionInput
     campaignWithdrawal?: CampaignWithdrawalCreateNestedOneWithoutTransactionInput
   }
 
@@ -53384,7 +55706,8 @@ export namespace Prisma {
     createdAt?: Date | string
     creatorSupport?: CreatorSupportUncheckedCreateNestedOneWithoutTransactionInput
     withdrawal?: WithdrawalUncheckedCreateNestedOneWithoutTransactionInput
-    promotion?: PromotionUncheckedCreateNestedOneWithoutTransactionInput
+    featuredAd?: FeaturedAdUncheckedCreateNestedOneWithoutTransactionInput
+    sponsoredAd?: SponsoredAdUncheckedCreateNestedOneWithoutTransactionInput
     campaignWithdrawal?: CampaignWithdrawalUncheckedCreateNestedOneWithoutTransactionInput
   }
 
@@ -53525,7 +55848,8 @@ export namespace Prisma {
     campaign?: CampaignUpdateOneWithoutTransactionsNestedInput
     creatorSupport?: CreatorSupportUpdateOneWithoutTransactionNestedInput
     withdrawal?: WithdrawalUpdateOneWithoutTransactionNestedInput
-    promotion?: PromotionUpdateOneWithoutTransactionNestedInput
+    featuredAd?: FeaturedAdUpdateOneWithoutTransactionNestedInput
+    sponsoredAd?: SponsoredAdUpdateOneWithoutTransactionNestedInput
     campaignWithdrawal?: CampaignWithdrawalUpdateOneWithoutTransactionNestedInput
   }
 
@@ -53543,7 +55867,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     creatorSupport?: CreatorSupportUncheckedUpdateOneWithoutTransactionNestedInput
     withdrawal?: WithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
-    promotion?: PromotionUncheckedUpdateOneWithoutTransactionNestedInput
+    featuredAd?: FeaturedAdUncheckedUpdateOneWithoutTransactionNestedInput
+    sponsoredAd?: SponsoredAdUncheckedUpdateOneWithoutTransactionNestedInput
     campaignWithdrawal?: CampaignWithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
   }
 
@@ -53586,7 +55911,8 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
     favorites?: FavoriteCreateNestedManyWithoutUserInput
-    promotions?: PromotionCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
@@ -53643,7 +55969,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
@@ -53679,12 +56006,18 @@ export namespace Prisma {
     stockQuantity?: number | null
     unitsSold?: number
     images?: VendorGiftCreateimagesInput | string[]
+    viewsCount?: number
+    clicksCount?: number
+    salesCount?: number
+    rankingScore?: number
+    lastEngagementAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
     vendor: UserCreateNestedOneWithoutVendorGiftsInput
     giftImages?: VendorGiftImageCreateNestedManyWithoutGiftInput
     favorites?: FavoriteCreateNestedManyWithoutVendorGiftInput
-    promotions?: PromotionCreateNestedManyWithoutProductInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutProductInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutProductInput
     campaigns?: CampaignCreateNestedManyWithoutProductInput
   }
 
@@ -53703,11 +56036,17 @@ export namespace Prisma {
     stockQuantity?: number | null
     unitsSold?: number
     images?: VendorGiftCreateimagesInput | string[]
+    viewsCount?: number
+    clicksCount?: number
+    salesCount?: number
+    rankingScore?: number
+    lastEngagementAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
     giftImages?: VendorGiftImageUncheckedCreateNestedManyWithoutGiftInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutVendorGiftInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutProductInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutProductInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutProductInput
     campaigns?: CampaignUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -53755,7 +56094,8 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
     favorites?: FavoriteCreateNestedManyWithoutUserInput
-    promotions?: PromotionCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
@@ -53812,7 +56152,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
@@ -53885,7 +56226,8 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
@@ -53942,7 +56284,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
@@ -53984,12 +56327,18 @@ export namespace Prisma {
     stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
     unitsSold?: IntFieldUpdateOperationsInput | number
     images?: VendorGiftUpdateimagesInput | string[]
+    viewsCount?: IntFieldUpdateOperationsInput | number
+    clicksCount?: IntFieldUpdateOperationsInput | number
+    salesCount?: IntFieldUpdateOperationsInput | number
+    rankingScore?: FloatFieldUpdateOperationsInput | number
+    lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     vendor?: UserUpdateOneRequiredWithoutVendorGiftsNestedInput
     giftImages?: VendorGiftImageUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUpdateManyWithoutVendorGiftNestedInput
-    promotions?: PromotionUpdateManyWithoutProductNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutProductNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutProductNestedInput
     campaigns?: CampaignUpdateManyWithoutProductNestedInput
   }
 
@@ -54008,11 +56357,17 @@ export namespace Prisma {
     stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
     unitsSold?: IntFieldUpdateOperationsInput | number
     images?: VendorGiftUpdateimagesInput | string[]
+    viewsCount?: IntFieldUpdateOperationsInput | number
+    clicksCount?: IntFieldUpdateOperationsInput | number
+    salesCount?: IntFieldUpdateOperationsInput | number
+    rankingScore?: FloatFieldUpdateOperationsInput | number
+    lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     giftImages?: VendorGiftImageUncheckedUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutVendorGiftNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutProductNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutProductNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutProductNestedInput
     campaigns?: CampaignUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -54066,7 +56421,8 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
@@ -54123,7 +56479,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
@@ -54141,7 +56498,7 @@ export namespace Prisma {
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
   }
 
-  export type UserCreateWithoutPromotionsInput = {
+  export type UserCreateWithoutFeaturedAdsInput = {
     id?: string
     name: string
     email: string
@@ -54180,6 +56537,7 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
     favorites?: FavoriteCreateNestedManyWithoutUserInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
@@ -54198,7 +56556,7 @@ export namespace Prisma {
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
   }
 
-  export type UserUncheckedCreateWithoutPromotionsInput = {
+  export type UserUncheckedCreateWithoutFeaturedAdsInput = {
     id?: string
     name: string
     email: string
@@ -54237,6 +56595,7 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
@@ -54255,12 +56614,12 @@ export namespace Prisma {
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
   }
 
-  export type UserCreateOrConnectWithoutPromotionsInput = {
+  export type UserCreateOrConnectWithoutFeaturedAdsInput = {
     where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutPromotionsInput, UserUncheckedCreateWithoutPromotionsInput>
+    create: XOR<UserCreateWithoutFeaturedAdsInput, UserUncheckedCreateWithoutFeaturedAdsInput>
   }
 
-  export type VendorGiftCreateWithoutPromotionsInput = {
+  export type VendorGiftCreateWithoutFeaturedAdsInput = {
     name: string
     slug?: string | null
     price: Decimal | DecimalJsLike | number | string
@@ -54273,16 +56632,22 @@ export namespace Prisma {
     stockQuantity?: number | null
     unitsSold?: number
     images?: VendorGiftCreateimagesInput | string[]
+    viewsCount?: number
+    clicksCount?: number
+    salesCount?: number
+    rankingScore?: number
+    lastEngagementAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
     vendor: UserCreateNestedOneWithoutVendorGiftsInput
     giftImages?: VendorGiftImageCreateNestedManyWithoutGiftInput
     favorites?: FavoriteCreateNestedManyWithoutVendorGiftInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutProductInput
     campaigns?: CampaignCreateNestedManyWithoutProductInput
     directGifts?: DirectGiftCreateNestedManyWithoutProductInput
   }
 
-  export type VendorGiftUncheckedCreateWithoutPromotionsInput = {
+  export type VendorGiftUncheckedCreateWithoutFeaturedAdsInput = {
     id?: number
     vendorId: string
     name: string
@@ -54297,20 +56662,26 @@ export namespace Prisma {
     stockQuantity?: number | null
     unitsSold?: number
     images?: VendorGiftCreateimagesInput | string[]
+    viewsCount?: number
+    clicksCount?: number
+    salesCount?: number
+    rankingScore?: number
+    lastEngagementAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
     giftImages?: VendorGiftImageUncheckedCreateNestedManyWithoutGiftInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutVendorGiftInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutProductInput
     campaigns?: CampaignUncheckedCreateNestedManyWithoutProductInput
     directGifts?: DirectGiftUncheckedCreateNestedManyWithoutProductInput
   }
 
-  export type VendorGiftCreateOrConnectWithoutPromotionsInput = {
+  export type VendorGiftCreateOrConnectWithoutFeaturedAdsInput = {
     where: VendorGiftWhereUniqueInput
-    create: XOR<VendorGiftCreateWithoutPromotionsInput, VendorGiftUncheckedCreateWithoutPromotionsInput>
+    create: XOR<VendorGiftCreateWithoutFeaturedAdsInput, VendorGiftUncheckedCreateWithoutFeaturedAdsInput>
   }
 
-  export type TransactionCreateWithoutPromotionInput = {
+  export type TransactionCreateWithoutFeaturedAdInput = {
     id?: string
     amount: bigint | number
     currency?: string
@@ -54325,10 +56696,11 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportCreateNestedOneWithoutTransactionInput
     contribution?: ContributionCreateNestedOneWithoutTransactionInput
     withdrawal?: WithdrawalCreateNestedOneWithoutTransactionInput
+    sponsoredAd?: SponsoredAdCreateNestedOneWithoutTransactionInput
     campaignWithdrawal?: CampaignWithdrawalCreateNestedOneWithoutTransactionInput
   }
 
-  export type TransactionUncheckedCreateWithoutPromotionInput = {
+  export type TransactionUncheckedCreateWithoutFeaturedAdInput = {
     id?: string
     userId?: string | null
     campaignId?: string | null
@@ -54343,26 +56715,27 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportUncheckedCreateNestedOneWithoutTransactionInput
     contribution?: ContributionUncheckedCreateNestedOneWithoutTransactionInput
     withdrawal?: WithdrawalUncheckedCreateNestedOneWithoutTransactionInput
+    sponsoredAd?: SponsoredAdUncheckedCreateNestedOneWithoutTransactionInput
     campaignWithdrawal?: CampaignWithdrawalUncheckedCreateNestedOneWithoutTransactionInput
   }
 
-  export type TransactionCreateOrConnectWithoutPromotionInput = {
+  export type TransactionCreateOrConnectWithoutFeaturedAdInput = {
     where: TransactionWhereUniqueInput
-    create: XOR<TransactionCreateWithoutPromotionInput, TransactionUncheckedCreateWithoutPromotionInput>
+    create: XOR<TransactionCreateWithoutFeaturedAdInput, TransactionUncheckedCreateWithoutFeaturedAdInput>
   }
 
-  export type UserUpsertWithoutPromotionsInput = {
-    update: XOR<UserUpdateWithoutPromotionsInput, UserUncheckedUpdateWithoutPromotionsInput>
-    create: XOR<UserCreateWithoutPromotionsInput, UserUncheckedCreateWithoutPromotionsInput>
+  export type UserUpsertWithoutFeaturedAdsInput = {
+    update: XOR<UserUpdateWithoutFeaturedAdsInput, UserUncheckedUpdateWithoutFeaturedAdsInput>
+    create: XOR<UserCreateWithoutFeaturedAdsInput, UserUncheckedCreateWithoutFeaturedAdsInput>
     where?: UserWhereInput
   }
 
-  export type UserUpdateToOneWithWhereWithoutPromotionsInput = {
+  export type UserUpdateToOneWithWhereWithoutFeaturedAdsInput = {
     where?: UserWhereInput
-    data: XOR<UserUpdateWithoutPromotionsInput, UserUncheckedUpdateWithoutPromotionsInput>
+    data: XOR<UserUpdateWithoutFeaturedAdsInput, UserUncheckedUpdateWithoutFeaturedAdsInput>
   }
 
-  export type UserUpdateWithoutPromotionsInput = {
+  export type UserUpdateWithoutFeaturedAdsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
@@ -54401,6 +56774,7 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUpdateManyWithoutUserNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
@@ -54419,7 +56793,7 @@ export namespace Prisma {
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
   }
 
-  export type UserUncheckedUpdateWithoutPromotionsInput = {
+  export type UserUncheckedUpdateWithoutFeaturedAdsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
@@ -54458,6 +56832,7 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
@@ -54476,18 +56851,18 @@ export namespace Prisma {
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
   }
 
-  export type VendorGiftUpsertWithoutPromotionsInput = {
-    update: XOR<VendorGiftUpdateWithoutPromotionsInput, VendorGiftUncheckedUpdateWithoutPromotionsInput>
-    create: XOR<VendorGiftCreateWithoutPromotionsInput, VendorGiftUncheckedCreateWithoutPromotionsInput>
+  export type VendorGiftUpsertWithoutFeaturedAdsInput = {
+    update: XOR<VendorGiftUpdateWithoutFeaturedAdsInput, VendorGiftUncheckedUpdateWithoutFeaturedAdsInput>
+    create: XOR<VendorGiftCreateWithoutFeaturedAdsInput, VendorGiftUncheckedCreateWithoutFeaturedAdsInput>
     where?: VendorGiftWhereInput
   }
 
-  export type VendorGiftUpdateToOneWithWhereWithoutPromotionsInput = {
+  export type VendorGiftUpdateToOneWithWhereWithoutFeaturedAdsInput = {
     where?: VendorGiftWhereInput
-    data: XOR<VendorGiftUpdateWithoutPromotionsInput, VendorGiftUncheckedUpdateWithoutPromotionsInput>
+    data: XOR<VendorGiftUpdateWithoutFeaturedAdsInput, VendorGiftUncheckedUpdateWithoutFeaturedAdsInput>
   }
 
-  export type VendorGiftUpdateWithoutPromotionsInput = {
+  export type VendorGiftUpdateWithoutFeaturedAdsInput = {
     name?: StringFieldUpdateOperationsInput | string
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -54500,16 +56875,22 @@ export namespace Prisma {
     stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
     unitsSold?: IntFieldUpdateOperationsInput | number
     images?: VendorGiftUpdateimagesInput | string[]
+    viewsCount?: IntFieldUpdateOperationsInput | number
+    clicksCount?: IntFieldUpdateOperationsInput | number
+    salesCount?: IntFieldUpdateOperationsInput | number
+    rankingScore?: FloatFieldUpdateOperationsInput | number
+    lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     vendor?: UserUpdateOneRequiredWithoutVendorGiftsNestedInput
     giftImages?: VendorGiftImageUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUpdateManyWithoutVendorGiftNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutProductNestedInput
     campaigns?: CampaignUpdateManyWithoutProductNestedInput
     directGifts?: DirectGiftUpdateManyWithoutProductNestedInput
   }
 
-  export type VendorGiftUncheckedUpdateWithoutPromotionsInput = {
+  export type VendorGiftUncheckedUpdateWithoutFeaturedAdsInput = {
     id?: IntFieldUpdateOperationsInput | number
     vendorId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
@@ -54524,26 +56905,32 @@ export namespace Prisma {
     stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
     unitsSold?: IntFieldUpdateOperationsInput | number
     images?: VendorGiftUpdateimagesInput | string[]
+    viewsCount?: IntFieldUpdateOperationsInput | number
+    clicksCount?: IntFieldUpdateOperationsInput | number
+    salesCount?: IntFieldUpdateOperationsInput | number
+    rankingScore?: FloatFieldUpdateOperationsInput | number
+    lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     giftImages?: VendorGiftImageUncheckedUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutVendorGiftNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutProductNestedInput
     campaigns?: CampaignUncheckedUpdateManyWithoutProductNestedInput
     directGifts?: DirectGiftUncheckedUpdateManyWithoutProductNestedInput
   }
 
-  export type TransactionUpsertWithoutPromotionInput = {
-    update: XOR<TransactionUpdateWithoutPromotionInput, TransactionUncheckedUpdateWithoutPromotionInput>
-    create: XOR<TransactionCreateWithoutPromotionInput, TransactionUncheckedCreateWithoutPromotionInput>
+  export type TransactionUpsertWithoutFeaturedAdInput = {
+    update: XOR<TransactionUpdateWithoutFeaturedAdInput, TransactionUncheckedUpdateWithoutFeaturedAdInput>
+    create: XOR<TransactionCreateWithoutFeaturedAdInput, TransactionUncheckedCreateWithoutFeaturedAdInput>
     where?: TransactionWhereInput
   }
 
-  export type TransactionUpdateToOneWithWhereWithoutPromotionInput = {
+  export type TransactionUpdateToOneWithWhereWithoutFeaturedAdInput = {
     where?: TransactionWhereInput
-    data: XOR<TransactionUpdateWithoutPromotionInput, TransactionUncheckedUpdateWithoutPromotionInput>
+    data: XOR<TransactionUpdateWithoutFeaturedAdInput, TransactionUncheckedUpdateWithoutFeaturedAdInput>
   }
 
-  export type TransactionUpdateWithoutPromotionInput = {
+  export type TransactionUpdateWithoutFeaturedAdInput = {
     id?: StringFieldUpdateOperationsInput | string
     amount?: BigIntFieldUpdateOperationsInput | bigint | number
     currency?: StringFieldUpdateOperationsInput | string
@@ -54558,10 +56945,11 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportUpdateOneWithoutTransactionNestedInput
     contribution?: ContributionUpdateOneWithoutTransactionNestedInput
     withdrawal?: WithdrawalUpdateOneWithoutTransactionNestedInput
+    sponsoredAd?: SponsoredAdUpdateOneWithoutTransactionNestedInput
     campaignWithdrawal?: CampaignWithdrawalUpdateOneWithoutTransactionNestedInput
   }
 
-  export type TransactionUncheckedUpdateWithoutPromotionInput = {
+  export type TransactionUncheckedUpdateWithoutFeaturedAdInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     campaignId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -54576,6 +56964,477 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportUncheckedUpdateOneWithoutTransactionNestedInput
     contribution?: ContributionUncheckedUpdateOneWithoutTransactionNestedInput
     withdrawal?: WithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
+    sponsoredAd?: SponsoredAdUncheckedUpdateOneWithoutTransactionNestedInput
+    campaignWithdrawal?: CampaignWithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
+  }
+
+  export type UserCreateWithoutSponsoredAdsInput = {
+    id?: string
+    name: string
+    email: string
+    emailVerified?: boolean
+    image?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    username?: string | null
+    displayName?: string | null
+    avatarUrl?: string | null
+    bio?: string | null
+    isCreator?: boolean
+    suggestedAmounts?: UserCreatesuggestedAmountsInput | number[]
+    socialLinks?: NullableJsonNullValueInput | InputJsonValue
+    themeSettings?: NullableJsonNullValueInput | InputJsonValue
+    country?: string | null
+    roles?: UserCreaterolesInput | $Enums.UserRole[]
+    adminRole?: $Enums.AdminRole | null
+    platformBalance?: bigint | number
+    status?: string
+    walletStatus?: string
+    suspensionEnd?: Date | string | null
+    shopName?: string | null
+    shopDescription?: string | null
+    shopAddress?: string | null
+    shopSlug?: string | null
+    shopLogoUrl?: string | null
+    bannerUrl?: string | null
+    isVerifiedVendor?: boolean
+    vendorStatus?: string
+    vendorCategories?: UserCreatevendorCategoriesInput | string[]
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    campaigns?: CampaignCreateNestedManyWithoutUserInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutUserInput
+    transactions?: TransactionCreateNestedManyWithoutUserInput
+    vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
+    favorites?: FavoriteCreateNestedManyWithoutUserInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutVendorInput
+    sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
+    receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
+    moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
+    moderationReportsFixed?: ModerationReportCreateNestedManyWithoutResolverInput
+    moderationTickets?: ModerationTicketCreateNestedManyWithoutReporterInput
+    adminResolvedTickets?: ModerationTicketCreateNestedManyWithoutResolverInput
+    flexCardTransactions?: FlexCardTransactionCreateNestedManyWithoutVendorInput
+    redeemedCampaigns?: CampaignCreateNestedManyWithoutRedeemedByVendorInput
+    creatorSupportReceived?: CreatorSupportCreateNestedManyWithoutUserInput
+    adminResolvedPromotions?: ExternalPromotionCreateNestedManyWithoutAdminInput
+    withdrawals?: WithdrawalCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
+    adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutSponsoredAdsInput = {
+    id?: string
+    name: string
+    email: string
+    emailVerified?: boolean
+    image?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    username?: string | null
+    displayName?: string | null
+    avatarUrl?: string | null
+    bio?: string | null
+    isCreator?: boolean
+    suggestedAmounts?: UserCreatesuggestedAmountsInput | number[]
+    socialLinks?: NullableJsonNullValueInput | InputJsonValue
+    themeSettings?: NullableJsonNullValueInput | InputJsonValue
+    country?: string | null
+    roles?: UserCreaterolesInput | $Enums.UserRole[]
+    adminRole?: $Enums.AdminRole | null
+    platformBalance?: bigint | number
+    status?: string
+    walletStatus?: string
+    suspensionEnd?: Date | string | null
+    shopName?: string | null
+    shopDescription?: string | null
+    shopAddress?: string | null
+    shopSlug?: string | null
+    shopLogoUrl?: string | null
+    bannerUrl?: string | null
+    isVerifiedVendor?: boolean
+    vendorStatus?: string
+    vendorCategories?: UserCreatevendorCategoriesInput | string[]
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    campaigns?: CampaignUncheckedCreateNestedManyWithoutUserInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutUserInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
+    vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
+    favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutVendorInput
+    sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
+    receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
+    moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
+    moderationReportsFixed?: ModerationReportUncheckedCreateNestedManyWithoutResolverInput
+    moderationTickets?: ModerationTicketUncheckedCreateNestedManyWithoutReporterInput
+    adminResolvedTickets?: ModerationTicketUncheckedCreateNestedManyWithoutResolverInput
+    flexCardTransactions?: FlexCardTransactionUncheckedCreateNestedManyWithoutVendorInput
+    redeemedCampaigns?: CampaignUncheckedCreateNestedManyWithoutRedeemedByVendorInput
+    creatorSupportReceived?: CreatorSupportUncheckedCreateNestedManyWithoutUserInput
+    adminResolvedPromotions?: ExternalPromotionUncheckedCreateNestedManyWithoutAdminInput
+    withdrawals?: WithdrawalUncheckedCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftUncheckedCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
+    adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutSponsoredAdsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutSponsoredAdsInput, UserUncheckedCreateWithoutSponsoredAdsInput>
+  }
+
+  export type VendorGiftCreateWithoutSponsoredAdsInput = {
+    name: string
+    slug?: string | null
+    price: Decimal | DecimalJsLike | number | string
+    description?: string | null
+    imageUrl?: string | null
+    category?: string | null
+    tags?: VendorGiftCreatetagsInput | string[]
+    type?: string
+    status?: string
+    stockQuantity?: number | null
+    unitsSold?: number
+    images?: VendorGiftCreateimagesInput | string[]
+    viewsCount?: number
+    clicksCount?: number
+    salesCount?: number
+    rankingScore?: number
+    lastEngagementAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    vendor: UserCreateNestedOneWithoutVendorGiftsInput
+    giftImages?: VendorGiftImageCreateNestedManyWithoutGiftInput
+    favorites?: FavoriteCreateNestedManyWithoutVendorGiftInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutProductInput
+    campaigns?: CampaignCreateNestedManyWithoutProductInput
+    directGifts?: DirectGiftCreateNestedManyWithoutProductInput
+  }
+
+  export type VendorGiftUncheckedCreateWithoutSponsoredAdsInput = {
+    id?: number
+    vendorId: string
+    name: string
+    slug?: string | null
+    price: Decimal | DecimalJsLike | number | string
+    description?: string | null
+    imageUrl?: string | null
+    category?: string | null
+    tags?: VendorGiftCreatetagsInput | string[]
+    type?: string
+    status?: string
+    stockQuantity?: number | null
+    unitsSold?: number
+    images?: VendorGiftCreateimagesInput | string[]
+    viewsCount?: number
+    clicksCount?: number
+    salesCount?: number
+    rankingScore?: number
+    lastEngagementAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    giftImages?: VendorGiftImageUncheckedCreateNestedManyWithoutGiftInput
+    favorites?: FavoriteUncheckedCreateNestedManyWithoutVendorGiftInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutProductInput
+    campaigns?: CampaignUncheckedCreateNestedManyWithoutProductInput
+    directGifts?: DirectGiftUncheckedCreateNestedManyWithoutProductInput
+  }
+
+  export type VendorGiftCreateOrConnectWithoutSponsoredAdsInput = {
+    where: VendorGiftWhereUniqueInput
+    create: XOR<VendorGiftCreateWithoutSponsoredAdsInput, VendorGiftUncheckedCreateWithoutSponsoredAdsInput>
+  }
+
+  export type TransactionCreateWithoutSponsoredAdInput = {
+    id?: string
+    amount: bigint | number
+    currency?: string
+    type: string
+    status?: string
+    reference?: string | null
+    description?: string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    user?: UserCreateNestedOneWithoutTransactionsInput
+    campaign?: CampaignCreateNestedOneWithoutTransactionsInput
+    creatorSupport?: CreatorSupportCreateNestedOneWithoutTransactionInput
+    contribution?: ContributionCreateNestedOneWithoutTransactionInput
+    withdrawal?: WithdrawalCreateNestedOneWithoutTransactionInput
+    featuredAd?: FeaturedAdCreateNestedOneWithoutTransactionInput
+    campaignWithdrawal?: CampaignWithdrawalCreateNestedOneWithoutTransactionInput
+  }
+
+  export type TransactionUncheckedCreateWithoutSponsoredAdInput = {
+    id?: string
+    userId?: string | null
+    campaignId?: string | null
+    amount: bigint | number
+    currency?: string
+    type: string
+    status?: string
+    reference?: string | null
+    description?: string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    creatorSupport?: CreatorSupportUncheckedCreateNestedOneWithoutTransactionInput
+    contribution?: ContributionUncheckedCreateNestedOneWithoutTransactionInput
+    withdrawal?: WithdrawalUncheckedCreateNestedOneWithoutTransactionInput
+    featuredAd?: FeaturedAdUncheckedCreateNestedOneWithoutTransactionInput
+    campaignWithdrawal?: CampaignWithdrawalUncheckedCreateNestedOneWithoutTransactionInput
+  }
+
+  export type TransactionCreateOrConnectWithoutSponsoredAdInput = {
+    where: TransactionWhereUniqueInput
+    create: XOR<TransactionCreateWithoutSponsoredAdInput, TransactionUncheckedCreateWithoutSponsoredAdInput>
+  }
+
+  export type UserUpsertWithoutSponsoredAdsInput = {
+    update: XOR<UserUpdateWithoutSponsoredAdsInput, UserUncheckedUpdateWithoutSponsoredAdsInput>
+    create: XOR<UserCreateWithoutSponsoredAdsInput, UserUncheckedCreateWithoutSponsoredAdsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutSponsoredAdsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutSponsoredAdsInput, UserUncheckedUpdateWithoutSponsoredAdsInput>
+  }
+
+  export type UserUpdateWithoutSponsoredAdsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    isCreator?: BoolFieldUpdateOperationsInput | boolean
+    suggestedAmounts?: UserUpdatesuggestedAmountsInput | number[]
+    socialLinks?: NullableJsonNullValueInput | InputJsonValue
+    themeSettings?: NullableJsonNullValueInput | InputJsonValue
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    roles?: UserUpdaterolesInput | $Enums.UserRole[]
+    adminRole?: NullableEnumAdminRoleFieldUpdateOperationsInput | $Enums.AdminRole | null
+    platformBalance?: BigIntFieldUpdateOperationsInput | bigint | number
+    status?: StringFieldUpdateOperationsInput | string
+    walletStatus?: StringFieldUpdateOperationsInput | string
+    suspensionEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shopName?: NullableStringFieldUpdateOperationsInput | string | null
+    shopDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    shopAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSlug?: NullableStringFieldUpdateOperationsInput | string | null
+    shopLogoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isVerifiedVendor?: BoolFieldUpdateOperationsInput | boolean
+    vendorStatus?: StringFieldUpdateOperationsInput | string
+    vendorCategories?: UserUpdatevendorCategoriesInput | string[]
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    campaigns?: CampaignUpdateManyWithoutUserNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUpdateManyWithoutUserNestedInput
+    vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
+    favorites?: FavoriteUpdateManyWithoutUserNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutVendorNestedInput
+    sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
+    receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
+    moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
+    moderationReportsFixed?: ModerationReportUpdateManyWithoutResolverNestedInput
+    moderationTickets?: ModerationTicketUpdateManyWithoutReporterNestedInput
+    adminResolvedTickets?: ModerationTicketUpdateManyWithoutResolverNestedInput
+    flexCardTransactions?: FlexCardTransactionUpdateManyWithoutVendorNestedInput
+    redeemedCampaigns?: CampaignUpdateManyWithoutRedeemedByVendorNestedInput
+    creatorSupportReceived?: CreatorSupportUpdateManyWithoutUserNestedInput
+    adminResolvedPromotions?: ExternalPromotionUpdateManyWithoutAdminNestedInput
+    withdrawals?: WithdrawalUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
+    adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutSponsoredAdsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    isCreator?: BoolFieldUpdateOperationsInput | boolean
+    suggestedAmounts?: UserUpdatesuggestedAmountsInput | number[]
+    socialLinks?: NullableJsonNullValueInput | InputJsonValue
+    themeSettings?: NullableJsonNullValueInput | InputJsonValue
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    roles?: UserUpdaterolesInput | $Enums.UserRole[]
+    adminRole?: NullableEnumAdminRoleFieldUpdateOperationsInput | $Enums.AdminRole | null
+    platformBalance?: BigIntFieldUpdateOperationsInput | bigint | number
+    status?: StringFieldUpdateOperationsInput | string
+    walletStatus?: StringFieldUpdateOperationsInput | string
+    suspensionEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shopName?: NullableStringFieldUpdateOperationsInput | string | null
+    shopDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    shopAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSlug?: NullableStringFieldUpdateOperationsInput | string | null
+    shopLogoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isVerifiedVendor?: BoolFieldUpdateOperationsInput | boolean
+    vendorStatus?: StringFieldUpdateOperationsInput | string
+    vendorCategories?: UserUpdatevendorCategoriesInput | string[]
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    campaigns?: CampaignUncheckedUpdateManyWithoutUserNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
+    vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
+    favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutVendorNestedInput
+    sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
+    receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
+    moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
+    moderationReportsFixed?: ModerationReportUncheckedUpdateManyWithoutResolverNestedInput
+    moderationTickets?: ModerationTicketUncheckedUpdateManyWithoutReporterNestedInput
+    adminResolvedTickets?: ModerationTicketUncheckedUpdateManyWithoutResolverNestedInput
+    flexCardTransactions?: FlexCardTransactionUncheckedUpdateManyWithoutVendorNestedInput
+    redeemedCampaigns?: CampaignUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
+    creatorSupportReceived?: CreatorSupportUncheckedUpdateManyWithoutUserNestedInput
+    adminResolvedPromotions?: ExternalPromotionUncheckedUpdateManyWithoutAdminNestedInput
+    withdrawals?: WithdrawalUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
+    adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type VendorGiftUpsertWithoutSponsoredAdsInput = {
+    update: XOR<VendorGiftUpdateWithoutSponsoredAdsInput, VendorGiftUncheckedUpdateWithoutSponsoredAdsInput>
+    create: XOR<VendorGiftCreateWithoutSponsoredAdsInput, VendorGiftUncheckedCreateWithoutSponsoredAdsInput>
+    where?: VendorGiftWhereInput
+  }
+
+  export type VendorGiftUpdateToOneWithWhereWithoutSponsoredAdsInput = {
+    where?: VendorGiftWhereInput
+    data: XOR<VendorGiftUpdateWithoutSponsoredAdsInput, VendorGiftUncheckedUpdateWithoutSponsoredAdsInput>
+  }
+
+  export type VendorGiftUpdateWithoutSponsoredAdsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: VendorGiftUpdatetagsInput | string[]
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
+    unitsSold?: IntFieldUpdateOperationsInput | number
+    images?: VendorGiftUpdateimagesInput | string[]
+    viewsCount?: IntFieldUpdateOperationsInput | number
+    clicksCount?: IntFieldUpdateOperationsInput | number
+    salesCount?: IntFieldUpdateOperationsInput | number
+    rankingScore?: FloatFieldUpdateOperationsInput | number
+    lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    vendor?: UserUpdateOneRequiredWithoutVendorGiftsNestedInput
+    giftImages?: VendorGiftImageUpdateManyWithoutGiftNestedInput
+    favorites?: FavoriteUpdateManyWithoutVendorGiftNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutProductNestedInput
+    campaigns?: CampaignUpdateManyWithoutProductNestedInput
+    directGifts?: DirectGiftUpdateManyWithoutProductNestedInput
+  }
+
+  export type VendorGiftUncheckedUpdateWithoutSponsoredAdsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    vendorId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: VendorGiftUpdatetagsInput | string[]
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
+    unitsSold?: IntFieldUpdateOperationsInput | number
+    images?: VendorGiftUpdateimagesInput | string[]
+    viewsCount?: IntFieldUpdateOperationsInput | number
+    clicksCount?: IntFieldUpdateOperationsInput | number
+    salesCount?: IntFieldUpdateOperationsInput | number
+    rankingScore?: FloatFieldUpdateOperationsInput | number
+    lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    giftImages?: VendorGiftImageUncheckedUpdateManyWithoutGiftNestedInput
+    favorites?: FavoriteUncheckedUpdateManyWithoutVendorGiftNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutProductNestedInput
+    campaigns?: CampaignUncheckedUpdateManyWithoutProductNestedInput
+    directGifts?: DirectGiftUncheckedUpdateManyWithoutProductNestedInput
+  }
+
+  export type TransactionUpsertWithoutSponsoredAdInput = {
+    update: XOR<TransactionUpdateWithoutSponsoredAdInput, TransactionUncheckedUpdateWithoutSponsoredAdInput>
+    create: XOR<TransactionCreateWithoutSponsoredAdInput, TransactionUncheckedCreateWithoutSponsoredAdInput>
+    where?: TransactionWhereInput
+  }
+
+  export type TransactionUpdateToOneWithWhereWithoutSponsoredAdInput = {
+    where?: TransactionWhereInput
+    data: XOR<TransactionUpdateWithoutSponsoredAdInput, TransactionUncheckedUpdateWithoutSponsoredAdInput>
+  }
+
+  export type TransactionUpdateWithoutSponsoredAdInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: BigIntFieldUpdateOperationsInput | bigint | number
+    currency?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneWithoutTransactionsNestedInput
+    campaign?: CampaignUpdateOneWithoutTransactionsNestedInput
+    creatorSupport?: CreatorSupportUpdateOneWithoutTransactionNestedInput
+    contribution?: ContributionUpdateOneWithoutTransactionNestedInput
+    withdrawal?: WithdrawalUpdateOneWithoutTransactionNestedInput
+    featuredAd?: FeaturedAdUpdateOneWithoutTransactionNestedInput
+    campaignWithdrawal?: CampaignWithdrawalUpdateOneWithoutTransactionNestedInput
+  }
+
+  export type TransactionUncheckedUpdateWithoutSponsoredAdInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    campaignId?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: BigIntFieldUpdateOperationsInput | bigint | number
+    currency?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    creatorSupport?: CreatorSupportUncheckedUpdateOneWithoutTransactionNestedInput
+    contribution?: ContributionUncheckedUpdateOneWithoutTransactionNestedInput
+    withdrawal?: WithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
+    featuredAd?: FeaturedAdUncheckedUpdateOneWithoutTransactionNestedInput
     campaignWithdrawal?: CampaignWithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
   }
 
@@ -54618,7 +57477,8 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
     favorites?: FavoriteCreateNestedManyWithoutUserInput
-    promotions?: PromotionCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
@@ -54675,7 +57535,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
@@ -54748,7 +57609,8 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
@@ -54805,7 +57667,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
@@ -54861,7 +57724,8 @@ export namespace Prisma {
     bankAccounts?: BankAccountCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
     favorites?: FavoriteCreateNestedManyWithoutUserInput
-    promotions?: PromotionCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
@@ -54918,7 +57782,8 @@ export namespace Prisma {
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
@@ -55142,50 +58007,86 @@ export namespace Prisma {
     create: XOR<WithdrawalCreateWithoutTransactionInput, WithdrawalUncheckedCreateWithoutTransactionInput>
   }
 
-  export type PromotionCreateWithoutTransactionInput = {
-    productId?: number | null
-    placement: string
-    durationDays?: number
-    startDate?: Date | string | null
-    endDate?: Date | string | null
+  export type FeaturedAdCreateWithoutTransactionInput = {
+    country: string
+    slotNumber: number
+    startDate: Date | string
+    endDate: Date | string
     status?: string
     amountPaid: Decimal | DecimalJsLike | number | string
     currency?: string
     paymentReference?: string | null
-    rejectionReason?: string | null
     views?: number
     clicks?: number
-    conversions?: number
     createdAt?: Date | string
     updatedAt?: Date | string
-    vendor: UserCreateNestedOneWithoutPromotionsInput
-    product?: VendorGiftCreateNestedOneWithoutPromotionsInput
+    vendor: UserCreateNestedOneWithoutFeaturedAdsInput
+    product: VendorGiftCreateNestedOneWithoutFeaturedAdsInput
   }
 
-  export type PromotionUncheckedCreateWithoutTransactionInput = {
+  export type FeaturedAdUncheckedCreateWithoutTransactionInput = {
     id?: number
     vendorId: string
-    productId?: number | null
-    vendorGiftId?: number | null
-    placement: string
-    durationDays?: number
-    startDate?: Date | string | null
-    endDate?: Date | string | null
+    vendorGiftId: number
+    country: string
+    slotNumber: number
+    startDate: Date | string
+    endDate: Date | string
     status?: string
     amountPaid: Decimal | DecimalJsLike | number | string
     currency?: string
     paymentReference?: string | null
-    rejectionReason?: string | null
     views?: number
     clicks?: number
-    conversions?: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
-  export type PromotionCreateOrConnectWithoutTransactionInput = {
-    where: PromotionWhereUniqueInput
-    create: XOR<PromotionCreateWithoutTransactionInput, PromotionUncheckedCreateWithoutTransactionInput>
+  export type FeaturedAdCreateOrConnectWithoutTransactionInput = {
+    where: FeaturedAdWhereUniqueInput
+    create: XOR<FeaturedAdCreateWithoutTransactionInput, FeaturedAdUncheckedCreateWithoutTransactionInput>
+  }
+
+  export type SponsoredAdCreateWithoutTransactionInput = {
+    country: string
+    budget: Decimal | DecimalJsLike | number | string
+    remainingBudget: Decimal | DecimalJsLike | number | string
+    costPerClick: Decimal | DecimalJsLike | number | string
+    currency?: string
+    startDate?: Date | string
+    endDate?: Date | string | null
+    status?: string
+    paymentReference?: string | null
+    views?: number
+    clicks?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    vendor: UserCreateNestedOneWithoutSponsoredAdsInput
+    product: VendorGiftCreateNestedOneWithoutSponsoredAdsInput
+  }
+
+  export type SponsoredAdUncheckedCreateWithoutTransactionInput = {
+    id?: number
+    vendorId: string
+    vendorGiftId: number
+    country: string
+    budget: Decimal | DecimalJsLike | number | string
+    remainingBudget: Decimal | DecimalJsLike | number | string
+    costPerClick: Decimal | DecimalJsLike | number | string
+    currency?: string
+    startDate?: Date | string
+    endDate?: Date | string | null
+    status?: string
+    paymentReference?: string | null
+    views?: number
+    clicks?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SponsoredAdCreateOrConnectWithoutTransactionInput = {
+    where: SponsoredAdWhereUniqueInput
+    create: XOR<SponsoredAdCreateWithoutTransactionInput, SponsoredAdUncheckedCreateWithoutTransactionInput>
   }
 
   export type CampaignWithdrawalCreateWithoutTransactionInput = {
@@ -55258,7 +58159,8 @@ export namespace Prisma {
     bankAccounts?: BankAccountUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
@@ -55315,7 +58217,8 @@ export namespace Prisma {
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
@@ -55558,54 +58461,96 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PromotionUpsertWithoutTransactionInput = {
-    update: XOR<PromotionUpdateWithoutTransactionInput, PromotionUncheckedUpdateWithoutTransactionInput>
-    create: XOR<PromotionCreateWithoutTransactionInput, PromotionUncheckedCreateWithoutTransactionInput>
-    where?: PromotionWhereInput
+  export type FeaturedAdUpsertWithoutTransactionInput = {
+    update: XOR<FeaturedAdUpdateWithoutTransactionInput, FeaturedAdUncheckedUpdateWithoutTransactionInput>
+    create: XOR<FeaturedAdCreateWithoutTransactionInput, FeaturedAdUncheckedCreateWithoutTransactionInput>
+    where?: FeaturedAdWhereInput
   }
 
-  export type PromotionUpdateToOneWithWhereWithoutTransactionInput = {
-    where?: PromotionWhereInput
-    data: XOR<PromotionUpdateWithoutTransactionInput, PromotionUncheckedUpdateWithoutTransactionInput>
+  export type FeaturedAdUpdateToOneWithWhereWithoutTransactionInput = {
+    where?: FeaturedAdWhereInput
+    data: XOR<FeaturedAdUpdateWithoutTransactionInput, FeaturedAdUncheckedUpdateWithoutTransactionInput>
   }
 
-  export type PromotionUpdateWithoutTransactionInput = {
-    productId?: NullableIntFieldUpdateOperationsInput | number | null
-    placement?: StringFieldUpdateOperationsInput | string
-    durationDays?: IntFieldUpdateOperationsInput | number
-    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  export type FeaturedAdUpdateWithoutTransactionInput = {
+    country?: StringFieldUpdateOperationsInput | string
+    slotNumber?: IntFieldUpdateOperationsInput | number
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
     amountPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
     paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
-    rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     views?: IntFieldUpdateOperationsInput | number
     clicks?: IntFieldUpdateOperationsInput | number
-    conversions?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    vendor?: UserUpdateOneRequiredWithoutPromotionsNestedInput
-    product?: VendorGiftUpdateOneWithoutPromotionsNestedInput
+    vendor?: UserUpdateOneRequiredWithoutFeaturedAdsNestedInput
+    product?: VendorGiftUpdateOneRequiredWithoutFeaturedAdsNestedInput
   }
 
-  export type PromotionUncheckedUpdateWithoutTransactionInput = {
+  export type FeaturedAdUncheckedUpdateWithoutTransactionInput = {
     id?: IntFieldUpdateOperationsInput | number
     vendorId?: StringFieldUpdateOperationsInput | string
-    productId?: NullableIntFieldUpdateOperationsInput | number | null
-    vendorGiftId?: NullableIntFieldUpdateOperationsInput | number | null
-    placement?: StringFieldUpdateOperationsInput | string
-    durationDays?: IntFieldUpdateOperationsInput | number
-    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    vendorGiftId?: IntFieldUpdateOperationsInput | number
+    country?: StringFieldUpdateOperationsInput | string
+    slotNumber?: IntFieldUpdateOperationsInput | number
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
     amountPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
     paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
-    rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     views?: IntFieldUpdateOperationsInput | number
     clicks?: IntFieldUpdateOperationsInput | number
-    conversions?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SponsoredAdUpsertWithoutTransactionInput = {
+    update: XOR<SponsoredAdUpdateWithoutTransactionInput, SponsoredAdUncheckedUpdateWithoutTransactionInput>
+    create: XOR<SponsoredAdCreateWithoutTransactionInput, SponsoredAdUncheckedCreateWithoutTransactionInput>
+    where?: SponsoredAdWhereInput
+  }
+
+  export type SponsoredAdUpdateToOneWithWhereWithoutTransactionInput = {
+    where?: SponsoredAdWhereInput
+    data: XOR<SponsoredAdUpdateWithoutTransactionInput, SponsoredAdUncheckedUpdateWithoutTransactionInput>
+  }
+
+  export type SponsoredAdUpdateWithoutTransactionInput = {
+    country?: StringFieldUpdateOperationsInput | string
+    budget?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    remainingBudget?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    costPerClick?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    views?: IntFieldUpdateOperationsInput | number
+    clicks?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    vendor?: UserUpdateOneRequiredWithoutSponsoredAdsNestedInput
+    product?: VendorGiftUpdateOneRequiredWithoutSponsoredAdsNestedInput
+  }
+
+  export type SponsoredAdUncheckedUpdateWithoutTransactionInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    vendorId?: StringFieldUpdateOperationsInput | string
+    vendorGiftId?: IntFieldUpdateOperationsInput | number
+    country?: StringFieldUpdateOperationsInput | string
+    budget?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    remainingBudget?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    costPerClick?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    views?: IntFieldUpdateOperationsInput | number
+    clicks?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -55675,7 +58620,8 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
     favorites?: FavoriteCreateNestedManyWithoutUserInput
-    promotions?: PromotionCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
@@ -55732,7 +58678,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
@@ -55841,7 +58788,8 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
@@ -55898,7 +58846,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
@@ -55972,7 +58921,8 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
     favorites?: FavoriteCreateNestedManyWithoutUserInput
-    promotions?: PromotionCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
@@ -56029,7 +58979,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
@@ -56101,7 +59052,8 @@ export namespace Prisma {
     campaign?: CampaignCreateNestedOneWithoutTransactionsInput
     creatorSupport?: CreatorSupportCreateNestedOneWithoutTransactionInput
     contribution?: ContributionCreateNestedOneWithoutTransactionInput
-    promotion?: PromotionCreateNestedOneWithoutTransactionInput
+    featuredAd?: FeaturedAdCreateNestedOneWithoutTransactionInput
+    sponsoredAd?: SponsoredAdCreateNestedOneWithoutTransactionInput
     campaignWithdrawal?: CampaignWithdrawalCreateNestedOneWithoutTransactionInput
   }
 
@@ -56119,7 +59071,8 @@ export namespace Prisma {
     createdAt?: Date | string
     creatorSupport?: CreatorSupportUncheckedCreateNestedOneWithoutTransactionInput
     contribution?: ContributionUncheckedCreateNestedOneWithoutTransactionInput
-    promotion?: PromotionUncheckedCreateNestedOneWithoutTransactionInput
+    featuredAd?: FeaturedAdUncheckedCreateNestedOneWithoutTransactionInput
+    sponsoredAd?: SponsoredAdUncheckedCreateNestedOneWithoutTransactionInput
     campaignWithdrawal?: CampaignWithdrawalUncheckedCreateNestedOneWithoutTransactionInput
   }
 
@@ -56178,7 +59131,8 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
@@ -56235,7 +59189,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
@@ -56319,7 +59274,8 @@ export namespace Prisma {
     campaign?: CampaignUpdateOneWithoutTransactionsNestedInput
     creatorSupport?: CreatorSupportUpdateOneWithoutTransactionNestedInput
     contribution?: ContributionUpdateOneWithoutTransactionNestedInput
-    promotion?: PromotionUpdateOneWithoutTransactionNestedInput
+    featuredAd?: FeaturedAdUpdateOneWithoutTransactionNestedInput
+    sponsoredAd?: SponsoredAdUpdateOneWithoutTransactionNestedInput
     campaignWithdrawal?: CampaignWithdrawalUpdateOneWithoutTransactionNestedInput
   }
 
@@ -56337,7 +59293,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     creatorSupport?: CreatorSupportUncheckedUpdateOneWithoutTransactionNestedInput
     contribution?: ContributionUncheckedUpdateOneWithoutTransactionNestedInput
-    promotion?: PromotionUncheckedUpdateOneWithoutTransactionNestedInput
+    featuredAd?: FeaturedAdUncheckedUpdateOneWithoutTransactionNestedInput
+    sponsoredAd?: SponsoredAdUncheckedUpdateOneWithoutTransactionNestedInput
     campaignWithdrawal?: CampaignWithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
   }
 
@@ -56380,7 +59337,8 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
     favorites?: FavoriteCreateNestedManyWithoutUserInput
-    promotions?: PromotionCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
     moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
     moderationReportsFixed?: ModerationReportCreateNestedManyWithoutResolverInput
@@ -56437,7 +59395,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
     moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
     moderationReportsFixed?: ModerationReportUncheckedCreateNestedManyWithoutResolverInput
@@ -56499,7 +59458,8 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
     favorites?: FavoriteCreateNestedManyWithoutUserInput
-    promotions?: PromotionCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutVendorInput
     receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
     moderationReportsFixed?: ModerationReportCreateNestedManyWithoutResolverInput
@@ -56556,7 +59516,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutVendorInput
     receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
     moderationReportsFixed?: ModerationReportUncheckedCreateNestedManyWithoutResolverInput
@@ -56656,7 +59617,8 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
     moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
     moderationReportsFixed?: ModerationReportUpdateManyWithoutResolverNestedInput
@@ -56713,7 +59675,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
     moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
     moderationReportsFixed?: ModerationReportUncheckedUpdateManyWithoutResolverNestedInput
@@ -56781,7 +59744,8 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutVendorNestedInput
     receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
     moderationReportsFixed?: ModerationReportUpdateManyWithoutResolverNestedInput
@@ -56838,7 +59802,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutVendorNestedInput
     receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
     moderationReportsFixed?: ModerationReportUncheckedUpdateManyWithoutResolverNestedInput
@@ -56955,7 +59920,8 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
     favorites?: FavoriteCreateNestedManyWithoutUserInput
-    promotions?: PromotionCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
@@ -57012,7 +59978,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
@@ -57135,7 +60102,8 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
@@ -57192,7 +60160,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
@@ -57249,7 +60218,8 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
     favorites?: FavoriteCreateNestedManyWithoutUserInput
-    promotions?: PromotionCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
     moderationReportsFixed?: ModerationReportCreateNestedManyWithoutResolverInput
@@ -57306,7 +60276,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
     moderationReportsFixed?: ModerationReportUncheckedCreateNestedManyWithoutResolverInput
@@ -57368,7 +60339,8 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
     favorites?: FavoriteCreateNestedManyWithoutUserInput
-    promotions?: PromotionCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
@@ -57425,7 +60397,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
@@ -57498,7 +60471,8 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
     moderationReportsFixed?: ModerationReportUpdateManyWithoutResolverNestedInput
@@ -57555,7 +60529,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
     moderationReportsFixed?: ModerationReportUncheckedUpdateManyWithoutResolverNestedInput
@@ -57623,7 +60598,8 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
@@ -57680,7 +60656,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
@@ -57737,7 +60714,8 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
     favorites?: FavoriteCreateNestedManyWithoutUserInput
-    promotions?: PromotionCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
@@ -57794,7 +60772,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
@@ -57856,7 +60835,8 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
     favorites?: FavoriteCreateNestedManyWithoutUserInput
-    promotions?: PromotionCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
@@ -57913,7 +60893,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
@@ -57986,7 +60967,8 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
@@ -58043,7 +61025,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
@@ -58111,7 +61094,8 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
@@ -58168,7 +61152,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
@@ -58225,7 +61210,8 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
     favorites?: FavoriteCreateNestedManyWithoutUserInput
-    promotions?: PromotionCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
@@ -58282,7 +61268,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
@@ -58355,7 +61342,8 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
@@ -58412,7 +61400,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
@@ -58469,7 +61458,8 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
     favorites?: FavoriteCreateNestedManyWithoutUserInput
-    promotions?: PromotionCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
@@ -58526,7 +61516,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
@@ -58563,7 +61554,8 @@ export namespace Prisma {
     campaign?: CampaignCreateNestedOneWithoutTransactionsInput
     contribution?: ContributionCreateNestedOneWithoutTransactionInput
     withdrawal?: WithdrawalCreateNestedOneWithoutTransactionInput
-    promotion?: PromotionCreateNestedOneWithoutTransactionInput
+    featuredAd?: FeaturedAdCreateNestedOneWithoutTransactionInput
+    sponsoredAd?: SponsoredAdCreateNestedOneWithoutTransactionInput
     campaignWithdrawal?: CampaignWithdrawalCreateNestedOneWithoutTransactionInput
   }
 
@@ -58581,7 +61573,8 @@ export namespace Prisma {
     createdAt?: Date | string
     contribution?: ContributionUncheckedCreateNestedOneWithoutTransactionInput
     withdrawal?: WithdrawalUncheckedCreateNestedOneWithoutTransactionInput
-    promotion?: PromotionUncheckedCreateNestedOneWithoutTransactionInput
+    featuredAd?: FeaturedAdUncheckedCreateNestedOneWithoutTransactionInput
+    sponsoredAd?: SponsoredAdUncheckedCreateNestedOneWithoutTransactionInput
     campaignWithdrawal?: CampaignWithdrawalUncheckedCreateNestedOneWithoutTransactionInput
   }
 
@@ -58640,7 +61633,8 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
@@ -58697,7 +61691,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
@@ -58740,7 +61735,8 @@ export namespace Prisma {
     campaign?: CampaignUpdateOneWithoutTransactionsNestedInput
     contribution?: ContributionUpdateOneWithoutTransactionNestedInput
     withdrawal?: WithdrawalUpdateOneWithoutTransactionNestedInput
-    promotion?: PromotionUpdateOneWithoutTransactionNestedInput
+    featuredAd?: FeaturedAdUpdateOneWithoutTransactionNestedInput
+    sponsoredAd?: SponsoredAdUpdateOneWithoutTransactionNestedInput
     campaignWithdrawal?: CampaignWithdrawalUpdateOneWithoutTransactionNestedInput
   }
 
@@ -58758,7 +61754,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     contribution?: ContributionUncheckedUpdateOneWithoutTransactionNestedInput
     withdrawal?: WithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
-    promotion?: PromotionUncheckedUpdateOneWithoutTransactionNestedInput
+    featuredAd?: FeaturedAdUncheckedUpdateOneWithoutTransactionNestedInput
+    sponsoredAd?: SponsoredAdUncheckedUpdateOneWithoutTransactionNestedInput
     campaignWithdrawal?: CampaignWithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
   }
 
@@ -58801,7 +61798,8 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
     favorites?: FavoriteCreateNestedManyWithoutUserInput
-    promotions?: PromotionCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
@@ -58858,7 +61856,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
@@ -58952,7 +61951,8 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
@@ -59009,7 +62009,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
@@ -59114,7 +62115,8 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
     favorites?: FavoriteCreateNestedManyWithoutUserInput
-    promotions?: PromotionCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
@@ -59171,7 +62173,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
@@ -59282,7 +62285,8 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
@@ -59339,7 +62343,8 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
@@ -59395,7 +62400,8 @@ export namespace Prisma {
     bankAccounts?: BankAccountCreateNestedManyWithoutUserInput
     transactions?: TransactionCreateNestedManyWithoutUserInput
     favorites?: FavoriteCreateNestedManyWithoutUserInput
-    promotions?: PromotionCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
@@ -59452,7 +62458,8 @@ export namespace Prisma {
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutUserInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
@@ -59518,54 +62525,95 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type PromotionCreateWithoutProductInput = {
-    productId?: number | null
-    placement: string
-    durationDays?: number
-    startDate?: Date | string | null
-    endDate?: Date | string | null
+  export type FeaturedAdCreateWithoutProductInput = {
+    country: string
+    slotNumber: number
+    startDate: Date | string
+    endDate: Date | string
     status?: string
     amountPaid: Decimal | DecimalJsLike | number | string
     currency?: string
     paymentReference?: string | null
-    rejectionReason?: string | null
     views?: number
     clicks?: number
-    conversions?: number
     createdAt?: Date | string
     updatedAt?: Date | string
-    vendor: UserCreateNestedOneWithoutPromotionsInput
-    transaction?: TransactionCreateNestedOneWithoutPromotionInput
+    vendor: UserCreateNestedOneWithoutFeaturedAdsInput
+    transaction?: TransactionCreateNestedOneWithoutFeaturedAdInput
   }
 
-  export type PromotionUncheckedCreateWithoutProductInput = {
+  export type FeaturedAdUncheckedCreateWithoutProductInput = {
     id?: number
     vendorId: string
-    productId?: number | null
-    placement: string
-    durationDays?: number
-    startDate?: Date | string | null
-    endDate?: Date | string | null
+    country: string
+    slotNumber: number
+    startDate: Date | string
+    endDate: Date | string
     status?: string
     amountPaid: Decimal | DecimalJsLike | number | string
     currency?: string
     paymentReference?: string | null
-    rejectionReason?: string | null
     views?: number
     clicks?: number
-    conversions?: number
     transactionId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
-  export type PromotionCreateOrConnectWithoutProductInput = {
-    where: PromotionWhereUniqueInput
-    create: XOR<PromotionCreateWithoutProductInput, PromotionUncheckedCreateWithoutProductInput>
+  export type FeaturedAdCreateOrConnectWithoutProductInput = {
+    where: FeaturedAdWhereUniqueInput
+    create: XOR<FeaturedAdCreateWithoutProductInput, FeaturedAdUncheckedCreateWithoutProductInput>
   }
 
-  export type PromotionCreateManyProductInputEnvelope = {
-    data: PromotionCreateManyProductInput | PromotionCreateManyProductInput[]
+  export type FeaturedAdCreateManyProductInputEnvelope = {
+    data: FeaturedAdCreateManyProductInput | FeaturedAdCreateManyProductInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type SponsoredAdCreateWithoutProductInput = {
+    country: string
+    budget: Decimal | DecimalJsLike | number | string
+    remainingBudget: Decimal | DecimalJsLike | number | string
+    costPerClick: Decimal | DecimalJsLike | number | string
+    currency?: string
+    startDate?: Date | string
+    endDate?: Date | string | null
+    status?: string
+    paymentReference?: string | null
+    views?: number
+    clicks?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    vendor: UserCreateNestedOneWithoutSponsoredAdsInput
+    transaction?: TransactionCreateNestedOneWithoutSponsoredAdInput
+  }
+
+  export type SponsoredAdUncheckedCreateWithoutProductInput = {
+    id?: number
+    vendorId: string
+    country: string
+    budget: Decimal | DecimalJsLike | number | string
+    remainingBudget: Decimal | DecimalJsLike | number | string
+    costPerClick: Decimal | DecimalJsLike | number | string
+    currency?: string
+    startDate?: Date | string
+    endDate?: Date | string | null
+    status?: string
+    paymentReference?: string | null
+    views?: number
+    clicks?: number
+    transactionId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SponsoredAdCreateOrConnectWithoutProductInput = {
+    where: SponsoredAdWhereUniqueInput
+    create: XOR<SponsoredAdCreateWithoutProductInput, SponsoredAdUncheckedCreateWithoutProductInput>
+  }
+
+  export type SponsoredAdCreateManyProductInputEnvelope = {
+    data: SponsoredAdCreateManyProductInput | SponsoredAdCreateManyProductInput[]
     skipDuplicates?: boolean
   }
 
@@ -59790,7 +62838,8 @@ export namespace Prisma {
     bankAccounts?: BankAccountUpdateManyWithoutUserNestedInput
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     favorites?: FavoriteUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
@@ -59847,7 +62896,8 @@ export namespace Prisma {
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutUserNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
@@ -59908,20 +62958,36 @@ export namespace Prisma {
     data: XOR<FavoriteUpdateManyMutationInput, FavoriteUncheckedUpdateManyWithoutVendorGiftInput>
   }
 
-  export type PromotionUpsertWithWhereUniqueWithoutProductInput = {
-    where: PromotionWhereUniqueInput
-    update: XOR<PromotionUpdateWithoutProductInput, PromotionUncheckedUpdateWithoutProductInput>
-    create: XOR<PromotionCreateWithoutProductInput, PromotionUncheckedCreateWithoutProductInput>
+  export type FeaturedAdUpsertWithWhereUniqueWithoutProductInput = {
+    where: FeaturedAdWhereUniqueInput
+    update: XOR<FeaturedAdUpdateWithoutProductInput, FeaturedAdUncheckedUpdateWithoutProductInput>
+    create: XOR<FeaturedAdCreateWithoutProductInput, FeaturedAdUncheckedCreateWithoutProductInput>
   }
 
-  export type PromotionUpdateWithWhereUniqueWithoutProductInput = {
-    where: PromotionWhereUniqueInput
-    data: XOR<PromotionUpdateWithoutProductInput, PromotionUncheckedUpdateWithoutProductInput>
+  export type FeaturedAdUpdateWithWhereUniqueWithoutProductInput = {
+    where: FeaturedAdWhereUniqueInput
+    data: XOR<FeaturedAdUpdateWithoutProductInput, FeaturedAdUncheckedUpdateWithoutProductInput>
   }
 
-  export type PromotionUpdateManyWithWhereWithoutProductInput = {
-    where: PromotionScalarWhereInput
-    data: XOR<PromotionUpdateManyMutationInput, PromotionUncheckedUpdateManyWithoutProductInput>
+  export type FeaturedAdUpdateManyWithWhereWithoutProductInput = {
+    where: FeaturedAdScalarWhereInput
+    data: XOR<FeaturedAdUpdateManyMutationInput, FeaturedAdUncheckedUpdateManyWithoutProductInput>
+  }
+
+  export type SponsoredAdUpsertWithWhereUniqueWithoutProductInput = {
+    where: SponsoredAdWhereUniqueInput
+    update: XOR<SponsoredAdUpdateWithoutProductInput, SponsoredAdUncheckedUpdateWithoutProductInput>
+    create: XOR<SponsoredAdCreateWithoutProductInput, SponsoredAdUncheckedCreateWithoutProductInput>
+  }
+
+  export type SponsoredAdUpdateWithWhereUniqueWithoutProductInput = {
+    where: SponsoredAdWhereUniqueInput
+    data: XOR<SponsoredAdUpdateWithoutProductInput, SponsoredAdUncheckedUpdateWithoutProductInput>
+  }
+
+  export type SponsoredAdUpdateManyWithWhereWithoutProductInput = {
+    where: SponsoredAdScalarWhereInput
+    data: XOR<SponsoredAdUpdateManyMutationInput, SponsoredAdUncheckedUpdateManyWithoutProductInput>
   }
 
   export type CampaignUpsertWithWhereUniqueWithoutProductInput = {
@@ -59969,11 +63035,17 @@ export namespace Prisma {
     stockQuantity?: number | null
     unitsSold?: number
     images?: VendorGiftCreateimagesInput | string[]
+    viewsCount?: number
+    clicksCount?: number
+    salesCount?: number
+    rankingScore?: number
+    lastEngagementAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
     vendor: UserCreateNestedOneWithoutVendorGiftsInput
     favorites?: FavoriteCreateNestedManyWithoutVendorGiftInput
-    promotions?: PromotionCreateNestedManyWithoutProductInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutProductInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutProductInput
     campaigns?: CampaignCreateNestedManyWithoutProductInput
     directGifts?: DirectGiftCreateNestedManyWithoutProductInput
   }
@@ -59993,10 +63065,16 @@ export namespace Prisma {
     stockQuantity?: number | null
     unitsSold?: number
     images?: VendorGiftCreateimagesInput | string[]
+    viewsCount?: number
+    clicksCount?: number
+    salesCount?: number
+    rankingScore?: number
+    lastEngagementAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
     favorites?: FavoriteUncheckedCreateNestedManyWithoutVendorGiftInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutProductInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutProductInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutProductInput
     campaigns?: CampaignUncheckedCreateNestedManyWithoutProductInput
     directGifts?: DirectGiftUncheckedCreateNestedManyWithoutProductInput
   }
@@ -60030,11 +63108,17 @@ export namespace Prisma {
     stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
     unitsSold?: IntFieldUpdateOperationsInput | number
     images?: VendorGiftUpdateimagesInput | string[]
+    viewsCount?: IntFieldUpdateOperationsInput | number
+    clicksCount?: IntFieldUpdateOperationsInput | number
+    salesCount?: IntFieldUpdateOperationsInput | number
+    rankingScore?: FloatFieldUpdateOperationsInput | number
+    lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     vendor?: UserUpdateOneRequiredWithoutVendorGiftsNestedInput
     favorites?: FavoriteUpdateManyWithoutVendorGiftNestedInput
-    promotions?: PromotionUpdateManyWithoutProductNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutProductNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutProductNestedInput
     campaigns?: CampaignUpdateManyWithoutProductNestedInput
     directGifts?: DirectGiftUpdateManyWithoutProductNestedInput
   }
@@ -60054,10 +63138,16 @@ export namespace Prisma {
     stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
     unitsSold?: IntFieldUpdateOperationsInput | number
     images?: VendorGiftUpdateimagesInput | string[]
+    viewsCount?: IntFieldUpdateOperationsInput | number
+    clicksCount?: IntFieldUpdateOperationsInput | number
+    salesCount?: IntFieldUpdateOperationsInput | number
+    rankingScore?: FloatFieldUpdateOperationsInput | number
+    lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     favorites?: FavoriteUncheckedUpdateManyWithoutVendorGiftNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutProductNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutProductNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutProductNestedInput
     campaigns?: CampaignUncheckedUpdateManyWithoutProductNestedInput
     directGifts?: DirectGiftUncheckedUpdateManyWithoutProductNestedInput
   }
@@ -60100,7 +63190,8 @@ export namespace Prisma {
     bankAccounts?: BankAccountCreateNestedManyWithoutUserInput
     transactions?: TransactionCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
-    promotions?: PromotionCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
@@ -60157,7 +63248,8 @@ export namespace Prisma {
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutUserInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutVendorInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutVendorInput
     sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
     receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
     moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
@@ -60194,11 +63286,17 @@ export namespace Prisma {
     stockQuantity?: number | null
     unitsSold?: number
     images?: VendorGiftCreateimagesInput | string[]
+    viewsCount?: number
+    clicksCount?: number
+    salesCount?: number
+    rankingScore?: number
+    lastEngagementAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
     vendor: UserCreateNestedOneWithoutVendorGiftsInput
     giftImages?: VendorGiftImageCreateNestedManyWithoutGiftInput
-    promotions?: PromotionCreateNestedManyWithoutProductInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutProductInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutProductInput
     campaigns?: CampaignCreateNestedManyWithoutProductInput
     directGifts?: DirectGiftCreateNestedManyWithoutProductInput
   }
@@ -60218,10 +63316,16 @@ export namespace Prisma {
     stockQuantity?: number | null
     unitsSold?: number
     images?: VendorGiftCreateimagesInput | string[]
+    viewsCount?: number
+    clicksCount?: number
+    salesCount?: number
+    rankingScore?: number
+    lastEngagementAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
     giftImages?: VendorGiftImageUncheckedCreateNestedManyWithoutGiftInput
-    promotions?: PromotionUncheckedCreateNestedManyWithoutProductInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutProductInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutProductInput
     campaigns?: CampaignUncheckedCreateNestedManyWithoutProductInput
     directGifts?: DirectGiftUncheckedCreateNestedManyWithoutProductInput
   }
@@ -60280,7 +63384,8 @@ export namespace Prisma {
     bankAccounts?: BankAccountUpdateManyWithoutUserNestedInput
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
-    promotions?: PromotionUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
@@ -60337,7 +63442,8 @@ export namespace Prisma {
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutUserNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutVendorNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutVendorNestedInput
     sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
     receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
     moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
@@ -60380,11 +63486,17 @@ export namespace Prisma {
     stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
     unitsSold?: IntFieldUpdateOperationsInput | number
     images?: VendorGiftUpdateimagesInput | string[]
+    viewsCount?: IntFieldUpdateOperationsInput | number
+    clicksCount?: IntFieldUpdateOperationsInput | number
+    salesCount?: IntFieldUpdateOperationsInput | number
+    rankingScore?: FloatFieldUpdateOperationsInput | number
+    lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     vendor?: UserUpdateOneRequiredWithoutVendorGiftsNestedInput
     giftImages?: VendorGiftImageUpdateManyWithoutGiftNestedInput
-    promotions?: PromotionUpdateManyWithoutProductNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutProductNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutProductNestedInput
     campaigns?: CampaignUpdateManyWithoutProductNestedInput
     directGifts?: DirectGiftUpdateManyWithoutProductNestedInput
   }
@@ -60404,10 +63516,16 @@ export namespace Prisma {
     stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
     unitsSold?: IntFieldUpdateOperationsInput | number
     images?: VendorGiftUpdateimagesInput | string[]
+    viewsCount?: IntFieldUpdateOperationsInput | number
+    clicksCount?: IntFieldUpdateOperationsInput | number
+    salesCount?: IntFieldUpdateOperationsInput | number
+    rankingScore?: FloatFieldUpdateOperationsInput | number
+    lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     giftImages?: VendorGiftImageUncheckedUpdateManyWithoutGiftNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutProductNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutProductNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutProductNestedInput
     campaigns?: CampaignUncheckedUpdateManyWithoutProductNestedInput
     directGifts?: DirectGiftUncheckedUpdateManyWithoutProductNestedInput
   }
@@ -60523,6 +63641,11 @@ export namespace Prisma {
     stockQuantity?: number | null
     unitsSold?: number
     images?: VendorGiftCreateimagesInput | string[]
+    viewsCount?: number
+    clicksCount?: number
+    salesCount?: number
+    rankingScore?: number
+    lastEngagementAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -60533,22 +63656,38 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
-  export type PromotionCreateManyVendorInput = {
+  export type FeaturedAdCreateManyVendorInput = {
     id?: number
-    productId?: number | null
-    vendorGiftId?: number | null
-    placement: string
-    durationDays?: number
-    startDate?: Date | string | null
-    endDate?: Date | string | null
+    vendorGiftId: number
+    country: string
+    slotNumber: number
+    startDate: Date | string
+    endDate: Date | string
     status?: string
     amountPaid: Decimal | DecimalJsLike | number | string
     currency?: string
     paymentReference?: string | null
-    rejectionReason?: string | null
     views?: number
     clicks?: number
-    conversions?: number
+    transactionId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SponsoredAdCreateManyVendorInput = {
+    id?: number
+    vendorGiftId: number
+    country: string
+    budget: Decimal | DecimalJsLike | number | string
+    remainingBudget: Decimal | DecimalJsLike | number | string
+    costPerClick: Decimal | DecimalJsLike | number | string
+    currency?: string
+    startDate?: Date | string
+    endDate?: Date | string | null
+    status?: string
+    paymentReference?: string | null
+    views?: number
+    clicks?: number
     transactionId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -61096,7 +64235,8 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportUpdateOneWithoutTransactionNestedInput
     contribution?: ContributionUpdateOneWithoutTransactionNestedInput
     withdrawal?: WithdrawalUpdateOneWithoutTransactionNestedInput
-    promotion?: PromotionUpdateOneWithoutTransactionNestedInput
+    featuredAd?: FeaturedAdUpdateOneWithoutTransactionNestedInput
+    sponsoredAd?: SponsoredAdUpdateOneWithoutTransactionNestedInput
     campaignWithdrawal?: CampaignWithdrawalUpdateOneWithoutTransactionNestedInput
   }
 
@@ -61114,7 +64254,8 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportUncheckedUpdateOneWithoutTransactionNestedInput
     contribution?: ContributionUncheckedUpdateOneWithoutTransactionNestedInput
     withdrawal?: WithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
-    promotion?: PromotionUncheckedUpdateOneWithoutTransactionNestedInput
+    featuredAd?: FeaturedAdUncheckedUpdateOneWithoutTransactionNestedInput
+    sponsoredAd?: SponsoredAdUncheckedUpdateOneWithoutTransactionNestedInput
     campaignWithdrawal?: CampaignWithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
   }
 
@@ -61144,11 +64285,17 @@ export namespace Prisma {
     stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
     unitsSold?: IntFieldUpdateOperationsInput | number
     images?: VendorGiftUpdateimagesInput | string[]
+    viewsCount?: IntFieldUpdateOperationsInput | number
+    clicksCount?: IntFieldUpdateOperationsInput | number
+    salesCount?: IntFieldUpdateOperationsInput | number
+    rankingScore?: FloatFieldUpdateOperationsInput | number
+    lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     giftImages?: VendorGiftImageUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUpdateManyWithoutVendorGiftNestedInput
-    promotions?: PromotionUpdateManyWithoutProductNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutProductNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutProductNestedInput
     campaigns?: CampaignUpdateManyWithoutProductNestedInput
     directGifts?: DirectGiftUpdateManyWithoutProductNestedInput
   }
@@ -61167,11 +64314,17 @@ export namespace Prisma {
     stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
     unitsSold?: IntFieldUpdateOperationsInput | number
     images?: VendorGiftUpdateimagesInput | string[]
+    viewsCount?: IntFieldUpdateOperationsInput | number
+    clicksCount?: IntFieldUpdateOperationsInput | number
+    salesCount?: IntFieldUpdateOperationsInput | number
+    rankingScore?: FloatFieldUpdateOperationsInput | number
+    lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     giftImages?: VendorGiftImageUncheckedUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutVendorGiftNestedInput
-    promotions?: PromotionUncheckedUpdateManyWithoutProductNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutProductNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutProductNestedInput
     campaigns?: CampaignUncheckedUpdateManyWithoutProductNestedInput
     directGifts?: DirectGiftUncheckedUpdateManyWithoutProductNestedInput
   }
@@ -61190,6 +64343,11 @@ export namespace Prisma {
     stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
     unitsSold?: IntFieldUpdateOperationsInput | number
     images?: VendorGiftUpdateimagesInput | string[]
+    viewsCount?: IntFieldUpdateOperationsInput | number
+    clicksCount?: IntFieldUpdateOperationsInput | number
+    salesCount?: IntFieldUpdateOperationsInput | number
+    rankingScore?: FloatFieldUpdateOperationsInput | number
+    lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -61211,63 +64369,110 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PromotionUpdateWithoutVendorInput = {
-    productId?: NullableIntFieldUpdateOperationsInput | number | null
-    placement?: StringFieldUpdateOperationsInput | string
-    durationDays?: IntFieldUpdateOperationsInput | number
-    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  export type FeaturedAdUpdateWithoutVendorInput = {
+    country?: StringFieldUpdateOperationsInput | string
+    slotNumber?: IntFieldUpdateOperationsInput | number
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
     amountPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
     paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
-    rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     views?: IntFieldUpdateOperationsInput | number
     clicks?: IntFieldUpdateOperationsInput | number
-    conversions?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    product?: VendorGiftUpdateOneWithoutPromotionsNestedInput
-    transaction?: TransactionUpdateOneWithoutPromotionNestedInput
+    product?: VendorGiftUpdateOneRequiredWithoutFeaturedAdsNestedInput
+    transaction?: TransactionUpdateOneWithoutFeaturedAdNestedInput
   }
 
-  export type PromotionUncheckedUpdateWithoutVendorInput = {
+  export type FeaturedAdUncheckedUpdateWithoutVendorInput = {
     id?: IntFieldUpdateOperationsInput | number
-    productId?: NullableIntFieldUpdateOperationsInput | number | null
-    vendorGiftId?: NullableIntFieldUpdateOperationsInput | number | null
-    placement?: StringFieldUpdateOperationsInput | string
-    durationDays?: IntFieldUpdateOperationsInput | number
-    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    vendorGiftId?: IntFieldUpdateOperationsInput | number
+    country?: StringFieldUpdateOperationsInput | string
+    slotNumber?: IntFieldUpdateOperationsInput | number
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
     amountPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
     paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
-    rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     views?: IntFieldUpdateOperationsInput | number
     clicks?: IntFieldUpdateOperationsInput | number
-    conversions?: IntFieldUpdateOperationsInput | number
     transactionId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PromotionUncheckedUpdateManyWithoutVendorInput = {
+  export type FeaturedAdUncheckedUpdateManyWithoutVendorInput = {
     id?: IntFieldUpdateOperationsInput | number
-    productId?: NullableIntFieldUpdateOperationsInput | number | null
-    vendorGiftId?: NullableIntFieldUpdateOperationsInput | number | null
-    placement?: StringFieldUpdateOperationsInput | string
-    durationDays?: IntFieldUpdateOperationsInput | number
-    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    vendorGiftId?: IntFieldUpdateOperationsInput | number
+    country?: StringFieldUpdateOperationsInput | string
+    slotNumber?: IntFieldUpdateOperationsInput | number
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
     amountPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
     paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
-    rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     views?: IntFieldUpdateOperationsInput | number
     clicks?: IntFieldUpdateOperationsInput | number
-    conversions?: IntFieldUpdateOperationsInput | number
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SponsoredAdUpdateWithoutVendorInput = {
+    country?: StringFieldUpdateOperationsInput | string
+    budget?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    remainingBudget?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    costPerClick?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    views?: IntFieldUpdateOperationsInput | number
+    clicks?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    product?: VendorGiftUpdateOneRequiredWithoutSponsoredAdsNestedInput
+    transaction?: TransactionUpdateOneWithoutSponsoredAdNestedInput
+  }
+
+  export type SponsoredAdUncheckedUpdateWithoutVendorInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    vendorGiftId?: IntFieldUpdateOperationsInput | number
+    country?: StringFieldUpdateOperationsInput | string
+    budget?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    remainingBudget?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    costPerClick?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    views?: IntFieldUpdateOperationsInput | number
+    clicks?: IntFieldUpdateOperationsInput | number
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SponsoredAdUncheckedUpdateManyWithoutVendorInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    vendorGiftId?: IntFieldUpdateOperationsInput | number
+    country?: StringFieldUpdateOperationsInput | string
+    budget?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    remainingBudget?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    costPerClick?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    views?: IntFieldUpdateOperationsInput | number
+    clicks?: IntFieldUpdateOperationsInput | number
     transactionId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -62193,7 +65398,8 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportUpdateOneWithoutTransactionNestedInput
     contribution?: ContributionUpdateOneWithoutTransactionNestedInput
     withdrawal?: WithdrawalUpdateOneWithoutTransactionNestedInput
-    promotion?: PromotionUpdateOneWithoutTransactionNestedInput
+    featuredAd?: FeaturedAdUpdateOneWithoutTransactionNestedInput
+    sponsoredAd?: SponsoredAdUpdateOneWithoutTransactionNestedInput
     campaignWithdrawal?: CampaignWithdrawalUpdateOneWithoutTransactionNestedInput
   }
 
@@ -62211,7 +65417,8 @@ export namespace Prisma {
     creatorSupport?: CreatorSupportUncheckedUpdateOneWithoutTransactionNestedInput
     contribution?: ContributionUncheckedUpdateOneWithoutTransactionNestedInput
     withdrawal?: WithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
-    promotion?: PromotionUncheckedUpdateOneWithoutTransactionNestedInput
+    featuredAd?: FeaturedAdUncheckedUpdateOneWithoutTransactionNestedInput
+    sponsoredAd?: SponsoredAdUncheckedUpdateOneWithoutTransactionNestedInput
     campaignWithdrawal?: CampaignWithdrawalUncheckedUpdateOneWithoutTransactionNestedInput
   }
 
@@ -62350,22 +65557,38 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
-  export type PromotionCreateManyProductInput = {
+  export type FeaturedAdCreateManyProductInput = {
     id?: number
     vendorId: string
-    productId?: number | null
-    placement: string
-    durationDays?: number
-    startDate?: Date | string | null
-    endDate?: Date | string | null
+    country: string
+    slotNumber: number
+    startDate: Date | string
+    endDate: Date | string
     status?: string
     amountPaid: Decimal | DecimalJsLike | number | string
     currency?: string
     paymentReference?: string | null
-    rejectionReason?: string | null
     views?: number
     clicks?: number
-    conversions?: number
+    transactionId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SponsoredAdCreateManyProductInput = {
+    id?: number
+    vendorId: string
+    country: string
+    budget: Decimal | DecimalJsLike | number | string
+    remainingBudget: Decimal | DecimalJsLike | number | string
+    costPerClick: Decimal | DecimalJsLike | number | string
+    currency?: string
+    startDate?: Date | string
+    endDate?: Date | string | null
+    status?: string
+    paymentReference?: string | null
+    views?: number
+    clicks?: number
     transactionId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -62478,63 +65701,110 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PromotionUpdateWithoutProductInput = {
-    productId?: NullableIntFieldUpdateOperationsInput | number | null
-    placement?: StringFieldUpdateOperationsInput | string
-    durationDays?: IntFieldUpdateOperationsInput | number
-    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  export type FeaturedAdUpdateWithoutProductInput = {
+    country?: StringFieldUpdateOperationsInput | string
+    slotNumber?: IntFieldUpdateOperationsInput | number
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
     amountPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
     paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
-    rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     views?: IntFieldUpdateOperationsInput | number
     clicks?: IntFieldUpdateOperationsInput | number
-    conversions?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    vendor?: UserUpdateOneRequiredWithoutPromotionsNestedInput
-    transaction?: TransactionUpdateOneWithoutPromotionNestedInput
+    vendor?: UserUpdateOneRequiredWithoutFeaturedAdsNestedInput
+    transaction?: TransactionUpdateOneWithoutFeaturedAdNestedInput
   }
 
-  export type PromotionUncheckedUpdateWithoutProductInput = {
+  export type FeaturedAdUncheckedUpdateWithoutProductInput = {
     id?: IntFieldUpdateOperationsInput | number
     vendorId?: StringFieldUpdateOperationsInput | string
-    productId?: NullableIntFieldUpdateOperationsInput | number | null
-    placement?: StringFieldUpdateOperationsInput | string
-    durationDays?: IntFieldUpdateOperationsInput | number
-    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    country?: StringFieldUpdateOperationsInput | string
+    slotNumber?: IntFieldUpdateOperationsInput | number
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
     amountPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
     paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
-    rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     views?: IntFieldUpdateOperationsInput | number
     clicks?: IntFieldUpdateOperationsInput | number
-    conversions?: IntFieldUpdateOperationsInput | number
     transactionId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PromotionUncheckedUpdateManyWithoutProductInput = {
+  export type FeaturedAdUncheckedUpdateManyWithoutProductInput = {
     id?: IntFieldUpdateOperationsInput | number
     vendorId?: StringFieldUpdateOperationsInput | string
-    productId?: NullableIntFieldUpdateOperationsInput | number | null
-    placement?: StringFieldUpdateOperationsInput | string
-    durationDays?: IntFieldUpdateOperationsInput | number
-    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    country?: StringFieldUpdateOperationsInput | string
+    slotNumber?: IntFieldUpdateOperationsInput | number
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
     amountPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
     paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
-    rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     views?: IntFieldUpdateOperationsInput | number
     clicks?: IntFieldUpdateOperationsInput | number
-    conversions?: IntFieldUpdateOperationsInput | number
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SponsoredAdUpdateWithoutProductInput = {
+    country?: StringFieldUpdateOperationsInput | string
+    budget?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    remainingBudget?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    costPerClick?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    views?: IntFieldUpdateOperationsInput | number
+    clicks?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    vendor?: UserUpdateOneRequiredWithoutSponsoredAdsNestedInput
+    transaction?: TransactionUpdateOneWithoutSponsoredAdNestedInput
+  }
+
+  export type SponsoredAdUncheckedUpdateWithoutProductInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    vendorId?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    budget?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    remainingBudget?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    costPerClick?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    views?: IntFieldUpdateOperationsInput | number
+    clicks?: IntFieldUpdateOperationsInput | number
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SponsoredAdUncheckedUpdateManyWithoutProductInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    vendorId?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    budget?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    remainingBudget?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    costPerClick?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    views?: IntFieldUpdateOperationsInput | number
+    clicks?: IntFieldUpdateOperationsInput | number
     transactionId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

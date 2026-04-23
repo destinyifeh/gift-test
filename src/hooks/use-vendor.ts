@@ -84,11 +84,11 @@ export function useInfiniteVendorProducts(options: {
   });
 }
 
-export function useVendorProduct(productId: string | number) {
+export function useVendorProduct(productId: string | number, recordView = false) {
   return useQuery({
-    queryKey: ['vendor-product', productId],
+    queryKey: ['vendor-product', productId, recordView],
     queryFn: async () => {
-      const res = await api.get(`/vendor/products/${productId}`);
+      const res = await api.get(`/vendor/products/${productId}${recordView ? '?recordView=true' : ''}`);
       return mapProduct(res.data.data || res.data);
     },
     enabled: !!productId,
@@ -98,11 +98,12 @@ export function useVendorProduct(productId: string | number) {
 export function useVendorProductBySlugs(
   vendorSlug: string,
   productSlug: string,
+  recordView = false,
 ) {
   return useQuery({
-    queryKey: ['vendor-product', vendorSlug, productSlug],
+    queryKey: ['vendor-product', vendorSlug, productSlug, recordView],
     queryFn: async () => {
-      const res = await api.get(`/vendor/shop/${vendorSlug}/${productSlug}`);
+      const res = await api.get(`/vendor/shop/${vendorSlug}/${productSlug}${recordView ? '?recordView=true' : ''}`);
       return mapProduct(res.data.data || res.data);
     },
     enabled: !!vendorSlug && !!productSlug,
@@ -197,6 +198,30 @@ export function useDeleteProductImage() {
   return useMutation({
     mutationFn: async (url: string) => {
       const res = await api.post('/files/delete', { url });
+      return res.data;
+    },
+  });
+}
+
+/**
+ * Mutation to record product click
+ */
+export function useRecordClick() {
+  return useMutation({
+    mutationFn: async (productId: number | string) => {
+      const res = await api.post(`/vendor/products/${productId}/click`);
+      return res.data;
+    },
+  });
+}
+
+/**
+ * Mutation to record product view
+ */
+export function useRecordView() {
+  return useMutation({
+    mutationFn: async (productId: number | string) => {
+      const res = await api.post(`/vendor/products/${productId}/view`);
       return res.data;
     },
   });

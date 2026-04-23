@@ -7,7 +7,11 @@ import {
   ResponsiveModalTitle,
 } from '@/components/ui/responsive-modal';
 import {useProfile} from '@/hooks/use-profile';
-import {useVendorPromotions} from '@/hooks/use-promotions';
+import {
+  useVendorPromotions,
+  useVendorFeaturedAds,
+  useVendorSponsoredAds,
+} from '@/hooks/use-promotions';
 import {
   useManageVendorProduct,
   useDeleteVendorProduct,
@@ -53,13 +57,16 @@ const MAX_IMAGES = 3;
 interface V2VendorInventoryTabProps {
   searchQuery?: string;
   onBoostProduct?: (productId: number) => void;
+  onViewPromotion?: (productId: number) => void;
 }
 
-export function V2VendorInventoryTab({searchQuery = '', onBoostProduct}: V2VendorInventoryTabProps) {
+export function V2VendorInventoryTab({searchQuery = '', onBoostProduct, onViewPromotion}: V2VendorInventoryTabProps) {
   const {data: profile} = useProfile();
   const queryClient = useQueryClient();
   const {data: products = [], isLoading} = useVendorProducts(profile?.id, true);
-  const {data: promotions = []} = useVendorPromotions();
+  const {data: legacyPromotions = []} = useVendorPromotions();
+  const {data: featuredAds = []} = useVendorFeaturedAds();
+  const {data: sponsoredAds = []} = useVendorSponsoredAds();
 
   const manageProduct = useManageVendorProduct();
   const deleteProduct = useDeleteVendorProduct();
@@ -68,9 +75,25 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct}: V2Vendo
 
   // Get product promotion status map
   const productPromotionStatus = new Map<number, 'pending_approval' | 'active'>();
-  promotions.forEach((p: any) => {
+  
+  // Legacy support
+  legacyPromotions.forEach((p: any) => {
     if (p.status === 'pending_approval' || p.status === 'active') {
-      productPromotionStatus.set(p.product_id, p.status);
+      productPromotionStatus.set(p.vendor_gift_id, p.status);
+    }
+  });
+
+  // New Featured Ads support
+  featuredAds.forEach((ad: any) => {
+    if (ad.status === 'active' || ad.status === 'scheduled') {
+      productPromotionStatus.set(ad.vendorGiftId, 'active');
+    }
+  });
+
+  // New Sponsored Ads support
+  sponsoredAds.forEach((ad: any) => {
+    if (ad.status === 'active') {
+      productPromotionStatus.set(ad.vendorGiftId, 'active');
     }
   });
 
@@ -563,10 +586,12 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct}: V2Vendo
                               </span>
                             )}
                             {productPromotionStatus.get(product.id) === 'active' && (
-                              <span className="px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 text-xs font-bold flex items-center gap-1">
+                              <button
+                                onClick={() => onViewPromotion?.(product.id)}
+                                className="px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 text-xs font-bold flex items-center gap-1 hover:bg-emerald-200 transition-colors">
                                 <span className="v2-icon text-sm">campaign</span>
-                                Boosted
-                              </span>
+                                View Promotion
+                              </button>
                             )}
                             <button
                               onClick={() => handleOpenModal(product)}
@@ -673,10 +698,12 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct}: V2Vendo
                       </div>
                     )}
                     {productPromotionStatus.get(product.id) === 'active' && (
-                      <div className="w-full mb-3 py-2.5 rounded-xl bg-emerald-100 text-emerald-700 font-bold text-sm flex items-center justify-center gap-2">
+                      <button
+                        onClick={() => onViewPromotion?.(product.id)}
+                        className="w-full mb-3 py-2.5 rounded-xl bg-emerald-100 text-emerald-700 font-bold text-sm flex items-center justify-center gap-2 hover:bg-emerald-200 transition-colors">
                         <span className="v2-icon text-sm">campaign</span>
-                        Promotion Active
-                      </div>
+                        View Promotion
+                      </button>
                     )}
 
                     <div className="flex items-center gap-2 pt-3 border-t border-[var(--v2-outline-variant)]/10">

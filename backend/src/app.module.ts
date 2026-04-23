@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
@@ -24,12 +25,14 @@ import { WhatsappModule } from './modules/whatsapp/whatsapp.module';
 import { ModerationModule } from './modules/moderation/moderation.module';
 import { FlexCardModule } from './modules/flex-card/flex-card.module';
 import { CountryConfigModule } from './modules/country-config/country-config.module';
+import { AdsModule } from './modules/ads/ads.module';
 
 
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ScheduleModule.forRoot(),
     PrismaModule,
     AuthModule,
     UserModule,
@@ -52,6 +55,7 @@ import { CountryConfigModule } from './modules/country-config/country-config.mod
     ModerationModule,
     FlexCardModule,
     CountryConfigModule,
+    AdsModule,
   ],
 
 

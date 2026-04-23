@@ -1,8 +1,11 @@
 'use client';
 
+import {useEffect} from 'react';
 import Link from 'next/link';
 import {formatCurrency} from '@/lib/utils/currency';
 import {cn} from '@/lib/utils';
+import { useInView } from 'react-intersection-observer';
+import { useRecordClick, useRecordView } from '@/hooks/use-vendor';
 
 // Helper to get primary image
 export function getPrimaryImage(product: any): string | null {
@@ -12,7 +15,8 @@ export function getPrimaryImage(product: any): string | null {
   return product.image_url || null;
 }
 
-function getProductHref(product: any): string {
+
+export function getProductHref(product: any): string {
   // Featured items (admin-managed internal awareness items)
   if (product.isFeaturedItem && product.redirect_url) {
     return product.redirect_url;
@@ -40,12 +44,13 @@ interface ProductCardProps {
 function SponsoredLabel({className, light}: {className?: string; light?: boolean}) {
   return (
     <span className={cn(
-      "text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded",
+      "text-[9px] font-extrabold uppercase tracking-[0.15em] px-2.5 py-1 rounded-md flex items-center gap-1.5 shadow-sm",
       light
-        ? "text-white bg-black/40 backdrop-blur-sm"
-        : "text-gray-600 bg-white/90 shadow-sm",
+        ? "text-white bg-gradient-to-r from-amber-500/80 to-orange-600/80 backdrop-blur-md border border-white/20"
+        : "text-amber-700 bg-gradient-to-r from-amber-50/95 to-orange-50/95 border border-amber-200/50",
       className
     )}>
+      <span className="v2-icon text-[10px]">stars</span>
       Sponsored
     </span>
   );
@@ -74,12 +79,25 @@ function FeaturedItemLabel({className, light, text = 'Featured'}: {className?: s
 export function HeroFeatureCard({product, isSponsored, showDots, dotsElement}: ProductCardProps & {showDots?: boolean; dotsElement?: React.ReactNode}) {
   if (!product) return null;
 
+  const { ref, inView } = useInView({ threshold: 0.5, triggerOnce: true, delay: 1500 });
+
+  const { mutate: recordView } = useRecordView();
+  const { mutate: recordClick } = useRecordClick();
+
+  useEffect(() => {
+    if (inView && product.id) {
+      recordView(product.id);
+    }
+  }, [inView, product.id, recordView]);
+
   const isFeatured = isFeaturedItemType(product);
   const ctaText = product.cta_text || 'Send as Gift';
 
   return (
     <Link
+      ref={ref}
       href={getProductHref(product)}
+      onClick={() => recordClick(product.id)}
       className="block bg-[var(--v2-surface-container-lowest)] rounded-[2rem] overflow-hidden group relative aspect-[16/9]"
     >
       {getPrimaryImage(product) ? (
@@ -132,9 +150,21 @@ export function HeroFeatureCard({product, isSponsored, showDots, dotsElement}: P
 export function SquareProductCard({product, isSponsored}: ProductCardProps) {
   if (!product) return null;
 
+  const { ref, inView } = useInView({ threshold: 0.5, triggerOnce: true, delay: 1500 });
+  const { mutate: recordView } = useRecordView();
+  const { mutate: recordClick } = useRecordClick();
+
+  useEffect(() => {
+    if (inView && product.id) {
+      recordView(product.id);
+    }
+  }, [inView, product.id, recordView]);
+
   return (
     <Link
+      ref={ref}
       href={getProductHref(product)}
+      onClick={() => recordClick(product.id)}
       className="col-span-12 md:col-span-6 lg:col-span-4 bg-[var(--v2-surface-container-low)] rounded-[2rem] p-8 flex flex-col justify-between group"
     >
       <div>
@@ -184,9 +214,21 @@ export function SquareProductCard({product, isSponsored}: ProductCardProps) {
 export function WideProductCard({product, isSponsored}: ProductCardProps) {
   if (!product) return null;
 
+  const { ref, inView } = useInView({ threshold: 0.5, triggerOnce: true, delay: 1500 });
+  const { mutate: recordView } = useRecordView();
+  const { mutate: recordClick } = useRecordClick();
+
+  useEffect(() => {
+    if (inView && product.id) {
+      recordView(product.id);
+    }
+  }, [inView, product.id, recordView]);
+
   return (
     <Link
+      ref={ref}
       href={getProductHref(product)}
+      onClick={() => recordClick(product.id)}
       className="col-span-12 md:col-span-6 lg:col-span-4 bg-[var(--v2-surface-container-high)] rounded-[2rem] p-8 flex flex-col group"
     >
       <div className="w-full h-48 rounded-2xl overflow-hidden mb-6 bg-[var(--v2-surface-container-highest)] relative">
@@ -234,12 +276,25 @@ export function WideProductCard({product, isSponsored}: ProductCardProps) {
 export function NewArrivalCard({product, isSponsored}: ProductCardProps) {
   if (!product) return null;
 
+  const { ref, inView } = useInView({ threshold: 0.5, triggerOnce: true, delay: 1500 });
+
+  const { mutate: recordView } = useRecordView();
+  const { mutate: recordClick } = useRecordClick();
+
+  useEffect(() => {
+    if (inView && product.id) {
+      recordView(product.id);
+    }
+  }, [inView, product.id, recordView]);
+
   const isFeatured = isFeaturedItemType(product);
   const showPrice = !isFeatured && product.price;
 
   return (
     <Link
+      ref={ref}
       href={getProductHref(product)}
+      onClick={() => recordProductClick(product.id)}
       className="block h-full bg-[var(--v2-surface-container-low)] rounded-[2rem] overflow-hidden relative group min-h-[400px]"
     >
       {getPrimaryImage(product) ? (
@@ -286,9 +341,22 @@ export function NewArrivalCard({product, isSponsored}: ProductCardProps) {
 export function StandardProductCard({product, isSponsored}: ProductCardProps) {
   if (!product) return null;
 
+  const { ref, inView } = useInView({ threshold: 0.5, triggerOnce: true, delay: 1500 });
+
+  const { mutate: recordView } = useRecordView();
+  const { mutate: recordClick } = useRecordClick();
+
+  useEffect(() => {
+    if (inView && product.id) {
+      recordView(product.id);
+    }
+  }, [inView, product.id, recordView]);
+
   return (
     <Link
+      ref={ref}
       href={getProductHref(product)}
+      onClick={() => recordProductClick(product.id)}
       className="col-span-12 md:col-span-6 lg:col-span-4 bg-[var(--v2-surface-container-lowest)] rounded-[2rem] p-8 border border-[var(--v2-outline-variant)]/10 shadow-sm flex flex-col group hover:shadow-lg transition-shadow"
     >
       <div className="w-full aspect-square rounded-2xl overflow-hidden mb-6 bg-[var(--v2-surface-container)] relative">
@@ -343,13 +411,25 @@ export function StandardProductCard({product, isSponsored}: ProductCardProps) {
 export function MobileFeaturedCard({product, isSponsored, dotsElement}: ProductCardProps & {dotsElement?: React.ReactNode}) {
   if (!product) return null;
 
+  const { ref, inView } = useInView({ threshold: 0.5, triggerOnce: true, delay: 1500 });
+  const { mutate: recordView } = useRecordView();
+  const { mutate: recordClick } = useRecordClick();
+
+  useEffect(() => {
+    if (inView && product.id) {
+      recordView(product.id);
+    }
+  }, [inView, product.id, recordView]);
+
   const isFeatured = isFeaturedItemType(product);
   const ctaText = product.cta_text || 'Send Gift';
   const showPrice = !isFeatured && product.price;
 
   return (
     <Link
+      ref={ref}
       href={getProductHref(product)}
+      onClick={() => recordClick(product.id)}
       className="col-span-2 bg-[var(--v2-surface-container-lowest)] rounded-3xl overflow-hidden shadow-sm block"
     >
       <div className="relative aspect-[16/9] w-full">
@@ -394,9 +474,21 @@ export function MobileFeaturedCard({product, isSponsored, dotsElement}: ProductC
 export function MobileProductCard({product, isSponsored}: ProductCardProps) {
   if (!product) return null;
 
+  const { ref, inView } = useInView({ threshold: 0.5, triggerOnce: true, delay: 1500 });
+  const { mutate: recordView } = useRecordView();
+  const { mutate: recordClick } = useRecordClick();
+
+  useEffect(() => {
+    if (inView && product.id) {
+      recordView(product.id);
+    }
+  }, [inView, product.id, recordView]);
+
   return (
     <Link
+      ref={ref}
       href={getProductHref(product)}
+      onClick={() => recordClick(product.id)}
       className="bg-[var(--v2-surface-container-lowest)] rounded-3xl overflow-hidden"
     >
       <div className="h-40 w-full bg-[var(--v2-surface-container-low)] relative">
@@ -432,9 +524,21 @@ export function MobileProductCard({product, isSponsored}: ProductCardProps) {
 export function MobileNewArrivalCard({product, isSponsored}: ProductCardProps) {
   if (!product) return null;
 
+  const { ref, inView } = useInView({ threshold: 0.5, triggerOnce: true, delay: 1500 });
+  const { mutate: recordView } = useRecordView();
+  const { mutate: recordClick } = useRecordClick();
+
+  useEffect(() => {
+    if (inView && product.id) {
+      recordView(product.id);
+    }
+  }, [inView, product.id, recordView]);
+
   return (
     <Link
+      ref={ref}
       href={getProductHref(product)}
+      onClick={() => recordClick(product.id)}
       className="col-span-2 flex bg-[var(--v2-surface-container-low)] rounded-3xl p-4 gap-4 items-center"
     >
       <div className="w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0 relative">
@@ -475,9 +579,21 @@ export function MobileNewArrivalCard({product, isSponsored}: ProductCardProps) {
 export function SponsoredProductCard({product}: ProductCardProps) {
   if (!product) return null;
 
+  const { ref, inView } = useInView({ threshold: 0.5, triggerOnce: true, delay: 1500 });
+  const { mutate: recordView } = useRecordView();
+  const { mutate: recordClick } = useRecordClick();
+
+  useEffect(() => {
+    if (inView && product.id) {
+      recordView(product.id);
+    }
+  }, [inView, product.id, recordView]);
+
   return (
     <Link
+      ref={ref}
       href={getProductHref(product)}
+      onClick={() => recordClick(product.id)}
       className="bg-gradient-to-br from-[var(--v2-surface-container-lowest)] to-[var(--v2-surface-container-low)] rounded-2xl overflow-hidden border border-amber-200/30 shadow-sm hover:shadow-md transition-all group flex-shrink-0 w-[200px]"
     >
       <div className="h-32 w-full bg-[var(--v2-surface-container)] relative">
@@ -518,9 +634,21 @@ export function SponsoredProductCard({product}: ProductCardProps) {
 export function MobileSponsoredProductCard({product}: ProductCardProps) {
   if (!product) return null;
 
+  const { ref, inView } = useInView({ threshold: 0.5, triggerOnce: true, delay: 1500 });
+  const { mutate: recordView } = useRecordView();
+  const { mutate: recordClick } = useRecordClick();
+
+  useEffect(() => {
+    if (inView && product.id) {
+      recordView(product.id);
+    }
+  }, [inView, product.id, recordView]);
+
   return (
     <Link
+      ref={ref}
       href={getProductHref(product)}
+      onClick={() => recordClick(product.id)}
       className="bg-gradient-to-br from-[var(--v2-surface-container-lowest)] to-[var(--v2-surface-container-low)] rounded-2xl overflow-hidden border border-amber-200/30 shadow-sm flex-shrink-0 w-[160px]"
     >
       <div className="h-28 w-full bg-[var(--v2-surface-container)] relative">

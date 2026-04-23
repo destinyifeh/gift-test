@@ -321,7 +321,7 @@ export function V2AdminFeaturedTab({searchQuery = '', addLog}: V2AdminFeaturedTa
                 </div>
 
                 <div className="grid gap-4">
-                  {items.map(item => (
+                  {items.map((item: any) => (
                     <div
                       key={item.id}
                       className="bg-[var(--v2-surface-container-lowest)] rounded-2xl p-4 md:p-6">

@@ -288,23 +288,40 @@ exports.Prisma.DirectGiftScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.PromotionScalarFieldEnum = {
+exports.Prisma.FeaturedAdScalarFieldEnum = {
   id: 'id',
   vendorId: 'vendorId',
-  productId: 'productId',
   vendorGiftId: 'vendorGiftId',
-  placement: 'placement',
-  durationDays: 'durationDays',
+  country: 'country',
+  slotNumber: 'slotNumber',
   startDate: 'startDate',
   endDate: 'endDate',
   status: 'status',
   amountPaid: 'amountPaid',
   currency: 'currency',
   paymentReference: 'paymentReference',
-  rejectionReason: 'rejectionReason',
   views: 'views',
   clicks: 'clicks',
-  conversions: 'conversions',
+  transactionId: 'transactionId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SponsoredAdScalarFieldEnum = {
+  id: 'id',
+  vendorId: 'vendorId',
+  vendorGiftId: 'vendorGiftId',
+  country: 'country',
+  budget: 'budget',
+  remainingBudget: 'remainingBudget',
+  costPerClick: 'costPerClick',
+  currency: 'currency',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  status: 'status',
+  paymentReference: 'paymentReference',
+  views: 'views',
+  clicks: 'clicks',
   transactionId: 'transactionId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -504,6 +521,7 @@ exports.Prisma.CountryConfigScalarFieldEnum = {
   minWithdrawal: 'minWithdrawal',
   maxWithdrawal: 'maxWithdrawal',
   features: 'features',
+  adConfig: 'adConfig',
   isEnabled: 'isEnabled',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -524,6 +542,11 @@ exports.Prisma.VendorGiftScalarFieldEnum = {
   stockQuantity: 'stockQuantity',
   unitsSold: 'unitsSold',
   images: 'images',
+  viewsCount: 'viewsCount',
+  clicksCount: 'clicksCount',
+  salesCount: 'salesCount',
+  rankingScore: 'rankingScore',
+  lastEngagementAt: 'lastEngagementAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -604,7 +627,8 @@ exports.Prisma.ModelName = {
   CampaignWithdrawal: 'CampaignWithdrawal',
   Contribution: 'Contribution',
   DirectGift: 'DirectGift',
-  Promotion: 'Promotion',
+  FeaturedAd: 'FeaturedAd',
+  SponsoredAd: 'SponsoredAd',
   ExternalPromotion: 'ExternalPromotion',
   FeaturedItem: 'FeaturedItem',
   Transaction: 'Transaction',

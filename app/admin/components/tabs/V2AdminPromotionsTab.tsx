@@ -9,263 +9,207 @@ import {
 import {useProfile} from '@/hooks/use-profile';
 import {getCurrencyByCountry} from '@/lib/currencies';
 import {formatCurrency} from '@/lib/utils/currency';
-import {
-  fetchAllPromotions,
-  fetchAllExternalPromotions,
-  approvePromotion,
-  rejectPromotion,
-  createExternalPromotion,
-  updateExternalPromotion,
-  deleteExternalPromotion,
-  uploadPromotionImage,
-  type Promotion,
-  type ExternalPromotion,
-} from '@/lib/server/actions/promotions';
-import {ImageUpload} from '@/components/ui/image-upload';
-import {PROMOTION_PRICING, type PromotionPlacement} from '@/lib/utils/promotions';
-import {useQuery, useQueryClient} from '@tanstack/react-query';
-import {useState} from 'react';
+import {cn} from '@/lib/utils';
+import {useEffect, useState} from 'react';
 import {toast} from 'sonner';
+import api from '@/lib/api-client';
 
 interface V2AdminPromotionsTabProps {
   searchQuery?: string;
   addLog?: (action: string) => void;
 }
 
-type TabType = 'pending' | 'active' | 'external';
+type TabType = 'featured' | 'sponsored' | 'config';
+
+interface FeaturedAd {
+  id: number; vendorId: string; vendorGiftId: number; country: string;
+  slotNumber: number; startDate: string; endDate: string; status: string;
+  amountPaid: number; views: number; clicks: number;
+  product?: { name: string; imageUrl: string; price: number };
+  vendor?: { shopName: string; displayName: string };
+}
+
+interface SponsoredAd {
+  id: number; vendorId: string; vendorGiftId: number; country: string;
+  budget: number; remainingBudget: number; costPerClick: number; status: string;
+  views: number; clicks: number;
+  product?: { name: string; imageUrl: string; price: number };
+  vendor?: { shopName: string; displayName: string };
+}
+
+interface CountryAdConfig {
+  countryCode: string;
+  countryName: string;
+  currency: string;
+  flag: string;
+  config: {
+    featured: { pricePerDay: number; maxSlots: number };
+    sponsored: { minBudget: number; costPerClick: number };
+  };
+}
 
 export function V2AdminPromotionsTab({searchQuery = '', addLog}: V2AdminPromotionsTabProps) {
-  const queryClient = useQueryClient();
   const {data: profile} = useProfile();
   const currency = getCurrencyByCountry(profile?.country || 'Nigeria');
 
-  const [activeTab, setActiveTab] = useState<TabType>('pending');
+  const [activeTab, setActiveTab] = useState<TabType>('featured');
+  const [featuredAds, setFeaturedAds] = useState<FeaturedAd[]>([]);
+  const [sponsoredAds, setSponsoredAds] = useState<SponsoredAd[]>([]);
+  const [allConfigs, setAllConfigs] = useState<CountryAdConfig[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState<number | null>(null);
-  const [rejectModal, setRejectModal] = useState<{open: boolean; promotionId: number | null}>({
-    open: false,
-    promotionId: null,
-  });
-  const [rejectReason, setRejectReason] = useState('');
-  const [externalModal, setExternalModal] = useState<{
-    open: boolean;
-    mode: 'create' | 'edit';
-    data: ExternalPromotion | null;
-  }>({open: false, mode: 'create', data: null});
 
-  // External promotion form state
-  const [externalForm, setExternalForm] = useState({
-    title: '',
-    description: '',
-    image_url: '',
-    price: '',
-    redirect_url: '',
-    placement: 'featured' as PromotionPlacement,
+  // Filters
+  const [countryFilter, setCountryFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+
+  // Config editing
+  const [editingCountry, setEditingCountry] = useState<string | null>(null);
+  const [configForm, setConfigForm] = useState({
+    featuredPricePerDay: 0, maxSlots: 5, minBudget: 2000, costPerClick: 50,
+  });
+  const [configSaving, setConfigSaving] = useState(false);
+
+  // Assign slot modal
+  const [assignModal, setAssignModal] = useState<{open: boolean}>({open: false});
+  const [assignForm, setAssignForm] = useState({
+    productId: '', slotNumber: '', durationDays: '7', countryCode: 'NG',
   });
 
-  // Fetch vendor promotions
-  const {data: vendorPromotions = [], isLoading: loadingVendor} = useQuery({
-    queryKey: ['admin-promotions'],
-    queryFn: async () => {
-      const result = await fetchAllPromotions();
-      if (!result.success) throw new Error(result.error);
-      return result.data || [];
-    },
-  });
+  useEffect(() => { loadData(); }, []);
 
-  // Fetch external promotions
-  const {data: externalPromotions = [], isLoading: loadingExternal} = useQuery({
-    queryKey: ['admin-external-promotions'],
-    queryFn: async () => {
-      const result = await fetchAllExternalPromotions();
-      if (!result.success) throw new Error(result.error);
-      return result.data || [];
-    },
-  });
+  const loadData = async () => {
+    setIsLoading(true);
+    try {
+      const [featuredRes, sponsoredRes, configsRes] = await Promise.all([
+        api.get('/ads/admin/featured'),
+        api.get('/ads/admin/sponsored'),
+        api.get('/ads/admin/configs'),
+      ]);
+      setFeaturedAds(featuredRes.data?.data || featuredRes.data || []);
+      setSponsoredAds(sponsoredRes.data?.data || sponsoredRes.data || []);
+      setAllConfigs(configsRes.data?.data || configsRes.data || []);
+    } catch {
+      toast.error('Failed to load ads data');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  const pendingPromotions = vendorPromotions.filter((p: Promotion) => p.status === 'pending_approval');
-  const activePromotions = vendorPromotions.filter((p: Promotion) =>
-    p.status === 'active' || p.status === 'paused'
-  );
+  const loadFilteredAds = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (countryFilter !== 'all') params.set('country', countryFilter);
+      if (statusFilter !== 'all') params.set('status', statusFilter);
+      const qs = params.toString() ? `?${params.toString()}` : '';
+
+      const [featuredRes, sponsoredRes] = await Promise.all([
+        api.get(`/ads/admin/featured${qs}`),
+        api.get(`/ads/admin/sponsored${qs}`),
+      ]);
+      setFeaturedAds(featuredRes.data?.data || featuredRes.data || []);
+      setSponsoredAds(sponsoredRes.data?.data || sponsoredRes.data || []);
+    } catch {
+      toast.error('Failed to filter ads');
+    }
+  };
+
+  // Re-fetch when filters change
+  useEffect(() => { loadFilteredAds(); }, [countryFilter, statusFilter]);
+
+  const handleSaveCountryConfig = async (countryCode: string) => {
+    setConfigSaving(true);
+    try {
+      await api.patch('/ads/admin/config', {
+        countryCode,
+        featured: { pricePerDay: configForm.featuredPricePerDay, maxSlots: configForm.maxSlots },
+        sponsored: { minBudget: configForm.minBudget, costPerClick: configForm.costPerClick },
+      });
+      toast.success(`Ad config saved for ${countryCode}!`);
+      addLog?.(`Updated ad config for ${countryCode}`);
+      setEditingCountry(null);
+      loadData(); // Refresh configs
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to save');
+    } finally {
+      setConfigSaving(false);
+    }
+  };
+
+  const openConfigEditor = (cfg: CountryAdConfig) => {
+    setConfigForm({
+      featuredPricePerDay: cfg.config.featured.pricePerDay,
+      maxSlots: cfg.config.featured.maxSlots,
+      minBudget: cfg.config.sponsored.minBudget,
+      costPerClick: cfg.config.sponsored.costPerClick,
+    });
+    setEditingCountry(cfg.countryCode);
+  };
+
+  const handleAssignSlot = async () => {
+    if (!assignForm.productId || !assignForm.slotNumber) {
+      toast.error('Product ID and slot number are required'); return;
+    }
+    setIsProcessing(-1);
+    try {
+      await api.post('/ads/admin/featured/assign', {
+        productId: Number(assignForm.productId),
+        slotNumber: Number(assignForm.slotNumber),
+        durationDays: Number(assignForm.durationDays),
+        countryCode: assignForm.countryCode,
+      });
+      toast.success('Slot assigned!');
+      addLog?.(`Assigned slot ${assignForm.slotNumber} [${assignForm.countryCode}]`);
+      setAssignModal({open: false});
+      setAssignForm({productId: '', slotNumber: '', durationDays: '7', countryCode: 'NG'});
+      loadData();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to assign slot');
+    } finally {
+      setIsProcessing(null);
+    }
+  };
+
+  const handleToggleAd = async (type: 'featured' | 'sponsored', adId: number, currentStatus: string) => {
+    const action = currentStatus === 'active' ? 'pause' : 'resume';
+    setIsProcessing(adId);
+    try {
+      await api.patch(`/ads/admin/${type}/${adId}/${action}`);
+      toast.success(`Ad ${action}d`);
+      addLog?.(`${action === 'pause' ? 'Paused' : 'Resumed'} ${type} ad #${adId}`);
+      loadFilteredAds();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || `Failed to ${action} ad`);
+    } finally {
+      setIsProcessing(null);
+    }
+  };
 
   // Filter based on search
-  const filterItems = <T extends {title?: string; vendor_gifts?: {name: string}}>(items: T[]) => {
+  const filterAds = <T extends {product?: {name: string}; vendor?: {shopName: string}}>(items: T[]) => {
     if (!searchQuery) return items;
     const q = searchQuery.toLowerCase();
-    return items.filter((item: any) =>
-      item.title?.toLowerCase().includes(q) ||
-      item.vendor_gifts?.name?.toLowerCase().includes(q) ||
-      item.profiles?.shop_name?.toLowerCase().includes(q)
+    return items.filter(item =>
+      item.product?.name?.toLowerCase().includes(q) ||
+      item.vendor?.shopName?.toLowerCase().includes(q)
     );
   };
 
-  const handleApprove = async (promotionId: number) => {
-    setIsProcessing(promotionId);
-    try {
-      const result = await approvePromotion(promotionId);
-      if (result.success) {
-        toast.success('Promotion approved!');
-        addLog?.(`Approved promotion #${promotionId}`);
-        queryClient.invalidateQueries({queryKey: ['admin-promotions']});
-      } else {
-        toast.error(result.error || 'Failed to approve');
-      }
-    } catch {
-      toast.error('Failed to approve promotion');
-    } finally {
-      setIsProcessing(null);
-    }
-  };
+  const filteredFeatured = filterAds(featuredAds);
+  const filteredSponsored = filterAds(sponsoredAds);
 
-  const handleReject = async () => {
-    if (!rejectModal.promotionId || !rejectReason.trim()) {
-      toast.error('Please provide a rejection reason');
-      return;
-    }
+  // Unique countries from ads for filter dropdown
+  const adCountries = [...new Set([
+    ...featuredAds.map(a => a.country),
+    ...sponsoredAds.map(a => a.country),
+    ...allConfigs.map(c => c.countryCode),
+  ])].sort();
 
-    setIsProcessing(rejectModal.promotionId);
-    try {
-      const result = await rejectPromotion(rejectModal.promotionId, rejectReason);
-      if (result.success) {
-        toast.success('Promotion rejected');
-        addLog?.(`Rejected promotion #${rejectModal.promotionId}: ${rejectReason}`);
-        queryClient.invalidateQueries({queryKey: ['admin-promotions']});
-        setRejectModal({open: false, promotionId: null});
-        setRejectReason('');
-      } else {
-        toast.error(result.error || 'Failed to reject');
-      }
-    } catch {
-      toast.error('Failed to reject promotion');
-    } finally {
-      setIsProcessing(null);
-    }
-  };
-
-  const handleCreateExternal = async () => {
-    if (!externalForm.title || !externalForm.redirect_url) {
-      toast.error('Title and redirect URL are required');
-      return;
-    }
-
-    setIsProcessing(-1);
-    try {
-      const result = await createExternalPromotion({
-        title: externalForm.title,
-        description: externalForm.description || undefined,
-        image_url: externalForm.image_url || undefined,
-        price: externalForm.price ? parseFloat(externalForm.price) : undefined,
-        redirect_url: externalForm.redirect_url,
-        placement: externalForm.placement,
-      });
-
-      if (result.success) {
-        toast.success('External promotion created!');
-        addLog?.(`Created external promotion: ${externalForm.title}`);
-        queryClient.invalidateQueries({queryKey: ['admin-external-promotions']});
-        setExternalModal({open: false, mode: 'create', data: null});
-        resetExternalForm();
-      } else {
-        toast.error(result.error || 'Failed to create');
-      }
-    } catch {
-      toast.error('Failed to create external promotion');
-    } finally {
-      setIsProcessing(null);
-    }
-  };
-
-  const handleUpdateExternal = async () => {
-    if (!externalModal.data?.id) return;
-
-    setIsProcessing(externalModal.data.id);
-    try {
-      const result = await updateExternalPromotion(externalModal.data.id, {
-        title: externalForm.title,
-        description: externalForm.description || undefined,
-        image_url: externalForm.image_url || undefined,
-        price: externalForm.price ? parseFloat(externalForm.price) : undefined,
-        redirect_url: externalForm.redirect_url,
-        placement: externalForm.placement,
-      });
-
-      if (result.success) {
-        toast.success('Promotion updated!');
-        addLog?.(`Updated external promotion #${externalModal.data.id}`);
-        queryClient.invalidateQueries({queryKey: ['admin-external-promotions']});
-        setExternalModal({open: false, mode: 'create', data: null});
-        resetExternalForm();
-      } else {
-        toast.error(result.error || 'Failed to update');
-      }
-    } catch {
-      toast.error('Failed to update promotion');
-    } finally {
-      setIsProcessing(null);
-    }
-  };
-
-  const handleDeleteExternal = async (promotionId: number) => {
-    if (!confirm('Are you sure you want to delete this promotion?')) return;
-
-    setIsProcessing(promotionId);
-    try {
-      const result = await deleteExternalPromotion(promotionId);
-      if (result.success) {
-        toast.success('Promotion deleted');
-        addLog?.(`Deleted external promotion #${promotionId}`);
-        queryClient.invalidateQueries({queryKey: ['admin-external-promotions']});
-      } else {
-        toast.error(result.error || 'Failed to delete');
-      }
-    } catch {
-      toast.error('Failed to delete promotion');
-    } finally {
-      setIsProcessing(null);
-    }
-  };
-
-  const handleToggleExternalStatus = async (promotion: ExternalPromotion) => {
-    const newStatus = promotion.status === 'active' ? 'paused' : 'active';
-    setIsProcessing(promotion.id);
-    try {
-      const result = await updateExternalPromotion(promotion.id, {status: newStatus});
-      if (result.success) {
-        toast.success(`Promotion ${newStatus === 'active' ? 'activated' : 'paused'}`);
-        queryClient.invalidateQueries({queryKey: ['admin-external-promotions']});
-      } else {
-        toast.error(result.error || 'Failed to update');
-      }
-    } catch {
-      toast.error('Failed to update promotion');
-    } finally {
-      setIsProcessing(null);
-    }
-  };
-
-  const resetExternalForm = () => {
-    setExternalForm({
-      title: '',
-      description: '',
-      image_url: '',
-      price: '',
-      redirect_url: '',
-      placement: 'featured',
-    });
-  };
-
-  const openEditModal = (promotion: ExternalPromotion) => {
-    setExternalForm({
-      title: promotion.title,
-      description: promotion.description || '',
-      image_url: promotion.image_url || '',
-      price: promotion.price?.toString() || '',
-      redirect_url: promotion.redirect_url,
-      placement: promotion.placement,
-    });
-    setExternalModal({open: true, mode: 'edit', data: promotion});
-  };
-
-  const isLoading = loadingVendor || loadingExternal;
+  // Summary stats
+  const activeFeatured = featuredAds.filter(a => a.status === 'active').length;
+  const activeSponsored = sponsoredAds.filter(a => a.status === 'active').length;
+  const totalRevenue = featuredAds.reduce((s, a) => s + a.amountPaid, 0) +
+    sponsoredAds.reduce((s, a) => s + a.budget, 0);
 
   return (
     <div className="space-y-6">
@@ -273,105 +217,108 @@ export function V2AdminPromotionsTab({searchQuery = '', addLog}: V2AdminPromotio
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl md:text-3xl font-extrabold v2-headline text-[var(--v2-on-surface)]">
-            Promotions
+            Ads & Promotions
           </h2>
           <p className="text-sm text-[var(--v2-on-surface-variant)] mt-1">
-            Manage vendor promotions and external advertisements
+            Manage featured slots, sponsored ads, and per-country pricing
           </p>
         </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => {
-              setExternalForm({
-                title: 'Gifthance Flex Card',
-                description: 'A reloadable gift card that can be used at any Gifthance vendor. Send any amount and let them choose!',
-                image_url: '',
-                price: '',
-                redirect_url: '/send-gift?type=flex',
-                placement: 'featured',
-              });
-              setExternalModal({open: true, mode: 'create', data: null});
-            }}
-            className="h-12 px-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold rounded-xl flex items-center gap-2 shadow-lg hover:from-orange-600 hover:to-amber-600 transition-colors">
-            <span className="v2-icon">credit_card</span>
-            Add Flex Card
-          </button>
-          <button
-            onClick={() => {
-              resetExternalForm();
-              setExternalModal({open: true, mode: 'create', data: null});
-            }}
-            className="h-12 px-6 v2-hero-gradient text-white font-bold rounded-xl flex items-center gap-2 shadow-lg">
-            <span className="v2-icon">add</span>
-            Add External
-          </button>
-        </div>
+        <button
+          onClick={() => {
+            setAssignForm(f => ({...f, countryCode: allConfigs[0]?.countryCode || 'NG'}));
+            setAssignModal({open: true});
+          }}
+          className="h-12 px-6 v2-hero-gradient text-white font-bold rounded-xl flex items-center gap-2 shadow-lg">
+          <span className="v2-icon">add</span>
+          Assign Featured Slot
+        </button>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-[var(--v2-surface-container-lowest)] p-4 rounded-2xl">
           <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center mb-3">
-            <span className="v2-icon text-amber-600">pending</span>
+            <span className="v2-icon text-amber-600">star</span>
           </div>
-          <p className="text-2xl font-extrabold text-[var(--v2-on-surface)]">{pendingPromotions.length}</p>
-          <p className="text-xs text-[var(--v2-on-surface-variant)]">Pending Approval</p>
-        </div>
-        <div className="bg-[var(--v2-surface-container-lowest)] p-4 rounded-2xl">
-          <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center mb-3">
-            <span className="v2-icon text-emerald-600">check_circle</span>
-          </div>
-          <p className="text-2xl font-extrabold text-[var(--v2-on-surface)]">{activePromotions.length}</p>
-          <p className="text-xs text-[var(--v2-on-surface-variant)]">Active Vendor Promos</p>
+          <p className="text-2xl font-extrabold text-[var(--v2-on-surface)]">{activeFeatured}</p>
+          <p className="text-xs text-[var(--v2-on-surface-variant)]">Active Featured</p>
         </div>
         <div className="bg-[var(--v2-surface-container-lowest)] p-4 rounded-2xl">
           <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center mb-3">
             <span className="v2-icon text-purple-600">campaign</span>
           </div>
+          <p className="text-2xl font-extrabold text-[var(--v2-on-surface)]">{activeSponsored}</p>
+          <p className="text-xs text-[var(--v2-on-surface-variant)]">Active Sponsored</p>
+        </div>
+        <div className="bg-[var(--v2-surface-container-lowest)] p-4 rounded-2xl">
+          <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center mb-3">
+            <span className="v2-icon text-emerald-600">payments</span>
+          </div>
           <p className="text-2xl font-extrabold text-[var(--v2-on-surface)]">
-            {externalPromotions.filter((p: ExternalPromotion) => p.status === 'active').length}
+            {formatCurrency(totalRevenue, currency)}
           </p>
-          <p className="text-xs text-[var(--v2-on-surface-variant)]">External Promotions</p>
+          <p className="text-xs text-[var(--v2-on-surface-variant)]">Total Revenue</p>
         </div>
         <div className="bg-[var(--v2-surface-container-lowest)] p-4 rounded-2xl">
           <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center mb-3">
-            <span className="v2-icon text-blue-600">payments</span>
+            <span className="v2-icon text-blue-600">public</span>
           </div>
-          <p className="text-2xl font-extrabold text-[var(--v2-on-surface)]">
-            {formatCurrency(
-              vendorPromotions.reduce((sum: number, p: Promotion) => sum + (p.amount_paid || 0), 0),
-              currency
-            )}
-          </p>
-          <p className="text-xs text-[var(--v2-on-surface-variant)]">Revenue</p>
+          <p className="text-2xl font-extrabold text-[var(--v2-on-surface)]">{allConfigs.length}</p>
+          <p className="text-xs text-[var(--v2-on-surface-variant)]">Countries</p>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-2 border-b border-[var(--v2-outline-variant)]/10 pb-2">
-        {[
-          {id: 'pending', label: 'Pending Approval', count: pendingPromotions.length},
-          {id: 'active', label: 'Active Vendor', count: activePromotions.length},
-          {id: 'external', label: 'External', count: externalPromotions.length},
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as TabType)}
-            className={`px-4 py-2 rounded-lg font-bold text-sm transition-colors ${
-              activeTab === tab.id
-                ? 'bg-[var(--v2-primary)] text-white'
-                : 'text-[var(--v2-on-surface-variant)] hover:bg-[var(--v2-surface-container-high)]'
-            }`}>
-            {tab.label}
-            <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
-              activeTab === tab.id
-                ? 'bg-white/20'
-                : 'bg-[var(--v2-surface-container-high)]'
-            }`}>
-              {tab.count}
-            </span>
-          </button>
-        ))}
+      {/* Tabs + Filters Row */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {([
+            {id: 'featured' as TabType, label: 'Featured Ads', count: featuredAds.length},
+            {id: 'sponsored' as TabType, label: 'Sponsored Ads', count: sponsoredAds.length},
+            {id: 'config' as TabType, label: 'Configuration', count: allConfigs.length},
+          ]).map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                'px-4 py-2 rounded-lg font-bold text-sm transition-colors whitespace-nowrap',
+                activeTab === tab.id
+                  ? 'bg-[var(--v2-primary)] text-white'
+                  : 'text-[var(--v2-on-surface-variant)] hover:bg-[var(--v2-surface-container-high)]',
+              )}>
+              {tab.label}
+              <span className={cn(
+                'ml-2 px-2 py-0.5 rounded-full text-xs',
+                activeTab === tab.id ? 'bg-white/20' : 'bg-[var(--v2-surface-container-high)]',
+              )}>{tab.count}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Country + Status Filters (shown for ads tabs, not config) */}
+        {(activeTab === 'featured' || activeTab === 'sponsored') && (
+          <div className="flex gap-2">
+            <select
+              value={countryFilter}
+              onChange={e => setCountryFilter(e.target.value)}
+              className="h-10 px-3 bg-[var(--v2-surface-container-low)] rounded-xl text-sm font-medium text-[var(--v2-on-surface)]">
+              <option value="all">All Countries</option>
+              {adCountries.map(c => {
+                const cfg = allConfigs.find(x => x.countryCode === c);
+                return <option key={c} value={c}>{cfg?.flag || '🌍'} {cfg?.countryName || c}</option>;
+              })}
+            </select>
+            <select
+              value={statusFilter}
+              onChange={e => setStatusFilter(e.target.value)}
+              className="h-10 px-3 bg-[var(--v2-surface-container-low)] rounded-xl text-sm font-medium text-[var(--v2-on-surface)]">
+              <option value="all">All Statuses</option>
+              <option value="active">Active</option>
+              <option value="paused">Paused</option>
+              <option value="expired">Expired</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+        )}
       </div>
 
       {/* Content */}
@@ -380,437 +327,329 @@ export function V2AdminPromotionsTab({searchQuery = '', addLog}: V2AdminPromotio
           <span className="v2-icon text-4xl text-[var(--v2-primary)] animate-spin">progress_activity</span>
         </div>
       ) : (
-        <div className="space-y-4">
-          {/* Pending Vendor Promotions */}
-          {activeTab === 'pending' && (
-            filterItems(pendingPromotions).length === 0 ? (
+        <>
+          {/* ──── Featured Ads Tab ──── */}
+          {activeTab === 'featured' && (
+            filteredFeatured.length === 0 ? (
               <div className="text-center py-12 bg-[var(--v2-surface-container-lowest)] rounded-2xl">
-                <span className="v2-icon text-4xl text-[var(--v2-on-surface-variant)]/30">inbox</span>
-                <p className="text-[var(--v2-on-surface-variant)] mt-2">No pending promotions</p>
+                <span className="v2-icon text-4xl text-[var(--v2-on-surface-variant)]/30">star</span>
+                <p className="text-[var(--v2-on-surface-variant)] mt-2">No featured ads</p>
               </div>
             ) : (
-              filterItems(pendingPromotions).map((promo: Promotion) => (
-                <div
-                  key={promo.id}
-                  className="bg-[var(--v2-surface-container-lowest)] rounded-2xl p-4 md:p-6">
-                  <div className="flex flex-col md:flex-row gap-4">
-                    {/* Product Image */}
-                    <div className="w-full md:w-24 h-32 md:h-24 rounded-xl bg-[var(--v2-surface-container-high)] overflow-hidden shrink-0">
-                      {promo.vendor_gifts?.image_url ? (
-                        <img
-                          src={promo.vendor_gifts.image_url}
-                          alt=""
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <span className="v2-icon text-2xl text-[var(--v2-on-surface-variant)]/30">image</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Details */}
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <h3 className="font-bold text-[var(--v2-on-surface)] capitalize">
-                            {promo.vendor_gifts?.name || 'Unknown Product'}
-                          </h3>
-                          <p className="text-sm text-[var(--v2-on-surface-variant)]">
-                            by {promo.profiles?.shop_name || promo.profiles?.displayName || 'Unknown Vendor'}
-                          </p>
-                        </div>
-                        <span className="px-3 py-1 rounded-full text-xs font-bold uppercase bg-amber-100 text-amber-700">
-                          Pending
-                        </span>
-                      </div>
-
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm mb-4">
-                        <div>
-                          <p className="text-[var(--v2-on-surface-variant)]">Placement</p>
-                          <p className="font-bold capitalize">{promo.placement?.replace('_', ' ')}</p>
-                        </div>
-                        <div>
-                          <p className="text-[var(--v2-on-surface-variant)]">Duration</p>
-                          <p className="font-bold">{promo.duration_days} days</p>
-                        </div>
-                        <div>
-                          <p className="text-[var(--v2-on-surface-variant)]">Amount Paid</p>
-                          <p className="font-bold text-[var(--v2-primary)]">
-                            {formatCurrency(promo.amount_paid, currency)}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-[var(--v2-on-surface-variant)]">Product Price</p>
-                          <p className="font-bold">
-                            {formatCurrency(promo.vendor_gifts?.price || 0, currency)}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Actions */}
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleApprove(promo.id)}
-                          disabled={isProcessing === promo.id}
-                          className="flex-1 md:flex-none px-6 py-2 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 disabled:opacity-50 flex items-center justify-center gap-2">
-                          {isProcessing === promo.id ? (
-                            <span className="v2-icon animate-spin text-sm">progress_activity</span>
-                          ) : (
-                            <span className="v2-icon text-sm">check</span>
-                          )}
-                          Approve
-                        </button>
-                        <button
-                          onClick={() => setRejectModal({open: true, promotionId: promo.id})}
-                          disabled={isProcessing === promo.id}
-                          className="flex-1 md:flex-none px-6 py-2 bg-red-100 text-red-700 font-bold rounded-xl hover:bg-red-200 disabled:opacity-50 flex items-center justify-center gap-2">
-                          <span className="v2-icon text-sm">close</span>
-                          Reject
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))
-            )
-          )}
-
-          {/* Active Vendor Promotions */}
-          {activeTab === 'active' && (
-            filterItems(activePromotions).length === 0 ? (
-              <div className="text-center py-12 bg-[var(--v2-surface-container-lowest)] rounded-2xl">
-                <span className="v2-icon text-4xl text-[var(--v2-on-surface-variant)]/30">campaign</span>
-                <p className="text-[var(--v2-on-surface-variant)] mt-2">No active vendor promotions</p>
-              </div>
-            ) : (
-              <div className="grid gap-4">
-                {filterItems(activePromotions).map((promo: Promotion) => (
-                  <div
-                    key={promo.id}
-                    className="bg-[var(--v2-surface-container-lowest)] rounded-2xl p-4 flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-xl bg-[var(--v2-surface-container-high)] overflow-hidden shrink-0">
-                      {promo.vendor_gifts?.image_url ? (
-                        <img src={promo.vendor_gifts.image_url} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <span className="v2-icon text-[var(--v2-on-surface-variant)]/30">image</span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-[var(--v2-on-surface)] truncate capitalize">
-                        {promo.vendor_gifts?.name}
-                      </h3>
-                      <p className="text-xs text-[var(--v2-on-surface-variant)]">
-                        {promo.profiles?.shop_name} • {promo.placement?.replace('_', ' ')}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-bold text-[var(--v2-on-surface)]">{promo.views} views</p>
-                      <p className="text-xs text-[var(--v2-on-surface-variant)]">{promo.clicks} clicks</p>
-                    </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
-                      promo.status === 'active'
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : 'bg-amber-100 text-amber-700'
-                    }`}>
-                      {promo.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )
-          )}
-
-          {/* External Promotions */}
-          {activeTab === 'external' && (
-            filterItems(externalPromotions).length === 0 ? (
-              <div className="text-center py-12 bg-[var(--v2-surface-container-lowest)] rounded-2xl">
-                <span className="v2-icon text-4xl text-[var(--v2-on-surface-variant)]/30">link</span>
-                <p className="text-[var(--v2-on-surface-variant)] mt-2">No external promotions</p>
-                <button
-                  onClick={() => {
-                    resetExternalForm();
-                    setExternalModal({open: true, mode: 'create', data: null});
-                  }}
-                  className="mt-4 px-6 py-2 bg-[var(--v2-primary)] text-white font-bold rounded-xl">
-                  Create First Promotion
-                </button>
-              </div>
-            ) : (
-              <div className="grid gap-4">
-                {filterItems(externalPromotions).map((promo: ExternalPromotion) => (
-                  <div
-                    key={promo.id}
-                    className="bg-[var(--v2-surface-container-lowest)] rounded-2xl p-4 md:p-6">
-                    <div className="flex flex-col md:flex-row gap-4">
-                      {/* Image */}
-                      <div className="w-full md:w-32 h-32 rounded-xl bg-[var(--v2-surface-container-high)] overflow-hidden shrink-0">
-                        {promo.image_url ? (
-                          <img src={promo.image_url} alt="" className="w-full h-full object-cover" />
+              <div className="grid gap-3">
+                {filteredFeatured.map((ad) => {
+                  const countryInfo = allConfigs.find(c => c.countryCode === ad.country);
+                  const cur = countryInfo ? getCurrencyByCountry(countryInfo.countryName) : currency;
+                  return (
+                    <div key={ad.id} className="bg-[var(--v2-surface-container-lowest)] rounded-2xl p-4 flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-xl bg-[var(--v2-surface-container-high)] overflow-hidden shrink-0">
+                        {ad.product?.imageUrl ? (
+                          <img src={ad.product.imageUrl} alt="" className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
-                            <span className="v2-icon text-3xl text-[var(--v2-on-surface-variant)]/30">link</span>
+                            <span className="v2-icon text-[var(--v2-on-surface-variant)]/30">image</span>
                           </div>
                         )}
                       </div>
-
-                      {/* Details */}
-                      <div className="flex-1">
-                        <div className="flex items-start justify-between mb-2">
-                          <div>
-                            <h3 className="font-bold text-lg text-[var(--v2-on-surface)]">{promo.title}</h3>
-                            {promo.description && (
-                              <p className="text-sm text-[var(--v2-on-surface-variant)] line-clamp-2">
-                                {promo.description}
-                              </p>
-                            )}
-                          </div>
-                          <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
-                            promo.status === 'active'
-                              ? 'bg-emerald-100 text-emerald-700'
-                              : 'bg-gray-100 text-gray-600'
-                          }`}>
-                            {promo.status}
-                          </span>
-                        </div>
-
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm mb-4">
-                          <div>
-                            <p className="text-[var(--v2-on-surface-variant)]">Placement</p>
-                            <p className="font-bold capitalize">{promo.placement?.replace('_', ' ')}</p>
-                          </div>
-                          <div>
-                            <p className="text-[var(--v2-on-surface-variant)]">Price</p>
-                            <p className="font-bold">
-                              {promo.price ? formatCurrency(promo.price, currency) : '—'}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-[var(--v2-on-surface-variant)]">Views</p>
-                            <p className="font-bold">{promo.views}</p>
-                          </div>
-                          <div>
-                            <p className="text-[var(--v2-on-surface-variant)]">Clicks</p>
-                            <p className="font-bold">{promo.clicks}</p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2 mb-4">
-                          <span className="v2-icon text-sm text-[var(--v2-on-surface-variant)]">link</span>
-                          <a
-                            href={promo.redirect_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sm text-[var(--v2-primary)] hover:underline truncate">
-                            {promo.redirect_url}
-                          </a>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex flex-wrap gap-2">
-                          <button
-                            onClick={() => handleToggleExternalStatus(promo)}
-                            disabled={isProcessing === promo.id}
-                            className={`px-4 py-2 font-bold rounded-xl text-sm flex items-center gap-2 ${
-                              promo.status === 'active'
-                                ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
-                                : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
-                            } disabled:opacity-50`}>
-                            <span className="v2-icon text-sm">
-                              {promo.status === 'active' ? 'pause' : 'play_arrow'}
-                            </span>
-                            {promo.status === 'active' ? 'Pause' : 'Activate'}
-                          </button>
-                          <button
-                            onClick={() => openEditModal(promo)}
-                            className="px-4 py-2 bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface)] font-bold rounded-xl text-sm flex items-center gap-2 hover:bg-[var(--v2-surface-container-highest)]">
-                            <span className="v2-icon text-sm">edit</span>
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDeleteExternal(promo.id)}
-                            disabled={isProcessing === promo.id}
-                            className="px-4 py-2 bg-red-100 text-red-700 font-bold rounded-xl text-sm flex items-center gap-2 hover:bg-red-200 disabled:opacity-50">
-                            <span className="v2-icon text-sm">delete</span>
-                            Delete
-                          </button>
-                        </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-[var(--v2-on-surface)] truncate capitalize">{ad.product?.name || 'Unknown'}</h3>
+                        <p className="text-xs text-[var(--v2-on-surface-variant)]">
+                          {ad.vendor?.shopName || 'Vendor'} · Slot {ad.slotNumber} · {countryInfo?.flag} {ad.country}
+                        </p>
                       </div>
+                      <div className="text-right text-sm">
+                        <p className="font-bold">{ad.views} views · {ad.clicks} clicks</p>
+                        <p className="text-xs text-[var(--v2-on-surface-variant)]">{formatCurrency(ad.amountPaid, cur)}</p>
+                      </div>
+                      <span className={cn(
+                        'px-3 py-1 rounded-full text-xs font-bold uppercase',
+                        ad.status === 'active' ? 'bg-emerald-100 text-emerald-700'
+                          : ad.status === 'paused' ? 'bg-amber-100 text-amber-700'
+                          : 'bg-gray-100 text-gray-600',
+                      )}>{ad.status}</span>
+                      {(ad.status === 'active' || ad.status === 'paused') && (
+                        <button
+                          onClick={() => handleToggleAd('featured', ad.id, ad.status)}
+                          disabled={isProcessing === ad.id}
+                          className={cn(
+                            'px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 disabled:opacity-50',
+                            ad.status === 'active'
+                              ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
+                              : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200',
+                          )}>
+                          <span className="v2-icon text-xs">{ad.status === 'active' ? 'pause' : 'play_arrow'}</span>
+                          {ad.status === 'active' ? 'Pause' : 'Resume'}
+                        </button>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )
           )}
-        </div>
+
+          {/* ──── Sponsored Ads Tab ──── */}
+          {activeTab === 'sponsored' && (
+            filteredSponsored.length === 0 ? (
+              <div className="text-center py-12 bg-[var(--v2-surface-container-lowest)] rounded-2xl">
+                <span className="v2-icon text-4xl text-[var(--v2-on-surface-variant)]/30">campaign</span>
+                <p className="text-[var(--v2-on-surface-variant)] mt-2">No sponsored ads</p>
+              </div>
+            ) : (
+              <div className="grid gap-3">
+                {filteredSponsored.map((ad) => {
+                  const countryInfo = allConfigs.find(c => c.countryCode === ad.country);
+                  const cur = countryInfo ? getCurrencyByCountry(countryInfo.countryName) : currency;
+                  const budgetUsed = ad.budget - ad.remainingBudget;
+                  const budgetPercent = ad.budget > 0 ? Math.round((budgetUsed / ad.budget) * 100) : 0;
+                  return (
+                    <div key={ad.id} className="bg-[var(--v2-surface-container-lowest)] rounded-2xl p-4 md:p-5">
+                      <div className="flex items-start gap-4">
+                        <div className="w-14 h-14 rounded-xl bg-[var(--v2-surface-container-high)] overflow-hidden shrink-0">
+                          {ad.product?.imageUrl ? (
+                            <img src={ad.product.imageUrl} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <span className="v2-icon text-[var(--v2-on-surface-variant)]/30">image</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <h3 className="font-bold text-[var(--v2-on-surface)] capitalize">{ad.product?.name}</h3>
+                              <p className="text-xs text-[var(--v2-on-surface-variant)]">
+                                {ad.vendor?.shopName} · {countryInfo?.flag} {ad.country}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className={cn(
+                                'px-3 py-1 rounded-full text-xs font-bold uppercase',
+                                ad.status === 'active' ? 'bg-emerald-100 text-emerald-700'
+                                  : ad.status === 'paused' ? 'bg-amber-100 text-amber-700'
+                                  : 'bg-gray-100 text-gray-600',
+                              )}>{ad.status}</span>
+                              {(ad.status === 'active' || ad.status === 'paused') && (
+                                <button
+                                  onClick={() => handleToggleAd('sponsored', ad.id, ad.status)}
+                                  disabled={isProcessing === ad.id}
+                                  className={cn(
+                                    'px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 disabled:opacity-50',
+                                    ad.status === 'active'
+                                      ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
+                                      : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200',
+                                  )}>
+                                  <span className="v2-icon text-xs">{ad.status === 'active' ? 'pause' : 'play_arrow'}</span>
+                                  {ad.status === 'active' ? 'Pause' : 'Resume'}
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                          <div className="mb-3">
+                            <div className="flex justify-between text-xs mb-1">
+                              <span className="text-[var(--v2-on-surface-variant)]">
+                                Spent: {formatCurrency(budgetUsed, cur)}
+                              </span>
+                              <span className="font-bold">Budget: {formatCurrency(ad.budget, cur)}</span>
+                            </div>
+                            <div className="h-2 bg-[var(--v2-surface-container-high)] rounded-full overflow-hidden">
+                              <div className="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full" style={{width: `${budgetPercent}%`}} />
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-4 text-xs text-[var(--v2-on-surface-variant)]">
+                            <span>{ad.views} views</span>
+                            <span>{ad.clicks} clicks</span>
+                            <span>{formatCurrency(ad.costPerClick, cur)}/click</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )
+          )}
+
+          {/* ──── Configuration Tab ──── */}
+          {activeTab === 'config' && (
+            <div className="space-y-4">
+              <div className="bg-blue-50 rounded-xl p-4 flex items-start gap-3">
+                <span className="v2-icon text-blue-600">info</span>
+                <p className="text-sm text-blue-700">
+                  Each country has independent ad pricing, slots, and budget rules. When a new country is enabled, it
+                  automatically inherits default values that you can customize below.
+                </p>
+              </div>
+
+              {allConfigs.length === 0 ? (
+                <div className="text-center py-12 bg-[var(--v2-surface-container-lowest)] rounded-2xl">
+                  <span className="v2-icon text-4xl text-[var(--v2-on-surface-variant)]/30">public</span>
+                  <p className="text-[var(--v2-on-surface-variant)] mt-2">No countries enabled. Enable countries in Settings first.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {allConfigs.map(cfg => (
+                    <div key={cfg.countryCode} className="bg-[var(--v2-surface-container-lowest)] rounded-2xl overflow-hidden">
+                      {/* Country Row */}
+                      <div
+                        className="px-5 py-4 flex items-center justify-between cursor-pointer hover:bg-[var(--v2-surface-container-low)] transition-colors"
+                        onClick={() => editingCountry === cfg.countryCode ? setEditingCountry(null) : openConfigEditor(cfg)}>
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl">{cfg.flag}</span>
+                          <div>
+                            <p className="font-bold text-[var(--v2-on-surface)]">{cfg.countryName}</p>
+                            <p className="text-xs text-[var(--v2-on-surface-variant)]">{cfg.currency}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <div className="text-right text-sm hidden md:block">
+                            <p className="text-[var(--v2-on-surface-variant)]">
+                              <span className="font-bold text-amber-600">{cfg.config.featured.pricePerDay}</span>/day ·
+                              <span className="font-bold text-purple-600 ml-1">{cfg.config.sponsored.costPerClick}</span>/click
+                            </p>
+                            <p className="text-xs text-[var(--v2-on-surface-variant)]">
+                              {cfg.config.featured.maxSlots} slots · Min Budget {cfg.config.sponsored.minBudget}
+                            </p>
+                          </div>
+                          <span className={cn('v2-icon transition-transform', editingCountry === cfg.countryCode && 'rotate-180')}>
+                            expand_more
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Expanded Config Editor */}
+                      {editingCountry === cfg.countryCode && (
+                        <div className="px-5 pb-5 pt-2 border-t border-[var(--v2-outline-variant)]/10 animate-in fade-in slide-in-from-top-2 duration-200">
+                          <div className="grid md:grid-cols-2 gap-6">
+                            {/* Featured Config */}
+                            <div className="space-y-3">
+                              <h4 className="font-bold text-[var(--v2-on-surface)] flex items-center gap-2">
+                                <span className="v2-icon text-amber-500">star</span>
+                                Featured Ads
+                              </h4>
+                              <div className="flex items-center justify-between">
+                                <label className="text-sm font-medium text-[var(--v2-on-surface-variant)]">Price per Day ({cfg.currency})</label>
+                                <input
+                                  type="number"
+                                  value={configForm.featuredPricePerDay}
+                                  onChange={e => setConfigForm({...configForm, featuredPricePerDay: Number(e.target.value)})}
+                                  className="w-28 h-10 px-3 bg-[var(--v2-surface-container-low)] rounded-xl text-right font-bold"
+                                />
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <label className="text-sm font-medium text-[var(--v2-on-surface-variant)]">Max Slots</label>
+                                <input
+                                  type="number"
+                                  value={configForm.maxSlots}
+                                  onChange={e => setConfigForm({...configForm, maxSlots: Number(e.target.value)})}
+                                  className="w-20 h-10 px-3 bg-[var(--v2-surface-container-low)] rounded-xl text-right font-bold"
+                                />
+                              </div>
+                            </div>
+                            {/* Sponsored Config */}
+                            <div className="space-y-3">
+                              <h4 className="font-bold text-[var(--v2-on-surface)] flex items-center gap-2">
+                                <span className="v2-icon text-purple-500">campaign</span>
+                                Sponsored Ads
+                              </h4>
+                              <div className="flex items-center justify-between">
+                                <label className="text-sm font-medium text-[var(--v2-on-surface-variant)]">Minimum Budget ({cfg.currency})</label>
+                                <input
+                                  type="number"
+                                  value={configForm.minBudget}
+                                  onChange={e => setConfigForm({...configForm, minBudget: Number(e.target.value)})}
+                                  className="w-28 h-10 px-3 bg-[var(--v2-surface-container-low)] rounded-xl text-right font-bold"
+                                />
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <label className="text-sm font-medium text-[var(--v2-on-surface-variant)]">Cost per Click ({cfg.currency})</label>
+                                <input
+                                  type="number"
+                                  value={configForm.costPerClick}
+                                  onChange={e => setConfigForm({...configForm, costPerClick: Number(e.target.value)})}
+                                  className="w-28 h-10 px-3 bg-[var(--v2-surface-container-low)] rounded-xl text-right font-bold"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex justify-end gap-3 mt-4">
+                            <button
+                              onClick={() => setEditingCountry(null)}
+                              className="px-5 py-2 bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] font-bold rounded-xl">
+                              Cancel
+                            </button>
+                            <button
+                              onClick={() => handleSaveCountryConfig(cfg.countryCode)}
+                              disabled={configSaving}
+                              className="px-5 py-2 v2-hero-gradient text-white font-bold rounded-xl disabled:opacity-50 flex items-center gap-2">
+                              {configSaving && <span className="v2-icon animate-spin text-sm">progress_activity</span>}
+                              Save {cfg.countryName}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </>
       )}
 
-      {/* Reject Modal */}
-      <ResponsiveModal open={rejectModal.open} onOpenChange={(open) => !open && setRejectModal({open: false, promotionId: null})}>
+      {/* Assign Slot Modal */}
+      <ResponsiveModal open={assignModal.open} onOpenChange={open => !open && setAssignModal({open: false})}>
         <ResponsiveModalContent>
           <ResponsiveModalHeader>
-            <ResponsiveModalTitle>Reject Promotion</ResponsiveModalTitle>
+            <ResponsiveModalTitle>Assign Featured Slot</ResponsiveModalTitle>
           </ResponsiveModalHeader>
           <div className="p-6 space-y-4">
-            <div className="flex items-start gap-3 p-4 bg-amber-50 rounded-xl">
-              <span className="v2-icon text-amber-600">info</span>
-              <div className="text-sm">
-                <p className="font-medium text-amber-800">This action will:</p>
-                <ul className="list-disc list-inside text-amber-700 mt-1 space-y-1">
-                  <li>Send an email notification to the vendor</li>
-                  <li>Create an in-app notification</li>
-                  <li>Initiate a refund of the payment</li>
-                </ul>
-              </div>
+            <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-xl">
+              <span className="v2-icon text-blue-600">info</span>
+              <p className="text-sm text-blue-700">Admin-assigned slots are free. Select the target country.</p>
             </div>
             <div>
-              <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)] mb-2">
-                Rejection Reason *
-              </label>
-              <textarea
-                value={rejectReason}
-                onChange={(e) => setRejectReason(e.target.value)}
-                placeholder="Provide a clear reason for rejection (minimum 10 characters)..."
-                className="w-full h-32 p-4 bg-[var(--v2-surface-container-low)] rounded-xl resize-none text-[var(--v2-on-surface)]"
-              />
-              <p className="text-xs text-[var(--v2-on-surface-variant)] mt-1">
-                {rejectReason.length}/10 characters minimum
-              </p>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setRejectModal({open: false, promotionId: null});
-                  setRejectReason('');
-                }}
-                className="flex-1 py-3 bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] font-bold rounded-xl">
-                Cancel
-              </button>
-              <button
-                onClick={handleReject}
-                disabled={rejectReason.trim().length < 10 || isProcessing !== null}
-                className="flex-1 py-3 bg-red-600 text-white font-bold rounded-xl disabled:opacity-50 flex items-center justify-center gap-2">
-                {isProcessing !== null && (
-                  <span className="v2-icon animate-spin text-sm">progress_activity</span>
-                )}
-                Reject & Refund
-              </button>
-            </div>
-          </div>
-        </ResponsiveModalContent>
-      </ResponsiveModal>
-
-      {/* External Promotion Modal */}
-      <ResponsiveModal
-        open={externalModal.open}
-        onOpenChange={(open) => !open && setExternalModal({open: false, mode: 'create', data: null})}>
-        <ResponsiveModalContent className="max-h-[90vh] overflow-y-auto">
-          <ResponsiveModalHeader>
-            <ResponsiveModalTitle>
-              {externalModal.mode === 'create' ? 'Add External Promotion' : 'Edit Promotion'}
-            </ResponsiveModalTitle>
-          </ResponsiveModalHeader>
-          <div className="p-6 space-y-4">
-            <div>
-              <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)] mb-2">
-                Title *
-              </label>
-              <input
-                type="text"
-                value={externalForm.title}
-                onChange={(e) => setExternalForm({...externalForm, title: e.target.value})}
-                placeholder="Product or promotion title"
-                className="w-full h-12 px-4 bg-[var(--v2-surface-container-low)] rounded-xl"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)] mb-2">
-                Description
-              </label>
-              <textarea
-                value={externalForm.description}
-                onChange={(e) => setExternalForm({...externalForm, description: e.target.value})}
-                placeholder="Brief description of the product or offer"
-                className="w-full h-24 p-4 bg-[var(--v2-surface-container-low)] rounded-xl resize-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)] mb-2">
-                Image
-              </label>
-              <ImageUpload
-                value={externalForm.image_url}
-                onChange={url => setExternalForm({...externalForm, image_url: url})}
-                onUpload={uploadPromotionImage}
-                placeholder="Click to upload or drag and drop"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)] mb-2">
-                Price (optional)
-              </label>
-              <input
-                type="number"
-                value={externalForm.price}
-                onChange={(e) => setExternalForm({...externalForm, price: e.target.value})}
-                placeholder="0.00"
-                className="w-full h-12 px-4 bg-[var(--v2-surface-container-low)] rounded-xl"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)] mb-2">
-                Redirect URL * (WhatsApp or Website)
-              </label>
-              <input
-                type="url"
-                value={externalForm.redirect_url}
-                onChange={(e) => setExternalForm({...externalForm, redirect_url: e.target.value})}
-                placeholder="https://wa.me/1234567890 or https://example.com"
-                className="w-full h-12 px-4 bg-[var(--v2-surface-container-low)] rounded-xl"
-              />
-              <p className="text-xs text-[var(--v2-on-surface-variant)] mt-1">
-                For WhatsApp: https://wa.me/PHONENUMBER?text=MESSAGE
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)] mb-2">
-                Placement
-              </label>
-              <div className="grid grid-cols-3 gap-2">
-                {(['featured', 'new_arrivals', 'sponsored'] as PromotionPlacement[]).map((placement) => (
-                  <button
-                    key={placement}
-                    type="button"
-                    onClick={() => setExternalForm({...externalForm, placement})}
-                    className={`p-3 rounded-xl text-sm font-bold capitalize transition-all ${
-                      externalForm.placement === placement
-                        ? 'bg-[var(--v2-primary)] text-white'
-                        : 'bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] hover:bg-[var(--v2-surface-container-high)]'
-                    }`}>
-                    {placement.replace('_', ' ')}
-                  </button>
+              <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)] mb-2">Country</label>
+              <select
+                value={assignForm.countryCode}
+                onChange={e => setAssignForm({...assignForm, countryCode: e.target.value})}
+                className="w-full h-12 px-4 bg-[var(--v2-surface-container-low)] rounded-xl">
+                {allConfigs.map(c => (
+                  <option key={c.countryCode} value={c.countryCode}>{c.flag} {c.countryName}</option>
                 ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)] mb-2">Product ID</label>
+              <input type="number" value={assignForm.productId}
+                onChange={e => setAssignForm({...assignForm, productId: e.target.value})}
+                placeholder="Enter product ID"
+                className="w-full h-12 px-4 bg-[var(--v2-surface-container-low)] rounded-xl" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)] mb-2">Slot Number</label>
+                <input type="number" value={assignForm.slotNumber}
+                  onChange={e => setAssignForm({...assignForm, slotNumber: e.target.value})}
+                  placeholder="1–5"
+                  className="w-full h-12 px-4 bg-[var(--v2-surface-container-low)] rounded-xl" />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)] mb-2">Duration (days)</label>
+                <input type="number" value={assignForm.durationDays}
+                  onChange={e => setAssignForm({...assignForm, durationDays: e.target.value})}
+                  className="w-full h-12 px-4 bg-[var(--v2-surface-container-low)] rounded-xl" />
               </div>
             </div>
-
-            <div className="flex gap-3 pt-4">
-              <button
-                onClick={() => setExternalModal({open: false, mode: 'create', data: null})}
+            <div className="flex gap-3 pt-2">
+              <button onClick={() => setAssignModal({open: false})}
                 className="flex-1 py-3 bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] font-bold rounded-xl">
                 Cancel
               </button>
-              <button
-                onClick={externalModal.mode === 'create' ? handleCreateExternal : handleUpdateExternal}
-                disabled={!externalForm.title || !externalForm.redirect_url || isProcessing !== null}
-                className="flex-1 py-3 v2-hero-gradient text-white font-bold rounded-xl disabled:opacity-50">
-                {isProcessing !== null ? 'Saving...' : externalModal.mode === 'create' ? 'Create' : 'Save Changes'}
+              <button onClick={handleAssignSlot}
+                disabled={!assignForm.productId || !assignForm.slotNumber || isProcessing !== null}
+                className="flex-1 py-3 v2-hero-gradient text-white font-bold rounded-xl disabled:opacity-50 flex items-center justify-center gap-2">
+                {isProcessing !== null ? 'Assigning...' : 'Assign Slot'}
               </button>
             </div>
           </div>

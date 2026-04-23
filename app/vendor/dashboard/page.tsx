@@ -256,6 +256,7 @@ function V2VendorDashboardContent() {
                 setBoostProductId(productId);
                 setBoostModalOpen(true);
               }}
+              onViewPromotion={() => setSection('promotions')}
             />
           )}
           {section === 'orders' && <V2VendorOrdersTab searchQuery={searchQuery} />}

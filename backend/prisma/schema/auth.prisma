@@ -26,32 +26,32 @@ model User {
   accounts Account[]
 
   // --- Gift/Platform Profile Fields ---
-  username         String?   @unique
-  displayName      String?   @map("display_name")
-  avatarUrl        String?   @map("avatar_url")
+  username         String?    @unique
+  displayName      String?    @map("display_name")
+  avatarUrl        String?    @map("avatar_url")
   bio              String?
-  isCreator        Boolean   @default(false) @map("is_creator")
-  suggestedAmounts Int[]     @default([5, 10, 25]) @map("suggested_amounts")
-  socialLinks      Json?     @default("{}") @map("social_links")
-  themeSettings    Json?     @default("{}") @map("theme_settings")
+  isCreator        Boolean    @default(false) @map("is_creator")
+  suggestedAmounts Int[]      @default([5, 10, 25]) @map("suggested_amounts")
+  socialLinks      Json?      @default("{}") @map("social_links")
+  themeSettings    Json?      @default("{}") @map("theme_settings")
   country          String?
-  roles            UserRole[]  @default([user])
-  adminRole        AdminRole?  @map("admin_role")
-  platformBalance  BigInt    @default(0) @map("platform_balance")
-  status           String    @default("active") // 'active', 'suspended', 'banned'
-  walletStatus     String    @default("active") @map("wallet_status") // 'active', 'restricted'
-  suspensionEnd    DateTime? @map("suspension_end")
+  roles            UserRole[] @default([user])
+  adminRole        AdminRole? @map("admin_role")
+  platformBalance  BigInt     @default(0) @map("platform_balance")
+  status           String     @default("active") // 'active', 'suspended', 'banned'
+  walletStatus     String     @default("active") @map("wallet_status") // 'active', 'restricted'
+  suspensionEnd    DateTime?  @map("suspension_end")
 
   // --- Vendor Shop Fields ---
-  shopName         String?   @map("shop_name")
-  shopDescription  String?   @map("shop_description")
-  shopAddress      String?   @map("shop_address")
-  shopSlug         String?   @unique @map("shop_slug")
-  shopLogoUrl      String?   @map("shop_logo_url")
-  bannerUrl        String?   @map("banner_url")
-  isVerifiedVendor Boolean   @default(false) @map("is_verified_vendor")
-  vendorStatus     String    @default("pending") @map("vendor_status") // 'pending', 'approved', 'rejected'
-  vendorCategories String[]  @default([]) @map("vendor_categories")
+  shopName         String?  @map("shop_name")
+  shopDescription  String?  @map("shop_description")
+  shopAddress      String?  @map("shop_address")
+  shopSlug         String?  @unique @map("shop_slug")
+  shopLogoUrl      String?  @map("shop_logo_url")
+  bannerUrl        String?  @map("banner_url")
+  isVerifiedVendor Boolean  @default(false) @map("is_verified_vendor")
+  vendorStatus     String   @default("pending") @map("vendor_status") // 'pending', 'approved', 'rejected'
+  vendorCategories String[] @default([]) @map("vendor_categories")
 
   // Relations
   campaigns               Campaign[]            @relation("UserCampaigns")
@@ -59,7 +59,8 @@ model User {
   transactions            Transaction[]
   vendorGifts             VendorGift[]
   favorites               Favorite[]
-  promotions              Promotion[]           @relation("VendorPromotions")
+  featuredAds             FeaturedAd[]          @relation("VendorFeaturedAds")
+  sponsoredAds            SponsoredAd[]         @relation("VendorSponsoredAds")
   sentFlexCards           FlexCard[]            @relation("SentFlexCards")
   receivedFlexCards       FlexCard[]            @relation("ReceivedFlexCards")
   moderationReportsMade   ModerationReport[]    @relation("Reporter")

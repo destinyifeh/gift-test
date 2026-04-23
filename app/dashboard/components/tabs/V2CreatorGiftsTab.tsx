@@ -144,7 +144,7 @@ export function V2CreatorGiftsTab({setSection, setWalletView}: V2CreatorGiftsTab
             Supporters
           </p>
           <p className="text-2xl md:text-3xl font-extrabold text-[var(--v2-on-surface)] tracking-tight v2-headline">
-            {new Set(creatorGiftsList.map(g => g.name)).size}
+            {new Set(creatorGiftsList.map((g: any) => g.name)).size}
           </p>
         </div>
       </div>

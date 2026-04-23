@@ -110,7 +110,7 @@ export function V2NotificationsPanel({className}: V2NotificationsPanelProps) {
               </div>
             ) : (
               <div>
-                {notifications.map((notification) => {
+                {notifications.map((notification: any) => {
                   const iconConfig = notificationIcons[notification.type] || notificationIcons.system;
                   return (
                     <button

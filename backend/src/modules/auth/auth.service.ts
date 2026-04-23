@@ -73,7 +73,6 @@ export class AuthService implements OnModuleInit {
         });
         return { success: true };
       }
-      console.log('Normal change password flow');
       // 2. Normal change password flow
       await (auth.api as any).changePassword({
         headers: headers ? new Headers(headers) : undefined,

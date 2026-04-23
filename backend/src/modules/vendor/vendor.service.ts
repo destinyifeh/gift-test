@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Logger } from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
 import { PrismaService } from '../../prisma/prisma.service';
 import { FileService } from '../file/file.service';
 import { paginate, getPaginationOptions } from '../../common/utils/pagination.util';
@@ -87,7 +88,10 @@ export class VendorService {
         where,
         skip,
         take,
-        orderBy: { createdAt: 'desc' },
+        orderBy: [
+          { rankingScore: 'desc' },
+          { createdAt: 'desc' }
+        ],
         include: {
           vendor: { select: { displayName: true, country: true, shopSlug: true, shopName: true, image: true } },
         },
@@ -97,18 +101,10 @@ export class VendorService {
 
     // Sold counts
     if (products.length > 0) {
-      const productIds = products.map((p: any) => p.id);
-      const soldCounts = await (this.prisma as any).directGift.groupBy({
-        by: ['claimableGiftId'],
-        where: { claimableGiftId: { in: productIds } },
-        _count: { id: true },
-      });
-      const soldMap = new Map(soldCounts.map((s: any) => [s.claimableGiftId, s._count.id]));
-      
       const formatted = products.map((p: any) => ({
         ...p,
         price: p.price.toString(),
-        sold: soldMap.get(p.id) || 0,
+        sold: p.salesCount, // Using the new salesCount field
       }));
 
       return paginate(formatted, total, page, limit);
@@ -117,7 +113,7 @@ export class VendorService {
     return paginate([], 0, page, limit);
   }
 
-  async fetchProductById(productId: number) {
+  async fetchProductById(productId: number, recordView = false) {
     const product = await (this.prisma as any).vendorGift.findUnique({
       where: { id: productId },
       include: {
@@ -125,10 +121,17 @@ export class VendorService {
       },
     });
     if (!product) throw new NotFoundException('Product not found');
+    
+    if (recordView) {
+      this.recordProductView(productId).catch(err => 
+        this.logger.error(`Failed to record view for product ${productId}`, err)
+      );
+    }
+
     return { ...product, price: product.price.toString() };
   }
 
-  async fetchProductBySlugs(vendorSlug: string, productSlug: string) {
+  async fetchProductBySlugs(vendorSlug: string, productSlug: string, recordView = false) {
     let vendor = await (this.prisma as any).user.findFirst({
       where: { shopSlug: vendorSlug },
       select: { id: true },
@@ -166,6 +169,13 @@ export class VendorService {
     }
 
     if (!product) throw new NotFoundException('Product not found');
+
+    if (recordView) {
+      this.recordProductView(product.id).catch(err => 
+        this.logger.error(`Failed to record view for product ${product.id}`, err)
+      );
+    }
+
     return { ...product, price: product.price.toString() };
   }
 
@@ -574,5 +584,107 @@ export class VendorService {
       where: { id: productId },
       data: { imageUrl },
     });
+  }
+
+  // ─────────────────────────────────────────────
+  //  Ranking & Engagement Logic
+  // ─────────────────────────────────────────────
+
+  async recordProductView(productId: number) {
+    const product = await (this.prisma as any).vendorGift.findUnique({ where: { id: productId } });
+    if (!product) return;
+
+    const viewsCount = (product.viewsCount || 0) + 1;
+    const rankingScore = this.calculateRankingScore({ ...product, viewsCount });
+
+    await (this.prisma as any).vendorGift.update({
+      where: { id: productId },
+      data: {
+        viewsCount,
+        rankingScore,
+        lastEngagementAt: new Date(),
+      },
+    });
+  }
+
+  async recordProductClick(productId: number) {
+    const product = await (this.prisma as any).vendorGift.findUnique({ where: { id: productId } });
+    if (!product) return;
+
+    const clicksCount = (product.clicksCount || 0) + 1;
+    const rankingScore = this.calculateRankingScore({ ...product, clicksCount });
+
+    await (this.prisma as any).vendorGift.update({
+      where: { id: productId },
+      data: {
+        clicksCount,
+        rankingScore,
+        lastEngagementAt: new Date(),
+      },
+    });
+  }
+
+  async recordProductSale(productId: number) {
+    const product = await (this.prisma as any).vendorGift.findUnique({ where: { id: productId } });
+    if (!product) return;
+
+    const salesCount = (product.salesCount || 0) + 1;
+    const rankingScore = this.calculateRankingScore({ ...product, salesCount });
+
+    await (this.prisma as any).vendorGift.update({
+      where: { id: productId },
+      data: {
+        salesCount,
+        rankingScore,
+        lastEngagementAt: new Date(),
+      },
+    });
+  }
+
+  /**
+   * Final Refined Formula:
+   * rankingScore = ((sales * 5) + (clicks * 2) + (views * 0.5)) * decayFactor + (coldStartBoost * 100)
+   */
+  private calculateRankingScore(product: any): number {
+    const { salesCount = 0, clicksCount = 0, viewsCount = 0, lastEngagementAt, createdAt } = product;
+
+    // 1. Core Engagement Score
+    const engagement = (salesCount * 5) + (clicksCount * 2) + (viewsCount * 0.5);
+
+    // 2. Decay Factor: 1 / (daysSinceLastEngagement + 1)
+    const now = new Date();
+    const lastEng = new Date(lastEngagementAt || now);
+    const daysSinceLastEng = Math.max(0, (now.getTime() - lastEng.getTime()) / (1000 * 60 * 60 * 24));
+    const decayFactor = 1 / (daysSinceLastEng + 1);
+
+    // 3. Cold Start Boost: max(0, 1 - (hoursSinceCreated / 48))
+    const created = new Date(createdAt);
+    const hoursSinceCreated = Math.max(0, (now.getTime() - created.getTime()) / (1000 * 60 * 60));
+    const coldStartBoost = Math.max(0, 1 - (hoursSinceCreated / 48));
+
+    // 4. Final Balanced Score
+    return (engagement * decayFactor) + (coldStartBoost * 100);
+  }
+
+  /**
+   * Global recalculation (Cron job trigger)
+   * Runs every hour to update decay factors and cold start boosts
+   */
+  @Cron('0 * * * *')
+  async recalculateAllScores() {
+    const products = await (this.prisma as any).vendorGift.findMany({
+      where: { status: 'active' },
+    });
+
+    const updates = products.map((p: any) => {
+      const score = this.calculateRankingScore(p);
+      return (this.prisma as any).vendorGift.update({
+        where: { id: p.id },
+        data: { rankingScore: score },
+      });
+    });
+
+    await Promise.all(updates);
+    this.logger.log(`Recalculated ranking scores for ${products.length} products`);
   }
 }
