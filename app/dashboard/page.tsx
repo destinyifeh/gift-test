@@ -267,9 +267,9 @@ function V2DashboardContent() {
               Send Gift
             </Link>
             <Link
-              href="/gift-shop"
+              href="/gifts"
               className="h-10 px-4 text-[var(--v2-on-surface-variant)] font-medium text-sm rounded-xl flex items-center gap-2 hover:bg-[var(--v2-surface-container-low)] transition-colors">
-              Gift Shop
+              Gifts
             </Link>
             <Link
               href="/campaigns"

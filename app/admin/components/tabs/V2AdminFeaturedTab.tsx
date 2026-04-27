@@ -26,8 +26,8 @@ interface V2AdminFeaturedTabProps {
 }
 
 const placementLabels: Record<FeaturedItemPlacement, string> = {
-  featured: 'Gift Shop - Featured',
-  new_arrivals: 'Gift Shop - New Arrivals',
+  featured: 'Gifts - Featured',
+  new_arrivals: 'Gifts - New Arrivals',
 };
 
 const placementIcons: Record<FeaturedItemPlacement, string> = {

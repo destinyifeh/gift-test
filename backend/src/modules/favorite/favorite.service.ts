@@ -53,6 +53,7 @@ export class FavoriteService {
       ...f.vendorGift,
       price: f.vendorGift.price.toString(),
       shopSlug: f.vendorGift.vendor.shopSlug,
+      productShortId: f.vendorGift.productShortId,
       vendor: f.vendorGift.vendor.shopName || f.vendorGift.vendor.displayName || 'Vendor',
     }));
   }

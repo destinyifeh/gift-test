@@ -110,13 +110,13 @@ export function V2MoreDrawer({open, onOpenChange, onNavigate, activeSection}: V2
               <span className="text-sm font-bold text-[var(--v2-on-surface)]">Send Gift</span>
             </Link>
             <Link
-              href="/gift-shop"
+              href="/gifts"
               onClick={() => onOpenChange(false)}
               className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-[var(--v2-primary)]/5 hover:bg-[var(--v2-primary)]/10 transition-colors min-h-[90px] active:scale-[0.98]">
               <div className="w-12 h-12 rounded-xl bg-[var(--v2-primary)]/10 flex items-center justify-center">
                 <span className="v2-icon text-2xl text-[var(--v2-primary)]">storefront</span>
               </div>
-              <span className="text-sm font-bold text-[var(--v2-on-surface)]">Gift Shop</span>
+              <span className="text-sm font-bold text-[var(--v2-on-surface)]">Gifts</span>
             </Link>
             <Link
               href="/campaigns"

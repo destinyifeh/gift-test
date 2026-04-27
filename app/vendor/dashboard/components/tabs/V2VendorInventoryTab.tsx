@@ -25,6 +25,7 @@ import {GIFT_TAGS} from '@/lib/constants/gift-tags';
 import {useQueryClient} from '@tanstack/react-query';
 import React, {useEffect, useState} from 'react';
 import {toast} from 'sonner';
+import { useCatalogHierarchy, useRequestTag } from '@/hooks/use-catalog';
 
 type FilterType = 'all' | 'active' | 'draft' | 'low';
 
@@ -38,6 +39,9 @@ interface ProductFormData {
   tags: string[];
   type: string;
   stockQuantity: string;
+  categoryId: number | null;
+  subcategoryId: number | null;
+  tagIds: number[];
 }
 
 const initialFormData: ProductFormData = {
@@ -50,6 +54,9 @@ const initialFormData: ProductFormData = {
   tags: [],
   type: 'digital',
   stockQuantity: '',
+  categoryId: null,
+  subcategoryId: null,
+  tagIds: [],
 };
 
 const MAX_IMAGES = 3;
@@ -72,6 +79,11 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct, onViewPr
   const deleteProduct = useDeleteVendorProduct();
   const uploadImage = useUploadProductImage();
   const deleteImage = useDeleteProductImage();
+
+  const { data: catalog = [] } = useCatalogHierarchy();
+  const requestTag = useRequestTag();
+  const [showTagRequest, setShowTagRequest] = useState(false);
+  const [tagRequestData, setTagRequestData] = useState({ name: '', reason: '' });
 
   // Get product promotion status map
   const productPromotionStatus = new Map<number, 'pending_approval' | 'active'>();
@@ -195,6 +207,9 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct, onViewPr
         tags: product.tags || [],
         type: product.type || 'digital',
         stockQuantity: product.stockQuantity !== null ? String(product.stockQuantity) : '',
+        categoryId: product.categoryId || null,
+        subcategoryId: product.subcategoryId || null,
+        tagIds: product.productTags?.map((pt: any) => pt.tagId) || [],
       });
     } else {
       resetForm();
@@ -290,6 +305,9 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct, onViewPr
       imageUrl: productForm.images[0] || null,
       images: productForm.images,
       tags: productForm.tags,
+      categoryId: productForm.categoryId,
+      subcategoryId: productForm.subcategoryId,
+      tagIds: productForm.tagIds,
     };
 
     manageProduct.mutate(payload, {
@@ -874,44 +892,102 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct, onViewPr
               />
             </div>
 
-            {/* Tags */}
-            <div>
-              <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)] mb-2">
-                Tags ({productForm.tags.length}/4 selected)
-              </label>
-              <p className="text-xs text-[var(--v2-on-surface-variant)] mb-3">
-                Select up to 4 tags that describe your product. This helps buyers find it.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {GIFT_TAGS.map((tag) => {
-                  const isSelected = productForm.tags.includes(tag);
-                  const isDisabled = !isSelected && productForm.tags.length >= 4;
-                  return (
-                    <button
-                      key={tag}
-                      type="button"
-                      disabled={isDisabled}
-                      onClick={() => {
-                        const newTags = isSelected
-                          ? productForm.tags.filter((t) => t !== tag)
-                          : [...productForm.tags, tag];
-                        setProductForm({...productForm, tags: newTags});
-                      }}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                        isSelected
-                          ? 'bg-[var(--v2-primary)] text-[var(--v2-on-primary)] shadow-md'
-                          : isDisabled
-                            ? 'bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface-variant)]/30 cursor-not-allowed opacity-40'
-                            : 'bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface-variant)] hover:bg-[var(--v2-surface-container-high)]'
-                      }`}
-                    >
-                      {isSelected && <span className="mr-1">✓</span>}
-                      {tag}
-                    </button>
-                  );
-                })}
+            {/* Category & Subcategory */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)] mb-2">
+                  Category
+                </label>
+                <select
+                  value={productForm.categoryId || ''}
+                  onChange={e => {
+                    setProductForm({...productForm, categoryId: Number(e.target.value) || null, subcategoryId: null, tagIds: []});
+                  }}
+                  className="w-full py-3 px-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-[var(--v2-on-surface)]">
+                  <option value="">Select Category</option>
+                  {catalog.map(cat => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)] mb-2">
+                  Subcategory
+                </label>
+                <select
+                  disabled={!productForm.categoryId}
+                  value={productForm.subcategoryId || ''}
+                  onChange={e => {
+                    setProductForm({...productForm, subcategoryId: Number(e.target.value) || null, tagIds: []});
+                  }}
+                  className="w-full py-3 px-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-[var(--v2-on-surface)] disabled:opacity-50">
+                  <option value="">Select Subcategory</option>
+                  {productForm.categoryId && catalog.find(c => c.id === productForm.categoryId)?.subcategories?.map(sub => (
+                    <option key={sub.id} value={sub.id}>{sub.name}</option>
+                  ))}
+                </select>
               </div>
             </div>
+
+            {/* Tags */}
+            <div>
+              <div className="flex justify-between items-end mb-2">
+                <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)]">
+                  Tags ({productForm.tagIds.length}/4 selected)
+                </label>
+                {productForm.subcategoryId && (
+                  <button
+                    type="button"
+                    onClick={() => setShowTagRequest(true)}
+                    className="text-xs font-bold text-[var(--v2-primary)] hover:underline flex items-center gap-1">
+                    <span className="v2-icon text-[10px]">add</span>
+                    Request New Tag
+                  </button>
+                )}
+              </div>
+              <p className="text-xs text-[var(--v2-on-surface-variant)] mb-3">
+                Select up to 4 tags that describe your product. Select a subcategory first.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {!productForm.subcategoryId ? (
+                  <div className="text-sm text-[var(--v2-on-surface-variant)]/60 italic py-2">
+                    Please select a Category and Subcategory to see available tags.
+                  </div>
+                ) : (
+                  (catalog.find(c => c.id === productForm.categoryId)
+                        ?.subcategories?.find(s => s.id === productForm.subcategoryId)
+                        ?.tags || []).map((tag) => {
+                    const isSelected = productForm.tagIds.includes(tag.id);
+                    // allow up to 4 tags
+                    const isDisabled = !isSelected && productForm.tagIds.length >= 4;
+                    return (
+                      <button
+                        key={tag.id}
+                        type="button"
+                        disabled={isDisabled}
+                        onClick={() => {
+                          const newTags = isSelected
+                            ? productForm.tagIds.filter((id) => id !== tag.id)
+                            : [...productForm.tagIds, tag.id];
+                          setProductForm({...productForm, tagIds: newTags});
+                        }}
+                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                          isSelected
+                            ? 'bg-[var(--v2-primary)] text-[var(--v2-on-primary)] shadow-md'
+                            : isDisabled
+                              ? 'bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface-variant)]/30 cursor-not-allowed opacity-40'
+                              : 'bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface-variant)] hover:bg-[var(--v2-surface-container-high)]'
+                        }`}
+                      >
+                        {isSelected && <span className="mr-1">✓</span>}
+                        {tag.name}
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+
 
             {/* Description */}
             <div>
@@ -987,6 +1063,77 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct, onViewPr
           </div>
         </ResponsiveModalContent>
       </ResponsiveModal>
+
+      {/* Request New Tag Modal */}
+      <ResponsiveModal open={showTagRequest} onOpenChange={setShowTagRequest}>
+        <ResponsiveModalContent>
+          <ResponsiveModalHeader>
+            <ResponsiveModalTitle>Request New Tag</ResponsiveModalTitle>
+          </ResponsiveModalHeader>
+          <div className="p-6 space-y-4">
+            <p className="text-sm text-[var(--v2-on-surface-variant)]">
+              Can't find a tag that fits your product? Request a new one to be added to the catalog.
+            </p>
+            <div>
+              <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)] mb-2">Tag Name</label>
+              <input
+                type="text"
+                value={tagRequestData.name}
+                onChange={e => setTagRequestData({...tagRequestData, name: e.target.value})}
+                className="w-full py-3 px-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-[var(--v2-on-surface)]"
+                placeholder="e.g. Handmade"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-[var(--v2-on-surface-variant)] mb-2">Reason (Optional)</label>
+              <textarea
+                value={tagRequestData.reason}
+                onChange={e => setTagRequestData({...tagRequestData, reason: e.target.value})}
+                className="w-full py-3 px-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-[var(--v2-on-surface)] resize-none"
+                rows={2}
+                placeholder="Why is this tag needed?"
+              />
+            </div>
+          </div>
+          <div className="p-6 pt-0 flex gap-3">
+            <button
+              onClick={() => setShowTagRequest(false)}
+              className="flex-1 py-3 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] font-medium">
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                if (!tagRequestData.name) {
+                  toast.error('Please enter a tag name');
+                  return;
+                }
+                if (!productForm.subcategoryId) {
+                  toast.error('Please select a subcategory first');
+                  return;
+                }
+                requestTag.mutate({
+                  subcategoryId: productForm.subcategoryId,
+                  requestedName: tagRequestData.name,
+                  reason: tagRequestData.reason
+                }, {
+                  onSuccess: () => {
+                    toast.success('Tag request submitted! It will be reviewed by an admin.');
+                    setShowTagRequest(false);
+                    setTagRequestData({name: '', reason: ''});
+                  },
+                  onError: (err: any) => {
+                    toast.error(err.response?.data?.message || 'Failed to submit request');
+                  }
+                });
+              }}
+              disabled={requestTag.isPending || !tagRequestData.name || !productForm.subcategoryId}
+              className="flex-1 py-3 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-xl disabled:opacity-50">
+              {requestTag.isPending ? 'Submitting...' : 'Submit Request'}
+            </button>
+          </div>
+        </ResponsiveModalContent>
+      </ResponsiveModal>
     </div>
   );
 }
+

@@ -67,6 +67,7 @@ export function useMyFlexCards(page: number = 1, limit: number = 10) {
         ...data,
         data: data.data.map((card: any) => ({
           ...card,
+          is_flex_card: true,
           sender_name: card.sender?.displayName || card.senderName || 'Someone',
         }))
       };

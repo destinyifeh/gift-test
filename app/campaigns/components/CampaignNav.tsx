@@ -21,8 +21,8 @@ export function CampaignDesktopNav({isLoggedIn, searchQuery, onSearchChange}: Ca
         <div className="flex items-center gap-12">
           <GifthanceLogo size="md" />
           <div className="flex items-center gap-8 text-sm font-semibold">
-            <Link href="/gift-shop" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors">
-              Gift Shop
+            <Link href="/gifts" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors">
+              Gifts
             </Link>
             <Link href="/campaigns" className="text-[var(--v2-primary)] border-b-2 border-[var(--v2-primary)] pb-1">
               Campaigns
@@ -120,8 +120,8 @@ export function CampaignMobileNav({isLoggedIn}: CampaignNavProps) {
                 Dashboard
               </Link>
             )}
-            <Link href="/gift-shop" className="px-4 py-3 rounded-xl text-[var(--v2-on-surface)] hover:bg-[var(--v2-surface-container-low)] transition-colors" onClick={() => setMobileMenuOpen(false)}>
-              Gift Shop
+            <Link href="/gifts" className="px-4 py-3 rounded-xl text-[var(--v2-on-surface)] hover:bg-[var(--v2-surface-container-low)] transition-colors" onClick={() => setMobileMenuOpen(false)}>
+              Gifts
             </Link>
             <Link href="/campaigns" className="px-4 py-3 rounded-xl bg-[var(--v2-primary)]/10 text-[var(--v2-primary)] font-semibold">
               Campaigns

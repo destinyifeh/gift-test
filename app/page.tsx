@@ -91,8 +91,8 @@ export default function V2LandingPage() {
         <div className="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
           <GifthanceLogo size="md" />
           <div className="flex items-center gap-8">
-            <Link href="/gift-shop" className="text-orange-800/70 hover:text-orange-600 transition-colors duration-300">
-              Gift Shop
+            <Link href="/gifts" className="text-orange-800/70 hover:text-orange-600 transition-colors duration-300">
+              Gifts
             </Link>
             <Link href="/campaigns" className="text-orange-800/70 hover:text-orange-600 transition-colors duration-300">
               Campaigns
@@ -132,7 +132,7 @@ export default function V2LandingPage() {
               <span className="v2-icon text-[var(--v2-on-surface-variant)]">search</span>
             </button>
             <Link
-              href="/gift-shop"
+              href="/gifts"
               className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-[var(--v2-surface-container-low)] active:scale-95 transition-all"
             >
               <span className="v2-icon text-[var(--v2-on-surface-variant)]">shopping_bag</span>
@@ -144,12 +144,12 @@ export default function V2LandingPage() {
         {mobileMenuOpen && (
           <div className="absolute top-16 left-0 right-0 bg-[var(--v2-surface)] border-b border-[var(--v2-outline-variant)]/10 shadow-lg p-4 space-y-2">
             <Link
-              href="/gift-shop"
+              href="/gifts"
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--v2-surface-container-low)] transition-colors"
             >
               <span className="v2-icon text-[var(--v2-primary)]">storefront</span>
-              <span className="font-medium text-[var(--v2-on-surface)]">Gift Shop</span>
+              <span className="font-medium text-[var(--v2-on-surface)]">Gifts</span>
             </Link>
             <Link
               href="/campaigns"
@@ -232,7 +232,7 @@ export default function V2LandingPage() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col md:flex-row gap-3 md:gap-4 pt-2 md:pt-4">
-              <Link href="/gift-shop" className="px-8 py-4 v2-gradient-primary text-[var(--v2-on-primary)] rounded-xl font-bold text-base md:text-lg active:scale-95 transition-all shadow-xl shadow-[var(--v2-primary)]/20 flex items-center justify-center gap-2 v2-headline">
+              <Link href="/gifts" className="px-8 py-4 v2-gradient-primary text-[var(--v2-on-primary)] rounded-xl font-bold text-base md:text-lg active:scale-95 transition-all shadow-xl shadow-[var(--v2-primary)]/20 flex items-center justify-center gap-2 v2-headline">
                 Send a Gift
                 <span className="v2-icon">arrow_forward</span>
               </Link>
@@ -295,7 +295,7 @@ export default function V2LandingPage() {
             {/* Mobile Horizontal Scroll */}
             <div className="flex overflow-x-auto v2-no-scrollbar gap-4 pb-4 -mx-6 px-6 md:hidden snap-x snap-mandatory">
               {categories.map((cat) => (
-                <Link key={cat.name} href={`/gift-shop?category=${cat.name.toLowerCase()}`} className="flex-shrink-0 w-40 group cursor-pointer snap-start">
+                <Link key={cat.name} href={`/gifts?category=${cat.name.toLowerCase()}`} className="flex-shrink-0 w-40 group cursor-pointer snap-start">
                   <div className="aspect-square rounded-3xl overflow-hidden mb-3 relative">
                     <img alt={cat.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" src={cat.image} />
                     <div className="absolute inset-0 bg-gradient-to-t from-[var(--v2-on-background)]/60 to-transparent"></div>
@@ -588,7 +588,7 @@ export default function V2LandingPage() {
           <div className="space-y-6 hidden md:block">
             <h5 className="text-sm font-bold uppercase tracking-widest text-orange-700">Explore</h5>
             <ul className="space-y-4">
-              {['Gift Shop', 'Trending Campaigns', 'Gift Ideas', 'Gifting Guide'].map((link) => (
+              {['Gifts', 'Trending Campaigns', 'Gift Ideas', 'Gifting Guide'].map((link) => (
                 <li key={link}><a className="text-stone-600 hover:text-orange-600 underline-offset-4 hover:underline transition-all" href="#">{link}</a></li>
               ))}
             </ul>

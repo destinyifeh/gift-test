@@ -10,12 +10,15 @@ import {useMyFlexCards, useClaimGift} from '@/hooks/use-claims';
 import {useMyGifts, useUnclaimedGifts} from '@/hooks/use-analytics';
 import {useConvertToCredit} from '@/hooks/use-transactions';
 import {useRateVoucher} from '@/hooks/use-rating';
+import {useGiftCardBySlug} from '@/hooks/use-gift-cards';
 import {formatCurrency} from '@/lib/utils/currency';
 import {useQueryClient} from '@tanstack/react-query';
+import {Compass} from 'lucide-react';
 import {useState} from 'react';
 import {toast} from 'sonner';
 import {QRCodeSVG} from 'qrcode.react';
 import {FlexCardListItem, FlexCardModal} from '../../../components/FlexCard';
+import {V2VendorDiscovery} from '../../../components/V2VendorDiscovery';
 
 interface FlexCardType {
   id: string;
@@ -86,11 +89,13 @@ export function V2MyGiftsTab() {
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [selectedFlexCard, setSelectedFlexCard] = useState<FlexCardType | null>(null);
+  const [isDiscoveryOpen, setIsDiscoveryOpen] = useState(false);
 
   const [page, setPage] = useState(1);
   const {data: giftsRes, isLoading, refetch} = useMyGifts(page);
   const {data: flexCardsRes, isLoading: flexCardsLoading} = useMyFlexCards();
   const {data: unclaimedRes} = useUnclaimedGifts();
+  const {data: flexCardAsset} = useGiftCardBySlug('flex-card');
   
   const gifts = giftsRes?.data || [];
   const flexCards = flexCardsRes?.data || [];
@@ -513,9 +518,18 @@ export function V2MyGiftsTab() {
                 </div>
                 <div>
                   <h3 className="font-bold text-[var(--v2-on-surface)]">Flex Cards</h3>
-                  <p className="text-xs text-[var(--v2-on-surface-variant)]">
-                    {flexCards.length} card{flexCards.length !== 1 ? 's' : ''} • Use at any vendor
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs text-[var(--v2-on-surface-variant)]">
+                      {flexCards.length} card{flexCards.length !== 1 ? 's' : ''}
+                    </p>
+                    <span className="w-1 h-1 rounded-full bg-[var(--v2-on-surface-variant)]/20" />
+                    <button
+                      onClick={() => setIsDiscoveryOpen(true)}
+                      className="text-xs font-bold text-[var(--v2-primary)] hover:opacity-80 transition-opacity flex items-center gap-1">
+                      <Compass className="w-3 h-3" />
+                      View all nearby vendors
+                    </button>
+                  </div>
                 </div>
               </div>
               <div className="text-right">
@@ -1071,6 +1085,18 @@ export function V2MyGiftsTab() {
           onClose={() => setSelectedFlexCard(null)}
         />
       )}
+
+      <ResponsiveModal open={isDiscoveryOpen} onOpenChange={setIsDiscoveryOpen}>
+        <ResponsiveModalContent className="sm:max-w-[600px] p-0 overflow-hidden bg-[var(--v2-background)] border-none">
+          <div className="p-4 sm:p-8">
+            <V2VendorDiscovery
+              giftCardId={flexCardAsset?.id}
+              variant="list"
+              title="Flex Card Vendors"
+            />
+          </div>
+        </ResponsiveModalContent>
+      </ResponsiveModal>
     </>
   );
 }

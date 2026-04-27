@@ -229,3 +229,86 @@
   outline: 2px solid var(--v2-primary);
   outline-offset: 2px;
 }
+/* Premium Gift Card Styles */
+.v2-premium-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+  aspect-ratio: 1.586 / 1; /* Standard credit card ratio */
+}
+
+.v2-premium-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.25);
+}
+
+.v2-premium-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.05) 100%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.v2-watermark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-v2-headline), sans-serif;
+  font-weight: 900;
+  font-size: 4rem;
+  color: rgba(255, 255, 255, 0.04);
+  text-transform: uppercase;
+  pointer-events: none;
+  z-index: 1;
+  transform: rotate(-15deg);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.v2-glass-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.v2-premium-badge {
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(4px);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 0.25rem 0.6rem;
+  border-radius: 99px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.v2-card-branding {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 0.02em;
+}
+
+.v2-card-branding .g-logo {
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  color: #000;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 10px;
+}

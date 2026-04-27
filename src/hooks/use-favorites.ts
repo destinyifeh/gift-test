@@ -8,10 +8,12 @@ const mapFavorite = (f: any) => ({
   image_url: f.imageUrl,
   vendor_id: f.vendorId,
   shop_slug: f.shopSlug,
+  product_short_id: f.productShortId,
   // Add profiles alias and ensure nested mapping
   profiles: {
     shop_name: f.vendor, // Backend already maps this to vendor name
     shop_slug: f.shopSlug,
+    product_short_id: f.productShortId,
   },
 });
 

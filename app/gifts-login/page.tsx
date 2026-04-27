@@ -24,8 +24,8 @@ export default function GiftsLoginPromptPage() {
             Gifthance
           </Link>
           <div className="flex items-center gap-6">
-            <Link href="/gift-shop" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] font-medium transition-colors">
-              Gift Shop
+            <Link href="/gifts" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] font-medium transition-colors">
+              Gifts
             </Link>
             <Link href="/campaigns" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] font-medium transition-colors">
               Campaigns
@@ -105,8 +105,8 @@ export default function GiftsLoginPromptPage() {
           {/* Or continue browsing */}
           <p className="mt-8 text-sm text-[var(--v2-on-surface-variant)]">
             Or continue browsing the{' '}
-            <Link href="/gift-shop" className="text-[var(--v2-primary)] font-bold hover:underline">
-              Gift Shop
+            <Link href="/gifts" className="text-[var(--v2-primary)] font-bold hover:underline">
+              Gifts
             </Link>
           </p>
         </div>

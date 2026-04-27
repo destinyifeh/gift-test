@@ -63,6 +63,10 @@ export class CreateCampaignDto {
   @IsOptional()
   claimableGiftId?: number;
 
+  @IsNumber()
+  @IsOptional()
+  giftCardId?: number;
+
   @IsString()
   @IsOptional()
   claimableRecipientType?: string;

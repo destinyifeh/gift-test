@@ -226,11 +226,18 @@ export function useCreateVendor() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: {
-      fullName: string;
-      username: string;
+      businessName: string;
+      businessLogo?: string;
+      businessDescription?: string;
       email: string;
-      country: string;
-      password?: string;
+      address: {
+        street: string;
+        city: string;
+        state: string;
+        country: string;
+        zip: string;
+      };
+      acceptedGiftCards: number[];
     }) => {
       const res = await api.post('/admin/vendors', data);
       return res.data;
@@ -768,3 +775,95 @@ export function useAdminUpdateCountryConfig() {
     },
   });
 }
+
+// ── Catalog Tag Requests ──
+export function useAdminTagRequests() {
+  return useQuery({
+    queryKey: ['admin-tag-requests'],
+    queryFn: async () => {
+      const res = await api.get('/catalog/requests');
+      return res.data;
+    },
+  });
+}
+
+export function useResolveTagRequest() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, status, adminNotes }: { id: number; status: string; adminNotes?: string }) => {
+      const res = await api.put(`/catalog/requests/${id}/resolve`, { status, adminNotes });
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-tag-requests'] });
+      queryClient.invalidateQueries({ queryKey: ['catalog'] }); // invalidate catalog if new tag added
+    },
+  });
+}
+
+// ── Admin Products Management ──
+export function useAdminProducts(options: { search?: string; vendorId?: string; categoryId?: string; status?: string; page?: number; limit?: number } = {}, queryOptions: any = {}) {
+  const { search, vendorId, categoryId, status, limit = 20 } = options;
+  return useInfiniteQuery({
+    queryKey: ['admin-products', search, vendorId, categoryId, status, limit],
+    ...queryOptions,
+    initialPageParam: 1,
+    queryFn: async ({ pageParam = 1 }) => {
+      const params = new URLSearchParams();
+      if (search) params.append('search', search);
+      if (vendorId) params.append('vendorId', vendorId);
+      if (categoryId) params.append('categoryId', categoryId);
+      if (status) params.append('status', status);
+      params.append('page', String(pageParam));
+      params.append('limit', String(limit));
+      const res = await api.get(`/admin/products?${params.toString()}`);
+      return {
+        ...res.data,
+        data: res.data.data.map((p: any) => ({
+          ...p,
+          created_at: p.createdAt,
+          updated_at: p.updatedAt,
+          vendor: p.vendor ? { ...p.vendor, display_name: p.vendor.displayName, shop_name: p.vendor.shopName } : null,
+          category_rel: p.categoryRel,
+          subcategory_rel: p.subcategoryRel,
+        })),
+      };
+    },
+    getNextPageParam: (lastPage) => lastPage.pagination?.hasMore ? (lastPage.pagination?.page || 1) + 1 : undefined,
+  });
+}
+
+export function useRequestProductUpdate() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, reason }: { id: string | number; reason: string }) => {
+      const res = await api.patch(`/admin/products/${id}/request-update`, { reason });
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+      toast.success('Update requested from vendor');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to request update');
+    },
+  });
+}
+
+export function useAdminEditProduct() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string | number; data: any }) => {
+      const res = await api.patch(`/admin/products/${id}`, data);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+      toast.success('Product updated manually');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to update product');
+    },
+  });
+}
+

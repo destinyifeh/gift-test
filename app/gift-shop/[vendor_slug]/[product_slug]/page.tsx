@@ -520,68 +520,86 @@ export default function V2ProductDetailsPage({
 
             {/* Desktop Grid */}
             <div className="hidden md:grid grid-cols-4 gap-6">
-              {relatedProducts.map((relatedProduct) => (
-                <Link
-                  key={relatedProduct.id}
-                  href={`/gift-shop/${relatedProduct.profiles?.shop_slug || relatedProduct.vendor_id}/${relatedProduct.slug || relatedProduct.id}`}
-                  onClick={() => recordClick(relatedProduct.id)}
-                  className="bg-[var(--v2-surface-container-lowest)] rounded-[2rem] overflow-hidden group shadow-sm hover:shadow-lg transition-all hover:-translate-y-1"
-                >
-                  <div className="relative aspect-square overflow-hidden">
-                    {getProductImages(relatedProduct)[0] ? (
-                      <img
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        src={getProductImages(relatedProduct)[0]}
-                        alt={relatedProduct.name}
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-[var(--v2-surface-container)] to-[var(--v2-surface-container-high)] flex items-center justify-center">
-                        <span className="v2-icon text-5xl text-[var(--v2-outline-variant)]">redeem</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-5">
-                    <h3 className="v2-headline text-base font-bold text-[var(--v2-on-background)] mb-1 capitalize truncate">
-                      {relatedProduct.name}
-                    </h3>
-                    <span className="text-lg font-bold v2-headline text-[var(--v2-primary)]">
-                      {formatCurrency(relatedProduct.price, currency)}
-                    </span>
-                  </div>
-                </Link>
-              ))}
+              {relatedProducts.map((relatedProduct) => {
+                const vendorSlug = relatedProduct.vendor?.shopSlug || relatedProduct.vendor?.shop_slug || relatedProduct.profiles?.shop_slug || relatedProduct.profiles?.shopSlug || relatedProduct.vendor_id || relatedProduct.vendorId;
+                const baseSlug = relatedProduct.slug || relatedProduct.id;
+                const shortId = relatedProduct.productShortId || relatedProduct.product_short_id;
+                const href = shortId 
+                  ? `/gift-shop/${vendorSlug}/${baseSlug}-${shortId}`
+                  : `/gift-shop/${vendorSlug}/${baseSlug}`;
+
+                return (
+                  <Link
+                    key={relatedProduct.id}
+                    href={href}
+                    onClick={() => recordClick(relatedProduct.id)}
+                    className="bg-[var(--v2-surface-container-lowest)] rounded-[2rem] overflow-hidden group shadow-sm hover:shadow-lg transition-all hover:-translate-y-1"
+                  >
+                    <div className="relative aspect-square overflow-hidden">
+                      {getProductImages(relatedProduct)[0] ? (
+                        <img
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          src={getProductImages(relatedProduct)[0]}
+                          alt={relatedProduct.name}
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-[var(--v2-surface-container)] to-[var(--v2-surface-container-high)] flex items-center justify-center">
+                          <span className="v2-icon text-5xl text-[var(--v2-outline-variant)]">redeem</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-5">
+                      <h3 className="v2-headline text-base font-bold text-[var(--v2-on-background)] mb-1 capitalize truncate">
+                        {relatedProduct.name}
+                      </h3>
+                      <span className="text-lg font-bold v2-headline text-[var(--v2-primary)]">
+                        {formatCurrency(relatedProduct.price, currency)}
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
 
             {/* Mobile Horizontal Scroll */}
             <div className="md:hidden flex gap-4 overflow-x-auto v2-no-scrollbar -mx-6 px-6 pb-2">
-              {relatedProducts.map((relatedProduct) => (
-                <Link
-                  key={relatedProduct.id}
-                  href={`/gift-shop/${relatedProduct.profiles?.shop_slug || relatedProduct.vendor_id}/${relatedProduct.slug || relatedProduct.id}`}
-                  onClick={() => recordClick(relatedProduct.id)}
-                  className="flex-shrink-0 w-40 bg-[var(--v2-surface-container-lowest)] rounded-2xl overflow-hidden shadow-sm"
-                >
-                  <div className="relative h-32 overflow-hidden">
-                    {getProductImages(relatedProduct)[0] ? (
-                      <img
-                        className="w-full h-full object-cover"
-                        src={getProductImages(relatedProduct)[0]}
-                        alt={relatedProduct.name}
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-[var(--v2-surface-container)] flex items-center justify-center">
-                        <span className="v2-icon text-3xl text-[var(--v2-outline-variant)]">redeem</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-3">
-                    <h3 className="v2-headline text-sm font-bold truncate capitalize">{relatedProduct.name}</h3>
-                    <span className="text-[var(--v2-primary)] font-bold text-sm">
-                      {formatCurrency(relatedProduct.price, currency)}
-                    </span>
-                  </div>
-                </Link>
-              ))}
+              {relatedProducts.map((relatedProduct) => {
+                const vendorSlug = relatedProduct.vendor?.shopSlug || relatedProduct.vendor?.shop_slug || relatedProduct.profiles?.shop_slug || relatedProduct.profiles?.shopSlug || relatedProduct.vendor_id || relatedProduct.vendorId;
+                const baseSlug = relatedProduct.slug || relatedProduct.id;
+                const shortId = relatedProduct.productShortId || relatedProduct.product_short_id;
+                const href = shortId 
+                  ? `/gift-shop/${vendorSlug}/${baseSlug}-${shortId}`
+                  : `/gift-shop/${vendorSlug}/${baseSlug}`;
+
+                return (
+                  <Link
+                    key={relatedProduct.id}
+                    href={href}
+                    onClick={() => recordClick(relatedProduct.id)}
+                    className="flex-shrink-0 w-40 bg-[var(--v2-surface-container-lowest)] rounded-2xl overflow-hidden shadow-sm"
+                  >
+                    <div className="relative h-32 overflow-hidden">
+                      {getProductImages(relatedProduct)[0] ? (
+                        <img
+                          className="w-full h-full object-cover"
+                          src={getProductImages(relatedProduct)[0]}
+                          alt={relatedProduct.name}
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-[var(--v2-surface-container)] flex items-center justify-center">
+                          <span className="v2-icon text-3xl text-[var(--v2-outline-variant)]">redeem</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-3">
+                      <h3 className="v2-headline text-sm font-bold truncate capitalize">{relatedProduct.name}</h3>
+                      <span className="text-[var(--v2-primary)] font-bold text-sm">
+                        {formatCurrency(relatedProduct.price, currency)}
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </section>
         )}

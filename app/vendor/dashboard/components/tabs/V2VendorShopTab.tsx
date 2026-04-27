@@ -2,14 +2,11 @@
 
 import {useProfile} from '@/hooks/use-profile';
 import api from '@/lib/api-client';
-import {
-  deleteUploadedFile,
-  updateProfile,
-  uploadShopLogo,
-} from '@/lib/server/actions/auth';
+import {deleteUploadedFile, updateProfile, uploadShopLogo} from '@/lib/server/actions/auth';
 import {useQueryClient} from '@tanstack/react-query';
 import {useEffect, useRef, useState} from 'react';
 import {toast} from 'sonner';
+import {useGiftCards} from '@/hooks/use-gift-cards';
 
 export function V2VendorShopTab() {
   const {data: profile} = useProfile();
@@ -27,6 +24,10 @@ export function V2VendorShopTab() {
   const [state, setState] = useState('');
   const [postalCode, setPostalCode] = useState('');
   const [country, setCountry] = useState('Nigeria');
+  const [acceptedGiftCards, setAcceptedGiftCards] = useState<number[]>([]);
+
+  const {data: giftCardsData} = useGiftCards();
+  const allGiftCards = Array.isArray(giftCardsData) ? giftCardsData : (giftCardsData?.data || []);
 
   // Initialize form with profile data
   useEffect(() => {
@@ -34,32 +35,28 @@ export function V2VendorShopTab() {
       setShopName(profile.shop_name || '');
       setStoreUrl(profile.shop_slug || profile.username || '');
       setDescription(profile.shop_description || profile.bio || '');
-
-      if (profile.shop_address) {
-        const parts = profile.shop_address.split(', ');
-        setAddress(parts[0] || '');
-        setCity(parts[1] || '');
-        setState(parts[2] || '');
-        setPostalCode(parts[3] || '');
-      }
-      setCountry(profile.country || 'Nigeria');
+      setAddress(profile.shop_street || '');
+      setCity(profile.shop_city || '');
+      setState(profile.shop_state || '');
+      setPostalCode(profile.shop_zip || '');
+      setCountry(profile.shop_country || profile.country || 'Nigeria');
+      setAcceptedGiftCards(profile.vendor_accepted_gift_cards || []);
     }
   }, [profile]);
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      // Combine address fields into a single shopAddress string
-      const fullAddress = [address, city, state, postalCode]
-        .filter(Boolean)
-        .join(', ');
-
       await api.patch('/users', {
         shopName,
         shopDescription: description,
         shopSlug: storeUrl,
-        shopAddress: fullAddress,
-        country,
+        shopStreet: address,
+        shopCity: city,
+        shopState: state,
+        shopZip: postalCode,
+        shopCountry: country,
+        acceptedGiftCards: acceptedGiftCards.filter((id) => id !== flexCardId), // Clean out flex card ID just in case
       });
 
       queryClient.invalidateQueries({queryKey: ['profile']});
@@ -83,18 +80,17 @@ export function V2VendorShopTab() {
       setShopName(profile.shop_name || '');
       setStoreUrl(profile.shop_slug || profile.username || '');
       setDescription(profile.shop_description || profile.bio || '');
-
-      if (profile.shop_address) {
-        const parts = profile.shop_address.split(', ');
-        setAddress(parts[0] || '');
-        setCity(parts[1] || '');
-        setState(parts[2] || '');
-        setPostalCode(parts[3] || '');
-      }
-      setCountry(profile.country || 'Nigeria');
+      setAddress(profile.shop_street || '');
+      setCity(profile.shop_city || '');
+      setState(profile.shop_state || '');
+      setPostalCode(profile.shop_zip || '');
+      setCountry(profile.shop_country || profile.country || 'Nigeria');
+      setAcceptedGiftCards(profile.vendor_accepted_gift_cards || []);
     }
     toast.info('Changes discarded');
   };
+
+  const flexCardId = allGiftCards.find((c: any) => c.name === 'Flex Card')?.id;
 
   const handleLogoClick = () => {
     fileInputRef.current?.click();
@@ -434,6 +430,103 @@ export function V2VendorShopTab() {
                 <option>United Kingdom</option>
               </select>
             </div>
+          </div>
+        </div>
+
+        {/* Gift Card Acceptance */}
+        <div className="col-span-12 bg-[var(--v2-surface-container-low)] rounded-3xl p-6 md:p-8">
+          <div className="flex flex-col md:flex-row md:items-start justify-between mb-6 md:mb-8 gap-4">
+            <div>
+              <h3 className="text-lg font-bold v2-headline flex items-center gap-2">
+                <span className="v2-icon text-[var(--v2-primary)]">payments</span>
+                Accepted Gift Cards
+              </h3>
+              <p className="text-sm text-[var(--v2-on-surface-variant)] mt-1">
+                Select which gift cards can be redeemed at your shop.
+              </p>
+            </div>
+            <div className="flex flex-col items-end gap-2">
+              <span className={`text-[10px] font-bold px-3 py-1 rounded-full ${acceptedGiftCards.filter((id) => id !== flexCardId).length >= 5 ? 'bg-red-100 text-red-600' : 'bg-[var(--v2-primary-container)]/20 text-[var(--v2-primary)]'}`}>
+                {acceptedGiftCards.filter((id) => id !== flexCardId).length}/5 Cards Selected
+              </span>
+            </div>
+          </div>
+
+          <p className="text-[12px] text-[var(--v2-on-surface-variant)] leading-relaxed italic mb-6">
+            You can accept up to 5 specific gift cards. The <strong>Flex Card</strong> is automatically accepted by all verified vendors and does not count towards this limit.
+          </p>
+
+          <div className="space-y-6">
+            {/* Fixed Flex Card */}
+            <div className="space-y-2">
+              <h5 className="text-sm font-black text-[var(--v2-on-surface)]">
+                💳 Flex Card Rule
+              </h5>
+              <label className="flex items-center gap-3 py-1 cursor-not-allowed opacity-80">
+                <input type="checkbox" className="w-4 h-4 rounded text-[var(--v2-primary)] border-gray-300 focus:ring-[var(--v2-primary)]" disabled checked />
+                <span className="text-sm font-medium text-[var(--v2-on-surface)] flex-1">Flex Card</span>
+                <span className="text-[10px] bg-[var(--v2-primary)]/10 text-[var(--v2-primary)] px-2 py-0.5 rounded font-bold uppercase tracking-wider">Default</span>
+              </label>
+            </div>
+
+            {/* Other Cards Grouped */}
+            {(() => {
+              const categories = [
+                { title: '🍔 Food & Drinks', items: ['Food Card', 'Drinks Card'] },
+                { title: '👕 Fashion', items: ['Fashion Card'] },
+                { title: '📱 Technology', items: ['Electronics Card', 'Gadget Card'] },
+                { title: '🛍 Shopping', items: ['Shopping Card'] },
+                { title: '🛒 Everyday Use', items: ['Groceries Card', 'Transport Card', 'Fuel Card', 'Bills & Utilities Card'] },
+                { title: '🛋 Home & Living', items: ['Furniture Card', 'Home Essentials Card'] },
+                { title: '🌟 Lifestyle', items: ['Entertainment Card', 'Educational Card'] },
+              ];
+
+              return categories.map(group => {
+                const groupCards = allGiftCards.filter((c: any) => c.id !== flexCardId && group.items.includes(c.name));
+                if (groupCards.length === 0) return null;
+
+                return (
+                  <div key={group.title} className="space-y-2 pt-2 border-t border-gray-100">
+                    <h5 className="text-sm font-black text-[var(--v2-on-surface)]">
+                      {group.title}
+                    </h5>
+                    <div className="flex flex-col gap-2.5">
+                      {groupCards.map((card: any) => {
+                        const checkedCount = acceptedGiftCards.filter((id) => id !== flexCardId).length;
+                        const isSelected = acceptedGiftCards.includes(card.id);
+                        const isDisabled = !isSelected && checkedCount >= 5;
+
+                        return (
+                          <label 
+                            key={card.id}
+                            className={`flex items-center gap-3 py-0.5 transition-all ${
+                              isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:opacity-80'
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              className="w-4 h-4 rounded text-[var(--v2-primary)] border-gray-300 focus:ring-[var(--v2-primary)]"
+                              disabled={isDisabled}
+                              checked={isSelected}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  if (checkedCount < 5) {
+                                    setAcceptedGiftCards([...acceptedGiftCards, card.id]);
+                                  }
+                                } else {
+                                  setAcceptedGiftCards(acceptedGiftCards.filter((id) => id !== card.id));
+                                }
+                              }}
+                            />
+                            <span className="text-sm font-medium text-[var(--v2-on-surface)]">{card.name}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              });
+            })()}
           </div>
         </div>
 

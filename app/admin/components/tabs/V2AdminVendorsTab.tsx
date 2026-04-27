@@ -1,18 +1,11 @@
-import {
-  useAdminUsers,
-  useAdminVendors,
-  useCreateVendor,
-  useUpdateUserRole,
-  useUpdateVendorStatus,
-  useUpdateUserStatus,
-  useVerifyVendor,
-  useDeleteUser,
-} from '@/hooks/use-admin';
+import {useAdminUsers, useAdminVendors, useCreateVendor, useUpdateUserRole, useUpdateVendorStatus, useUpdateUserStatus, useVerifyVendor, useDeleteUser} from '@/hooks/use-admin';
+import {useGiftCards} from '@/hooks/use-gift-cards';
 import {useIsMobile} from '@/hooks/use-mobile';
 import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
-import {useEffect, useState} from 'react';
+import {useEffect, useState, useMemo, useRef} from 'react';
 import {toast} from 'sonner';
-import {useForm} from 'react-hook-form';
+import {uploadShopLogo} from '@/lib/server/actions/auth';
+import {useForm, useWatch} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {createVendorSchema, type CreateVendorInput} from '@/lib/validations/admin';
 
@@ -46,6 +39,8 @@ export function V2AdminVendorsTab({
   addLog,
 }: V2AdminVendorsTabProps) {
   const isMobile = useIsMobile();
+  const {data: giftCardsData} = useGiftCards();
+  const allGiftCards = Array.isArray(giftCardsData) ? giftCardsData : (giftCardsData?.data || []);
 
   // Local search
   const [localSearch, setLocalSearch] = useState('');
@@ -74,12 +69,19 @@ export function V2AdminVendorsTab({
   const [addVendorSearch, setAddVendorSearch] = useState('');
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [newVendor, setNewVendor] = useState({
-    fullName: '',
-    username: '',
+    businessName: '',
+    businessUrl: '',
+    businessLogo: '',
+    businessDescription: '',
     email: '',
-    country: 'NG',
-    password: '',
-    confirmPassword: '',
+    address: {
+      street: '',
+      city: '',
+      state: '',
+      country: 'Nigeria',
+      zip: '',
+    },
+    acceptedGiftCards: [] as number[],
     type: 'new' as 'new' | 'existing',
   });
 
@@ -88,18 +90,65 @@ export function V2AdminVendorsTab({
     handleSubmit,
     setValue,
     reset,
+    control,
     formState: { errors },
   } = useForm<CreateVendorInput>({
-    resolver: zodResolver(createVendorSchema),
+    resolver: zodResolver(createVendorSchema) as any,
     defaultValues: {
-      fullName: '',
-      username: '',
+      businessName: '',
+      businessUrl: '',
+      businessLogo: '',
+      businessDescription: '',
       email: '',
-      country: 'Nigeria',
-      password: '',
-      confirmPassword: '',
+      address: {
+        street: '',
+        city: '',
+        state: '',
+        country: 'Nigeria',
+        zip: '',
+      },
+      acceptedGiftCards: [],
     },
   });
+
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const watchBusinessLogo = useWatch({ control, name: 'businessLogo' }) as string | undefined;
+  const watchBusinessName = useWatch({ control, name: 'businessName' }) as string | undefined;
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
+
+    try {
+      setIsUploadingLogo(true);
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const result = await uploadShopLogo(formData);
+      if (result.success && result.url) {
+        setValue('businessLogo', result.url);
+        toast.success('Business logo uploaded successfully');
+      } else {
+        toast.error(result.error || 'Failed to upload logo');
+      }
+    } catch (err: any) {
+      toast.error('An error occurred during upload');
+    } finally {
+      setIsUploadingLogo(false);
+      if (logoInputRef.current) logoInputRef.current.value = '';
+    }
+  };
+
+  const watchAcceptedGiftCards = useWatch({
+    control,
+    name: 'acceptedGiftCards',
+  }) || [];
 
   // Confirm Action Modal
   const [confirmModal, setConfirmModal] = useState<{
@@ -286,9 +335,6 @@ export function V2AdminVendorsTab({
       addVendorMutation.mutate({
         userId: selectedUser.id,
         roles: [...currentRoles, 'vendor'],
-        username: selectedUser.username || newVendor.username,
-        fullName: selectedUser.displayName || newVendor.fullName,
-        country: selectedUser.country || newVendor.country,
       }, {
         onSuccess: () => {
           setShowAddVendorModal(false);
@@ -296,12 +342,19 @@ export function V2AdminVendorsTab({
           setAddVendorSearch('');
           reset();
           setNewVendor({
-            fullName: '',
-            username: '',
+            businessName: '',
+            businessUrl: '',
+            businessLogo: '',
+            businessDescription: '',
             email: '',
-            country: 'Nigeria',
-            password: '',
-            confirmPassword: '',
+            address: {
+              street: '',
+              city: '',
+              state: '',
+              country: 'Nigeria',
+              zip: '',
+            },
+            acceptedGiftCards: [],
             type: 'new',
           });
           addLog(`Upgraded user ${selectedUser.email} to Vendor role`);
@@ -309,22 +362,29 @@ export function V2AdminVendorsTab({
       });
     } else if (formData) {
       createVendorMutation.mutate({
-        fullName: formData.fullName,
-        username: formData.username,
+        businessName: formData.businessName,
+        businessDescription: formData.businessDescription,
         email: formData.email,
-        country: formData.country,
-        password: formData.password,
+        address: formData.address,
+        acceptedGiftCards: formData.acceptedGiftCards,
       }, {
         onSuccess: () => {
           setShowAddVendorModal(false);
           reset();
           setNewVendor({
-            fullName: '',
-            username: '',
+            businessName: '',
+            businessUrl: '',
+            businessLogo: '',
+            businessDescription: '',
             email: '',
-            country: 'Nigeria',
-            password: '',
-            confirmPassword: '',
+            address: {
+              street: '',
+              city: '',
+              state: '',
+              country: 'Nigeria',
+              zip: '',
+            },
+            acceptedGiftCards: [],
             type: 'new',
           });
           addLog(`Created new vendor account for ${formData.email}`);
@@ -1080,13 +1140,21 @@ export function V2AdminVendorsTab({
               setShowAddVendorModal(false);
               setSelectedUser(null);
               setAddVendorSearch('');
+              reset();
               setNewVendor({
-                fullName: '',
-                username: '',
+                businessName: '',
+                businessUrl: '',
+                businessLogo: '',
+                businessDescription: '',
                 email: '',
-                country: 'NG',
-                password: '',
-                confirmPassword: '',
+                address: {
+                  street: '',
+                  city: '',
+                  state: '',
+                  country: 'Nigeria',
+                  zip: '',
+                },
+                acceptedGiftCards: [],
                 type: 'new',
               });
             }}
@@ -1114,13 +1182,21 @@ export function V2AdminVendorsTab({
                   setShowAddVendorModal(false);
                   setSelectedUser(null);
                   setAddVendorSearch('');
+                  reset();
                   setNewVendor({
-                    fullName: '',
-                    username: '',
+                    businessName: '',
+                    businessUrl: '',
+                    businessLogo: '',
+                    businessDescription: '',
                     email: '',
-                    country: 'NG',
-                    password: '',
-                    confirmPassword: '',
+                    address: {
+                      street: '',
+                      city: '',
+                      state: '',
+                      country: 'Nigeria',
+                      zip: '',
+                    },
+                    acceptedGiftCards: [],
                     type: 'new',
                   });
                 }}
@@ -1155,105 +1231,283 @@ export function V2AdminVendorsTab({
               </div>
 
               {newVendor.type === 'new' ? (
-                <>
-                  {/* Full Name */}
-                  <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-6">
+                  {/* Business Identity */}
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-bold text-[var(--v2-primary)] uppercase tracking-wider flex items-center gap-2">
+                       <span className="v2-icon text-lg">business</span>
+                       Business Identity
+                    </h4>
+                    
                     <div>
-                      <label className="text-sm font-bold text-[var(--v2-on-surface)] block mb-2">
-                        Full Name
+                      <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] block mb-1.5 ml-1">
+                        Business Name
                       </label>
                       <input
                         type="text"
-                        {...register('fullName')}
-                        placeholder="John Doe"
-                        className={`w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none ${errors.fullName ? 'ring-2 ring-red-500/20' : ''}`}
+                        {...register('businessName', {
+                          onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+                            const value = e.target.value;
+                            // Automatically generate matching URL slug
+                            setValue('businessUrl', value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''));
+                          }
+                        })}
+                        placeholder="e.g. Shoprite Ikeja"
+                        className={`w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none ${errors.businessName ? 'ring-2 ring-red-500/20' : ''}`}
                       />
-                      {errors.fullName && <p className="text-[10px] text-red-500 mt-1 ml-1">{errors.fullName.message}</p>}
+                      {errors.businessName && <p className="text-[10px] text-red-500 mt-1 ml-1">{errors.businessName.message}</p>}
+                      {/* Business URL - auto-populated but editable */}
+                      <div className="flex items-center mt-2 bg-[var(--v2-surface-container)] rounded-xl px-4 py-2.5 focus-within:ring-2 focus-within:ring-[var(--v2-primary)]/20 transition-all">
+                        <span className="text-[var(--v2-on-surface-variant)]/60 text-xs whitespace-nowrap">
+                          gifthance.com/vendor/
+                        </span>
+                        <input
+                          type="text"
+                          {...register('businessUrl')}
+                          className="bg-transparent border-none p-0 ml-1 text-[var(--v2-on-surface)] w-full focus:ring-0 outline-none text-xs font-medium"
+                          placeholder="your-business"
+                        />
+                      </div>
                     </div>
+
+                    {/* Logo Upload */}
                     <div>
-                      <label className="text-sm font-bold text-[var(--v2-on-surface)] block mb-2">
-                        Username
+                      <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] block mb-1.5 ml-1">
+                        Business Logo
+                      </label>
+                      <div className="flex items-center gap-4">
+                        <div className="w-16 h-16 rounded-2xl bg-[var(--v2-surface-container)] flex items-center justify-center overflow-hidden shrink-0 border border-gray-100 relative">
+                          {isUploadingLogo ? (
+                            <span className="v2-icon text-[var(--v2-primary)] animate-spin">progress_activity</span>
+                          ) : watchBusinessLogo ? (
+                            <img src={watchBusinessLogo} alt="Logo" className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="v2-icon text-[var(--v2-on-surface-variant)]/40 text-2xl">store</span>
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            ref={logoInputRef}
+                            onChange={handleLogoUpload}
+                            className="hidden"
+                          />
+                          <button
+                            type="button"
+                            disabled={isUploadingLogo}
+                            onClick={() => logoInputRef.current?.click()}
+                            className="text-xs font-bold px-4 py-2 rounded-xl bg-[var(--v2-surface-container)] hover:bg-[var(--v2-surface-container-high)] transition-all text-[var(--v2-on-surface)] border border-gray-200 shadow-sm disabled:opacity-50"
+                          >
+                            Upload Image
+                          </button>
+                          <p className="text-[10px] text-[var(--v2-on-surface-variant)] mt-1.5 ml-1">
+                            Recommended size: 256x256px
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] block mb-1.5 ml-1">
+                        Business Description
+                      </label>
+                      <textarea
+                        {...register('businessDescription')}
+                        placeholder="Tell us about the business..."
+                        rows={2}
+                        className="w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none resize-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] block mb-1.5 ml-1">
+                        Vendor Email (Login & Notifications)
+                      </label>
+                      <input
+                        type="email"
+                        {...register('email')}
+                        placeholder="vendor@business.com"
+                        className={`w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none ${errors.email ? 'ring-2 ring-red-500/20' : ''}`}
+                      />
+                      {errors.email && <p className="text-[10px] text-red-500 mt-1 ml-1">{errors.email.message}</p>}
+                    </div>
+                  </div>
+
+                  {/* Business Location */}
+                  <div className="space-y-4 pt-2">
+                    <h4 className="text-sm font-bold text-[var(--v2-primary)] uppercase tracking-wider flex items-center gap-2">
+                       <span className="v2-icon text-lg">location_on</span>
+                       Business Location
+                    </h4>
+                    
+                    <div>
+                      <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] block mb-1.5 ml-1">
+                        Street Address
                       </label>
                       <input
                         type="text"
-                        {...register('username')}
-                        placeholder="shopriteIkeja"
-                        className={`w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none ${errors.username ? 'ring-2 ring-red-500/20' : ''}`}
+                        {...register('address.street')}
+                        placeholder="123 Business Way"
+                        className={`w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none ${errors.address?.street ? 'ring-2 ring-red-500/20' : ''}`}
                       />
-                      {errors.username && <p className="text-[10px] text-red-500 mt-1 ml-1">{errors.username.message}</p>}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] block mb-1.5 ml-1">
+                          City
+                        </label>
+                        <input
+                          type="text"
+                          {...register('address.city')}
+                          placeholder="Ikeja"
+                          className={`w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none ${errors.address?.city ? 'ring-2 ring-red-500/20' : ''}`}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] block mb-1.5 ml-1">
+                          State
+                        </label>
+                        <input
+                          type="text"
+                          {...register('address.state')}
+                          placeholder="Lagos"
+                          className={`w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none ${errors.address?.state ? 'ring-2 ring-red-500/20' : ''}`}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] block mb-1.5 ml-1">
+                          Country
+                        </label>
+                        <select
+                          {...register('address.country')}
+                          className="w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none">
+                          <option value="Nigeria">Nigeria</option>
+                          <option value="Ghana">Ghana</option>
+                          <option value="Kenya">Kenya</option>
+                          <option value="South Africa">South Africa</option>
+                          <option value="Cote d'Ivoire">Cote d'Ivoire</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] block mb-1.5 ml-1">
+                          Zip / Postal Code
+                        </label>
+                        <input
+                          type="text"
+                          {...register('address.zip')}
+                          placeholder="100001"
+                          className={`w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none ${errors.address?.zip ? 'ring-2 ring-red-500/20' : ''}`}
+                        />
+                      </div>
                     </div>
                   </div>
 
-                  {/* Email */}
-                  <div>
-                    <label className="text-sm font-bold text-[var(--v2-on-surface)] block mb-2">
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      {...register('email')}
-                      placeholder="john@shoprite.com"
-                      className={`w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none ${errors.email ? 'ring-2 ring-red-500/20' : ''}`}
-                    />
-                    {errors.email && <p className="text-[10px] text-red-500 mt-1 ml-1">{errors.email.message}</p>}
-                  </div>
-
-                  {/* Country Selection */}
-                  <div>
-                    <label className="text-sm font-bold text-[var(--v2-on-surface)] block mb-2">
-                      Country
-                    </label>
-                    <select
-                      {...register('country')}
-                      className={`w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none ${errors.country ? 'ring-2 ring-red-500/20' : ''}`}>
-                      <option value="Nigeria">Nigeria</option>
-                      <option value="Ghana">Ghana</option>
-                      <option value="United Kingdom">United Kingdom</option>
-                      <option value="United States">United States</option>
-                    </select>
-                    {errors.country && <p className="text-[10px] text-red-500 mt-1 ml-1">{errors.country.message}</p>}
-                  </div>
-
-                  {/* Password */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-bold text-[var(--v2-on-surface)] block mb-2">
-                        Password
-                      </label>
-                      <input
-                        type="password"
-                        {...register('password')}
-                        placeholder="••••••••"
-                        className={`w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none ${errors.password ? 'ring-2 ring-red-500/20' : ''}`}
-                      />
-                      {errors.password && <p className="text-[10px] text-red-500 mt-1 ml-1">{errors.password.message}</p>}
+                  {/* Gift Card Acceptance */}
+                  <div className="space-y-4 pt-2">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-bold text-[var(--v2-primary)] uppercase tracking-wider flex items-center gap-2">
+                         <span className="v2-icon text-lg">payments</span>
+                         Accepted Gift Cards
+                      </h4>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${watchAcceptedGiftCards.length >= 5 ? 'bg-red-100 text-red-600' : 'bg-[var(--v2-primary-container)]/20 text-[var(--v2-primary)]'}`}>
+                        {watchAcceptedGiftCards.length}/5 Cards Selected
+                      </span>
                     </div>
-                    <div>
-                      <label className="text-sm font-bold text-[var(--v2-on-surface)] block mb-2">
-                        Confirm
-                      </label>
-                      <input
-                        type="password"
-                        {...register('confirmPassword')}
-                        placeholder="••••••••"
-                        className={`w-full px-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none ${errors.confirmPassword ? 'ring-2 ring-red-500/20' : ''}`}
-                      />
-                      {errors.confirmPassword && <p className="text-[10px] text-red-500 mt-1 ml-1">{errors.confirmPassword.message}</p>}
+
+                    <p className="text-[11px] text-[var(--v2-on-surface-variant)] leading-relaxed italic">
+                      Vendors can accept up to 5 gift cards. The <strong>Flex Card</strong> is automatically enabled for all vendors and does not count towards this limit.
+                    </p>
+
+                    <div className="space-y-6 max-h-80 overflow-y-auto p-2 custom-scrollbar border border-gray-100 rounded-xl bg-gray-50/50">
+                      
+                      {/* Fixed Flex Card (Not counted in limit) */}
+                      <div className="space-y-2">
+                        <h5 className="text-sm font-black text-[var(--v2-on-surface)]">
+                          💳 Flex Card Rule
+                        </h5>
+                        <label className="flex items-center gap-3 py-1 cursor-not-allowed opacity-80">
+                          <input type="checkbox" className="w-4 h-4 rounded text-[var(--v2-primary)] border-gray-300 focus:ring-[var(--v2-primary)]" disabled checked />
+                          <span className="text-sm font-medium text-[var(--v2-on-surface)] flex-1">Flex Card</span>
+                          <span className="text-[10px] bg-[var(--v2-primary)]/10 text-[var(--v2-primary)] px-2 py-0.5 rounded font-bold uppercase tracking-wider">Default</span>
+                        </label>
+                      </div>
+
+                      {/* Group by Categories */}
+                      {(() => {
+                        const categories = [
+                          { title: '🍔 Food & Drinks', items: ['Food Card', 'Drinks Card'] },
+                          { title: '👕 Fashion', items: ['Fashion Card'] },
+                          { title: '📱 Technology', items: ['Electronics Card', 'Gadget Card'] },
+                          { title: '🛍 Shopping', items: ['Shopping Card'] },
+                          { title: '🛒 Everyday Use', items: ['Groceries Card', 'Transport Card', 'Fuel Card', 'Bills & Utilities Card'] },
+                          { title: '🛋 Home & Living', items: ['Furniture Card', 'Home Essentials Card'] },
+                          { title: '🌟 Lifestyle', items: ['Entertainment Card', 'Educational Card'] },
+                        ];
+
+                        return categories.map(group => {
+                          const groupCards = allGiftCards.filter((c: any) => c.name !== 'Flex Card' && group.items.includes(c.name));
+                          if (groupCards.length === 0) return null;
+
+                          return (
+                            <div key={group.title} className="space-y-2 pt-2 border-t border-gray-100">
+                              <h5 className="text-sm font-black text-[var(--v2-on-surface)]">
+                                {group.title}
+                              </h5>
+                              <div className="flex flex-col gap-2.5">
+                                {groupCards.map((card: any) => {
+                                  const isSelected = watchAcceptedGiftCards.includes(card.id);
+                                  const isDisabled = !isSelected && watchAcceptedGiftCards.length >= 5;
+                                  
+                                  return (
+                                    <label 
+                                      key={card.id}
+                                      className={`flex items-center gap-3 py-0.5 transition-all ${
+                                        isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:opacity-80'
+                                      }`}
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        className="w-4 h-4 rounded text-[var(--v2-primary)] border-gray-300 focus:ring-[var(--v2-primary)]"
+                                        disabled={isDisabled}
+                                        checked={isSelected}
+                                        onChange={(e) => {
+                                          if (e.target.checked) {
+                                            if (watchAcceptedGiftCards.length < 5) {
+                                              setValue('acceptedGiftCards', [...watchAcceptedGiftCards, card.id]);
+                                            }
+                                          } else {
+                                            setValue('acceptedGiftCards', watchAcceptedGiftCards.filter((id: number) => id !== card.id));
+                                          }
+                                        }}
+                                      />
+                                      <span className="text-sm font-medium text-[var(--v2-on-surface)]">{card.name}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          );
+                        });
+                      })()}
                     </div>
+                    {errors.acceptedGiftCards && <p className="text-[10px] text-red-500 mt-1">{errors.acceptedGiftCards.message}</p>}
                   </div>
 
-                  <p className="text-[10px] text-[var(--v2-on-surface-variant)] leading-relaxed p-3 bg-blue-50 rounded-xl">
-                    <span className="font-bold">Note:</span> An email will be
-                    sent to the vendor with their temporary password and a
-                    prompt to change it after login.
+                  <p className="text-[10px] text-[var(--v2-on-surface-variant)] leading-relaxed p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+                    <span className="font-bold text-emerald-700">Curated Onboarding:</span> New vendors will receive a welcome email with secure credentials. They will be required to update their password and complete their brand profile upon first login.
                   </p>
-                </>
+                </div>
               ) : (
-                <>
+                <div className="space-y-5">
                   {/* Search Existing User */}
                   <div>
-                    <label className="text-sm font-bold text-[var(--v2-on-surface)] block mb-2">
-                      Search Existing User
+                    <label className="text-sm font-bold text-[var(--v2-on-surface)] block mb-2 font-black uppercase tracking-tight">
+                      Search Platform Users
                     </label>
                     <div className="relative">
                       <span className="v2-icon absolute left-4 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)]">
@@ -1267,13 +1521,13 @@ export function V2AdminVendorsTab({
                           setSelectedUser(null);
                         }}
                         placeholder="Search by username or email..."
-                        className="w-full pl-12 pr-4 py-3 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none"
+                        className="w-full pl-12 pr-4 py-3 bg-[var(--v2-surface-container)] rounded-2xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none"
                       />
                     </div>
                   </div>
 
                   {addVendorSearch.length >= 2 && (
-                    <div className="max-h-40 overflow-y-auto border border-[var(--v2-surface-container)] rounded-xl shadow-inner bg-gray-50/30">
+                    <div className="max-h-40 overflow-y-auto border border-[var(--v2-surface-container)] rounded-2xl shadow-inner bg-gray-50/30 p-1">
                       {usersLoading ? (
                         <div className="p-4 text-center">
                           <span className="v2-icon text-2xl text-[var(--v2-primary)] animate-spin">
@@ -1281,38 +1535,42 @@ export function V2AdminVendorsTab({
                           </span>
                         </div>
                       ) : availableUsers.length === 0 ? (
-                        <div className="p-4 text-center text-sm text-[var(--v2-on-surface-variant)]">
+                        <div className="p-4 text-center text-xs text-[var(--v2-on-surface-variant)] font-medium">
                           No users found or all users are already vendors
                         </div>
                       ) : (
-                        <div className="divide-y divide-[var(--v2-surface-container)]">
+                        <div className="space-y-1">
                           {availableUsers.map((user: any) => (
                             <button
                               key={user.id}
                               type="button"
                               onClick={() => setSelectedUser(user)}
-                              className={`w-full flex items-center gap-3 p-3 text-left transition-colors ${
+                              className={`w-full flex items-center gap-3 p-3 text-left rounded-xl transition-colors ${
                                 selectedUser?.id === user.id
                                   ? 'bg-[var(--v2-primary-container)]/20'
                                   : 'hover:bg-[var(--v2-surface-container)]'
                               }`}>
-                              <div className="w-10 h-10 rounded-full bg-[var(--v2-primary-container)]/20 flex items-center justify-center">
-                                <span className="font-bold text-[var(--v2-primary)]">
-                                  {(user.displayName || user.username || 'U')
-                                    .charAt(0)
-                                    .toUpperCase()}
-                                </span>
+                              <div className="w-10 h-10 rounded-full bg-[var(--v2-primary-container)]/20 flex items-center justify-center overflow-hidden">
+                                {user.avatarUrl ? (
+                                  <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
+                                ) : (
+                                  <span className="font-bold text-[var(--v2-primary)]">
+                                    {(user.displayName || user.username || 'U')
+                                      .charAt(0)
+                                      .toUpperCase()}
+                                  </span>
+                                )}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="font-medium truncate">
+                                <p className="font-bold truncate text-sm">
                                   {user.displayName || user.username}
                                 </p>
-                                <p className="text-xs text-[var(--v2-on-surface-variant)] truncate">
+                                <p className="text-[10px] text-[var(--v2-on-surface-variant)] truncate font-medium">
                                   @{user.username} • {user.email || 'No email'}
                                 </p>
                               </div>
                               {selectedUser?.id === user.id && (
-                                <span className="v2-icon text-[var(--v2-primary)]">
+                                <span className="v2-icon text-[var(--v2-primary)] text-xl">
                                   check_circle
                                 </span>
                               )}
@@ -1324,34 +1582,38 @@ export function V2AdminVendorsTab({
                   )}
 
                   {selectedUser && (
-                    <div className="p-4 bg-[var(--v2-primary-container)]/10 rounded-xl border border-[var(--v2-primary-container)]/20">
+                    <div className="p-4 bg-[var(--v2-primary-container)]/10 rounded-2xl border border-[var(--v2-primary-container)]/20 animate-in fade-in zoom-in duration-200">
                       <p className="text-xs font-bold text-[var(--v2-primary)] uppercase tracking-wider mb-2">
                         Selected User
                       </p>
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-[var(--v2-primary-container)]/20 flex items-center justify-center">
-                          <span className="font-bold text-[var(--v2-primary)]">
-                            {(
-                              selectedUser.displayName ||
-                              selectedUser.username ||
-                              'U'
-                            )
-                              .charAt(0)
-                              .toUpperCase()}
-                          </span>
+                        <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center overflow-hidden">
+                          {selectedUser.avatarUrl ? (
+                            <img src={selectedUser.avatarUrl} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="font-bold text-[var(--v2-primary)] text-xl">
+                              {(
+                                selectedUser.displayName ||
+                                selectedUser.username ||
+                                'U'
+                              )
+                                .charAt(0)
+                                .toUpperCase()}
+                            </span>
+                          )}
                         </div>
                         <div className="flex-1">
-                          <p className="font-bold truncate">
+                          <p className="font-black text-sm truncate">
                             {selectedUser.displayName || selectedUser.username}
                           </p>
-                          <p className="text-xs text-[var(--v2-on-surface-variant)]">
+                          <p className="text-xs text-[var(--v2-on-surface-variant)] font-bold">
                             @{selectedUser.username}
                           </p>
                         </div>
                         <button
                           type="button"
                           onClick={() => setSelectedUser(null)}
-                          className="p-1 rounded-full hover:bg-[var(--v2-surface-container)]">
+                          className="w-10 h-10 rounded-full hover:bg-[var(--v2-surface-container)] flex items-center justify-center transition-colors">
                           <span className="v2-icon text-[var(--v2-on-surface-variant)]">
                             close
                           </span>
@@ -1360,12 +1622,10 @@ export function V2AdminVendorsTab({
                     </div>
                   )}
 
-                  <p className="text-[10px] text-[var(--v2-on-surface-variant)] leading-relaxed p-3 bg-amber-50 rounded-xl">
-                    <span className="font-bold">Warning:</span> Upgrading an
-                    existing user will keep their personal account data and add
-                    vendor privileges to their profile.
+                  <p className="text-[10px] text-[var(--v2-on-surface-variant)] leading-relaxed p-4 bg-amber-50 rounded-2xl border border-amber-100 font-medium">
+                    <span className="font-bold text-amber-700">Role Upgrade:</span> Upgrading an existing user will grant them vendor capabilities immediately. You can further refine their business profile in the Vendor Settings.
                   </p>
-                </>
+                </div>
               )}
 
               <div className="flex gap-3 pt-4">
@@ -1375,13 +1635,21 @@ export function V2AdminVendorsTab({
                     setShowAddVendorModal(false);
                     setSelectedUser(null);
                     setAddVendorSearch('');
+                    reset();
                     setNewVendor({
-                      fullName: '',
-                      username: '',
+                      businessName: '',
+                      businessUrl: '',
+                      businessLogo: '',
+                      businessDescription: '',
                       email: '',
-                      country: 'NG',
-                      password: '',
-                      confirmPassword: '',
+                      address: {
+                        street: '',
+                        city: '',
+                        state: '',
+                        country: 'Nigeria',
+                        zip: '',
+                      },
+                      acceptedGiftCards: [],
                       type: 'new',
                     });
                   }}
@@ -1398,7 +1666,7 @@ export function V2AdminVendorsTab({
                     if (newVendor.type === 'existing') {
                       handleAddVendor();
                     } else {
-                      handleSubmit(handleAddVendor)();
+                      handleSubmit((data) => handleAddVendor(data))();
                     }
                   }}
                   className="flex-1 py-3 v2-hero-gradient text-white rounded-full font-bold disabled:opacity-50 flex items-center justify-center gap-2">

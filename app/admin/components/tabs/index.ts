@@ -16,3 +16,5 @@ export {V2AdminNotificationsTab} from './V2AdminNotificationsTab';
 export {V2AdminSettingsTab} from './V2AdminSettingsTab';
 export {V2AdminRolesTab} from './V2AdminRolesTab';
 export {V2AdminLogsTab} from './V2AdminLogsTab';
+export {V2AdminCatalogTab} from './V2AdminCatalogTab';
+export {default as V2AdminGiftCardsTab} from './V2AdminGiftCardsTab';

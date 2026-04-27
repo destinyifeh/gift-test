@@ -49,6 +49,30 @@ export class UpdateUserDto {
   @IsOptional()
   shopLogoUrl?: string;
 
+  @IsString()
+  @IsOptional()
+  shopStreet?: string;
+
+  @IsString()
+  @IsOptional()
+  shopCity?: string;
+
+  @IsArray()
+  @IsOptional()
+  acceptedGiftCards?: number[];
+
+  @IsString()
+  @IsOptional()
+  shopState?: string;
+
+  @IsString()
+  @IsOptional()
+  shopCountry?: string;
+
+  @IsString()
+  @IsOptional()
+  shopZip?: string;
+
   @IsObject()
   @IsOptional()
   socialLinks?: any;

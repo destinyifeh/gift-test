@@ -31,6 +31,7 @@ export interface FlexCard {
   claimed_at: string | null;
   created_at: string;
   updated_at: string;
+  is_flex_card?: boolean;
   profiles?: {
     display_name: string;
     username: string;
@@ -73,6 +74,7 @@ function mapBackendCard(card: any): FlexCard {
     claimed_at: card.claimedAt || card.claimed_at,
     created_at: card.createdAt || card.created_at,
     updated_at: card.updatedAt || card.updated_at,
+    is_flex_card: true,
     sender: card.sender ? {
       ...card.sender,
       display_name: card.sender.displayName || card.sender.display_name,

@@ -13,9 +13,9 @@ interface TabItem {
 // Standalone tabs for pages outside dashboard: Home | Gifts | Shop | Campaigns | More
 const tabs: TabItem[] = [
   {id: 'home', label: 'Home', icon: 'dashboard', href: '/dashboard'},
-  {id: 'gifts', label: 'Gifts', icon: 'redeem', href: '/dashboard?section=my-gifts'},
-  {id: 'shop', label: 'Shop', icon: 'storefront', href: '/gift-shop'},
+  {id: 'send', label: 'Send Gift', icon: 'redeem', href: '/gifts'},
   {id: 'campaigns', label: 'Campaigns', icon: 'campaign', href: '/campaigns'},
+  {id: 'gifts', label: 'My Gifts', icon: 'card_giftcard', href: '/dashboard?section=my-gifts'},
   {id: 'more', label: 'More', icon: 'menu', href: '/dashboard?section=settings'},
 ];
 
@@ -26,8 +26,8 @@ export function V2StandaloneBottomTabBar() {
     if (tab.id === 'home') {
       return pathname === '/dashboard';
     }
-    if (tab.id === 'shop') {
-      return pathname?.includes('/gift-shop');
+    if (tab.id === 'send') {
+      return pathname?.startsWith('/gifts');
     }
     if (tab.id === 'campaigns') {
       return pathname?.includes('/campaigns');

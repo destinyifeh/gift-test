@@ -1302,6 +1302,88 @@ export class AdminService {
     return updated;
   }
 
+  // ─────────────────────────────────────────────
+  // Product Management
+  // ─────────────────────────────────────────────
+
+  async fetchProductsAdmin(options: { search?: string; vendorId?: string; categoryId?: number; status?: string; page?: number; limit?: number }) {
+    const { search, vendorId, categoryId, status, page = 1, limit = 20 } = options;
+    const { skip, take } = getPaginationOptions(page, limit);
+
+    const where: any = {};
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { productShortId: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+    if (vendorId) where.vendorId = vendorId;
+    if (categoryId) where.categoryId = categoryId;
+    if (status) where.status = status;
+
+    const [products, total] = await Promise.all([
+      (this.prisma as any).vendorGift.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          vendor: { select: { username: true, displayName: true, shopName: true } },
+          categoryRel: { select: { name: true } },
+          subcategoryRel: { select: { name: true } },
+        },
+      }),
+      (this.prisma as any).vendorGift.count({ where }),
+    ]);
+
+    const formatted = products.map((p: any) => ({
+      ...p,
+      price: p.price.toString(),
+      rankingScore: p.rankingScore?.toString(),
+    }));
+
+    return paginate(formatted, total, page, limit);
+  }
+
+  async requestProductUpdateAdmin(adminId: string, productId: number, reason: string) {
+    const defaultReason = reason || 'Your product requires changes to comply with our catalog guidelines.';
+    const product = await (this.prisma as any).vendorGift.update({
+      where: { id: productId },
+      data: { status: 'draft' },
+      include: { vendor: { select: { email: true, username: true } } },
+    });
+
+    try {
+      if (product.vendor?.email) {
+        await this.notificationService.create({
+          userId: product.vendorId, 
+          type: 'system', 
+          title: 'Action Required: Product Update', 
+          message: `Your product "${product.name}" requires an update. Reason: ${defaultReason}`, 
+          data: { link: `/vendor/dashboard?tab=inventory&edit=${productId}` }
+        });
+      }
+    } catch(e) {}
+
+    await this.logAction(adminId, `Requested update for product ${productId} (assigned to draft). Reason: ${defaultReason}`);
+    return { ...product, price: product.price.toString() };
+  }
+
+  async updateProductAdmin(adminId: string, productId: number, data: any) {
+    // Prevent overriding restricted fields silently
+    delete data.id;
+    delete data.vendorId;
+    delete data.productShortId;
+
+    const updated = await (this.prisma as any).vendorGift.update({
+      where: { id: productId },
+      data,
+    });
+
+    await this.logAction(adminId, `Updated product details for product ${productId}`);
+    return { ...updated, price: updated.price.toString() };
+  }
+
   /**
    * Delete a product (vendor gift) as admin, including all images from R2.
    * Mirrors frontend: admin.ts → deleteProductAdmin
@@ -1699,87 +1781,128 @@ export class AdminService {
   }
 
   async createVendor(adminId: string, data: {
-    fullName: string;
-    username: string;
+    businessName: string;
+    businessLogo?: string;
+    businessDescription?: string;
     email: string;
-    country: string;
-    password?: string;
+    address: {
+      street: string;
+      city: string;
+      state: string;
+      country: string;
+      zip: string;
+    };
+    acceptedGiftCards: number[];
   }) {
-    // 1. Check if user or username exists
+    // 1. Check if user already exists
     const existingUser = await (this.prisma as any).user.findFirst({
-      where: { 
-        OR: [
-          { email: data.email },
-          { username: data.username.toLowerCase() }
-        ]
-      },
+      where: { email: data.email },
     });
-
+    
     if (existingUser) {
-      if (existingUser.email === data.email) {
-        // Case 2: Existing User (email already exists)
-        const currentRoles = existingUser.roles || [];
-        if (currentRoles.includes('vendor')) {
-          throw new BadRequestException('User is already a vendor');
-        }
-
-        const updatedUser = await (this.prisma as any).user.update({
-          where: { id: existingUser.id },
-          data: {
-            roles: [...currentRoles, 'vendor'],
-            isVerifiedVendor: true,
-            vendorStatus: 'active',
-          },
-        });
-
-        await this.logAction(adminId, `Upgraded existing user ${existingUser.email} to Vendor role`);
-        return { success: true, userId: updatedUser.id, upgraded: true };
-      } else {
-        throw new BadRequestException('Username is already taken');
+      const currentRoles = existingUser.roles || [];
+      if (currentRoles.includes('vendor')) {
+        throw new BadRequestException('User is already a vendor');
       }
+      
+      // Upgrade existing user to vendor
+      const updatedUser = await (this.prisma as any).user.update({
+        where: { id: existingUser.id },
+        data: {
+          roles: ['vendor'], // Requirement: role is fixed to vendor only
+          isVerifiedVendor: true,
+          vendorStatus: 'active',
+          shopName: data.businessName,
+          shopDescription: data.businessDescription,
+          shopStreet: data.address.street,
+          shopCity: data.address.city,
+          shopState: data.address.state,
+          shopCountry: data.address.country,
+          shopZip: data.address.zip,
+          shopLogoUrl: data.businessLogo,
+        },
+      });
+
+      // Handle Gift Cards
+      if (data.acceptedGiftCards && data.acceptedGiftCards.length > 0) {
+        await (this.prisma as any).vendorAcceptedGiftCard.deleteMany({
+          where: { vendorId: updatedUser.id }
+        });
+        
+        await (this.prisma as any).vendorAcceptedGiftCard.createMany({
+          data: data.acceptedGiftCards.map(id => ({
+            vendorId: updatedUser.id,
+            giftCardId: id
+          }))
+        });
+      }
+
+      await this.logAction(adminId, `Upgraded user ${data.email} to Vendor and set shop details`);
+      return { success: true, userId: updatedUser.id, upgraded: true };
     }
 
-    // Case 1: New Vendor (email does NOT exist)
+    // 2. New Vendor Creation
     try {
-      const newUser = await this.authService.signUpEmail({
+      // Generate secure temporary password
+      const tempPassword = Math.random().toString(36).slice(-10) + 'A1!';
+      
+      const newUserBody = await this.authService.signUpEmail({
         email: data.email,
-        password: data.password,
-        name: data.fullName,
-        roles: ['user', 'vendor'],
+        password: tempPassword,
+        name: data.businessName,
+        roles: ['vendor'],
         isVerifiedVendor: true,
       });
 
-      if (!newUser) {
+      if (!newUserBody) {
         throw new Error('Failed to create user account');
       }
 
-      // Update the user with vendor specific fields
+      // Update with full business profile
       const updatedUser = await (this.prisma as any).user.update({
         where: { email: data.email },
         data: {
-          username: data.username.toLowerCase(),
-          displayName: data.fullName,
-          name: data.fullName,
-          country: data.country,
-          roles: ['user', 'vendor'],
+          displayName: data.businessName,
+          name: data.businessName,
+          country: data.address.country,
+          roles: ['vendor'],
           emailVerified: true,
           isVerifiedVendor: true,
           vendorStatus: 'active',
+          shopName: data.businessName,
+          shopDescription: data.businessDescription,
+          shopStreet: data.address.street,
+          shopCity: data.address.city,
+          shopState: data.address.state,
+          shopCountry: data.address.country,
+          shopZip: data.address.zip,
+          shopLogoUrl: data.businessLogo,
+          shopSlug: data.businessName.toLowerCase().replace(/\s+/g, '-') + '-' + Math.random().toString(36).substring(2, 6)
         }
       });
 
-      // Send welcome email
+      // Handle Gift Card Selection
+      if (data.acceptedGiftCards && data.acceptedGiftCards.length > 0) {
+        await (this.prisma as any).vendorAcceptedGiftCard.createMany({
+          data: data.acceptedGiftCards.map(id => ({
+            vendorId: updatedUser.id,
+            giftCardId: id
+          }))
+        });
+      }
+
+      // Send Welcome Email with credentials
       await this.emailService.sendVendorWelcomeEmail({
         to: data.email,
-        fullName: data.fullName,
-        temporaryPassword: data.password,
-      }).catch((err: any) => this.logger.error('Failed to send vendor welcome email', err));
+        fullName: data.businessName,
+        temporaryPassword: tempPassword
+      });
 
-      await this.logAction(adminId, `Created new Vendor account for ${data.email}`);
-      return { success: true, userId: updatedUser.id, created: true, temporaryPassword: data.password };
+      await this.logAction(adminId, `Created new vendor account for ${data.email} and assigned ${data.acceptedGiftCards.length} gift cards`);
+      return { success: true, userId: updatedUser.id };
     } catch (error: any) {
-      this.logger.error('Vendor creation failed:', error);
-      throw new BadRequestException(error.message || 'Failed to create vendor account');
+      this.logger.error(`Vendor creation failed: ${error.message}`);
+      throw new BadRequestException(error.message || 'Vendor creation failed');
     }
   }
 
@@ -1822,4 +1945,91 @@ export class AdminService {
       };
     }
   }
+
+  // ─────────────────────────────────────────────
+  //  Catalog & Tag Request Management
+  // ─────────────────────────────────────────────
+
+  async fetchTagRequests(options: { status?: string; page?: number; limit?: number }) {
+    const { status = 'pending', page = 1, limit = 20 } = options;
+    const { skip, take } = getPaginationOptions(page, limit);
+
+    const where: any = {};
+    if (status && status !== 'all') where.status = status;
+
+    const [requests, total] = await Promise.all([
+      (this.prisma as any).tagRequest.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          vendor: { select: { username: true, displayName: true, email: true } },
+          subcategory: {
+            select: { name: true, category: { select: { name: true } } },
+          },
+        },
+      }),
+      (this.prisma as any).tagRequest.count({ where }),
+    ]);
+
+    return paginate(requests, total, page, limit);
+  }
+
+  async processTagRequest(
+    adminId: string,
+    requestId: number,
+    action: 'approve' | 'reject',
+    adminNotes?: string,
+  ) {
+    const request = await (this.prisma as any).tagRequest.findUnique({
+      where: { id: requestId },
+    });
+
+    if (!request) throw new NotFoundException('Tag request not found');
+    if (request.status !== 'pending') throw new BadRequestException('Request already processed');
+
+    return this.prisma.$transaction(async (tx) => {
+      if (action === 'approve') {
+        const slug = request.tagName
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)+/g, '');
+
+        // 1. Create the actual tag
+        await (tx as any).productTag.upsert({
+          where: {
+            subcategoryId_slug: {
+              subcategoryId: request.subcategoryId,
+              slug,
+            },
+          },
+          update: {},
+          create: {
+            name: request.tagName,
+            slug,
+            subcategoryId: request.subcategoryId,
+          },
+        });
+
+        // 2. Update request status
+        const updated = await (tx as any).tagRequest.update({
+          where: { id: requestId },
+          data: { status: 'approved', adminNotes },
+        });
+
+        await this.logAction(adminId, `Approved tag request: "${request.tagName}" for subcategory ID ${request.subcategoryId}`);
+        return updated;
+      } else {
+        const updated = await (tx as any).tagRequest.update({
+          where: { id: requestId },
+          data: { status: 'rejected', adminNotes },
+        });
+
+        await this.logAction(adminId, `Rejected tag request: "${request.tagName}" (Reason: ${adminNotes || 'None'})`);
+        return updated;
+      }
+    });
+  }
 }
+

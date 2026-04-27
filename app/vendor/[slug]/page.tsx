@@ -30,7 +30,7 @@ const products = [
 ];
 
 const navLinks = [
-  {label: 'Shop', href: '/gift-shop', active: true},
+  {label: 'Shop', href: '/gifts', active: true},
   {label: 'Occasions', href: '/occasions'},
   {label: 'Registry', href: '/registry'},
   {label: 'Corporate', href: '/corporate'},

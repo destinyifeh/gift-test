@@ -16,6 +16,11 @@ export class UserService {
   async findMe(userId: string) {
     const user = await (this.prisma as any).user.findUnique({
       where: { id: userId },
+      include: {
+        acceptedGiftCards: {
+          select: { giftCardId: true }
+        }
+      }
     });
     if (!user) throw new NotFoundException('User not found');
     return {
@@ -81,11 +86,31 @@ export class UserService {
       };
     }
 
+    const { acceptedGiftCards, ...restUpdates } = updates;
+
     try {
       const updated = await (this.prisma as any).user.update({
         where: { id: userId },
-        data: updates,
+        data: restUpdates,
       });
+
+      if (acceptedGiftCards && Array.isArray(acceptedGiftCards)) {
+        // Enforce 5 card limit logic happens in the frontend/DTO, but we'll safely map it here
+        await (this.prisma as any).vendorAcceptedGiftCard.deleteMany({
+          where: { vendorId: userId }
+        });
+        
+        if (acceptedGiftCards.length > 0) {
+          const mappingData = acceptedGiftCards.map((cardId: number) => ({
+            vendorId: userId,
+            giftCardId: cardId
+          }));
+          await (this.prisma as any).vendorAcceptedGiftCard.createMany({
+            data: mappingData
+          });
+        }
+      }
+
       return {
         ...updated,
         platformBalance: updated.platformBalance?.toString() ?? '0',

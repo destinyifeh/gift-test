@@ -3,6 +3,7 @@ import { Cron } from '@nestjs/schedule';
 import { PrismaService } from '../../prisma/prisma.service';
 import { FileService } from '../file/file.service';
 import { paginate, getPaginationOptions } from '../../common/utils/pagination.util';
+import { generateSlug, generateShortId } from '../../common/utils/slug.util';
 
 @Injectable()
 export class VendorService {
@@ -12,6 +13,37 @@ export class VendorService {
     private prisma: PrismaService,
     private fileService: FileService,
   ) {}
+
+  async getVendorsByGiftCard(giftCardId: number, country?: string) {
+    const where: any = {
+      acceptedGiftCards: {
+        some: {
+          giftCardId
+        }
+      }
+    };
+
+    if (country) {
+      where.shopCountry = country;
+    }
+
+    const vendors = await (this.prisma as any).user.findMany({
+      where,
+      select: {
+        id: true,
+        shopName: true,
+        shopDescription: true,
+        shopStreet: true,
+        shopCity: true,
+        shopState: true,
+        shopCountry: true,
+        shopLogoUrl: true,
+        shopSlug: true,
+      }
+    });
+
+    return vendors;
+  }
 
   // ─────────────────────────────────────────────
   //  Product CRUD
@@ -29,6 +61,18 @@ export class VendorService {
         vendor: { select: { displayName: true, country: true, shopSlug: true, shopName: true } },
       },
     });
+
+    // Lazy backfill productShortId
+    for (const product of products) {
+      if (!product.productShortId) {
+        const shortId = generateShortId();
+        await (this.prisma as any).vendorGift.update({
+          where: { id: product.id },
+          data: { productShortId: shortId }
+        });
+        product.productShortId = shortId;
+      }
+    }
 
     if (products.length === 0) return [];
 
@@ -147,16 +191,34 @@ export class VendorService {
 
     if (!vendor) throw new NotFoundException('Vendor not found');
 
-    // Try by slug first
-    let product = await (this.prisma as any).vendorGift.findFirst({
-      where: { vendorId: vendor.id, slug: productSlug },
-      include: {
-        vendor: { select: { displayName: true, country: true, bio: true, shopSlug: true, shopName: true, shopDescription: true, shopAddress: true } },
-      },
-    });
+    // Handle new format: productSlug-productShortId
+    const parts = productSlug.split('-');
+    const shortId = parts.length > 1 ? parts.pop() : null;
+    const baseSlug = parts.join('-');
+
+    let product;
+
+    if (shortId) {
+      product = await (this.prisma as any).vendorGift.findFirst({
+        where: { vendorId: vendor.id, productShortId: shortId },
+        include: {
+          vendor: { select: { displayName: true, country: true, bio: true, shopSlug: true, shopName: true, shopDescription: true, shopAddress: true } },
+        },
+      });
+    }
 
     if (!product) {
-      // Try by ID
+      // Fallback: Try exact slug match (for legacy URLs)
+      product = await (this.prisma as any).vendorGift.findFirst({
+        where: { vendorId: vendor.id, slug: productSlug },
+        include: {
+          vendor: { select: { displayName: true, country: true, bio: true, shopSlug: true, shopName: true, shopDescription: true, shopAddress: true } },
+        },
+      });
+    }
+
+    if (!product) {
+      // Fallback: Try by ID if it's numeric
       const numId = parseInt(productSlug);
       if (!isNaN(numId)) {
         product = await (this.prisma as any).vendorGift.findFirst({
@@ -180,46 +242,86 @@ export class VendorService {
   }
 
   async manageProduct(userId: string, productData: any) {
-    const slug = productData.slug || productData.name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)+/g, '');
+    const slug = productData.slug || generateSlug(productData.name);
 
     // Only pick fields that exist in the VendorGift Prisma model
     // Accept both camelCase and snake_case from the frontend
     const rawStock = productData.stockQuantity ?? productData.stock_quantity;
+    // Handle new hierarchical categorization
+    const categoryId = productData.categoryId ?? productData.category_id;
+    const subcategoryId = productData.subcategoryId ?? productData.subcategory_id;
+    const selectedTagIds = productData.tagIds ?? productData.tag_ids ?? [];
+
     const safeData: any = {
       name: productData.name,
       description: productData.description || undefined,
       price: productData.price ? Number(productData.price) : undefined,
       imageUrl: productData.imageUrl || productData.image_url || undefined,
-      category: productData.category || undefined,
-      tags: productData.tags || undefined,
+      categoryId: categoryId ? Number(categoryId) : undefined,
+      subcategoryId: subcategoryId ? Number(subcategoryId) : undefined,
       type: productData.type || 'digital',
       status: productData.status || 'active',
       stockQuantity: rawStock != null && rawStock !== '' ? Number(rawStock) : null,
-      images: productData.images, // Always pass through (even empty array)
+      images: productData.images,
       slug,
+      productShortId: productData.productShortId || productData.product_short_id || undefined,
     };
 
-    // Remove undefined keys so Prisma doesn't try to set them
-    // But keep stockQuantity (can be null = unlimited) and images (can be empty array)
+    // Auto-populate legacy fields for backward compatibility
+    if (safeData.categoryId) {
+      const cat = await (this.prisma as any).productCategory.findUnique({ where: { id: safeData.categoryId } });
+      if (cat) safeData.category = cat.name;
+    }
+
+    if (selectedTagIds.length > 0) {
+      const tags = await (this.prisma as any).productTag.findMany({
+        where: { id: { in: selectedTagIds.map(Number) } },
+        select: { name: true },
+      });
+      safeData.tags = tags.map((t: any) => t.name);
+    }
+
+    // Remove undefined keys
     Object.keys(safeData).forEach(key => {
-      if (key === 'stockQuantity' || key === 'images') return; // preserve these
+      if (key === 'stockQuantity' || key === 'images') return;
       if (safeData[key] === undefined) delete safeData[key];
     });
 
-    if (productData.id && !String(productData.id).includes('new')) {
+    const giftId = productData.id && !String(productData.id).includes('new') ? Number(productData.id) : null;
+
+    if (giftId) {
       // Update
       const updated = await (this.prisma as any).vendorGift.update({
-        where: { id: Number(productData.id) },
-        data: { ...safeData, vendorId: userId },
+        where: { id: giftId },
+        data: {
+          ...safeData,
+          vendorId: userId,
+          productTags: {
+            deleteMany: {}, // Clear old tags
+            create: selectedTagIds.map((tagId: any) => ({
+              tag: { connect: { id: Number(tagId) } },
+            })),
+          },
+        },
       });
       return { ...updated, price: updated.price.toString() };
     } else {
       // Create
+      // Ensure productShortId is generated if not provided
+      if (!safeData.productShortId) {
+        safeData.productShortId = generateShortId();
+      }
+      
       const created = await (this.prisma as any).vendorGift.create({
-        data: { ...safeData, vendorId: userId },
+        data: {
+          ...safeData,
+          vendorId: userId,
+          productTags: {
+            create: selectedTagIds.map((tagId: any) => ({
+              tag: { connect: { id: Number(tagId) } },
+            })),
+          },
+        },
       });
       return { ...created, price: created.price.toString() };
     }
@@ -686,5 +788,51 @@ export class VendorService {
 
     await Promise.all(updates);
     this.logger.log(`Recalculated ranking scores for ${products.length} products`);
+  }
+
+  // ─────────────────────────────────────────────
+  //  Tag Requests
+  // ─────────────────────────────────────────────
+
+  async createTagRequest(userId: string, data: { subcategoryId: number; tagName: string }) {
+    // Check if tag already exists in this subcategory
+    const existingTag = await (this.prisma as any).productTag.findFirst({
+      where: {
+        subcategoryId: data.subcategoryId,
+        name: { equals: data.tagName, mode: 'insensitive' },
+      },
+    });
+    if (existingTag) throw new BadRequestException('This tag already exists in this category');
+
+    // Check if there's already a pending request for this
+    const existingRequest = await (this.prisma as any).tagRequest.findFirst({
+      where: {
+        subcategoryId: data.subcategoryId,
+        tagName: { equals: data.tagName, mode: 'insensitive' },
+        status: 'pending',
+      },
+    });
+    if (existingRequest) throw new BadRequestException('A request for this tag is already pending');
+
+    return (this.prisma as any).tagRequest.create({
+      data: {
+        vendorId: userId,
+        subcategoryId: data.subcategoryId,
+        tagName: data.tagName,
+        status: 'pending',
+      },
+    });
+  }
+
+  async fetchMyTagRequests(userId: string) {
+    return (this.prisma as any).tagRequest.findMany({
+      where: { vendorId: userId },
+      include: {
+        subcategory: {
+          select: { name: true, category: { select: { name: true } } },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 }

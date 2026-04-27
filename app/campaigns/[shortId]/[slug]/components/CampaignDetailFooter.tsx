@@ -26,10 +26,10 @@ export function CampaignDetailFooter() {
             </li>
             <li>
               <Link
-                href="/gift-shop"
+                href="/gifts"
                 className="text-[var(--v2-on-surface-variant)] hover:underline"
               >
-                Gift Shop
+                Gifts
               </Link>
             </li>
             <li>

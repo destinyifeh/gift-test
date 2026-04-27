@@ -73,7 +73,7 @@ export default function NotFound() {
           </p>
           <div className="flex flex-wrap justify-center gap-3 px-4">
             {[
-              { label: 'Gift Shop', href: '/gift-shop', icon: 'shopping_bag' },
+              { label: 'Gifts', href: '/gifts', icon: 'shopping_bag' },
               { label: 'Campaigns', href: '/campaigns', icon: 'auto_awesome' },
               { label: 'My Wallet', href: '/dashboard/wallet', icon: 'account_balance_wallet' },
               { label: 'Help', href: '/help', icon: 'support_agent' },

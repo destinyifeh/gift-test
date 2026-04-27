@@ -4,6 +4,7 @@ import Link from 'next/link';
 import {useState} from 'react';
 import {GifthanceLogo} from '@/components/GifthanceLogo';
 import {useProfile} from '@/hooks/use-profile';
+import {cn} from '@/lib/utils';
 
 interface GiftShopNavProps {
   isLoggedIn: boolean;
@@ -157,6 +158,49 @@ export function GiftShopMobileNav({isLoggedIn}: GiftShopMobileNavProps) {
           </div>
         </div>
       )}
+    </nav>
+  );
+}
+
+/**
+ * High-Fidelity Mobile Bottom Navigation
+ * Matches reference image for modern app experience
+ */
+export function MobileBottomNav({ activeTab = 'gifts' }: { activeTab?: string }) {
+  const tabs = [
+    { id: 'home', label: 'Home', icon: 'home', href: '/' },
+    { id: 'explore', label: 'Explore', icon: 'search', href: '/campaigns' },
+    { id: 'gifts', label: 'Gifts', icon: 'card_giftcard', href: '/gifts' },
+    { id: 'account', label: 'Account', icon: 'account_circle', href: '/dashboard' },
+  ];
+
+  return (
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-2xl border-t border-[var(--v2-outline-variant)]/10 md:hidden pb-safe">
+      <div className="flex items-center justify-around h-16 px-4">
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab.id;
+          return (
+            <Link
+              key={tab.id}
+              href={tab.href}
+              className={cn(
+                "flex flex-col items-center justify-center gap-1 transition-all",
+                isActive ? "text-[var(--v2-primary)]" : "text-[var(--v2-on-surface-variant)]/40 hover:text-[var(--v2-on-surface-variant)]/60"
+              )}
+            >
+              <span className={cn(
+                "v2-icon text-xl",
+                isActive && "v2-icon-filled"
+              )}>
+                {tab.icon}
+              </span>
+              <span className="text-[10px] font-bold tracking-tight uppercase">
+                {tab.label}
+              </span>
+            </Link>
+          );
+        })}
+      </div>
     </nav>
   );
 }

@@ -535,6 +535,8 @@ exports.Prisma.VendorGiftScalarFieldEnum = {
   price: 'price',
   description: 'description',
   imageUrl: 'imageUrl',
+  categoryId: 'categoryId',
+  subcategoryId: 'subcategoryId',
   category: 'category',
   tags: 'tags',
   type: 'type',
@@ -573,6 +575,48 @@ exports.Prisma.RatingScalarFieldEnum = {
   rating: 'rating',
   comment: 'comment',
   createdAt: 'createdAt'
+};
+
+exports.Prisma.ProductCategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ProductSubcategoryScalarFieldEnum = {
+  id: 'id',
+  categoryId: 'categoryId',
+  name: 'name',
+  slug: 'slug',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ProductTagScalarFieldEnum = {
+  id: 'id',
+  subcategoryId: 'subcategoryId',
+  name: 'name',
+  slug: 'slug',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.VendorGiftTagScalarFieldEnum = {
+  giftId: 'giftId',
+  tagId: 'tagId'
+};
+
+exports.Prisma.TagRequestScalarFieldEnum = {
+  id: 'id',
+  vendorId: 'vendorId',
+  subcategoryId: 'subcategoryId',
+  tagName: 'tagName',
+  status: 'status',
+  adminNotes: 'adminNotes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -647,7 +691,12 @@ exports.Prisma.ModelName = {
   VendorGift: 'VendorGift',
   VendorGiftImage: 'VendorGiftImage',
   Favorite: 'Favorite',
-  Rating: 'Rating'
+  Rating: 'Rating',
+  ProductCategory: 'ProductCategory',
+  ProductSubcategory: 'ProductSubcategory',
+  ProductTag: 'ProductTag',
+  VendorGiftTag: 'VendorGiftTag',
+  TagRequest: 'TagRequest'
 };
 
 /**

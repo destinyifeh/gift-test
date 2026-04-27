@@ -1,0 +1,45 @@
+model GiftCard {
+  id               Int      @id @default(autoincrement())
+  name             String
+  slug             String   @unique
+  description      String?
+  category         String   // food, fashion, electronics, shopping, lifestyle, everyday, occasions, brand, gadgets, location
+  icon             String?  // Material icon name
+  colorFrom        String?  @map("color_from")  // gradient start hex
+  colorTo          String?  @map("color_to")    // gradient end hex
+  imageUrl         String?  @map("image_url")
+  amountOptions    Json     @default("[]") // e.g. [1000, 3000, 5000, 10000]
+  allowCustomAmount Boolean @default(true) @map("allow_custom_amount")
+  minAmount        Decimal  @default(500) @map("min_amount")
+  maxAmount        Decimal  @default(500000) @map("max_amount")
+  currency         String   @default("NGN")
+  serviceFeePercent Decimal @default(4) @map("service_fee_percent")
+  country          String?  // null = available everywhere
+  status           String   @default("draft") // draft, active, paused, archived
+  isFlexCard       Boolean  @default(false) @map("is_flex_card") // true for the special Flex Card entry
+  usageDescription String?  @map("usage_description") // "Redeemable at food vendors"
+  metadata         Json?    @default("{}")
+  displayOrder     Int      @default(0) @map("display_order")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  vendors VendorAcceptedGiftCard[]
+  directGifts DirectGift[]
+  campaigns   Campaign[]
+
+  @@map("gift_cards")
+}
+
+model VendorAcceptedGiftCard {
+  id         Int      @id @default(autoincrement())
+  vendorId   String   @map("vendor_id")
+  vendor     User     @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  giftCardId Int      @map("gift_card_id")
+  giftCard   GiftCard @relation(fields: [giftCardId], references: [id], onDelete: Cascade)
+  
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@unique([vendorId, giftCardId])
+  @@map("vendor_accepted_gift_cards")
+}

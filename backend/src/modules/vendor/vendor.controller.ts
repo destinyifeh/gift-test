@@ -125,4 +125,25 @@ export class VendorController {
   ) {
     return this.vendorService.setProductMainImage(req.user.id, Number(id), imageUrl);
   }
+
+  // ── Tag Requests ──
+  @UseGuards(AuthGuard)
+  @Post('tag-requests')
+  async createTagRequest(@Req() req: any, @Body() data: { subcategoryId: number; tagName: string }) {
+    return this.vendorService.createTagRequest(req.user.id, data);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('my-tag-requests')
+  async fetchMyTagRequests(@Req() req: any) {
+    return this.vendorService.fetchMyTagRequests(req.user.id);
+  }
+
+  @Get('accepted-vendors/:giftCardId')
+  async getAcceptedVendors(
+    @Param('giftCardId') giftCardId: string,
+    @Query('country') country?: string,
+  ) {
+    return this.vendorService.getVendorsByGiftCard(Number(giftCardId), country);
+  }
 }

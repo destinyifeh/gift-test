@@ -113,7 +113,37 @@ export default function V2GiftShopPage() {
       featured_id: item.id,
     }));
 
-    return [...adminItems, ...vendorFeatured];
+    const items = [...adminItems, ...vendorFeatured];
+
+    // Fallback items for UI testing if no featured data is present
+    if (items.length === 0) {
+      return [
+        {
+          id: 'fallback-1',
+          name: 'The Heritage Collection',
+          subtitle: 'Handcrafted Perfection',
+          description: 'A curated selection of the finest artisanal gifts from across the continent.',
+          image_url: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=2040&auto=format&fit=crop',
+          cta_text: 'Explore Now',
+          redirect_url: '#',
+          isSponsored: false,
+          isFeaturedItem: true,
+        },
+        {
+          id: 'fallback-2',
+          name: 'Modern Tech Essentials',
+          subtitle: 'Future Ready',
+          description: 'Explore the latest in digital assets and productivity tools.',
+          image_url: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=2070&auto=format&fit=crop',
+          cta_text: 'View Gadgets',
+          redirect_url: '#',
+          isSponsored: false,
+          isFeaturedItem: true,
+        }
+      ];
+    }
+
+    return items;
   }, [activeFeaturedAds, adminFeaturedItems]);
 
   // Merge sponsored ads into the feed with true injection (every 6 items)

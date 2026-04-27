@@ -341,11 +341,17 @@ export class AdminController {
   async createVendor(
     @Req() req: Request,
     @Body() data: {
-      fullName: string;
-      username: string;
+      businessName: string;
+      businessDescription?: string;
       email: string;
-      country: string;
-      password?: string;
+      address: {
+        street: string;
+        city: string;
+        state: string;
+        country: string;
+        zip: string;
+      };
+      acceptedGiftCards: number[];
     },
   ) {
     const adminId = (req as any).user.id;
@@ -406,6 +412,45 @@ export class AdminController {
   }
 
   // ── Product Management ──
+  @Get('products')
+  async fetchProducts(
+    @Query('search') search?: string,
+    @Query('vendorId') vendorId?: string,
+    @Query('categoryId') categoryId?: string,
+    @Query('status') status?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.adminService.fetchProductsAdmin({
+      search,
+      vendorId,
+      categoryId: categoryId ? Number(categoryId) : undefined,
+      status,
+      page: Number(page) || 1,
+      limit: Number(limit) || 20,
+    });
+  }
+
+  @Patch('products/:id/request-update')
+  async requestProductUpdate(
+    @Req() req: Request,
+    @Param('id') id: string,
+    @Body('reason') reason: string,
+  ) {
+    const adminId = (req as any).user.id;
+    return this.adminService.requestProductUpdateAdmin(adminId, Number(id), reason);
+  }
+
+  @Patch('products/:id')
+  async updateProductAdmin(
+    @Req() req: Request,
+    @Param('id') id: string,
+    @Body() data: any,
+  ) {
+    const adminId = (req as any).user.id;
+    return this.adminService.updateProductAdmin(adminId, Number(id), data);
+  }
+
   @Delete('products/:id')
   async deleteProduct(
     @Req() req: Request,
@@ -456,6 +501,40 @@ export class AdminController {
       action,
       rejectionReason,
     );
+  }
+
+  // ── Catalog & Tag Request Moderation ──
+  @Get('catalog/tag-requests')
+  async fetchTagRequests(
+    @Query('status') status?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.adminService.fetchTagRequests({
+      status,
+      page: Number(page) || 1,
+      limit: Number(limit) || 20,
+    });
+  }
+
+  @Patch('catalog/tag-requests/:id/approve')
+  async approveTagRequest(
+    @Req() req: Request,
+    @Param('id') id: string,
+    @Body('adminNotes') adminNotes?: string,
+  ) {
+    const adminId = (req as any).user.id;
+    return this.adminService.processTagRequest(adminId, Number(id), 'approve', adminNotes);
+  }
+
+  @Patch('catalog/tag-requests/:id/reject')
+  async rejectTagRequest(
+    @Req() req: Request,
+    @Param('id') id: string,
+    @Body('adminNotes') adminNotes?: string,
+  ) {
+    const adminId = (req as any).user.id;
+    return this.adminService.processTagRequest(adminId, Number(id), 'reject', adminNotes);
   }
 
   // ── System Analytics ──

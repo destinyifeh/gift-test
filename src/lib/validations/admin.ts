@@ -1,21 +1,19 @@
 import * as z from 'zod';
 
 export const createVendorSchema = z.object({
-  fullName: z.string().min(2, 'Full name must be at least 2 characters'),
-  username: z
-    .string()
-    .min(3, 'Username must be at least 3 characters')
-    .regex(
-      /^[a-zA-Z0-9_]+$/,
-      'Username can only contain letters, numbers, and underscores',
-    ),
+  businessName: z.string().min(2, 'Business name must be at least 2 characters'),
+  businessUrl: z.string().optional().or(z.literal('')),
+  businessLogo: z.string().optional(),
+  businessDescription: z.string().optional(),
   email: z.string().email('Please enter a valid email address'),
-  country: z.string().min(1, 'Country is required'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-  confirmPassword: z.string().min(1, 'Confirm password is required'),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
+  address: z.object({
+    street: z.string().min(2, 'Street is required'),
+    city: z.string().min(2, 'City is required'),
+    state: z.string().min(2, 'State is required'),
+    country: z.string().min(1, 'Country is required'),
+    zip: z.string().min(1, 'Zip code is required'),
+  }),
+  acceptedGiftCards: z.array(z.number()).max(5, 'You can only select up to 5 gift cards (Flex Card is always included)').default([]),
 });
 
 export type CreateVendorInput = z.infer<typeof createVendorSchema>;

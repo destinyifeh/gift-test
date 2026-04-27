@@ -158,6 +158,31 @@ export type Favorite = $Result.DefaultSelection<Prisma.$FavoritePayload>
  * 
  */
 export type Rating = $Result.DefaultSelection<Prisma.$RatingPayload>
+/**
+ * Model ProductCategory
+ * 
+ */
+export type ProductCategory = $Result.DefaultSelection<Prisma.$ProductCategoryPayload>
+/**
+ * Model ProductSubcategory
+ * 
+ */
+export type ProductSubcategory = $Result.DefaultSelection<Prisma.$ProductSubcategoryPayload>
+/**
+ * Model ProductTag
+ * 
+ */
+export type ProductTag = $Result.DefaultSelection<Prisma.$ProductTagPayload>
+/**
+ * Model VendorGiftTag
+ * 
+ */
+export type VendorGiftTag = $Result.DefaultSelection<Prisma.$VendorGiftTagPayload>
+/**
+ * Model TagRequest
+ * 
+ */
+export type TagRequest = $Result.DefaultSelection<Prisma.$TagRequestPayload>
 
 /**
  * Enums
@@ -602,6 +627,56 @@ export class PrismaClient<
     * ```
     */
   get rating(): Prisma.RatingDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.productCategory`: Exposes CRUD operations for the **ProductCategory** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ProductCategories
+    * const productCategories = await prisma.productCategory.findMany()
+    * ```
+    */
+  get productCategory(): Prisma.ProductCategoryDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.productSubcategory`: Exposes CRUD operations for the **ProductSubcategory** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ProductSubcategories
+    * const productSubcategories = await prisma.productSubcategory.findMany()
+    * ```
+    */
+  get productSubcategory(): Prisma.ProductSubcategoryDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.productTag`: Exposes CRUD operations for the **ProductTag** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ProductTags
+    * const productTags = await prisma.productTag.findMany()
+    * ```
+    */
+  get productTag(): Prisma.ProductTagDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.vendorGiftTag`: Exposes CRUD operations for the **VendorGiftTag** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more VendorGiftTags
+    * const vendorGiftTags = await prisma.vendorGiftTag.findMany()
+    * ```
+    */
+  get vendorGiftTag(): Prisma.VendorGiftTagDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.tagRequest`: Exposes CRUD operations for the **TagRequest** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TagRequests
+    * const tagRequests = await prisma.tagRequest.findMany()
+    * ```
+    */
+  get tagRequest(): Prisma.TagRequestDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1064,7 +1139,12 @@ export namespace Prisma {
     VendorGift: 'VendorGift',
     VendorGiftImage: 'VendorGiftImage',
     Favorite: 'Favorite',
-    Rating: 'Rating'
+    Rating: 'Rating',
+    ProductCategory: 'ProductCategory',
+    ProductSubcategory: 'ProductSubcategory',
+    ProductTag: 'ProductTag',
+    VendorGiftTag: 'VendorGiftTag',
+    TagRequest: 'TagRequest'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1080,7 +1160,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "session" | "account" | "verification" | "campaign" | "campaignWithdrawal" | "contribution" | "directGift" | "featuredAd" | "sponsoredAd" | "externalPromotion" | "featuredItem" | "transaction" | "bankAccount" | "withdrawal" | "flexCard" | "flexCardTransaction" | "moderationReport" | "moderationTicket" | "adminLog" | "creatorSupport" | "notification" | "notificationRead" | "systemSetting" | "countryConfig" | "vendorGift" | "vendorGiftImage" | "favorite" | "rating"
+      modelProps: "user" | "session" | "account" | "verification" | "campaign" | "campaignWithdrawal" | "contribution" | "directGift" | "featuredAd" | "sponsoredAd" | "externalPromotion" | "featuredItem" | "transaction" | "bankAccount" | "withdrawal" | "flexCard" | "flexCardTransaction" | "moderationReport" | "moderationTicket" | "adminLog" | "creatorSupport" | "notification" | "notificationRead" | "systemSetting" | "countryConfig" | "vendorGift" | "vendorGiftImage" | "favorite" | "rating" | "productCategory" | "productSubcategory" | "productTag" | "vendorGiftTag" | "tagRequest"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3230,6 +3310,376 @@ export namespace Prisma {
           }
         }
       }
+      ProductCategory: {
+        payload: Prisma.$ProductCategoryPayload<ExtArgs>
+        fields: Prisma.ProductCategoryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ProductCategoryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductCategoryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ProductCategoryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductCategoryPayload>
+          }
+          findFirst: {
+            args: Prisma.ProductCategoryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductCategoryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ProductCategoryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductCategoryPayload>
+          }
+          findMany: {
+            args: Prisma.ProductCategoryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductCategoryPayload>[]
+          }
+          create: {
+            args: Prisma.ProductCategoryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductCategoryPayload>
+          }
+          createMany: {
+            args: Prisma.ProductCategoryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ProductCategoryCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductCategoryPayload>[]
+          }
+          delete: {
+            args: Prisma.ProductCategoryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductCategoryPayload>
+          }
+          update: {
+            args: Prisma.ProductCategoryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductCategoryPayload>
+          }
+          deleteMany: {
+            args: Prisma.ProductCategoryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ProductCategoryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ProductCategoryUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductCategoryPayload>[]
+          }
+          upsert: {
+            args: Prisma.ProductCategoryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductCategoryPayload>
+          }
+          aggregate: {
+            args: Prisma.ProductCategoryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProductCategory>
+          }
+          groupBy: {
+            args: Prisma.ProductCategoryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ProductCategoryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ProductCategoryCountArgs<ExtArgs>
+            result: $Utils.Optional<ProductCategoryCountAggregateOutputType> | number
+          }
+        }
+      }
+      ProductSubcategory: {
+        payload: Prisma.$ProductSubcategoryPayload<ExtArgs>
+        fields: Prisma.ProductSubcategoryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ProductSubcategoryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductSubcategoryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ProductSubcategoryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductSubcategoryPayload>
+          }
+          findFirst: {
+            args: Prisma.ProductSubcategoryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductSubcategoryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ProductSubcategoryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductSubcategoryPayload>
+          }
+          findMany: {
+            args: Prisma.ProductSubcategoryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductSubcategoryPayload>[]
+          }
+          create: {
+            args: Prisma.ProductSubcategoryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductSubcategoryPayload>
+          }
+          createMany: {
+            args: Prisma.ProductSubcategoryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ProductSubcategoryCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductSubcategoryPayload>[]
+          }
+          delete: {
+            args: Prisma.ProductSubcategoryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductSubcategoryPayload>
+          }
+          update: {
+            args: Prisma.ProductSubcategoryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductSubcategoryPayload>
+          }
+          deleteMany: {
+            args: Prisma.ProductSubcategoryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ProductSubcategoryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ProductSubcategoryUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductSubcategoryPayload>[]
+          }
+          upsert: {
+            args: Prisma.ProductSubcategoryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductSubcategoryPayload>
+          }
+          aggregate: {
+            args: Prisma.ProductSubcategoryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProductSubcategory>
+          }
+          groupBy: {
+            args: Prisma.ProductSubcategoryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ProductSubcategoryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ProductSubcategoryCountArgs<ExtArgs>
+            result: $Utils.Optional<ProductSubcategoryCountAggregateOutputType> | number
+          }
+        }
+      }
+      ProductTag: {
+        payload: Prisma.$ProductTagPayload<ExtArgs>
+        fields: Prisma.ProductTagFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ProductTagFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductTagPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ProductTagFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductTagPayload>
+          }
+          findFirst: {
+            args: Prisma.ProductTagFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductTagPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ProductTagFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductTagPayload>
+          }
+          findMany: {
+            args: Prisma.ProductTagFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductTagPayload>[]
+          }
+          create: {
+            args: Prisma.ProductTagCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductTagPayload>
+          }
+          createMany: {
+            args: Prisma.ProductTagCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ProductTagCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductTagPayload>[]
+          }
+          delete: {
+            args: Prisma.ProductTagDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductTagPayload>
+          }
+          update: {
+            args: Prisma.ProductTagUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductTagPayload>
+          }
+          deleteMany: {
+            args: Prisma.ProductTagDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ProductTagUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ProductTagUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductTagPayload>[]
+          }
+          upsert: {
+            args: Prisma.ProductTagUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductTagPayload>
+          }
+          aggregate: {
+            args: Prisma.ProductTagAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProductTag>
+          }
+          groupBy: {
+            args: Prisma.ProductTagGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ProductTagGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ProductTagCountArgs<ExtArgs>
+            result: $Utils.Optional<ProductTagCountAggregateOutputType> | number
+          }
+        }
+      }
+      VendorGiftTag: {
+        payload: Prisma.$VendorGiftTagPayload<ExtArgs>
+        fields: Prisma.VendorGiftTagFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.VendorGiftTagFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VendorGiftTagPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.VendorGiftTagFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VendorGiftTagPayload>
+          }
+          findFirst: {
+            args: Prisma.VendorGiftTagFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VendorGiftTagPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.VendorGiftTagFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VendorGiftTagPayload>
+          }
+          findMany: {
+            args: Prisma.VendorGiftTagFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VendorGiftTagPayload>[]
+          }
+          create: {
+            args: Prisma.VendorGiftTagCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VendorGiftTagPayload>
+          }
+          createMany: {
+            args: Prisma.VendorGiftTagCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.VendorGiftTagCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VendorGiftTagPayload>[]
+          }
+          delete: {
+            args: Prisma.VendorGiftTagDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VendorGiftTagPayload>
+          }
+          update: {
+            args: Prisma.VendorGiftTagUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VendorGiftTagPayload>
+          }
+          deleteMany: {
+            args: Prisma.VendorGiftTagDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.VendorGiftTagUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.VendorGiftTagUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VendorGiftTagPayload>[]
+          }
+          upsert: {
+            args: Prisma.VendorGiftTagUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VendorGiftTagPayload>
+          }
+          aggregate: {
+            args: Prisma.VendorGiftTagAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateVendorGiftTag>
+          }
+          groupBy: {
+            args: Prisma.VendorGiftTagGroupByArgs<ExtArgs>
+            result: $Utils.Optional<VendorGiftTagGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.VendorGiftTagCountArgs<ExtArgs>
+            result: $Utils.Optional<VendorGiftTagCountAggregateOutputType> | number
+          }
+        }
+      }
+      TagRequest: {
+        payload: Prisma.$TagRequestPayload<ExtArgs>
+        fields: Prisma.TagRequestFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TagRequestFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TagRequestPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TagRequestFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TagRequestPayload>
+          }
+          findFirst: {
+            args: Prisma.TagRequestFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TagRequestPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TagRequestFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TagRequestPayload>
+          }
+          findMany: {
+            args: Prisma.TagRequestFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TagRequestPayload>[]
+          }
+          create: {
+            args: Prisma.TagRequestCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TagRequestPayload>
+          }
+          createMany: {
+            args: Prisma.TagRequestCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TagRequestCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TagRequestPayload>[]
+          }
+          delete: {
+            args: Prisma.TagRequestDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TagRequestPayload>
+          }
+          update: {
+            args: Prisma.TagRequestUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TagRequestPayload>
+          }
+          deleteMany: {
+            args: Prisma.TagRequestDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TagRequestUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.TagRequestUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TagRequestPayload>[]
+          }
+          upsert: {
+            args: Prisma.TagRequestUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TagRequestPayload>
+          }
+          aggregate: {
+            args: Prisma.TagRequestAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTagRequest>
+          }
+          groupBy: {
+            args: Prisma.TagRequestGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TagRequestGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TagRequestCountArgs<ExtArgs>
+            result: $Utils.Optional<TagRequestCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -3367,6 +3817,11 @@ export namespace Prisma {
     vendorGiftImage?: VendorGiftImageOmit
     favorite?: FavoriteOmit
     rating?: RatingOmit
+    productCategory?: ProductCategoryOmit
+    productSubcategory?: ProductSubcategoryOmit
+    productTag?: ProductTagOmit
+    vendorGiftTag?: VendorGiftTagOmit
+    tagRequest?: TagRequestOmit
   }
 
   /* Types for Logging */
@@ -3472,6 +3927,7 @@ export namespace Prisma {
     adminLogs: number
     notifications: number
     notificationReads: number
+    tagRequests: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3500,6 +3956,7 @@ export namespace Prisma {
     adminLogs?: boolean | UserCountOutputTypeCountAdminLogsArgs
     notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
     notificationReads?: boolean | UserCountOutputTypeCountNotificationReadsArgs
+    tagRequests?: boolean | UserCountOutputTypeCountTagRequestsArgs
   }
 
   // Custom InputTypes
@@ -3688,6 +4145,13 @@ export namespace Prisma {
     where?: NotificationReadWhereInput
   }
 
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountTagRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TagRequestWhereInput
+  }
+
 
   /**
    * Count Type CampaignCountOutputType
@@ -3836,6 +4300,7 @@ export namespace Prisma {
    */
 
   export type VendorGiftCountOutputType = {
+    productTags: number
     giftImages: number
     favorites: number
     featuredAds: number
@@ -3845,6 +4310,7 @@ export namespace Prisma {
   }
 
   export type VendorGiftCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    productTags?: boolean | VendorGiftCountOutputTypeCountProductTagsArgs
     giftImages?: boolean | VendorGiftCountOutputTypeCountGiftImagesArgs
     favorites?: boolean | VendorGiftCountOutputTypeCountFavoritesArgs
     featuredAds?: boolean | VendorGiftCountOutputTypeCountFeaturedAdsArgs
@@ -3862,6 +4328,13 @@ export namespace Prisma {
      * Select specific fields to fetch from the VendorGiftCountOutputType
      */
     select?: VendorGiftCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * VendorGiftCountOutputType without action
+   */
+  export type VendorGiftCountOutputTypeCountProductTagsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: VendorGiftTagWhereInput
   }
 
   /**
@@ -3904,6 +4377,126 @@ export namespace Prisma {
    */
   export type VendorGiftCountOutputTypeCountDirectGiftsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: DirectGiftWhereInput
+  }
+
+
+  /**
+   * Count Type ProductCategoryCountOutputType
+   */
+
+  export type ProductCategoryCountOutputType = {
+    subcategories: number
+    vendorGifts: number
+  }
+
+  export type ProductCategoryCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    subcategories?: boolean | ProductCategoryCountOutputTypeCountSubcategoriesArgs
+    vendorGifts?: boolean | ProductCategoryCountOutputTypeCountVendorGiftsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ProductCategoryCountOutputType without action
+   */
+  export type ProductCategoryCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductCategoryCountOutputType
+     */
+    select?: ProductCategoryCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ProductCategoryCountOutputType without action
+   */
+  export type ProductCategoryCountOutputTypeCountSubcategoriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProductSubcategoryWhereInput
+  }
+
+  /**
+   * ProductCategoryCountOutputType without action
+   */
+  export type ProductCategoryCountOutputTypeCountVendorGiftsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: VendorGiftWhereInput
+  }
+
+
+  /**
+   * Count Type ProductSubcategoryCountOutputType
+   */
+
+  export type ProductSubcategoryCountOutputType = {
+    tags: number
+    vendorGifts: number
+    tagRequests: number
+  }
+
+  export type ProductSubcategoryCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tags?: boolean | ProductSubcategoryCountOutputTypeCountTagsArgs
+    vendorGifts?: boolean | ProductSubcategoryCountOutputTypeCountVendorGiftsArgs
+    tagRequests?: boolean | ProductSubcategoryCountOutputTypeCountTagRequestsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ProductSubcategoryCountOutputType without action
+   */
+  export type ProductSubcategoryCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductSubcategoryCountOutputType
+     */
+    select?: ProductSubcategoryCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ProductSubcategoryCountOutputType without action
+   */
+  export type ProductSubcategoryCountOutputTypeCountTagsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProductTagWhereInput
+  }
+
+  /**
+   * ProductSubcategoryCountOutputType without action
+   */
+  export type ProductSubcategoryCountOutputTypeCountVendorGiftsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: VendorGiftWhereInput
+  }
+
+  /**
+   * ProductSubcategoryCountOutputType without action
+   */
+  export type ProductSubcategoryCountOutputTypeCountTagRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TagRequestWhereInput
+  }
+
+
+  /**
+   * Count Type ProductTagCountOutputType
+   */
+
+  export type ProductTagCountOutputType = {
+    vendorGifts: number
+  }
+
+  export type ProductTagCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    vendorGifts?: boolean | ProductTagCountOutputTypeCountVendorGiftsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ProductTagCountOutputType without action
+   */
+  export type ProductTagCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductTagCountOutputType
+     */
+    select?: ProductTagCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ProductTagCountOutputType without action
+   */
+  export type ProductTagCountOutputTypeCountVendorGiftsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: VendorGiftTagWhereInput
   }
 
 
@@ -4326,6 +4919,7 @@ export namespace Prisma {
     adminLogs?: boolean | User$adminLogsArgs<ExtArgs>
     notifications?: boolean | User$notificationsArgs<ExtArgs>
     notificationReads?: boolean | User$notificationReadsArgs<ExtArgs>
+    tagRequests?: boolean | User$tagRequestsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -4458,6 +5052,7 @@ export namespace Prisma {
     adminLogs?: boolean | User$adminLogsArgs<ExtArgs>
     notifications?: boolean | User$notificationsArgs<ExtArgs>
     notificationReads?: boolean | User$notificationReadsArgs<ExtArgs>
+    tagRequests?: boolean | User$tagRequestsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -4491,6 +5086,7 @@ export namespace Prisma {
       adminLogs: Prisma.$AdminLogPayload<ExtArgs>[]
       notifications: Prisma.$NotificationPayload<ExtArgs>[]
       notificationReads: Prisma.$NotificationReadPayload<ExtArgs>[]
+      tagRequests: Prisma.$TagRequestPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -4943,6 +5539,7 @@ export namespace Prisma {
     adminLogs<T extends User$adminLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$adminLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     notifications<T extends User$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     notificationReads<T extends User$notificationReadsArgs<ExtArgs> = {}>(args?: Subset<T, User$notificationReadsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationReadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    tagRequests<T extends User$tagRequestsArgs<ExtArgs> = {}>(args?: Subset<T, User$tagRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TagRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5993,6 +6590,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: NotificationReadScalarFieldEnum | NotificationReadScalarFieldEnum[]
+  }
+
+  /**
+   * User.tagRequests
+   */
+  export type User$tagRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TagRequest
+     */
+    select?: TagRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TagRequest
+     */
+    omit?: TagRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TagRequestInclude<ExtArgs> | null
+    where?: TagRequestWhereInput
+    orderBy?: TagRequestOrderByWithRelationInput | TagRequestOrderByWithRelationInput[]
+    cursor?: TagRequestWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TagRequestScalarFieldEnum | TagRequestScalarFieldEnum[]
   }
 
   /**
@@ -35117,6 +35738,8 @@ export namespace Prisma {
   export type VendorGiftAvgAggregateOutputType = {
     id: number | null
     price: Decimal | null
+    categoryId: number | null
+    subcategoryId: number | null
     stockQuantity: number | null
     unitsSold: number | null
     viewsCount: number | null
@@ -35128,6 +35751,8 @@ export namespace Prisma {
   export type VendorGiftSumAggregateOutputType = {
     id: number | null
     price: Decimal | null
+    categoryId: number | null
+    subcategoryId: number | null
     stockQuantity: number | null
     unitsSold: number | null
     viewsCount: number | null
@@ -35144,6 +35769,8 @@ export namespace Prisma {
     price: Decimal | null
     description: string | null
     imageUrl: string | null
+    categoryId: number | null
+    subcategoryId: number | null
     category: string | null
     type: string | null
     status: string | null
@@ -35166,6 +35793,8 @@ export namespace Prisma {
     price: Decimal | null
     description: string | null
     imageUrl: string | null
+    categoryId: number | null
+    subcategoryId: number | null
     category: string | null
     type: string | null
     status: string | null
@@ -35188,6 +35817,8 @@ export namespace Prisma {
     price: number
     description: number
     imageUrl: number
+    categoryId: number
+    subcategoryId: number
     category: number
     tags: number
     type: number
@@ -35209,6 +35840,8 @@ export namespace Prisma {
   export type VendorGiftAvgAggregateInputType = {
     id?: true
     price?: true
+    categoryId?: true
+    subcategoryId?: true
     stockQuantity?: true
     unitsSold?: true
     viewsCount?: true
@@ -35220,6 +35853,8 @@ export namespace Prisma {
   export type VendorGiftSumAggregateInputType = {
     id?: true
     price?: true
+    categoryId?: true
+    subcategoryId?: true
     stockQuantity?: true
     unitsSold?: true
     viewsCount?: true
@@ -35236,6 +35871,8 @@ export namespace Prisma {
     price?: true
     description?: true
     imageUrl?: true
+    categoryId?: true
+    subcategoryId?: true
     category?: true
     type?: true
     status?: true
@@ -35258,6 +35895,8 @@ export namespace Prisma {
     price?: true
     description?: true
     imageUrl?: true
+    categoryId?: true
+    subcategoryId?: true
     category?: true
     type?: true
     status?: true
@@ -35280,6 +35919,8 @@ export namespace Prisma {
     price?: true
     description?: true
     imageUrl?: true
+    categoryId?: true
+    subcategoryId?: true
     category?: true
     tags?: true
     type?: true
@@ -35391,6 +36032,8 @@ export namespace Prisma {
     price: Decimal
     description: string | null
     imageUrl: string | null
+    categoryId: number | null
+    subcategoryId: number | null
     category: string | null
     tags: string[]
     type: string
@@ -35434,6 +36077,8 @@ export namespace Prisma {
     price?: boolean
     description?: boolean
     imageUrl?: boolean
+    categoryId?: boolean
+    subcategoryId?: boolean
     category?: boolean
     tags?: boolean
     type?: boolean
@@ -35449,6 +36094,9 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     vendor?: boolean | UserDefaultArgs<ExtArgs>
+    categoryRel?: boolean | VendorGift$categoryRelArgs<ExtArgs>
+    subcategoryRel?: boolean | VendorGift$subcategoryRelArgs<ExtArgs>
+    productTags?: boolean | VendorGift$productTagsArgs<ExtArgs>
     giftImages?: boolean | VendorGift$giftImagesArgs<ExtArgs>
     favorites?: boolean | VendorGift$favoritesArgs<ExtArgs>
     featuredAds?: boolean | VendorGift$featuredAdsArgs<ExtArgs>
@@ -35466,6 +36114,8 @@ export namespace Prisma {
     price?: boolean
     description?: boolean
     imageUrl?: boolean
+    categoryId?: boolean
+    subcategoryId?: boolean
     category?: boolean
     tags?: boolean
     type?: boolean
@@ -35481,6 +36131,8 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     vendor?: boolean | UserDefaultArgs<ExtArgs>
+    categoryRel?: boolean | VendorGift$categoryRelArgs<ExtArgs>
+    subcategoryRel?: boolean | VendorGift$subcategoryRelArgs<ExtArgs>
   }, ExtArgs["result"]["vendorGift"]>
 
   export type VendorGiftSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -35491,6 +36143,8 @@ export namespace Prisma {
     price?: boolean
     description?: boolean
     imageUrl?: boolean
+    categoryId?: boolean
+    subcategoryId?: boolean
     category?: boolean
     tags?: boolean
     type?: boolean
@@ -35506,6 +36160,8 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     vendor?: boolean | UserDefaultArgs<ExtArgs>
+    categoryRel?: boolean | VendorGift$categoryRelArgs<ExtArgs>
+    subcategoryRel?: boolean | VendorGift$subcategoryRelArgs<ExtArgs>
   }, ExtArgs["result"]["vendorGift"]>
 
   export type VendorGiftSelectScalar = {
@@ -35516,6 +36172,8 @@ export namespace Prisma {
     price?: boolean
     description?: boolean
     imageUrl?: boolean
+    categoryId?: boolean
+    subcategoryId?: boolean
     category?: boolean
     tags?: boolean
     type?: boolean
@@ -35532,9 +36190,12 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type VendorGiftOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "vendorId" | "name" | "slug" | "price" | "description" | "imageUrl" | "category" | "tags" | "type" | "status" | "stockQuantity" | "unitsSold" | "images" | "viewsCount" | "clicksCount" | "salesCount" | "rankingScore" | "lastEngagementAt" | "createdAt" | "updatedAt", ExtArgs["result"]["vendorGift"]>
+  export type VendorGiftOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "vendorId" | "name" | "slug" | "price" | "description" | "imageUrl" | "categoryId" | "subcategoryId" | "category" | "tags" | "type" | "status" | "stockQuantity" | "unitsSold" | "images" | "viewsCount" | "clicksCount" | "salesCount" | "rankingScore" | "lastEngagementAt" | "createdAt" | "updatedAt", ExtArgs["result"]["vendorGift"]>
   export type VendorGiftInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     vendor?: boolean | UserDefaultArgs<ExtArgs>
+    categoryRel?: boolean | VendorGift$categoryRelArgs<ExtArgs>
+    subcategoryRel?: boolean | VendorGift$subcategoryRelArgs<ExtArgs>
+    productTags?: boolean | VendorGift$productTagsArgs<ExtArgs>
     giftImages?: boolean | VendorGift$giftImagesArgs<ExtArgs>
     favorites?: boolean | VendorGift$favoritesArgs<ExtArgs>
     featuredAds?: boolean | VendorGift$featuredAdsArgs<ExtArgs>
@@ -35545,15 +36206,22 @@ export namespace Prisma {
   }
   export type VendorGiftIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     vendor?: boolean | UserDefaultArgs<ExtArgs>
+    categoryRel?: boolean | VendorGift$categoryRelArgs<ExtArgs>
+    subcategoryRel?: boolean | VendorGift$subcategoryRelArgs<ExtArgs>
   }
   export type VendorGiftIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     vendor?: boolean | UserDefaultArgs<ExtArgs>
+    categoryRel?: boolean | VendorGift$categoryRelArgs<ExtArgs>
+    subcategoryRel?: boolean | VendorGift$subcategoryRelArgs<ExtArgs>
   }
 
   export type $VendorGiftPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "VendorGift"
     objects: {
       vendor: Prisma.$UserPayload<ExtArgs>
+      categoryRel: Prisma.$ProductCategoryPayload<ExtArgs> | null
+      subcategoryRel: Prisma.$ProductSubcategoryPayload<ExtArgs> | null
+      productTags: Prisma.$VendorGiftTagPayload<ExtArgs>[]
       giftImages: Prisma.$VendorGiftImagePayload<ExtArgs>[]
       favorites: Prisma.$FavoritePayload<ExtArgs>[]
       featuredAds: Prisma.$FeaturedAdPayload<ExtArgs>[]
@@ -35569,6 +36237,8 @@ export namespace Prisma {
       price: Prisma.Decimal
       description: string | null
       imageUrl: string | null
+      categoryId: number | null
+      subcategoryId: number | null
       category: string | null
       tags: string[]
       type: string
@@ -35978,6 +36648,9 @@ export namespace Prisma {
   export interface Prisma__VendorGiftClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     vendor<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    categoryRel<T extends VendorGift$categoryRelArgs<ExtArgs> = {}>(args?: Subset<T, VendorGift$categoryRelArgs<ExtArgs>>): Prisma__ProductCategoryClient<$Result.GetResult<Prisma.$ProductCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    subcategoryRel<T extends VendorGift$subcategoryRelArgs<ExtArgs> = {}>(args?: Subset<T, VendorGift$subcategoryRelArgs<ExtArgs>>): Prisma__ProductSubcategoryClient<$Result.GetResult<Prisma.$ProductSubcategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    productTags<T extends VendorGift$productTagsArgs<ExtArgs> = {}>(args?: Subset<T, VendorGift$productTagsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VendorGiftTagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     giftImages<T extends VendorGift$giftImagesArgs<ExtArgs> = {}>(args?: Subset<T, VendorGift$giftImagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VendorGiftImagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     favorites<T extends VendorGift$favoritesArgs<ExtArgs> = {}>(args?: Subset<T, VendorGift$favoritesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FavoritePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     featuredAds<T extends VendorGift$featuredAdsArgs<ExtArgs> = {}>(args?: Subset<T, VendorGift$featuredAdsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeaturedAdPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -36020,6 +36693,8 @@ export namespace Prisma {
     readonly price: FieldRef<"VendorGift", 'Decimal'>
     readonly description: FieldRef<"VendorGift", 'String'>
     readonly imageUrl: FieldRef<"VendorGift", 'String'>
+    readonly categoryId: FieldRef<"VendorGift", 'Int'>
+    readonly subcategoryId: FieldRef<"VendorGift", 'Int'>
     readonly category: FieldRef<"VendorGift", 'String'>
     readonly tags: FieldRef<"VendorGift", 'String[]'>
     readonly type: FieldRef<"VendorGift", 'String'>
@@ -36432,6 +37107,68 @@ export namespace Prisma {
      * Limit how many VendorGifts to delete.
      */
     limit?: number
+  }
+
+  /**
+   * VendorGift.categoryRel
+   */
+  export type VendorGift$categoryRelArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductCategory
+     */
+    select?: ProductCategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductCategory
+     */
+    omit?: ProductCategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductCategoryInclude<ExtArgs> | null
+    where?: ProductCategoryWhereInput
+  }
+
+  /**
+   * VendorGift.subcategoryRel
+   */
+  export type VendorGift$subcategoryRelArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductSubcategory
+     */
+    select?: ProductSubcategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductSubcategory
+     */
+    omit?: ProductSubcategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductSubcategoryInclude<ExtArgs> | null
+    where?: ProductSubcategoryWhereInput
+  }
+
+  /**
+   * VendorGift.productTags
+   */
+  export type VendorGift$productTagsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorGiftTag
+     */
+    select?: VendorGiftTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VendorGiftTag
+     */
+    omit?: VendorGiftTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorGiftTagInclude<ExtArgs> | null
+    where?: VendorGiftTagWhereInput
+    orderBy?: VendorGiftTagOrderByWithRelationInput | VendorGiftTagOrderByWithRelationInput[]
+    cursor?: VendorGiftTagWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: VendorGiftTagScalarFieldEnum | VendorGiftTagScalarFieldEnum[]
   }
 
   /**
@@ -39846,6 +40583,5705 @@ export namespace Prisma {
 
 
   /**
+   * Model ProductCategory
+   */
+
+  export type AggregateProductCategory = {
+    _count: ProductCategoryCountAggregateOutputType | null
+    _avg: ProductCategoryAvgAggregateOutputType | null
+    _sum: ProductCategorySumAggregateOutputType | null
+    _min: ProductCategoryMinAggregateOutputType | null
+    _max: ProductCategoryMaxAggregateOutputType | null
+  }
+
+  export type ProductCategoryAvgAggregateOutputType = {
+    id: number | null
+  }
+
+  export type ProductCategorySumAggregateOutputType = {
+    id: number | null
+  }
+
+  export type ProductCategoryMinAggregateOutputType = {
+    id: number | null
+    name: string | null
+    slug: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ProductCategoryMaxAggregateOutputType = {
+    id: number | null
+    name: string | null
+    slug: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ProductCategoryCountAggregateOutputType = {
+    id: number
+    name: number
+    slug: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ProductCategoryAvgAggregateInputType = {
+    id?: true
+  }
+
+  export type ProductCategorySumAggregateInputType = {
+    id?: true
+  }
+
+  export type ProductCategoryMinAggregateInputType = {
+    id?: true
+    name?: true
+    slug?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ProductCategoryMaxAggregateInputType = {
+    id?: true
+    name?: true
+    slug?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ProductCategoryCountAggregateInputType = {
+    id?: true
+    name?: true
+    slug?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ProductCategoryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProductCategory to aggregate.
+     */
+    where?: ProductCategoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductCategories to fetch.
+     */
+    orderBy?: ProductCategoryOrderByWithRelationInput | ProductCategoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ProductCategoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductCategories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductCategories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ProductCategories
+    **/
+    _count?: true | ProductCategoryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ProductCategoryAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ProductCategorySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ProductCategoryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ProductCategoryMaxAggregateInputType
+  }
+
+  export type GetProductCategoryAggregateType<T extends ProductCategoryAggregateArgs> = {
+        [P in keyof T & keyof AggregateProductCategory]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateProductCategory[P]>
+      : GetScalarType<T[P], AggregateProductCategory[P]>
+  }
+
+
+
+
+  export type ProductCategoryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProductCategoryWhereInput
+    orderBy?: ProductCategoryOrderByWithAggregationInput | ProductCategoryOrderByWithAggregationInput[]
+    by: ProductCategoryScalarFieldEnum[] | ProductCategoryScalarFieldEnum
+    having?: ProductCategoryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ProductCategoryCountAggregateInputType | true
+    _avg?: ProductCategoryAvgAggregateInputType
+    _sum?: ProductCategorySumAggregateInputType
+    _min?: ProductCategoryMinAggregateInputType
+    _max?: ProductCategoryMaxAggregateInputType
+  }
+
+  export type ProductCategoryGroupByOutputType = {
+    id: number
+    name: string
+    slug: string
+    createdAt: Date
+    updatedAt: Date
+    _count: ProductCategoryCountAggregateOutputType | null
+    _avg: ProductCategoryAvgAggregateOutputType | null
+    _sum: ProductCategorySumAggregateOutputType | null
+    _min: ProductCategoryMinAggregateOutputType | null
+    _max: ProductCategoryMaxAggregateOutputType | null
+  }
+
+  type GetProductCategoryGroupByPayload<T extends ProductCategoryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ProductCategoryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ProductCategoryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ProductCategoryGroupByOutputType[P]>
+            : GetScalarType<T[P], ProductCategoryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ProductCategorySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    slug?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    subcategories?: boolean | ProductCategory$subcategoriesArgs<ExtArgs>
+    vendorGifts?: boolean | ProductCategory$vendorGiftsArgs<ExtArgs>
+    _count?: boolean | ProductCategoryCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["productCategory"]>
+
+  export type ProductCategorySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    slug?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["productCategory"]>
+
+  export type ProductCategorySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    slug?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["productCategory"]>
+
+  export type ProductCategorySelectScalar = {
+    id?: boolean
+    name?: boolean
+    slug?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ProductCategoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "slug" | "createdAt" | "updatedAt", ExtArgs["result"]["productCategory"]>
+  export type ProductCategoryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    subcategories?: boolean | ProductCategory$subcategoriesArgs<ExtArgs>
+    vendorGifts?: boolean | ProductCategory$vendorGiftsArgs<ExtArgs>
+    _count?: boolean | ProductCategoryCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type ProductCategoryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type ProductCategoryIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $ProductCategoryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ProductCategory"
+    objects: {
+      subcategories: Prisma.$ProductSubcategoryPayload<ExtArgs>[]
+      vendorGifts: Prisma.$VendorGiftPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      name: string
+      slug: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["productCategory"]>
+    composites: {}
+  }
+
+  type ProductCategoryGetPayload<S extends boolean | null | undefined | ProductCategoryDefaultArgs> = $Result.GetResult<Prisma.$ProductCategoryPayload, S>
+
+  type ProductCategoryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ProductCategoryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ProductCategoryCountAggregateInputType | true
+    }
+
+  export interface ProductCategoryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProductCategory'], meta: { name: 'ProductCategory' } }
+    /**
+     * Find zero or one ProductCategory that matches the filter.
+     * @param {ProductCategoryFindUniqueArgs} args - Arguments to find a ProductCategory
+     * @example
+     * // Get one ProductCategory
+     * const productCategory = await prisma.productCategory.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ProductCategoryFindUniqueArgs>(args: SelectSubset<T, ProductCategoryFindUniqueArgs<ExtArgs>>): Prisma__ProductCategoryClient<$Result.GetResult<Prisma.$ProductCategoryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ProductCategory that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ProductCategoryFindUniqueOrThrowArgs} args - Arguments to find a ProductCategory
+     * @example
+     * // Get one ProductCategory
+     * const productCategory = await prisma.productCategory.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ProductCategoryFindUniqueOrThrowArgs>(args: SelectSubset<T, ProductCategoryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProductCategoryClient<$Result.GetResult<Prisma.$ProductCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProductCategory that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductCategoryFindFirstArgs} args - Arguments to find a ProductCategory
+     * @example
+     * // Get one ProductCategory
+     * const productCategory = await prisma.productCategory.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ProductCategoryFindFirstArgs>(args?: SelectSubset<T, ProductCategoryFindFirstArgs<ExtArgs>>): Prisma__ProductCategoryClient<$Result.GetResult<Prisma.$ProductCategoryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProductCategory that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductCategoryFindFirstOrThrowArgs} args - Arguments to find a ProductCategory
+     * @example
+     * // Get one ProductCategory
+     * const productCategory = await prisma.productCategory.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ProductCategoryFindFirstOrThrowArgs>(args?: SelectSubset<T, ProductCategoryFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProductCategoryClient<$Result.GetResult<Prisma.$ProductCategoryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ProductCategories that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductCategoryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ProductCategories
+     * const productCategories = await prisma.productCategory.findMany()
+     * 
+     * // Get first 10 ProductCategories
+     * const productCategories = await prisma.productCategory.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const productCategoryWithIdOnly = await prisma.productCategory.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ProductCategoryFindManyArgs>(args?: SelectSubset<T, ProductCategoryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ProductCategory.
+     * @param {ProductCategoryCreateArgs} args - Arguments to create a ProductCategory.
+     * @example
+     * // Create one ProductCategory
+     * const ProductCategory = await prisma.productCategory.create({
+     *   data: {
+     *     // ... data to create a ProductCategory
+     *   }
+     * })
+     * 
+     */
+    create<T extends ProductCategoryCreateArgs>(args: SelectSubset<T, ProductCategoryCreateArgs<ExtArgs>>): Prisma__ProductCategoryClient<$Result.GetResult<Prisma.$ProductCategoryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ProductCategories.
+     * @param {ProductCategoryCreateManyArgs} args - Arguments to create many ProductCategories.
+     * @example
+     * // Create many ProductCategories
+     * const productCategory = await prisma.productCategory.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ProductCategoryCreateManyArgs>(args?: SelectSubset<T, ProductCategoryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ProductCategories and returns the data saved in the database.
+     * @param {ProductCategoryCreateManyAndReturnArgs} args - Arguments to create many ProductCategories.
+     * @example
+     * // Create many ProductCategories
+     * const productCategory = await prisma.productCategory.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ProductCategories and only return the `id`
+     * const productCategoryWithIdOnly = await prisma.productCategory.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ProductCategoryCreateManyAndReturnArgs>(args?: SelectSubset<T, ProductCategoryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductCategoryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ProductCategory.
+     * @param {ProductCategoryDeleteArgs} args - Arguments to delete one ProductCategory.
+     * @example
+     * // Delete one ProductCategory
+     * const ProductCategory = await prisma.productCategory.delete({
+     *   where: {
+     *     // ... filter to delete one ProductCategory
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ProductCategoryDeleteArgs>(args: SelectSubset<T, ProductCategoryDeleteArgs<ExtArgs>>): Prisma__ProductCategoryClient<$Result.GetResult<Prisma.$ProductCategoryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ProductCategory.
+     * @param {ProductCategoryUpdateArgs} args - Arguments to update one ProductCategory.
+     * @example
+     * // Update one ProductCategory
+     * const productCategory = await prisma.productCategory.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ProductCategoryUpdateArgs>(args: SelectSubset<T, ProductCategoryUpdateArgs<ExtArgs>>): Prisma__ProductCategoryClient<$Result.GetResult<Prisma.$ProductCategoryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ProductCategories.
+     * @param {ProductCategoryDeleteManyArgs} args - Arguments to filter ProductCategories to delete.
+     * @example
+     * // Delete a few ProductCategories
+     * const { count } = await prisma.productCategory.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ProductCategoryDeleteManyArgs>(args?: SelectSubset<T, ProductCategoryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProductCategories.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductCategoryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ProductCategories
+     * const productCategory = await prisma.productCategory.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ProductCategoryUpdateManyArgs>(args: SelectSubset<T, ProductCategoryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProductCategories and returns the data updated in the database.
+     * @param {ProductCategoryUpdateManyAndReturnArgs} args - Arguments to update many ProductCategories.
+     * @example
+     * // Update many ProductCategories
+     * const productCategory = await prisma.productCategory.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ProductCategories and only return the `id`
+     * const productCategoryWithIdOnly = await prisma.productCategory.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ProductCategoryUpdateManyAndReturnArgs>(args: SelectSubset<T, ProductCategoryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductCategoryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ProductCategory.
+     * @param {ProductCategoryUpsertArgs} args - Arguments to update or create a ProductCategory.
+     * @example
+     * // Update or create a ProductCategory
+     * const productCategory = await prisma.productCategory.upsert({
+     *   create: {
+     *     // ... data to create a ProductCategory
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ProductCategory we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ProductCategoryUpsertArgs>(args: SelectSubset<T, ProductCategoryUpsertArgs<ExtArgs>>): Prisma__ProductCategoryClient<$Result.GetResult<Prisma.$ProductCategoryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ProductCategories.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductCategoryCountArgs} args - Arguments to filter ProductCategories to count.
+     * @example
+     * // Count the number of ProductCategories
+     * const count = await prisma.productCategory.count({
+     *   where: {
+     *     // ... the filter for the ProductCategories we want to count
+     *   }
+     * })
+    **/
+    count<T extends ProductCategoryCountArgs>(
+      args?: Subset<T, ProductCategoryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ProductCategoryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ProductCategory.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductCategoryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ProductCategoryAggregateArgs>(args: Subset<T, ProductCategoryAggregateArgs>): Prisma.PrismaPromise<GetProductCategoryAggregateType<T>>
+
+    /**
+     * Group by ProductCategory.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductCategoryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ProductCategoryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ProductCategoryGroupByArgs['orderBy'] }
+        : { orderBy?: ProductCategoryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ProductCategoryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProductCategoryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ProductCategory model
+   */
+  readonly fields: ProductCategoryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ProductCategory.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ProductCategoryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    subcategories<T extends ProductCategory$subcategoriesArgs<ExtArgs> = {}>(args?: Subset<T, ProductCategory$subcategoriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductSubcategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    vendorGifts<T extends ProductCategory$vendorGiftsArgs<ExtArgs> = {}>(args?: Subset<T, ProductCategory$vendorGiftsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VendorGiftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ProductCategory model
+   */
+  interface ProductCategoryFieldRefs {
+    readonly id: FieldRef<"ProductCategory", 'Int'>
+    readonly name: FieldRef<"ProductCategory", 'String'>
+    readonly slug: FieldRef<"ProductCategory", 'String'>
+    readonly createdAt: FieldRef<"ProductCategory", 'DateTime'>
+    readonly updatedAt: FieldRef<"ProductCategory", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ProductCategory findUnique
+   */
+  export type ProductCategoryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductCategory
+     */
+    select?: ProductCategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductCategory
+     */
+    omit?: ProductCategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductCategoryInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductCategory to fetch.
+     */
+    where: ProductCategoryWhereUniqueInput
+  }
+
+  /**
+   * ProductCategory findUniqueOrThrow
+   */
+  export type ProductCategoryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductCategory
+     */
+    select?: ProductCategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductCategory
+     */
+    omit?: ProductCategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductCategoryInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductCategory to fetch.
+     */
+    where: ProductCategoryWhereUniqueInput
+  }
+
+  /**
+   * ProductCategory findFirst
+   */
+  export type ProductCategoryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductCategory
+     */
+    select?: ProductCategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductCategory
+     */
+    omit?: ProductCategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductCategoryInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductCategory to fetch.
+     */
+    where?: ProductCategoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductCategories to fetch.
+     */
+    orderBy?: ProductCategoryOrderByWithRelationInput | ProductCategoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProductCategories.
+     */
+    cursor?: ProductCategoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductCategories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductCategories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductCategories.
+     */
+    distinct?: ProductCategoryScalarFieldEnum | ProductCategoryScalarFieldEnum[]
+  }
+
+  /**
+   * ProductCategory findFirstOrThrow
+   */
+  export type ProductCategoryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductCategory
+     */
+    select?: ProductCategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductCategory
+     */
+    omit?: ProductCategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductCategoryInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductCategory to fetch.
+     */
+    where?: ProductCategoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductCategories to fetch.
+     */
+    orderBy?: ProductCategoryOrderByWithRelationInput | ProductCategoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProductCategories.
+     */
+    cursor?: ProductCategoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductCategories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductCategories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductCategories.
+     */
+    distinct?: ProductCategoryScalarFieldEnum | ProductCategoryScalarFieldEnum[]
+  }
+
+  /**
+   * ProductCategory findMany
+   */
+  export type ProductCategoryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductCategory
+     */
+    select?: ProductCategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductCategory
+     */
+    omit?: ProductCategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductCategoryInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductCategories to fetch.
+     */
+    where?: ProductCategoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductCategories to fetch.
+     */
+    orderBy?: ProductCategoryOrderByWithRelationInput | ProductCategoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ProductCategories.
+     */
+    cursor?: ProductCategoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductCategories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductCategories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductCategories.
+     */
+    distinct?: ProductCategoryScalarFieldEnum | ProductCategoryScalarFieldEnum[]
+  }
+
+  /**
+   * ProductCategory create
+   */
+  export type ProductCategoryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductCategory
+     */
+    select?: ProductCategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductCategory
+     */
+    omit?: ProductCategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductCategoryInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ProductCategory.
+     */
+    data: XOR<ProductCategoryCreateInput, ProductCategoryUncheckedCreateInput>
+  }
+
+  /**
+   * ProductCategory createMany
+   */
+  export type ProductCategoryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ProductCategories.
+     */
+    data: ProductCategoryCreateManyInput | ProductCategoryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ProductCategory createManyAndReturn
+   */
+  export type ProductCategoryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductCategory
+     */
+    select?: ProductCategorySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductCategory
+     */
+    omit?: ProductCategoryOmit<ExtArgs> | null
+    /**
+     * The data used to create many ProductCategories.
+     */
+    data: ProductCategoryCreateManyInput | ProductCategoryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ProductCategory update
+   */
+  export type ProductCategoryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductCategory
+     */
+    select?: ProductCategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductCategory
+     */
+    omit?: ProductCategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductCategoryInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ProductCategory.
+     */
+    data: XOR<ProductCategoryUpdateInput, ProductCategoryUncheckedUpdateInput>
+    /**
+     * Choose, which ProductCategory to update.
+     */
+    where: ProductCategoryWhereUniqueInput
+  }
+
+  /**
+   * ProductCategory updateMany
+   */
+  export type ProductCategoryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ProductCategories.
+     */
+    data: XOR<ProductCategoryUpdateManyMutationInput, ProductCategoryUncheckedUpdateManyInput>
+    /**
+     * Filter which ProductCategories to update
+     */
+    where?: ProductCategoryWhereInput
+    /**
+     * Limit how many ProductCategories to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductCategory updateManyAndReturn
+   */
+  export type ProductCategoryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductCategory
+     */
+    select?: ProductCategorySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductCategory
+     */
+    omit?: ProductCategoryOmit<ExtArgs> | null
+    /**
+     * The data used to update ProductCategories.
+     */
+    data: XOR<ProductCategoryUpdateManyMutationInput, ProductCategoryUncheckedUpdateManyInput>
+    /**
+     * Filter which ProductCategories to update
+     */
+    where?: ProductCategoryWhereInput
+    /**
+     * Limit how many ProductCategories to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductCategory upsert
+   */
+  export type ProductCategoryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductCategory
+     */
+    select?: ProductCategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductCategory
+     */
+    omit?: ProductCategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductCategoryInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ProductCategory to update in case it exists.
+     */
+    where: ProductCategoryWhereUniqueInput
+    /**
+     * In case the ProductCategory found by the `where` argument doesn't exist, create a new ProductCategory with this data.
+     */
+    create: XOR<ProductCategoryCreateInput, ProductCategoryUncheckedCreateInput>
+    /**
+     * In case the ProductCategory was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ProductCategoryUpdateInput, ProductCategoryUncheckedUpdateInput>
+  }
+
+  /**
+   * ProductCategory delete
+   */
+  export type ProductCategoryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductCategory
+     */
+    select?: ProductCategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductCategory
+     */
+    omit?: ProductCategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductCategoryInclude<ExtArgs> | null
+    /**
+     * Filter which ProductCategory to delete.
+     */
+    where: ProductCategoryWhereUniqueInput
+  }
+
+  /**
+   * ProductCategory deleteMany
+   */
+  export type ProductCategoryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProductCategories to delete
+     */
+    where?: ProductCategoryWhereInput
+    /**
+     * Limit how many ProductCategories to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductCategory.subcategories
+   */
+  export type ProductCategory$subcategoriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductSubcategory
+     */
+    select?: ProductSubcategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductSubcategory
+     */
+    omit?: ProductSubcategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductSubcategoryInclude<ExtArgs> | null
+    where?: ProductSubcategoryWhereInput
+    orderBy?: ProductSubcategoryOrderByWithRelationInput | ProductSubcategoryOrderByWithRelationInput[]
+    cursor?: ProductSubcategoryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ProductSubcategoryScalarFieldEnum | ProductSubcategoryScalarFieldEnum[]
+  }
+
+  /**
+   * ProductCategory.vendorGifts
+   */
+  export type ProductCategory$vendorGiftsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorGift
+     */
+    select?: VendorGiftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VendorGift
+     */
+    omit?: VendorGiftOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorGiftInclude<ExtArgs> | null
+    where?: VendorGiftWhereInput
+    orderBy?: VendorGiftOrderByWithRelationInput | VendorGiftOrderByWithRelationInput[]
+    cursor?: VendorGiftWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: VendorGiftScalarFieldEnum | VendorGiftScalarFieldEnum[]
+  }
+
+  /**
+   * ProductCategory without action
+   */
+  export type ProductCategoryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductCategory
+     */
+    select?: ProductCategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductCategory
+     */
+    omit?: ProductCategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductCategoryInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ProductSubcategory
+   */
+
+  export type AggregateProductSubcategory = {
+    _count: ProductSubcategoryCountAggregateOutputType | null
+    _avg: ProductSubcategoryAvgAggregateOutputType | null
+    _sum: ProductSubcategorySumAggregateOutputType | null
+    _min: ProductSubcategoryMinAggregateOutputType | null
+    _max: ProductSubcategoryMaxAggregateOutputType | null
+  }
+
+  export type ProductSubcategoryAvgAggregateOutputType = {
+    id: number | null
+    categoryId: number | null
+  }
+
+  export type ProductSubcategorySumAggregateOutputType = {
+    id: number | null
+    categoryId: number | null
+  }
+
+  export type ProductSubcategoryMinAggregateOutputType = {
+    id: number | null
+    categoryId: number | null
+    name: string | null
+    slug: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ProductSubcategoryMaxAggregateOutputType = {
+    id: number | null
+    categoryId: number | null
+    name: string | null
+    slug: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ProductSubcategoryCountAggregateOutputType = {
+    id: number
+    categoryId: number
+    name: number
+    slug: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ProductSubcategoryAvgAggregateInputType = {
+    id?: true
+    categoryId?: true
+  }
+
+  export type ProductSubcategorySumAggregateInputType = {
+    id?: true
+    categoryId?: true
+  }
+
+  export type ProductSubcategoryMinAggregateInputType = {
+    id?: true
+    categoryId?: true
+    name?: true
+    slug?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ProductSubcategoryMaxAggregateInputType = {
+    id?: true
+    categoryId?: true
+    name?: true
+    slug?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ProductSubcategoryCountAggregateInputType = {
+    id?: true
+    categoryId?: true
+    name?: true
+    slug?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ProductSubcategoryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProductSubcategory to aggregate.
+     */
+    where?: ProductSubcategoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductSubcategories to fetch.
+     */
+    orderBy?: ProductSubcategoryOrderByWithRelationInput | ProductSubcategoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ProductSubcategoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductSubcategories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductSubcategories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ProductSubcategories
+    **/
+    _count?: true | ProductSubcategoryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ProductSubcategoryAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ProductSubcategorySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ProductSubcategoryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ProductSubcategoryMaxAggregateInputType
+  }
+
+  export type GetProductSubcategoryAggregateType<T extends ProductSubcategoryAggregateArgs> = {
+        [P in keyof T & keyof AggregateProductSubcategory]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateProductSubcategory[P]>
+      : GetScalarType<T[P], AggregateProductSubcategory[P]>
+  }
+
+
+
+
+  export type ProductSubcategoryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProductSubcategoryWhereInput
+    orderBy?: ProductSubcategoryOrderByWithAggregationInput | ProductSubcategoryOrderByWithAggregationInput[]
+    by: ProductSubcategoryScalarFieldEnum[] | ProductSubcategoryScalarFieldEnum
+    having?: ProductSubcategoryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ProductSubcategoryCountAggregateInputType | true
+    _avg?: ProductSubcategoryAvgAggregateInputType
+    _sum?: ProductSubcategorySumAggregateInputType
+    _min?: ProductSubcategoryMinAggregateInputType
+    _max?: ProductSubcategoryMaxAggregateInputType
+  }
+
+  export type ProductSubcategoryGroupByOutputType = {
+    id: number
+    categoryId: number
+    name: string
+    slug: string
+    createdAt: Date
+    updatedAt: Date
+    _count: ProductSubcategoryCountAggregateOutputType | null
+    _avg: ProductSubcategoryAvgAggregateOutputType | null
+    _sum: ProductSubcategorySumAggregateOutputType | null
+    _min: ProductSubcategoryMinAggregateOutputType | null
+    _max: ProductSubcategoryMaxAggregateOutputType | null
+  }
+
+  type GetProductSubcategoryGroupByPayload<T extends ProductSubcategoryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ProductSubcategoryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ProductSubcategoryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ProductSubcategoryGroupByOutputType[P]>
+            : GetScalarType<T[P], ProductSubcategoryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ProductSubcategorySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    categoryId?: boolean
+    name?: boolean
+    slug?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    category?: boolean | ProductCategoryDefaultArgs<ExtArgs>
+    tags?: boolean | ProductSubcategory$tagsArgs<ExtArgs>
+    vendorGifts?: boolean | ProductSubcategory$vendorGiftsArgs<ExtArgs>
+    tagRequests?: boolean | ProductSubcategory$tagRequestsArgs<ExtArgs>
+    _count?: boolean | ProductSubcategoryCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["productSubcategory"]>
+
+  export type ProductSubcategorySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    categoryId?: boolean
+    name?: boolean
+    slug?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    category?: boolean | ProductCategoryDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["productSubcategory"]>
+
+  export type ProductSubcategorySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    categoryId?: boolean
+    name?: boolean
+    slug?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    category?: boolean | ProductCategoryDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["productSubcategory"]>
+
+  export type ProductSubcategorySelectScalar = {
+    id?: boolean
+    categoryId?: boolean
+    name?: boolean
+    slug?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ProductSubcategoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "categoryId" | "name" | "slug" | "createdAt" | "updatedAt", ExtArgs["result"]["productSubcategory"]>
+  export type ProductSubcategoryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    category?: boolean | ProductCategoryDefaultArgs<ExtArgs>
+    tags?: boolean | ProductSubcategory$tagsArgs<ExtArgs>
+    vendorGifts?: boolean | ProductSubcategory$vendorGiftsArgs<ExtArgs>
+    tagRequests?: boolean | ProductSubcategory$tagRequestsArgs<ExtArgs>
+    _count?: boolean | ProductSubcategoryCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type ProductSubcategoryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    category?: boolean | ProductCategoryDefaultArgs<ExtArgs>
+  }
+  export type ProductSubcategoryIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    category?: boolean | ProductCategoryDefaultArgs<ExtArgs>
+  }
+
+  export type $ProductSubcategoryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ProductSubcategory"
+    objects: {
+      category: Prisma.$ProductCategoryPayload<ExtArgs>
+      tags: Prisma.$ProductTagPayload<ExtArgs>[]
+      vendorGifts: Prisma.$VendorGiftPayload<ExtArgs>[]
+      tagRequests: Prisma.$TagRequestPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      categoryId: number
+      name: string
+      slug: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["productSubcategory"]>
+    composites: {}
+  }
+
+  type ProductSubcategoryGetPayload<S extends boolean | null | undefined | ProductSubcategoryDefaultArgs> = $Result.GetResult<Prisma.$ProductSubcategoryPayload, S>
+
+  type ProductSubcategoryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ProductSubcategoryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ProductSubcategoryCountAggregateInputType | true
+    }
+
+  export interface ProductSubcategoryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProductSubcategory'], meta: { name: 'ProductSubcategory' } }
+    /**
+     * Find zero or one ProductSubcategory that matches the filter.
+     * @param {ProductSubcategoryFindUniqueArgs} args - Arguments to find a ProductSubcategory
+     * @example
+     * // Get one ProductSubcategory
+     * const productSubcategory = await prisma.productSubcategory.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ProductSubcategoryFindUniqueArgs>(args: SelectSubset<T, ProductSubcategoryFindUniqueArgs<ExtArgs>>): Prisma__ProductSubcategoryClient<$Result.GetResult<Prisma.$ProductSubcategoryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ProductSubcategory that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ProductSubcategoryFindUniqueOrThrowArgs} args - Arguments to find a ProductSubcategory
+     * @example
+     * // Get one ProductSubcategory
+     * const productSubcategory = await prisma.productSubcategory.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ProductSubcategoryFindUniqueOrThrowArgs>(args: SelectSubset<T, ProductSubcategoryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProductSubcategoryClient<$Result.GetResult<Prisma.$ProductSubcategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProductSubcategory that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductSubcategoryFindFirstArgs} args - Arguments to find a ProductSubcategory
+     * @example
+     * // Get one ProductSubcategory
+     * const productSubcategory = await prisma.productSubcategory.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ProductSubcategoryFindFirstArgs>(args?: SelectSubset<T, ProductSubcategoryFindFirstArgs<ExtArgs>>): Prisma__ProductSubcategoryClient<$Result.GetResult<Prisma.$ProductSubcategoryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProductSubcategory that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductSubcategoryFindFirstOrThrowArgs} args - Arguments to find a ProductSubcategory
+     * @example
+     * // Get one ProductSubcategory
+     * const productSubcategory = await prisma.productSubcategory.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ProductSubcategoryFindFirstOrThrowArgs>(args?: SelectSubset<T, ProductSubcategoryFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProductSubcategoryClient<$Result.GetResult<Prisma.$ProductSubcategoryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ProductSubcategories that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductSubcategoryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ProductSubcategories
+     * const productSubcategories = await prisma.productSubcategory.findMany()
+     * 
+     * // Get first 10 ProductSubcategories
+     * const productSubcategories = await prisma.productSubcategory.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const productSubcategoryWithIdOnly = await prisma.productSubcategory.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ProductSubcategoryFindManyArgs>(args?: SelectSubset<T, ProductSubcategoryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductSubcategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ProductSubcategory.
+     * @param {ProductSubcategoryCreateArgs} args - Arguments to create a ProductSubcategory.
+     * @example
+     * // Create one ProductSubcategory
+     * const ProductSubcategory = await prisma.productSubcategory.create({
+     *   data: {
+     *     // ... data to create a ProductSubcategory
+     *   }
+     * })
+     * 
+     */
+    create<T extends ProductSubcategoryCreateArgs>(args: SelectSubset<T, ProductSubcategoryCreateArgs<ExtArgs>>): Prisma__ProductSubcategoryClient<$Result.GetResult<Prisma.$ProductSubcategoryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ProductSubcategories.
+     * @param {ProductSubcategoryCreateManyArgs} args - Arguments to create many ProductSubcategories.
+     * @example
+     * // Create many ProductSubcategories
+     * const productSubcategory = await prisma.productSubcategory.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ProductSubcategoryCreateManyArgs>(args?: SelectSubset<T, ProductSubcategoryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ProductSubcategories and returns the data saved in the database.
+     * @param {ProductSubcategoryCreateManyAndReturnArgs} args - Arguments to create many ProductSubcategories.
+     * @example
+     * // Create many ProductSubcategories
+     * const productSubcategory = await prisma.productSubcategory.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ProductSubcategories and only return the `id`
+     * const productSubcategoryWithIdOnly = await prisma.productSubcategory.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ProductSubcategoryCreateManyAndReturnArgs>(args?: SelectSubset<T, ProductSubcategoryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductSubcategoryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ProductSubcategory.
+     * @param {ProductSubcategoryDeleteArgs} args - Arguments to delete one ProductSubcategory.
+     * @example
+     * // Delete one ProductSubcategory
+     * const ProductSubcategory = await prisma.productSubcategory.delete({
+     *   where: {
+     *     // ... filter to delete one ProductSubcategory
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ProductSubcategoryDeleteArgs>(args: SelectSubset<T, ProductSubcategoryDeleteArgs<ExtArgs>>): Prisma__ProductSubcategoryClient<$Result.GetResult<Prisma.$ProductSubcategoryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ProductSubcategory.
+     * @param {ProductSubcategoryUpdateArgs} args - Arguments to update one ProductSubcategory.
+     * @example
+     * // Update one ProductSubcategory
+     * const productSubcategory = await prisma.productSubcategory.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ProductSubcategoryUpdateArgs>(args: SelectSubset<T, ProductSubcategoryUpdateArgs<ExtArgs>>): Prisma__ProductSubcategoryClient<$Result.GetResult<Prisma.$ProductSubcategoryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ProductSubcategories.
+     * @param {ProductSubcategoryDeleteManyArgs} args - Arguments to filter ProductSubcategories to delete.
+     * @example
+     * // Delete a few ProductSubcategories
+     * const { count } = await prisma.productSubcategory.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ProductSubcategoryDeleteManyArgs>(args?: SelectSubset<T, ProductSubcategoryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProductSubcategories.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductSubcategoryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ProductSubcategories
+     * const productSubcategory = await prisma.productSubcategory.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ProductSubcategoryUpdateManyArgs>(args: SelectSubset<T, ProductSubcategoryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProductSubcategories and returns the data updated in the database.
+     * @param {ProductSubcategoryUpdateManyAndReturnArgs} args - Arguments to update many ProductSubcategories.
+     * @example
+     * // Update many ProductSubcategories
+     * const productSubcategory = await prisma.productSubcategory.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ProductSubcategories and only return the `id`
+     * const productSubcategoryWithIdOnly = await prisma.productSubcategory.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ProductSubcategoryUpdateManyAndReturnArgs>(args: SelectSubset<T, ProductSubcategoryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductSubcategoryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ProductSubcategory.
+     * @param {ProductSubcategoryUpsertArgs} args - Arguments to update or create a ProductSubcategory.
+     * @example
+     * // Update or create a ProductSubcategory
+     * const productSubcategory = await prisma.productSubcategory.upsert({
+     *   create: {
+     *     // ... data to create a ProductSubcategory
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ProductSubcategory we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ProductSubcategoryUpsertArgs>(args: SelectSubset<T, ProductSubcategoryUpsertArgs<ExtArgs>>): Prisma__ProductSubcategoryClient<$Result.GetResult<Prisma.$ProductSubcategoryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ProductSubcategories.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductSubcategoryCountArgs} args - Arguments to filter ProductSubcategories to count.
+     * @example
+     * // Count the number of ProductSubcategories
+     * const count = await prisma.productSubcategory.count({
+     *   where: {
+     *     // ... the filter for the ProductSubcategories we want to count
+     *   }
+     * })
+    **/
+    count<T extends ProductSubcategoryCountArgs>(
+      args?: Subset<T, ProductSubcategoryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ProductSubcategoryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ProductSubcategory.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductSubcategoryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ProductSubcategoryAggregateArgs>(args: Subset<T, ProductSubcategoryAggregateArgs>): Prisma.PrismaPromise<GetProductSubcategoryAggregateType<T>>
+
+    /**
+     * Group by ProductSubcategory.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductSubcategoryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ProductSubcategoryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ProductSubcategoryGroupByArgs['orderBy'] }
+        : { orderBy?: ProductSubcategoryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ProductSubcategoryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProductSubcategoryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ProductSubcategory model
+   */
+  readonly fields: ProductSubcategoryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ProductSubcategory.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ProductSubcategoryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    category<T extends ProductCategoryDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProductCategoryDefaultArgs<ExtArgs>>): Prisma__ProductCategoryClient<$Result.GetResult<Prisma.$ProductCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    tags<T extends ProductSubcategory$tagsArgs<ExtArgs> = {}>(args?: Subset<T, ProductSubcategory$tagsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductTagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    vendorGifts<T extends ProductSubcategory$vendorGiftsArgs<ExtArgs> = {}>(args?: Subset<T, ProductSubcategory$vendorGiftsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VendorGiftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    tagRequests<T extends ProductSubcategory$tagRequestsArgs<ExtArgs> = {}>(args?: Subset<T, ProductSubcategory$tagRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TagRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ProductSubcategory model
+   */
+  interface ProductSubcategoryFieldRefs {
+    readonly id: FieldRef<"ProductSubcategory", 'Int'>
+    readonly categoryId: FieldRef<"ProductSubcategory", 'Int'>
+    readonly name: FieldRef<"ProductSubcategory", 'String'>
+    readonly slug: FieldRef<"ProductSubcategory", 'String'>
+    readonly createdAt: FieldRef<"ProductSubcategory", 'DateTime'>
+    readonly updatedAt: FieldRef<"ProductSubcategory", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ProductSubcategory findUnique
+   */
+  export type ProductSubcategoryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductSubcategory
+     */
+    select?: ProductSubcategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductSubcategory
+     */
+    omit?: ProductSubcategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductSubcategoryInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductSubcategory to fetch.
+     */
+    where: ProductSubcategoryWhereUniqueInput
+  }
+
+  /**
+   * ProductSubcategory findUniqueOrThrow
+   */
+  export type ProductSubcategoryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductSubcategory
+     */
+    select?: ProductSubcategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductSubcategory
+     */
+    omit?: ProductSubcategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductSubcategoryInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductSubcategory to fetch.
+     */
+    where: ProductSubcategoryWhereUniqueInput
+  }
+
+  /**
+   * ProductSubcategory findFirst
+   */
+  export type ProductSubcategoryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductSubcategory
+     */
+    select?: ProductSubcategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductSubcategory
+     */
+    omit?: ProductSubcategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductSubcategoryInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductSubcategory to fetch.
+     */
+    where?: ProductSubcategoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductSubcategories to fetch.
+     */
+    orderBy?: ProductSubcategoryOrderByWithRelationInput | ProductSubcategoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProductSubcategories.
+     */
+    cursor?: ProductSubcategoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductSubcategories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductSubcategories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductSubcategories.
+     */
+    distinct?: ProductSubcategoryScalarFieldEnum | ProductSubcategoryScalarFieldEnum[]
+  }
+
+  /**
+   * ProductSubcategory findFirstOrThrow
+   */
+  export type ProductSubcategoryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductSubcategory
+     */
+    select?: ProductSubcategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductSubcategory
+     */
+    omit?: ProductSubcategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductSubcategoryInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductSubcategory to fetch.
+     */
+    where?: ProductSubcategoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductSubcategories to fetch.
+     */
+    orderBy?: ProductSubcategoryOrderByWithRelationInput | ProductSubcategoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProductSubcategories.
+     */
+    cursor?: ProductSubcategoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductSubcategories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductSubcategories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductSubcategories.
+     */
+    distinct?: ProductSubcategoryScalarFieldEnum | ProductSubcategoryScalarFieldEnum[]
+  }
+
+  /**
+   * ProductSubcategory findMany
+   */
+  export type ProductSubcategoryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductSubcategory
+     */
+    select?: ProductSubcategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductSubcategory
+     */
+    omit?: ProductSubcategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductSubcategoryInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductSubcategories to fetch.
+     */
+    where?: ProductSubcategoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductSubcategories to fetch.
+     */
+    orderBy?: ProductSubcategoryOrderByWithRelationInput | ProductSubcategoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ProductSubcategories.
+     */
+    cursor?: ProductSubcategoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductSubcategories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductSubcategories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductSubcategories.
+     */
+    distinct?: ProductSubcategoryScalarFieldEnum | ProductSubcategoryScalarFieldEnum[]
+  }
+
+  /**
+   * ProductSubcategory create
+   */
+  export type ProductSubcategoryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductSubcategory
+     */
+    select?: ProductSubcategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductSubcategory
+     */
+    omit?: ProductSubcategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductSubcategoryInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ProductSubcategory.
+     */
+    data: XOR<ProductSubcategoryCreateInput, ProductSubcategoryUncheckedCreateInput>
+  }
+
+  /**
+   * ProductSubcategory createMany
+   */
+  export type ProductSubcategoryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ProductSubcategories.
+     */
+    data: ProductSubcategoryCreateManyInput | ProductSubcategoryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ProductSubcategory createManyAndReturn
+   */
+  export type ProductSubcategoryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductSubcategory
+     */
+    select?: ProductSubcategorySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductSubcategory
+     */
+    omit?: ProductSubcategoryOmit<ExtArgs> | null
+    /**
+     * The data used to create many ProductSubcategories.
+     */
+    data: ProductSubcategoryCreateManyInput | ProductSubcategoryCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductSubcategoryIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProductSubcategory update
+   */
+  export type ProductSubcategoryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductSubcategory
+     */
+    select?: ProductSubcategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductSubcategory
+     */
+    omit?: ProductSubcategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductSubcategoryInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ProductSubcategory.
+     */
+    data: XOR<ProductSubcategoryUpdateInput, ProductSubcategoryUncheckedUpdateInput>
+    /**
+     * Choose, which ProductSubcategory to update.
+     */
+    where: ProductSubcategoryWhereUniqueInput
+  }
+
+  /**
+   * ProductSubcategory updateMany
+   */
+  export type ProductSubcategoryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ProductSubcategories.
+     */
+    data: XOR<ProductSubcategoryUpdateManyMutationInput, ProductSubcategoryUncheckedUpdateManyInput>
+    /**
+     * Filter which ProductSubcategories to update
+     */
+    where?: ProductSubcategoryWhereInput
+    /**
+     * Limit how many ProductSubcategories to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductSubcategory updateManyAndReturn
+   */
+  export type ProductSubcategoryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductSubcategory
+     */
+    select?: ProductSubcategorySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductSubcategory
+     */
+    omit?: ProductSubcategoryOmit<ExtArgs> | null
+    /**
+     * The data used to update ProductSubcategories.
+     */
+    data: XOR<ProductSubcategoryUpdateManyMutationInput, ProductSubcategoryUncheckedUpdateManyInput>
+    /**
+     * Filter which ProductSubcategories to update
+     */
+    where?: ProductSubcategoryWhereInput
+    /**
+     * Limit how many ProductSubcategories to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductSubcategoryIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProductSubcategory upsert
+   */
+  export type ProductSubcategoryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductSubcategory
+     */
+    select?: ProductSubcategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductSubcategory
+     */
+    omit?: ProductSubcategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductSubcategoryInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ProductSubcategory to update in case it exists.
+     */
+    where: ProductSubcategoryWhereUniqueInput
+    /**
+     * In case the ProductSubcategory found by the `where` argument doesn't exist, create a new ProductSubcategory with this data.
+     */
+    create: XOR<ProductSubcategoryCreateInput, ProductSubcategoryUncheckedCreateInput>
+    /**
+     * In case the ProductSubcategory was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ProductSubcategoryUpdateInput, ProductSubcategoryUncheckedUpdateInput>
+  }
+
+  /**
+   * ProductSubcategory delete
+   */
+  export type ProductSubcategoryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductSubcategory
+     */
+    select?: ProductSubcategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductSubcategory
+     */
+    omit?: ProductSubcategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductSubcategoryInclude<ExtArgs> | null
+    /**
+     * Filter which ProductSubcategory to delete.
+     */
+    where: ProductSubcategoryWhereUniqueInput
+  }
+
+  /**
+   * ProductSubcategory deleteMany
+   */
+  export type ProductSubcategoryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProductSubcategories to delete
+     */
+    where?: ProductSubcategoryWhereInput
+    /**
+     * Limit how many ProductSubcategories to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductSubcategory.tags
+   */
+  export type ProductSubcategory$tagsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductTag
+     */
+    select?: ProductTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductTag
+     */
+    omit?: ProductTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductTagInclude<ExtArgs> | null
+    where?: ProductTagWhereInput
+    orderBy?: ProductTagOrderByWithRelationInput | ProductTagOrderByWithRelationInput[]
+    cursor?: ProductTagWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ProductTagScalarFieldEnum | ProductTagScalarFieldEnum[]
+  }
+
+  /**
+   * ProductSubcategory.vendorGifts
+   */
+  export type ProductSubcategory$vendorGiftsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorGift
+     */
+    select?: VendorGiftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VendorGift
+     */
+    omit?: VendorGiftOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorGiftInclude<ExtArgs> | null
+    where?: VendorGiftWhereInput
+    orderBy?: VendorGiftOrderByWithRelationInput | VendorGiftOrderByWithRelationInput[]
+    cursor?: VendorGiftWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: VendorGiftScalarFieldEnum | VendorGiftScalarFieldEnum[]
+  }
+
+  /**
+   * ProductSubcategory.tagRequests
+   */
+  export type ProductSubcategory$tagRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TagRequest
+     */
+    select?: TagRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TagRequest
+     */
+    omit?: TagRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TagRequestInclude<ExtArgs> | null
+    where?: TagRequestWhereInput
+    orderBy?: TagRequestOrderByWithRelationInput | TagRequestOrderByWithRelationInput[]
+    cursor?: TagRequestWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TagRequestScalarFieldEnum | TagRequestScalarFieldEnum[]
+  }
+
+  /**
+   * ProductSubcategory without action
+   */
+  export type ProductSubcategoryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductSubcategory
+     */
+    select?: ProductSubcategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductSubcategory
+     */
+    omit?: ProductSubcategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductSubcategoryInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ProductTag
+   */
+
+  export type AggregateProductTag = {
+    _count: ProductTagCountAggregateOutputType | null
+    _avg: ProductTagAvgAggregateOutputType | null
+    _sum: ProductTagSumAggregateOutputType | null
+    _min: ProductTagMinAggregateOutputType | null
+    _max: ProductTagMaxAggregateOutputType | null
+  }
+
+  export type ProductTagAvgAggregateOutputType = {
+    id: number | null
+    subcategoryId: number | null
+  }
+
+  export type ProductTagSumAggregateOutputType = {
+    id: number | null
+    subcategoryId: number | null
+  }
+
+  export type ProductTagMinAggregateOutputType = {
+    id: number | null
+    subcategoryId: number | null
+    name: string | null
+    slug: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ProductTagMaxAggregateOutputType = {
+    id: number | null
+    subcategoryId: number | null
+    name: string | null
+    slug: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ProductTagCountAggregateOutputType = {
+    id: number
+    subcategoryId: number
+    name: number
+    slug: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ProductTagAvgAggregateInputType = {
+    id?: true
+    subcategoryId?: true
+  }
+
+  export type ProductTagSumAggregateInputType = {
+    id?: true
+    subcategoryId?: true
+  }
+
+  export type ProductTagMinAggregateInputType = {
+    id?: true
+    subcategoryId?: true
+    name?: true
+    slug?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ProductTagMaxAggregateInputType = {
+    id?: true
+    subcategoryId?: true
+    name?: true
+    slug?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ProductTagCountAggregateInputType = {
+    id?: true
+    subcategoryId?: true
+    name?: true
+    slug?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ProductTagAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProductTag to aggregate.
+     */
+    where?: ProductTagWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductTags to fetch.
+     */
+    orderBy?: ProductTagOrderByWithRelationInput | ProductTagOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ProductTagWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductTags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductTags.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ProductTags
+    **/
+    _count?: true | ProductTagCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ProductTagAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ProductTagSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ProductTagMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ProductTagMaxAggregateInputType
+  }
+
+  export type GetProductTagAggregateType<T extends ProductTagAggregateArgs> = {
+        [P in keyof T & keyof AggregateProductTag]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateProductTag[P]>
+      : GetScalarType<T[P], AggregateProductTag[P]>
+  }
+
+
+
+
+  export type ProductTagGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProductTagWhereInput
+    orderBy?: ProductTagOrderByWithAggregationInput | ProductTagOrderByWithAggregationInput[]
+    by: ProductTagScalarFieldEnum[] | ProductTagScalarFieldEnum
+    having?: ProductTagScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ProductTagCountAggregateInputType | true
+    _avg?: ProductTagAvgAggregateInputType
+    _sum?: ProductTagSumAggregateInputType
+    _min?: ProductTagMinAggregateInputType
+    _max?: ProductTagMaxAggregateInputType
+  }
+
+  export type ProductTagGroupByOutputType = {
+    id: number
+    subcategoryId: number
+    name: string
+    slug: string
+    createdAt: Date
+    updatedAt: Date
+    _count: ProductTagCountAggregateOutputType | null
+    _avg: ProductTagAvgAggregateOutputType | null
+    _sum: ProductTagSumAggregateOutputType | null
+    _min: ProductTagMinAggregateOutputType | null
+    _max: ProductTagMaxAggregateOutputType | null
+  }
+
+  type GetProductTagGroupByPayload<T extends ProductTagGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ProductTagGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ProductTagGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ProductTagGroupByOutputType[P]>
+            : GetScalarType<T[P], ProductTagGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ProductTagSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    subcategoryId?: boolean
+    name?: boolean
+    slug?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    subcategory?: boolean | ProductSubcategoryDefaultArgs<ExtArgs>
+    vendorGifts?: boolean | ProductTag$vendorGiftsArgs<ExtArgs>
+    _count?: boolean | ProductTagCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["productTag"]>
+
+  export type ProductTagSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    subcategoryId?: boolean
+    name?: boolean
+    slug?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    subcategory?: boolean | ProductSubcategoryDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["productTag"]>
+
+  export type ProductTagSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    subcategoryId?: boolean
+    name?: boolean
+    slug?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    subcategory?: boolean | ProductSubcategoryDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["productTag"]>
+
+  export type ProductTagSelectScalar = {
+    id?: boolean
+    subcategoryId?: boolean
+    name?: boolean
+    slug?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ProductTagOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "subcategoryId" | "name" | "slug" | "createdAt" | "updatedAt", ExtArgs["result"]["productTag"]>
+  export type ProductTagInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    subcategory?: boolean | ProductSubcategoryDefaultArgs<ExtArgs>
+    vendorGifts?: boolean | ProductTag$vendorGiftsArgs<ExtArgs>
+    _count?: boolean | ProductTagCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type ProductTagIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    subcategory?: boolean | ProductSubcategoryDefaultArgs<ExtArgs>
+  }
+  export type ProductTagIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    subcategory?: boolean | ProductSubcategoryDefaultArgs<ExtArgs>
+  }
+
+  export type $ProductTagPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ProductTag"
+    objects: {
+      subcategory: Prisma.$ProductSubcategoryPayload<ExtArgs>
+      vendorGifts: Prisma.$VendorGiftTagPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      subcategoryId: number
+      name: string
+      slug: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["productTag"]>
+    composites: {}
+  }
+
+  type ProductTagGetPayload<S extends boolean | null | undefined | ProductTagDefaultArgs> = $Result.GetResult<Prisma.$ProductTagPayload, S>
+
+  type ProductTagCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ProductTagFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ProductTagCountAggregateInputType | true
+    }
+
+  export interface ProductTagDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProductTag'], meta: { name: 'ProductTag' } }
+    /**
+     * Find zero or one ProductTag that matches the filter.
+     * @param {ProductTagFindUniqueArgs} args - Arguments to find a ProductTag
+     * @example
+     * // Get one ProductTag
+     * const productTag = await prisma.productTag.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ProductTagFindUniqueArgs>(args: SelectSubset<T, ProductTagFindUniqueArgs<ExtArgs>>): Prisma__ProductTagClient<$Result.GetResult<Prisma.$ProductTagPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ProductTag that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ProductTagFindUniqueOrThrowArgs} args - Arguments to find a ProductTag
+     * @example
+     * // Get one ProductTag
+     * const productTag = await prisma.productTag.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ProductTagFindUniqueOrThrowArgs>(args: SelectSubset<T, ProductTagFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProductTagClient<$Result.GetResult<Prisma.$ProductTagPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProductTag that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductTagFindFirstArgs} args - Arguments to find a ProductTag
+     * @example
+     * // Get one ProductTag
+     * const productTag = await prisma.productTag.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ProductTagFindFirstArgs>(args?: SelectSubset<T, ProductTagFindFirstArgs<ExtArgs>>): Prisma__ProductTagClient<$Result.GetResult<Prisma.$ProductTagPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProductTag that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductTagFindFirstOrThrowArgs} args - Arguments to find a ProductTag
+     * @example
+     * // Get one ProductTag
+     * const productTag = await prisma.productTag.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ProductTagFindFirstOrThrowArgs>(args?: SelectSubset<T, ProductTagFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProductTagClient<$Result.GetResult<Prisma.$ProductTagPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ProductTags that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductTagFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ProductTags
+     * const productTags = await prisma.productTag.findMany()
+     * 
+     * // Get first 10 ProductTags
+     * const productTags = await prisma.productTag.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const productTagWithIdOnly = await prisma.productTag.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ProductTagFindManyArgs>(args?: SelectSubset<T, ProductTagFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductTagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ProductTag.
+     * @param {ProductTagCreateArgs} args - Arguments to create a ProductTag.
+     * @example
+     * // Create one ProductTag
+     * const ProductTag = await prisma.productTag.create({
+     *   data: {
+     *     // ... data to create a ProductTag
+     *   }
+     * })
+     * 
+     */
+    create<T extends ProductTagCreateArgs>(args: SelectSubset<T, ProductTagCreateArgs<ExtArgs>>): Prisma__ProductTagClient<$Result.GetResult<Prisma.$ProductTagPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ProductTags.
+     * @param {ProductTagCreateManyArgs} args - Arguments to create many ProductTags.
+     * @example
+     * // Create many ProductTags
+     * const productTag = await prisma.productTag.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ProductTagCreateManyArgs>(args?: SelectSubset<T, ProductTagCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ProductTags and returns the data saved in the database.
+     * @param {ProductTagCreateManyAndReturnArgs} args - Arguments to create many ProductTags.
+     * @example
+     * // Create many ProductTags
+     * const productTag = await prisma.productTag.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ProductTags and only return the `id`
+     * const productTagWithIdOnly = await prisma.productTag.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ProductTagCreateManyAndReturnArgs>(args?: SelectSubset<T, ProductTagCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductTagPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ProductTag.
+     * @param {ProductTagDeleteArgs} args - Arguments to delete one ProductTag.
+     * @example
+     * // Delete one ProductTag
+     * const ProductTag = await prisma.productTag.delete({
+     *   where: {
+     *     // ... filter to delete one ProductTag
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ProductTagDeleteArgs>(args: SelectSubset<T, ProductTagDeleteArgs<ExtArgs>>): Prisma__ProductTagClient<$Result.GetResult<Prisma.$ProductTagPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ProductTag.
+     * @param {ProductTagUpdateArgs} args - Arguments to update one ProductTag.
+     * @example
+     * // Update one ProductTag
+     * const productTag = await prisma.productTag.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ProductTagUpdateArgs>(args: SelectSubset<T, ProductTagUpdateArgs<ExtArgs>>): Prisma__ProductTagClient<$Result.GetResult<Prisma.$ProductTagPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ProductTags.
+     * @param {ProductTagDeleteManyArgs} args - Arguments to filter ProductTags to delete.
+     * @example
+     * // Delete a few ProductTags
+     * const { count } = await prisma.productTag.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ProductTagDeleteManyArgs>(args?: SelectSubset<T, ProductTagDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProductTags.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductTagUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ProductTags
+     * const productTag = await prisma.productTag.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ProductTagUpdateManyArgs>(args: SelectSubset<T, ProductTagUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProductTags and returns the data updated in the database.
+     * @param {ProductTagUpdateManyAndReturnArgs} args - Arguments to update many ProductTags.
+     * @example
+     * // Update many ProductTags
+     * const productTag = await prisma.productTag.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ProductTags and only return the `id`
+     * const productTagWithIdOnly = await prisma.productTag.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ProductTagUpdateManyAndReturnArgs>(args: SelectSubset<T, ProductTagUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductTagPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ProductTag.
+     * @param {ProductTagUpsertArgs} args - Arguments to update or create a ProductTag.
+     * @example
+     * // Update or create a ProductTag
+     * const productTag = await prisma.productTag.upsert({
+     *   create: {
+     *     // ... data to create a ProductTag
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ProductTag we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ProductTagUpsertArgs>(args: SelectSubset<T, ProductTagUpsertArgs<ExtArgs>>): Prisma__ProductTagClient<$Result.GetResult<Prisma.$ProductTagPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ProductTags.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductTagCountArgs} args - Arguments to filter ProductTags to count.
+     * @example
+     * // Count the number of ProductTags
+     * const count = await prisma.productTag.count({
+     *   where: {
+     *     // ... the filter for the ProductTags we want to count
+     *   }
+     * })
+    **/
+    count<T extends ProductTagCountArgs>(
+      args?: Subset<T, ProductTagCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ProductTagCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ProductTag.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductTagAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ProductTagAggregateArgs>(args: Subset<T, ProductTagAggregateArgs>): Prisma.PrismaPromise<GetProductTagAggregateType<T>>
+
+    /**
+     * Group by ProductTag.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductTagGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ProductTagGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ProductTagGroupByArgs['orderBy'] }
+        : { orderBy?: ProductTagGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ProductTagGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProductTagGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ProductTag model
+   */
+  readonly fields: ProductTagFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ProductTag.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ProductTagClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    subcategory<T extends ProductSubcategoryDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProductSubcategoryDefaultArgs<ExtArgs>>): Prisma__ProductSubcategoryClient<$Result.GetResult<Prisma.$ProductSubcategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    vendorGifts<T extends ProductTag$vendorGiftsArgs<ExtArgs> = {}>(args?: Subset<T, ProductTag$vendorGiftsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VendorGiftTagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ProductTag model
+   */
+  interface ProductTagFieldRefs {
+    readonly id: FieldRef<"ProductTag", 'Int'>
+    readonly subcategoryId: FieldRef<"ProductTag", 'Int'>
+    readonly name: FieldRef<"ProductTag", 'String'>
+    readonly slug: FieldRef<"ProductTag", 'String'>
+    readonly createdAt: FieldRef<"ProductTag", 'DateTime'>
+    readonly updatedAt: FieldRef<"ProductTag", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ProductTag findUnique
+   */
+  export type ProductTagFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductTag
+     */
+    select?: ProductTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductTag
+     */
+    omit?: ProductTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductTagInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductTag to fetch.
+     */
+    where: ProductTagWhereUniqueInput
+  }
+
+  /**
+   * ProductTag findUniqueOrThrow
+   */
+  export type ProductTagFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductTag
+     */
+    select?: ProductTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductTag
+     */
+    omit?: ProductTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductTagInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductTag to fetch.
+     */
+    where: ProductTagWhereUniqueInput
+  }
+
+  /**
+   * ProductTag findFirst
+   */
+  export type ProductTagFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductTag
+     */
+    select?: ProductTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductTag
+     */
+    omit?: ProductTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductTagInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductTag to fetch.
+     */
+    where?: ProductTagWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductTags to fetch.
+     */
+    orderBy?: ProductTagOrderByWithRelationInput | ProductTagOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProductTags.
+     */
+    cursor?: ProductTagWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductTags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductTags.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductTags.
+     */
+    distinct?: ProductTagScalarFieldEnum | ProductTagScalarFieldEnum[]
+  }
+
+  /**
+   * ProductTag findFirstOrThrow
+   */
+  export type ProductTagFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductTag
+     */
+    select?: ProductTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductTag
+     */
+    omit?: ProductTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductTagInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductTag to fetch.
+     */
+    where?: ProductTagWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductTags to fetch.
+     */
+    orderBy?: ProductTagOrderByWithRelationInput | ProductTagOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProductTags.
+     */
+    cursor?: ProductTagWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductTags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductTags.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductTags.
+     */
+    distinct?: ProductTagScalarFieldEnum | ProductTagScalarFieldEnum[]
+  }
+
+  /**
+   * ProductTag findMany
+   */
+  export type ProductTagFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductTag
+     */
+    select?: ProductTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductTag
+     */
+    omit?: ProductTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductTagInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductTags to fetch.
+     */
+    where?: ProductTagWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductTags to fetch.
+     */
+    orderBy?: ProductTagOrderByWithRelationInput | ProductTagOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ProductTags.
+     */
+    cursor?: ProductTagWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductTags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductTags.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductTags.
+     */
+    distinct?: ProductTagScalarFieldEnum | ProductTagScalarFieldEnum[]
+  }
+
+  /**
+   * ProductTag create
+   */
+  export type ProductTagCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductTag
+     */
+    select?: ProductTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductTag
+     */
+    omit?: ProductTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductTagInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ProductTag.
+     */
+    data: XOR<ProductTagCreateInput, ProductTagUncheckedCreateInput>
+  }
+
+  /**
+   * ProductTag createMany
+   */
+  export type ProductTagCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ProductTags.
+     */
+    data: ProductTagCreateManyInput | ProductTagCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ProductTag createManyAndReturn
+   */
+  export type ProductTagCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductTag
+     */
+    select?: ProductTagSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductTag
+     */
+    omit?: ProductTagOmit<ExtArgs> | null
+    /**
+     * The data used to create many ProductTags.
+     */
+    data: ProductTagCreateManyInput | ProductTagCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductTagIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProductTag update
+   */
+  export type ProductTagUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductTag
+     */
+    select?: ProductTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductTag
+     */
+    omit?: ProductTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductTagInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ProductTag.
+     */
+    data: XOR<ProductTagUpdateInput, ProductTagUncheckedUpdateInput>
+    /**
+     * Choose, which ProductTag to update.
+     */
+    where: ProductTagWhereUniqueInput
+  }
+
+  /**
+   * ProductTag updateMany
+   */
+  export type ProductTagUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ProductTags.
+     */
+    data: XOR<ProductTagUpdateManyMutationInput, ProductTagUncheckedUpdateManyInput>
+    /**
+     * Filter which ProductTags to update
+     */
+    where?: ProductTagWhereInput
+    /**
+     * Limit how many ProductTags to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductTag updateManyAndReturn
+   */
+  export type ProductTagUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductTag
+     */
+    select?: ProductTagSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductTag
+     */
+    omit?: ProductTagOmit<ExtArgs> | null
+    /**
+     * The data used to update ProductTags.
+     */
+    data: XOR<ProductTagUpdateManyMutationInput, ProductTagUncheckedUpdateManyInput>
+    /**
+     * Filter which ProductTags to update
+     */
+    where?: ProductTagWhereInput
+    /**
+     * Limit how many ProductTags to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductTagIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProductTag upsert
+   */
+  export type ProductTagUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductTag
+     */
+    select?: ProductTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductTag
+     */
+    omit?: ProductTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductTagInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ProductTag to update in case it exists.
+     */
+    where: ProductTagWhereUniqueInput
+    /**
+     * In case the ProductTag found by the `where` argument doesn't exist, create a new ProductTag with this data.
+     */
+    create: XOR<ProductTagCreateInput, ProductTagUncheckedCreateInput>
+    /**
+     * In case the ProductTag was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ProductTagUpdateInput, ProductTagUncheckedUpdateInput>
+  }
+
+  /**
+   * ProductTag delete
+   */
+  export type ProductTagDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductTag
+     */
+    select?: ProductTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductTag
+     */
+    omit?: ProductTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductTagInclude<ExtArgs> | null
+    /**
+     * Filter which ProductTag to delete.
+     */
+    where: ProductTagWhereUniqueInput
+  }
+
+  /**
+   * ProductTag deleteMany
+   */
+  export type ProductTagDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProductTags to delete
+     */
+    where?: ProductTagWhereInput
+    /**
+     * Limit how many ProductTags to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductTag.vendorGifts
+   */
+  export type ProductTag$vendorGiftsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorGiftTag
+     */
+    select?: VendorGiftTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VendorGiftTag
+     */
+    omit?: VendorGiftTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorGiftTagInclude<ExtArgs> | null
+    where?: VendorGiftTagWhereInput
+    orderBy?: VendorGiftTagOrderByWithRelationInput | VendorGiftTagOrderByWithRelationInput[]
+    cursor?: VendorGiftTagWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: VendorGiftTagScalarFieldEnum | VendorGiftTagScalarFieldEnum[]
+  }
+
+  /**
+   * ProductTag without action
+   */
+  export type ProductTagDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductTag
+     */
+    select?: ProductTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductTag
+     */
+    omit?: ProductTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductTagInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model VendorGiftTag
+   */
+
+  export type AggregateVendorGiftTag = {
+    _count: VendorGiftTagCountAggregateOutputType | null
+    _avg: VendorGiftTagAvgAggregateOutputType | null
+    _sum: VendorGiftTagSumAggregateOutputType | null
+    _min: VendorGiftTagMinAggregateOutputType | null
+    _max: VendorGiftTagMaxAggregateOutputType | null
+  }
+
+  export type VendorGiftTagAvgAggregateOutputType = {
+    giftId: number | null
+    tagId: number | null
+  }
+
+  export type VendorGiftTagSumAggregateOutputType = {
+    giftId: number | null
+    tagId: number | null
+  }
+
+  export type VendorGiftTagMinAggregateOutputType = {
+    giftId: number | null
+    tagId: number | null
+  }
+
+  export type VendorGiftTagMaxAggregateOutputType = {
+    giftId: number | null
+    tagId: number | null
+  }
+
+  export type VendorGiftTagCountAggregateOutputType = {
+    giftId: number
+    tagId: number
+    _all: number
+  }
+
+
+  export type VendorGiftTagAvgAggregateInputType = {
+    giftId?: true
+    tagId?: true
+  }
+
+  export type VendorGiftTagSumAggregateInputType = {
+    giftId?: true
+    tagId?: true
+  }
+
+  export type VendorGiftTagMinAggregateInputType = {
+    giftId?: true
+    tagId?: true
+  }
+
+  export type VendorGiftTagMaxAggregateInputType = {
+    giftId?: true
+    tagId?: true
+  }
+
+  export type VendorGiftTagCountAggregateInputType = {
+    giftId?: true
+    tagId?: true
+    _all?: true
+  }
+
+  export type VendorGiftTagAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which VendorGiftTag to aggregate.
+     */
+    where?: VendorGiftTagWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VendorGiftTags to fetch.
+     */
+    orderBy?: VendorGiftTagOrderByWithRelationInput | VendorGiftTagOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: VendorGiftTagWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VendorGiftTags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VendorGiftTags.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned VendorGiftTags
+    **/
+    _count?: true | VendorGiftTagCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: VendorGiftTagAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: VendorGiftTagSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: VendorGiftTagMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: VendorGiftTagMaxAggregateInputType
+  }
+
+  export type GetVendorGiftTagAggregateType<T extends VendorGiftTagAggregateArgs> = {
+        [P in keyof T & keyof AggregateVendorGiftTag]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateVendorGiftTag[P]>
+      : GetScalarType<T[P], AggregateVendorGiftTag[P]>
+  }
+
+
+
+
+  export type VendorGiftTagGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: VendorGiftTagWhereInput
+    orderBy?: VendorGiftTagOrderByWithAggregationInput | VendorGiftTagOrderByWithAggregationInput[]
+    by: VendorGiftTagScalarFieldEnum[] | VendorGiftTagScalarFieldEnum
+    having?: VendorGiftTagScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: VendorGiftTagCountAggregateInputType | true
+    _avg?: VendorGiftTagAvgAggregateInputType
+    _sum?: VendorGiftTagSumAggregateInputType
+    _min?: VendorGiftTagMinAggregateInputType
+    _max?: VendorGiftTagMaxAggregateInputType
+  }
+
+  export type VendorGiftTagGroupByOutputType = {
+    giftId: number
+    tagId: number
+    _count: VendorGiftTagCountAggregateOutputType | null
+    _avg: VendorGiftTagAvgAggregateOutputType | null
+    _sum: VendorGiftTagSumAggregateOutputType | null
+    _min: VendorGiftTagMinAggregateOutputType | null
+    _max: VendorGiftTagMaxAggregateOutputType | null
+  }
+
+  type GetVendorGiftTagGroupByPayload<T extends VendorGiftTagGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<VendorGiftTagGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof VendorGiftTagGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], VendorGiftTagGroupByOutputType[P]>
+            : GetScalarType<T[P], VendorGiftTagGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type VendorGiftTagSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    giftId?: boolean
+    tagId?: boolean
+    gift?: boolean | VendorGiftDefaultArgs<ExtArgs>
+    tag?: boolean | ProductTagDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["vendorGiftTag"]>
+
+  export type VendorGiftTagSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    giftId?: boolean
+    tagId?: boolean
+    gift?: boolean | VendorGiftDefaultArgs<ExtArgs>
+    tag?: boolean | ProductTagDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["vendorGiftTag"]>
+
+  export type VendorGiftTagSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    giftId?: boolean
+    tagId?: boolean
+    gift?: boolean | VendorGiftDefaultArgs<ExtArgs>
+    tag?: boolean | ProductTagDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["vendorGiftTag"]>
+
+  export type VendorGiftTagSelectScalar = {
+    giftId?: boolean
+    tagId?: boolean
+  }
+
+  export type VendorGiftTagOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"giftId" | "tagId", ExtArgs["result"]["vendorGiftTag"]>
+  export type VendorGiftTagInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    gift?: boolean | VendorGiftDefaultArgs<ExtArgs>
+    tag?: boolean | ProductTagDefaultArgs<ExtArgs>
+  }
+  export type VendorGiftTagIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    gift?: boolean | VendorGiftDefaultArgs<ExtArgs>
+    tag?: boolean | ProductTagDefaultArgs<ExtArgs>
+  }
+  export type VendorGiftTagIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    gift?: boolean | VendorGiftDefaultArgs<ExtArgs>
+    tag?: boolean | ProductTagDefaultArgs<ExtArgs>
+  }
+
+  export type $VendorGiftTagPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "VendorGiftTag"
+    objects: {
+      gift: Prisma.$VendorGiftPayload<ExtArgs>
+      tag: Prisma.$ProductTagPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      giftId: number
+      tagId: number
+    }, ExtArgs["result"]["vendorGiftTag"]>
+    composites: {}
+  }
+
+  type VendorGiftTagGetPayload<S extends boolean | null | undefined | VendorGiftTagDefaultArgs> = $Result.GetResult<Prisma.$VendorGiftTagPayload, S>
+
+  type VendorGiftTagCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<VendorGiftTagFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: VendorGiftTagCountAggregateInputType | true
+    }
+
+  export interface VendorGiftTagDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['VendorGiftTag'], meta: { name: 'VendorGiftTag' } }
+    /**
+     * Find zero or one VendorGiftTag that matches the filter.
+     * @param {VendorGiftTagFindUniqueArgs} args - Arguments to find a VendorGiftTag
+     * @example
+     * // Get one VendorGiftTag
+     * const vendorGiftTag = await prisma.vendorGiftTag.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends VendorGiftTagFindUniqueArgs>(args: SelectSubset<T, VendorGiftTagFindUniqueArgs<ExtArgs>>): Prisma__VendorGiftTagClient<$Result.GetResult<Prisma.$VendorGiftTagPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one VendorGiftTag that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {VendorGiftTagFindUniqueOrThrowArgs} args - Arguments to find a VendorGiftTag
+     * @example
+     * // Get one VendorGiftTag
+     * const vendorGiftTag = await prisma.vendorGiftTag.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends VendorGiftTagFindUniqueOrThrowArgs>(args: SelectSubset<T, VendorGiftTagFindUniqueOrThrowArgs<ExtArgs>>): Prisma__VendorGiftTagClient<$Result.GetResult<Prisma.$VendorGiftTagPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first VendorGiftTag that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VendorGiftTagFindFirstArgs} args - Arguments to find a VendorGiftTag
+     * @example
+     * // Get one VendorGiftTag
+     * const vendorGiftTag = await prisma.vendorGiftTag.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends VendorGiftTagFindFirstArgs>(args?: SelectSubset<T, VendorGiftTagFindFirstArgs<ExtArgs>>): Prisma__VendorGiftTagClient<$Result.GetResult<Prisma.$VendorGiftTagPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first VendorGiftTag that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VendorGiftTagFindFirstOrThrowArgs} args - Arguments to find a VendorGiftTag
+     * @example
+     * // Get one VendorGiftTag
+     * const vendorGiftTag = await prisma.vendorGiftTag.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends VendorGiftTagFindFirstOrThrowArgs>(args?: SelectSubset<T, VendorGiftTagFindFirstOrThrowArgs<ExtArgs>>): Prisma__VendorGiftTagClient<$Result.GetResult<Prisma.$VendorGiftTagPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more VendorGiftTags that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VendorGiftTagFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all VendorGiftTags
+     * const vendorGiftTags = await prisma.vendorGiftTag.findMany()
+     * 
+     * // Get first 10 VendorGiftTags
+     * const vendorGiftTags = await prisma.vendorGiftTag.findMany({ take: 10 })
+     * 
+     * // Only select the `giftId`
+     * const vendorGiftTagWithGiftIdOnly = await prisma.vendorGiftTag.findMany({ select: { giftId: true } })
+     * 
+     */
+    findMany<T extends VendorGiftTagFindManyArgs>(args?: SelectSubset<T, VendorGiftTagFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VendorGiftTagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a VendorGiftTag.
+     * @param {VendorGiftTagCreateArgs} args - Arguments to create a VendorGiftTag.
+     * @example
+     * // Create one VendorGiftTag
+     * const VendorGiftTag = await prisma.vendorGiftTag.create({
+     *   data: {
+     *     // ... data to create a VendorGiftTag
+     *   }
+     * })
+     * 
+     */
+    create<T extends VendorGiftTagCreateArgs>(args: SelectSubset<T, VendorGiftTagCreateArgs<ExtArgs>>): Prisma__VendorGiftTagClient<$Result.GetResult<Prisma.$VendorGiftTagPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many VendorGiftTags.
+     * @param {VendorGiftTagCreateManyArgs} args - Arguments to create many VendorGiftTags.
+     * @example
+     * // Create many VendorGiftTags
+     * const vendorGiftTag = await prisma.vendorGiftTag.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends VendorGiftTagCreateManyArgs>(args?: SelectSubset<T, VendorGiftTagCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many VendorGiftTags and returns the data saved in the database.
+     * @param {VendorGiftTagCreateManyAndReturnArgs} args - Arguments to create many VendorGiftTags.
+     * @example
+     * // Create many VendorGiftTags
+     * const vendorGiftTag = await prisma.vendorGiftTag.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many VendorGiftTags and only return the `giftId`
+     * const vendorGiftTagWithGiftIdOnly = await prisma.vendorGiftTag.createManyAndReturn({
+     *   select: { giftId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends VendorGiftTagCreateManyAndReturnArgs>(args?: SelectSubset<T, VendorGiftTagCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VendorGiftTagPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a VendorGiftTag.
+     * @param {VendorGiftTagDeleteArgs} args - Arguments to delete one VendorGiftTag.
+     * @example
+     * // Delete one VendorGiftTag
+     * const VendorGiftTag = await prisma.vendorGiftTag.delete({
+     *   where: {
+     *     // ... filter to delete one VendorGiftTag
+     *   }
+     * })
+     * 
+     */
+    delete<T extends VendorGiftTagDeleteArgs>(args: SelectSubset<T, VendorGiftTagDeleteArgs<ExtArgs>>): Prisma__VendorGiftTagClient<$Result.GetResult<Prisma.$VendorGiftTagPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one VendorGiftTag.
+     * @param {VendorGiftTagUpdateArgs} args - Arguments to update one VendorGiftTag.
+     * @example
+     * // Update one VendorGiftTag
+     * const vendorGiftTag = await prisma.vendorGiftTag.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends VendorGiftTagUpdateArgs>(args: SelectSubset<T, VendorGiftTagUpdateArgs<ExtArgs>>): Prisma__VendorGiftTagClient<$Result.GetResult<Prisma.$VendorGiftTagPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more VendorGiftTags.
+     * @param {VendorGiftTagDeleteManyArgs} args - Arguments to filter VendorGiftTags to delete.
+     * @example
+     * // Delete a few VendorGiftTags
+     * const { count } = await prisma.vendorGiftTag.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends VendorGiftTagDeleteManyArgs>(args?: SelectSubset<T, VendorGiftTagDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more VendorGiftTags.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VendorGiftTagUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many VendorGiftTags
+     * const vendorGiftTag = await prisma.vendorGiftTag.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends VendorGiftTagUpdateManyArgs>(args: SelectSubset<T, VendorGiftTagUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more VendorGiftTags and returns the data updated in the database.
+     * @param {VendorGiftTagUpdateManyAndReturnArgs} args - Arguments to update many VendorGiftTags.
+     * @example
+     * // Update many VendorGiftTags
+     * const vendorGiftTag = await prisma.vendorGiftTag.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more VendorGiftTags and only return the `giftId`
+     * const vendorGiftTagWithGiftIdOnly = await prisma.vendorGiftTag.updateManyAndReturn({
+     *   select: { giftId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends VendorGiftTagUpdateManyAndReturnArgs>(args: SelectSubset<T, VendorGiftTagUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VendorGiftTagPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one VendorGiftTag.
+     * @param {VendorGiftTagUpsertArgs} args - Arguments to update or create a VendorGiftTag.
+     * @example
+     * // Update or create a VendorGiftTag
+     * const vendorGiftTag = await prisma.vendorGiftTag.upsert({
+     *   create: {
+     *     // ... data to create a VendorGiftTag
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the VendorGiftTag we want to update
+     *   }
+     * })
+     */
+    upsert<T extends VendorGiftTagUpsertArgs>(args: SelectSubset<T, VendorGiftTagUpsertArgs<ExtArgs>>): Prisma__VendorGiftTagClient<$Result.GetResult<Prisma.$VendorGiftTagPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of VendorGiftTags.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VendorGiftTagCountArgs} args - Arguments to filter VendorGiftTags to count.
+     * @example
+     * // Count the number of VendorGiftTags
+     * const count = await prisma.vendorGiftTag.count({
+     *   where: {
+     *     // ... the filter for the VendorGiftTags we want to count
+     *   }
+     * })
+    **/
+    count<T extends VendorGiftTagCountArgs>(
+      args?: Subset<T, VendorGiftTagCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], VendorGiftTagCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a VendorGiftTag.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VendorGiftTagAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends VendorGiftTagAggregateArgs>(args: Subset<T, VendorGiftTagAggregateArgs>): Prisma.PrismaPromise<GetVendorGiftTagAggregateType<T>>
+
+    /**
+     * Group by VendorGiftTag.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VendorGiftTagGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends VendorGiftTagGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: VendorGiftTagGroupByArgs['orderBy'] }
+        : { orderBy?: VendorGiftTagGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, VendorGiftTagGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetVendorGiftTagGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the VendorGiftTag model
+   */
+  readonly fields: VendorGiftTagFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for VendorGiftTag.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__VendorGiftTagClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    gift<T extends VendorGiftDefaultArgs<ExtArgs> = {}>(args?: Subset<T, VendorGiftDefaultArgs<ExtArgs>>): Prisma__VendorGiftClient<$Result.GetResult<Prisma.$VendorGiftPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    tag<T extends ProductTagDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProductTagDefaultArgs<ExtArgs>>): Prisma__ProductTagClient<$Result.GetResult<Prisma.$ProductTagPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the VendorGiftTag model
+   */
+  interface VendorGiftTagFieldRefs {
+    readonly giftId: FieldRef<"VendorGiftTag", 'Int'>
+    readonly tagId: FieldRef<"VendorGiftTag", 'Int'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * VendorGiftTag findUnique
+   */
+  export type VendorGiftTagFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorGiftTag
+     */
+    select?: VendorGiftTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VendorGiftTag
+     */
+    omit?: VendorGiftTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorGiftTagInclude<ExtArgs> | null
+    /**
+     * Filter, which VendorGiftTag to fetch.
+     */
+    where: VendorGiftTagWhereUniqueInput
+  }
+
+  /**
+   * VendorGiftTag findUniqueOrThrow
+   */
+  export type VendorGiftTagFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorGiftTag
+     */
+    select?: VendorGiftTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VendorGiftTag
+     */
+    omit?: VendorGiftTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorGiftTagInclude<ExtArgs> | null
+    /**
+     * Filter, which VendorGiftTag to fetch.
+     */
+    where: VendorGiftTagWhereUniqueInput
+  }
+
+  /**
+   * VendorGiftTag findFirst
+   */
+  export type VendorGiftTagFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorGiftTag
+     */
+    select?: VendorGiftTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VendorGiftTag
+     */
+    omit?: VendorGiftTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorGiftTagInclude<ExtArgs> | null
+    /**
+     * Filter, which VendorGiftTag to fetch.
+     */
+    where?: VendorGiftTagWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VendorGiftTags to fetch.
+     */
+    orderBy?: VendorGiftTagOrderByWithRelationInput | VendorGiftTagOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for VendorGiftTags.
+     */
+    cursor?: VendorGiftTagWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VendorGiftTags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VendorGiftTags.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of VendorGiftTags.
+     */
+    distinct?: VendorGiftTagScalarFieldEnum | VendorGiftTagScalarFieldEnum[]
+  }
+
+  /**
+   * VendorGiftTag findFirstOrThrow
+   */
+  export type VendorGiftTagFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorGiftTag
+     */
+    select?: VendorGiftTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VendorGiftTag
+     */
+    omit?: VendorGiftTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorGiftTagInclude<ExtArgs> | null
+    /**
+     * Filter, which VendorGiftTag to fetch.
+     */
+    where?: VendorGiftTagWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VendorGiftTags to fetch.
+     */
+    orderBy?: VendorGiftTagOrderByWithRelationInput | VendorGiftTagOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for VendorGiftTags.
+     */
+    cursor?: VendorGiftTagWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VendorGiftTags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VendorGiftTags.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of VendorGiftTags.
+     */
+    distinct?: VendorGiftTagScalarFieldEnum | VendorGiftTagScalarFieldEnum[]
+  }
+
+  /**
+   * VendorGiftTag findMany
+   */
+  export type VendorGiftTagFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorGiftTag
+     */
+    select?: VendorGiftTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VendorGiftTag
+     */
+    omit?: VendorGiftTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorGiftTagInclude<ExtArgs> | null
+    /**
+     * Filter, which VendorGiftTags to fetch.
+     */
+    where?: VendorGiftTagWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VendorGiftTags to fetch.
+     */
+    orderBy?: VendorGiftTagOrderByWithRelationInput | VendorGiftTagOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing VendorGiftTags.
+     */
+    cursor?: VendorGiftTagWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VendorGiftTags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VendorGiftTags.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of VendorGiftTags.
+     */
+    distinct?: VendorGiftTagScalarFieldEnum | VendorGiftTagScalarFieldEnum[]
+  }
+
+  /**
+   * VendorGiftTag create
+   */
+  export type VendorGiftTagCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorGiftTag
+     */
+    select?: VendorGiftTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VendorGiftTag
+     */
+    omit?: VendorGiftTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorGiftTagInclude<ExtArgs> | null
+    /**
+     * The data needed to create a VendorGiftTag.
+     */
+    data: XOR<VendorGiftTagCreateInput, VendorGiftTagUncheckedCreateInput>
+  }
+
+  /**
+   * VendorGiftTag createMany
+   */
+  export type VendorGiftTagCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many VendorGiftTags.
+     */
+    data: VendorGiftTagCreateManyInput | VendorGiftTagCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * VendorGiftTag createManyAndReturn
+   */
+  export type VendorGiftTagCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorGiftTag
+     */
+    select?: VendorGiftTagSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the VendorGiftTag
+     */
+    omit?: VendorGiftTagOmit<ExtArgs> | null
+    /**
+     * The data used to create many VendorGiftTags.
+     */
+    data: VendorGiftTagCreateManyInput | VendorGiftTagCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorGiftTagIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * VendorGiftTag update
+   */
+  export type VendorGiftTagUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorGiftTag
+     */
+    select?: VendorGiftTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VendorGiftTag
+     */
+    omit?: VendorGiftTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorGiftTagInclude<ExtArgs> | null
+    /**
+     * The data needed to update a VendorGiftTag.
+     */
+    data: XOR<VendorGiftTagUpdateInput, VendorGiftTagUncheckedUpdateInput>
+    /**
+     * Choose, which VendorGiftTag to update.
+     */
+    where: VendorGiftTagWhereUniqueInput
+  }
+
+  /**
+   * VendorGiftTag updateMany
+   */
+  export type VendorGiftTagUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update VendorGiftTags.
+     */
+    data: XOR<VendorGiftTagUpdateManyMutationInput, VendorGiftTagUncheckedUpdateManyInput>
+    /**
+     * Filter which VendorGiftTags to update
+     */
+    where?: VendorGiftTagWhereInput
+    /**
+     * Limit how many VendorGiftTags to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * VendorGiftTag updateManyAndReturn
+   */
+  export type VendorGiftTagUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorGiftTag
+     */
+    select?: VendorGiftTagSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the VendorGiftTag
+     */
+    omit?: VendorGiftTagOmit<ExtArgs> | null
+    /**
+     * The data used to update VendorGiftTags.
+     */
+    data: XOR<VendorGiftTagUpdateManyMutationInput, VendorGiftTagUncheckedUpdateManyInput>
+    /**
+     * Filter which VendorGiftTags to update
+     */
+    where?: VendorGiftTagWhereInput
+    /**
+     * Limit how many VendorGiftTags to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorGiftTagIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * VendorGiftTag upsert
+   */
+  export type VendorGiftTagUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorGiftTag
+     */
+    select?: VendorGiftTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VendorGiftTag
+     */
+    omit?: VendorGiftTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorGiftTagInclude<ExtArgs> | null
+    /**
+     * The filter to search for the VendorGiftTag to update in case it exists.
+     */
+    where: VendorGiftTagWhereUniqueInput
+    /**
+     * In case the VendorGiftTag found by the `where` argument doesn't exist, create a new VendorGiftTag with this data.
+     */
+    create: XOR<VendorGiftTagCreateInput, VendorGiftTagUncheckedCreateInput>
+    /**
+     * In case the VendorGiftTag was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<VendorGiftTagUpdateInput, VendorGiftTagUncheckedUpdateInput>
+  }
+
+  /**
+   * VendorGiftTag delete
+   */
+  export type VendorGiftTagDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorGiftTag
+     */
+    select?: VendorGiftTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VendorGiftTag
+     */
+    omit?: VendorGiftTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorGiftTagInclude<ExtArgs> | null
+    /**
+     * Filter which VendorGiftTag to delete.
+     */
+    where: VendorGiftTagWhereUniqueInput
+  }
+
+  /**
+   * VendorGiftTag deleteMany
+   */
+  export type VendorGiftTagDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which VendorGiftTags to delete
+     */
+    where?: VendorGiftTagWhereInput
+    /**
+     * Limit how many VendorGiftTags to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * VendorGiftTag without action
+   */
+  export type VendorGiftTagDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorGiftTag
+     */
+    select?: VendorGiftTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VendorGiftTag
+     */
+    omit?: VendorGiftTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorGiftTagInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model TagRequest
+   */
+
+  export type AggregateTagRequest = {
+    _count: TagRequestCountAggregateOutputType | null
+    _avg: TagRequestAvgAggregateOutputType | null
+    _sum: TagRequestSumAggregateOutputType | null
+    _min: TagRequestMinAggregateOutputType | null
+    _max: TagRequestMaxAggregateOutputType | null
+  }
+
+  export type TagRequestAvgAggregateOutputType = {
+    id: number | null
+    subcategoryId: number | null
+  }
+
+  export type TagRequestSumAggregateOutputType = {
+    id: number | null
+    subcategoryId: number | null
+  }
+
+  export type TagRequestMinAggregateOutputType = {
+    id: number | null
+    vendorId: string | null
+    subcategoryId: number | null
+    tagName: string | null
+    status: string | null
+    adminNotes: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type TagRequestMaxAggregateOutputType = {
+    id: number | null
+    vendorId: string | null
+    subcategoryId: number | null
+    tagName: string | null
+    status: string | null
+    adminNotes: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type TagRequestCountAggregateOutputType = {
+    id: number
+    vendorId: number
+    subcategoryId: number
+    tagName: number
+    status: number
+    adminNotes: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type TagRequestAvgAggregateInputType = {
+    id?: true
+    subcategoryId?: true
+  }
+
+  export type TagRequestSumAggregateInputType = {
+    id?: true
+    subcategoryId?: true
+  }
+
+  export type TagRequestMinAggregateInputType = {
+    id?: true
+    vendorId?: true
+    subcategoryId?: true
+    tagName?: true
+    status?: true
+    adminNotes?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type TagRequestMaxAggregateInputType = {
+    id?: true
+    vendorId?: true
+    subcategoryId?: true
+    tagName?: true
+    status?: true
+    adminNotes?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type TagRequestCountAggregateInputType = {
+    id?: true
+    vendorId?: true
+    subcategoryId?: true
+    tagName?: true
+    status?: true
+    adminNotes?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type TagRequestAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TagRequest to aggregate.
+     */
+    where?: TagRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TagRequests to fetch.
+     */
+    orderBy?: TagRequestOrderByWithRelationInput | TagRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TagRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TagRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TagRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TagRequests
+    **/
+    _count?: true | TagRequestCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TagRequestAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TagRequestSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TagRequestMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TagRequestMaxAggregateInputType
+  }
+
+  export type GetTagRequestAggregateType<T extends TagRequestAggregateArgs> = {
+        [P in keyof T & keyof AggregateTagRequest]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTagRequest[P]>
+      : GetScalarType<T[P], AggregateTagRequest[P]>
+  }
+
+
+
+
+  export type TagRequestGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TagRequestWhereInput
+    orderBy?: TagRequestOrderByWithAggregationInput | TagRequestOrderByWithAggregationInput[]
+    by: TagRequestScalarFieldEnum[] | TagRequestScalarFieldEnum
+    having?: TagRequestScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TagRequestCountAggregateInputType | true
+    _avg?: TagRequestAvgAggregateInputType
+    _sum?: TagRequestSumAggregateInputType
+    _min?: TagRequestMinAggregateInputType
+    _max?: TagRequestMaxAggregateInputType
+  }
+
+  export type TagRequestGroupByOutputType = {
+    id: number
+    vendorId: string
+    subcategoryId: number
+    tagName: string
+    status: string
+    adminNotes: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: TagRequestCountAggregateOutputType | null
+    _avg: TagRequestAvgAggregateOutputType | null
+    _sum: TagRequestSumAggregateOutputType | null
+    _min: TagRequestMinAggregateOutputType | null
+    _max: TagRequestMaxAggregateOutputType | null
+  }
+
+  type GetTagRequestGroupByPayload<T extends TagRequestGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TagRequestGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TagRequestGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TagRequestGroupByOutputType[P]>
+            : GetScalarType<T[P], TagRequestGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TagRequestSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    vendorId?: boolean
+    subcategoryId?: boolean
+    tagName?: boolean
+    status?: boolean
+    adminNotes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    vendor?: boolean | UserDefaultArgs<ExtArgs>
+    subcategory?: boolean | ProductSubcategoryDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["tagRequest"]>
+
+  export type TagRequestSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    vendorId?: boolean
+    subcategoryId?: boolean
+    tagName?: boolean
+    status?: boolean
+    adminNotes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    vendor?: boolean | UserDefaultArgs<ExtArgs>
+    subcategory?: boolean | ProductSubcategoryDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["tagRequest"]>
+
+  export type TagRequestSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    vendorId?: boolean
+    subcategoryId?: boolean
+    tagName?: boolean
+    status?: boolean
+    adminNotes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    vendor?: boolean | UserDefaultArgs<ExtArgs>
+    subcategory?: boolean | ProductSubcategoryDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["tagRequest"]>
+
+  export type TagRequestSelectScalar = {
+    id?: boolean
+    vendorId?: boolean
+    subcategoryId?: boolean
+    tagName?: boolean
+    status?: boolean
+    adminNotes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type TagRequestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "vendorId" | "subcategoryId" | "tagName" | "status" | "adminNotes" | "createdAt" | "updatedAt", ExtArgs["result"]["tagRequest"]>
+  export type TagRequestInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    vendor?: boolean | UserDefaultArgs<ExtArgs>
+    subcategory?: boolean | ProductSubcategoryDefaultArgs<ExtArgs>
+  }
+  export type TagRequestIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    vendor?: boolean | UserDefaultArgs<ExtArgs>
+    subcategory?: boolean | ProductSubcategoryDefaultArgs<ExtArgs>
+  }
+  export type TagRequestIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    vendor?: boolean | UserDefaultArgs<ExtArgs>
+    subcategory?: boolean | ProductSubcategoryDefaultArgs<ExtArgs>
+  }
+
+  export type $TagRequestPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TagRequest"
+    objects: {
+      vendor: Prisma.$UserPayload<ExtArgs>
+      subcategory: Prisma.$ProductSubcategoryPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      vendorId: string
+      subcategoryId: number
+      tagName: string
+      status: string
+      adminNotes: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["tagRequest"]>
+    composites: {}
+  }
+
+  type TagRequestGetPayload<S extends boolean | null | undefined | TagRequestDefaultArgs> = $Result.GetResult<Prisma.$TagRequestPayload, S>
+
+  type TagRequestCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TagRequestFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TagRequestCountAggregateInputType | true
+    }
+
+  export interface TagRequestDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TagRequest'], meta: { name: 'TagRequest' } }
+    /**
+     * Find zero or one TagRequest that matches the filter.
+     * @param {TagRequestFindUniqueArgs} args - Arguments to find a TagRequest
+     * @example
+     * // Get one TagRequest
+     * const tagRequest = await prisma.tagRequest.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TagRequestFindUniqueArgs>(args: SelectSubset<T, TagRequestFindUniqueArgs<ExtArgs>>): Prisma__TagRequestClient<$Result.GetResult<Prisma.$TagRequestPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TagRequest that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TagRequestFindUniqueOrThrowArgs} args - Arguments to find a TagRequest
+     * @example
+     * // Get one TagRequest
+     * const tagRequest = await prisma.tagRequest.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TagRequestFindUniqueOrThrowArgs>(args: SelectSubset<T, TagRequestFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TagRequestClient<$Result.GetResult<Prisma.$TagRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TagRequest that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TagRequestFindFirstArgs} args - Arguments to find a TagRequest
+     * @example
+     * // Get one TagRequest
+     * const tagRequest = await prisma.tagRequest.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TagRequestFindFirstArgs>(args?: SelectSubset<T, TagRequestFindFirstArgs<ExtArgs>>): Prisma__TagRequestClient<$Result.GetResult<Prisma.$TagRequestPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TagRequest that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TagRequestFindFirstOrThrowArgs} args - Arguments to find a TagRequest
+     * @example
+     * // Get one TagRequest
+     * const tagRequest = await prisma.tagRequest.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TagRequestFindFirstOrThrowArgs>(args?: SelectSubset<T, TagRequestFindFirstOrThrowArgs<ExtArgs>>): Prisma__TagRequestClient<$Result.GetResult<Prisma.$TagRequestPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TagRequests that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TagRequestFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TagRequests
+     * const tagRequests = await prisma.tagRequest.findMany()
+     * 
+     * // Get first 10 TagRequests
+     * const tagRequests = await prisma.tagRequest.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const tagRequestWithIdOnly = await prisma.tagRequest.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TagRequestFindManyArgs>(args?: SelectSubset<T, TagRequestFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TagRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TagRequest.
+     * @param {TagRequestCreateArgs} args - Arguments to create a TagRequest.
+     * @example
+     * // Create one TagRequest
+     * const TagRequest = await prisma.tagRequest.create({
+     *   data: {
+     *     // ... data to create a TagRequest
+     *   }
+     * })
+     * 
+     */
+    create<T extends TagRequestCreateArgs>(args: SelectSubset<T, TagRequestCreateArgs<ExtArgs>>): Prisma__TagRequestClient<$Result.GetResult<Prisma.$TagRequestPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TagRequests.
+     * @param {TagRequestCreateManyArgs} args - Arguments to create many TagRequests.
+     * @example
+     * // Create many TagRequests
+     * const tagRequest = await prisma.tagRequest.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TagRequestCreateManyArgs>(args?: SelectSubset<T, TagRequestCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TagRequests and returns the data saved in the database.
+     * @param {TagRequestCreateManyAndReturnArgs} args - Arguments to create many TagRequests.
+     * @example
+     * // Create many TagRequests
+     * const tagRequest = await prisma.tagRequest.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TagRequests and only return the `id`
+     * const tagRequestWithIdOnly = await prisma.tagRequest.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TagRequestCreateManyAndReturnArgs>(args?: SelectSubset<T, TagRequestCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TagRequestPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a TagRequest.
+     * @param {TagRequestDeleteArgs} args - Arguments to delete one TagRequest.
+     * @example
+     * // Delete one TagRequest
+     * const TagRequest = await prisma.tagRequest.delete({
+     *   where: {
+     *     // ... filter to delete one TagRequest
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TagRequestDeleteArgs>(args: SelectSubset<T, TagRequestDeleteArgs<ExtArgs>>): Prisma__TagRequestClient<$Result.GetResult<Prisma.$TagRequestPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TagRequest.
+     * @param {TagRequestUpdateArgs} args - Arguments to update one TagRequest.
+     * @example
+     * // Update one TagRequest
+     * const tagRequest = await prisma.tagRequest.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TagRequestUpdateArgs>(args: SelectSubset<T, TagRequestUpdateArgs<ExtArgs>>): Prisma__TagRequestClient<$Result.GetResult<Prisma.$TagRequestPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TagRequests.
+     * @param {TagRequestDeleteManyArgs} args - Arguments to filter TagRequests to delete.
+     * @example
+     * // Delete a few TagRequests
+     * const { count } = await prisma.tagRequest.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TagRequestDeleteManyArgs>(args?: SelectSubset<T, TagRequestDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TagRequests.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TagRequestUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TagRequests
+     * const tagRequest = await prisma.tagRequest.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TagRequestUpdateManyArgs>(args: SelectSubset<T, TagRequestUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TagRequests and returns the data updated in the database.
+     * @param {TagRequestUpdateManyAndReturnArgs} args - Arguments to update many TagRequests.
+     * @example
+     * // Update many TagRequests
+     * const tagRequest = await prisma.tagRequest.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more TagRequests and only return the `id`
+     * const tagRequestWithIdOnly = await prisma.tagRequest.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends TagRequestUpdateManyAndReturnArgs>(args: SelectSubset<T, TagRequestUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TagRequestPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one TagRequest.
+     * @param {TagRequestUpsertArgs} args - Arguments to update or create a TagRequest.
+     * @example
+     * // Update or create a TagRequest
+     * const tagRequest = await prisma.tagRequest.upsert({
+     *   create: {
+     *     // ... data to create a TagRequest
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TagRequest we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TagRequestUpsertArgs>(args: SelectSubset<T, TagRequestUpsertArgs<ExtArgs>>): Prisma__TagRequestClient<$Result.GetResult<Prisma.$TagRequestPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TagRequests.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TagRequestCountArgs} args - Arguments to filter TagRequests to count.
+     * @example
+     * // Count the number of TagRequests
+     * const count = await prisma.tagRequest.count({
+     *   where: {
+     *     // ... the filter for the TagRequests we want to count
+     *   }
+     * })
+    **/
+    count<T extends TagRequestCountArgs>(
+      args?: Subset<T, TagRequestCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TagRequestCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TagRequest.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TagRequestAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TagRequestAggregateArgs>(args: Subset<T, TagRequestAggregateArgs>): Prisma.PrismaPromise<GetTagRequestAggregateType<T>>
+
+    /**
+     * Group by TagRequest.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TagRequestGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TagRequestGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TagRequestGroupByArgs['orderBy'] }
+        : { orderBy?: TagRequestGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TagRequestGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTagRequestGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TagRequest model
+   */
+  readonly fields: TagRequestFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TagRequest.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TagRequestClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    vendor<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    subcategory<T extends ProductSubcategoryDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProductSubcategoryDefaultArgs<ExtArgs>>): Prisma__ProductSubcategoryClient<$Result.GetResult<Prisma.$ProductSubcategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TagRequest model
+   */
+  interface TagRequestFieldRefs {
+    readonly id: FieldRef<"TagRequest", 'Int'>
+    readonly vendorId: FieldRef<"TagRequest", 'String'>
+    readonly subcategoryId: FieldRef<"TagRequest", 'Int'>
+    readonly tagName: FieldRef<"TagRequest", 'String'>
+    readonly status: FieldRef<"TagRequest", 'String'>
+    readonly adminNotes: FieldRef<"TagRequest", 'String'>
+    readonly createdAt: FieldRef<"TagRequest", 'DateTime'>
+    readonly updatedAt: FieldRef<"TagRequest", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TagRequest findUnique
+   */
+  export type TagRequestFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TagRequest
+     */
+    select?: TagRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TagRequest
+     */
+    omit?: TagRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TagRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which TagRequest to fetch.
+     */
+    where: TagRequestWhereUniqueInput
+  }
+
+  /**
+   * TagRequest findUniqueOrThrow
+   */
+  export type TagRequestFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TagRequest
+     */
+    select?: TagRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TagRequest
+     */
+    omit?: TagRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TagRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which TagRequest to fetch.
+     */
+    where: TagRequestWhereUniqueInput
+  }
+
+  /**
+   * TagRequest findFirst
+   */
+  export type TagRequestFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TagRequest
+     */
+    select?: TagRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TagRequest
+     */
+    omit?: TagRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TagRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which TagRequest to fetch.
+     */
+    where?: TagRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TagRequests to fetch.
+     */
+    orderBy?: TagRequestOrderByWithRelationInput | TagRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TagRequests.
+     */
+    cursor?: TagRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TagRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TagRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TagRequests.
+     */
+    distinct?: TagRequestScalarFieldEnum | TagRequestScalarFieldEnum[]
+  }
+
+  /**
+   * TagRequest findFirstOrThrow
+   */
+  export type TagRequestFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TagRequest
+     */
+    select?: TagRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TagRequest
+     */
+    omit?: TagRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TagRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which TagRequest to fetch.
+     */
+    where?: TagRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TagRequests to fetch.
+     */
+    orderBy?: TagRequestOrderByWithRelationInput | TagRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TagRequests.
+     */
+    cursor?: TagRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TagRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TagRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TagRequests.
+     */
+    distinct?: TagRequestScalarFieldEnum | TagRequestScalarFieldEnum[]
+  }
+
+  /**
+   * TagRequest findMany
+   */
+  export type TagRequestFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TagRequest
+     */
+    select?: TagRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TagRequest
+     */
+    omit?: TagRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TagRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which TagRequests to fetch.
+     */
+    where?: TagRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TagRequests to fetch.
+     */
+    orderBy?: TagRequestOrderByWithRelationInput | TagRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TagRequests.
+     */
+    cursor?: TagRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TagRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TagRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TagRequests.
+     */
+    distinct?: TagRequestScalarFieldEnum | TagRequestScalarFieldEnum[]
+  }
+
+  /**
+   * TagRequest create
+   */
+  export type TagRequestCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TagRequest
+     */
+    select?: TagRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TagRequest
+     */
+    omit?: TagRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TagRequestInclude<ExtArgs> | null
+    /**
+     * The data needed to create a TagRequest.
+     */
+    data: XOR<TagRequestCreateInput, TagRequestUncheckedCreateInput>
+  }
+
+  /**
+   * TagRequest createMany
+   */
+  export type TagRequestCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TagRequests.
+     */
+    data: TagRequestCreateManyInput | TagRequestCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TagRequest createManyAndReturn
+   */
+  export type TagRequestCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TagRequest
+     */
+    select?: TagRequestSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TagRequest
+     */
+    omit?: TagRequestOmit<ExtArgs> | null
+    /**
+     * The data used to create many TagRequests.
+     */
+    data: TagRequestCreateManyInput | TagRequestCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TagRequestIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TagRequest update
+   */
+  export type TagRequestUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TagRequest
+     */
+    select?: TagRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TagRequest
+     */
+    omit?: TagRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TagRequestInclude<ExtArgs> | null
+    /**
+     * The data needed to update a TagRequest.
+     */
+    data: XOR<TagRequestUpdateInput, TagRequestUncheckedUpdateInput>
+    /**
+     * Choose, which TagRequest to update.
+     */
+    where: TagRequestWhereUniqueInput
+  }
+
+  /**
+   * TagRequest updateMany
+   */
+  export type TagRequestUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TagRequests.
+     */
+    data: XOR<TagRequestUpdateManyMutationInput, TagRequestUncheckedUpdateManyInput>
+    /**
+     * Filter which TagRequests to update
+     */
+    where?: TagRequestWhereInput
+    /**
+     * Limit how many TagRequests to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TagRequest updateManyAndReturn
+   */
+  export type TagRequestUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TagRequest
+     */
+    select?: TagRequestSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TagRequest
+     */
+    omit?: TagRequestOmit<ExtArgs> | null
+    /**
+     * The data used to update TagRequests.
+     */
+    data: XOR<TagRequestUpdateManyMutationInput, TagRequestUncheckedUpdateManyInput>
+    /**
+     * Filter which TagRequests to update
+     */
+    where?: TagRequestWhereInput
+    /**
+     * Limit how many TagRequests to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TagRequestIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TagRequest upsert
+   */
+  export type TagRequestUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TagRequest
+     */
+    select?: TagRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TagRequest
+     */
+    omit?: TagRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TagRequestInclude<ExtArgs> | null
+    /**
+     * The filter to search for the TagRequest to update in case it exists.
+     */
+    where: TagRequestWhereUniqueInput
+    /**
+     * In case the TagRequest found by the `where` argument doesn't exist, create a new TagRequest with this data.
+     */
+    create: XOR<TagRequestCreateInput, TagRequestUncheckedCreateInput>
+    /**
+     * In case the TagRequest was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TagRequestUpdateInput, TagRequestUncheckedUpdateInput>
+  }
+
+  /**
+   * TagRequest delete
+   */
+  export type TagRequestDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TagRequest
+     */
+    select?: TagRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TagRequest
+     */
+    omit?: TagRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TagRequestInclude<ExtArgs> | null
+    /**
+     * Filter which TagRequest to delete.
+     */
+    where: TagRequestWhereUniqueInput
+  }
+
+  /**
+   * TagRequest deleteMany
+   */
+  export type TagRequestDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TagRequests to delete
+     */
+    where?: TagRequestWhereInput
+    /**
+     * Limit how many TagRequests to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TagRequest without action
+   */
+  export type TagRequestDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TagRequest
+     */
+    select?: TagRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TagRequest
+     */
+    omit?: TagRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TagRequestInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -40349,6 +46785,8 @@ export namespace Prisma {
     price: 'price',
     description: 'description',
     imageUrl: 'imageUrl',
+    categoryId: 'categoryId',
+    subcategoryId: 'subcategoryId',
     category: 'category',
     tags: 'tags',
     type: 'type',
@@ -40399,6 +46837,63 @@ export namespace Prisma {
   };
 
   export type RatingScalarFieldEnum = (typeof RatingScalarFieldEnum)[keyof typeof RatingScalarFieldEnum]
+
+
+  export const ProductCategoryScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    slug: 'slug',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ProductCategoryScalarFieldEnum = (typeof ProductCategoryScalarFieldEnum)[keyof typeof ProductCategoryScalarFieldEnum]
+
+
+  export const ProductSubcategoryScalarFieldEnum: {
+    id: 'id',
+    categoryId: 'categoryId',
+    name: 'name',
+    slug: 'slug',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ProductSubcategoryScalarFieldEnum = (typeof ProductSubcategoryScalarFieldEnum)[keyof typeof ProductSubcategoryScalarFieldEnum]
+
+
+  export const ProductTagScalarFieldEnum: {
+    id: 'id',
+    subcategoryId: 'subcategoryId',
+    name: 'name',
+    slug: 'slug',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ProductTagScalarFieldEnum = (typeof ProductTagScalarFieldEnum)[keyof typeof ProductTagScalarFieldEnum]
+
+
+  export const VendorGiftTagScalarFieldEnum: {
+    giftId: 'giftId',
+    tagId: 'tagId'
+  };
+
+  export type VendorGiftTagScalarFieldEnum = (typeof VendorGiftTagScalarFieldEnum)[keyof typeof VendorGiftTagScalarFieldEnum]
+
+
+  export const TagRequestScalarFieldEnum: {
+    id: 'id',
+    vendorId: 'vendorId',
+    subcategoryId: 'subcategoryId',
+    tagName: 'tagName',
+    status: 'status',
+    adminNotes: 'adminNotes',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type TagRequestScalarFieldEnum = (typeof TagRequestScalarFieldEnum)[keyof typeof TagRequestScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -40650,6 +47145,7 @@ export namespace Prisma {
     adminLogs?: AdminLogListRelationFilter
     notifications?: NotificationListRelationFilter
     notificationReads?: NotificationReadListRelationFilter
+    tagRequests?: TagRequestListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -40709,6 +47205,7 @@ export namespace Prisma {
     adminLogs?: AdminLogOrderByRelationAggregateInput
     notifications?: NotificationOrderByRelationAggregateInput
     notificationReads?: NotificationReadOrderByRelationAggregateInput
+    tagRequests?: TagRequestOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -40771,6 +47268,7 @@ export namespace Prisma {
     adminLogs?: AdminLogListRelationFilter
     notifications?: NotificationListRelationFilter
     notificationReads?: NotificationReadListRelationFilter
+    tagRequests?: TagRequestListRelationFilter
   }, "id" | "email" | "username" | "shopSlug">
 
   export type UserOrderByWithAggregationInput = {
@@ -43201,6 +49699,8 @@ export namespace Prisma {
     price?: DecimalFilter<"VendorGift"> | Decimal | DecimalJsLike | number | string
     description?: StringNullableFilter<"VendorGift"> | string | null
     imageUrl?: StringNullableFilter<"VendorGift"> | string | null
+    categoryId?: IntNullableFilter<"VendorGift"> | number | null
+    subcategoryId?: IntNullableFilter<"VendorGift"> | number | null
     category?: StringNullableFilter<"VendorGift"> | string | null
     tags?: StringNullableListFilter<"VendorGift">
     type?: StringFilter<"VendorGift"> | string
@@ -43216,6 +49716,9 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"VendorGift"> | Date | string
     updatedAt?: DateTimeFilter<"VendorGift"> | Date | string
     vendor?: XOR<UserScalarRelationFilter, UserWhereInput>
+    categoryRel?: XOR<ProductCategoryNullableScalarRelationFilter, ProductCategoryWhereInput> | null
+    subcategoryRel?: XOR<ProductSubcategoryNullableScalarRelationFilter, ProductSubcategoryWhereInput> | null
+    productTags?: VendorGiftTagListRelationFilter
     giftImages?: VendorGiftImageListRelationFilter
     favorites?: FavoriteListRelationFilter
     featuredAds?: FeaturedAdListRelationFilter
@@ -43232,6 +49735,8 @@ export namespace Prisma {
     price?: SortOrder
     description?: SortOrderInput | SortOrder
     imageUrl?: SortOrderInput | SortOrder
+    categoryId?: SortOrderInput | SortOrder
+    subcategoryId?: SortOrderInput | SortOrder
     category?: SortOrderInput | SortOrder
     tags?: SortOrder
     type?: SortOrder
@@ -43247,6 +49752,9 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     vendor?: UserOrderByWithRelationInput
+    categoryRel?: ProductCategoryOrderByWithRelationInput
+    subcategoryRel?: ProductSubcategoryOrderByWithRelationInput
+    productTags?: VendorGiftTagOrderByRelationAggregateInput
     giftImages?: VendorGiftImageOrderByRelationAggregateInput
     favorites?: FavoriteOrderByRelationAggregateInput
     featuredAds?: FeaturedAdOrderByRelationAggregateInput
@@ -43266,6 +49774,8 @@ export namespace Prisma {
     price?: DecimalFilter<"VendorGift"> | Decimal | DecimalJsLike | number | string
     description?: StringNullableFilter<"VendorGift"> | string | null
     imageUrl?: StringNullableFilter<"VendorGift"> | string | null
+    categoryId?: IntNullableFilter<"VendorGift"> | number | null
+    subcategoryId?: IntNullableFilter<"VendorGift"> | number | null
     category?: StringNullableFilter<"VendorGift"> | string | null
     tags?: StringNullableListFilter<"VendorGift">
     type?: StringFilter<"VendorGift"> | string
@@ -43281,6 +49791,9 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"VendorGift"> | Date | string
     updatedAt?: DateTimeFilter<"VendorGift"> | Date | string
     vendor?: XOR<UserScalarRelationFilter, UserWhereInput>
+    categoryRel?: XOR<ProductCategoryNullableScalarRelationFilter, ProductCategoryWhereInput> | null
+    subcategoryRel?: XOR<ProductSubcategoryNullableScalarRelationFilter, ProductSubcategoryWhereInput> | null
+    productTags?: VendorGiftTagListRelationFilter
     giftImages?: VendorGiftImageListRelationFilter
     favorites?: FavoriteListRelationFilter
     featuredAds?: FeaturedAdListRelationFilter
@@ -43297,6 +49810,8 @@ export namespace Prisma {
     price?: SortOrder
     description?: SortOrderInput | SortOrder
     imageUrl?: SortOrderInput | SortOrder
+    categoryId?: SortOrderInput | SortOrder
+    subcategoryId?: SortOrderInput | SortOrder
     category?: SortOrderInput | SortOrder
     tags?: SortOrder
     type?: SortOrder
@@ -43329,6 +49844,8 @@ export namespace Prisma {
     price?: DecimalWithAggregatesFilter<"VendorGift"> | Decimal | DecimalJsLike | number | string
     description?: StringNullableWithAggregatesFilter<"VendorGift"> | string | null
     imageUrl?: StringNullableWithAggregatesFilter<"VendorGift"> | string | null
+    categoryId?: IntNullableWithAggregatesFilter<"VendorGift"> | number | null
+    subcategoryId?: IntNullableWithAggregatesFilter<"VendorGift"> | number | null
     category?: StringNullableWithAggregatesFilter<"VendorGift"> | string | null
     tags?: StringNullableListFilter<"VendorGift">
     type?: StringWithAggregatesFilter<"VendorGift"> | string
@@ -43517,6 +50034,327 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"Rating"> | Date | string
   }
 
+  export type ProductCategoryWhereInput = {
+    AND?: ProductCategoryWhereInput | ProductCategoryWhereInput[]
+    OR?: ProductCategoryWhereInput[]
+    NOT?: ProductCategoryWhereInput | ProductCategoryWhereInput[]
+    id?: IntFilter<"ProductCategory"> | number
+    name?: StringFilter<"ProductCategory"> | string
+    slug?: StringFilter<"ProductCategory"> | string
+    createdAt?: DateTimeFilter<"ProductCategory"> | Date | string
+    updatedAt?: DateTimeFilter<"ProductCategory"> | Date | string
+    subcategories?: ProductSubcategoryListRelationFilter
+    vendorGifts?: VendorGiftListRelationFilter
+  }
+
+  export type ProductCategoryOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    subcategories?: ProductSubcategoryOrderByRelationAggregateInput
+    vendorGifts?: VendorGiftOrderByRelationAggregateInput
+  }
+
+  export type ProductCategoryWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    name?: string
+    slug?: string
+    AND?: ProductCategoryWhereInput | ProductCategoryWhereInput[]
+    OR?: ProductCategoryWhereInput[]
+    NOT?: ProductCategoryWhereInput | ProductCategoryWhereInput[]
+    createdAt?: DateTimeFilter<"ProductCategory"> | Date | string
+    updatedAt?: DateTimeFilter<"ProductCategory"> | Date | string
+    subcategories?: ProductSubcategoryListRelationFilter
+    vendorGifts?: VendorGiftListRelationFilter
+  }, "id" | "name" | "slug">
+
+  export type ProductCategoryOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ProductCategoryCountOrderByAggregateInput
+    _avg?: ProductCategoryAvgOrderByAggregateInput
+    _max?: ProductCategoryMaxOrderByAggregateInput
+    _min?: ProductCategoryMinOrderByAggregateInput
+    _sum?: ProductCategorySumOrderByAggregateInput
+  }
+
+  export type ProductCategoryScalarWhereWithAggregatesInput = {
+    AND?: ProductCategoryScalarWhereWithAggregatesInput | ProductCategoryScalarWhereWithAggregatesInput[]
+    OR?: ProductCategoryScalarWhereWithAggregatesInput[]
+    NOT?: ProductCategoryScalarWhereWithAggregatesInput | ProductCategoryScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"ProductCategory"> | number
+    name?: StringWithAggregatesFilter<"ProductCategory"> | string
+    slug?: StringWithAggregatesFilter<"ProductCategory"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"ProductCategory"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ProductCategory"> | Date | string
+  }
+
+  export type ProductSubcategoryWhereInput = {
+    AND?: ProductSubcategoryWhereInput | ProductSubcategoryWhereInput[]
+    OR?: ProductSubcategoryWhereInput[]
+    NOT?: ProductSubcategoryWhereInput | ProductSubcategoryWhereInput[]
+    id?: IntFilter<"ProductSubcategory"> | number
+    categoryId?: IntFilter<"ProductSubcategory"> | number
+    name?: StringFilter<"ProductSubcategory"> | string
+    slug?: StringFilter<"ProductSubcategory"> | string
+    createdAt?: DateTimeFilter<"ProductSubcategory"> | Date | string
+    updatedAt?: DateTimeFilter<"ProductSubcategory"> | Date | string
+    category?: XOR<ProductCategoryScalarRelationFilter, ProductCategoryWhereInput>
+    tags?: ProductTagListRelationFilter
+    vendorGifts?: VendorGiftListRelationFilter
+    tagRequests?: TagRequestListRelationFilter
+  }
+
+  export type ProductSubcategoryOrderByWithRelationInput = {
+    id?: SortOrder
+    categoryId?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    category?: ProductCategoryOrderByWithRelationInput
+    tags?: ProductTagOrderByRelationAggregateInput
+    vendorGifts?: VendorGiftOrderByRelationAggregateInput
+    tagRequests?: TagRequestOrderByRelationAggregateInput
+  }
+
+  export type ProductSubcategoryWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    categoryId_name?: ProductSubcategoryCategoryIdNameCompoundUniqueInput
+    categoryId_slug?: ProductSubcategoryCategoryIdSlugCompoundUniqueInput
+    AND?: ProductSubcategoryWhereInput | ProductSubcategoryWhereInput[]
+    OR?: ProductSubcategoryWhereInput[]
+    NOT?: ProductSubcategoryWhereInput | ProductSubcategoryWhereInput[]
+    categoryId?: IntFilter<"ProductSubcategory"> | number
+    name?: StringFilter<"ProductSubcategory"> | string
+    slug?: StringFilter<"ProductSubcategory"> | string
+    createdAt?: DateTimeFilter<"ProductSubcategory"> | Date | string
+    updatedAt?: DateTimeFilter<"ProductSubcategory"> | Date | string
+    category?: XOR<ProductCategoryScalarRelationFilter, ProductCategoryWhereInput>
+    tags?: ProductTagListRelationFilter
+    vendorGifts?: VendorGiftListRelationFilter
+    tagRequests?: TagRequestListRelationFilter
+  }, "id" | "categoryId_name" | "categoryId_slug">
+
+  export type ProductSubcategoryOrderByWithAggregationInput = {
+    id?: SortOrder
+    categoryId?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ProductSubcategoryCountOrderByAggregateInput
+    _avg?: ProductSubcategoryAvgOrderByAggregateInput
+    _max?: ProductSubcategoryMaxOrderByAggregateInput
+    _min?: ProductSubcategoryMinOrderByAggregateInput
+    _sum?: ProductSubcategorySumOrderByAggregateInput
+  }
+
+  export type ProductSubcategoryScalarWhereWithAggregatesInput = {
+    AND?: ProductSubcategoryScalarWhereWithAggregatesInput | ProductSubcategoryScalarWhereWithAggregatesInput[]
+    OR?: ProductSubcategoryScalarWhereWithAggregatesInput[]
+    NOT?: ProductSubcategoryScalarWhereWithAggregatesInput | ProductSubcategoryScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"ProductSubcategory"> | number
+    categoryId?: IntWithAggregatesFilter<"ProductSubcategory"> | number
+    name?: StringWithAggregatesFilter<"ProductSubcategory"> | string
+    slug?: StringWithAggregatesFilter<"ProductSubcategory"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"ProductSubcategory"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ProductSubcategory"> | Date | string
+  }
+
+  export type ProductTagWhereInput = {
+    AND?: ProductTagWhereInput | ProductTagWhereInput[]
+    OR?: ProductTagWhereInput[]
+    NOT?: ProductTagWhereInput | ProductTagWhereInput[]
+    id?: IntFilter<"ProductTag"> | number
+    subcategoryId?: IntFilter<"ProductTag"> | number
+    name?: StringFilter<"ProductTag"> | string
+    slug?: StringFilter<"ProductTag"> | string
+    createdAt?: DateTimeFilter<"ProductTag"> | Date | string
+    updatedAt?: DateTimeFilter<"ProductTag"> | Date | string
+    subcategory?: XOR<ProductSubcategoryScalarRelationFilter, ProductSubcategoryWhereInput>
+    vendorGifts?: VendorGiftTagListRelationFilter
+  }
+
+  export type ProductTagOrderByWithRelationInput = {
+    id?: SortOrder
+    subcategoryId?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    subcategory?: ProductSubcategoryOrderByWithRelationInput
+    vendorGifts?: VendorGiftTagOrderByRelationAggregateInput
+  }
+
+  export type ProductTagWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    subcategoryId_name?: ProductTagSubcategoryIdNameCompoundUniqueInput
+    subcategoryId_slug?: ProductTagSubcategoryIdSlugCompoundUniqueInput
+    AND?: ProductTagWhereInput | ProductTagWhereInput[]
+    OR?: ProductTagWhereInput[]
+    NOT?: ProductTagWhereInput | ProductTagWhereInput[]
+    subcategoryId?: IntFilter<"ProductTag"> | number
+    name?: StringFilter<"ProductTag"> | string
+    slug?: StringFilter<"ProductTag"> | string
+    createdAt?: DateTimeFilter<"ProductTag"> | Date | string
+    updatedAt?: DateTimeFilter<"ProductTag"> | Date | string
+    subcategory?: XOR<ProductSubcategoryScalarRelationFilter, ProductSubcategoryWhereInput>
+    vendorGifts?: VendorGiftTagListRelationFilter
+  }, "id" | "subcategoryId_name" | "subcategoryId_slug">
+
+  export type ProductTagOrderByWithAggregationInput = {
+    id?: SortOrder
+    subcategoryId?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ProductTagCountOrderByAggregateInput
+    _avg?: ProductTagAvgOrderByAggregateInput
+    _max?: ProductTagMaxOrderByAggregateInput
+    _min?: ProductTagMinOrderByAggregateInput
+    _sum?: ProductTagSumOrderByAggregateInput
+  }
+
+  export type ProductTagScalarWhereWithAggregatesInput = {
+    AND?: ProductTagScalarWhereWithAggregatesInput | ProductTagScalarWhereWithAggregatesInput[]
+    OR?: ProductTagScalarWhereWithAggregatesInput[]
+    NOT?: ProductTagScalarWhereWithAggregatesInput | ProductTagScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"ProductTag"> | number
+    subcategoryId?: IntWithAggregatesFilter<"ProductTag"> | number
+    name?: StringWithAggregatesFilter<"ProductTag"> | string
+    slug?: StringWithAggregatesFilter<"ProductTag"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"ProductTag"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ProductTag"> | Date | string
+  }
+
+  export type VendorGiftTagWhereInput = {
+    AND?: VendorGiftTagWhereInput | VendorGiftTagWhereInput[]
+    OR?: VendorGiftTagWhereInput[]
+    NOT?: VendorGiftTagWhereInput | VendorGiftTagWhereInput[]
+    giftId?: IntFilter<"VendorGiftTag"> | number
+    tagId?: IntFilter<"VendorGiftTag"> | number
+    gift?: XOR<VendorGiftScalarRelationFilter, VendorGiftWhereInput>
+    tag?: XOR<ProductTagScalarRelationFilter, ProductTagWhereInput>
+  }
+
+  export type VendorGiftTagOrderByWithRelationInput = {
+    giftId?: SortOrder
+    tagId?: SortOrder
+    gift?: VendorGiftOrderByWithRelationInput
+    tag?: ProductTagOrderByWithRelationInput
+  }
+
+  export type VendorGiftTagWhereUniqueInput = Prisma.AtLeast<{
+    giftId_tagId?: VendorGiftTagGiftIdTagIdCompoundUniqueInput
+    AND?: VendorGiftTagWhereInput | VendorGiftTagWhereInput[]
+    OR?: VendorGiftTagWhereInput[]
+    NOT?: VendorGiftTagWhereInput | VendorGiftTagWhereInput[]
+    giftId?: IntFilter<"VendorGiftTag"> | number
+    tagId?: IntFilter<"VendorGiftTag"> | number
+    gift?: XOR<VendorGiftScalarRelationFilter, VendorGiftWhereInput>
+    tag?: XOR<ProductTagScalarRelationFilter, ProductTagWhereInput>
+  }, "giftId_tagId">
+
+  export type VendorGiftTagOrderByWithAggregationInput = {
+    giftId?: SortOrder
+    tagId?: SortOrder
+    _count?: VendorGiftTagCountOrderByAggregateInput
+    _avg?: VendorGiftTagAvgOrderByAggregateInput
+    _max?: VendorGiftTagMaxOrderByAggregateInput
+    _min?: VendorGiftTagMinOrderByAggregateInput
+    _sum?: VendorGiftTagSumOrderByAggregateInput
+  }
+
+  export type VendorGiftTagScalarWhereWithAggregatesInput = {
+    AND?: VendorGiftTagScalarWhereWithAggregatesInput | VendorGiftTagScalarWhereWithAggregatesInput[]
+    OR?: VendorGiftTagScalarWhereWithAggregatesInput[]
+    NOT?: VendorGiftTagScalarWhereWithAggregatesInput | VendorGiftTagScalarWhereWithAggregatesInput[]
+    giftId?: IntWithAggregatesFilter<"VendorGiftTag"> | number
+    tagId?: IntWithAggregatesFilter<"VendorGiftTag"> | number
+  }
+
+  export type TagRequestWhereInput = {
+    AND?: TagRequestWhereInput | TagRequestWhereInput[]
+    OR?: TagRequestWhereInput[]
+    NOT?: TagRequestWhereInput | TagRequestWhereInput[]
+    id?: IntFilter<"TagRequest"> | number
+    vendorId?: StringFilter<"TagRequest"> | string
+    subcategoryId?: IntFilter<"TagRequest"> | number
+    tagName?: StringFilter<"TagRequest"> | string
+    status?: StringFilter<"TagRequest"> | string
+    adminNotes?: StringNullableFilter<"TagRequest"> | string | null
+    createdAt?: DateTimeFilter<"TagRequest"> | Date | string
+    updatedAt?: DateTimeFilter<"TagRequest"> | Date | string
+    vendor?: XOR<UserScalarRelationFilter, UserWhereInput>
+    subcategory?: XOR<ProductSubcategoryScalarRelationFilter, ProductSubcategoryWhereInput>
+  }
+
+  export type TagRequestOrderByWithRelationInput = {
+    id?: SortOrder
+    vendorId?: SortOrder
+    subcategoryId?: SortOrder
+    tagName?: SortOrder
+    status?: SortOrder
+    adminNotes?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    vendor?: UserOrderByWithRelationInput
+    subcategory?: ProductSubcategoryOrderByWithRelationInput
+  }
+
+  export type TagRequestWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: TagRequestWhereInput | TagRequestWhereInput[]
+    OR?: TagRequestWhereInput[]
+    NOT?: TagRequestWhereInput | TagRequestWhereInput[]
+    vendorId?: StringFilter<"TagRequest"> | string
+    subcategoryId?: IntFilter<"TagRequest"> | number
+    tagName?: StringFilter<"TagRequest"> | string
+    status?: StringFilter<"TagRequest"> | string
+    adminNotes?: StringNullableFilter<"TagRequest"> | string | null
+    createdAt?: DateTimeFilter<"TagRequest"> | Date | string
+    updatedAt?: DateTimeFilter<"TagRequest"> | Date | string
+    vendor?: XOR<UserScalarRelationFilter, UserWhereInput>
+    subcategory?: XOR<ProductSubcategoryScalarRelationFilter, ProductSubcategoryWhereInput>
+  }, "id">
+
+  export type TagRequestOrderByWithAggregationInput = {
+    id?: SortOrder
+    vendorId?: SortOrder
+    subcategoryId?: SortOrder
+    tagName?: SortOrder
+    status?: SortOrder
+    adminNotes?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: TagRequestCountOrderByAggregateInput
+    _avg?: TagRequestAvgOrderByAggregateInput
+    _max?: TagRequestMaxOrderByAggregateInput
+    _min?: TagRequestMinOrderByAggregateInput
+    _sum?: TagRequestSumOrderByAggregateInput
+  }
+
+  export type TagRequestScalarWhereWithAggregatesInput = {
+    AND?: TagRequestScalarWhereWithAggregatesInput | TagRequestScalarWhereWithAggregatesInput[]
+    OR?: TagRequestScalarWhereWithAggregatesInput[]
+    NOT?: TagRequestScalarWhereWithAggregatesInput | TagRequestScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"TagRequest"> | number
+    vendorId?: StringWithAggregatesFilter<"TagRequest"> | string
+    subcategoryId?: IntWithAggregatesFilter<"TagRequest"> | number
+    tagName?: StringWithAggregatesFilter<"TagRequest"> | string
+    status?: StringWithAggregatesFilter<"TagRequest"> | string
+    adminNotes?: StringNullableWithAggregatesFilter<"TagRequest"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"TagRequest"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"TagRequest"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     name: string
@@ -43574,6 +50412,7 @@ export namespace Prisma {
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestCreateNestedManyWithoutVendorInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -43633,6 +50472,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutVendorInput
   }
 
   export type UserUpdateInput = {
@@ -43692,6 +50532,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -43751,6 +50592,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutVendorNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -46469,6 +53311,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     vendor: UserCreateNestedOneWithoutVendorGiftsInput
+    categoryRel?: ProductCategoryCreateNestedOneWithoutVendorGiftsInput
+    subcategoryRel?: ProductSubcategoryCreateNestedOneWithoutVendorGiftsInput
+    productTags?: VendorGiftTagCreateNestedManyWithoutGiftInput
     giftImages?: VendorGiftImageCreateNestedManyWithoutGiftInput
     favorites?: FavoriteCreateNestedManyWithoutVendorGiftInput
     featuredAds?: FeaturedAdCreateNestedManyWithoutProductInput
@@ -46485,6 +53330,8 @@ export namespace Prisma {
     price: Decimal | DecimalJsLike | number | string
     description?: string | null
     imageUrl?: string | null
+    categoryId?: number | null
+    subcategoryId?: number | null
     category?: string | null
     tags?: VendorGiftCreatetagsInput | string[]
     type?: string
@@ -46499,6 +53346,7 @@ export namespace Prisma {
     lastEngagementAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
+    productTags?: VendorGiftTagUncheckedCreateNestedManyWithoutGiftInput
     giftImages?: VendorGiftImageUncheckedCreateNestedManyWithoutGiftInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutVendorGiftInput
     featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutProductInput
@@ -46528,6 +53376,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     vendor?: UserUpdateOneRequiredWithoutVendorGiftsNestedInput
+    categoryRel?: ProductCategoryUpdateOneWithoutVendorGiftsNestedInput
+    subcategoryRel?: ProductSubcategoryUpdateOneWithoutVendorGiftsNestedInput
+    productTags?: VendorGiftTagUpdateManyWithoutGiftNestedInput
     giftImages?: VendorGiftImageUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUpdateManyWithoutVendorGiftNestedInput
     featuredAds?: FeaturedAdUpdateManyWithoutProductNestedInput
@@ -46544,6 +53395,8 @@ export namespace Prisma {
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    categoryId?: NullableIntFieldUpdateOperationsInput | number | null
+    subcategoryId?: NullableIntFieldUpdateOperationsInput | number | null
     category?: NullableStringFieldUpdateOperationsInput | string | null
     tags?: VendorGiftUpdatetagsInput | string[]
     type?: StringFieldUpdateOperationsInput | string
@@ -46558,6 +53411,7 @@ export namespace Prisma {
     lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    productTags?: VendorGiftTagUncheckedUpdateManyWithoutGiftNestedInput
     giftImages?: VendorGiftImageUncheckedUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutVendorGiftNestedInput
     featuredAds?: FeaturedAdUncheckedUpdateManyWithoutProductNestedInput
@@ -46574,6 +53428,8 @@ export namespace Prisma {
     price: Decimal | DecimalJsLike | number | string
     description?: string | null
     imageUrl?: string | null
+    categoryId?: number | null
+    subcategoryId?: number | null
     category?: string | null
     tags?: VendorGiftCreatetagsInput | string[]
     type?: string
@@ -46620,6 +53476,8 @@ export namespace Prisma {
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    categoryId?: NullableIntFieldUpdateOperationsInput | number | null
+    subcategoryId?: NullableIntFieldUpdateOperationsInput | number | null
     category?: NullableStringFieldUpdateOperationsInput | string | null
     tags?: VendorGiftUpdatetagsInput | string[]
     type?: StringFieldUpdateOperationsInput | string
@@ -46790,6 +53648,307 @@ export namespace Prisma {
     rating?: IntFieldUpdateOperationsInput | number
     comment?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductCategoryCreateInput = {
+    name: string
+    slug: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subcategories?: ProductSubcategoryCreateNestedManyWithoutCategoryInput
+    vendorGifts?: VendorGiftCreateNestedManyWithoutCategoryRelInput
+  }
+
+  export type ProductCategoryUncheckedCreateInput = {
+    id?: number
+    name: string
+    slug: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subcategories?: ProductSubcategoryUncheckedCreateNestedManyWithoutCategoryInput
+    vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutCategoryRelInput
+  }
+
+  export type ProductCategoryUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subcategories?: ProductSubcategoryUpdateManyWithoutCategoryNestedInput
+    vendorGifts?: VendorGiftUpdateManyWithoutCategoryRelNestedInput
+  }
+
+  export type ProductCategoryUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subcategories?: ProductSubcategoryUncheckedUpdateManyWithoutCategoryNestedInput
+    vendorGifts?: VendorGiftUncheckedUpdateManyWithoutCategoryRelNestedInput
+  }
+
+  export type ProductCategoryCreateManyInput = {
+    id?: number
+    name: string
+    slug: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProductCategoryUpdateManyMutationInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductCategoryUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductSubcategoryCreateInput = {
+    name: string
+    slug: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    category: ProductCategoryCreateNestedOneWithoutSubcategoriesInput
+    tags?: ProductTagCreateNestedManyWithoutSubcategoryInput
+    vendorGifts?: VendorGiftCreateNestedManyWithoutSubcategoryRelInput
+    tagRequests?: TagRequestCreateNestedManyWithoutSubcategoryInput
+  }
+
+  export type ProductSubcategoryUncheckedCreateInput = {
+    id?: number
+    categoryId: number
+    name: string
+    slug: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tags?: ProductTagUncheckedCreateNestedManyWithoutSubcategoryInput
+    vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutSubcategoryRelInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutSubcategoryInput
+  }
+
+  export type ProductSubcategoryUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    category?: ProductCategoryUpdateOneRequiredWithoutSubcategoriesNestedInput
+    tags?: ProductTagUpdateManyWithoutSubcategoryNestedInput
+    vendorGifts?: VendorGiftUpdateManyWithoutSubcategoryRelNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutSubcategoryNestedInput
+  }
+
+  export type ProductSubcategoryUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    categoryId?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tags?: ProductTagUncheckedUpdateManyWithoutSubcategoryNestedInput
+    vendorGifts?: VendorGiftUncheckedUpdateManyWithoutSubcategoryRelNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutSubcategoryNestedInput
+  }
+
+  export type ProductSubcategoryCreateManyInput = {
+    id?: number
+    categoryId: number
+    name: string
+    slug: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProductSubcategoryUpdateManyMutationInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductSubcategoryUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    categoryId?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductTagCreateInput = {
+    name: string
+    slug: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subcategory: ProductSubcategoryCreateNestedOneWithoutTagsInput
+    vendorGifts?: VendorGiftTagCreateNestedManyWithoutTagInput
+  }
+
+  export type ProductTagUncheckedCreateInput = {
+    id?: number
+    subcategoryId: number
+    name: string
+    slug: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    vendorGifts?: VendorGiftTagUncheckedCreateNestedManyWithoutTagInput
+  }
+
+  export type ProductTagUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subcategory?: ProductSubcategoryUpdateOneRequiredWithoutTagsNestedInput
+    vendorGifts?: VendorGiftTagUpdateManyWithoutTagNestedInput
+  }
+
+  export type ProductTagUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    subcategoryId?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    vendorGifts?: VendorGiftTagUncheckedUpdateManyWithoutTagNestedInput
+  }
+
+  export type ProductTagCreateManyInput = {
+    id?: number
+    subcategoryId: number
+    name: string
+    slug: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProductTagUpdateManyMutationInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductTagUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    subcategoryId?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type VendorGiftTagCreateInput = {
+    gift: VendorGiftCreateNestedOneWithoutProductTagsInput
+    tag: ProductTagCreateNestedOneWithoutVendorGiftsInput
+  }
+
+  export type VendorGiftTagUncheckedCreateInput = {
+    giftId: number
+    tagId: number
+  }
+
+  export type VendorGiftTagUpdateInput = {
+    gift?: VendorGiftUpdateOneRequiredWithoutProductTagsNestedInput
+    tag?: ProductTagUpdateOneRequiredWithoutVendorGiftsNestedInput
+  }
+
+  export type VendorGiftTagUncheckedUpdateInput = {
+    giftId?: IntFieldUpdateOperationsInput | number
+    tagId?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type VendorGiftTagCreateManyInput = {
+    giftId: number
+    tagId: number
+  }
+
+  export type VendorGiftTagUpdateManyMutationInput = {
+
+  }
+
+  export type VendorGiftTagUncheckedUpdateManyInput = {
+    giftId?: IntFieldUpdateOperationsInput | number
+    tagId?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type TagRequestCreateInput = {
+    tagName: string
+    status?: string
+    adminNotes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    vendor: UserCreateNestedOneWithoutTagRequestsInput
+    subcategory: ProductSubcategoryCreateNestedOneWithoutTagRequestsInput
+  }
+
+  export type TagRequestUncheckedCreateInput = {
+    id?: number
+    vendorId: string
+    subcategoryId: number
+    tagName: string
+    status?: string
+    adminNotes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TagRequestUpdateInput = {
+    tagName?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    adminNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    vendor?: UserUpdateOneRequiredWithoutTagRequestsNestedInput
+    subcategory?: ProductSubcategoryUpdateOneRequiredWithoutTagRequestsNestedInput
+  }
+
+  export type TagRequestUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    vendorId?: StringFieldUpdateOperationsInput | string
+    subcategoryId?: IntFieldUpdateOperationsInput | number
+    tagName?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    adminNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TagRequestCreateManyInput = {
+    id?: number
+    vendorId: string
+    subcategoryId: number
+    tagName: string
+    status?: string
+    adminNotes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TagRequestUpdateManyMutationInput = {
+    tagName?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    adminNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TagRequestUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    vendorId?: StringFieldUpdateOperationsInput | string
+    subcategoryId?: IntFieldUpdateOperationsInput | number
+    tagName?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    adminNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -47034,6 +54193,12 @@ export namespace Prisma {
     none?: NotificationReadWhereInput
   }
 
+  export type TagRequestListRelationFilter = {
+    every?: TagRequestWhereInput
+    some?: TagRequestWhereInput
+    none?: TagRequestWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -47116,6 +54281,10 @@ export namespace Prisma {
   }
 
   export type NotificationReadOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type TagRequestOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -48932,10 +56101,30 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
+  export type ProductCategoryNullableScalarRelationFilter = {
+    is?: ProductCategoryWhereInput | null
+    isNot?: ProductCategoryWhereInput | null
+  }
+
+  export type ProductSubcategoryNullableScalarRelationFilter = {
+    is?: ProductSubcategoryWhereInput | null
+    isNot?: ProductSubcategoryWhereInput | null
+  }
+
+  export type VendorGiftTagListRelationFilter = {
+    every?: VendorGiftTagWhereInput
+    some?: VendorGiftTagWhereInput
+    none?: VendorGiftTagWhereInput
+  }
+
   export type VendorGiftImageListRelationFilter = {
     every?: VendorGiftImageWhereInput
     some?: VendorGiftImageWhereInput
     none?: VendorGiftImageWhereInput
+  }
+
+  export type VendorGiftTagOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type VendorGiftImageOrderByRelationAggregateInput = {
@@ -48950,6 +56139,8 @@ export namespace Prisma {
     price?: SortOrder
     description?: SortOrder
     imageUrl?: SortOrder
+    categoryId?: SortOrder
+    subcategoryId?: SortOrder
     category?: SortOrder
     tags?: SortOrder
     type?: SortOrder
@@ -48969,6 +56160,8 @@ export namespace Prisma {
   export type VendorGiftAvgOrderByAggregateInput = {
     id?: SortOrder
     price?: SortOrder
+    categoryId?: SortOrder
+    subcategoryId?: SortOrder
     stockQuantity?: SortOrder
     unitsSold?: SortOrder
     viewsCount?: SortOrder
@@ -48985,6 +56178,8 @@ export namespace Prisma {
     price?: SortOrder
     description?: SortOrder
     imageUrl?: SortOrder
+    categoryId?: SortOrder
+    subcategoryId?: SortOrder
     category?: SortOrder
     type?: SortOrder
     status?: SortOrder
@@ -49007,6 +56202,8 @@ export namespace Prisma {
     price?: SortOrder
     description?: SortOrder
     imageUrl?: SortOrder
+    categoryId?: SortOrder
+    subcategoryId?: SortOrder
     category?: SortOrder
     type?: SortOrder
     status?: SortOrder
@@ -49024,6 +56221,8 @@ export namespace Prisma {
   export type VendorGiftSumOrderByAggregateInput = {
     id?: SortOrder
     price?: SortOrder
+    categoryId?: SortOrder
+    subcategoryId?: SortOrder
     stockQuantity?: SortOrder
     unitsSold?: SortOrder
     viewsCount?: SortOrder
@@ -49153,6 +56352,240 @@ export namespace Prisma {
   export type RatingSumOrderByAggregateInput = {
     id?: SortOrder
     rating?: SortOrder
+  }
+
+  export type ProductSubcategoryListRelationFilter = {
+    every?: ProductSubcategoryWhereInput
+    some?: ProductSubcategoryWhereInput
+    none?: ProductSubcategoryWhereInput
+  }
+
+  export type ProductSubcategoryOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ProductCategoryCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ProductCategoryAvgOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type ProductCategoryMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ProductCategoryMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ProductCategorySumOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type ProductCategoryScalarRelationFilter = {
+    is?: ProductCategoryWhereInput
+    isNot?: ProductCategoryWhereInput
+  }
+
+  export type ProductTagListRelationFilter = {
+    every?: ProductTagWhereInput
+    some?: ProductTagWhereInput
+    none?: ProductTagWhereInput
+  }
+
+  export type ProductTagOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ProductSubcategoryCategoryIdNameCompoundUniqueInput = {
+    categoryId: number
+    name: string
+  }
+
+  export type ProductSubcategoryCategoryIdSlugCompoundUniqueInput = {
+    categoryId: number
+    slug: string
+  }
+
+  export type ProductSubcategoryCountOrderByAggregateInput = {
+    id?: SortOrder
+    categoryId?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ProductSubcategoryAvgOrderByAggregateInput = {
+    id?: SortOrder
+    categoryId?: SortOrder
+  }
+
+  export type ProductSubcategoryMaxOrderByAggregateInput = {
+    id?: SortOrder
+    categoryId?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ProductSubcategoryMinOrderByAggregateInput = {
+    id?: SortOrder
+    categoryId?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ProductSubcategorySumOrderByAggregateInput = {
+    id?: SortOrder
+    categoryId?: SortOrder
+  }
+
+  export type ProductSubcategoryScalarRelationFilter = {
+    is?: ProductSubcategoryWhereInput
+    isNot?: ProductSubcategoryWhereInput
+  }
+
+  export type ProductTagSubcategoryIdNameCompoundUniqueInput = {
+    subcategoryId: number
+    name: string
+  }
+
+  export type ProductTagSubcategoryIdSlugCompoundUniqueInput = {
+    subcategoryId: number
+    slug: string
+  }
+
+  export type ProductTagCountOrderByAggregateInput = {
+    id?: SortOrder
+    subcategoryId?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ProductTagAvgOrderByAggregateInput = {
+    id?: SortOrder
+    subcategoryId?: SortOrder
+  }
+
+  export type ProductTagMaxOrderByAggregateInput = {
+    id?: SortOrder
+    subcategoryId?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ProductTagMinOrderByAggregateInput = {
+    id?: SortOrder
+    subcategoryId?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ProductTagSumOrderByAggregateInput = {
+    id?: SortOrder
+    subcategoryId?: SortOrder
+  }
+
+  export type ProductTagScalarRelationFilter = {
+    is?: ProductTagWhereInput
+    isNot?: ProductTagWhereInput
+  }
+
+  export type VendorGiftTagGiftIdTagIdCompoundUniqueInput = {
+    giftId: number
+    tagId: number
+  }
+
+  export type VendorGiftTagCountOrderByAggregateInput = {
+    giftId?: SortOrder
+    tagId?: SortOrder
+  }
+
+  export type VendorGiftTagAvgOrderByAggregateInput = {
+    giftId?: SortOrder
+    tagId?: SortOrder
+  }
+
+  export type VendorGiftTagMaxOrderByAggregateInput = {
+    giftId?: SortOrder
+    tagId?: SortOrder
+  }
+
+  export type VendorGiftTagMinOrderByAggregateInput = {
+    giftId?: SortOrder
+    tagId?: SortOrder
+  }
+
+  export type VendorGiftTagSumOrderByAggregateInput = {
+    giftId?: SortOrder
+    tagId?: SortOrder
+  }
+
+  export type TagRequestCountOrderByAggregateInput = {
+    id?: SortOrder
+    vendorId?: SortOrder
+    subcategoryId?: SortOrder
+    tagName?: SortOrder
+    status?: SortOrder
+    adminNotes?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TagRequestAvgOrderByAggregateInput = {
+    id?: SortOrder
+    subcategoryId?: SortOrder
+  }
+
+  export type TagRequestMaxOrderByAggregateInput = {
+    id?: SortOrder
+    vendorId?: SortOrder
+    subcategoryId?: SortOrder
+    tagName?: SortOrder
+    status?: SortOrder
+    adminNotes?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TagRequestMinOrderByAggregateInput = {
+    id?: SortOrder
+    vendorId?: SortOrder
+    subcategoryId?: SortOrder
+    tagName?: SortOrder
+    status?: SortOrder
+    adminNotes?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TagRequestSumOrderByAggregateInput = {
+    id?: SortOrder
+    subcategoryId?: SortOrder
   }
 
   export type UserCreatesuggestedAmountsInput = {
@@ -49342,6 +56775,13 @@ export namespace Prisma {
     connect?: NotificationReadWhereUniqueInput | NotificationReadWhereUniqueInput[]
   }
 
+  export type TagRequestCreateNestedManyWithoutVendorInput = {
+    create?: XOR<TagRequestCreateWithoutVendorInput, TagRequestUncheckedCreateWithoutVendorInput> | TagRequestCreateWithoutVendorInput[] | TagRequestUncheckedCreateWithoutVendorInput[]
+    connectOrCreate?: TagRequestCreateOrConnectWithoutVendorInput | TagRequestCreateOrConnectWithoutVendorInput[]
+    createMany?: TagRequestCreateManyVendorInputEnvelope
+    connect?: TagRequestWhereUniqueInput | TagRequestWhereUniqueInput[]
+  }
+
   export type SessionUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<SessionCreateWithoutUserInput, SessionUncheckedCreateWithoutUserInput> | SessionCreateWithoutUserInput[] | SessionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: SessionCreateOrConnectWithoutUserInput | SessionCreateOrConnectWithoutUserInput[]
@@ -49515,6 +56955,13 @@ export namespace Prisma {
     connectOrCreate?: NotificationReadCreateOrConnectWithoutUserInput | NotificationReadCreateOrConnectWithoutUserInput[]
     createMany?: NotificationReadCreateManyUserInputEnvelope
     connect?: NotificationReadWhereUniqueInput | NotificationReadWhereUniqueInput[]
+  }
+
+  export type TagRequestUncheckedCreateNestedManyWithoutVendorInput = {
+    create?: XOR<TagRequestCreateWithoutVendorInput, TagRequestUncheckedCreateWithoutVendorInput> | TagRequestCreateWithoutVendorInput[] | TagRequestUncheckedCreateWithoutVendorInput[]
+    connectOrCreate?: TagRequestCreateOrConnectWithoutVendorInput | TagRequestCreateOrConnectWithoutVendorInput[]
+    createMany?: TagRequestCreateManyVendorInputEnvelope
+    connect?: TagRequestWhereUniqueInput | TagRequestWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -49914,6 +57361,20 @@ export namespace Prisma {
     deleteMany?: NotificationReadScalarWhereInput | NotificationReadScalarWhereInput[]
   }
 
+  export type TagRequestUpdateManyWithoutVendorNestedInput = {
+    create?: XOR<TagRequestCreateWithoutVendorInput, TagRequestUncheckedCreateWithoutVendorInput> | TagRequestCreateWithoutVendorInput[] | TagRequestUncheckedCreateWithoutVendorInput[]
+    connectOrCreate?: TagRequestCreateOrConnectWithoutVendorInput | TagRequestCreateOrConnectWithoutVendorInput[]
+    upsert?: TagRequestUpsertWithWhereUniqueWithoutVendorInput | TagRequestUpsertWithWhereUniqueWithoutVendorInput[]
+    createMany?: TagRequestCreateManyVendorInputEnvelope
+    set?: TagRequestWhereUniqueInput | TagRequestWhereUniqueInput[]
+    disconnect?: TagRequestWhereUniqueInput | TagRequestWhereUniqueInput[]
+    delete?: TagRequestWhereUniqueInput | TagRequestWhereUniqueInput[]
+    connect?: TagRequestWhereUniqueInput | TagRequestWhereUniqueInput[]
+    update?: TagRequestUpdateWithWhereUniqueWithoutVendorInput | TagRequestUpdateWithWhereUniqueWithoutVendorInput[]
+    updateMany?: TagRequestUpdateManyWithWhereWithoutVendorInput | TagRequestUpdateManyWithWhereWithoutVendorInput[]
+    deleteMany?: TagRequestScalarWhereInput | TagRequestScalarWhereInput[]
+  }
+
   export type SessionUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<SessionCreateWithoutUserInput, SessionUncheckedCreateWithoutUserInput> | SessionCreateWithoutUserInput[] | SessionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: SessionCreateOrConnectWithoutUserInput | SessionCreateOrConnectWithoutUserInput[]
@@ -50262,6 +57723,20 @@ export namespace Prisma {
     update?: NotificationReadUpdateWithWhereUniqueWithoutUserInput | NotificationReadUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: NotificationReadUpdateManyWithWhereWithoutUserInput | NotificationReadUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: NotificationReadScalarWhereInput | NotificationReadScalarWhereInput[]
+  }
+
+  export type TagRequestUncheckedUpdateManyWithoutVendorNestedInput = {
+    create?: XOR<TagRequestCreateWithoutVendorInput, TagRequestUncheckedCreateWithoutVendorInput> | TagRequestCreateWithoutVendorInput[] | TagRequestUncheckedCreateWithoutVendorInput[]
+    connectOrCreate?: TagRequestCreateOrConnectWithoutVendorInput | TagRequestCreateOrConnectWithoutVendorInput[]
+    upsert?: TagRequestUpsertWithWhereUniqueWithoutVendorInput | TagRequestUpsertWithWhereUniqueWithoutVendorInput[]
+    createMany?: TagRequestCreateManyVendorInputEnvelope
+    set?: TagRequestWhereUniqueInput | TagRequestWhereUniqueInput[]
+    disconnect?: TagRequestWhereUniqueInput | TagRequestWhereUniqueInput[]
+    delete?: TagRequestWhereUniqueInput | TagRequestWhereUniqueInput[]
+    connect?: TagRequestWhereUniqueInput | TagRequestWhereUniqueInput[]
+    update?: TagRequestUpdateWithWhereUniqueWithoutVendorInput | TagRequestUpdateWithWhereUniqueWithoutVendorInput[]
+    updateMany?: TagRequestUpdateManyWithWhereWithoutVendorInput | TagRequestUpdateManyWithWhereWithoutVendorInput[]
+    deleteMany?: TagRequestScalarWhereInput | TagRequestScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutSessionsInput = {
@@ -51343,6 +58818,25 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type ProductCategoryCreateNestedOneWithoutVendorGiftsInput = {
+    create?: XOR<ProductCategoryCreateWithoutVendorGiftsInput, ProductCategoryUncheckedCreateWithoutVendorGiftsInput>
+    connectOrCreate?: ProductCategoryCreateOrConnectWithoutVendorGiftsInput
+    connect?: ProductCategoryWhereUniqueInput
+  }
+
+  export type ProductSubcategoryCreateNestedOneWithoutVendorGiftsInput = {
+    create?: XOR<ProductSubcategoryCreateWithoutVendorGiftsInput, ProductSubcategoryUncheckedCreateWithoutVendorGiftsInput>
+    connectOrCreate?: ProductSubcategoryCreateOrConnectWithoutVendorGiftsInput
+    connect?: ProductSubcategoryWhereUniqueInput
+  }
+
+  export type VendorGiftTagCreateNestedManyWithoutGiftInput = {
+    create?: XOR<VendorGiftTagCreateWithoutGiftInput, VendorGiftTagUncheckedCreateWithoutGiftInput> | VendorGiftTagCreateWithoutGiftInput[] | VendorGiftTagUncheckedCreateWithoutGiftInput[]
+    connectOrCreate?: VendorGiftTagCreateOrConnectWithoutGiftInput | VendorGiftTagCreateOrConnectWithoutGiftInput[]
+    createMany?: VendorGiftTagCreateManyGiftInputEnvelope
+    connect?: VendorGiftTagWhereUniqueInput | VendorGiftTagWhereUniqueInput[]
+  }
+
   export type VendorGiftImageCreateNestedManyWithoutGiftInput = {
     create?: XOR<VendorGiftImageCreateWithoutGiftInput, VendorGiftImageUncheckedCreateWithoutGiftInput> | VendorGiftImageCreateWithoutGiftInput[] | VendorGiftImageUncheckedCreateWithoutGiftInput[]
     connectOrCreate?: VendorGiftImageCreateOrConnectWithoutGiftInput | VendorGiftImageCreateOrConnectWithoutGiftInput[]
@@ -51383,6 +58877,13 @@ export namespace Prisma {
     connectOrCreate?: DirectGiftCreateOrConnectWithoutProductInput | DirectGiftCreateOrConnectWithoutProductInput[]
     createMany?: DirectGiftCreateManyProductInputEnvelope
     connect?: DirectGiftWhereUniqueInput | DirectGiftWhereUniqueInput[]
+  }
+
+  export type VendorGiftTagUncheckedCreateNestedManyWithoutGiftInput = {
+    create?: XOR<VendorGiftTagCreateWithoutGiftInput, VendorGiftTagUncheckedCreateWithoutGiftInput> | VendorGiftTagCreateWithoutGiftInput[] | VendorGiftTagUncheckedCreateWithoutGiftInput[]
+    connectOrCreate?: VendorGiftTagCreateOrConnectWithoutGiftInput | VendorGiftTagCreateOrConnectWithoutGiftInput[]
+    createMany?: VendorGiftTagCreateManyGiftInputEnvelope
+    connect?: VendorGiftTagWhereUniqueInput | VendorGiftTagWhereUniqueInput[]
   }
 
   export type VendorGiftImageUncheckedCreateNestedManyWithoutGiftInput = {
@@ -51451,6 +58952,40 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutVendorGiftsInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutVendorGiftsInput, UserUpdateWithoutVendorGiftsInput>, UserUncheckedUpdateWithoutVendorGiftsInput>
+  }
+
+  export type ProductCategoryUpdateOneWithoutVendorGiftsNestedInput = {
+    create?: XOR<ProductCategoryCreateWithoutVendorGiftsInput, ProductCategoryUncheckedCreateWithoutVendorGiftsInput>
+    connectOrCreate?: ProductCategoryCreateOrConnectWithoutVendorGiftsInput
+    upsert?: ProductCategoryUpsertWithoutVendorGiftsInput
+    disconnect?: ProductCategoryWhereInput | boolean
+    delete?: ProductCategoryWhereInput | boolean
+    connect?: ProductCategoryWhereUniqueInput
+    update?: XOR<XOR<ProductCategoryUpdateToOneWithWhereWithoutVendorGiftsInput, ProductCategoryUpdateWithoutVendorGiftsInput>, ProductCategoryUncheckedUpdateWithoutVendorGiftsInput>
+  }
+
+  export type ProductSubcategoryUpdateOneWithoutVendorGiftsNestedInput = {
+    create?: XOR<ProductSubcategoryCreateWithoutVendorGiftsInput, ProductSubcategoryUncheckedCreateWithoutVendorGiftsInput>
+    connectOrCreate?: ProductSubcategoryCreateOrConnectWithoutVendorGiftsInput
+    upsert?: ProductSubcategoryUpsertWithoutVendorGiftsInput
+    disconnect?: ProductSubcategoryWhereInput | boolean
+    delete?: ProductSubcategoryWhereInput | boolean
+    connect?: ProductSubcategoryWhereUniqueInput
+    update?: XOR<XOR<ProductSubcategoryUpdateToOneWithWhereWithoutVendorGiftsInput, ProductSubcategoryUpdateWithoutVendorGiftsInput>, ProductSubcategoryUncheckedUpdateWithoutVendorGiftsInput>
+  }
+
+  export type VendorGiftTagUpdateManyWithoutGiftNestedInput = {
+    create?: XOR<VendorGiftTagCreateWithoutGiftInput, VendorGiftTagUncheckedCreateWithoutGiftInput> | VendorGiftTagCreateWithoutGiftInput[] | VendorGiftTagUncheckedCreateWithoutGiftInput[]
+    connectOrCreate?: VendorGiftTagCreateOrConnectWithoutGiftInput | VendorGiftTagCreateOrConnectWithoutGiftInput[]
+    upsert?: VendorGiftTagUpsertWithWhereUniqueWithoutGiftInput | VendorGiftTagUpsertWithWhereUniqueWithoutGiftInput[]
+    createMany?: VendorGiftTagCreateManyGiftInputEnvelope
+    set?: VendorGiftTagWhereUniqueInput | VendorGiftTagWhereUniqueInput[]
+    disconnect?: VendorGiftTagWhereUniqueInput | VendorGiftTagWhereUniqueInput[]
+    delete?: VendorGiftTagWhereUniqueInput | VendorGiftTagWhereUniqueInput[]
+    connect?: VendorGiftTagWhereUniqueInput | VendorGiftTagWhereUniqueInput[]
+    update?: VendorGiftTagUpdateWithWhereUniqueWithoutGiftInput | VendorGiftTagUpdateWithWhereUniqueWithoutGiftInput[]
+    updateMany?: VendorGiftTagUpdateManyWithWhereWithoutGiftInput | VendorGiftTagUpdateManyWithWhereWithoutGiftInput[]
+    deleteMany?: VendorGiftTagScalarWhereInput | VendorGiftTagScalarWhereInput[]
   }
 
   export type VendorGiftImageUpdateManyWithoutGiftNestedInput = {
@@ -51535,6 +59070,20 @@ export namespace Prisma {
     update?: DirectGiftUpdateWithWhereUniqueWithoutProductInput | DirectGiftUpdateWithWhereUniqueWithoutProductInput[]
     updateMany?: DirectGiftUpdateManyWithWhereWithoutProductInput | DirectGiftUpdateManyWithWhereWithoutProductInput[]
     deleteMany?: DirectGiftScalarWhereInput | DirectGiftScalarWhereInput[]
+  }
+
+  export type VendorGiftTagUncheckedUpdateManyWithoutGiftNestedInput = {
+    create?: XOR<VendorGiftTagCreateWithoutGiftInput, VendorGiftTagUncheckedCreateWithoutGiftInput> | VendorGiftTagCreateWithoutGiftInput[] | VendorGiftTagUncheckedCreateWithoutGiftInput[]
+    connectOrCreate?: VendorGiftTagCreateOrConnectWithoutGiftInput | VendorGiftTagCreateOrConnectWithoutGiftInput[]
+    upsert?: VendorGiftTagUpsertWithWhereUniqueWithoutGiftInput | VendorGiftTagUpsertWithWhereUniqueWithoutGiftInput[]
+    createMany?: VendorGiftTagCreateManyGiftInputEnvelope
+    set?: VendorGiftTagWhereUniqueInput | VendorGiftTagWhereUniqueInput[]
+    disconnect?: VendorGiftTagWhereUniqueInput | VendorGiftTagWhereUniqueInput[]
+    delete?: VendorGiftTagWhereUniqueInput | VendorGiftTagWhereUniqueInput[]
+    connect?: VendorGiftTagWhereUniqueInput | VendorGiftTagWhereUniqueInput[]
+    update?: VendorGiftTagUpdateWithWhereUniqueWithoutGiftInput | VendorGiftTagUpdateWithWhereUniqueWithoutGiftInput[]
+    updateMany?: VendorGiftTagUpdateManyWithWhereWithoutGiftInput | VendorGiftTagUpdateManyWithWhereWithoutGiftInput[]
+    deleteMany?: VendorGiftTagScalarWhereInput | VendorGiftTagScalarWhereInput[]
   }
 
   export type VendorGiftImageUncheckedUpdateManyWithoutGiftNestedInput = {
@@ -51661,6 +59210,342 @@ export namespace Prisma {
     upsert?: VendorGiftUpsertWithoutFavoritesInput
     connect?: VendorGiftWhereUniqueInput
     update?: XOR<XOR<VendorGiftUpdateToOneWithWhereWithoutFavoritesInput, VendorGiftUpdateWithoutFavoritesInput>, VendorGiftUncheckedUpdateWithoutFavoritesInput>
+  }
+
+  export type ProductSubcategoryCreateNestedManyWithoutCategoryInput = {
+    create?: XOR<ProductSubcategoryCreateWithoutCategoryInput, ProductSubcategoryUncheckedCreateWithoutCategoryInput> | ProductSubcategoryCreateWithoutCategoryInput[] | ProductSubcategoryUncheckedCreateWithoutCategoryInput[]
+    connectOrCreate?: ProductSubcategoryCreateOrConnectWithoutCategoryInput | ProductSubcategoryCreateOrConnectWithoutCategoryInput[]
+    createMany?: ProductSubcategoryCreateManyCategoryInputEnvelope
+    connect?: ProductSubcategoryWhereUniqueInput | ProductSubcategoryWhereUniqueInput[]
+  }
+
+  export type VendorGiftCreateNestedManyWithoutCategoryRelInput = {
+    create?: XOR<VendorGiftCreateWithoutCategoryRelInput, VendorGiftUncheckedCreateWithoutCategoryRelInput> | VendorGiftCreateWithoutCategoryRelInput[] | VendorGiftUncheckedCreateWithoutCategoryRelInput[]
+    connectOrCreate?: VendorGiftCreateOrConnectWithoutCategoryRelInput | VendorGiftCreateOrConnectWithoutCategoryRelInput[]
+    createMany?: VendorGiftCreateManyCategoryRelInputEnvelope
+    connect?: VendorGiftWhereUniqueInput | VendorGiftWhereUniqueInput[]
+  }
+
+  export type ProductSubcategoryUncheckedCreateNestedManyWithoutCategoryInput = {
+    create?: XOR<ProductSubcategoryCreateWithoutCategoryInput, ProductSubcategoryUncheckedCreateWithoutCategoryInput> | ProductSubcategoryCreateWithoutCategoryInput[] | ProductSubcategoryUncheckedCreateWithoutCategoryInput[]
+    connectOrCreate?: ProductSubcategoryCreateOrConnectWithoutCategoryInput | ProductSubcategoryCreateOrConnectWithoutCategoryInput[]
+    createMany?: ProductSubcategoryCreateManyCategoryInputEnvelope
+    connect?: ProductSubcategoryWhereUniqueInput | ProductSubcategoryWhereUniqueInput[]
+  }
+
+  export type VendorGiftUncheckedCreateNestedManyWithoutCategoryRelInput = {
+    create?: XOR<VendorGiftCreateWithoutCategoryRelInput, VendorGiftUncheckedCreateWithoutCategoryRelInput> | VendorGiftCreateWithoutCategoryRelInput[] | VendorGiftUncheckedCreateWithoutCategoryRelInput[]
+    connectOrCreate?: VendorGiftCreateOrConnectWithoutCategoryRelInput | VendorGiftCreateOrConnectWithoutCategoryRelInput[]
+    createMany?: VendorGiftCreateManyCategoryRelInputEnvelope
+    connect?: VendorGiftWhereUniqueInput | VendorGiftWhereUniqueInput[]
+  }
+
+  export type ProductSubcategoryUpdateManyWithoutCategoryNestedInput = {
+    create?: XOR<ProductSubcategoryCreateWithoutCategoryInput, ProductSubcategoryUncheckedCreateWithoutCategoryInput> | ProductSubcategoryCreateWithoutCategoryInput[] | ProductSubcategoryUncheckedCreateWithoutCategoryInput[]
+    connectOrCreate?: ProductSubcategoryCreateOrConnectWithoutCategoryInput | ProductSubcategoryCreateOrConnectWithoutCategoryInput[]
+    upsert?: ProductSubcategoryUpsertWithWhereUniqueWithoutCategoryInput | ProductSubcategoryUpsertWithWhereUniqueWithoutCategoryInput[]
+    createMany?: ProductSubcategoryCreateManyCategoryInputEnvelope
+    set?: ProductSubcategoryWhereUniqueInput | ProductSubcategoryWhereUniqueInput[]
+    disconnect?: ProductSubcategoryWhereUniqueInput | ProductSubcategoryWhereUniqueInput[]
+    delete?: ProductSubcategoryWhereUniqueInput | ProductSubcategoryWhereUniqueInput[]
+    connect?: ProductSubcategoryWhereUniqueInput | ProductSubcategoryWhereUniqueInput[]
+    update?: ProductSubcategoryUpdateWithWhereUniqueWithoutCategoryInput | ProductSubcategoryUpdateWithWhereUniqueWithoutCategoryInput[]
+    updateMany?: ProductSubcategoryUpdateManyWithWhereWithoutCategoryInput | ProductSubcategoryUpdateManyWithWhereWithoutCategoryInput[]
+    deleteMany?: ProductSubcategoryScalarWhereInput | ProductSubcategoryScalarWhereInput[]
+  }
+
+  export type VendorGiftUpdateManyWithoutCategoryRelNestedInput = {
+    create?: XOR<VendorGiftCreateWithoutCategoryRelInput, VendorGiftUncheckedCreateWithoutCategoryRelInput> | VendorGiftCreateWithoutCategoryRelInput[] | VendorGiftUncheckedCreateWithoutCategoryRelInput[]
+    connectOrCreate?: VendorGiftCreateOrConnectWithoutCategoryRelInput | VendorGiftCreateOrConnectWithoutCategoryRelInput[]
+    upsert?: VendorGiftUpsertWithWhereUniqueWithoutCategoryRelInput | VendorGiftUpsertWithWhereUniqueWithoutCategoryRelInput[]
+    createMany?: VendorGiftCreateManyCategoryRelInputEnvelope
+    set?: VendorGiftWhereUniqueInput | VendorGiftWhereUniqueInput[]
+    disconnect?: VendorGiftWhereUniqueInput | VendorGiftWhereUniqueInput[]
+    delete?: VendorGiftWhereUniqueInput | VendorGiftWhereUniqueInput[]
+    connect?: VendorGiftWhereUniqueInput | VendorGiftWhereUniqueInput[]
+    update?: VendorGiftUpdateWithWhereUniqueWithoutCategoryRelInput | VendorGiftUpdateWithWhereUniqueWithoutCategoryRelInput[]
+    updateMany?: VendorGiftUpdateManyWithWhereWithoutCategoryRelInput | VendorGiftUpdateManyWithWhereWithoutCategoryRelInput[]
+    deleteMany?: VendorGiftScalarWhereInput | VendorGiftScalarWhereInput[]
+  }
+
+  export type ProductSubcategoryUncheckedUpdateManyWithoutCategoryNestedInput = {
+    create?: XOR<ProductSubcategoryCreateWithoutCategoryInput, ProductSubcategoryUncheckedCreateWithoutCategoryInput> | ProductSubcategoryCreateWithoutCategoryInput[] | ProductSubcategoryUncheckedCreateWithoutCategoryInput[]
+    connectOrCreate?: ProductSubcategoryCreateOrConnectWithoutCategoryInput | ProductSubcategoryCreateOrConnectWithoutCategoryInput[]
+    upsert?: ProductSubcategoryUpsertWithWhereUniqueWithoutCategoryInput | ProductSubcategoryUpsertWithWhereUniqueWithoutCategoryInput[]
+    createMany?: ProductSubcategoryCreateManyCategoryInputEnvelope
+    set?: ProductSubcategoryWhereUniqueInput | ProductSubcategoryWhereUniqueInput[]
+    disconnect?: ProductSubcategoryWhereUniqueInput | ProductSubcategoryWhereUniqueInput[]
+    delete?: ProductSubcategoryWhereUniqueInput | ProductSubcategoryWhereUniqueInput[]
+    connect?: ProductSubcategoryWhereUniqueInput | ProductSubcategoryWhereUniqueInput[]
+    update?: ProductSubcategoryUpdateWithWhereUniqueWithoutCategoryInput | ProductSubcategoryUpdateWithWhereUniqueWithoutCategoryInput[]
+    updateMany?: ProductSubcategoryUpdateManyWithWhereWithoutCategoryInput | ProductSubcategoryUpdateManyWithWhereWithoutCategoryInput[]
+    deleteMany?: ProductSubcategoryScalarWhereInput | ProductSubcategoryScalarWhereInput[]
+  }
+
+  export type VendorGiftUncheckedUpdateManyWithoutCategoryRelNestedInput = {
+    create?: XOR<VendorGiftCreateWithoutCategoryRelInput, VendorGiftUncheckedCreateWithoutCategoryRelInput> | VendorGiftCreateWithoutCategoryRelInput[] | VendorGiftUncheckedCreateWithoutCategoryRelInput[]
+    connectOrCreate?: VendorGiftCreateOrConnectWithoutCategoryRelInput | VendorGiftCreateOrConnectWithoutCategoryRelInput[]
+    upsert?: VendorGiftUpsertWithWhereUniqueWithoutCategoryRelInput | VendorGiftUpsertWithWhereUniqueWithoutCategoryRelInput[]
+    createMany?: VendorGiftCreateManyCategoryRelInputEnvelope
+    set?: VendorGiftWhereUniqueInput | VendorGiftWhereUniqueInput[]
+    disconnect?: VendorGiftWhereUniqueInput | VendorGiftWhereUniqueInput[]
+    delete?: VendorGiftWhereUniqueInput | VendorGiftWhereUniqueInput[]
+    connect?: VendorGiftWhereUniqueInput | VendorGiftWhereUniqueInput[]
+    update?: VendorGiftUpdateWithWhereUniqueWithoutCategoryRelInput | VendorGiftUpdateWithWhereUniqueWithoutCategoryRelInput[]
+    updateMany?: VendorGiftUpdateManyWithWhereWithoutCategoryRelInput | VendorGiftUpdateManyWithWhereWithoutCategoryRelInput[]
+    deleteMany?: VendorGiftScalarWhereInput | VendorGiftScalarWhereInput[]
+  }
+
+  export type ProductCategoryCreateNestedOneWithoutSubcategoriesInput = {
+    create?: XOR<ProductCategoryCreateWithoutSubcategoriesInput, ProductCategoryUncheckedCreateWithoutSubcategoriesInput>
+    connectOrCreate?: ProductCategoryCreateOrConnectWithoutSubcategoriesInput
+    connect?: ProductCategoryWhereUniqueInput
+  }
+
+  export type ProductTagCreateNestedManyWithoutSubcategoryInput = {
+    create?: XOR<ProductTagCreateWithoutSubcategoryInput, ProductTagUncheckedCreateWithoutSubcategoryInput> | ProductTagCreateWithoutSubcategoryInput[] | ProductTagUncheckedCreateWithoutSubcategoryInput[]
+    connectOrCreate?: ProductTagCreateOrConnectWithoutSubcategoryInput | ProductTagCreateOrConnectWithoutSubcategoryInput[]
+    createMany?: ProductTagCreateManySubcategoryInputEnvelope
+    connect?: ProductTagWhereUniqueInput | ProductTagWhereUniqueInput[]
+  }
+
+  export type VendorGiftCreateNestedManyWithoutSubcategoryRelInput = {
+    create?: XOR<VendorGiftCreateWithoutSubcategoryRelInput, VendorGiftUncheckedCreateWithoutSubcategoryRelInput> | VendorGiftCreateWithoutSubcategoryRelInput[] | VendorGiftUncheckedCreateWithoutSubcategoryRelInput[]
+    connectOrCreate?: VendorGiftCreateOrConnectWithoutSubcategoryRelInput | VendorGiftCreateOrConnectWithoutSubcategoryRelInput[]
+    createMany?: VendorGiftCreateManySubcategoryRelInputEnvelope
+    connect?: VendorGiftWhereUniqueInput | VendorGiftWhereUniqueInput[]
+  }
+
+  export type TagRequestCreateNestedManyWithoutSubcategoryInput = {
+    create?: XOR<TagRequestCreateWithoutSubcategoryInput, TagRequestUncheckedCreateWithoutSubcategoryInput> | TagRequestCreateWithoutSubcategoryInput[] | TagRequestUncheckedCreateWithoutSubcategoryInput[]
+    connectOrCreate?: TagRequestCreateOrConnectWithoutSubcategoryInput | TagRequestCreateOrConnectWithoutSubcategoryInput[]
+    createMany?: TagRequestCreateManySubcategoryInputEnvelope
+    connect?: TagRequestWhereUniqueInput | TagRequestWhereUniqueInput[]
+  }
+
+  export type ProductTagUncheckedCreateNestedManyWithoutSubcategoryInput = {
+    create?: XOR<ProductTagCreateWithoutSubcategoryInput, ProductTagUncheckedCreateWithoutSubcategoryInput> | ProductTagCreateWithoutSubcategoryInput[] | ProductTagUncheckedCreateWithoutSubcategoryInput[]
+    connectOrCreate?: ProductTagCreateOrConnectWithoutSubcategoryInput | ProductTagCreateOrConnectWithoutSubcategoryInput[]
+    createMany?: ProductTagCreateManySubcategoryInputEnvelope
+    connect?: ProductTagWhereUniqueInput | ProductTagWhereUniqueInput[]
+  }
+
+  export type VendorGiftUncheckedCreateNestedManyWithoutSubcategoryRelInput = {
+    create?: XOR<VendorGiftCreateWithoutSubcategoryRelInput, VendorGiftUncheckedCreateWithoutSubcategoryRelInput> | VendorGiftCreateWithoutSubcategoryRelInput[] | VendorGiftUncheckedCreateWithoutSubcategoryRelInput[]
+    connectOrCreate?: VendorGiftCreateOrConnectWithoutSubcategoryRelInput | VendorGiftCreateOrConnectWithoutSubcategoryRelInput[]
+    createMany?: VendorGiftCreateManySubcategoryRelInputEnvelope
+    connect?: VendorGiftWhereUniqueInput | VendorGiftWhereUniqueInput[]
+  }
+
+  export type TagRequestUncheckedCreateNestedManyWithoutSubcategoryInput = {
+    create?: XOR<TagRequestCreateWithoutSubcategoryInput, TagRequestUncheckedCreateWithoutSubcategoryInput> | TagRequestCreateWithoutSubcategoryInput[] | TagRequestUncheckedCreateWithoutSubcategoryInput[]
+    connectOrCreate?: TagRequestCreateOrConnectWithoutSubcategoryInput | TagRequestCreateOrConnectWithoutSubcategoryInput[]
+    createMany?: TagRequestCreateManySubcategoryInputEnvelope
+    connect?: TagRequestWhereUniqueInput | TagRequestWhereUniqueInput[]
+  }
+
+  export type ProductCategoryUpdateOneRequiredWithoutSubcategoriesNestedInput = {
+    create?: XOR<ProductCategoryCreateWithoutSubcategoriesInput, ProductCategoryUncheckedCreateWithoutSubcategoriesInput>
+    connectOrCreate?: ProductCategoryCreateOrConnectWithoutSubcategoriesInput
+    upsert?: ProductCategoryUpsertWithoutSubcategoriesInput
+    connect?: ProductCategoryWhereUniqueInput
+    update?: XOR<XOR<ProductCategoryUpdateToOneWithWhereWithoutSubcategoriesInput, ProductCategoryUpdateWithoutSubcategoriesInput>, ProductCategoryUncheckedUpdateWithoutSubcategoriesInput>
+  }
+
+  export type ProductTagUpdateManyWithoutSubcategoryNestedInput = {
+    create?: XOR<ProductTagCreateWithoutSubcategoryInput, ProductTagUncheckedCreateWithoutSubcategoryInput> | ProductTagCreateWithoutSubcategoryInput[] | ProductTagUncheckedCreateWithoutSubcategoryInput[]
+    connectOrCreate?: ProductTagCreateOrConnectWithoutSubcategoryInput | ProductTagCreateOrConnectWithoutSubcategoryInput[]
+    upsert?: ProductTagUpsertWithWhereUniqueWithoutSubcategoryInput | ProductTagUpsertWithWhereUniqueWithoutSubcategoryInput[]
+    createMany?: ProductTagCreateManySubcategoryInputEnvelope
+    set?: ProductTagWhereUniqueInput | ProductTagWhereUniqueInput[]
+    disconnect?: ProductTagWhereUniqueInput | ProductTagWhereUniqueInput[]
+    delete?: ProductTagWhereUniqueInput | ProductTagWhereUniqueInput[]
+    connect?: ProductTagWhereUniqueInput | ProductTagWhereUniqueInput[]
+    update?: ProductTagUpdateWithWhereUniqueWithoutSubcategoryInput | ProductTagUpdateWithWhereUniqueWithoutSubcategoryInput[]
+    updateMany?: ProductTagUpdateManyWithWhereWithoutSubcategoryInput | ProductTagUpdateManyWithWhereWithoutSubcategoryInput[]
+    deleteMany?: ProductTagScalarWhereInput | ProductTagScalarWhereInput[]
+  }
+
+  export type VendorGiftUpdateManyWithoutSubcategoryRelNestedInput = {
+    create?: XOR<VendorGiftCreateWithoutSubcategoryRelInput, VendorGiftUncheckedCreateWithoutSubcategoryRelInput> | VendorGiftCreateWithoutSubcategoryRelInput[] | VendorGiftUncheckedCreateWithoutSubcategoryRelInput[]
+    connectOrCreate?: VendorGiftCreateOrConnectWithoutSubcategoryRelInput | VendorGiftCreateOrConnectWithoutSubcategoryRelInput[]
+    upsert?: VendorGiftUpsertWithWhereUniqueWithoutSubcategoryRelInput | VendorGiftUpsertWithWhereUniqueWithoutSubcategoryRelInput[]
+    createMany?: VendorGiftCreateManySubcategoryRelInputEnvelope
+    set?: VendorGiftWhereUniqueInput | VendorGiftWhereUniqueInput[]
+    disconnect?: VendorGiftWhereUniqueInput | VendorGiftWhereUniqueInput[]
+    delete?: VendorGiftWhereUniqueInput | VendorGiftWhereUniqueInput[]
+    connect?: VendorGiftWhereUniqueInput | VendorGiftWhereUniqueInput[]
+    update?: VendorGiftUpdateWithWhereUniqueWithoutSubcategoryRelInput | VendorGiftUpdateWithWhereUniqueWithoutSubcategoryRelInput[]
+    updateMany?: VendorGiftUpdateManyWithWhereWithoutSubcategoryRelInput | VendorGiftUpdateManyWithWhereWithoutSubcategoryRelInput[]
+    deleteMany?: VendorGiftScalarWhereInput | VendorGiftScalarWhereInput[]
+  }
+
+  export type TagRequestUpdateManyWithoutSubcategoryNestedInput = {
+    create?: XOR<TagRequestCreateWithoutSubcategoryInput, TagRequestUncheckedCreateWithoutSubcategoryInput> | TagRequestCreateWithoutSubcategoryInput[] | TagRequestUncheckedCreateWithoutSubcategoryInput[]
+    connectOrCreate?: TagRequestCreateOrConnectWithoutSubcategoryInput | TagRequestCreateOrConnectWithoutSubcategoryInput[]
+    upsert?: TagRequestUpsertWithWhereUniqueWithoutSubcategoryInput | TagRequestUpsertWithWhereUniqueWithoutSubcategoryInput[]
+    createMany?: TagRequestCreateManySubcategoryInputEnvelope
+    set?: TagRequestWhereUniqueInput | TagRequestWhereUniqueInput[]
+    disconnect?: TagRequestWhereUniqueInput | TagRequestWhereUniqueInput[]
+    delete?: TagRequestWhereUniqueInput | TagRequestWhereUniqueInput[]
+    connect?: TagRequestWhereUniqueInput | TagRequestWhereUniqueInput[]
+    update?: TagRequestUpdateWithWhereUniqueWithoutSubcategoryInput | TagRequestUpdateWithWhereUniqueWithoutSubcategoryInput[]
+    updateMany?: TagRequestUpdateManyWithWhereWithoutSubcategoryInput | TagRequestUpdateManyWithWhereWithoutSubcategoryInput[]
+    deleteMany?: TagRequestScalarWhereInput | TagRequestScalarWhereInput[]
+  }
+
+  export type ProductTagUncheckedUpdateManyWithoutSubcategoryNestedInput = {
+    create?: XOR<ProductTagCreateWithoutSubcategoryInput, ProductTagUncheckedCreateWithoutSubcategoryInput> | ProductTagCreateWithoutSubcategoryInput[] | ProductTagUncheckedCreateWithoutSubcategoryInput[]
+    connectOrCreate?: ProductTagCreateOrConnectWithoutSubcategoryInput | ProductTagCreateOrConnectWithoutSubcategoryInput[]
+    upsert?: ProductTagUpsertWithWhereUniqueWithoutSubcategoryInput | ProductTagUpsertWithWhereUniqueWithoutSubcategoryInput[]
+    createMany?: ProductTagCreateManySubcategoryInputEnvelope
+    set?: ProductTagWhereUniqueInput | ProductTagWhereUniqueInput[]
+    disconnect?: ProductTagWhereUniqueInput | ProductTagWhereUniqueInput[]
+    delete?: ProductTagWhereUniqueInput | ProductTagWhereUniqueInput[]
+    connect?: ProductTagWhereUniqueInput | ProductTagWhereUniqueInput[]
+    update?: ProductTagUpdateWithWhereUniqueWithoutSubcategoryInput | ProductTagUpdateWithWhereUniqueWithoutSubcategoryInput[]
+    updateMany?: ProductTagUpdateManyWithWhereWithoutSubcategoryInput | ProductTagUpdateManyWithWhereWithoutSubcategoryInput[]
+    deleteMany?: ProductTagScalarWhereInput | ProductTagScalarWhereInput[]
+  }
+
+  export type VendorGiftUncheckedUpdateManyWithoutSubcategoryRelNestedInput = {
+    create?: XOR<VendorGiftCreateWithoutSubcategoryRelInput, VendorGiftUncheckedCreateWithoutSubcategoryRelInput> | VendorGiftCreateWithoutSubcategoryRelInput[] | VendorGiftUncheckedCreateWithoutSubcategoryRelInput[]
+    connectOrCreate?: VendorGiftCreateOrConnectWithoutSubcategoryRelInput | VendorGiftCreateOrConnectWithoutSubcategoryRelInput[]
+    upsert?: VendorGiftUpsertWithWhereUniqueWithoutSubcategoryRelInput | VendorGiftUpsertWithWhereUniqueWithoutSubcategoryRelInput[]
+    createMany?: VendorGiftCreateManySubcategoryRelInputEnvelope
+    set?: VendorGiftWhereUniqueInput | VendorGiftWhereUniqueInput[]
+    disconnect?: VendorGiftWhereUniqueInput | VendorGiftWhereUniqueInput[]
+    delete?: VendorGiftWhereUniqueInput | VendorGiftWhereUniqueInput[]
+    connect?: VendorGiftWhereUniqueInput | VendorGiftWhereUniqueInput[]
+    update?: VendorGiftUpdateWithWhereUniqueWithoutSubcategoryRelInput | VendorGiftUpdateWithWhereUniqueWithoutSubcategoryRelInput[]
+    updateMany?: VendorGiftUpdateManyWithWhereWithoutSubcategoryRelInput | VendorGiftUpdateManyWithWhereWithoutSubcategoryRelInput[]
+    deleteMany?: VendorGiftScalarWhereInput | VendorGiftScalarWhereInput[]
+  }
+
+  export type TagRequestUncheckedUpdateManyWithoutSubcategoryNestedInput = {
+    create?: XOR<TagRequestCreateWithoutSubcategoryInput, TagRequestUncheckedCreateWithoutSubcategoryInput> | TagRequestCreateWithoutSubcategoryInput[] | TagRequestUncheckedCreateWithoutSubcategoryInput[]
+    connectOrCreate?: TagRequestCreateOrConnectWithoutSubcategoryInput | TagRequestCreateOrConnectWithoutSubcategoryInput[]
+    upsert?: TagRequestUpsertWithWhereUniqueWithoutSubcategoryInput | TagRequestUpsertWithWhereUniqueWithoutSubcategoryInput[]
+    createMany?: TagRequestCreateManySubcategoryInputEnvelope
+    set?: TagRequestWhereUniqueInput | TagRequestWhereUniqueInput[]
+    disconnect?: TagRequestWhereUniqueInput | TagRequestWhereUniqueInput[]
+    delete?: TagRequestWhereUniqueInput | TagRequestWhereUniqueInput[]
+    connect?: TagRequestWhereUniqueInput | TagRequestWhereUniqueInput[]
+    update?: TagRequestUpdateWithWhereUniqueWithoutSubcategoryInput | TagRequestUpdateWithWhereUniqueWithoutSubcategoryInput[]
+    updateMany?: TagRequestUpdateManyWithWhereWithoutSubcategoryInput | TagRequestUpdateManyWithWhereWithoutSubcategoryInput[]
+    deleteMany?: TagRequestScalarWhereInput | TagRequestScalarWhereInput[]
+  }
+
+  export type ProductSubcategoryCreateNestedOneWithoutTagsInput = {
+    create?: XOR<ProductSubcategoryCreateWithoutTagsInput, ProductSubcategoryUncheckedCreateWithoutTagsInput>
+    connectOrCreate?: ProductSubcategoryCreateOrConnectWithoutTagsInput
+    connect?: ProductSubcategoryWhereUniqueInput
+  }
+
+  export type VendorGiftTagCreateNestedManyWithoutTagInput = {
+    create?: XOR<VendorGiftTagCreateWithoutTagInput, VendorGiftTagUncheckedCreateWithoutTagInput> | VendorGiftTagCreateWithoutTagInput[] | VendorGiftTagUncheckedCreateWithoutTagInput[]
+    connectOrCreate?: VendorGiftTagCreateOrConnectWithoutTagInput | VendorGiftTagCreateOrConnectWithoutTagInput[]
+    createMany?: VendorGiftTagCreateManyTagInputEnvelope
+    connect?: VendorGiftTagWhereUniqueInput | VendorGiftTagWhereUniqueInput[]
+  }
+
+  export type VendorGiftTagUncheckedCreateNestedManyWithoutTagInput = {
+    create?: XOR<VendorGiftTagCreateWithoutTagInput, VendorGiftTagUncheckedCreateWithoutTagInput> | VendorGiftTagCreateWithoutTagInput[] | VendorGiftTagUncheckedCreateWithoutTagInput[]
+    connectOrCreate?: VendorGiftTagCreateOrConnectWithoutTagInput | VendorGiftTagCreateOrConnectWithoutTagInput[]
+    createMany?: VendorGiftTagCreateManyTagInputEnvelope
+    connect?: VendorGiftTagWhereUniqueInput | VendorGiftTagWhereUniqueInput[]
+  }
+
+  export type ProductSubcategoryUpdateOneRequiredWithoutTagsNestedInput = {
+    create?: XOR<ProductSubcategoryCreateWithoutTagsInput, ProductSubcategoryUncheckedCreateWithoutTagsInput>
+    connectOrCreate?: ProductSubcategoryCreateOrConnectWithoutTagsInput
+    upsert?: ProductSubcategoryUpsertWithoutTagsInput
+    connect?: ProductSubcategoryWhereUniqueInput
+    update?: XOR<XOR<ProductSubcategoryUpdateToOneWithWhereWithoutTagsInput, ProductSubcategoryUpdateWithoutTagsInput>, ProductSubcategoryUncheckedUpdateWithoutTagsInput>
+  }
+
+  export type VendorGiftTagUpdateManyWithoutTagNestedInput = {
+    create?: XOR<VendorGiftTagCreateWithoutTagInput, VendorGiftTagUncheckedCreateWithoutTagInput> | VendorGiftTagCreateWithoutTagInput[] | VendorGiftTagUncheckedCreateWithoutTagInput[]
+    connectOrCreate?: VendorGiftTagCreateOrConnectWithoutTagInput | VendorGiftTagCreateOrConnectWithoutTagInput[]
+    upsert?: VendorGiftTagUpsertWithWhereUniqueWithoutTagInput | VendorGiftTagUpsertWithWhereUniqueWithoutTagInput[]
+    createMany?: VendorGiftTagCreateManyTagInputEnvelope
+    set?: VendorGiftTagWhereUniqueInput | VendorGiftTagWhereUniqueInput[]
+    disconnect?: VendorGiftTagWhereUniqueInput | VendorGiftTagWhereUniqueInput[]
+    delete?: VendorGiftTagWhereUniqueInput | VendorGiftTagWhereUniqueInput[]
+    connect?: VendorGiftTagWhereUniqueInput | VendorGiftTagWhereUniqueInput[]
+    update?: VendorGiftTagUpdateWithWhereUniqueWithoutTagInput | VendorGiftTagUpdateWithWhereUniqueWithoutTagInput[]
+    updateMany?: VendorGiftTagUpdateManyWithWhereWithoutTagInput | VendorGiftTagUpdateManyWithWhereWithoutTagInput[]
+    deleteMany?: VendorGiftTagScalarWhereInput | VendorGiftTagScalarWhereInput[]
+  }
+
+  export type VendorGiftTagUncheckedUpdateManyWithoutTagNestedInput = {
+    create?: XOR<VendorGiftTagCreateWithoutTagInput, VendorGiftTagUncheckedCreateWithoutTagInput> | VendorGiftTagCreateWithoutTagInput[] | VendorGiftTagUncheckedCreateWithoutTagInput[]
+    connectOrCreate?: VendorGiftTagCreateOrConnectWithoutTagInput | VendorGiftTagCreateOrConnectWithoutTagInput[]
+    upsert?: VendorGiftTagUpsertWithWhereUniqueWithoutTagInput | VendorGiftTagUpsertWithWhereUniqueWithoutTagInput[]
+    createMany?: VendorGiftTagCreateManyTagInputEnvelope
+    set?: VendorGiftTagWhereUniqueInput | VendorGiftTagWhereUniqueInput[]
+    disconnect?: VendorGiftTagWhereUniqueInput | VendorGiftTagWhereUniqueInput[]
+    delete?: VendorGiftTagWhereUniqueInput | VendorGiftTagWhereUniqueInput[]
+    connect?: VendorGiftTagWhereUniqueInput | VendorGiftTagWhereUniqueInput[]
+    update?: VendorGiftTagUpdateWithWhereUniqueWithoutTagInput | VendorGiftTagUpdateWithWhereUniqueWithoutTagInput[]
+    updateMany?: VendorGiftTagUpdateManyWithWhereWithoutTagInput | VendorGiftTagUpdateManyWithWhereWithoutTagInput[]
+    deleteMany?: VendorGiftTagScalarWhereInput | VendorGiftTagScalarWhereInput[]
+  }
+
+  export type VendorGiftCreateNestedOneWithoutProductTagsInput = {
+    create?: XOR<VendorGiftCreateWithoutProductTagsInput, VendorGiftUncheckedCreateWithoutProductTagsInput>
+    connectOrCreate?: VendorGiftCreateOrConnectWithoutProductTagsInput
+    connect?: VendorGiftWhereUniqueInput
+  }
+
+  export type ProductTagCreateNestedOneWithoutVendorGiftsInput = {
+    create?: XOR<ProductTagCreateWithoutVendorGiftsInput, ProductTagUncheckedCreateWithoutVendorGiftsInput>
+    connectOrCreate?: ProductTagCreateOrConnectWithoutVendorGiftsInput
+    connect?: ProductTagWhereUniqueInput
+  }
+
+  export type VendorGiftUpdateOneRequiredWithoutProductTagsNestedInput = {
+    create?: XOR<VendorGiftCreateWithoutProductTagsInput, VendorGiftUncheckedCreateWithoutProductTagsInput>
+    connectOrCreate?: VendorGiftCreateOrConnectWithoutProductTagsInput
+    upsert?: VendorGiftUpsertWithoutProductTagsInput
+    connect?: VendorGiftWhereUniqueInput
+    update?: XOR<XOR<VendorGiftUpdateToOneWithWhereWithoutProductTagsInput, VendorGiftUpdateWithoutProductTagsInput>, VendorGiftUncheckedUpdateWithoutProductTagsInput>
+  }
+
+  export type ProductTagUpdateOneRequiredWithoutVendorGiftsNestedInput = {
+    create?: XOR<ProductTagCreateWithoutVendorGiftsInput, ProductTagUncheckedCreateWithoutVendorGiftsInput>
+    connectOrCreate?: ProductTagCreateOrConnectWithoutVendorGiftsInput
+    upsert?: ProductTagUpsertWithoutVendorGiftsInput
+    connect?: ProductTagWhereUniqueInput
+    update?: XOR<XOR<ProductTagUpdateToOneWithWhereWithoutVendorGiftsInput, ProductTagUpdateWithoutVendorGiftsInput>, ProductTagUncheckedUpdateWithoutVendorGiftsInput>
+  }
+
+  export type UserCreateNestedOneWithoutTagRequestsInput = {
+    create?: XOR<UserCreateWithoutTagRequestsInput, UserUncheckedCreateWithoutTagRequestsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutTagRequestsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type ProductSubcategoryCreateNestedOneWithoutTagRequestsInput = {
+    create?: XOR<ProductSubcategoryCreateWithoutTagRequestsInput, ProductSubcategoryUncheckedCreateWithoutTagRequestsInput>
+    connectOrCreate?: ProductSubcategoryCreateOrConnectWithoutTagRequestsInput
+    connect?: ProductSubcategoryWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutTagRequestsNestedInput = {
+    create?: XOR<UserCreateWithoutTagRequestsInput, UserUncheckedCreateWithoutTagRequestsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutTagRequestsInput
+    upsert?: UserUpsertWithoutTagRequestsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutTagRequestsInput, UserUpdateWithoutTagRequestsInput>, UserUncheckedUpdateWithoutTagRequestsInput>
+  }
+
+  export type ProductSubcategoryUpdateOneRequiredWithoutTagRequestsNestedInput = {
+    create?: XOR<ProductSubcategoryCreateWithoutTagRequestsInput, ProductSubcategoryUncheckedCreateWithoutTagRequestsInput>
+    connectOrCreate?: ProductSubcategoryCreateOrConnectWithoutTagRequestsInput
+    upsert?: ProductSubcategoryUpsertWithoutTagRequestsInput
+    connect?: ProductSubcategoryWhereUniqueInput
+    update?: XOR<XOR<ProductSubcategoryUpdateToOneWithWhereWithoutTagRequestsInput, ProductSubcategoryUpdateWithoutTagRequestsInput>, ProductSubcategoryUncheckedUpdateWithoutTagRequestsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -52308,6 +60193,9 @@ export namespace Prisma {
     lastEngagementAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
+    categoryRel?: ProductCategoryCreateNestedOneWithoutVendorGiftsInput
+    subcategoryRel?: ProductSubcategoryCreateNestedOneWithoutVendorGiftsInput
+    productTags?: VendorGiftTagCreateNestedManyWithoutGiftInput
     giftImages?: VendorGiftImageCreateNestedManyWithoutGiftInput
     favorites?: FavoriteCreateNestedManyWithoutVendorGiftInput
     featuredAds?: FeaturedAdCreateNestedManyWithoutProductInput
@@ -52323,6 +60211,8 @@ export namespace Prisma {
     price: Decimal | DecimalJsLike | number | string
     description?: string | null
     imageUrl?: string | null
+    categoryId?: number | null
+    subcategoryId?: number | null
     category?: string | null
     tags?: VendorGiftCreatetagsInput | string[]
     type?: string
@@ -52337,6 +60227,7 @@ export namespace Prisma {
     lastEngagementAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
+    productTags?: VendorGiftTagUncheckedCreateNestedManyWithoutGiftInput
     giftImages?: VendorGiftImageUncheckedCreateNestedManyWithoutGiftInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutVendorGiftInput
     featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutProductInput
@@ -53169,6 +61060,35 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type TagRequestCreateWithoutVendorInput = {
+    tagName: string
+    status?: string
+    adminNotes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subcategory: ProductSubcategoryCreateNestedOneWithoutTagRequestsInput
+  }
+
+  export type TagRequestUncheckedCreateWithoutVendorInput = {
+    id?: number
+    subcategoryId: number
+    tagName: string
+    status?: string
+    adminNotes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TagRequestCreateOrConnectWithoutVendorInput = {
+    where: TagRequestWhereUniqueInput
+    create: XOR<TagRequestCreateWithoutVendorInput, TagRequestUncheckedCreateWithoutVendorInput>
+  }
+
+  export type TagRequestCreateManyVendorInputEnvelope = {
+    data: TagRequestCreateManyVendorInput | TagRequestCreateManyVendorInput[]
+    skipDuplicates?: boolean
+  }
+
   export type SessionUpsertWithWhereUniqueWithoutUserInput = {
     where: SessionWhereUniqueInput
     update: XOR<SessionUpdateWithoutUserInput, SessionUncheckedUpdateWithoutUserInput>
@@ -53393,6 +61313,8 @@ export namespace Prisma {
     price?: DecimalFilter<"VendorGift"> | Decimal | DecimalJsLike | number | string
     description?: StringNullableFilter<"VendorGift"> | string | null
     imageUrl?: StringNullableFilter<"VendorGift"> | string | null
+    categoryId?: IntNullableFilter<"VendorGift"> | number | null
+    subcategoryId?: IntNullableFilter<"VendorGift"> | number | null
     category?: StringNullableFilter<"VendorGift"> | string | null
     tags?: StringNullableListFilter<"VendorGift">
     type?: StringFilter<"VendorGift"> | string
@@ -53963,6 +61885,36 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"NotificationRead"> | Date | string
   }
 
+  export type TagRequestUpsertWithWhereUniqueWithoutVendorInput = {
+    where: TagRequestWhereUniqueInput
+    update: XOR<TagRequestUpdateWithoutVendorInput, TagRequestUncheckedUpdateWithoutVendorInput>
+    create: XOR<TagRequestCreateWithoutVendorInput, TagRequestUncheckedCreateWithoutVendorInput>
+  }
+
+  export type TagRequestUpdateWithWhereUniqueWithoutVendorInput = {
+    where: TagRequestWhereUniqueInput
+    data: XOR<TagRequestUpdateWithoutVendorInput, TagRequestUncheckedUpdateWithoutVendorInput>
+  }
+
+  export type TagRequestUpdateManyWithWhereWithoutVendorInput = {
+    where: TagRequestScalarWhereInput
+    data: XOR<TagRequestUpdateManyMutationInput, TagRequestUncheckedUpdateManyWithoutVendorInput>
+  }
+
+  export type TagRequestScalarWhereInput = {
+    AND?: TagRequestScalarWhereInput | TagRequestScalarWhereInput[]
+    OR?: TagRequestScalarWhereInput[]
+    NOT?: TagRequestScalarWhereInput | TagRequestScalarWhereInput[]
+    id?: IntFilter<"TagRequest"> | number
+    vendorId?: StringFilter<"TagRequest"> | string
+    subcategoryId?: IntFilter<"TagRequest"> | number
+    tagName?: StringFilter<"TagRequest"> | string
+    status?: StringFilter<"TagRequest"> | string
+    adminNotes?: StringNullableFilter<"TagRequest"> | string | null
+    createdAt?: DateTimeFilter<"TagRequest"> | Date | string
+    updatedAt?: DateTimeFilter<"TagRequest"> | Date | string
+  }
+
   export type UserCreateWithoutSessionsInput = {
     id?: string
     name: string
@@ -54019,6 +61971,7 @@ export namespace Prisma {
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestCreateNestedManyWithoutVendorInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -54077,6 +62030,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutVendorInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -54151,6 +62105,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -54209,6 +62164,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutVendorNestedInput
   }
 
   export type UserCreateWithoutAccountsInput = {
@@ -54267,6 +62223,7 @@ export namespace Prisma {
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestCreateNestedManyWithoutVendorInput
   }
 
   export type UserUncheckedCreateWithoutAccountsInput = {
@@ -54325,6 +62282,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutVendorInput
   }
 
   export type UserCreateOrConnectWithoutAccountsInput = {
@@ -54399,6 +62357,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -54457,6 +62416,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutVendorNestedInput
   }
 
   export type UserCreateWithoutCampaignsInput = {
@@ -54515,6 +62475,7 @@ export namespace Prisma {
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestCreateNestedManyWithoutVendorInput
   }
 
   export type UserUncheckedCreateWithoutCampaignsInput = {
@@ -54573,6 +62534,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutVendorInput
   }
 
   export type UserCreateOrConnectWithoutCampaignsInput = {
@@ -54601,6 +62563,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     vendor: UserCreateNestedOneWithoutVendorGiftsInput
+    categoryRel?: ProductCategoryCreateNestedOneWithoutVendorGiftsInput
+    subcategoryRel?: ProductSubcategoryCreateNestedOneWithoutVendorGiftsInput
+    productTags?: VendorGiftTagCreateNestedManyWithoutGiftInput
     giftImages?: VendorGiftImageCreateNestedManyWithoutGiftInput
     favorites?: FavoriteCreateNestedManyWithoutVendorGiftInput
     featuredAds?: FeaturedAdCreateNestedManyWithoutProductInput
@@ -54616,6 +62581,8 @@ export namespace Prisma {
     price: Decimal | DecimalJsLike | number | string
     description?: string | null
     imageUrl?: string | null
+    categoryId?: number | null
+    subcategoryId?: number | null
     category?: string | null
     tags?: VendorGiftCreatetagsInput | string[]
     type?: string
@@ -54630,6 +62597,7 @@ export namespace Prisma {
     lastEngagementAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
+    productTags?: VendorGiftTagUncheckedCreateNestedManyWithoutGiftInput
     giftImages?: VendorGiftImageUncheckedCreateNestedManyWithoutGiftInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutVendorGiftInput
     featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutProductInput
@@ -54698,6 +62666,7 @@ export namespace Prisma {
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestCreateNestedManyWithoutVendorInput
   }
 
   export type UserUncheckedCreateWithoutRedeemedCampaignsInput = {
@@ -54756,6 +62725,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutVendorInput
   }
 
   export type UserCreateOrConnectWithoutRedeemedCampaignsInput = {
@@ -54940,6 +62910,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCampaignsInput = {
@@ -54998,6 +62969,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutVendorNestedInput
   }
 
   export type VendorGiftUpsertWithoutCampaignsInput = {
@@ -55032,6 +63004,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     vendor?: UserUpdateOneRequiredWithoutVendorGiftsNestedInput
+    categoryRel?: ProductCategoryUpdateOneWithoutVendorGiftsNestedInput
+    subcategoryRel?: ProductSubcategoryUpdateOneWithoutVendorGiftsNestedInput
+    productTags?: VendorGiftTagUpdateManyWithoutGiftNestedInput
     giftImages?: VendorGiftImageUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUpdateManyWithoutVendorGiftNestedInput
     featuredAds?: FeaturedAdUpdateManyWithoutProductNestedInput
@@ -55047,6 +63022,8 @@ export namespace Prisma {
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    categoryId?: NullableIntFieldUpdateOperationsInput | number | null
+    subcategoryId?: NullableIntFieldUpdateOperationsInput | number | null
     category?: NullableStringFieldUpdateOperationsInput | string | null
     tags?: VendorGiftUpdatetagsInput | string[]
     type?: StringFieldUpdateOperationsInput | string
@@ -55061,6 +63038,7 @@ export namespace Prisma {
     lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    productTags?: VendorGiftTagUncheckedUpdateManyWithoutGiftNestedInput
     giftImages?: VendorGiftImageUncheckedUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutVendorGiftNestedInput
     featuredAds?: FeaturedAdUncheckedUpdateManyWithoutProductNestedInput
@@ -55135,6 +63113,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRedeemedCampaignsInput = {
@@ -55193,6 +63172,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutVendorNestedInput
   }
 
   export type ContributionUpsertWithWhereUniqueWithoutCampaignInput = {
@@ -55928,6 +63908,7 @@ export namespace Prisma {
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestCreateNestedManyWithoutVendorInput
   }
 
   export type UserUncheckedCreateWithoutDirectGiftsSentInput = {
@@ -55986,6 +63967,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutVendorInput
   }
 
   export type UserCreateOrConnectWithoutDirectGiftsSentInput = {
@@ -56014,6 +63996,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     vendor: UserCreateNestedOneWithoutVendorGiftsInput
+    categoryRel?: ProductCategoryCreateNestedOneWithoutVendorGiftsInput
+    subcategoryRel?: ProductSubcategoryCreateNestedOneWithoutVendorGiftsInput
+    productTags?: VendorGiftTagCreateNestedManyWithoutGiftInput
     giftImages?: VendorGiftImageCreateNestedManyWithoutGiftInput
     favorites?: FavoriteCreateNestedManyWithoutVendorGiftInput
     featuredAds?: FeaturedAdCreateNestedManyWithoutProductInput
@@ -56029,6 +64014,8 @@ export namespace Prisma {
     price: Decimal | DecimalJsLike | number | string
     description?: string | null
     imageUrl?: string | null
+    categoryId?: number | null
+    subcategoryId?: number | null
     category?: string | null
     tags?: VendorGiftCreatetagsInput | string[]
     type?: string
@@ -56043,6 +64030,7 @@ export namespace Prisma {
     lastEngagementAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
+    productTags?: VendorGiftTagUncheckedCreateNestedManyWithoutGiftInput
     giftImages?: VendorGiftImageUncheckedCreateNestedManyWithoutGiftInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutVendorGiftInput
     featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutProductInput
@@ -56111,6 +64099,7 @@ export namespace Prisma {
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestCreateNestedManyWithoutVendorInput
   }
 
   export type UserUncheckedCreateWithoutDirectGiftsRedeemedInput = {
@@ -56169,6 +64158,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutVendorInput
   }
 
   export type UserCreateOrConnectWithoutDirectGiftsRedeemedInput = {
@@ -56243,6 +64233,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDirectGiftsSentInput = {
@@ -56301,6 +64292,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutVendorNestedInput
   }
 
   export type VendorGiftUpsertWithoutDirectGiftsInput = {
@@ -56335,6 +64327,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     vendor?: UserUpdateOneRequiredWithoutVendorGiftsNestedInput
+    categoryRel?: ProductCategoryUpdateOneWithoutVendorGiftsNestedInput
+    subcategoryRel?: ProductSubcategoryUpdateOneWithoutVendorGiftsNestedInput
+    productTags?: VendorGiftTagUpdateManyWithoutGiftNestedInput
     giftImages?: VendorGiftImageUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUpdateManyWithoutVendorGiftNestedInput
     featuredAds?: FeaturedAdUpdateManyWithoutProductNestedInput
@@ -56350,6 +64345,8 @@ export namespace Prisma {
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    categoryId?: NullableIntFieldUpdateOperationsInput | number | null
+    subcategoryId?: NullableIntFieldUpdateOperationsInput | number | null
     category?: NullableStringFieldUpdateOperationsInput | string | null
     tags?: VendorGiftUpdatetagsInput | string[]
     type?: StringFieldUpdateOperationsInput | string
@@ -56364,6 +64361,7 @@ export namespace Prisma {
     lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    productTags?: VendorGiftTagUncheckedUpdateManyWithoutGiftNestedInput
     giftImages?: VendorGiftImageUncheckedUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutVendorGiftNestedInput
     featuredAds?: FeaturedAdUncheckedUpdateManyWithoutProductNestedInput
@@ -56438,6 +64436,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDirectGiftsRedeemedInput = {
@@ -56496,6 +64495,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutVendorNestedInput
   }
 
   export type UserCreateWithoutFeaturedAdsInput = {
@@ -56554,6 +64554,7 @@ export namespace Prisma {
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestCreateNestedManyWithoutVendorInput
   }
 
   export type UserUncheckedCreateWithoutFeaturedAdsInput = {
@@ -56612,6 +64613,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutVendorInput
   }
 
   export type UserCreateOrConnectWithoutFeaturedAdsInput = {
@@ -56640,6 +64642,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     vendor: UserCreateNestedOneWithoutVendorGiftsInput
+    categoryRel?: ProductCategoryCreateNestedOneWithoutVendorGiftsInput
+    subcategoryRel?: ProductSubcategoryCreateNestedOneWithoutVendorGiftsInput
+    productTags?: VendorGiftTagCreateNestedManyWithoutGiftInput
     giftImages?: VendorGiftImageCreateNestedManyWithoutGiftInput
     favorites?: FavoriteCreateNestedManyWithoutVendorGiftInput
     sponsoredAds?: SponsoredAdCreateNestedManyWithoutProductInput
@@ -56655,6 +64660,8 @@ export namespace Prisma {
     price: Decimal | DecimalJsLike | number | string
     description?: string | null
     imageUrl?: string | null
+    categoryId?: number | null
+    subcategoryId?: number | null
     category?: string | null
     tags?: VendorGiftCreatetagsInput | string[]
     type?: string
@@ -56669,6 +64676,7 @@ export namespace Prisma {
     lastEngagementAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
+    productTags?: VendorGiftTagUncheckedCreateNestedManyWithoutGiftInput
     giftImages?: VendorGiftImageUncheckedCreateNestedManyWithoutGiftInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutVendorGiftInput
     sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutProductInput
@@ -56791,6 +64799,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFeaturedAdsInput = {
@@ -56849,6 +64858,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutVendorNestedInput
   }
 
   export type VendorGiftUpsertWithoutFeaturedAdsInput = {
@@ -56883,6 +64893,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     vendor?: UserUpdateOneRequiredWithoutVendorGiftsNestedInput
+    categoryRel?: ProductCategoryUpdateOneWithoutVendorGiftsNestedInput
+    subcategoryRel?: ProductSubcategoryUpdateOneWithoutVendorGiftsNestedInput
+    productTags?: VendorGiftTagUpdateManyWithoutGiftNestedInput
     giftImages?: VendorGiftImageUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUpdateManyWithoutVendorGiftNestedInput
     sponsoredAds?: SponsoredAdUpdateManyWithoutProductNestedInput
@@ -56898,6 +64911,8 @@ export namespace Prisma {
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    categoryId?: NullableIntFieldUpdateOperationsInput | number | null
+    subcategoryId?: NullableIntFieldUpdateOperationsInput | number | null
     category?: NullableStringFieldUpdateOperationsInput | string | null
     tags?: VendorGiftUpdatetagsInput | string[]
     type?: StringFieldUpdateOperationsInput | string
@@ -56912,6 +64927,7 @@ export namespace Prisma {
     lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    productTags?: VendorGiftTagUncheckedUpdateManyWithoutGiftNestedInput
     giftImages?: VendorGiftImageUncheckedUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutVendorGiftNestedInput
     sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutProductNestedInput
@@ -57024,6 +65040,7 @@ export namespace Prisma {
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestCreateNestedManyWithoutVendorInput
   }
 
   export type UserUncheckedCreateWithoutSponsoredAdsInput = {
@@ -57082,6 +65099,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutVendorInput
   }
 
   export type UserCreateOrConnectWithoutSponsoredAdsInput = {
@@ -57110,6 +65128,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     vendor: UserCreateNestedOneWithoutVendorGiftsInput
+    categoryRel?: ProductCategoryCreateNestedOneWithoutVendorGiftsInput
+    subcategoryRel?: ProductSubcategoryCreateNestedOneWithoutVendorGiftsInput
+    productTags?: VendorGiftTagCreateNestedManyWithoutGiftInput
     giftImages?: VendorGiftImageCreateNestedManyWithoutGiftInput
     favorites?: FavoriteCreateNestedManyWithoutVendorGiftInput
     featuredAds?: FeaturedAdCreateNestedManyWithoutProductInput
@@ -57125,6 +65146,8 @@ export namespace Prisma {
     price: Decimal | DecimalJsLike | number | string
     description?: string | null
     imageUrl?: string | null
+    categoryId?: number | null
+    subcategoryId?: number | null
     category?: string | null
     tags?: VendorGiftCreatetagsInput | string[]
     type?: string
@@ -57139,6 +65162,7 @@ export namespace Prisma {
     lastEngagementAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
+    productTags?: VendorGiftTagUncheckedCreateNestedManyWithoutGiftInput
     giftImages?: VendorGiftImageUncheckedCreateNestedManyWithoutGiftInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutVendorGiftInput
     featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutProductInput
@@ -57261,6 +65285,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSponsoredAdsInput = {
@@ -57319,6 +65344,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutVendorNestedInput
   }
 
   export type VendorGiftUpsertWithoutSponsoredAdsInput = {
@@ -57353,6 +65379,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     vendor?: UserUpdateOneRequiredWithoutVendorGiftsNestedInput
+    categoryRel?: ProductCategoryUpdateOneWithoutVendorGiftsNestedInput
+    subcategoryRel?: ProductSubcategoryUpdateOneWithoutVendorGiftsNestedInput
+    productTags?: VendorGiftTagUpdateManyWithoutGiftNestedInput
     giftImages?: VendorGiftImageUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUpdateManyWithoutVendorGiftNestedInput
     featuredAds?: FeaturedAdUpdateManyWithoutProductNestedInput
@@ -57368,6 +65397,8 @@ export namespace Prisma {
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    categoryId?: NullableIntFieldUpdateOperationsInput | number | null
+    subcategoryId?: NullableIntFieldUpdateOperationsInput | number | null
     category?: NullableStringFieldUpdateOperationsInput | string | null
     tags?: VendorGiftUpdatetagsInput | string[]
     type?: StringFieldUpdateOperationsInput | string
@@ -57382,6 +65413,7 @@ export namespace Prisma {
     lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    productTags?: VendorGiftTagUncheckedUpdateManyWithoutGiftNestedInput
     giftImages?: VendorGiftImageUncheckedUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutVendorGiftNestedInput
     featuredAds?: FeaturedAdUncheckedUpdateManyWithoutProductNestedInput
@@ -57494,6 +65526,7 @@ export namespace Prisma {
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestCreateNestedManyWithoutVendorInput
   }
 
   export type UserUncheckedCreateWithoutAdminResolvedPromotionsInput = {
@@ -57552,6 +65585,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutVendorInput
   }
 
   export type UserCreateOrConnectWithoutAdminResolvedPromotionsInput = {
@@ -57626,6 +65660,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAdminResolvedPromotionsInput = {
@@ -57684,6 +65719,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutVendorNestedInput
   }
 
   export type UserCreateWithoutTransactionsInput = {
@@ -57742,6 +65778,7 @@ export namespace Prisma {
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestCreateNestedManyWithoutVendorInput
   }
 
   export type UserUncheckedCreateWithoutTransactionsInput = {
@@ -57800,6 +65837,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutVendorInput
   }
 
   export type UserCreateOrConnectWithoutTransactionsInput = {
@@ -58177,6 +66215,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTransactionsInput = {
@@ -58235,6 +66274,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutVendorNestedInput
   }
 
   export type CampaignUpsertWithoutTransactionsInput = {
@@ -58638,6 +66678,7 @@ export namespace Prisma {
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestCreateNestedManyWithoutVendorInput
   }
 
   export type UserUncheckedCreateWithoutBankAccountsInput = {
@@ -58696,6 +66737,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutVendorInput
   }
 
   export type UserCreateOrConnectWithoutBankAccountsInput = {
@@ -58806,6 +66848,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutBankAccountsInput = {
@@ -58864,6 +66907,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutVendorNestedInput
   }
 
   export type WithdrawalUpsertWithWhereUniqueWithoutBankAccountInput = {
@@ -58938,6 +66982,7 @@ export namespace Prisma {
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestCreateNestedManyWithoutVendorInput
   }
 
   export type UserUncheckedCreateWithoutWithdrawalsInput = {
@@ -58996,6 +67041,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutVendorInput
   }
 
   export type UserCreateOrConnectWithoutWithdrawalsInput = {
@@ -59148,6 +67194,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWithdrawalsInput = {
@@ -59206,6 +67253,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutVendorNestedInput
   }
 
   export type BankAccountUpsertWithoutWithdrawalsInput = {
@@ -59354,6 +67402,7 @@ export namespace Prisma {
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestCreateNestedManyWithoutVendorInput
   }
 
   export type UserUncheckedCreateWithoutReceivedFlexCardsInput = {
@@ -59412,6 +67461,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutVendorInput
   }
 
   export type UserCreateOrConnectWithoutReceivedFlexCardsInput = {
@@ -59475,6 +67525,7 @@ export namespace Prisma {
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestCreateNestedManyWithoutVendorInput
   }
 
   export type UserUncheckedCreateWithoutSentFlexCardsInput = {
@@ -59533,6 +67584,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutVendorInput
   }
 
   export type UserCreateOrConnectWithoutSentFlexCardsInput = {
@@ -59634,6 +67686,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutReceivedFlexCardsInput = {
@@ -59692,6 +67745,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUpsertWithoutSentFlexCardsInput = {
@@ -59761,6 +67815,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSentFlexCardsInput = {
@@ -59819,6 +67874,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutVendorNestedInput
   }
 
   export type FlexCardTransactionUpsertWithWhereUniqueWithoutFlexCardInput = {
@@ -59937,6 +67993,7 @@ export namespace Prisma {
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestCreateNestedManyWithoutVendorInput
   }
 
   export type UserUncheckedCreateWithoutFlexCardTransactionsInput = {
@@ -59995,6 +68052,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutVendorInput
   }
 
   export type UserCreateOrConnectWithoutFlexCardTransactionsInput = {
@@ -60119,6 +68177,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFlexCardTransactionsInput = {
@@ -60177,6 +68236,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutVendorNestedInput
   }
 
   export type UserCreateWithoutModerationReportsMadeInput = {
@@ -60235,6 +68295,7 @@ export namespace Prisma {
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestCreateNestedManyWithoutVendorInput
   }
 
   export type UserUncheckedCreateWithoutModerationReportsMadeInput = {
@@ -60293,6 +68354,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutVendorInput
   }
 
   export type UserCreateOrConnectWithoutModerationReportsMadeInput = {
@@ -60356,6 +68418,7 @@ export namespace Prisma {
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestCreateNestedManyWithoutVendorInput
   }
 
   export type UserUncheckedCreateWithoutModerationReportsFixedInput = {
@@ -60414,6 +68477,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutVendorInput
   }
 
   export type UserCreateOrConnectWithoutModerationReportsFixedInput = {
@@ -60488,6 +68552,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutModerationReportsMadeInput = {
@@ -60546,6 +68611,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUpsertWithoutModerationReportsFixedInput = {
@@ -60615,6 +68681,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutModerationReportsFixedInput = {
@@ -60673,6 +68740,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutVendorNestedInput
   }
 
   export type UserCreateWithoutModerationTicketsInput = {
@@ -60731,6 +68799,7 @@ export namespace Prisma {
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestCreateNestedManyWithoutVendorInput
   }
 
   export type UserUncheckedCreateWithoutModerationTicketsInput = {
@@ -60789,6 +68858,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutVendorInput
   }
 
   export type UserCreateOrConnectWithoutModerationTicketsInput = {
@@ -60852,6 +68922,7 @@ export namespace Prisma {
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestCreateNestedManyWithoutVendorInput
   }
 
   export type UserUncheckedCreateWithoutAdminResolvedTicketsInput = {
@@ -60910,6 +68981,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutVendorInput
   }
 
   export type UserCreateOrConnectWithoutAdminResolvedTicketsInput = {
@@ -60984,6 +69056,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutModerationTicketsInput = {
@@ -61042,6 +69115,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUpsertWithoutAdminResolvedTicketsInput = {
@@ -61111,6 +69185,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAdminResolvedTicketsInput = {
@@ -61169,6 +69244,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutVendorNestedInput
   }
 
   export type UserCreateWithoutAdminLogsInput = {
@@ -61227,6 +69303,7 @@ export namespace Prisma {
     directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestCreateNestedManyWithoutVendorInput
   }
 
   export type UserUncheckedCreateWithoutAdminLogsInput = {
@@ -61285,6 +69362,7 @@ export namespace Prisma {
     directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutVendorInput
   }
 
   export type UserCreateOrConnectWithoutAdminLogsInput = {
@@ -61359,6 +69437,7 @@ export namespace Prisma {
     directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAdminLogsInput = {
@@ -61417,6 +69496,7 @@ export namespace Prisma {
     directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutVendorNestedInput
   }
 
   export type UserCreateWithoutCreatorSupportReceivedInput = {
@@ -61475,6 +69555,7 @@ export namespace Prisma {
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestCreateNestedManyWithoutVendorInput
   }
 
   export type UserUncheckedCreateWithoutCreatorSupportReceivedInput = {
@@ -61533,6 +69614,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutVendorInput
   }
 
   export type UserCreateOrConnectWithoutCreatorSupportReceivedInput = {
@@ -61650,6 +69732,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCreatorSupportReceivedInput = {
@@ -61708,6 +69791,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutVendorNestedInput
   }
 
   export type TransactionUpsertWithoutCreatorSupportInput = {
@@ -61815,6 +69899,7 @@ export namespace Prisma {
     directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestCreateNestedManyWithoutVendorInput
   }
 
   export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -61873,6 +69958,7 @@ export namespace Prisma {
     directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutVendorInput
   }
 
   export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -61968,6 +70054,7 @@ export namespace Prisma {
     directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -62026,6 +70113,7 @@ export namespace Prisma {
     directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutVendorNestedInput
   }
 
   export type NotificationReadUpsertWithWhereUniqueWithoutNotificationInput = {
@@ -62132,6 +70220,7 @@ export namespace Prisma {
     directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestCreateNestedManyWithoutVendorInput
   }
 
   export type UserUncheckedCreateWithoutNotificationReadsInput = {
@@ -62190,6 +70279,7 @@ export namespace Prisma {
     directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutVendorInput
   }
 
   export type UserCreateOrConnectWithoutNotificationReadsInput = {
@@ -62302,6 +70392,7 @@ export namespace Prisma {
     directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNotificationReadsInput = {
@@ -62360,6 +70451,7 @@ export namespace Prisma {
     directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutVendorNestedInput
   }
 
   export type UserCreateWithoutVendorGiftsInput = {
@@ -62418,6 +70510,7 @@ export namespace Prisma {
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestCreateNestedManyWithoutVendorInput
   }
 
   export type UserUncheckedCreateWithoutVendorGiftsInput = {
@@ -62476,11 +70569,78 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutVendorInput
   }
 
   export type UserCreateOrConnectWithoutVendorGiftsInput = {
     where: UserWhereUniqueInput
     create: XOR<UserCreateWithoutVendorGiftsInput, UserUncheckedCreateWithoutVendorGiftsInput>
+  }
+
+  export type ProductCategoryCreateWithoutVendorGiftsInput = {
+    name: string
+    slug: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subcategories?: ProductSubcategoryCreateNestedManyWithoutCategoryInput
+  }
+
+  export type ProductCategoryUncheckedCreateWithoutVendorGiftsInput = {
+    id?: number
+    name: string
+    slug: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subcategories?: ProductSubcategoryUncheckedCreateNestedManyWithoutCategoryInput
+  }
+
+  export type ProductCategoryCreateOrConnectWithoutVendorGiftsInput = {
+    where: ProductCategoryWhereUniqueInput
+    create: XOR<ProductCategoryCreateWithoutVendorGiftsInput, ProductCategoryUncheckedCreateWithoutVendorGiftsInput>
+  }
+
+  export type ProductSubcategoryCreateWithoutVendorGiftsInput = {
+    name: string
+    slug: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    category: ProductCategoryCreateNestedOneWithoutSubcategoriesInput
+    tags?: ProductTagCreateNestedManyWithoutSubcategoryInput
+    tagRequests?: TagRequestCreateNestedManyWithoutSubcategoryInput
+  }
+
+  export type ProductSubcategoryUncheckedCreateWithoutVendorGiftsInput = {
+    id?: number
+    categoryId: number
+    name: string
+    slug: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tags?: ProductTagUncheckedCreateNestedManyWithoutSubcategoryInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutSubcategoryInput
+  }
+
+  export type ProductSubcategoryCreateOrConnectWithoutVendorGiftsInput = {
+    where: ProductSubcategoryWhereUniqueInput
+    create: XOR<ProductSubcategoryCreateWithoutVendorGiftsInput, ProductSubcategoryUncheckedCreateWithoutVendorGiftsInput>
+  }
+
+  export type VendorGiftTagCreateWithoutGiftInput = {
+    tag: ProductTagCreateNestedOneWithoutVendorGiftsInput
+  }
+
+  export type VendorGiftTagUncheckedCreateWithoutGiftInput = {
+    tagId: number
+  }
+
+  export type VendorGiftTagCreateOrConnectWithoutGiftInput = {
+    where: VendorGiftTagWhereUniqueInput
+    create: XOR<VendorGiftTagCreateWithoutGiftInput, VendorGiftTagUncheckedCreateWithoutGiftInput>
+  }
+
+  export type VendorGiftTagCreateManyGiftInputEnvelope = {
+    data: VendorGiftTagCreateManyGiftInput | VendorGiftTagCreateManyGiftInput[]
+    skipDuplicates?: boolean
   }
 
   export type VendorGiftImageCreateWithoutGiftInput = {
@@ -62856,6 +71016,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutVendorGiftsInput = {
@@ -62914,6 +71075,91 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutVendorNestedInput
+  }
+
+  export type ProductCategoryUpsertWithoutVendorGiftsInput = {
+    update: XOR<ProductCategoryUpdateWithoutVendorGiftsInput, ProductCategoryUncheckedUpdateWithoutVendorGiftsInput>
+    create: XOR<ProductCategoryCreateWithoutVendorGiftsInput, ProductCategoryUncheckedCreateWithoutVendorGiftsInput>
+    where?: ProductCategoryWhereInput
+  }
+
+  export type ProductCategoryUpdateToOneWithWhereWithoutVendorGiftsInput = {
+    where?: ProductCategoryWhereInput
+    data: XOR<ProductCategoryUpdateWithoutVendorGiftsInput, ProductCategoryUncheckedUpdateWithoutVendorGiftsInput>
+  }
+
+  export type ProductCategoryUpdateWithoutVendorGiftsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subcategories?: ProductSubcategoryUpdateManyWithoutCategoryNestedInput
+  }
+
+  export type ProductCategoryUncheckedUpdateWithoutVendorGiftsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subcategories?: ProductSubcategoryUncheckedUpdateManyWithoutCategoryNestedInput
+  }
+
+  export type ProductSubcategoryUpsertWithoutVendorGiftsInput = {
+    update: XOR<ProductSubcategoryUpdateWithoutVendorGiftsInput, ProductSubcategoryUncheckedUpdateWithoutVendorGiftsInput>
+    create: XOR<ProductSubcategoryCreateWithoutVendorGiftsInput, ProductSubcategoryUncheckedCreateWithoutVendorGiftsInput>
+    where?: ProductSubcategoryWhereInput
+  }
+
+  export type ProductSubcategoryUpdateToOneWithWhereWithoutVendorGiftsInput = {
+    where?: ProductSubcategoryWhereInput
+    data: XOR<ProductSubcategoryUpdateWithoutVendorGiftsInput, ProductSubcategoryUncheckedUpdateWithoutVendorGiftsInput>
+  }
+
+  export type ProductSubcategoryUpdateWithoutVendorGiftsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    category?: ProductCategoryUpdateOneRequiredWithoutSubcategoriesNestedInput
+    tags?: ProductTagUpdateManyWithoutSubcategoryNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutSubcategoryNestedInput
+  }
+
+  export type ProductSubcategoryUncheckedUpdateWithoutVendorGiftsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    categoryId?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tags?: ProductTagUncheckedUpdateManyWithoutSubcategoryNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutSubcategoryNestedInput
+  }
+
+  export type VendorGiftTagUpsertWithWhereUniqueWithoutGiftInput = {
+    where: VendorGiftTagWhereUniqueInput
+    update: XOR<VendorGiftTagUpdateWithoutGiftInput, VendorGiftTagUncheckedUpdateWithoutGiftInput>
+    create: XOR<VendorGiftTagCreateWithoutGiftInput, VendorGiftTagUncheckedCreateWithoutGiftInput>
+  }
+
+  export type VendorGiftTagUpdateWithWhereUniqueWithoutGiftInput = {
+    where: VendorGiftTagWhereUniqueInput
+    data: XOR<VendorGiftTagUpdateWithoutGiftInput, VendorGiftTagUncheckedUpdateWithoutGiftInput>
+  }
+
+  export type VendorGiftTagUpdateManyWithWhereWithoutGiftInput = {
+    where: VendorGiftTagScalarWhereInput
+    data: XOR<VendorGiftTagUpdateManyMutationInput, VendorGiftTagUncheckedUpdateManyWithoutGiftInput>
+  }
+
+  export type VendorGiftTagScalarWhereInput = {
+    AND?: VendorGiftTagScalarWhereInput | VendorGiftTagScalarWhereInput[]
+    OR?: VendorGiftTagScalarWhereInput[]
+    NOT?: VendorGiftTagScalarWhereInput | VendorGiftTagScalarWhereInput[]
+    giftId?: IntFilter<"VendorGiftTag"> | number
+    tagId?: IntFilter<"VendorGiftTag"> | number
   }
 
   export type VendorGiftImageUpsertWithWhereUniqueWithoutGiftInput = {
@@ -63043,6 +71289,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     vendor: UserCreateNestedOneWithoutVendorGiftsInput
+    categoryRel?: ProductCategoryCreateNestedOneWithoutVendorGiftsInput
+    subcategoryRel?: ProductSubcategoryCreateNestedOneWithoutVendorGiftsInput
+    productTags?: VendorGiftTagCreateNestedManyWithoutGiftInput
     favorites?: FavoriteCreateNestedManyWithoutVendorGiftInput
     featuredAds?: FeaturedAdCreateNestedManyWithoutProductInput
     sponsoredAds?: SponsoredAdCreateNestedManyWithoutProductInput
@@ -63058,6 +71307,8 @@ export namespace Prisma {
     price: Decimal | DecimalJsLike | number | string
     description?: string | null
     imageUrl?: string | null
+    categoryId?: number | null
+    subcategoryId?: number | null
     category?: string | null
     tags?: VendorGiftCreatetagsInput | string[]
     type?: string
@@ -63072,6 +71323,7 @@ export namespace Prisma {
     lastEngagementAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
+    productTags?: VendorGiftTagUncheckedCreateNestedManyWithoutGiftInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutVendorGiftInput
     featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutProductInput
     sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutProductInput
@@ -63116,6 +71368,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     vendor?: UserUpdateOneRequiredWithoutVendorGiftsNestedInput
+    categoryRel?: ProductCategoryUpdateOneWithoutVendorGiftsNestedInput
+    subcategoryRel?: ProductSubcategoryUpdateOneWithoutVendorGiftsNestedInput
+    productTags?: VendorGiftTagUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUpdateManyWithoutVendorGiftNestedInput
     featuredAds?: FeaturedAdUpdateManyWithoutProductNestedInput
     sponsoredAds?: SponsoredAdUpdateManyWithoutProductNestedInput
@@ -63131,6 +71386,8 @@ export namespace Prisma {
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    categoryId?: NullableIntFieldUpdateOperationsInput | number | null
+    subcategoryId?: NullableIntFieldUpdateOperationsInput | number | null
     category?: NullableStringFieldUpdateOperationsInput | string | null
     tags?: VendorGiftUpdatetagsInput | string[]
     type?: StringFieldUpdateOperationsInput | string
@@ -63145,6 +71402,7 @@ export namespace Prisma {
     lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    productTags?: VendorGiftTagUncheckedUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutVendorGiftNestedInput
     featuredAds?: FeaturedAdUncheckedUpdateManyWithoutProductNestedInput
     sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutProductNestedInput
@@ -63208,6 +71466,7 @@ export namespace Prisma {
     adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestCreateNestedManyWithoutVendorInput
   }
 
   export type UserUncheckedCreateWithoutFavoritesInput = {
@@ -63266,6 +71525,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutVendorInput
   }
 
   export type UserCreateOrConnectWithoutFavoritesInput = {
@@ -63294,6 +71554,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     vendor: UserCreateNestedOneWithoutVendorGiftsInput
+    categoryRel?: ProductCategoryCreateNestedOneWithoutVendorGiftsInput
+    subcategoryRel?: ProductSubcategoryCreateNestedOneWithoutVendorGiftsInput
+    productTags?: VendorGiftTagCreateNestedManyWithoutGiftInput
     giftImages?: VendorGiftImageCreateNestedManyWithoutGiftInput
     featuredAds?: FeaturedAdCreateNestedManyWithoutProductInput
     sponsoredAds?: SponsoredAdCreateNestedManyWithoutProductInput
@@ -63309,6 +71572,8 @@ export namespace Prisma {
     price: Decimal | DecimalJsLike | number | string
     description?: string | null
     imageUrl?: string | null
+    categoryId?: number | null
+    subcategoryId?: number | null
     category?: string | null
     tags?: VendorGiftCreatetagsInput | string[]
     type?: string
@@ -63323,6 +71588,7 @@ export namespace Prisma {
     lastEngagementAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
+    productTags?: VendorGiftTagUncheckedCreateNestedManyWithoutGiftInput
     giftImages?: VendorGiftImageUncheckedCreateNestedManyWithoutGiftInput
     featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutProductInput
     sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutProductInput
@@ -63402,6 +71668,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutVendorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFavoritesInput = {
@@ -63460,6 +71727,7 @@ export namespace Prisma {
     adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutVendorNestedInput
   }
 
   export type VendorGiftUpsertWithoutFavoritesInput = {
@@ -63494,6 +71762,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     vendor?: UserUpdateOneRequiredWithoutVendorGiftsNestedInput
+    categoryRel?: ProductCategoryUpdateOneWithoutVendorGiftsNestedInput
+    subcategoryRel?: ProductSubcategoryUpdateOneWithoutVendorGiftsNestedInput
+    productTags?: VendorGiftTagUpdateManyWithoutGiftNestedInput
     giftImages?: VendorGiftImageUpdateManyWithoutGiftNestedInput
     featuredAds?: FeaturedAdUpdateManyWithoutProductNestedInput
     sponsoredAds?: SponsoredAdUpdateManyWithoutProductNestedInput
@@ -63504,6 +71775,616 @@ export namespace Prisma {
   export type VendorGiftUncheckedUpdateWithoutFavoritesInput = {
     id?: IntFieldUpdateOperationsInput | number
     vendorId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    categoryId?: NullableIntFieldUpdateOperationsInput | number | null
+    subcategoryId?: NullableIntFieldUpdateOperationsInput | number | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: VendorGiftUpdatetagsInput | string[]
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
+    unitsSold?: IntFieldUpdateOperationsInput | number
+    images?: VendorGiftUpdateimagesInput | string[]
+    viewsCount?: IntFieldUpdateOperationsInput | number
+    clicksCount?: IntFieldUpdateOperationsInput | number
+    salesCount?: IntFieldUpdateOperationsInput | number
+    rankingScore?: FloatFieldUpdateOperationsInput | number
+    lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    productTags?: VendorGiftTagUncheckedUpdateManyWithoutGiftNestedInput
+    giftImages?: VendorGiftImageUncheckedUpdateManyWithoutGiftNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutProductNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutProductNestedInput
+    campaigns?: CampaignUncheckedUpdateManyWithoutProductNestedInput
+    directGifts?: DirectGiftUncheckedUpdateManyWithoutProductNestedInput
+  }
+
+  export type ProductSubcategoryCreateWithoutCategoryInput = {
+    name: string
+    slug: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tags?: ProductTagCreateNestedManyWithoutSubcategoryInput
+    vendorGifts?: VendorGiftCreateNestedManyWithoutSubcategoryRelInput
+    tagRequests?: TagRequestCreateNestedManyWithoutSubcategoryInput
+  }
+
+  export type ProductSubcategoryUncheckedCreateWithoutCategoryInput = {
+    id?: number
+    name: string
+    slug: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tags?: ProductTagUncheckedCreateNestedManyWithoutSubcategoryInput
+    vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutSubcategoryRelInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutSubcategoryInput
+  }
+
+  export type ProductSubcategoryCreateOrConnectWithoutCategoryInput = {
+    where: ProductSubcategoryWhereUniqueInput
+    create: XOR<ProductSubcategoryCreateWithoutCategoryInput, ProductSubcategoryUncheckedCreateWithoutCategoryInput>
+  }
+
+  export type ProductSubcategoryCreateManyCategoryInputEnvelope = {
+    data: ProductSubcategoryCreateManyCategoryInput | ProductSubcategoryCreateManyCategoryInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type VendorGiftCreateWithoutCategoryRelInput = {
+    name: string
+    slug?: string | null
+    price: Decimal | DecimalJsLike | number | string
+    description?: string | null
+    imageUrl?: string | null
+    category?: string | null
+    tags?: VendorGiftCreatetagsInput | string[]
+    type?: string
+    status?: string
+    stockQuantity?: number | null
+    unitsSold?: number
+    images?: VendorGiftCreateimagesInput | string[]
+    viewsCount?: number
+    clicksCount?: number
+    salesCount?: number
+    rankingScore?: number
+    lastEngagementAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    vendor: UserCreateNestedOneWithoutVendorGiftsInput
+    subcategoryRel?: ProductSubcategoryCreateNestedOneWithoutVendorGiftsInput
+    productTags?: VendorGiftTagCreateNestedManyWithoutGiftInput
+    giftImages?: VendorGiftImageCreateNestedManyWithoutGiftInput
+    favorites?: FavoriteCreateNestedManyWithoutVendorGiftInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutProductInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutProductInput
+    campaigns?: CampaignCreateNestedManyWithoutProductInput
+    directGifts?: DirectGiftCreateNestedManyWithoutProductInput
+  }
+
+  export type VendorGiftUncheckedCreateWithoutCategoryRelInput = {
+    id?: number
+    vendorId: string
+    name: string
+    slug?: string | null
+    price: Decimal | DecimalJsLike | number | string
+    description?: string | null
+    imageUrl?: string | null
+    subcategoryId?: number | null
+    category?: string | null
+    tags?: VendorGiftCreatetagsInput | string[]
+    type?: string
+    status?: string
+    stockQuantity?: number | null
+    unitsSold?: number
+    images?: VendorGiftCreateimagesInput | string[]
+    viewsCount?: number
+    clicksCount?: number
+    salesCount?: number
+    rankingScore?: number
+    lastEngagementAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    productTags?: VendorGiftTagUncheckedCreateNestedManyWithoutGiftInput
+    giftImages?: VendorGiftImageUncheckedCreateNestedManyWithoutGiftInput
+    favorites?: FavoriteUncheckedCreateNestedManyWithoutVendorGiftInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutProductInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutProductInput
+    campaigns?: CampaignUncheckedCreateNestedManyWithoutProductInput
+    directGifts?: DirectGiftUncheckedCreateNestedManyWithoutProductInput
+  }
+
+  export type VendorGiftCreateOrConnectWithoutCategoryRelInput = {
+    where: VendorGiftWhereUniqueInput
+    create: XOR<VendorGiftCreateWithoutCategoryRelInput, VendorGiftUncheckedCreateWithoutCategoryRelInput>
+  }
+
+  export type VendorGiftCreateManyCategoryRelInputEnvelope = {
+    data: VendorGiftCreateManyCategoryRelInput | VendorGiftCreateManyCategoryRelInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ProductSubcategoryUpsertWithWhereUniqueWithoutCategoryInput = {
+    where: ProductSubcategoryWhereUniqueInput
+    update: XOR<ProductSubcategoryUpdateWithoutCategoryInput, ProductSubcategoryUncheckedUpdateWithoutCategoryInput>
+    create: XOR<ProductSubcategoryCreateWithoutCategoryInput, ProductSubcategoryUncheckedCreateWithoutCategoryInput>
+  }
+
+  export type ProductSubcategoryUpdateWithWhereUniqueWithoutCategoryInput = {
+    where: ProductSubcategoryWhereUniqueInput
+    data: XOR<ProductSubcategoryUpdateWithoutCategoryInput, ProductSubcategoryUncheckedUpdateWithoutCategoryInput>
+  }
+
+  export type ProductSubcategoryUpdateManyWithWhereWithoutCategoryInput = {
+    where: ProductSubcategoryScalarWhereInput
+    data: XOR<ProductSubcategoryUpdateManyMutationInput, ProductSubcategoryUncheckedUpdateManyWithoutCategoryInput>
+  }
+
+  export type ProductSubcategoryScalarWhereInput = {
+    AND?: ProductSubcategoryScalarWhereInput | ProductSubcategoryScalarWhereInput[]
+    OR?: ProductSubcategoryScalarWhereInput[]
+    NOT?: ProductSubcategoryScalarWhereInput | ProductSubcategoryScalarWhereInput[]
+    id?: IntFilter<"ProductSubcategory"> | number
+    categoryId?: IntFilter<"ProductSubcategory"> | number
+    name?: StringFilter<"ProductSubcategory"> | string
+    slug?: StringFilter<"ProductSubcategory"> | string
+    createdAt?: DateTimeFilter<"ProductSubcategory"> | Date | string
+    updatedAt?: DateTimeFilter<"ProductSubcategory"> | Date | string
+  }
+
+  export type VendorGiftUpsertWithWhereUniqueWithoutCategoryRelInput = {
+    where: VendorGiftWhereUniqueInput
+    update: XOR<VendorGiftUpdateWithoutCategoryRelInput, VendorGiftUncheckedUpdateWithoutCategoryRelInput>
+    create: XOR<VendorGiftCreateWithoutCategoryRelInput, VendorGiftUncheckedCreateWithoutCategoryRelInput>
+  }
+
+  export type VendorGiftUpdateWithWhereUniqueWithoutCategoryRelInput = {
+    where: VendorGiftWhereUniqueInput
+    data: XOR<VendorGiftUpdateWithoutCategoryRelInput, VendorGiftUncheckedUpdateWithoutCategoryRelInput>
+  }
+
+  export type VendorGiftUpdateManyWithWhereWithoutCategoryRelInput = {
+    where: VendorGiftScalarWhereInput
+    data: XOR<VendorGiftUpdateManyMutationInput, VendorGiftUncheckedUpdateManyWithoutCategoryRelInput>
+  }
+
+  export type ProductCategoryCreateWithoutSubcategoriesInput = {
+    name: string
+    slug: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    vendorGifts?: VendorGiftCreateNestedManyWithoutCategoryRelInput
+  }
+
+  export type ProductCategoryUncheckedCreateWithoutSubcategoriesInput = {
+    id?: number
+    name: string
+    slug: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutCategoryRelInput
+  }
+
+  export type ProductCategoryCreateOrConnectWithoutSubcategoriesInput = {
+    where: ProductCategoryWhereUniqueInput
+    create: XOR<ProductCategoryCreateWithoutSubcategoriesInput, ProductCategoryUncheckedCreateWithoutSubcategoriesInput>
+  }
+
+  export type ProductTagCreateWithoutSubcategoryInput = {
+    name: string
+    slug: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    vendorGifts?: VendorGiftTagCreateNestedManyWithoutTagInput
+  }
+
+  export type ProductTagUncheckedCreateWithoutSubcategoryInput = {
+    id?: number
+    name: string
+    slug: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    vendorGifts?: VendorGiftTagUncheckedCreateNestedManyWithoutTagInput
+  }
+
+  export type ProductTagCreateOrConnectWithoutSubcategoryInput = {
+    where: ProductTagWhereUniqueInput
+    create: XOR<ProductTagCreateWithoutSubcategoryInput, ProductTagUncheckedCreateWithoutSubcategoryInput>
+  }
+
+  export type ProductTagCreateManySubcategoryInputEnvelope = {
+    data: ProductTagCreateManySubcategoryInput | ProductTagCreateManySubcategoryInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type VendorGiftCreateWithoutSubcategoryRelInput = {
+    name: string
+    slug?: string | null
+    price: Decimal | DecimalJsLike | number | string
+    description?: string | null
+    imageUrl?: string | null
+    category?: string | null
+    tags?: VendorGiftCreatetagsInput | string[]
+    type?: string
+    status?: string
+    stockQuantity?: number | null
+    unitsSold?: number
+    images?: VendorGiftCreateimagesInput | string[]
+    viewsCount?: number
+    clicksCount?: number
+    salesCount?: number
+    rankingScore?: number
+    lastEngagementAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    vendor: UserCreateNestedOneWithoutVendorGiftsInput
+    categoryRel?: ProductCategoryCreateNestedOneWithoutVendorGiftsInput
+    productTags?: VendorGiftTagCreateNestedManyWithoutGiftInput
+    giftImages?: VendorGiftImageCreateNestedManyWithoutGiftInput
+    favorites?: FavoriteCreateNestedManyWithoutVendorGiftInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutProductInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutProductInput
+    campaigns?: CampaignCreateNestedManyWithoutProductInput
+    directGifts?: DirectGiftCreateNestedManyWithoutProductInput
+  }
+
+  export type VendorGiftUncheckedCreateWithoutSubcategoryRelInput = {
+    id?: number
+    vendorId: string
+    name: string
+    slug?: string | null
+    price: Decimal | DecimalJsLike | number | string
+    description?: string | null
+    imageUrl?: string | null
+    categoryId?: number | null
+    category?: string | null
+    tags?: VendorGiftCreatetagsInput | string[]
+    type?: string
+    status?: string
+    stockQuantity?: number | null
+    unitsSold?: number
+    images?: VendorGiftCreateimagesInput | string[]
+    viewsCount?: number
+    clicksCount?: number
+    salesCount?: number
+    rankingScore?: number
+    lastEngagementAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    productTags?: VendorGiftTagUncheckedCreateNestedManyWithoutGiftInput
+    giftImages?: VendorGiftImageUncheckedCreateNestedManyWithoutGiftInput
+    favorites?: FavoriteUncheckedCreateNestedManyWithoutVendorGiftInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutProductInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutProductInput
+    campaigns?: CampaignUncheckedCreateNestedManyWithoutProductInput
+    directGifts?: DirectGiftUncheckedCreateNestedManyWithoutProductInput
+  }
+
+  export type VendorGiftCreateOrConnectWithoutSubcategoryRelInput = {
+    where: VendorGiftWhereUniqueInput
+    create: XOR<VendorGiftCreateWithoutSubcategoryRelInput, VendorGiftUncheckedCreateWithoutSubcategoryRelInput>
+  }
+
+  export type VendorGiftCreateManySubcategoryRelInputEnvelope = {
+    data: VendorGiftCreateManySubcategoryRelInput | VendorGiftCreateManySubcategoryRelInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TagRequestCreateWithoutSubcategoryInput = {
+    tagName: string
+    status?: string
+    adminNotes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    vendor: UserCreateNestedOneWithoutTagRequestsInput
+  }
+
+  export type TagRequestUncheckedCreateWithoutSubcategoryInput = {
+    id?: number
+    vendorId: string
+    tagName: string
+    status?: string
+    adminNotes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TagRequestCreateOrConnectWithoutSubcategoryInput = {
+    where: TagRequestWhereUniqueInput
+    create: XOR<TagRequestCreateWithoutSubcategoryInput, TagRequestUncheckedCreateWithoutSubcategoryInput>
+  }
+
+  export type TagRequestCreateManySubcategoryInputEnvelope = {
+    data: TagRequestCreateManySubcategoryInput | TagRequestCreateManySubcategoryInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ProductCategoryUpsertWithoutSubcategoriesInput = {
+    update: XOR<ProductCategoryUpdateWithoutSubcategoriesInput, ProductCategoryUncheckedUpdateWithoutSubcategoriesInput>
+    create: XOR<ProductCategoryCreateWithoutSubcategoriesInput, ProductCategoryUncheckedCreateWithoutSubcategoriesInput>
+    where?: ProductCategoryWhereInput
+  }
+
+  export type ProductCategoryUpdateToOneWithWhereWithoutSubcategoriesInput = {
+    where?: ProductCategoryWhereInput
+    data: XOR<ProductCategoryUpdateWithoutSubcategoriesInput, ProductCategoryUncheckedUpdateWithoutSubcategoriesInput>
+  }
+
+  export type ProductCategoryUpdateWithoutSubcategoriesInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    vendorGifts?: VendorGiftUpdateManyWithoutCategoryRelNestedInput
+  }
+
+  export type ProductCategoryUncheckedUpdateWithoutSubcategoriesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    vendorGifts?: VendorGiftUncheckedUpdateManyWithoutCategoryRelNestedInput
+  }
+
+  export type ProductTagUpsertWithWhereUniqueWithoutSubcategoryInput = {
+    where: ProductTagWhereUniqueInput
+    update: XOR<ProductTagUpdateWithoutSubcategoryInput, ProductTagUncheckedUpdateWithoutSubcategoryInput>
+    create: XOR<ProductTagCreateWithoutSubcategoryInput, ProductTagUncheckedCreateWithoutSubcategoryInput>
+  }
+
+  export type ProductTagUpdateWithWhereUniqueWithoutSubcategoryInput = {
+    where: ProductTagWhereUniqueInput
+    data: XOR<ProductTagUpdateWithoutSubcategoryInput, ProductTagUncheckedUpdateWithoutSubcategoryInput>
+  }
+
+  export type ProductTagUpdateManyWithWhereWithoutSubcategoryInput = {
+    where: ProductTagScalarWhereInput
+    data: XOR<ProductTagUpdateManyMutationInput, ProductTagUncheckedUpdateManyWithoutSubcategoryInput>
+  }
+
+  export type ProductTagScalarWhereInput = {
+    AND?: ProductTagScalarWhereInput | ProductTagScalarWhereInput[]
+    OR?: ProductTagScalarWhereInput[]
+    NOT?: ProductTagScalarWhereInput | ProductTagScalarWhereInput[]
+    id?: IntFilter<"ProductTag"> | number
+    subcategoryId?: IntFilter<"ProductTag"> | number
+    name?: StringFilter<"ProductTag"> | string
+    slug?: StringFilter<"ProductTag"> | string
+    createdAt?: DateTimeFilter<"ProductTag"> | Date | string
+    updatedAt?: DateTimeFilter<"ProductTag"> | Date | string
+  }
+
+  export type VendorGiftUpsertWithWhereUniqueWithoutSubcategoryRelInput = {
+    where: VendorGiftWhereUniqueInput
+    update: XOR<VendorGiftUpdateWithoutSubcategoryRelInput, VendorGiftUncheckedUpdateWithoutSubcategoryRelInput>
+    create: XOR<VendorGiftCreateWithoutSubcategoryRelInput, VendorGiftUncheckedCreateWithoutSubcategoryRelInput>
+  }
+
+  export type VendorGiftUpdateWithWhereUniqueWithoutSubcategoryRelInput = {
+    where: VendorGiftWhereUniqueInput
+    data: XOR<VendorGiftUpdateWithoutSubcategoryRelInput, VendorGiftUncheckedUpdateWithoutSubcategoryRelInput>
+  }
+
+  export type VendorGiftUpdateManyWithWhereWithoutSubcategoryRelInput = {
+    where: VendorGiftScalarWhereInput
+    data: XOR<VendorGiftUpdateManyMutationInput, VendorGiftUncheckedUpdateManyWithoutSubcategoryRelInput>
+  }
+
+  export type TagRequestUpsertWithWhereUniqueWithoutSubcategoryInput = {
+    where: TagRequestWhereUniqueInput
+    update: XOR<TagRequestUpdateWithoutSubcategoryInput, TagRequestUncheckedUpdateWithoutSubcategoryInput>
+    create: XOR<TagRequestCreateWithoutSubcategoryInput, TagRequestUncheckedCreateWithoutSubcategoryInput>
+  }
+
+  export type TagRequestUpdateWithWhereUniqueWithoutSubcategoryInput = {
+    where: TagRequestWhereUniqueInput
+    data: XOR<TagRequestUpdateWithoutSubcategoryInput, TagRequestUncheckedUpdateWithoutSubcategoryInput>
+  }
+
+  export type TagRequestUpdateManyWithWhereWithoutSubcategoryInput = {
+    where: TagRequestScalarWhereInput
+    data: XOR<TagRequestUpdateManyMutationInput, TagRequestUncheckedUpdateManyWithoutSubcategoryInput>
+  }
+
+  export type ProductSubcategoryCreateWithoutTagsInput = {
+    name: string
+    slug: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    category: ProductCategoryCreateNestedOneWithoutSubcategoriesInput
+    vendorGifts?: VendorGiftCreateNestedManyWithoutSubcategoryRelInput
+    tagRequests?: TagRequestCreateNestedManyWithoutSubcategoryInput
+  }
+
+  export type ProductSubcategoryUncheckedCreateWithoutTagsInput = {
+    id?: number
+    categoryId: number
+    name: string
+    slug: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutSubcategoryRelInput
+    tagRequests?: TagRequestUncheckedCreateNestedManyWithoutSubcategoryInput
+  }
+
+  export type ProductSubcategoryCreateOrConnectWithoutTagsInput = {
+    where: ProductSubcategoryWhereUniqueInput
+    create: XOR<ProductSubcategoryCreateWithoutTagsInput, ProductSubcategoryUncheckedCreateWithoutTagsInput>
+  }
+
+  export type VendorGiftTagCreateWithoutTagInput = {
+    gift: VendorGiftCreateNestedOneWithoutProductTagsInput
+  }
+
+  export type VendorGiftTagUncheckedCreateWithoutTagInput = {
+    giftId: number
+  }
+
+  export type VendorGiftTagCreateOrConnectWithoutTagInput = {
+    where: VendorGiftTagWhereUniqueInput
+    create: XOR<VendorGiftTagCreateWithoutTagInput, VendorGiftTagUncheckedCreateWithoutTagInput>
+  }
+
+  export type VendorGiftTagCreateManyTagInputEnvelope = {
+    data: VendorGiftTagCreateManyTagInput | VendorGiftTagCreateManyTagInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ProductSubcategoryUpsertWithoutTagsInput = {
+    update: XOR<ProductSubcategoryUpdateWithoutTagsInput, ProductSubcategoryUncheckedUpdateWithoutTagsInput>
+    create: XOR<ProductSubcategoryCreateWithoutTagsInput, ProductSubcategoryUncheckedCreateWithoutTagsInput>
+    where?: ProductSubcategoryWhereInput
+  }
+
+  export type ProductSubcategoryUpdateToOneWithWhereWithoutTagsInput = {
+    where?: ProductSubcategoryWhereInput
+    data: XOR<ProductSubcategoryUpdateWithoutTagsInput, ProductSubcategoryUncheckedUpdateWithoutTagsInput>
+  }
+
+  export type ProductSubcategoryUpdateWithoutTagsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    category?: ProductCategoryUpdateOneRequiredWithoutSubcategoriesNestedInput
+    vendorGifts?: VendorGiftUpdateManyWithoutSubcategoryRelNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutSubcategoryNestedInput
+  }
+
+  export type ProductSubcategoryUncheckedUpdateWithoutTagsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    categoryId?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    vendorGifts?: VendorGiftUncheckedUpdateManyWithoutSubcategoryRelNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutSubcategoryNestedInput
+  }
+
+  export type VendorGiftTagUpsertWithWhereUniqueWithoutTagInput = {
+    where: VendorGiftTagWhereUniqueInput
+    update: XOR<VendorGiftTagUpdateWithoutTagInput, VendorGiftTagUncheckedUpdateWithoutTagInput>
+    create: XOR<VendorGiftTagCreateWithoutTagInput, VendorGiftTagUncheckedCreateWithoutTagInput>
+  }
+
+  export type VendorGiftTagUpdateWithWhereUniqueWithoutTagInput = {
+    where: VendorGiftTagWhereUniqueInput
+    data: XOR<VendorGiftTagUpdateWithoutTagInput, VendorGiftTagUncheckedUpdateWithoutTagInput>
+  }
+
+  export type VendorGiftTagUpdateManyWithWhereWithoutTagInput = {
+    where: VendorGiftTagScalarWhereInput
+    data: XOR<VendorGiftTagUpdateManyMutationInput, VendorGiftTagUncheckedUpdateManyWithoutTagInput>
+  }
+
+  export type VendorGiftCreateWithoutProductTagsInput = {
+    name: string
+    slug?: string | null
+    price: Decimal | DecimalJsLike | number | string
+    description?: string | null
+    imageUrl?: string | null
+    category?: string | null
+    tags?: VendorGiftCreatetagsInput | string[]
+    type?: string
+    status?: string
+    stockQuantity?: number | null
+    unitsSold?: number
+    images?: VendorGiftCreateimagesInput | string[]
+    viewsCount?: number
+    clicksCount?: number
+    salesCount?: number
+    rankingScore?: number
+    lastEngagementAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    vendor: UserCreateNestedOneWithoutVendorGiftsInput
+    categoryRel?: ProductCategoryCreateNestedOneWithoutVendorGiftsInput
+    subcategoryRel?: ProductSubcategoryCreateNestedOneWithoutVendorGiftsInput
+    giftImages?: VendorGiftImageCreateNestedManyWithoutGiftInput
+    favorites?: FavoriteCreateNestedManyWithoutVendorGiftInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutProductInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutProductInput
+    campaigns?: CampaignCreateNestedManyWithoutProductInput
+    directGifts?: DirectGiftCreateNestedManyWithoutProductInput
+  }
+
+  export type VendorGiftUncheckedCreateWithoutProductTagsInput = {
+    id?: number
+    vendorId: string
+    name: string
+    slug?: string | null
+    price: Decimal | DecimalJsLike | number | string
+    description?: string | null
+    imageUrl?: string | null
+    categoryId?: number | null
+    subcategoryId?: number | null
+    category?: string | null
+    tags?: VendorGiftCreatetagsInput | string[]
+    type?: string
+    status?: string
+    stockQuantity?: number | null
+    unitsSold?: number
+    images?: VendorGiftCreateimagesInput | string[]
+    viewsCount?: number
+    clicksCount?: number
+    salesCount?: number
+    rankingScore?: number
+    lastEngagementAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    giftImages?: VendorGiftImageUncheckedCreateNestedManyWithoutGiftInput
+    favorites?: FavoriteUncheckedCreateNestedManyWithoutVendorGiftInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutProductInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutProductInput
+    campaigns?: CampaignUncheckedCreateNestedManyWithoutProductInput
+    directGifts?: DirectGiftUncheckedCreateNestedManyWithoutProductInput
+  }
+
+  export type VendorGiftCreateOrConnectWithoutProductTagsInput = {
+    where: VendorGiftWhereUniqueInput
+    create: XOR<VendorGiftCreateWithoutProductTagsInput, VendorGiftUncheckedCreateWithoutProductTagsInput>
+  }
+
+  export type ProductTagCreateWithoutVendorGiftsInput = {
+    name: string
+    slug: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subcategory: ProductSubcategoryCreateNestedOneWithoutTagsInput
+  }
+
+  export type ProductTagUncheckedCreateWithoutVendorGiftsInput = {
+    id?: number
+    subcategoryId: number
+    name: string
+    slug: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProductTagCreateOrConnectWithoutVendorGiftsInput = {
+    where: ProductTagWhereUniqueInput
+    create: XOR<ProductTagCreateWithoutVendorGiftsInput, ProductTagUncheckedCreateWithoutVendorGiftsInput>
+  }
+
+  export type VendorGiftUpsertWithoutProductTagsInput = {
+    update: XOR<VendorGiftUpdateWithoutProductTagsInput, VendorGiftUncheckedUpdateWithoutProductTagsInput>
+    create: XOR<VendorGiftCreateWithoutProductTagsInput, VendorGiftUncheckedCreateWithoutProductTagsInput>
+    where?: VendorGiftWhereInput
+  }
+
+  export type VendorGiftUpdateToOneWithWhereWithoutProductTagsInput = {
+    where?: VendorGiftWhereInput
+    data: XOR<VendorGiftUpdateWithoutProductTagsInput, VendorGiftUncheckedUpdateWithoutProductTagsInput>
+  }
+
+  export type VendorGiftUpdateWithoutProductTagsInput = {
     name?: StringFieldUpdateOperationsInput | string
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -63523,11 +72404,385 @@ export namespace Prisma {
     lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    vendor?: UserUpdateOneRequiredWithoutVendorGiftsNestedInput
+    categoryRel?: ProductCategoryUpdateOneWithoutVendorGiftsNestedInput
+    subcategoryRel?: ProductSubcategoryUpdateOneWithoutVendorGiftsNestedInput
+    giftImages?: VendorGiftImageUpdateManyWithoutGiftNestedInput
+    favorites?: FavoriteUpdateManyWithoutVendorGiftNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutProductNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutProductNestedInput
+    campaigns?: CampaignUpdateManyWithoutProductNestedInput
+    directGifts?: DirectGiftUpdateManyWithoutProductNestedInput
+  }
+
+  export type VendorGiftUncheckedUpdateWithoutProductTagsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    vendorId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    categoryId?: NullableIntFieldUpdateOperationsInput | number | null
+    subcategoryId?: NullableIntFieldUpdateOperationsInput | number | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: VendorGiftUpdatetagsInput | string[]
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
+    unitsSold?: IntFieldUpdateOperationsInput | number
+    images?: VendorGiftUpdateimagesInput | string[]
+    viewsCount?: IntFieldUpdateOperationsInput | number
+    clicksCount?: IntFieldUpdateOperationsInput | number
+    salesCount?: IntFieldUpdateOperationsInput | number
+    rankingScore?: FloatFieldUpdateOperationsInput | number
+    lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     giftImages?: VendorGiftImageUncheckedUpdateManyWithoutGiftNestedInput
+    favorites?: FavoriteUncheckedUpdateManyWithoutVendorGiftNestedInput
     featuredAds?: FeaturedAdUncheckedUpdateManyWithoutProductNestedInput
     sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutProductNestedInput
     campaigns?: CampaignUncheckedUpdateManyWithoutProductNestedInput
     directGifts?: DirectGiftUncheckedUpdateManyWithoutProductNestedInput
+  }
+
+  export type ProductTagUpsertWithoutVendorGiftsInput = {
+    update: XOR<ProductTagUpdateWithoutVendorGiftsInput, ProductTagUncheckedUpdateWithoutVendorGiftsInput>
+    create: XOR<ProductTagCreateWithoutVendorGiftsInput, ProductTagUncheckedCreateWithoutVendorGiftsInput>
+    where?: ProductTagWhereInput
+  }
+
+  export type ProductTagUpdateToOneWithWhereWithoutVendorGiftsInput = {
+    where?: ProductTagWhereInput
+    data: XOR<ProductTagUpdateWithoutVendorGiftsInput, ProductTagUncheckedUpdateWithoutVendorGiftsInput>
+  }
+
+  export type ProductTagUpdateWithoutVendorGiftsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subcategory?: ProductSubcategoryUpdateOneRequiredWithoutTagsNestedInput
+  }
+
+  export type ProductTagUncheckedUpdateWithoutVendorGiftsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    subcategoryId?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserCreateWithoutTagRequestsInput = {
+    id?: string
+    name: string
+    email: string
+    emailVerified?: boolean
+    image?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    username?: string | null
+    displayName?: string | null
+    avatarUrl?: string | null
+    bio?: string | null
+    isCreator?: boolean
+    suggestedAmounts?: UserCreatesuggestedAmountsInput | number[]
+    socialLinks?: NullableJsonNullValueInput | InputJsonValue
+    themeSettings?: NullableJsonNullValueInput | InputJsonValue
+    country?: string | null
+    roles?: UserCreaterolesInput | $Enums.UserRole[]
+    adminRole?: $Enums.AdminRole | null
+    platformBalance?: bigint | number
+    status?: string
+    walletStatus?: string
+    suspensionEnd?: Date | string | null
+    shopName?: string | null
+    shopDescription?: string | null
+    shopAddress?: string | null
+    shopSlug?: string | null
+    shopLogoUrl?: string | null
+    bannerUrl?: string | null
+    isVerifiedVendor?: boolean
+    vendorStatus?: string
+    vendorCategories?: UserCreatevendorCategoriesInput | string[]
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    campaigns?: CampaignCreateNestedManyWithoutUserInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutUserInput
+    transactions?: TransactionCreateNestedManyWithoutUserInput
+    vendorGifts?: VendorGiftCreateNestedManyWithoutVendorInput
+    favorites?: FavoriteCreateNestedManyWithoutUserInput
+    featuredAds?: FeaturedAdCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdCreateNestedManyWithoutVendorInput
+    sentFlexCards?: FlexCardCreateNestedManyWithoutSenderInput
+    receivedFlexCards?: FlexCardCreateNestedManyWithoutRecipientInput
+    moderationReportsMade?: ModerationReportCreateNestedManyWithoutReporterInput
+    moderationReportsFixed?: ModerationReportCreateNestedManyWithoutResolverInput
+    moderationTickets?: ModerationTicketCreateNestedManyWithoutReporterInput
+    adminResolvedTickets?: ModerationTicketCreateNestedManyWithoutResolverInput
+    flexCardTransactions?: FlexCardTransactionCreateNestedManyWithoutVendorInput
+    redeemedCampaigns?: CampaignCreateNestedManyWithoutRedeemedByVendorInput
+    creatorSupportReceived?: CreatorSupportCreateNestedManyWithoutUserInput
+    adminResolvedPromotions?: ExternalPromotionCreateNestedManyWithoutAdminInput
+    withdrawals?: WithdrawalCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftCreateNestedManyWithoutRedeemedByVendorInput
+    adminLogs?: AdminLogCreateNestedManyWithoutAdminInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    notificationReads?: NotificationReadCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutTagRequestsInput = {
+    id?: string
+    name: string
+    email: string
+    emailVerified?: boolean
+    image?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    username?: string | null
+    displayName?: string | null
+    avatarUrl?: string | null
+    bio?: string | null
+    isCreator?: boolean
+    suggestedAmounts?: UserCreatesuggestedAmountsInput | number[]
+    socialLinks?: NullableJsonNullValueInput | InputJsonValue
+    themeSettings?: NullableJsonNullValueInput | InputJsonValue
+    country?: string | null
+    roles?: UserCreaterolesInput | $Enums.UserRole[]
+    adminRole?: $Enums.AdminRole | null
+    platformBalance?: bigint | number
+    status?: string
+    walletStatus?: string
+    suspensionEnd?: Date | string | null
+    shopName?: string | null
+    shopDescription?: string | null
+    shopAddress?: string | null
+    shopSlug?: string | null
+    shopLogoUrl?: string | null
+    bannerUrl?: string | null
+    isVerifiedVendor?: boolean
+    vendorStatus?: string
+    vendorCategories?: UserCreatevendorCategoriesInput | string[]
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    campaigns?: CampaignUncheckedCreateNestedManyWithoutUserInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutUserInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
+    vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutVendorInput
+    favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
+    featuredAds?: FeaturedAdUncheckedCreateNestedManyWithoutVendorInput
+    sponsoredAds?: SponsoredAdUncheckedCreateNestedManyWithoutVendorInput
+    sentFlexCards?: FlexCardUncheckedCreateNestedManyWithoutSenderInput
+    receivedFlexCards?: FlexCardUncheckedCreateNestedManyWithoutRecipientInput
+    moderationReportsMade?: ModerationReportUncheckedCreateNestedManyWithoutReporterInput
+    moderationReportsFixed?: ModerationReportUncheckedCreateNestedManyWithoutResolverInput
+    moderationTickets?: ModerationTicketUncheckedCreateNestedManyWithoutReporterInput
+    adminResolvedTickets?: ModerationTicketUncheckedCreateNestedManyWithoutResolverInput
+    flexCardTransactions?: FlexCardTransactionUncheckedCreateNestedManyWithoutVendorInput
+    redeemedCampaigns?: CampaignUncheckedCreateNestedManyWithoutRedeemedByVendorInput
+    creatorSupportReceived?: CreatorSupportUncheckedCreateNestedManyWithoutUserInput
+    adminResolvedPromotions?: ExternalPromotionUncheckedCreateNestedManyWithoutAdminInput
+    withdrawals?: WithdrawalUncheckedCreateNestedManyWithoutUserInput
+    directGiftsSent?: DirectGiftUncheckedCreateNestedManyWithoutUserInput
+    directGiftsRedeemed?: DirectGiftUncheckedCreateNestedManyWithoutRedeemedByVendorInput
+    adminLogs?: AdminLogUncheckedCreateNestedManyWithoutAdminInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    notificationReads?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutTagRequestsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutTagRequestsInput, UserUncheckedCreateWithoutTagRequestsInput>
+  }
+
+  export type ProductSubcategoryCreateWithoutTagRequestsInput = {
+    name: string
+    slug: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    category: ProductCategoryCreateNestedOneWithoutSubcategoriesInput
+    tags?: ProductTagCreateNestedManyWithoutSubcategoryInput
+    vendorGifts?: VendorGiftCreateNestedManyWithoutSubcategoryRelInput
+  }
+
+  export type ProductSubcategoryUncheckedCreateWithoutTagRequestsInput = {
+    id?: number
+    categoryId: number
+    name: string
+    slug: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tags?: ProductTagUncheckedCreateNestedManyWithoutSubcategoryInput
+    vendorGifts?: VendorGiftUncheckedCreateNestedManyWithoutSubcategoryRelInput
+  }
+
+  export type ProductSubcategoryCreateOrConnectWithoutTagRequestsInput = {
+    where: ProductSubcategoryWhereUniqueInput
+    create: XOR<ProductSubcategoryCreateWithoutTagRequestsInput, ProductSubcategoryUncheckedCreateWithoutTagRequestsInput>
+  }
+
+  export type UserUpsertWithoutTagRequestsInput = {
+    update: XOR<UserUpdateWithoutTagRequestsInput, UserUncheckedUpdateWithoutTagRequestsInput>
+    create: XOR<UserCreateWithoutTagRequestsInput, UserUncheckedCreateWithoutTagRequestsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutTagRequestsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutTagRequestsInput, UserUncheckedUpdateWithoutTagRequestsInput>
+  }
+
+  export type UserUpdateWithoutTagRequestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    isCreator?: BoolFieldUpdateOperationsInput | boolean
+    suggestedAmounts?: UserUpdatesuggestedAmountsInput | number[]
+    socialLinks?: NullableJsonNullValueInput | InputJsonValue
+    themeSettings?: NullableJsonNullValueInput | InputJsonValue
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    roles?: UserUpdaterolesInput | $Enums.UserRole[]
+    adminRole?: NullableEnumAdminRoleFieldUpdateOperationsInput | $Enums.AdminRole | null
+    platformBalance?: BigIntFieldUpdateOperationsInput | bigint | number
+    status?: StringFieldUpdateOperationsInput | string
+    walletStatus?: StringFieldUpdateOperationsInput | string
+    suspensionEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shopName?: NullableStringFieldUpdateOperationsInput | string | null
+    shopDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    shopAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSlug?: NullableStringFieldUpdateOperationsInput | string | null
+    shopLogoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isVerifiedVendor?: BoolFieldUpdateOperationsInput | boolean
+    vendorStatus?: StringFieldUpdateOperationsInput | string
+    vendorCategories?: UserUpdatevendorCategoriesInput | string[]
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    campaigns?: CampaignUpdateManyWithoutUserNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUpdateManyWithoutUserNestedInput
+    vendorGifts?: VendorGiftUpdateManyWithoutVendorNestedInput
+    favorites?: FavoriteUpdateManyWithoutUserNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutVendorNestedInput
+    sentFlexCards?: FlexCardUpdateManyWithoutSenderNestedInput
+    receivedFlexCards?: FlexCardUpdateManyWithoutRecipientNestedInput
+    moderationReportsMade?: ModerationReportUpdateManyWithoutReporterNestedInput
+    moderationReportsFixed?: ModerationReportUpdateManyWithoutResolverNestedInput
+    moderationTickets?: ModerationTicketUpdateManyWithoutReporterNestedInput
+    adminResolvedTickets?: ModerationTicketUpdateManyWithoutResolverNestedInput
+    flexCardTransactions?: FlexCardTransactionUpdateManyWithoutVendorNestedInput
+    redeemedCampaigns?: CampaignUpdateManyWithoutRedeemedByVendorNestedInput
+    creatorSupportReceived?: CreatorSupportUpdateManyWithoutUserNestedInput
+    adminResolvedPromotions?: ExternalPromotionUpdateManyWithoutAdminNestedInput
+    withdrawals?: WithdrawalUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUpdateManyWithoutRedeemedByVendorNestedInput
+    adminLogs?: AdminLogUpdateManyWithoutAdminNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    notificationReads?: NotificationReadUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutTagRequestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    isCreator?: BoolFieldUpdateOperationsInput | boolean
+    suggestedAmounts?: UserUpdatesuggestedAmountsInput | number[]
+    socialLinks?: NullableJsonNullValueInput | InputJsonValue
+    themeSettings?: NullableJsonNullValueInput | InputJsonValue
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    roles?: UserUpdaterolesInput | $Enums.UserRole[]
+    adminRole?: NullableEnumAdminRoleFieldUpdateOperationsInput | $Enums.AdminRole | null
+    platformBalance?: BigIntFieldUpdateOperationsInput | bigint | number
+    status?: StringFieldUpdateOperationsInput | string
+    walletStatus?: StringFieldUpdateOperationsInput | string
+    suspensionEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shopName?: NullableStringFieldUpdateOperationsInput | string | null
+    shopDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    shopAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSlug?: NullableStringFieldUpdateOperationsInput | string | null
+    shopLogoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isVerifiedVendor?: BoolFieldUpdateOperationsInput | boolean
+    vendorStatus?: StringFieldUpdateOperationsInput | string
+    vendorCategories?: UserUpdatevendorCategoriesInput | string[]
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    campaigns?: CampaignUncheckedUpdateManyWithoutUserNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
+    vendorGifts?: VendorGiftUncheckedUpdateManyWithoutVendorNestedInput
+    favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutVendorNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutVendorNestedInput
+    sentFlexCards?: FlexCardUncheckedUpdateManyWithoutSenderNestedInput
+    receivedFlexCards?: FlexCardUncheckedUpdateManyWithoutRecipientNestedInput
+    moderationReportsMade?: ModerationReportUncheckedUpdateManyWithoutReporterNestedInput
+    moderationReportsFixed?: ModerationReportUncheckedUpdateManyWithoutResolverNestedInput
+    moderationTickets?: ModerationTicketUncheckedUpdateManyWithoutReporterNestedInput
+    adminResolvedTickets?: ModerationTicketUncheckedUpdateManyWithoutResolverNestedInput
+    flexCardTransactions?: FlexCardTransactionUncheckedUpdateManyWithoutVendorNestedInput
+    redeemedCampaigns?: CampaignUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
+    creatorSupportReceived?: CreatorSupportUncheckedUpdateManyWithoutUserNestedInput
+    adminResolvedPromotions?: ExternalPromotionUncheckedUpdateManyWithoutAdminNestedInput
+    withdrawals?: WithdrawalUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsSent?: DirectGiftUncheckedUpdateManyWithoutUserNestedInput
+    directGiftsRedeemed?: DirectGiftUncheckedUpdateManyWithoutRedeemedByVendorNestedInput
+    adminLogs?: AdminLogUncheckedUpdateManyWithoutAdminNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    notificationReads?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type ProductSubcategoryUpsertWithoutTagRequestsInput = {
+    update: XOR<ProductSubcategoryUpdateWithoutTagRequestsInput, ProductSubcategoryUncheckedUpdateWithoutTagRequestsInput>
+    create: XOR<ProductSubcategoryCreateWithoutTagRequestsInput, ProductSubcategoryUncheckedCreateWithoutTagRequestsInput>
+    where?: ProductSubcategoryWhereInput
+  }
+
+  export type ProductSubcategoryUpdateToOneWithWhereWithoutTagRequestsInput = {
+    where?: ProductSubcategoryWhereInput
+    data: XOR<ProductSubcategoryUpdateWithoutTagRequestsInput, ProductSubcategoryUncheckedUpdateWithoutTagRequestsInput>
+  }
+
+  export type ProductSubcategoryUpdateWithoutTagRequestsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    category?: ProductCategoryUpdateOneRequiredWithoutSubcategoriesNestedInput
+    tags?: ProductTagUpdateManyWithoutSubcategoryNestedInput
+    vendorGifts?: VendorGiftUpdateManyWithoutSubcategoryRelNestedInput
+  }
+
+  export type ProductSubcategoryUncheckedUpdateWithoutTagRequestsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    categoryId?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tags?: ProductTagUncheckedUpdateManyWithoutSubcategoryNestedInput
+    vendorGifts?: VendorGiftUncheckedUpdateManyWithoutSubcategoryRelNestedInput
   }
 
   export type SessionCreateManyUserInput = {
@@ -63634,6 +72889,8 @@ export namespace Prisma {
     price: Decimal | DecimalJsLike | number | string
     description?: string | null
     imageUrl?: string | null
+    categoryId?: number | null
+    subcategoryId?: number | null
     category?: string | null
     tags?: VendorGiftCreatetagsInput | string[]
     type?: string
@@ -63959,6 +73216,16 @@ export namespace Prisma {
     id?: number
     notificationId: number
     createdAt?: Date | string
+  }
+
+  export type TagRequestCreateManyVendorInput = {
+    id?: number
+    subcategoryId: number
+    tagName: string
+    status?: string
+    adminNotes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type SessionUpdateWithoutUserInput = {
@@ -64292,6 +73559,9 @@ export namespace Prisma {
     lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    categoryRel?: ProductCategoryUpdateOneWithoutVendorGiftsNestedInput
+    subcategoryRel?: ProductSubcategoryUpdateOneWithoutVendorGiftsNestedInput
+    productTags?: VendorGiftTagUpdateManyWithoutGiftNestedInput
     giftImages?: VendorGiftImageUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUpdateManyWithoutVendorGiftNestedInput
     featuredAds?: FeaturedAdUpdateManyWithoutProductNestedInput
@@ -64307,6 +73577,8 @@ export namespace Prisma {
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    categoryId?: NullableIntFieldUpdateOperationsInput | number | null
+    subcategoryId?: NullableIntFieldUpdateOperationsInput | number | null
     category?: NullableStringFieldUpdateOperationsInput | string | null
     tags?: VendorGiftUpdatetagsInput | string[]
     type?: StringFieldUpdateOperationsInput | string
@@ -64321,6 +73593,7 @@ export namespace Prisma {
     lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    productTags?: VendorGiftTagUncheckedUpdateManyWithoutGiftNestedInput
     giftImages?: VendorGiftImageUncheckedUpdateManyWithoutGiftNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutVendorGiftNestedInput
     featuredAds?: FeaturedAdUncheckedUpdateManyWithoutProductNestedInput
@@ -64336,6 +73609,8 @@ export namespace Prisma {
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    categoryId?: NullableIntFieldUpdateOperationsInput | number | null
+    subcategoryId?: NullableIntFieldUpdateOperationsInput | number | null
     category?: NullableStringFieldUpdateOperationsInput | string | null
     tags?: VendorGiftUpdatetagsInput | string[]
     type?: StringFieldUpdateOperationsInput | string
@@ -65287,6 +74562,35 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type TagRequestUpdateWithoutVendorInput = {
+    tagName?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    adminNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subcategory?: ProductSubcategoryUpdateOneRequiredWithoutTagRequestsNestedInput
+  }
+
+  export type TagRequestUncheckedUpdateWithoutVendorInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    subcategoryId?: IntFieldUpdateOperationsInput | number
+    tagName?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    adminNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TagRequestUncheckedUpdateManyWithoutVendorInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    subcategoryId?: IntFieldUpdateOperationsInput | number
+    tagName?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    adminNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ContributionCreateManyCampaignInput = {
     id?: string
     transactionId?: string | null
@@ -65545,6 +74849,10 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type VendorGiftTagCreateManyGiftInput = {
+    tagId: number
+  }
+
   export type VendorGiftImageCreateManyGiftInput = {
     id?: number
     url: string
@@ -65665,6 +74973,18 @@ export namespace Prisma {
     senderName?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type VendorGiftTagUpdateWithoutGiftInput = {
+    tag?: ProductTagUpdateOneRequiredWithoutVendorGiftsNestedInput
+  }
+
+  export type VendorGiftTagUncheckedUpdateWithoutGiftInput = {
+    tagId?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type VendorGiftTagUncheckedUpdateManyWithoutGiftInput = {
+    tagId?: IntFieldUpdateOperationsInput | number
   }
 
   export type VendorGiftImageUpdateWithoutGiftInput = {
@@ -66033,6 +75353,357 @@ export namespace Prisma {
     senderName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductSubcategoryCreateManyCategoryInput = {
+    id?: number
+    name: string
+    slug: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type VendorGiftCreateManyCategoryRelInput = {
+    id?: number
+    vendorId: string
+    name: string
+    slug?: string | null
+    price: Decimal | DecimalJsLike | number | string
+    description?: string | null
+    imageUrl?: string | null
+    subcategoryId?: number | null
+    category?: string | null
+    tags?: VendorGiftCreatetagsInput | string[]
+    type?: string
+    status?: string
+    stockQuantity?: number | null
+    unitsSold?: number
+    images?: VendorGiftCreateimagesInput | string[]
+    viewsCount?: number
+    clicksCount?: number
+    salesCount?: number
+    rankingScore?: number
+    lastEngagementAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProductSubcategoryUpdateWithoutCategoryInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tags?: ProductTagUpdateManyWithoutSubcategoryNestedInput
+    vendorGifts?: VendorGiftUpdateManyWithoutSubcategoryRelNestedInput
+    tagRequests?: TagRequestUpdateManyWithoutSubcategoryNestedInput
+  }
+
+  export type ProductSubcategoryUncheckedUpdateWithoutCategoryInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tags?: ProductTagUncheckedUpdateManyWithoutSubcategoryNestedInput
+    vendorGifts?: VendorGiftUncheckedUpdateManyWithoutSubcategoryRelNestedInput
+    tagRequests?: TagRequestUncheckedUpdateManyWithoutSubcategoryNestedInput
+  }
+
+  export type ProductSubcategoryUncheckedUpdateManyWithoutCategoryInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type VendorGiftUpdateWithoutCategoryRelInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: VendorGiftUpdatetagsInput | string[]
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
+    unitsSold?: IntFieldUpdateOperationsInput | number
+    images?: VendorGiftUpdateimagesInput | string[]
+    viewsCount?: IntFieldUpdateOperationsInput | number
+    clicksCount?: IntFieldUpdateOperationsInput | number
+    salesCount?: IntFieldUpdateOperationsInput | number
+    rankingScore?: FloatFieldUpdateOperationsInput | number
+    lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    vendor?: UserUpdateOneRequiredWithoutVendorGiftsNestedInput
+    subcategoryRel?: ProductSubcategoryUpdateOneWithoutVendorGiftsNestedInput
+    productTags?: VendorGiftTagUpdateManyWithoutGiftNestedInput
+    giftImages?: VendorGiftImageUpdateManyWithoutGiftNestedInput
+    favorites?: FavoriteUpdateManyWithoutVendorGiftNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutProductNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutProductNestedInput
+    campaigns?: CampaignUpdateManyWithoutProductNestedInput
+    directGifts?: DirectGiftUpdateManyWithoutProductNestedInput
+  }
+
+  export type VendorGiftUncheckedUpdateWithoutCategoryRelInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    vendorId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    subcategoryId?: NullableIntFieldUpdateOperationsInput | number | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: VendorGiftUpdatetagsInput | string[]
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
+    unitsSold?: IntFieldUpdateOperationsInput | number
+    images?: VendorGiftUpdateimagesInput | string[]
+    viewsCount?: IntFieldUpdateOperationsInput | number
+    clicksCount?: IntFieldUpdateOperationsInput | number
+    salesCount?: IntFieldUpdateOperationsInput | number
+    rankingScore?: FloatFieldUpdateOperationsInput | number
+    lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    productTags?: VendorGiftTagUncheckedUpdateManyWithoutGiftNestedInput
+    giftImages?: VendorGiftImageUncheckedUpdateManyWithoutGiftNestedInput
+    favorites?: FavoriteUncheckedUpdateManyWithoutVendorGiftNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutProductNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutProductNestedInput
+    campaigns?: CampaignUncheckedUpdateManyWithoutProductNestedInput
+    directGifts?: DirectGiftUncheckedUpdateManyWithoutProductNestedInput
+  }
+
+  export type VendorGiftUncheckedUpdateManyWithoutCategoryRelInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    vendorId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    subcategoryId?: NullableIntFieldUpdateOperationsInput | number | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: VendorGiftUpdatetagsInput | string[]
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
+    unitsSold?: IntFieldUpdateOperationsInput | number
+    images?: VendorGiftUpdateimagesInput | string[]
+    viewsCount?: IntFieldUpdateOperationsInput | number
+    clicksCount?: IntFieldUpdateOperationsInput | number
+    salesCount?: IntFieldUpdateOperationsInput | number
+    rankingScore?: FloatFieldUpdateOperationsInput | number
+    lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductTagCreateManySubcategoryInput = {
+    id?: number
+    name: string
+    slug: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type VendorGiftCreateManySubcategoryRelInput = {
+    id?: number
+    vendorId: string
+    name: string
+    slug?: string | null
+    price: Decimal | DecimalJsLike | number | string
+    description?: string | null
+    imageUrl?: string | null
+    categoryId?: number | null
+    category?: string | null
+    tags?: VendorGiftCreatetagsInput | string[]
+    type?: string
+    status?: string
+    stockQuantity?: number | null
+    unitsSold?: number
+    images?: VendorGiftCreateimagesInput | string[]
+    viewsCount?: number
+    clicksCount?: number
+    salesCount?: number
+    rankingScore?: number
+    lastEngagementAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TagRequestCreateManySubcategoryInput = {
+    id?: number
+    vendorId: string
+    tagName: string
+    status?: string
+    adminNotes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProductTagUpdateWithoutSubcategoryInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    vendorGifts?: VendorGiftTagUpdateManyWithoutTagNestedInput
+  }
+
+  export type ProductTagUncheckedUpdateWithoutSubcategoryInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    vendorGifts?: VendorGiftTagUncheckedUpdateManyWithoutTagNestedInput
+  }
+
+  export type ProductTagUncheckedUpdateManyWithoutSubcategoryInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type VendorGiftUpdateWithoutSubcategoryRelInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: VendorGiftUpdatetagsInput | string[]
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
+    unitsSold?: IntFieldUpdateOperationsInput | number
+    images?: VendorGiftUpdateimagesInput | string[]
+    viewsCount?: IntFieldUpdateOperationsInput | number
+    clicksCount?: IntFieldUpdateOperationsInput | number
+    salesCount?: IntFieldUpdateOperationsInput | number
+    rankingScore?: FloatFieldUpdateOperationsInput | number
+    lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    vendor?: UserUpdateOneRequiredWithoutVendorGiftsNestedInput
+    categoryRel?: ProductCategoryUpdateOneWithoutVendorGiftsNestedInput
+    productTags?: VendorGiftTagUpdateManyWithoutGiftNestedInput
+    giftImages?: VendorGiftImageUpdateManyWithoutGiftNestedInput
+    favorites?: FavoriteUpdateManyWithoutVendorGiftNestedInput
+    featuredAds?: FeaturedAdUpdateManyWithoutProductNestedInput
+    sponsoredAds?: SponsoredAdUpdateManyWithoutProductNestedInput
+    campaigns?: CampaignUpdateManyWithoutProductNestedInput
+    directGifts?: DirectGiftUpdateManyWithoutProductNestedInput
+  }
+
+  export type VendorGiftUncheckedUpdateWithoutSubcategoryRelInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    vendorId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    categoryId?: NullableIntFieldUpdateOperationsInput | number | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: VendorGiftUpdatetagsInput | string[]
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
+    unitsSold?: IntFieldUpdateOperationsInput | number
+    images?: VendorGiftUpdateimagesInput | string[]
+    viewsCount?: IntFieldUpdateOperationsInput | number
+    clicksCount?: IntFieldUpdateOperationsInput | number
+    salesCount?: IntFieldUpdateOperationsInput | number
+    rankingScore?: FloatFieldUpdateOperationsInput | number
+    lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    productTags?: VendorGiftTagUncheckedUpdateManyWithoutGiftNestedInput
+    giftImages?: VendorGiftImageUncheckedUpdateManyWithoutGiftNestedInput
+    favorites?: FavoriteUncheckedUpdateManyWithoutVendorGiftNestedInput
+    featuredAds?: FeaturedAdUncheckedUpdateManyWithoutProductNestedInput
+    sponsoredAds?: SponsoredAdUncheckedUpdateManyWithoutProductNestedInput
+    campaigns?: CampaignUncheckedUpdateManyWithoutProductNestedInput
+    directGifts?: DirectGiftUncheckedUpdateManyWithoutProductNestedInput
+  }
+
+  export type VendorGiftUncheckedUpdateManyWithoutSubcategoryRelInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    vendorId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    categoryId?: NullableIntFieldUpdateOperationsInput | number | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: VendorGiftUpdatetagsInput | string[]
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    stockQuantity?: NullableIntFieldUpdateOperationsInput | number | null
+    unitsSold?: IntFieldUpdateOperationsInput | number
+    images?: VendorGiftUpdateimagesInput | string[]
+    viewsCount?: IntFieldUpdateOperationsInput | number
+    clicksCount?: IntFieldUpdateOperationsInput | number
+    salesCount?: IntFieldUpdateOperationsInput | number
+    rankingScore?: FloatFieldUpdateOperationsInput | number
+    lastEngagementAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TagRequestUpdateWithoutSubcategoryInput = {
+    tagName?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    adminNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    vendor?: UserUpdateOneRequiredWithoutTagRequestsNestedInput
+  }
+
+  export type TagRequestUncheckedUpdateWithoutSubcategoryInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    vendorId?: StringFieldUpdateOperationsInput | string
+    tagName?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    adminNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TagRequestUncheckedUpdateManyWithoutSubcategoryInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    vendorId?: StringFieldUpdateOperationsInput | string
+    tagName?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    adminNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type VendorGiftTagCreateManyTagInput = {
+    giftId: number
+  }
+
+  export type VendorGiftTagUpdateWithoutTagInput = {
+    gift?: VendorGiftUpdateOneRequiredWithoutProductTagsNestedInput
+  }
+
+  export type VendorGiftTagUncheckedUpdateWithoutTagInput = {
+    giftId?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type VendorGiftTagUncheckedUpdateManyWithoutTagInput = {
+    giftId?: IntFieldUpdateOperationsInput | number
   }
 
 

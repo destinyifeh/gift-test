@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { useAdminReports, useResolveReport } from '@/hooks/use-admin';
+import { useAdminReports, useResolveReport, useAdminTagRequests, useResolveTagRequest } from '@/hooks/use-admin';
 import { V2ReportDetailsModal } from '../modals/V2ReportDetailsModal';
 
 interface V2AdminModerationTabProps {
@@ -8,9 +8,11 @@ interface V2AdminModerationTabProps {
 }
 
 export function V2AdminModerationTab({addLog}: V2AdminModerationTabProps) {
-  const {data: reportResult, isLoading, refetch} = useAdminReports();
+  const {data: reportResult, isLoading: loadingReports, refetch: refetchReports} = useAdminReports();
+  const {data: tagRequests = [], isLoading: loadingTags, refetch: refetchTags} = useAdminTagRequests();
 
   const resolveMutation = useResolveReport();
+  const resolveTagMutation = useResolveTagRequest();
 
   const reports = reportResult?.data || [];
 
@@ -33,6 +35,20 @@ export function V2AdminModerationTab({addLog}: V2AdminModerationTabProps) {
     }
   };
 
+  const handleTagAction = async (requestId: number, status: 'approved' | 'rejected') => {
+    try {
+      await resolveTagMutation.mutateAsync({
+        id: requestId, 
+        status,
+        adminNotes: status === 'approved' ? 'Approved by admin' : 'Rejected by admin'
+      });
+      toast.success(`Tag request ${status}`);
+      addLog(`Moderation: ${status} tag request #${requestId}`);
+    } catch (err: any) {
+      toast.error('Failed to resolve tag request');
+    }
+  };
+
   const handleViewDetails = (report: any) => {
     setSelectedReport(report);
     setIsDetailsModalOpen(true);
@@ -41,7 +57,9 @@ export function V2AdminModerationTab({addLog}: V2AdminModerationTabProps) {
   const pendingReports = reports.filter((r: any) => r.status === 'pending');
   const resolvedReports = reports.filter((r: any) => r.status !== 'pending');
 
-  if (isLoading) {
+  const pendingTagRequests = tagRequests.filter((r: any) => r.status === 'pending');
+
+  if (loadingReports || loadingTags) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
         <span className="v2-icon text-4xl text-[var(--v2-primary)] animate-spin">
@@ -61,11 +79,11 @@ export function V2AdminModerationTab({addLog}: V2AdminModerationTabProps) {
             Content Moderation
           </h2>
           <p className="text-[var(--v2-on-surface-variant)] mt-2 font-medium">
-            Review flagged content and user reports.
+            Review flagged content, user reports, and catalog requests.
           </p>
         </div>
         <button 
-           onClick={() => refetch()}
+           onClick={() => { refetchReports(); refetchTags(); }}
            className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-[var(--v2-surface-container)] transition-colors"
         >
            <span className="v2-icon">refresh</span>
@@ -193,11 +211,64 @@ export function V2AdminModerationTab({addLog}: V2AdminModerationTabProps) {
         </div>
       )}
 
-      {reports.length === 0 && (
+      {reports.length === 0 && pendingTagRequests.length === 0 && (
         <div className="text-center py-20 bg-white rounded-2xl border border-[var(--v2-outline-variant)]/10">
           <span className="v2-icon text-6xl text-[var(--v2-on-surface-variant)]/10">shield</span>
           <p className="text-sm font-bold text-[var(--v2-on-surface-variant)]/50 mt-4 uppercase tracking-[0.2em]">Inbox Zero</p>
-          <p className="text-xs text-[var(--v2-on-surface-variant)]/30 mt-1">No reports to review at this time.</p>
+          <p className="text-xs text-[var(--v2-on-surface-variant)]/30 mt-1">No reports or requests to review at this time.</p>
+        </div>
+      )}
+
+      {/* Pending Tag Requests */}
+      {pendingTagRequests.length > 0 && (
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-[var(--v2-outline-variant)]/10 mt-8">
+          <div className="px-8 py-6 border-b border-[var(--v2-surface-container)] bg-[var(--v2-surface-container-low)]/30 flex items-center justify-between">
+            <h4 className="v2-headline font-black text-xl tracking-tight">Tag Requests</h4>
+            <span className="bg-white px-3 py-1 rounded-full text-[10px] font-black uppercase border border-[var(--v2-outline-variant)]/20 shadow-sm text-[var(--v2-primary)]">
+               {pendingTagRequests.length} PENDING
+            </span>
+          </div>
+          <div className="divide-y divide-[var(--v2-surface-container)]">
+            {pendingTagRequests.map((req: any) => (
+              <div key={req.id} className="p-6 hover:bg-[var(--v2-surface-container-low)]/50 transition-colors">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex items-start gap-4">
+                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-xl shadow-sm bg-blue-100 text-blue-600">
+                      <span className="v2-icon">local_offer</span>
+                    </div>
+                    <div>
+                      <p className="font-bold text-lg flex items-center gap-2">
+                         Request: "{req.tagName}"
+                      </p>
+                      <p className="text-sm text-[var(--v2-on-surface-variant)] mb-1">
+                        For Category: <span className="font-medium text-[var(--v2-on-surface)]">{req.subcategory?.category?.name} &gt; {req.subcategory?.name}</span>
+                      </p>
+                      {req.adminNotes && (
+                        <p className="text-sm text-[var(--v2-on-surface-variant)] font-medium italic">Reason: "{req.adminNotes}"</p>
+                      )}
+                      <p className="text-xs text-[var(--v2-on-surface-variant)] mt-2">
+                        Requested by vendor <span className="font-bold text-[var(--v2-on-surface)]">@{req.vendor?.username}</span>
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 ml-16 md:ml-0">
+                    <button
+                      onClick={() => handleTagAction(req.id, 'approved')}
+                      disabled={resolveTagMutation.isPending}
+                      className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-xs font-black uppercase tracking-wider shadow-md transition-all disabled:opacity-50">
+                      Approve
+                    </button>
+                    <button
+                      onClick={() => handleTagAction(req.id, 'rejected')}
+                      disabled={resolveTagMutation.isPending}
+                      className="px-6 py-2.5 bg-white border border-[var(--v2-outline-variant)]/20 text-[var(--v2-error)] hover:bg-[var(--v2-error)]/10 rounded-full text-xs font-black uppercase tracking-wider transition-all disabled:opacity-50">
+                      Reject
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

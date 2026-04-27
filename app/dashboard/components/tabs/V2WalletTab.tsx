@@ -22,6 +22,7 @@ import {useEffect, useMemo, useState} from 'react';
 import {toast} from 'sonner';
 import {useGiftByCode, useClaimGift, useMyFlexCards} from '@/hooks/use-claims';
 import {FlexCardComponent, FlexCardModal} from '../../../components/FlexCard';
+import {GiftCardListItem as GiftCardComponent, GiftCardModal} from '../../../components/GiftCard';
 
 type TransactionFilter = 'all' | 'gifts' | 'flex_card' | 'withdrawals';
 type DateFilter = 'all' | 'week' | 'month' | '3months';
@@ -371,17 +372,23 @@ export function V2WalletTab() {
 
           {flexCards.filter((card: any) => card.status === 'active' || card.status === 'partially_used').length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {flexCards
-                .filter((card: any) => card.status === 'active' || card.status === 'partially_used')
-                .slice(0, 3)
-                .map((card: any) => (
+              {flexCards.filter((card: any) => card.status !== 'redeemed').map((card: any) => (
+                card.is_flex_card ? (
                   <FlexCardComponent 
                     key={card.id} 
                     card={card} 
                     variant="compact" 
                     onClick={() => setSelectedFlexCard(card)}
                   />
-                ))}
+                ) : (
+                  <GiftCardComponent
+                    key={card.id}
+                    card={card}
+                    variant="compact"
+                    onClick={() => setSelectedFlexCard(card)}
+                  />
+                )
+              ))}
             </div>
           ) : (
             <div className="bg-[var(--v2-surface-container-low)] rounded-2xl p-6 text-center border-2 border-dashed border-[var(--v2-outline-variant)]/20">
@@ -985,11 +992,19 @@ export function V2WalletTab() {
 
       {/* Single Flex Card Detail Modal */}
       {selectedFlexCard && (
-        <FlexCardModal
-          card={selectedFlexCard}
-          open={!!selectedFlexCard}
-          onClose={() => setSelectedFlexCard(null)}
-        />
+        selectedFlexCard.is_flex_card ? (
+          <FlexCardModal
+            card={selectedFlexCard}
+            open={!!selectedFlexCard}
+            onClose={() => setSelectedFlexCard(null)}
+          />
+        ) : (
+          <GiftCardModal
+            card={selectedFlexCard}
+            open={!!selectedFlexCard}
+            onClose={() => setSelectedFlexCard(null)}
+          />
+        )
       )}
     </div>
   );

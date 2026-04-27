@@ -101,14 +101,14 @@ export function V2MobileMenu({open, onClose}: V2MobileMenuProps) {
         {/* Quick Navigation Links */}
         <div className="space-y-1 mb-6">
           <Link
-            href="/gift-shop"
+            href="/gifts"
             onClick={onClose}
             className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl hover:bg-[var(--v2-surface-container-low)] transition-colors"
           >
             <div className="w-10 h-10 rounded-xl bg-[var(--v2-primary)]/10 flex items-center justify-center">
               <span className="v2-icon text-xl text-[var(--v2-primary)]">storefront</span>
             </div>
-            <span className="font-semibold text-[var(--v2-on-surface)]">Gift Shop</span>
+            <span className="font-semibold text-[var(--v2-on-surface)]">Gifts</span>
           </Link>
 
           <Link

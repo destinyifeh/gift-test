@@ -9,3 +9,4 @@ export * from './use-analytics';
 export * from './use-transactions';
 export * from './use-notifications';
 export * from './use-featured-items';
+export * from './use-catalog';

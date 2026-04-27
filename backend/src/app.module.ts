@@ -26,6 +26,8 @@ import { ModerationModule } from './modules/moderation/moderation.module';
 import { FlexCardModule } from './modules/flex-card/flex-card.module';
 import { CountryConfigModule } from './modules/country-config/country-config.module';
 import { AdsModule } from './modules/ads/ads.module';
+import { CatalogModule } from './modules/catalog/catalog.module';
+import { GiftCardModule } from './modules/gift-card/gift-card.module';
 
 
 
@@ -56,6 +58,8 @@ import { AdsModule } from './modules/ads/ads.module';
     FlexCardModule,
     CountryConfigModule,
     AdsModule,
+    CatalogModule,
+    GiftCardModule,
   ],
 
 

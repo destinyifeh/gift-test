@@ -8,6 +8,7 @@ import Link from 'next/link';
 import {useParams, useRouter} from 'next/navigation';
 import {useMemo, useState} from 'react';
 import {toast} from 'sonner';
+import {V2VendorDiscovery} from '../../components/V2VendorDiscovery';
 
 export default function ClaimGiftPage() {
   const params = useParams();
@@ -289,13 +290,13 @@ export default function ClaimGiftPage() {
                     <div className="text-center">
                       <div className="flex items-center justify-center gap-1.5">
                         <span className="v2-icon text-lg text-[var(--v2-on-surface-variant)]">
-                          storefront
+                          {gift.giftCard ? 'card_giftcard' : 'storefront'}
                         </span>
                         <p className="text-sm font-semibold text-[var(--v2-on-surface)] capitalize truncate max-w-[120px]">
-                          {vendorName}
+                          {gift.giftCard ? 'Gift Card' : vendorName}
                         </p>
                       </div>
-                      <p className="text-xs text-[var(--v2-on-surface-variant)] mt-1">Shop</p>
+                      <p className="text-xs text-[var(--v2-on-surface-variant)] mt-1">{gift.giftCard ? 'Valid at multiple places' : 'Shop'}</p>
                     </div>
                   </>
                 )}
@@ -342,6 +343,16 @@ export default function ClaimGiftPage() {
               </p>
             </div>
           </div>
+
+          {/* Vendor Discovery (if generic gift card) */}
+          {gift.giftCard && gift.giftCardId && (
+            <div className="mt-8">
+              <V2VendorDiscovery 
+                giftCardId={gift.giftCardId} 
+                country={gift.giftCard.country}
+              />
+            </div>
+          )}
         </div>
       </main>
     </div>

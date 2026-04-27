@@ -16,10 +16,10 @@ export function CampaignDetailDesktopNav() {
         <GifthanceLogo size="md" />
         <div className="flex items-center space-x-8 v2-headline font-bold tracking-tight">
           <Link
-            href="/gift-shop"
+            href="/gifts"
             className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors"
           >
-            Gift Shop
+            Gifts
           </Link>
           <Link
             href="/campaigns"

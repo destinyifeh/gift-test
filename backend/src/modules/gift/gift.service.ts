@@ -296,7 +296,8 @@ export class GiftService {
           include: {
             vendor: { select: { shopName: true, displayName: true, avatarUrl: true } }
           }
-        }
+        },
+        giftCard: true,
       }
     });
 

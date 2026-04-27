@@ -61,6 +61,7 @@ export class CampaignService {
         campaignShortId,
         campaignSlug,
         giftCode,
+        giftCardId: data.giftCardId,
         endDate: endDate ? new Date(endDate) : null,
       },
     });
@@ -184,7 +185,8 @@ export class CampaignService {
           orderBy: { createdAt: 'desc' },
           take: 50,
           select: { id: true, amount: true, donorName: true, message: true, createdAt: true, isAnonymous: true }
-        }
+        },
+        giftCard: true
       },
     });
 

@@ -35,10 +35,10 @@ export function V2FavoritesTab() {
           Save gifts you like to easily find them later.
         </p>
         <Link
-          href="/gift-shop"
+          href="/gifts"
           className="inline-flex items-center gap-2 px-6 h-12 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-2xl transition-transform active:scale-[0.98] shadow-lg shadow-[var(--v2-primary)]/20">
           <span className="v2-icon">storefront</span>
-          Browse Gift Shop
+          Browse Gifts
         </Link>
       </div>
     );
@@ -85,7 +85,7 @@ export function V2FavoritesTab() {
           </div>
         </div>
         <Link
-          href="/gift-shop"
+          href="/gifts"
           className="px-4 py-2 rounded-xl bg-[var(--v2-primary)]/10 text-[var(--v2-primary)] font-bold text-sm hover:bg-[var(--v2-primary)]/20 transition-colors">
           Browse More
         </Link>
@@ -97,9 +97,14 @@ export function V2FavoritesTab() {
           <Link
             key={fav.favoriteId}
             href={
-              fav.shopSlug && fav.slug 
-                ? `/gift-shop/${fav.shopSlug}/${fav.slug}`
-                : `/gift-shop/${fav.id}`
+              (() => {
+                const vendorSlug = fav.shopSlug || fav.shop_slug || fav.profiles?.shop_slug || fav.vendorId || fav.vendor_id;
+                const productSlug = fav.slug || fav.id;
+                const shortId = fav.productShortId || fav.product_short_id || fav.profiles?.product_short_id;
+                return shortId 
+                  ? `/gifts/${vendorSlug}/${productSlug}-${shortId}`
+                  : `/gifts/${vendorSlug}/${productSlug}`;
+              })()
             }
             className="group bg-[var(--v2-surface-container-lowest)] rounded-[1.5rem] overflow-hidden shadow-sm hover:shadow-lg transition-all">
             {/* Image */}
@@ -151,9 +156,14 @@ export function V2FavoritesTab() {
           <Link
             key={fav.favoriteId}
             href={
-              fav.shopSlug && fav.slug 
-                ? `/gift-shop/${fav.shopSlug}/${fav.slug}`
-                : `/gift-shop/${fav.id}`
+              (() => {
+                const vendorSlug = fav.shopSlug || fav.shop_slug || fav.profiles?.shop_slug || fav.vendorId || fav.vendor_id;
+                const productSlug = fav.slug || fav.id;
+                const shortId = fav.productShortId || fav.product_short_id || fav.profiles?.product_short_id;
+                return shortId 
+                  ? `/gifts/${vendorSlug}/${productSlug}-${shortId}`
+                  : `/gifts/${vendorSlug}/${productSlug}`;
+              })()
             }
             className="flex items-center gap-4 p-4 rounded-[1.5rem] bg-[var(--v2-surface-container-lowest)] active:scale-[0.98] transition-transform">
             {/* Image */}

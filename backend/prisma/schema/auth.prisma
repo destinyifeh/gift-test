@@ -53,6 +53,16 @@ model User {
   vendorStatus     String   @default("pending") @map("vendor_status") // 'pending', 'approved', 'rejected'
   vendorCategories String[] @default([]) @map("vendor_categories")
 
+  // --- Business Address ---
+  shopStreet       String?  @map("shop_street")
+  shopCity         String?  @map("shop_city")
+  shopState        String?  @map("shop_state")
+  shopCountry      String?  @map("shop_country")
+  shopZip          String?  @map("shop_zip")
+
+  // Relations
+  acceptedGiftCards       VendorAcceptedGiftCard[]
+
   // Relations
   campaigns               Campaign[]            @relation("UserCampaigns")
   bankAccounts            BankAccount[]
@@ -78,6 +88,7 @@ model User {
   adminLogs         AdminLog[]
   notifications     Notification[]
   notificationReads NotificationRead[]
+  tagRequests       TagRequest[]
 
   @@map("users")
 }

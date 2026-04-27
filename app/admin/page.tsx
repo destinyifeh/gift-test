@@ -38,6 +38,8 @@ import {
   V2AdminSettingsTab,
   V2AdminRolesTab,
   V2AdminLogsTab,
+  V2AdminCatalogTab,
+  V2AdminGiftCardsTab,
 } from './components/tabs';
 import {V2NotificationsPanel} from '../components/V2NotificationsPanel';
 
@@ -608,6 +610,12 @@ function V2AdminContent() {
               addLog={addLog}
               setViewDetailsModal={setViewDetailsModal}
             />
+          )}
+          {section === 'catalog' && (
+            <V2AdminCatalogTab />
+          )}
+          {section === 'gift-cards' && (
+            <V2AdminGiftCardsTab />
           )}
           {section === 'logs' && (
             <V2AdminLogsTab setSection={handleSectionChange} />

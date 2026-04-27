@@ -227,7 +227,13 @@ export default function V2VendorShopPage({
               {products.map((product) => (
                 <Link
                   key={product.id}
-                  href={`/gift-shop/${vendor_slug}/${product.slug || product.id}`}
+                  href={(() => {
+                    const baseSlug = product.slug || product.id;
+                    const shortId = product.productShortId || product.product_short_id;
+                    return shortId 
+                      ? `/gift-shop/${vendor_slug}/${baseSlug}-${shortId}`
+                      : `/gift-shop/${vendor_slug}/${baseSlug}`;
+                  })()}
                   className="group bg-[var(--v2-surface-container-lowest)] rounded-[2.5rem] overflow-hidden shadow-[0_20px_40px_rgba(73,38,4,0.04)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(73,38,4,0.1)] hover:-translate-y-2"
                 >
                   <div className="relative aspect-[4/5] overflow-hidden bg-[var(--v2-surface-container)]">

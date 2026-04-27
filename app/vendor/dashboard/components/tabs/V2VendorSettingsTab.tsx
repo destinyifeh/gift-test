@@ -21,10 +21,13 @@ export function V2VendorSettingsTab() {
   const {data: countries, isLoading: isLoadingCountries} = useCountryConfigs();
 
   const [formData, setFormData] = useState({
-    display_name: '',
-    username: '',
-    country: '',
-    bio: '',
+    shop_name: '',
+    shop_description: '',
+    shop_street: '',
+    shop_city: '',
+    shop_state: '',
+    shop_country: 'Nigeria',
+    shop_zip: '',
   });
   const [socialLinks, setSocialLinks] = useState({
     twitter: '',
@@ -38,10 +41,13 @@ export function V2VendorSettingsTab() {
   useEffect(() => {
     if (profile) {
       setFormData({
-        display_name: profile.display_name || '',
-        username: profile.username || '',
-        country: profile.country || '',
-        bio: profile.bio || '',
+        shop_name: profile.shop_name || '',
+        shop_description: profile.shop_description || '',
+        shop_street: profile.shop_street || '',
+        shop_city: profile.shop_city || '',
+        shop_state: profile.shop_state || '',
+        shop_country: profile.shop_country || 'Nigeria',
+        shop_zip: profile.shop_zip || '',
       });
       setSocialLinks({
         twitter: profile.social_links?.twitter || '',
@@ -55,25 +61,28 @@ export function V2VendorSettingsTab() {
     setIsSaving(true);
     try {
       await api.patch('/users', {
-        displayName: formData.display_name,
-        username: formData.username,
-        country: formData.country,
-        bio: formData.bio,
+        shopName: formData.shop_name,
+        shopDescription: formData.shop_description,
+        shopStreet: formData.shop_street,
+        shopCity: formData.shop_city,
+        shopState: formData.shop_state,
+        shopCountry: formData.shop_country,
+        shopZip: formData.shop_zip,
         socialLinks: socialLinks,
       });
       
-      toast.success('Profile updated!');
+      toast.success('Business profile updated!');
       queryClient.invalidateQueries({queryKey: ['profile']});
       if (profile) {
         setUser({
           id: profile.id,
           email: profile.email || '',
-          display_name: formData.display_name || profile.display_name || '',
-          username: formData.username || profile.username || '',
+          display_name: formData.shop_name || profile.display_name || '',
+          username: profile.username || '',
         });
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to update profile');
+      toast.error(error.response?.data?.message || 'Failed to update business profile');
     } finally {
       setIsSaving(false);
     }
@@ -222,7 +231,7 @@ export function V2VendorSettingsTab() {
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-[var(--v2-primary)]/10">
                     <span className="text-4xl font-bold text-[var(--v2-primary)] capitalize">
-                      {formData.display_name?.charAt(0) || '?'}
+                      {formData.shop_name?.charAt(0) || '?'}
                     </span>
                   </div>
                 )}
@@ -252,10 +261,10 @@ export function V2VendorSettingsTab() {
               )}
             </div>
             <h3 className="text-xl font-bold v2-headline text-[var(--v2-on-surface)]">
-              {formData.display_name || 'Your Name'}
+              {formData.shop_name || 'Your Business'}
             </h3>
             <p className="text-sm text-[var(--v2-on-surface-variant)]">
-              @{formData.username || 'username'}
+              @{profile?.username || 'username'}
             </p>
             <span className="inline-block mt-2 px-3 py-1 rounded-full text-xs font-bold bg-[var(--v2-primary-container)] text-[var(--v2-on-primary-container)]">
               Vendor Account
@@ -284,22 +293,11 @@ export function V2VendorSettingsTab() {
             </div>
           </div>
 
-          {/* Quick Actions - Desktop */}
+          {/* Logout - Desktop */}
           <div className="hidden lg:block bg-[var(--v2-surface-container-lowest)] rounded-[2rem] p-6 space-y-3">
             <h4 className="text-sm font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider mb-4">
-              Quick Actions
+              Logout
             </h4>
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="w-full flex items-center gap-3 p-3 rounded-xl bg-[var(--v2-surface-container-low)] hover:bg-[var(--v2-surface-container-high)] transition-colors text-left">
-              <div className="w-10 h-10 rounded-full bg-[var(--v2-secondary)]/10 flex items-center justify-center">
-                <span className="v2-icon text-[var(--v2-secondary)]">swap_horiz</span>
-              </div>
-              <div>
-                <p className="font-bold text-sm text-[var(--v2-on-surface)]">Switch to User</p>
-                <p className="text-xs text-[var(--v2-on-surface-variant)]">Go to user dashboard</p>
-              </div>
-            </button>
             <button
               onClick={handleSignOut}
               className="w-full flex items-center gap-3 p-3 rounded-xl bg-[var(--v2-error)]/5 hover:bg-[var(--v2-error)]/10 transition-colors text-left">
@@ -316,109 +314,122 @@ export function V2VendorSettingsTab() {
 
         {/* Form Section - Right column on desktop */}
         <div className="lg:col-span-8 space-y-6">
-          {/* Personal Details */}
+          {/* Business Details */}
           <div className="bg-[var(--v2-surface-container-lowest)] rounded-[2rem] p-5 md:p-6">
             <div className="mb-6">
               <h3 className="text-lg font-bold v2-headline text-[var(--v2-on-surface)]">
-                Personal Information
+                Business Information
               </h3>
               <p className="text-sm text-[var(--v2-on-surface-variant)] hidden md:block">
-                Manage your personal details and preferences.
+                Manage your business identity and store location.
               </p>
             </div>
 
             <div className="space-y-4">
-              {/* Display Name & Username - side by side on desktop */}
+              {/* Business Name */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
+                  Business Name
+                </label>
+                <input
+                  type="text"
+                  value={formData.shop_name}
+                  onChange={e => setFormData({...formData, shop_name: e.target.value})}
+                  className="w-full h-12 px-4 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] border-none focus:ring-2 focus:ring-[var(--v2-primary)]"
+                  placeholder="e.g. Shoprite Ikeja"
+                />
+              </div>
+
+              {/* Business Description */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
+                  Business Description
+                </label>
+                <textarea
+                  value={formData.shop_description}
+                  onChange={e => setFormData({...formData, shop_description: e.target.value})}
+                  rows={2}
+                  className="w-full px-4 py-3 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] border-none focus:ring-2 focus:ring-[var(--v2-primary)] resize-none"
+                  placeholder="Tell us about your business..."
+                />
+              </div>
+
+              {/* Street Address */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
+                  Street Address
+                </label>
+                <input
+                  type="text"
+                  value={formData.shop_street}
+                  onChange={e => setFormData({...formData, shop_street: e.target.value})}
+                  className="w-full h-12 px-4 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] border-none focus:ring-2 focus:ring-[var(--v2-primary)]"
+                  placeholder="123 Business Way"
+                />
+              </div>
+
+              {/* City & State */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
-                    Display Name
+                    City
                   </label>
                   <input
                     type="text"
-                    value={formData.display_name}
-                    onChange={e => setFormData({...formData, display_name: e.target.value})}
+                    value={formData.shop_city}
+                    onChange={e => setFormData({...formData, shop_city: e.target.value})}
                     className="w-full h-12 px-4 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] border-none focus:ring-2 focus:ring-[var(--v2-primary)]"
-                    placeholder="Your display name"
+                    placeholder="Ikeja"
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
-                    Username
+                    State
                   </label>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)]">
-                      @
-                    </span>
-                    <input
-                      type="text"
-                      value={formData.username}
-                      onChange={e =>
-                        setFormData({...formData, username: e.target.value.toLowerCase()})
-                      }
-                      className="w-full h-12 pl-8 pr-4 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] border-none focus:ring-2 focus:ring-[var(--v2-primary)]"
-                      placeholder="username"
-                    />
-                  </div>
+                  <input
+                    type="text"
+                    value={formData.shop_state}
+                    onChange={e => setFormData({...formData, shop_state: e.target.value})}
+                    className="w-full h-12 px-4 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] border-none focus:ring-2 focus:ring-[var(--v2-primary)]"
+                    placeholder="Lagos"
+                  />
                 </div>
               </div>
 
-              {/* Email & Country - side by side on desktop */}
+              {/* Country & Zip */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    value={profile?.email || ''}
-                    disabled
-                    className="w-full h-12 px-4 rounded-xl bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface-variant)] border-none cursor-not-allowed"
-                  />
-                </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
                     Country
                   </label>
                   <div className="relative">
                     <select
-                      value={formData.country}
-                      disabled
-                      onChange={e => setFormData({...formData, country: e.target.value})}
-                      className="w-full h-12 px-4 pl-4 rounded-xl bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface-variant)] border-none cursor-not-allowed appearance-none">
-                      <option value="">Select country</option>
-                      {isLoadingCountries ? (
-                         <option disabled>Loading countries...</option>
-                      ) : (
-                        (countries || []).map(c => (
-                          <option key={c.countryCode} value={c.countryName}>
-                            {c.flag} {c.countryName}
-                          </option>
-                        ))
-                      )}
+                      value={formData.shop_country}
+                      onChange={e => setFormData({...formData, shop_country: e.target.value})}
+                      className="w-full h-12 px-4 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] border-none focus:ring-2 focus:ring-[var(--v2-primary)] appearance-none">
+                      <option value="Nigeria">Nigeria</option>
+                      <option value="Ghana">Ghana</option>
+                      <option value="Kenya">Kenya</option>
+                      <option value="South Africa">South Africa</option>
+                      <option value="Cote d'Ivoire">Cote d'Ivoire</option>
                     </select>
-                    <span className="v2-icon absolute right-4 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)]/40 pointer-events-none text-base">
-                      lock
+                    <span className="v2-icon absolute right-4 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)] pointer-events-none">
+                      expand_more
                     </span>
                   </div>
-                  <p className="text-[11px] text-[var(--v2-on-surface-variant)] leading-tight mt-1 opacity-70">
-                    This determines your currency and available gifting features.
-                  </p>
                 </div>
-              </div>
-
-              {/* Bio */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
-                  Bio
-                </label>
-                <textarea
-                  value={formData.bio}
-                  onChange={e => setFormData({...formData, bio: e.target.value})}
-                  rows={3}
-                  className="w-full px-4 py-3 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] border-none focus:ring-2 focus:ring-[var(--v2-primary)] resize-none"
-                  placeholder="Tell us about yourself..."
-                />
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
+                    Zip / Postal Code
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.shop_zip}
+                    onChange={e => setFormData({...formData, shop_zip: e.target.value})}
+                    className="w-full h-12 px-4 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] border-none focus:ring-2 focus:ring-[var(--v2-primary)]"
+                    placeholder="101233"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -530,14 +541,7 @@ export function V2VendorSettingsTab() {
             </div>
           </div>
 
-          {/* Mobile Actions */}
           <div className="md:hidden space-y-3">
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="w-full flex items-center justify-center gap-2 p-4 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] font-medium">
-              <span className="v2-icon">swap_horiz</span>
-              Switch to User Dashboard
-            </button>
             <button className="w-full flex items-center justify-center gap-2 p-4 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] font-medium">
               <span className="v2-icon">lock</span>
               Change Password

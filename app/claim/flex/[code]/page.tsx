@@ -1,15 +1,21 @@
 'use client';
 
+import {GifthanceLogo} from '@/components/GifthanceLogo';
+import {useGiftCardBySlug} from '@/hooks/use-gift-cards';
 import {useProfile} from '@/hooks/use-profile';
 import {signOut} from '@/lib/server/actions/auth';
-import {fetchFlexCardByClaimToken, claimFlexCardByToken} from '@/lib/server/actions/flex-cards';
-import {FlexCard, FlexCardModal} from '../../../components/FlexCard';
+import {
+  claimFlexCardByToken,
+  fetchFlexCardByClaimToken,
+} from '@/lib/server/actions/flex-cards';
 import {formatCurrency} from '@/lib/utils/currency';
-import {GifthanceLogo} from '@/components/GifthanceLogo';
 import Link from 'next/link';
 import {useParams, useRouter} from 'next/navigation';
 import {useEffect, useState} from 'react';
 import {toast} from 'sonner';
+import {FlexCard, FlexCardModal} from '../../../components/FlexCard';
+import {GiftCard, GiftCardModal} from '../../../components/GiftCard';
+import {V2VendorDiscovery} from '../../../components/V2VendorDiscovery';
 
 export default function ClaimFlexCardPage() {
   const params = useParams();
@@ -20,6 +26,8 @@ export default function ClaimFlexCardPage() {
   const [claiming, setClaiming] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [showCardModal, setShowCardModal] = useState(false);
+
+  const {data: globalFlexCard} = useGiftCardBySlug('flex-card');
 
   useEffect(() => {
     async function getFlexCard() {
@@ -71,15 +79,16 @@ export default function ClaimFlexCardPage() {
         <div className="w-20 h-20 bg-[var(--v2-primary)]/10 rounded-[1.5rem] flex items-center justify-center mb-6">
           <span
             className="v2-icon text-4xl text-[var(--v2-primary)]"
-            style={{fontVariationSettings: "'FILL' 1"}}
-          >
+            style={{fontVariationSettings: "'FILL' 1"}}>
             credit_card
           </span>
         </div>
         <span className="v2-icon text-4xl text-[var(--v2-primary)] animate-spin mb-3">
           progress_activity
         </span>
-        <p className="text-sm text-[var(--v2-on-surface-variant)]">Loading your Flex Card...</p>
+        <p className="text-sm text-[var(--v2-on-surface-variant)]">
+          Loading your Flex Card...
+        </p>
       </div>
     );
   }
@@ -92,19 +101,20 @@ export default function ClaimFlexCardPage() {
         <main className="flex-1 flex flex-col items-center justify-center p-4">
           <div className="w-full max-w-md text-center">
             <div className="w-20 h-20 bg-[var(--v2-error)]/10 rounded-[1.5rem] flex items-center justify-center mx-auto mb-6">
-              <span className="v2-icon text-4xl text-[var(--v2-error)]/50">credit_card_off</span>
+              <span className="v2-icon text-4xl text-[var(--v2-error)]/50">
+                credit_card_off
+              </span>
             </div>
             <h1 className="text-2xl font-bold v2-headline text-[var(--v2-on-surface)] mb-3">
               Flex Card Not Found
             </h1>
             <p className="text-[var(--v2-on-surface-variant)] mb-8">
-              This Flex Card link is invalid or has already been claimed. Please check the link and
-              try again.
+              This Flex Card link is invalid or has already been claimed. Please
+              check the link and try again.
             </p>
             <Link
               href="/"
-              className="inline-flex items-center justify-center w-full h-12 bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] font-bold rounded-2xl hover:bg-[var(--v2-surface-container-high)] transition-colors"
-            >
+              className="inline-flex items-center justify-center w-full h-12 bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] font-bold rounded-2xl hover:bg-[var(--v2-surface-container-high)] transition-colors">
               Go to Homepage
             </Link>
           </div>
@@ -121,18 +131,20 @@ export default function ClaimFlexCardPage() {
         <main className="flex-1 flex flex-col items-center justify-center p-4">
           <div className="w-full max-w-md text-center">
             <div className="w-20 h-20 bg-[var(--v2-tertiary)]/10 rounded-[1.5rem] flex items-center justify-center mx-auto mb-6">
-              <span className="v2-icon text-4xl text-[var(--v2-tertiary)]">verified</span>
+              <span className="v2-icon text-4xl text-[var(--v2-tertiary)]">
+                verified
+              </span>
             </div>
             <h1 className="text-2xl font-bold v2-headline text-[var(--v2-on-surface)] mb-3">
               Already Claimed
             </h1>
             <p className="text-[var(--v2-on-surface-variant)] mb-8">
-              This Flex Card has already been claimed and added to someone's account.
+              This Flex Card has already been claimed and added to someone's
+              account.
             </p>
             <Link
               href="/dashboard?tab=my-gifts"
-              className="inline-flex items-center justify-center w-full h-12 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-2xl transition-colors shadow-lg shadow-[var(--v2-primary)]/20"
-            >
+              className="inline-flex items-center justify-center w-full h-12 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-2xl transition-colors shadow-lg shadow-[var(--v2-primary)]/20">
               Go to My Gifts
             </Link>
           </div>
@@ -150,31 +162,58 @@ export default function ClaimFlexCardPage() {
           <div className="w-full max-w-md">
             {/* Card Preview */}
             <div className="flex justify-center mb-8">
-              <FlexCard
-                code={flexCard.code}
-                initialAmount={flexCard.initial_amount}
-                currentBalance={flexCard.current_balance}
-                currency={flexCard.currency}
-                status={flexCard.status}
-                senderName={flexCard.sender_name || flexCard.sender?.display_name}
-                message={flexCard.message}
-                variant="premium"
-                interactive={false}
-              />
+              {flexCard.is_flex_card ? (
+                <FlexCard
+                  code={flexCard.code}
+                  initialAmount={flexCard.initial_amount}
+                  currentBalance={flexCard.current_balance}
+                  currency={flexCard.currency}
+                  status={flexCard.status}
+                  senderName={
+                    flexCard.sender_name || flexCard.sender?.display_name
+                  }
+                  message={flexCard.message}
+                  variant="premium"
+                  interactive={false}
+                />
+              ) : (
+                <GiftCard
+                  code={flexCard.code}
+                  initialAmount={flexCard.initial_amount}
+                  currentBalance={flexCard.current_balance}
+                  currency={flexCard.currency}
+                  status={flexCard.status}
+                  senderName={
+                    flexCard.sender_name || flexCard.sender?.display_name
+                  }
+                  message={flexCard.message}
+                  variant="premium"
+                  interactive={false}
+                  cardName={flexCard.name}
+                  vendorName={flexCard.vendor_name || flexCard.vendor?.name}
+                />
+              )}
             </div>
 
             <div className="text-center mb-8">
               <h1 className="text-2xl md:text-3xl font-bold v2-headline text-[var(--v2-on-surface)] mb-2">
-                You've got a Flex Card!
+                You've got a {flexCard.is_flex_card ? 'Flex Card' : 'Gift Card'}
+                !
               </h1>
-              <p className="text-[var(--v2-on-surface-variant)]">Sign in to claim your card</p>
+              <p className="text-[var(--v2-on-surface-variant)]">
+                Sign in to claim your card
+              </p>
             </div>
 
             {/* Recipient Email */}
             {flexCard.recipient_email && (
               <div className="bg-[var(--v2-surface-container-low)] rounded-2xl p-4 mb-8 text-center">
-                <p className="text-sm text-[var(--v2-on-surface-variant)] mb-1">This card was sent to</p>
-                <p className="text-[var(--v2-on-surface)] font-bold break-all">{flexCard.recipient_email}</p>
+                <p className="text-sm text-[var(--v2-on-surface-variant)] mb-1">
+                  This card was sent to
+                </p>
+                <p className="text-[var(--v2-on-surface)] font-bold break-all">
+                  {flexCard.recipient_email}
+                </p>
               </div>
             )}
 
@@ -182,8 +221,7 @@ export default function ClaimFlexCardPage() {
             <div className="space-y-3">
               <Link
                 href={`/login?redirect=/claim/flex/${params.code}${flexCard.recipient_email ? `&email=${flexCard.recipient_email}` : ''}`}
-                className="block"
-              >
+                className="block">
                 <button className="w-full h-14 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-2xl flex items-center justify-center gap-2 transition-transform active:scale-[0.98] shadow-lg shadow-[var(--v2-primary)]/20">
                   <span className="v2-icon">lock</span>
                   Log In to Claim
@@ -203,8 +241,7 @@ export default function ClaimFlexCardPage() {
 
               <Link
                 href={`/signup?redirect=/claim/flex/${params.code}${flexCard.recipient_email ? `&email=${flexCard.recipient_email}` : ''}`}
-                className="block"
-              >
+                className="block">
                 <button className="w-full h-14 bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] font-bold rounded-2xl flex items-center justify-center gap-2 hover:bg-[var(--v2-surface-container-high)] transition-colors">
                   <span className="v2-icon">person_add</span>
                   Create Account
@@ -213,7 +250,8 @@ export default function ClaimFlexCardPage() {
             </div>
 
             <p className="text-xs text-[var(--v2-on-surface-variant)] text-center mt-8">
-              Sign in with the email address above to claim your Flex Card
+              Sign in with the email address above to claim your{' '}
+              {flexCard.is_flex_card ? 'Flex Card' : 'Gift Card'}
             </p>
           </div>
         </main>
@@ -229,24 +267,35 @@ export default function ClaimFlexCardPage() {
         <main className="flex-1 flex flex-col items-center justify-center p-4">
           <div className="w-full max-w-md text-center">
             <div className="w-20 h-20 bg-[var(--v2-tertiary)]/10 rounded-[1.5rem] flex items-center justify-center mx-auto mb-6">
-              <span className="v2-icon text-4xl text-[var(--v2-tertiary)]">lock</span>
+              <span className="v2-icon text-4xl text-[var(--v2-tertiary)]">
+                lock
+              </span>
             </div>
             <h1 className="text-2xl font-bold v2-headline text-[var(--v2-on-surface)] mb-3">
               Wrong Account
             </h1>
             <p className="text-[var(--v2-on-surface-variant)] mb-6">
-              This Flex Card was sent to a different email address.
+              This {flexCard.is_flex_card ? 'Flex Card' : 'Gift Card'} was sent
+              to a different email address.
             </p>
 
             {/* Email Comparison */}
             <div className="space-y-3 mb-8">
               <div className="bg-[var(--v2-surface-container-low)] rounded-xl p-4 text-left">
-                <p className="text-xs text-[var(--v2-on-surface-variant)] mb-1">Card sent to</p>
-                <p className="text-[var(--v2-on-surface)] font-bold break-all">{flexCard.recipient_email}</p>
+                <p className="text-xs text-[var(--v2-on-surface-variant)] mb-1">
+                  Card sent to
+                </p>
+                <p className="text-[var(--v2-on-surface)] font-bold break-all">
+                  {flexCard.recipient_email}
+                </p>
               </div>
               <div className="bg-[var(--v2-surface-container-low)] rounded-xl p-4 text-left">
-                <p className="text-xs text-[var(--v2-on-surface-variant)] mb-1">You're logged in as</p>
-                <p className="text-[var(--v2-on-surface)] font-bold break-all">{profile.email}</p>
+                <p className="text-xs text-[var(--v2-on-surface-variant)] mb-1">
+                  You're logged in as
+                </p>
+                <p className="text-[var(--v2-on-surface)] font-bold break-all">
+                  {profile.email}
+                </p>
               </div>
             </div>
 
@@ -255,10 +304,11 @@ export default function ClaimFlexCardPage() {
               <button
                 onClick={handleSignOut}
                 disabled={isLoggingOut}
-                className="w-full h-12 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-2xl flex items-center justify-center gap-2 transition-transform active:scale-[0.98] disabled:opacity-70"
-              >
+                className="w-full h-12 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-2xl flex items-center justify-center gap-2 transition-transform active:scale-[0.98] disabled:opacity-70">
                 {isLoggingOut ? (
-                  <span className="v2-icon animate-spin">progress_activity</span>
+                  <span className="v2-icon animate-spin">
+                    progress_activity
+                  </span>
                 ) : (
                   <span className="v2-icon">logout</span>
                 )}
@@ -277,7 +327,8 @@ export default function ClaimFlexCardPage() {
   }
 
   // Main Claim View
-  const senderName = flexCard.sender_name || flexCard.sender?.display_name || 'Someone';
+  const senderName =
+    flexCard.sender_name || flexCard.sender?.display_name || 'Someone';
 
   return (
     <div className="min-h-screen bg-[var(--v2-background)] flex flex-col">
@@ -286,26 +337,45 @@ export default function ClaimFlexCardPage() {
       <main className="flex-1 flex flex-col p-4 pb-8">
         <div className="w-full max-w-lg mx-auto flex-1 flex flex-col">
           {/* Interactive Flex Card */}
-          <div className="flex justify-center mb-6">
-            <FlexCard
-              code={flexCard.code}
-              initialAmount={flexCard.initial_amount}
-              currentBalance={flexCard.current_balance}
-              currency={flexCard.currency}
-              status={flexCard.status}
-              senderName={senderName}
-              message={flexCard.message}
-              createdAt={flexCard.created_at}
-              variant="premium"
-              interactive={true}
-            />
+          <div className="flex justify-center mb-8">
+            {flexCard.is_flex_card ? (
+              <FlexCard
+                code={flexCard.code}
+                initialAmount={flexCard.initial_amount}
+                currentBalance={flexCard.current_balance}
+                currency={flexCard.currency}
+                status={flexCard.status}
+                senderName={senderName}
+                message={flexCard.message}
+                createdAt={flexCard.created_at}
+                variant="premium"
+                interactive={true}
+              />
+            ) : (
+              <GiftCard
+                code={flexCard.code}
+                initialAmount={flexCard.initial_amount}
+                currentBalance={flexCard.current_balance}
+                currency={flexCard.currency}
+                status={flexCard.status}
+                senderName={senderName}
+                message={flexCard.message}
+                createdAt={flexCard.created_at}
+                variant="premium"
+                interactive={true}
+                cardName={flexCard.name}
+                vendorName={flexCard.vendor_name || flexCard.vendor?.name}
+              />
+            )}
           </div>
 
           {/* Gift Info */}
           <div className="text-center mb-6">
             <h1 className="text-xl md:text-2xl font-bold v2-headline text-[var(--v2-on-surface)] mb-2">
-              A Flex Card from{' '}
-              <span className="text-[var(--v2-primary)] capitalize">{senderName}</span>
+              A {flexCard.is_flex_card ? 'Flex Card' : 'Gift Card'} from{' '}
+              <span className="text-[var(--v2-primary)] capitalize">
+                {senderName}
+              </span>
             </h1>
             <p className="text-[var(--v2-on-surface-variant)]">
               Worth {formatCurrency(flexCard.initial_amount, flexCard.currency)}
@@ -316,9 +386,24 @@ export default function ClaimFlexCardPage() {
           {flexCard.message && (
             <div className="bg-[var(--v2-surface-container-low)] rounded-2xl p-4 mb-6">
               <div className="flex items-start gap-3">
-                <span className="v2-icon text-[var(--v2-on-surface-variant)]">chat_bubble</span>
-                <p className="text-[var(--v2-on-surface)] italic">"{flexCard.message}"</p>
+                <span className="v2-icon text-[var(--v2-on-surface-variant)]">
+                  chat_bubble
+                </span>
+                <p className="text-[var(--v2-on-surface)] italic">
+                  "{flexCard.message}"
+                </p>
               </div>
+            </div>
+          )}
+
+          {/* Vendor Discovery Section */}
+          {globalFlexCard && (
+            <div className="mb-8">
+              <V2VendorDiscovery
+                giftCardId={globalFlexCard.id}
+                country={globalFlexCard.country}
+                variant="list"
+              />
             </div>
           )}
 
@@ -329,16 +414,28 @@ export default function ClaimFlexCardPage() {
             </p>
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm">
-                <span className="v2-icon text-[var(--v2-primary)] text-base">check_circle</span>
-                <span className="text-[var(--v2-on-surface)]">Use at any participating vendor</span>
+                <span className="v2-icon text-[var(--v2-primary)] text-base">
+                  check_circle
+                </span>
+                <span className="text-[var(--v2-on-surface)]">
+                  Use at any participating vendor
+                </span>
               </div>
               <div className="flex items-center gap-2 text-sm">
-                <span className="v2-icon text-[var(--v2-primary)] text-base">check_circle</span>
-                <span className="text-[var(--v2-on-surface)]">Partial redemption supported</span>
+                <span className="v2-icon text-[var(--v2-primary)] text-base">
+                  check_circle
+                </span>
+                <span className="text-[var(--v2-on-surface)]">
+                  Partial redemption supported
+                </span>
               </div>
               <div className="flex items-center gap-2 text-sm">
-                <span className="v2-icon text-[var(--v2-primary)] text-base">check_circle</span>
-                <span className="text-[var(--v2-on-surface)]">Never expires</span>
+                <span className="v2-icon text-[var(--v2-primary)] text-base">
+                  check_circle
+                </span>
+                <span className="text-[var(--v2-on-surface)]">
+                  Never expires
+                </span>
               </div>
             </div>
           </div>
@@ -348,13 +445,12 @@ export default function ClaimFlexCardPage() {
             <button
               onClick={handleClaim}
               disabled={claiming}
-              className="w-full h-14 v2-hero-gradient text-[var(--v2-on-primary)] text-lg font-bold rounded-2xl flex items-center justify-center gap-2 transition-transform active:scale-[0.98] disabled:opacity-70 shadow-lg shadow-[var(--v2-primary)]/20"
-            >
+              className="w-full h-14 v2-hero-gradient text-[var(--v2-on-primary)] text-lg font-bold rounded-2xl flex items-center justify-center gap-2 transition-transform active:scale-[0.98] disabled:opacity-70 shadow-lg shadow-[var(--v2-primary)]/20">
               {claiming ? (
                 <span className="v2-icon animate-spin">progress_activity</span>
               ) : (
                 <>
-                  Claim Flex Card
+                  Claim {flexCard.is_flex_card ? 'Flex Card' : 'Gift Card'}
                   <span className="v2-icon">arrow_forward</span>
                 </>
               )}
@@ -372,24 +468,42 @@ export default function ClaimFlexCardPage() {
       </main>
 
       {/* Card Modal for viewing details */}
-      {showCardModal && (
-        <FlexCardModal
-          card={{
-            id: flexCard.id,
-            code: flexCard.code,
-            initial_amount: flexCard.initial_amount,
-            current_balance: flexCard.current_balance,
-            currency: flexCard.currency,
-            status: flexCard.status,
-            sender_name: flexCard.sender_name,
-            message: flexCard.message,
-            created_at: flexCard.created_at,
-            sender: flexCard.sender,
-          }}
-          open={showCardModal}
-          onClose={() => setShowCardModal(false)}
-        />
-      )}
+      {showCardModal &&
+        (flexCard.is_flex_card ? (
+          <FlexCardModal
+            card={{
+              id: flexCard.id,
+              code: flexCard.code,
+              initial_amount: flexCard.initial_amount,
+              current_balance: flexCard.current_balance,
+              currency: flexCard.currency,
+              status: flexCard.status,
+              sender_name: flexCard.sender_name,
+              message: flexCard.message,
+              created_at: flexCard.created_at,
+              sender: flexCard.sender,
+            }}
+            open={showCardModal}
+            onClose={() => setShowCardModal(false)}
+          />
+        ) : (
+          <GiftCardModal
+            card={{
+              id: flexCard.id,
+              code: flexCard.code,
+              initial_amount: flexCard.initial_amount,
+              current_balance: flexCard.current_balance,
+              currency: flexCard.currency,
+              status: flexCard.status,
+              sender_name: flexCard.sender_name,
+              message: flexCard.message,
+              created_at: flexCard.created_at,
+              sender: flexCard.sender,
+            }}
+            open={showCardModal}
+            onClose={() => setShowCardModal(false)}
+          />
+        ))}
     </div>
   );
 }
