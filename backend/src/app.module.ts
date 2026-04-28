@@ -28,8 +28,7 @@ import { CountryConfigModule } from './modules/country-config/country-config.mod
 import { AdsModule } from './modules/ads/ads.module';
 import { CatalogModule } from './modules/catalog/catalog.module';
 import { GiftCardModule } from './modules/gift-card/gift-card.module';
-
-
+import { UserGiftCardModule } from './modules/user-gift-card/user-gift-card.module';
 
 @Module({
   imports: [
@@ -60,6 +59,7 @@ import { GiftCardModule } from './modules/gift-card/gift-card.module';
     AdsModule,
     CatalogModule,
     GiftCardModule,
+    UserGiftCardModule,
   ],
 
 

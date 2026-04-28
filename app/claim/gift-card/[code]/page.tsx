@@ -2,38 +2,31 @@
 
 import {useProfile} from '@/hooks/use-profile';
 import {getCurrencySymbol} from '@/lib/currencies';
-import {useGiftByCode, useClaimGift} from '@/hooks/use-claims';
+import {useUserGiftCardByToken, useClaimUserGiftCard} from '@/hooks/use-claims';
 import {authClient} from '@/lib/auth-client';
-import {useGiftCardBySlug} from '@/hooks/use-gift-cards';
 import Link from 'next/link';
 import {useParams, useRouter} from 'next/navigation';
 import {useMemo, useState} from 'react';
 import {toast} from 'sonner';
-import {V2VendorDiscovery} from '../../components/V2VendorDiscovery';
-import { GiftCard3D } from '../../gift-shop/components/GiftCardVariants';
-import { FlexCard3D } from '../../gift-shop/components/FlexCardVariants';
+import {V2VendorDiscovery} from '../../../components/V2VendorDiscovery';
+import { GiftCard3D } from '../../../gift-shop/components/GiftCardVariants';
 
-export default function ClaimGiftPage() {
+export default function ClaimGiftCardPage() {
   const params = useParams();
   const router = useRouter();
   const {data: profile, isLoading: profileLoading} = useProfile();
-  const code = params.id as string;
+  const code = params.code as string;
   
-  const {data: gift, isLoading: giftLoading} = useGiftByCode(code);
-  const {data: globalFlexCard} = useGiftCardBySlug('flex-card');
+  const {data: gift, isLoading: giftLoading} = useUserGiftCardByToken(code);
   
-  const claimMutation = useClaimGift();
+  const claimMutation = useClaimUserGiftCard();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
 
   const handleClaim = async () => {
     claimMutation.mutate(code, {
       onSuccess: () => {
-        toast.success(
-          gift?.claimableType === 'money'
-            ? 'Gift claimed and added to your wallet!'
-            : 'Gift successfully claimed!'
-        );
+        toast.success('Gift card claimed successfully! Added to your gifts.');
         router.push('/dashboard?tab=my-gifts');
       }
     });
@@ -66,7 +59,7 @@ export default function ClaimGiftPage() {
         <span className="v2-icon text-4xl text-[var(--v2-primary)] animate-spin mb-3">
           progress_activity
         </span>
-        <p className="text-sm text-[var(--v2-on-surface-variant)]">Loading your gift...</p>
+        <p className="text-sm text-[var(--v2-on-surface-variant)]">Loading your gift card...</p>
       </div>
     );
   }
@@ -126,21 +119,21 @@ export default function ClaimGiftPage() {
                 </span>
               </div>
               <h1 className="text-2xl md:text-3xl font-bold v2-headline text-[var(--v2-on-surface)] mb-2">
-                You've got a gift!
+                You've got a gift card!
               </h1>
               <p className="text-[var(--v2-on-surface-variant)]">Someone sent you something special</p>
             </div>
 
             {/* Recipient Email */}
             <div className="bg-[var(--v2-surface-container-low)] rounded-2xl p-4 mb-8 text-center">
-              <p className="text-sm text-[var(--v2-on-surface-variant)] mb-1">This gift was sent to</p>
-              <p className="text-[var(--v2-on-surface)] font-bold break-all">{gift.recipient_email}</p>
+              <p className="text-sm text-[var(--v2-on-surface-variant)] mb-1">This gift card was sent to</p>
+              <p className="text-[var(--v2-on-surface)] font-bold break-all">{gift.recipientEmail}</p>
             </div>
 
             {/* Auth Buttons */}
             <div className="space-y-3">
               <Link
-                href={`/login?redirect=/claim/${params.id}&email=${gift.recipient_email}`}
+                href={`/login?redirect=/claim/gift-card/${params.code}&email=${gift.recipientEmail}`}
                 className="block"
               >
                 <button className="w-full h-14 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-2xl flex items-center justify-center gap-2 transition-transform active:scale-[0.98] shadow-lg shadow-[var(--v2-primary)]/20">
@@ -161,7 +154,7 @@ export default function ClaimGiftPage() {
               </div>
 
               <Link
-                href={`/signup?redirect=/claim/${params.id}&email=${gift.recipient_email}`}
+                href={`/signup?redirect=/claim/gift-card/${params.code}&email=${gift.recipientEmail}`}
                 className="block"
               >
                 <button className="w-full h-14 bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] font-bold rounded-2xl flex items-center justify-center gap-2 hover:bg-[var(--v2-surface-container-high)] transition-colors">
@@ -172,7 +165,7 @@ export default function ClaimGiftPage() {
             </div>
 
             <p className="text-xs text-[var(--v2-on-surface-variant)] text-center mt-8">
-              Sign in with the email address above to claim your gift
+              Sign in with the email address above to claim your gift card
             </p>
           </div>
         </main>
@@ -181,7 +174,7 @@ export default function ClaimGiftPage() {
   }
 
   // Wrong Account State
-  if (gift.recipient_email && profile.email !== gift.recipient_email) {
+  if (gift.recipientEmail && profile.email !== gift.recipientEmail) {
     return (
       <div className="min-h-screen bg-[var(--v2-background)] flex flex-col">
         <Header />
@@ -194,7 +187,7 @@ export default function ClaimGiftPage() {
               Wrong Account
             </h1>
             <p className="text-[var(--v2-on-surface-variant)] mb-6">
-              This gift was sent to a different email address.
+              This gift card was sent to a different email address.
             </p>
 
             {/* Email Comparison */}
@@ -202,7 +195,7 @@ export default function ClaimGiftPage() {
               <div className="bg-[var(--v2-surface-container-low)] rounded-xl p-4 text-left">
                 <p className="text-xs text-[var(--v2-on-surface-variant)] mb-1">Gift sent to</p>
                 <p className="text-[var(--v2-on-surface)] font-bold break-all">
-                  {gift.recipient_email}
+                  {gift.recipientEmail}
                 </p>
               </div>
               <div className="bg-[var(--v2-surface-container-low)] rounded-xl p-4 text-left">
@@ -239,14 +232,78 @@ export default function ClaimGiftPage() {
     );
   }
 
-  // Main Claim View
-  const senderName = gift.senderName || gift.user?.displayName || 'Someone';
-  const giftName = gift.product?.name || gift.title || 'Gift';
-  const giftImage = gift.product?.imageUrl || null;
-  const vendorName =
-    gift.product?.vendor?.shopName || gift.product?.vendor?.displayName || 'Vendor';
-  const currency = getCurrencySymbol(gift.currency || 'USD');
+  // Already Claimed State
+  if (gift.userId) {
+    const senderName = gift.senderName || gift.sender?.displayName || 'Someone';
+    const giftName = gift.giftCard?.name || 'Gift Card';
+    return (
+      <div className="min-h-screen bg-[var(--v2-background)] flex flex-col">
+        <Header />
+        <main className="flex-1 flex flex-col p-4 pb-8">
+          <div className="w-full max-w-lg mx-auto flex-1 flex flex-col">
+            <div className="bg-[var(--v2-surface-container-low)] rounded-[2rem] overflow-hidden flex-1 flex flex-col">
+              <div className="p-6 md:p-8 flex-1 flex flex-col items-center justify-center text-center overflow-visible">
+                <div className="w-[330px] sm:w-[360px] md:w-[460px] aspect-[1.586/1] relative z-20 mb-8" style={{ perspective: '2000px' }}>
+                  <GiftCard3D
+                    variant="dynamic"
+                    dynamicStyle={{
+                      colorFrom: gift.giftCard?.colorFrom || '#1e1e1e',
+                      colorTo: gift.giftCard?.colorTo || '#111111'
+                    }}
+                    isFlipped={isFlipped}
+                    onFlipToggle={setIsFlipped}
+                    amount={Number(gift.initialAmount)}
+                    mode="preview"
+                    cardName={giftName}
+                    icon={gift.giftCard?.icon || 'storefront'}
+                    description={gift.giftCard?.usageDescription}
+                  />
+                </div>
 
+                <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="v2-icon text-4xl text-emerald-500" style={{fontVariationSettings: "'FILL' 1"}}>check_circle</span>
+                </div>
+                <h1 className="text-xl md:text-2xl font-bold v2-headline text-[var(--v2-on-surface)] mb-2">
+                  Gift Card Already Claimed
+                </h1>
+                <p className="text-[var(--v2-on-surface-variant)] mb-2">
+                  This gift card from <span className="font-bold text-[var(--v2-primary)] capitalize">{senderName}</span> has already been claimed.
+                </p>
+                <p className="text-sm text-[var(--v2-on-surface-variant)]">
+                  Balance: <span className="font-bold text-[var(--v2-on-surface)]">₦{Number(gift.currentBalance).toLocaleString()}</span>
+                </p>
+              </div>
+
+              <div className="p-4 md:p-6 border-t border-[var(--v2-outline-variant)]/10 bg-[var(--v2-surface-container-lowest)]">
+                <Link href="/dashboard?tab=my-gifts" className="block">
+                  <button className="w-full h-14 v2-hero-gradient text-[var(--v2-on-primary)] text-lg font-bold rounded-2xl flex items-center justify-center gap-2 transition-transform active:scale-[0.98] shadow-lg shadow-[var(--v2-primary)]/20">
+                    View in My Gifts
+                    <span className="v2-icon">arrow_forward</span>
+                  </button>
+                </Link>
+              </div>
+            </div>
+
+            {/* Vendor Discovery Section */}
+            {gift.giftCardId && (
+              <div className="mb-8 mt-8">
+                <V2VendorDiscovery 
+                  giftCardId={gift.giftCardId} 
+                  country={gift.giftCard?.country}
+                  variant="list"
+                />
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // Main Claim View
+  const senderName = gift.senderName || gift.sender?.displayName || 'Someone';
+  const giftName = gift.giftCard?.name || 'Gift Card';
+  
   return (
     <div className="min-h-screen bg-[var(--v2-background)] flex flex-col">
       <Header />
@@ -258,34 +315,20 @@ export default function ClaimGiftPage() {
             {/* Premium 3D Card Display */}
             <div className="p-6 md:p-8 flex-1 flex flex-col items-center justify-center text-center overflow-visible">
               <div className="w-[330px] sm:w-[360px] md:w-[460px] aspect-[1.586/1] relative z-20 mb-8" style={{ perspective: '2000px' }}>
-                {gift.claimableType === 'money' || gift.isFlexCard ? (
-                  <FlexCard3D
-                    variant="dynamic"
-                    dynamicStyle={{
-                      colorFrom: gift.giftCard?.colorFrom || gift.product?.colorFrom || '#1e1e1e',
-                      colorTo: gift.giftCard?.colorTo || gift.product?.colorTo || '#111111'
-                    }}
-                    isFlipped={isFlipped}
-                    onFlipToggle={setIsFlipped}
-                    amount={Number(gift.goalAmount || gift.amount)}
-                    mode="preview"
-                  />
-                ) : (
-                  <GiftCard3D
-                    variant="dynamic"
-                    dynamicStyle={{
-                      colorFrom: gift.giftCard?.colorFrom || gift.product?.colorFrom || '#1e1e1e',
-                      colorTo: gift.giftCard?.colorTo || gift.product?.colorTo || '#111111'
-                    }}
-                    isFlipped={isFlipped}
-                    onFlipToggle={setIsFlipped}
-                    amount={Number(gift.goalAmount || gift.amount)}
-                    mode="preview"
-                    cardName={giftName}
-                    icon={gift.giftCard?.icon || gift.product?.icon || 'storefront'}
-                    description={gift.description}
-                  />
-                )}
+                <GiftCard3D
+                  variant="dynamic"
+                  dynamicStyle={{
+                    colorFrom: gift.giftCard?.colorFrom || '#1e1e1e',
+                    colorTo: gift.giftCard?.colorTo || '#111111'
+                  }}
+                  isFlipped={isFlipped}
+                  onFlipToggle={setIsFlipped}
+                  amount={Number(gift.initialAmount)}
+                  mode="preview"
+                  cardName={giftName}
+                  icon={gift.giftCard?.icon || 'storefront'}
+                  description={gift.giftCard?.usageDescription}
+                />
               </div>
 
               {/* Gift Info */}
@@ -320,7 +363,7 @@ export default function ClaimGiftPage() {
                   <span className="v2-icon animate-spin">progress_activity</span>
                 ) : (
                   <>
-                    Claim Gift
+                    Claim Gift Card
                     <span className="v2-icon">arrow_forward</span>
                   </>
                 )}
@@ -337,7 +380,7 @@ export default function ClaimGiftPage() {
           </div>
 
           {/* Vendor Discovery Section */}
-          {gift.giftCardId ? (
+          {gift.giftCardId && (
             <div className="mb-8 mt-8">
               <V2VendorDiscovery 
                 giftCardId={gift.giftCardId} 
@@ -345,15 +388,7 @@ export default function ClaimGiftPage() {
                 variant="list"
               />
             </div>
-          ) : globalFlexCard ? (
-            <div className="mb-8 mt-8">
-              <V2VendorDiscovery 
-                giftCardId={globalFlexCard.id} 
-                country={globalFlexCard.country}
-                variant="list"
-              />
-            </div>
-          ) : null}
+          )}
 
         </div>
       </main>

@@ -20,7 +20,7 @@ import {useMyCountryConfig} from '@/hooks/use-country-config';
 import {formatCurrency} from '@/lib/utils/currency';
 import {useEffect, useMemo, useState} from 'react';
 import {toast} from 'sonner';
-import {useGiftByCode, useClaimGift, useMyFlexCards} from '@/hooks/use-claims';
+import {useGiftByCode, useClaimGift, useMyFlexCards, useMyUserGiftCards} from '@/hooks/use-claims';
 import {FlexCardComponent, FlexCardModal} from '../../../components/FlexCard';
 import {GiftCardListItem as GiftCardComponent, GiftCardModal} from '../../../components/GiftCard';
 
@@ -53,8 +53,10 @@ export function V2WalletTab() {
   const {data: walletProfile, isLoading} = useWalletProfile();
   const {data: banksData} = useBanks(selectedCountry);
   const {data: flexCardsRes, isLoading: isLoadingFlexCards} = useMyFlexCards();
+  const {data: userGiftCards = [], isLoading: isLoadingGiftCards} = useMyUserGiftCards();
 
   const flexCards = flexCardsRes?.data || [];
+  const giftCards = Array.isArray(userGiftCards) ? userGiftCards : [];
   const resolveAccount = useResolveAccount();
   const addBankAccountMutation = useAddBankAccount();
   const withdrawMutation = useWithdraw();
@@ -138,6 +140,13 @@ export function V2WalletTab() {
       .filter((card: any) => card.status === 'active' || card.status === 'partially_used')
       .reduce((sum: number, card: any) => sum + (card.current_balance || 0), 0);
   }, [flexCards]);
+
+  // Calculate gift card total balance
+  const totalGiftCardBalance = useMemo(() => {
+    return giftCards
+      .filter((card: any) => card.status === 'active' || card.status === 'partially_used')
+      .reduce((sum: number, card: any) => sum + Number(card.currentBalance || 0), 0);
+  }, [giftCards]);
 
   const userCurrency = myCountryConfig?.currency || 'NGN';
   const currencySymbol = myCountryConfig?.currencySymbol || '₦';
@@ -409,6 +418,61 @@ export function V2WalletTab() {
               View all {flexCards.length} Flex Cards
             </button>
           )}
+        </div>
+      )}
+
+      {/* Gift Cards Section */}
+      {giftCards.length > 0 && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h4 className="text-lg md:text-xl font-bold tracking-tight v2-headline text-[var(--v2-on-surface)]">
+              My Gift Cards
+            </h4>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-[var(--v2-on-surface-variant)]">
+                Total Balance:
+              </span>
+              <span className="font-bold text-violet-500">
+                {formatCurrency(totalGiftCardBalance, userCurrency)}
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {giftCards.filter((card: any) => card.status !== 'redeemed').map((card: any) => (
+              <div
+                key={card.id}
+                className="bg-[var(--v2-surface-container-lowest)] rounded-2xl p-4 flex items-center gap-4 shadow-sm hover:shadow-md transition-all cursor-pointer border border-[var(--v2-outline-variant)]/10"
+              >
+                <div
+                  className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: `linear-gradient(135deg, ${card.giftCard?.colorFrom || '#7c3aed'}, ${card.giftCard?.colorTo || '#6d28d9'})` }}
+                >
+                  <span className="v2-icon text-white text-xl">{card.giftCard?.icon || 'card_giftcard'}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <h4 className="font-bold text-[var(--v2-on-surface)] truncate">
+                      {card.giftCard?.name || 'Gift Card'}
+                    </h4>
+                  </div>
+                  <p className="text-xs text-[var(--v2-on-surface-variant)]">
+                    From {card.senderName || card.sender?.displayName || 'Someone'}
+                  </p>
+                  <button className="mt-1 text-[10px] font-bold text-[var(--v2-primary)] hover:underline flex items-center gap-0.5">
+                    View details
+                    <span className="v2-icon text-[10px]">chevron_right</span>
+                  </button>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold text-[var(--v2-on-surface)]">
+                    ₦{Number(card.currentBalance).toLocaleString()}
+                  </p>
+                  <p className="text-[10px] text-[var(--v2-on-surface-variant)]">balance</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

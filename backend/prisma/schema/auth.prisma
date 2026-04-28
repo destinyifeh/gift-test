@@ -84,6 +84,9 @@ model User {
   withdrawals             Withdrawal[]
   directGiftsSent         DirectGift[]          @relation("UserDirectGifts")
   directGiftsRedeemed     DirectGift[]          @relation("DirectGiftRedeemedByVendor")
+  sentUserGiftCards         UserGiftCard[]          @relation("SentUserGiftCards")
+  receivedUserGiftCards     UserGiftCard[]          @relation("ReceivedUserGiftCards")
+  userGiftCardTransactions  UserGiftCardTransaction[] @relation("UserGiftCardTransactions")
 
   adminLogs         AdminLog[]
   notifications     Notification[]

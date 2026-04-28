@@ -27,6 +27,7 @@ model GiftCard {
   vendors VendorAcceptedGiftCard[]
   directGifts DirectGift[]
   campaigns   Campaign[]
+  userGiftCards UserGiftCard[]
 
   @@map("gift_cards")
 }

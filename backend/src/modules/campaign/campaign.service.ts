@@ -50,7 +50,9 @@ export class CampaignService {
 
     const campaign = await (this.prisma as any).campaign.create({
       data: {
-        ...campaignData,
+        title: campaignData.title,
+        description: campaignData.description,
+        category: campaignData.category,
         goalAmount,
         minAmount,
         contributorsSeeEachOther,
@@ -62,6 +64,15 @@ export class CampaignService {
         campaignSlug,
         giftCode,
         giftCardId: data.giftCardId,
+        claimableType: data.claimableType,
+        claimableGiftId: data.claimableGiftId,
+        recipientEmail: data.recipientEmail,
+        message: data.message,
+        deliveryMethod: data.deliveryMethod,
+        recipientPhone: data.recipientPhone,
+        recipientCountryCode: data.recipientCountryCode,
+        whatsappFee: data.whatsappFee || 0,
+        senderName: data.senderName,
         endDate: endDate ? new Date(endDate) : null,
       },
     });
@@ -72,6 +83,7 @@ export class CampaignService {
       const claimUrl = `${siteUrl}/claim/${giftCode || campaign.campaignSlug}`;
       
       try {
+        console.log(`[CampaignService] Attempting to send gift email to: ${data.recipientEmail}`);
         await this.emailService.sendGiftEmail({
           to: data.recipientEmail,
           senderName: data.senderName || 'Someone',
@@ -81,18 +93,21 @@ export class CampaignService {
           message: data.message,
           claimUrl,
         });
+        console.log(`[CampaignService] Gift email sent successfully to: ${data.recipientEmail}`);
       } catch (err) {
-        this.logger.error('Failed to send campaign gift email', err);
+        this.logger.error(`Failed to send campaign gift email to ${data.recipientEmail}`, err);
       }
 
       // Create internal notification for recipient if they exist
       try {
-        const recipient = await (this.prisma as any).user.findUnique({
-          where: { email: data.recipientEmail },
-          select: { id: true },
+        console.log(`[CampaignService] Checking for existing user with email: ${data.recipientEmail}`);
+        const recipient = await (this.prisma as any).user.findFirst({
+          where: { email: { equals: data.recipientEmail.trim(), mode: 'insensitive' } },
+          select: { id: true, email: true },
         });
 
         if (recipient) {
+          console.log(`[CampaignService] Recipient found (ID: ${recipient.id}). Creating notification.`);
           await this.notificationService.create({
             userId: recipient.id,
             type: 'gift_received',
@@ -104,9 +119,12 @@ export class CampaignService {
               amount: data.goalAmount,
             },
           });
+          console.log(`[CampaignService] Notification created successfully for user ${recipient.id}`);
+        } else {
+          console.log(`[CampaignService] No existing user found with email: ${data.recipientEmail}`);
         }
       } catch (err) {
-        this.logger.error('Failed to create recipient notification', err);
+        this.logger.error(`Failed to create recipient notification for ${data.recipientEmail}`, err);
       }
     }
 

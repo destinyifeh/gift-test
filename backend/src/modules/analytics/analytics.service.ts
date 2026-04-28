@@ -548,6 +548,7 @@ export class AnalyticsService {
     });
 
     const email = user?.email;
+    console.log(`[AnalyticsService] Fetching unclaimed gifts for user: ${userId}, email: ${email}`);
     if (!email) return { data: [], flexCards: [] };
 
     const [unclaimedGifts, unclaimedFlexCards] = await Promise.all([

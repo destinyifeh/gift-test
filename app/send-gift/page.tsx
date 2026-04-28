@@ -180,14 +180,40 @@ export default function V2SendGiftPage() {
               return;
             }
 
-            // Create campaign for money/gift-card
+            // Handle Gift Card creation
+            if (giftType === 'gift-card' && giftId) {
+              const {createUserGiftCard} = await import('@/lib/server/actions/user-gift-cards');
+              const giftCardResult = await createUserGiftCard({
+                giftCardId: giftId,
+                initialAmount: finalGoal,
+                currency: 'NGN',
+                recipientEmail: deliveryType === 'direct' && deliveryMethod === 'email' ? recipientEmail : undefined,
+                senderName: isAnonymous ? (senderName || 'Someone') : (senderName || undefined),
+                message: message || undefined,
+                deliveryMethod: deliveryType === 'direct' ? deliveryMethod : 'email',
+                recipientPhone: deliveryType === 'direct' && deliveryMethod === 'whatsapp'
+                  ? formatE164(recipientPhone, recipientCountryCode)
+                  : undefined,
+              });
+
+              if (giftCardResult.success && giftCardResult.data) {
+                setCampaignSlug(deliveryType === 'claim-link' ? giftCardResult.data.claimToken || giftCardResult.data.code : giftCardResult.data.code);
+                setSubmitted(true);
+                toast.success('Gift sent successfully!');
+              } else {
+                toast.error(giftCardResult.error || 'Payment successful but failed to create gift card.');
+              }
+              setIsSubmitting(false);
+              return;
+            }
+
+            // Create campaign for money
             const payload = {
               category: 'claimable',
-              title: giftType === 'money' ? 'Cash Gift' : 'Gift Card',
+              title: 'Cash Gift',
               claimableType: giftType,
               goalAmount: finalGoal,
               currency: 'NGN',
-              claimableGiftId: giftId || undefined,
               recipientEmail: deliveryType === 'direct' && deliveryMethod === 'email' ? recipientEmail : undefined,
               senderEmail: userEmail,
               senderName: isAnonymous ? (senderName || 'Someone') : (senderName || undefined),
@@ -869,7 +895,11 @@ function V2SuccessScreen({slug, isClaimLink, giftType}: {slug: string; isClaimLi
     setOrigin(window.location.origin);
   }, []);
 
-  const claimUrl = giftType === 'flex-card' ? `${origin}/claim/flex/${slug}` : `${origin}/claim/${slug}`;
+  const claimUrl = giftType === 'flex-card' 
+    ? `${origin}/claim/flex/${slug}` 
+    : giftType === 'gift-card'
+      ? `${origin}/claim/gift-card/${slug}`
+      : `${origin}/claim/${slug}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(claimUrl);

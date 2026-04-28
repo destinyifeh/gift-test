@@ -154,25 +154,17 @@ export const V2SendGiftCardModal = ({
                 message: formData.message || undefined,
               });
             } else {
-              const { createCampaign } = await import('@/lib/server/actions/campaigns');
-              await createCampaign({
-                category: 'claimable',
-                title: giftCard.name,
-                claimableType: 'gift-card',
+              const { createUserGiftCard } = await import('@/lib/server/actions/user-gift-cards');
+              await createUserGiftCard({
                 giftCardId: Number(giftCard.id),
-                goalAmount: giftCard.amount,
+                initialAmount: giftCard.amount,
                 currency: giftCard.currency || 'NGN',
                 recipientEmail: deliveryMethod === 'email' ? formData.recipientEmail : undefined,
-                senderEmail: formData.senderEmail,
+                recipientPhone: deliveryMethod === 'whatsapp' ? formatE164(phoneNumber, countryCode) : undefined,
+                deliveryMethod,
                 senderName: formData.isAnonymous ? 'Anonymous' : formData.senderName || undefined,
                 message: formData.message || undefined,
-                status: 'active',
-                paymentReference: response.reference,
-                deliveryMethod,
-                recipientPhone: deliveryMethod === 'whatsapp' ? formatE164(phoneNumber, countryCode) : undefined,
-                recipientCountryCode: countryCode,
-                whatsappFee,
-              } as any);
+              });
             }
             toast.success('Gift card issued successfully!');
           } catch (e: any) {

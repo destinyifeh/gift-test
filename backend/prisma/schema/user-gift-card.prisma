@@ -1,0 +1,41 @@
+model UserGiftCard {
+  id             Int       @id @default(autoincrement())
+  userId         String?
+  recipient      User?     @relation("ReceivedUserGiftCards", fields: [userId], references: [id], onDelete: SetNull)
+  senderId       String?
+  sender         User?     @relation("SentUserGiftCards", fields: [senderId], references: [id], onDelete: SetNull)
+  giftCardId     Int
+  giftCard       GiftCard  @relation(fields: [giftCardId], references: [id], onDelete: Cascade)
+  initialAmount  Decimal
+  currentBalance Decimal
+  currency       String    @default("NGN")
+  code           String    @unique
+  claimToken     String?   @unique
+  status         String    @default("active")
+  senderName     String?
+  recipientEmail String?
+  recipientPhone String?
+  deliveryMethod String    @default("email")
+  message        String?
+  claimedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  transactions UserGiftCardTransaction[]
+
+  @@map("user_gift_cards")
+}
+
+model UserGiftCardTransaction {
+  id               Int          @id @default(autoincrement())
+  userGiftCardId   Int
+  userGiftCard     UserGiftCard @relation(fields: [userGiftCardId], references: [id], onDelete: Cascade)
+  vendorId         String
+  vendor           User         @relation("UserGiftCardTransactions", fields: [vendorId], references: [id], onDelete: Cascade)
+  amount           Decimal
+  balanceAfter     Decimal
+  description      String?
+  createdAt        DateTime     @default(now())
+
+  @@map("user_gift_card_transactions")
+}

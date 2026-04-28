@@ -415,37 +415,40 @@ export function FlexCardListItem({
   return (
     <button
       onClick={onClick}
-      className="w-full bg-[var(--v2-surface-container-lowest)] rounded-2xl p-4 flex items-center gap-4 hover:bg-[var(--v2-surface-container-low)] transition-colors text-left"
+      className="w-full bg-[var(--v2-surface-container-lowest)] rounded-2xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4 border border-[var(--v2-outline-variant)]/10 hover:shadow-lg hover:shadow-[var(--v2-primary)]/5 transition-all text-left group"
     >
       <div
         className={cn(
-          'w-14 h-14 rounded-xl flex items-center justify-center',
+          'w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm transition-transform group-hover:scale-105',
           status === 'redeemed' ? 'bg-gray-100' : 'bg-gradient-to-br from-emerald-500 to-teal-500'
         )}
       >
-        <span className={cn('v2-icon text-xl', status === 'redeemed' ? 'text-gray-400' : 'text-white')}>
-          card_giftcard
+        <span className={cn('v2-icon text-lg sm:text-xl', status === 'redeemed' ? 'text-gray-400' : 'text-white')}>
+          credit_card
         </span>
       </div>
 
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <p className="font-bold text-[var(--v2-on-surface)]">Flex Card</p>
-          <span className={cn('px-2 py-0.5 rounded-full text-[10px] font-bold uppercase', config.bg, config.color)}>
+      <div className="flex-1 min-w-0 pr-1">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-0.5">
+          <p className="font-bold text-[var(--v2-on-surface)] truncate text-sm sm:text-base leading-tight">Flex Card</p>
+          <span className={cn('px-2 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-widest whitespace-nowrap', config.bg, config.color)}>
             {config.label}
           </span>
         </div>
-        <p className="font-mono text-xs text-[var(--v2-on-surface-variant)]">{maskCode(code)}</p>
+        <p className="font-mono text-[10px] sm:text-xs text-[var(--v2-on-surface-variant)]/70">{maskCode(code)}</p>
         {senderName && (
-          <p className="text-xs text-[var(--v2-on-surface-variant)] mt-0.5">From: {senderName}</p>
+          <p className="text-[9px] sm:text-[10px] text-[var(--v2-on-surface-variant)] mt-0.5 truncate opacity-60">From: {senderName}</p>
         )}
       </div>
 
-      <div className="text-right">
-        <p className="font-bold text-lg text-[var(--v2-primary)]">{formatCurrency(currentBalance, currency)}</p>
-        {currentBalance !== initialAmount && (
-          <p className="text-xs text-[var(--v2-on-surface-variant)]">of {formatCurrency(initialAmount, currency)}</p>
-        )}
+      <div className="text-right flex flex-col items-end gap-1.5 sm:gap-2 pl-1">
+        <p className="font-black text-[var(--v2-on-surface)] text-sm sm:text-base whitespace-nowrap">{formatCurrency(currentBalance, currency)}</p>
+        <div className="px-3 py-1.5 rounded-xl bg-[var(--v2-primary)]/10 text-[var(--v2-primary)] text-[10px] font-bold transition-all group-hover:bg-[var(--v2-primary)] group-hover:text-white flex items-center gap-1 shadow-sm">
+            Details
+            <span className="v2-icon text-[10px] group-hover:translate-x-0.5 transition-transform">
+                arrow_forward
+            </span>
+        </div>
       </div>
     </button>
   );

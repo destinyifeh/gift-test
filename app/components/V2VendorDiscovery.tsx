@@ -33,7 +33,7 @@ interface VendorDiscoveryProps {
 export function V2VendorDiscovery({
   giftCardId,
   country,
-  title = 'Where you can use this',
+  title = 'Where to use your gift ',
   variant = 'carousel',
 }: VendorDiscoveryProps) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -122,55 +122,101 @@ export function V2VendorDiscovery({
     ? `Vendors near ${userLocation.city}, ${userLocation.region}`
     : title;
 
-  if (!isLoading && vendors.length === 0) return null;
-
   if (variant === 'list') {
     return (
       <>
-        <div className="space-y-6">
-          <div className="space-y-1">
-            <h3 className="text-xl font-bold v2-headline text-[var(--v2-on-surface)]">
-              {title ?? displayTitle}
-            </h3>
-            <p className="text-sm text-[var(--v2-on-surface-variant)]">Nearby vendors</p>
+        <div className="space-y-5">
+          {/* Section Header */}
+          {/* Section Header */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[var(--v2-primary-container)]/10 flex items-center justify-center border border-[var(--v2-primary)]/10">
+              <Compass className="w-5 h-5 text-[var(--v2-primary)]" />
+            </div>
+            <div className="space-y-0.5">
+              <h3 className="text-lg font-black v2-headline text-[var(--v2-on-surface)] leading-none">
+                {title}
+              </h3>
+              <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-widest opacity-60">
+                {userLocation ? `Accepted near ${userLocation.city}` : 'Available locations'}
+              </p>
+            </div>
           </div>
 
           {isLoading ? (
             <div className="space-y-3">
-              {[1, 2, 3].map(i => (
+              {[1, 2].map(i => (
                 <div
                   key={i}
-                  className="h-12 animate-pulse bg-[var(--v2-surface-container-low)] rounded-xl"
+                  className="h-20 animate-pulse bg-[var(--v2-surface-container-low)] rounded-2xl border border-[var(--v2-outline-variant)]/10"
                 />
               ))}
             </div>
           ) : (
             <div className="space-y-3">
-              {filteredVendors.slice(0, 3).map(vendor => (
-                <div
-                  key={vendor.id}
-                  className="flex items-center gap-3 text-[var(--v2-on-surface)] group cursor-pointer">
-                  <MapPin className="w-4 h-4 text-[var(--v2-primary)]" />
-                  <span className="font-medium group-hover:text-[var(--v2-primary)] transition-colors">
-                    {vendor.shopName} –{' '}
-                    <span className="opacity-70">{vendor.shopCity}</span>
-                  </span>
+              {filteredVendors.length > 0 ? (
+                <div className="space-y-3">
+                  {filteredVendors.slice(0, 3).map(vendor => (
+                    <div
+                      key={vendor.id}
+                      onClick={() => {
+                        const query = encodeURIComponent(`${vendor.shopName} ${vendor.shopCity} ${vendor.shopState}`);
+                        window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+                      }}
+                      className="p-3.5 rounded-2xl bg-[var(--v2-surface-container-low)]/50 border border-[var(--v2-outline-variant)]/20 hover:border-[var(--v2-primary)]/30 hover:bg-[var(--v2-surface-container-low)] transition-all flex items-center gap-4 group cursor-pointer shadow-sm active:scale-[0.98]">
+                      {/* Mini Logo */}
+                      <div className="w-11 h-11 rounded-xl bg-[var(--v2-surface-container-lowest)] overflow-hidden flex-shrink-0 flex items-center justify-center border border-[var(--v2-outline-variant)]/10 group-hover:scale-105 transition-transform">
+                        {vendor.shopLogoUrl ? (
+                          <img
+                            src={vendor.shopLogoUrl}
+                            alt={vendor.shopName}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <Store className="w-5 h-5 text-[var(--v2-on-surface-variant)]/40" />
+                        )}
+                      </div>
+                      
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-bold text-[var(--v2-on-surface)] truncate group-hover:text-[var(--v2-primary)] transition-colors">
+                          {vendor.shopName}
+                        </h4>
+                        <div className="flex items-center gap-1 text-[10px] font-medium text-[var(--v2-on-surface-variant)] mt-0.5">
+                          <MapPin className="w-3 h-3 text-[var(--v2-secondary)]" />
+                          <span className="truncate opacity-80">
+                            {vendor.shopCity}, {vendor.shopState}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="v2-icon text-[var(--v2-on-surface-variant)] opacity-50 group-hover:opacity-100 transition-opacity pr-1">
+                        chevron_right
+                      </div>
+                    </div>
+                  ))}
+
+                  {vendors.length > 0 && (
+                    <button
+                      onClick={() => setIsModalOpen(true)}
+                      className="w-full h-11 rounded-xl bg-[var(--v2-surface-container-lowest)] border border-[var(--v2-outline-variant)]/10 text-xs font-bold text-[var(--v2-primary)] hover:bg-[var(--v2-primary-container)]/10 transition-colors flex items-center justify-center gap-2 mt-2">
+                      <Compass className="w-4 h-4" />
+                      {vendors.length > 3 ? `Explore ${vendors.length - 3} more vendors` : 'View all nearby vendors'}
+                    </button>
+                  )}
                 </div>
-              ))}
-
-              {vendors.length > 0 && (
-                <button
-                  onClick={() => setIsModalOpen(true)}
-                  className="inline-flex items-center gap-1.5 text-sm font-bold text-[var(--v2-primary)] hover:opacity-80 transition-opacity mt-2">
-                  <Compass className="w-4 h-4" />
-                  View all nearby vendors
-                </button>
-              )}
-
-              {filteredVendors.length === 0 && (
-                <p className="text-sm text-[var(--v2-on-surface-variant)] italic">
-                  No vendors found near you.
-                </p>
+              ) : (
+                <div className="py-8 px-4 rounded-2xl bg-[var(--v2-surface-container-low)]/30 border border-dashed border-[var(--v2-outline-variant)]/30 flex flex-col items-center justify-center text-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-[var(--v2-surface-container-low)] flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Search className="w-6 h-6 text-[var(--v2-on-surface-variant)]/20" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-bold text-[var(--v2-on-surface)]">
+                      No nearby vendors yet
+                    </p>
+                    <p className="text-[10px] text-[var(--v2-on-surface-variant)] opacity-70 max-w-[200px]">
+                      We're expanding rapidly. Check back soon for more locations!
+                    </p>
+                  </div>
+                </div>
               )}
             </div>
           )}
@@ -203,9 +249,13 @@ export function V2VendorDiscovery({
             <div className="flex-1 overflow-y-auto p-4 space-y-3 scroll-smooth">
               {filteredVendors.length > 0 ? (
                 filteredVendors.map(vendor => (
-                  <div
-                    key={vendor.id}
-                    className="p-4 rounded-2xl bg-[var(--v2-surface-container-lowest)] border border-[var(--v2-outline-variant)]/40 hover:border-[var(--v2-primary)]/50 transition-all flex flex-col gap-3 group cursor-pointer shadow-sm hover:shadow-lg hover:shadow-[var(--v2-primary)]/5">
+                    <div
+                      key={vendor.id}
+                      onClick={() => {
+                        const query = encodeURIComponent(`${vendor.shopName} ${vendor.shopCity} ${vendor.shopState}`);
+                        window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+                      }}
+                      className="p-4 rounded-2xl bg-[var(--v2-surface-container-lowest)] border border-[var(--v2-outline-variant)]/40 hover:border-[var(--v2-primary)]/50 transition-all flex flex-col gap-3 group cursor-pointer shadow-sm hover:shadow-lg hover:shadow-[var(--v2-primary)]/5">
                     <div className="flex gap-4 items-center">
                       <div className="w-12 h-12 rounded-xl bg-[var(--v2-surface-container-low)] overflow-hidden flex-shrink-0 flex items-center justify-center border border-[var(--v2-outline-variant)]/20 group-hover:scale-105 transition-transform">
                         {vendor.shopLogoUrl ? (

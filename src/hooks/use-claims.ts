@@ -74,3 +74,41 @@ export function useMyFlexCards(page: number = 1, limit: number = 10) {
     },
   });
 }
+
+export function useUserGiftCardByToken(token: string) {
+  return useQuery({
+    queryKey: ['user-gift-card', token],
+    queryFn: async () => {
+      const res = await api.get(`/user-gift-cards/token/${token}`);
+      return res.data;
+    },
+    enabled: !!token,
+  });
+}
+
+export function useClaimUserGiftCard() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (code: string) => {
+      const res = await api.post('/user-gift-cards/claim', {code});
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ['my-user-gift-cards']});
+      queryClient.invalidateQueries({queryKey: ['dashboard-analytics']});
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to claim gift card');
+    },
+  });
+}
+
+export function useMyUserGiftCards() {
+  return useQuery({
+    queryKey: ['my-user-gift-cards'],
+    queryFn: async () => {
+      const res = await api.get('/user-gift-cards/my-cards?type=received');
+      return res.data;
+    },
+  });
+}

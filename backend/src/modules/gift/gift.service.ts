@@ -230,11 +230,26 @@ export class GiftService {
 
     const gift = await (this.prisma as any).directGift.create({
       data: {
-        ...giftData,
         userId,
-        giftCode,
+        category: data.category,
+        title: data.title,
+        description: data.description,
         amount,
+        currency: data.currency || 'NGN',
         status: data.status || 'active',
+        giftCode,
+        recipientEmail: data.recipientEmail,
+        senderEmail: data.senderEmail,
+        paymentReference: data.paymentReference,
+        deliveryMethod: data.deliveryMethod,
+        recipientPhone: data.recipientPhone,
+        recipientCountryCode: data.recipientCountryCode,
+        whatsappFee: data.whatsappFee || 0,
+        senderName: data.senderName,
+        message: data.message,
+        claimableType: data.claimableType,
+        claimableGiftId: data.claimableGiftId,
+        giftCardId: data.giftCardId,
       },
     });
 
@@ -250,6 +265,7 @@ export class GiftService {
       const claimUrl = `${siteUrl}/claim/${giftCode}`;
       
       try {
+        console.log(`[GiftService] Attempting to send gift email to: ${data.recipientEmail}`);
         await this.emailService.sendGiftEmail({
           to: data.recipientEmail,
           senderName: data.senderName || 'Someone',
@@ -259,16 +275,21 @@ export class GiftService {
           message: data.message,
           claimUrl,
         });
-      } catch (err) {}
+        console.log(`[GiftService] Gift email sent successfully to: ${data.recipientEmail}`);
+      } catch (err) {
+        console.error(`[GiftService] Failed to send gift email to ${data.recipientEmail}:`, err);
+      }
 
       // Notification logic
       try {
-        const recipient = await (this.prisma as any).user.findUnique({
-          where: { email: data.recipientEmail },
-          select: { id: true },
+        console.log(`[GiftService] Checking for existing user with email: ${data.recipientEmail}`);
+        const recipient = await (this.prisma as any).user.findFirst({
+          where: { email: { equals: data.recipientEmail.trim(), mode: 'insensitive' } },
+          select: { id: true, email: true },
         });
-
+        
         if (recipient) {
+          console.log(`[GiftService] Recipient found (ID: ${recipient.id}). Creating notification.`);
           await this.notificationService.create({
             userId: recipient.id,
             type: 'gift_received',
@@ -280,8 +301,13 @@ export class GiftService {
               amount: amount,
             },
           });
+          console.log(`[GiftService] Notification created successfully for user ${recipient.id}`);
+        } else {
+          console.log(`[GiftService] No existing user found with email: ${data.recipientEmail}`);
         }
-      } catch (err) {}
+      } catch (err) {
+        console.error(`[GiftService] Failed to create recipient notification for ${data.recipientEmail}:`, err);
+      }
     }
 
     return gift;
