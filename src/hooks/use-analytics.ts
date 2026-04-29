@@ -1,4 +1,5 @@
 import api from '@/lib/api-client';
+import {fetchUnclaimedGifts} from '@/lib/server/actions/analytics';
 import {useQuery} from '@tanstack/react-query';
 
 export function useDashboardAnalytics() {
@@ -14,10 +15,7 @@ export function useDashboardAnalytics() {
 export function useUnclaimedGifts() {
   return useQuery({
     queryKey: ['unclaimed-gifts'],
-    queryFn: async () => {
-      const res = await api.get('/analytics/unclaimed');
-      return res.data;
-    },
+    queryFn: () => fetchUnclaimedGifts(),
   });
 }
 

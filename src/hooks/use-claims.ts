@@ -25,6 +25,8 @@ export function useClaimGift() {
       queryClient.invalidateQueries({queryKey: ['dashboard-analytics']});
       queryClient.invalidateQueries({queryKey: ['wallet-profile']});
       queryClient.invalidateQueries({queryKey: ['transaction-history']});
+      queryClient.invalidateQueries({queryKey: ['unclaimed-gifts']});
+      queryClient.invalidateQueries({queryKey: ['my-gifts']});
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Failed to claim gift');
@@ -52,6 +54,8 @@ export function useClaimFlexCard() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ['my-flex-cards']});
+      queryClient.invalidateQueries({queryKey: ['dashboard-analytics']});
+      queryClient.invalidateQueries({queryKey: ['unclaimed-gifts']});
       toast.success('Flex Card claimed successfully!');
     },
   });
@@ -96,6 +100,7 @@ export function useClaimUserGiftCard() {
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ['my-user-gift-cards']});
       queryClient.invalidateQueries({queryKey: ['dashboard-analytics']});
+      queryClient.invalidateQueries({queryKey: ['unclaimed-gifts']});
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Failed to claim gift card');

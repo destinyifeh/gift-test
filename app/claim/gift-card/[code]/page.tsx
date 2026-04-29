@@ -10,6 +10,17 @@ import {useMemo, useState} from 'react';
 import {toast} from 'sonner';
 import {V2VendorDiscovery} from '../../../components/V2VendorDiscovery';
 import { GiftCard3D } from '../../../gift-shop/components/GiftCardVariants';
+import {GifthanceLogo} from '@/components/GifthanceLogo';
+
+function Header() {
+  return (
+    <header className="flex items-center justify-center py-6 px-4">
+      <Link href="/" className="inline-flex items-center gap-2">
+        <GifthanceLogo size="sm" />
+      </Link>
+    </header>
+  );
+}
 
 export default function ClaimGiftCardPage() {
   const params = useParams();
@@ -234,50 +245,48 @@ export default function ClaimGiftCardPage() {
 
   // Already Claimed State
   if (gift.userId) {
+    const isOwner = gift.userId === profile.id;
     const senderName = gift.senderName || gift.sender?.displayName || 'Someone';
     const giftName = gift.giftCard?.name || 'Gift Card';
     return (
       <div className="min-h-screen bg-[var(--v2-background)] flex flex-col">
         <Header />
-        <main className="flex-1 flex flex-col p-4 pb-8">
-          <div className="w-full max-w-lg mx-auto flex-1 flex flex-col">
-            <div className="bg-[var(--v2-surface-container-low)] rounded-[2rem] overflow-hidden flex-1 flex flex-col">
-              <div className="p-6 md:p-8 flex-1 flex flex-col items-center justify-center text-center overflow-visible">
-                <div className="w-[330px] sm:w-[360px] md:w-[460px] aspect-[1.586/1] relative z-20 mb-8" style={{ perspective: '2000px' }}>
-                  <GiftCard3D
-                    variant="dynamic"
-                    dynamicStyle={{
-                      colorFrom: gift.giftCard?.colorFrom || '#1e1e1e',
-                      colorTo: gift.giftCard?.colorTo || '#111111'
-                    }}
-                    isFlipped={isFlipped}
-                    onFlipToggle={setIsFlipped}
-                    amount={Number(gift.initialAmount)}
-                    mode="preview"
-                    cardName={giftName}
-                    icon={gift.giftCard?.icon || 'storefront'}
-                    description={gift.giftCard?.usageDescription}
+        
+        <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 md:py-12">
+          <div className="max-w-xl mx-auto">
+            <div className="v2-card overflow-hidden border border-[var(--v2-outline-variant)]/10 shadow-xl">
+              <div className="p-8 md:p-12 text-center">
+                <div className="mb-6">
+                  <GifthanceLogo 
+                    size="md" 
+                    className="mx-auto" 
                   />
                 </div>
 
-                <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="v2-icon text-4xl text-emerald-500" style={{fontVariationSettings: "'FILL' 1"}}>check_circle</span>
+                <div className={`w-16 h-16 ${isOwner ? 'bg-emerald-500/10' : 'bg-[var(--v2-primary)]/10'} rounded-full flex items-center justify-center mx-auto mb-4`}>
+                  <span className={`v2-icon text-4xl ${isOwner ? 'text-emerald-500' : 'text-[var(--v2-primary)]'}`} style={{fontVariationSettings: "'FILL' 1"}}>
+                    {isOwner ? 'check_circle' : 'info'}
+                  </span>
                 </div>
                 <h1 className="text-xl md:text-2xl font-bold v2-headline text-[var(--v2-on-surface)] mb-2">
-                  Gift Card Already Claimed
+                  {isOwner ? 'Gift Card Already Claimed' : 'Gift Card Not Available'}
                 </h1>
                 <p className="text-[var(--v2-on-surface-variant)] mb-2">
-                  This gift card from <span className="font-bold text-[var(--v2-primary)] capitalize">{senderName}</span> has already been claimed.
+                  {isOwner 
+                    ? <>This gift card from <span className="font-bold text-[var(--v2-primary)] capitalize">{senderName}</span> has already been claimed and is in your dashboard.</>
+                    : <>This gift card has already been claimed by another user.</>}
                 </p>
-                <p className="text-sm text-[var(--v2-on-surface-variant)]">
-                  Balance: <span className="font-bold text-[var(--v2-on-surface)]">₦{Number(gift.currentBalance).toLocaleString()}</span>
-                </p>
+                {isOwner && (
+                  <p className="text-sm text-[var(--v2-on-surface-variant)]">
+                    Balance: <span className="font-bold text-[var(--v2-on-surface)]">₦{Number(gift.currentBalance).toLocaleString()}</span>
+                  </p>
+                )}
               </div>
 
               <div className="p-4 md:p-6 border-t border-[var(--v2-outline-variant)]/10 bg-[var(--v2-surface-container-lowest)]">
-                <Link href="/dashboard?tab=my-gifts" className="block">
+                <Link href={isOwner ? "/dashboard?tab=my-gifts" : "/dashboard"}>
                   <button className="w-full h-14 v2-hero-gradient text-[var(--v2-on-primary)] text-lg font-bold rounded-2xl flex items-center justify-center gap-2 transition-transform active:scale-[0.98] shadow-lg shadow-[var(--v2-primary)]/20">
-                    View in My Gifts
+                    {isOwner ? 'View in My Gifts' : 'Go to Dashboard'}
                     <span className="v2-icon">arrow_forward</span>
                   </button>
                 </Link>
@@ -285,12 +294,11 @@ export default function ClaimGiftCardPage() {
             </div>
 
             {/* Vendor Discovery Section */}
-            {gift.giftCardId && (
+            {gift.giftCardId && isOwner && (
               <div className="mb-8 mt-8">
                 <V2VendorDiscovery 
                   giftCardId={gift.giftCardId} 
-                  country={gift.giftCard?.country}
-                  variant="list"
+                  title={`Where to spend your ${giftName}`}
                 />
               </div>
             )}
@@ -393,23 +401,5 @@ export default function ClaimGiftCardPage() {
         </div>
       </main>
     </div>
-  );
-}
-
-function Header() {
-  return (
-    <header className="flex items-center justify-center py-6 px-4">
-      <Link href="/" className="inline-flex items-center gap-2">
-        <span
-          className="v2-icon text-3xl text-[var(--v2-primary)]"
-          style={{fontVariationSettings: "'FILL' 1"}}
-        >
-          card_giftcard
-        </span>
-        <span className="text-xl font-bold v2-headline text-[var(--v2-on-surface)]">
-          Gifthance
-        </span>
-      </Link>
-    </header>
   );
 }

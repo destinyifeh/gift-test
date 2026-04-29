@@ -551,7 +551,7 @@ export class AnalyticsService {
     console.log(`[AnalyticsService] Fetching unclaimed gifts for user: ${userId}, email: ${email}`);
     if (!email) return { data: [], flexCards: [] };
 
-    const [unclaimedGifts, unclaimedFlexCards] = await Promise.all([
+    const [unclaimedGifts, unclaimedFlexCards, unclaimedUserGiftCards] = await Promise.all([
       (this.prisma as any).directGift.findMany({
         where: {
           recipientEmail: { equals: email, mode: 'insensitive' },
@@ -577,21 +577,57 @@ export class AnalyticsService {
           sender: { select: { displayName: true } },
         },
       }),
+      (this.prisma as any).userGiftCard.findMany({
+        where: {
+          recipientEmail: { equals: email, mode: 'insensitive' },
+          userId: null,
+          status: 'active',
+        },
+        orderBy: { createdAt: 'desc' },
+        include: {
+          giftCard: {
+            include: {
+              vendors: { 
+                include: { 
+                  vendor: { select: { shopName: true, displayName: true } } 
+                } 
+              }
+            }
+          },
+          sender: { select: { displayName: true } },
+        },
+      }),
     ]);
 
-    const formattedGifts = unclaimedGifts.map((c: any) => ({
-      id: c.id,
-      name: c.title || c.product?.name || (c.claimableType === 'money' ? 'Cash Gift' : 'Gift Card'),
-      sender: c.senderName || 'A Friend',
-      date: c.createdAt,
-      goal_amount: Number(c.amount),
-      currency: c.currency || 'NGN',
-      gift_code: c.giftCode,
-      vendorShopName: c.product?.vendor?.shopName || c.product?.vendor?.displayName,
-      message: c.message,
-      claimable_type: c.claimableType || (c.product ? 'gift-card' : 'money'),
-      sender_name: c.senderName || 'A Friend',
-    }));
+    const formattedGifts = [
+      ...unclaimedGifts.map((c: any) => ({
+        id: c.id,
+        name: c.title || c.product?.name || (c.claimableType === 'money' ? 'Cash Gift' : 'Gift Card'),
+        sender: c.senderName || 'A Friend',
+        date: c.createdAt,
+        goal_amount: Number(c.amount),
+        currency: c.currency || 'NGN',
+        gift_code: c.giftCode,
+        vendorShopName: c.product?.vendor?.shopName || c.product?.vendor?.displayName,
+        message: c.message,
+        claimable_type: c.claimableType || (c.product ? 'gift-card' : 'money'),
+        sender_name: c.senderName || 'A Friend',
+      })),
+      ...unclaimedUserGiftCards.map((c: any) => ({
+        id: c.id,
+        name: c.giftCard?.name || 'Gift Card',
+        sender: c.senderName || c.sender?.displayName || 'A Friend',
+        date: c.createdAt,
+        goal_amount: Number(c.currentBalance),
+        currency: c.currency || 'NGN',
+        gift_code: c.code,
+        vendorShopName: c.giftCard?.name || 'Gift Card',
+        message: c.message,
+        claimable_type: 'gift-card',
+        sender_name: c.senderName || c.sender?.displayName || 'A Friend',
+        isUserGiftCard: true,
+      }))
+    ];
 
     const formattedFlexCards = unclaimedFlexCards.map((c: any) => ({
       id: c.id,

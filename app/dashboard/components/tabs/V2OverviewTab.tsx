@@ -34,12 +34,19 @@ export function V2OverviewTab({creatorEnabled, setCreatorEnabled, setSection}: V
     });
   };
 
-  const {data: analytics, isLoading} = useDashboardAnalytics();
-  const {data: unclaimedRes} = useUnclaimedGifts();
+  const {data: analytics, isLoading: analyticsLoading} = useDashboardAnalytics();
+  const {data: unclaimedQuery, isLoading: unclaimedLoading} = useUnclaimedGifts();
   const {data: userProfile} = useProfile();
 
-  const unclaimedGifts = unclaimedRes?.data || [];
-  const unclaimedFlexCards = unclaimedRes?.flexCards || [];
+  const isLoading = analyticsLoading || unclaimedLoading;
+
+  // Extremely robust data extraction
+  const unclaimedRes = unclaimedQuery || { data: [], flexCards: [] };
+  const unclaimedGifts = Array.isArray(unclaimedRes.data) 
+    ? unclaimedRes.data 
+    : (Array.isArray(unclaimedRes) ? unclaimedRes : []);
+  const unclaimedFlexCards = Array.isArray(unclaimedRes.flexCards) ? unclaimedRes.flexCards : [];
+  
   const profile = userProfile || null;
   const userCurrency = getCurrencyByCountry(profile?.country);
 

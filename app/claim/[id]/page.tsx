@@ -239,6 +239,39 @@ export default function ClaimGiftPage() {
     );
   }
 
+  // Already Claimed State
+  if (gift.status === 'claimed' || gift.status === 'redeemed' || gift.userId) {
+    const isOwner = gift.userId === profile.id;
+    return (
+      <div className="min-h-screen bg-[var(--v2-background)] flex flex-col">
+        <Header />
+        <main className="flex-1 flex flex-col items-center justify-center p-4">
+          <div className="w-full max-w-md text-center">
+            <div className="w-20 h-20 bg-[var(--v2-primary)]/10 rounded-[1.5rem] flex items-center justify-center mx-auto mb-6">
+              <span className="v2-icon text-4xl text-[var(--v2-primary)]">
+                {isOwner ? 'check_circle' : 'info'}
+              </span>
+            </div>
+            <h1 className="text-2xl font-bold v2-headline text-[var(--v2-on-surface)] mb-3">
+              {isOwner ? 'Already Claimed' : 'Gift Not Available'}
+            </h1>
+            <p className="text-[var(--v2-on-surface-variant)] mb-8">
+              {isOwner 
+                ? 'You have already claimed this gift. It is now available in your dashboard.' 
+                : 'This gift has already been claimed by another user.'}
+            </p>
+            <Link
+              href="/dashboard?tab=my-gifts"
+              className="inline-flex items-center justify-center w-full h-12 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-2xl shadow-lg shadow-[var(--v2-primary)]/20"
+            >
+              View My Gifts
+            </Link>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   // Main Claim View
   const senderName = gift.senderName || gift.user?.displayName || 'Someone';
   const giftName = gift.product?.name || gift.title || 'Gift';
