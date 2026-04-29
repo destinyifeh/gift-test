@@ -168,9 +168,20 @@ export default function FlexCardPage() {
                         <h1 className="text-4xl font-black v2-headline text-[var(--v2-on-surface)] leading-tight tracking-tight">
                             Flex Card
                         </h1>
-                        <p className="text-[var(--v2-on-surface-variant)] font-medium text-sm leading-relaxed">
-                            A borderless gift asset. Send value that can be redeemed for any brand in the shop.
-                        </p>
+                        {/* Branded Usage Info Banner */}
+                        <div
+                          className="rounded-xl p-4 text-white"
+                          style={{ background: 'linear-gradient(135deg, #d66514, #b14902)' }}>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="v2-icon" style={{ fontVariationSettings: "'FILL' 1" }}>
+                              card_giftcard
+                            </span>
+                            <span className="font-bold">Gifthance Flex Card</span>
+                          </div>
+                          <p className="text-sm text-white/80">
+                            A universal balance card that can be used at any vendor on the platform. Send value with partial redemptions allowed.
+                          </p>
+                        </div>
                         
                         {/* Vendor Discovery Section */}
                         <V2VendorDiscovery 
