@@ -20,11 +20,13 @@ import {useMyCountryConfig} from '@/hooks/use-country-config';
 import {formatCurrency} from '@/lib/utils/currency';
 import {useEffect, useMemo, useState} from 'react';
 import {toast} from 'sonner';
-import {useGiftByCode, useClaimGift, useMyFlexCards, useMyUserGiftCards} from '@/hooks/use-claims';
+import {useGiftByCode, useClaimGift, useMyFlexCards, useMyUserGiftCards, useFlexCardTransactions} from '@/hooks/use-claims';
 import {FlexCardComponent, FlexCardListItem} from '../../../components/FlexCard';
 import {GiftCardListItem as GiftCardComponent, GiftCardModal} from '../../../components/GiftCard';
 import {V2VendorDiscovery} from '../../../components/V2VendorDiscovery';
 import {Gift} from 'lucide-react';
+import {QRCodeSVG} from 'qrcode.react';
+import {GiftCard3D} from '../../../gift-shop/components/GiftCardVariants';
 
 type TransactionFilter = 'all' | 'gifts' | 'flex_card' | 'withdrawals';
 type DateFilter = 'all' | 'week' | 'month' | '3months';
@@ -52,11 +54,15 @@ export function V2WalletTab() {
   // Flex cards
   const [selectedFlexCard, setSelectedFlexCard] = useState<any | null>(null);
   const [selectedUserGiftCard, setSelectedUserGiftCard] = useState<any | null>(null);
+  const [showFlexCode, setShowFlexCode] = useState(false);
+  const [showGiftCode, setShowGiftCode] = useState(false);
+  const [isGiftFlipped, setIsGiftFlipped] = useState(false);
 
   const {data: walletProfile, isLoading} = useWalletProfile();
   const {data: banksData} = useBanks(selectedCountry);
   const {data: flexCardsRes, isLoading: isLoadingFlexCards} = useMyFlexCards();
   const {data: userGiftCards = [], isLoading: isLoadingGiftCards} = useMyUserGiftCards();
+  const {data: flexTransactions} = useFlexCardTransactions(selectedFlexCard?.id);
 
   const flexCards = flexCardsRes?.data || [];
   const giftCards = Array.isArray(userGiftCards) ? userGiftCards : [];
@@ -1075,72 +1081,44 @@ export function V2WalletTab() {
         </ResponsiveModalContent>
       </ResponsiveModal>
 
-      {/* Flex Card Detail Modal (High-Fidelity) */}
+      {/* Flex Card Detail Modal – Mini Wallet View */}
       <ResponsiveModal
         open={!!selectedFlexCard}
         onOpenChange={open => !open && setSelectedFlexCard(null)}>
         <ResponsiveModalContent className="bg-[var(--v2-surface)] md:max-w-[520px] p-0 overflow-hidden max-h-[90vh] md:max-h-[85vh]">
-          {selectedFlexCard && (
+          {selectedFlexCard && (() => {
+            const currentBalance = Number(selectedFlexCard.current_balance || selectedFlexCard.currentBalance || 0);
+            const initialAmount = Number(selectedFlexCard.initial_amount || selectedFlexCard.initialAmount || 0);
+            const totalUsed = initialAmount - currentBalance;
+            const rawCode = selectedFlexCard.code || '';
+            const cleanCode = rawCode.replace(/^(GFT|FLEX)-+/i, '').toUpperCase();
+            const maskedCode = cleanCode.length <= 4 ? `FLEX-${cleanCode}` : `FLEX-••••${cleanCode.slice(-4)}`;
+            const transactions = Array.isArray(flexTransactions) ? flexTransactions : (flexTransactions?.data || []);
+
+            return (
             <div className="flex flex-col max-h-[90vh] md:max-h-[85vh]">
               {/* Gradient Header Banner */}
               <div className="relative bg-gradient-to-br from-[#d66514] to-[#b14902] p-5 pb-8 flex-shrink-0">
-                {/* Background Pattern */}
                 <div className="absolute inset-0 opacity-10">
                   <div className="absolute top-4 right-4 w-24 h-24 border-4 border-white rounded-3xl rotate-12" />
                   <div className="absolute bottom-0 right-8 w-16 h-16 border-4 border-white rounded-2xl -rotate-6" />
-                  <span className="v2-icon absolute top-6 right-12 text-6xl text-white/20">
-                    card_giftcard
-                  </span>
+                  <span className="v2-icon absolute top-6 right-12 text-6xl text-white/20">card_giftcard</span>
                 </div>
-
-                {/* Close Button */}
                 <button
                   onClick={() => setSelectedFlexCard(null)}
                   className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors z-10">
                   <span className="v2-icon text-lg">close</span>
                 </button>
-
-                {/* Type Badge */}
-                <span className="inline-block px-3 py-1 bg-white/20 text-white text-xs font-bold rounded-full mb-3">
-                  Flex Card
-                </span>
-
-                {/* Gift Name */}
-                <h2 className="text-2xl md:text-3xl font-black text-white v2-headline mb-1 pr-10">
-                  Gifthance Flex
-                </h2>
+                <span className="inline-block px-3 py-1 bg-white/20 text-white text-xs font-bold rounded-full mb-3">Flex Card</span>
+                <h2 className="text-2xl md:text-3xl font-black text-white v2-headline mb-1 pr-10">Gifthance Flex</h2>
                 <p className="text-white/70 text-sm">Universal Gift Card</p>
               </div>
 
               {/* Content - Scrollable area */}
-              <div className="p-5 space-y-5 overflow-y-auto flex-1">
-                {/* From & Value Row */}
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
-                      From
-                    </p>
-                    <p className="font-bold text-[var(--v2-on-surface)]">
-                      {selectedFlexCard.sender_name || selectedFlexCard.sender?.display_name || 'Anonymous'}
-                    </p>
-                    {selectedFlexCard.message && (
-                      <p className="text-sm text-[var(--v2-on-surface-variant)] italic mt-1 border-l-2 border-[var(--v2-primary)] pl-2">
-                        "{selectedFlexCard.message}"
-                      </p>
-                    )}
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
-                      Value
-                    </p>
-                    <p className="text-2xl font-black text-[var(--v2-primary)] v2-headline">
-                      ₦{Number(selectedFlexCard.current_balance || selectedFlexCard.currentBalance).toLocaleString()}
-                    </p>
-                  </div>
-                </div>
+              <div className="p-5 space-y-6 overflow-y-auto flex-1">
 
-                {/* 3D Flex Card Visual */}
-                <div className="w-full flex justify-center items-center py-8 overflow-visible relative min-h-[260px] md:min-h-[340px]">
+                {/* 🥇 A. Card Preview */}
+                <div className="w-full flex justify-center items-center py-4 overflow-visible relative min-h-[260px] md:min-h-[340px]">
                   <div className="w-[300px] sm:w-[320px] md:w-[400px] relative z-20">
                     <FlexCardComponent
                       card={selectedFlexCard}
@@ -1150,101 +1128,322 @@ export function V2WalletTab() {
                   </div>
                 </div>
 
+                {/* 💰 B. Balance Breakdown */}
+                <div className="bg-[var(--v2-surface-container-low)] rounded-2xl p-4 border border-[var(--v2-outline-variant)]/10">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="v2-icon text-[#d66514]">account_balance_wallet</span>
+                    <h3 className="font-bold text-[var(--v2-on-surface)] text-sm">Balance Breakdown</h3>
+                  </div>
+                  {/* Available Balance - Big */}
+                  <div className="text-center py-3 mb-3 bg-[var(--v2-surface-container-lowest)] rounded-xl">
+                    <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider mb-1">Available Balance</p>
+                    <p className="text-3xl font-black text-[#d66514] v2-headline">₦{currentBalance.toLocaleString()}</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-[var(--v2-surface-container-lowest)] rounded-xl p-3 text-center">
+                      <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider mb-1">Total Received</p>
+                      <p className="text-lg font-black text-emerald-600">₦{initialAmount.toLocaleString()}</p>
+                    </div>
+                    <div className="bg-[var(--v2-surface-container-lowest)] rounded-xl p-3 text-center">
+                      <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider mb-1">Total Used</p>
+                      <p className="text-lg font-black text-[var(--v2-error)]">₦{totalUsed.toLocaleString()}</p>
+                    </div>
+                  </div>
+                  {/* Usage Progress Bar */}
+                  {initialAmount > 0 && (
+                    <div className="mt-3">
+                      <div className="h-2 bg-[var(--v2-outline-variant)]/20 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-[#d66514] to-[#e8851f] rounded-full transition-all"
+                          style={{ width: `${Math.min(100, (currentBalance / initialAmount) * 100)}%` }}
+                        />
+                      </div>
+                      <p className="text-[10px] text-[var(--v2-on-surface-variant)] mt-1 text-right">
+                        {Math.round((currentBalance / initialAmount) * 100)}% remaining
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* 📲 D. QR Code */}
+                <div className="bg-[var(--v2-surface-container-low)] rounded-2xl p-4 border border-[var(--v2-outline-variant)]/10">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="v2-icon text-[#d66514]">qr_code_2</span>
+                    <h3 className="font-bold text-[var(--v2-on-surface)] text-sm">Scan to Pay</h3>
+                    <span className="ml-auto px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[9px] font-bold rounded-full uppercase">Primary Method</span>
+                  </div>
+                  <div className="flex justify-center py-4">
+                    <div className="bg-white p-4 rounded-2xl shadow-sm border border-[var(--v2-outline-variant)]/10">
+                      <QRCodeSVG
+                        value={`gifthance://flex/${rawCode}`}
+                        size={180}
+                        level="H"
+                        includeMargin={false}
+                        bgColor="#ffffff"
+                        fgColor="#1a1a1a"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-center text-xs text-[var(--v2-on-surface-variant)] mt-1">Show this QR code to the vendor to make a payment</p>
+                </div>
+
+                {/* 🔢 E. Code */}
+                <div className="bg-[var(--v2-surface-container-low)] rounded-2xl p-4 border border-[var(--v2-outline-variant)]/10">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="v2-icon text-[#d66514]">pin</span>
+                    <h3 className="font-bold text-[var(--v2-on-surface)] text-sm">Card Code</h3>
+                  </div>
+                  <div className="flex items-center justify-between bg-[var(--v2-surface-container-lowest)] rounded-xl p-3">
+                    <p className="font-mono text-lg font-bold text-[var(--v2-on-surface)] tracking-wider">
+                      {showFlexCode ? rawCode.toUpperCase() : maskedCode}
+                    </p>
+                    <button
+                      onClick={() => setShowFlexCode(!showFlexCode)}
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#d66514]/10 text-[#d66514] text-xs font-bold hover:bg-[#d66514]/20 transition-colors">
+                      <span className="v2-icon text-sm">{showFlexCode ? 'visibility_off' : 'visibility'}</span>
+                      {showFlexCode ? 'Hide' : 'Reveal'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Where to Use – Vendor Discovery */}
                 <div className="rounded-2xl overflow-hidden bg-white border border-[var(--v2-outline-variant)]/10">
                   <V2VendorDiscovery giftCardId={selectedFlexCard.id} variant="list" />
                 </div>
+
+                {/* 📊 F. Transaction History */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <span className="v2-icon text-[#d66514]">receipt_long</span>
+                    <h3 className="font-bold text-[var(--v2-on-surface)] text-sm">Transaction History</h3>
+                  </div>
+                  {transactions.length === 0 ? (
+                    <div className="bg-[var(--v2-surface-container-low)] rounded-2xl p-6 text-center border border-[var(--v2-outline-variant)]/10">
+                      <span className="v2-icon text-3xl text-[var(--v2-on-surface-variant)]/30 mb-2">shopping_bag</span>
+                      <p className="text-sm text-[var(--v2-on-surface-variant)]">No transactions yet</p>
+                      <p className="text-xs text-[var(--v2-on-surface-variant)]/60 mt-1">Transactions will appear here after you use the card</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {transactions.slice(0, 10).map((tx: any, i: number) => (
+                        <div
+                          key={tx.id || i}
+                          className="flex items-center justify-between p-3 bg-[var(--v2-surface-container-low)] rounded-xl border border-[var(--v2-outline-variant)]/5">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-full bg-[var(--v2-error)]/10 flex items-center justify-center">
+                              <span className="v2-icon text-sm text-[var(--v2-error)]">shopping_bag</span>
+                            </div>
+                            <div>
+                              <p className="font-bold text-sm text-[var(--v2-on-surface)] truncate max-w-[160px]">
+                                {tx.vendor?.shopName || tx.vendor?.displayName || tx.description || 'Transaction'}
+                              </p>
+                              <p className="text-[10px] text-[var(--v2-on-surface-variant)]">
+                                {new Date(tx.createdAt || tx.created_at).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                          <p className="font-black text-sm text-[var(--v2-error)]">
+                            -₦{Number(tx.amount).toLocaleString()}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* From Info */}
+                <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--v2-surface-container-low)]">
+                  <span className="text-sm text-[var(--v2-on-surface-variant)]">From</span>
+                  <span className="text-sm font-bold text-[var(--v2-on-surface)]">
+                    {selectedFlexCard.sender_name || selectedFlexCard.sender?.display_name || 'Anonymous'}
+                  </span>
+                </div>
               </div>
             </div>
-          )}
+            );
+          })()}
         </ResponsiveModalContent>
       </ResponsiveModal>
 
-      {/* User Gift Card Detail Modal (High-Fidelity) */}
+      {/* User Gift Card Detail Modal – Controlled Usage View */}
       <ResponsiveModal
         open={!!selectedUserGiftCard}
         onOpenChange={open => !open && setSelectedUserGiftCard(null)}>
         <ResponsiveModalContent className="bg-[var(--v2-surface)] md:max-w-[520px] p-0 overflow-hidden max-h-[90vh] md:max-h-[85vh]">
-          {selectedUserGiftCard && (
+          {selectedUserGiftCard && (() => {
+            const currentBalance = Number(selectedUserGiftCard.currentBalance || selectedUserGiftCard.current_balance || 0);
+            const initialAmount = Number(selectedUserGiftCard.initialAmount || selectedUserGiftCard.initial_amount || 0);
+            const totalUsed = initialAmount - currentBalance;
+            const rawCode = selectedUserGiftCard.code || '';
+            const cleanCode = rawCode.replace(/^(GFT|GIFT)-+/i, '').toUpperCase();
+            const maskedCode = cleanCode.length <= 4 ? `GFT-${cleanCode}` : `GFT-••••${cleanCode.slice(-4)}`;
+            const cardName = selectedUserGiftCard.giftCard?.name || 'Gift Card';
+            const cardIcon = selectedUserGiftCard.giftCard?.icon || 'card_giftcard';
+            const colorFrom = selectedUserGiftCard.giftCard?.colorFrom || '#7c3aed';
+            const colorTo = selectedUserGiftCard.giftCard?.colorTo || '#6d28d9';
+
+            return (
             <div className="flex flex-col max-h-[90vh] md:max-h-[85vh]">
               {/* Gradient Header Banner */}
               <div
                 className="relative p-5 pb-8 flex-shrink-0"
-                style={{
-                  background: `linear-gradient(135deg, ${selectedUserGiftCard.giftCard?.colorFrom || '#7c3aed'}, ${selectedUserGiftCard.giftCard?.colorTo || '#6d28d9'})`,
-                }}>
-                {/* Background Pattern */}
+                style={{ background: `linear-gradient(135deg, ${colorFrom}, ${colorTo})` }}>
                 <div className="absolute inset-0 opacity-10">
                   <div className="absolute top-4 right-4 w-24 h-24 border-4 border-white rounded-3xl rotate-12" />
                   <div className="absolute bottom-0 right-8 w-16 h-16 border-4 border-white rounded-2xl -rotate-6" />
-                  <span className="v2-icon absolute top-6 right-12 text-6xl text-white/20">
-                    {selectedUserGiftCard.giftCard?.icon || 'card_giftcard'}
-                  </span>
+                  <span className="v2-icon absolute top-6 right-12 text-6xl text-white/20">{cardIcon}</span>
                 </div>
-
-                {/* Close Button */}
                 <button
                   onClick={() => setSelectedUserGiftCard(null)}
                   className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors z-10">
                   <span className="v2-icon text-lg">close</span>
                 </button>
-
-                {/* Type Badge */}
                 <span className="inline-block px-3 py-1 bg-white/20 text-white text-xs font-bold rounded-full mb-3">
-                  Digital Gift Card
+                  <span className="v2-icon text-xs mr-1 align-middle">{cardIcon}</span> {cardName}
                 </span>
-
-                {/* Gift Name */}
-                <h2 className="text-2xl md:text-3xl font-black text-white v2-headline mb-1 pr-10">
-                  {selectedUserGiftCard.giftCard?.name || 'Gift Card'}
-                </h2>
-                <p className="text-white/70 text-sm">Stored securely in your wallet</p>
+                <h2 className="text-2xl md:text-3xl font-black text-white v2-headline mb-1 pr-10">{cardName}</h2>
+                <p className="text-white/70 text-sm">Restricted Gift Card — Use at approved vendors only</p>
               </div>
 
               {/* Content - Scrollable area */}
-              <div className="p-5 space-y-5 overflow-y-auto flex-1">
-                {/* From & Value Row */}
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
-                      From
-                    </p>
-                    <p className="font-bold text-[var(--v2-on-surface)]">
-                      {selectedUserGiftCard.senderName || selectedUserGiftCard.sender?.displayName || 'Anonymous'}
-                    </p>
-                    {selectedUserGiftCard.message && (
-                      <p className="text-sm text-[var(--v2-on-surface-variant)] italic mt-1 border-l-2 border-[var(--v2-primary)] pl-2">
-                        "{selectedUserGiftCard.message}"
+              <div className="p-5 space-y-6 overflow-y-auto flex-1">
+
+                {/* 🥇 A. Card Preview – 3D Tap-to-Flip */}
+                <div
+                  className="w-full flex justify-center items-center py-8 overflow-visible relative min-h-[260px] md:min-h-[340px] cursor-pointer active:scale-[0.98] transition-transform"
+                  onClick={() => setIsGiftFlipped(!isGiftFlipped)}>
+                  <div
+                    className="w-[300px] sm:w-[320px] md:w-[400px] aspect-[1.586/1] relative z-20"
+                    style={{ perspective: '2000px' }}>
+                    <GiftCard3D
+                      variant="dynamic"
+                      dynamicStyle={{ colorFrom, colorTo }}
+                      isFlipped={isGiftFlipped}
+                      onFlipToggle={setIsGiftFlipped}
+                      amount={currentBalance}
+                      mode="live"
+                      code={rawCode}
+                      cardName={cardName}
+                      icon={cardIcon}
+                      vendorName={selectedUserGiftCard.giftCard?.vendor?.name}
+                      description={selectedUserGiftCard.giftCard?.usageDescription}
+                    />
+                  </div>
+                </div>
+
+                {/* 💰 B. Balance Info */}
+                <div className="bg-[var(--v2-surface-container-low)] rounded-2xl p-4 border border-[var(--v2-outline-variant)]/10">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="v2-icon" style={{ color: colorFrom }}>account_balance_wallet</span>
+                    <h3 className="font-bold text-[var(--v2-on-surface)] text-sm">Balance Info</h3>
+                  </div>
+                  {/* Remaining Balance - Big */}
+                  <div className="text-center py-3 mb-3 bg-[var(--v2-surface-container-lowest)] rounded-xl">
+                    <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider mb-1">Remaining Balance</p>
+                    <p className="text-3xl font-black v2-headline" style={{ color: colorFrom }}>₦{currentBalance.toLocaleString()}</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-[var(--v2-surface-container-lowest)] rounded-xl p-3 text-center">
+                      <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider mb-1">Original Value</p>
+                      <p className="text-lg font-black text-emerald-600">₦{initialAmount.toLocaleString()}</p>
+                    </div>
+                    <div className="bg-[var(--v2-surface-container-lowest)] rounded-xl p-3 text-center">
+                      <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider mb-1">Used</p>
+                      <p className="text-lg font-black text-[var(--v2-error)]">₦{totalUsed.toLocaleString()}</p>
+                    </div>
+                  </div>
+                  {/* Usage Progress Bar */}
+                  {initialAmount > 0 && (
+                    <div className="mt-3">
+                      <div className="h-2 bg-[var(--v2-outline-variant)]/20 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all"
+                          style={{
+                            width: `${Math.min(100, (currentBalance / initialAmount) * 100)}%`,
+                            background: `linear-gradient(90deg, ${colorFrom}, ${colorTo})`,
+                          }}
+                        />
+                      </div>
+                      <p className="text-[10px] text-[var(--v2-on-surface-variant)] mt-1 text-right">
+                        {Math.round((currentBalance / initialAmount) * 100)}% remaining
                       </p>
-                    )}
+                    </div>
+                  )}
+                </div>
+
+                {/* 📲 D. QR Code */}
+                <div className="bg-[var(--v2-surface-container-low)] rounded-2xl p-4 border border-[var(--v2-outline-variant)]/10">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="v2-icon" style={{ color: colorFrom }}>qr_code_2</span>
+                    <h3 className="font-bold text-[var(--v2-on-surface)] text-sm">Scan to Pay</h3>
+                    <span className="ml-auto px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[9px] font-bold rounded-full uppercase">Primary Method</span>
                   </div>
-                  <div className="text-right">
-                    <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
-                      Value
+                  <div className="flex justify-center py-4">
+                    <div className="bg-white p-4 rounded-2xl shadow-sm border border-[var(--v2-outline-variant)]/10">
+                      <QRCodeSVG
+                        value={`gifthance://giftcard/${rawCode}`}
+                        size={180}
+                        level="H"
+                        includeMargin={false}
+                        bgColor="#ffffff"
+                        fgColor="#1a1a1a"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-center text-xs text-[var(--v2-on-surface-variant)] mt-1">Show this QR code to the vendor to use your gift card</p>
+                </div>
+
+                {/* 🔢 E. Code */}
+                <div className="bg-[var(--v2-surface-container-low)] rounded-2xl p-4 border border-[var(--v2-outline-variant)]/10">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="v2-icon" style={{ color: colorFrom }}>pin</span>
+                    <h3 className="font-bold text-[var(--v2-on-surface)] text-sm">Card Code</h3>
+                  </div>
+                  <div className="flex items-center justify-between bg-[var(--v2-surface-container-lowest)] rounded-xl p-3">
+                    <p className="font-mono text-lg font-bold text-[var(--v2-on-surface)] tracking-wider">
+                      {showGiftCode ? rawCode.toUpperCase() : maskedCode}
                     </p>
-                    <p className="text-2xl font-black text-[var(--v2-primary)] v2-headline">
-                      ₦{Number(selectedUserGiftCard.currentBalance || selectedUserGiftCard.current_balance).toLocaleString()}
-                    </p>
+                    <button
+                      onClick={() => setShowGiftCode(!showGiftCode)}
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold hover:opacity-80 transition-colors"
+                      style={{ backgroundColor: `${colorFrom}15`, color: colorFrom }}>
+                      <span className="v2-icon text-sm">{showGiftCode ? 'visibility_off' : 'visibility'}</span>
+                      {showGiftCode ? 'Hide' : 'Reveal'}
+                    </button>
                   </div>
                 </div>
 
-                {/* Card Visualization */}
-                <div className="py-4">
-                  <GiftCardComponent
-                    card={selectedUserGiftCard}
-                    variant="premium"
-                    colorVariant={selectedUserGiftCard.giftCard?.colorFrom?.includes('emerald') ? 'emerald' : 'orange'}
-                  />
-                </div>
-
-                {/* Vendor Discovery */}
+                {/* Where to Use – Vendor Discovery */}
                 {selectedUserGiftCard.giftCard?.id && (
                   <div className="rounded-2xl overflow-hidden bg-white border border-[var(--v2-outline-variant)]/10">
                     <V2VendorDiscovery giftCardId={selectedUserGiftCard.giftCard.id} variant="list" />
                   </div>
                 )}
+
+                {/* 📊 F. Transaction History */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <span className="v2-icon" style={{ color: colorFrom }}>receipt_long</span>
+                    <h3 className="font-bold text-[var(--v2-on-surface)] text-sm">Transaction History</h3>
+                  </div>
+                  <div className="bg-[var(--v2-surface-container-low)] rounded-2xl p-6 text-center border border-[var(--v2-outline-variant)]/10">
+                    <span className="v2-icon text-3xl text-[var(--v2-on-surface-variant)]/30 mb-2">shopping_bag</span>
+                    <p className="text-sm text-[var(--v2-on-surface-variant)]">No transactions yet</p>
+                    <p className="text-xs text-[var(--v2-on-surface-variant)]/60 mt-1">Transactions will appear here after you use the card at a vendor</p>
+                  </div>
+                </div>
+
+                {/* From Info */}
+                <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--v2-surface-container-low)]">
+                  <span className="text-sm text-[var(--v2-on-surface-variant)]">From</span>
+                  <span className="text-sm font-bold text-[var(--v2-on-surface)]">
+                    {selectedUserGiftCard.senderName || selectedUserGiftCard.sender?.displayName || 'Anonymous'}
+                  </span>
+                </div>
               </div>
             </div>
-          )}
+            );
+          })()}
         </ResponsiveModalContent>
       </ResponsiveModal>
     </div>

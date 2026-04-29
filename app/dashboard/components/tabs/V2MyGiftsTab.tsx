@@ -87,6 +87,8 @@ export function V2MyGiftsTab() {
   const [isConverting, setIsConverting] = useState(false);
   const [isCodeVisible, setIsCodeVisible] = useState(false);
   const [isQRVisible, setIsQRVisible] = useState(false);
+  const [showFlexCodeMG, setShowFlexCodeMG] = useState(false);
+  const [showGiftCodeMG, setShowGiftCodeMG] = useState(false);
   const [isConvertConfirmOpen, setIsConvertConfirmOpen] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
@@ -970,6 +972,52 @@ export function V2MyGiftsTab() {
                   />
                 </div>
 
+                {/* QR Code */}
+                <div className="bg-[var(--v2-surface-container-low)] rounded-2xl p-4 border border-[var(--v2-outline-variant)]/10">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="v2-icon text-[#d66514]">qr_code_2</span>
+                    <h3 className="font-bold text-[var(--v2-on-surface)] text-sm">Scan to Pay</h3>
+                    <span className="ml-auto px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[9px] font-bold rounded-full uppercase">Primary Method</span>
+                  </div>
+                  <div className="flex justify-center py-4">
+                    <div className="bg-white p-4 rounded-2xl shadow-sm border border-[var(--v2-outline-variant)]/10">
+                      <QRCodeSVG
+                        value={`gifthance://flex/${selectedFlexCard.code || ''}`}
+                        size={180}
+                        level="H"
+                        includeMargin={false}
+                        bgColor="#ffffff"
+                        fgColor="#1a1a1a"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-center text-xs text-[var(--v2-on-surface-variant)] mt-1">Show this QR code to the vendor to make a payment</p>
+                </div>
+
+                {/* Card Code */}
+                <div className="bg-[var(--v2-surface-container-low)] rounded-2xl p-4 border border-[var(--v2-outline-variant)]/10">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="v2-icon text-[#d66514]">pin</span>
+                    <h3 className="font-bold text-[var(--v2-on-surface)] text-sm">Card Code</h3>
+                  </div>
+                  <div className="flex items-center justify-between bg-[var(--v2-surface-container-lowest)] rounded-xl p-3">
+                    <p className="font-mono text-lg font-bold text-[var(--v2-on-surface)] tracking-wider">
+                      {showFlexCodeMG
+                        ? (selectedFlexCard.code || '').toUpperCase()
+                        : (() => {
+                            const c = (selectedFlexCard.code || '').replace(/^(GFT|FLEX)-+/i, '').toUpperCase();
+                            return c.length <= 4 ? `FLEX-${c}` : `FLEX-••••${c.slice(-4)}`;
+                          })()}
+                    </p>
+                    <button
+                      onClick={() => setShowFlexCodeMG(!showFlexCodeMG)}
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#d66514]/10 text-[#d66514] text-xs font-bold hover:bg-[#d66514]/20 transition-colors">
+                      <span className="v2-icon text-sm">{showFlexCodeMG ? 'visibility_off' : 'visibility'}</span>
+                      {showFlexCodeMG ? 'Hide' : 'Reveal'}
+                    </button>
+                  </div>
+                </div>
+
                 {/* Gift Info */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--v2-surface-container-low)]">
@@ -1108,6 +1156,53 @@ export function V2MyGiftsTab() {
                     />
                   </div>
                 )}
+
+                {/* QR Code */}
+                <div className="bg-[var(--v2-surface-container-low)] rounded-2xl p-4 border border-[var(--v2-outline-variant)]/10">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="v2-icon" style={{ color: selectedUserGiftCard.giftCard?.colorFrom || '#7c3aed' }}>qr_code_2</span>
+                    <h3 className="font-bold text-[var(--v2-on-surface)] text-sm">Scan to Pay</h3>
+                    <span className="ml-auto px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[9px] font-bold rounded-full uppercase">Primary Method</span>
+                  </div>
+                  <div className="flex justify-center py-4">
+                    <div className="bg-white p-4 rounded-2xl shadow-sm border border-[var(--v2-outline-variant)]/10">
+                      <QRCodeSVG
+                        value={`gifthance://giftcard/${selectedUserGiftCard.code || ''}`}
+                        size={180}
+                        level="H"
+                        includeMargin={false}
+                        bgColor="#ffffff"
+                        fgColor="#1a1a1a"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-center text-xs text-[var(--v2-on-surface-variant)] mt-1">Show this QR code to the vendor to use your gift card</p>
+                </div>
+
+                {/* Card Code */}
+                <div className="bg-[var(--v2-surface-container-low)] rounded-2xl p-4 border border-[var(--v2-outline-variant)]/10">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="v2-icon" style={{ color: selectedUserGiftCard.giftCard?.colorFrom || '#7c3aed' }}>pin</span>
+                    <h3 className="font-bold text-[var(--v2-on-surface)] text-sm">Card Code</h3>
+                  </div>
+                  <div className="flex items-center justify-between bg-[var(--v2-surface-container-lowest)] rounded-xl p-3">
+                    <p className="font-mono text-lg font-bold text-[var(--v2-on-surface)] tracking-wider">
+                      {showGiftCodeMG
+                        ? (selectedUserGiftCard.code || '').toUpperCase()
+                        : (() => {
+                            const c = (selectedUserGiftCard.code || '').replace(/^(GFT|GIFT)-+/i, '').toUpperCase();
+                            return c.length <= 4 ? `GFT-${c}` : `GFT-••••${c.slice(-4)}`;
+                          })()}
+                    </p>
+                    <button
+                      onClick={() => setShowGiftCodeMG(!showGiftCodeMG)}
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold hover:opacity-80 transition-colors"
+                      style={{ backgroundColor: `${selectedUserGiftCard.giftCard?.colorFrom || '#7c3aed'}15`, color: selectedUserGiftCard.giftCard?.colorFrom || '#7c3aed' }}>
+                      <span className="v2-icon text-sm">{showGiftCodeMG ? 'visibility_off' : 'visibility'}</span>
+                      {showGiftCodeMG ? 'Hide' : 'Reveal'}
+                    </button>
+                  </div>
+                </div>
 
                 {/* Gift Info */}
                 <div className="space-y-2">

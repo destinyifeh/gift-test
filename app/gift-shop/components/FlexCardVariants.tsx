@@ -107,12 +107,12 @@ export function FlexCard3D({
                 </p>
             </div>
 
-            <div className={cn("flex justify-end items-end relative z-10 pt-1.5 md:pt-4 mt-auto", mode === 'preview' ? "pb-0" : "pb-3 md:pb-5")}>
+            <div className={cn("flex justify-end items-end relative z-10 pt-0 md:pt-2", mode === 'preview' ? "pb-0" : "pb-3 md:pb-5")}>
                 <div 
                     className="flex shrink-0 items-center gap-2 text-white/50 leading-none mr-2 md:mr-0 hover:text-white transition-colors group/flipBtn z-50 pointer-events-auto cursor-pointer"
                     onClick={(e) => handleToggle(e, true)}
                 >
-                    <span className="text-[11px] md:text-sm font-black tracking-wide">Tap to flip</span>
+                    <span className="text-[11px] md:text-sm font-black tracking-wide uppercase">Tap to flip</span>
                     <span className="v2-icon text-xs md:text-sm group-hover/flipBtn:rotate-180 transition-transform duration-700">sync</span>
                 </div>
             </div>
@@ -164,7 +164,7 @@ export function FlexCard3D({
                     className="flex shrink-0 items-center gap-2 text-white/50 leading-none hover:text-white transition-colors group/flipBtnBack z-50 pointer-events-auto cursor-pointer"
                     onClick={(e) => handleToggle(e, false)}
                  >
-                     <span className="text-[11px] md:text-sm font-black tracking-wide">Tap to flip back</span>
+                     <span className="text-[11px] md:text-sm font-black tracking-wide uppercase">Tap to flip back</span>
                      <span className="v2-icon text-xs md:text-sm group-hover/flipBtnBack:-rotate-180 transition-transform duration-700">sync</span>
                  </div>
             </div>
