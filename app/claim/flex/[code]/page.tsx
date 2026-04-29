@@ -382,6 +382,23 @@ export default function ClaimFlexCardPage() {
             </p>
           </div>
 
+          {/* Branded Description Banner */}
+          <div
+            className="rounded-xl p-4 text-white mb-6"
+            style={{ background: flexCard.is_flex_card ? 'linear-gradient(135deg, #d66514, #b14902)' : `linear-gradient(135deg, ${flexCard.color_from || '#7c3aed'}, ${flexCard.color_to || '#6d28d9'})` }}>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="v2-icon" style={{ fontVariationSettings: "'FILL' 1" }}>
+                {flexCard.is_flex_card ? 'card_giftcard' : (flexCard.icon || 'redeem')}
+              </span>
+              <span className="font-bold">{flexCard.is_flex_card ? 'Gifthance Flex Card' : (flexCard.name || 'Gift Card')}</span>
+            </div>
+            <p className="text-sm text-white/80">
+              {flexCard.is_flex_card
+                ? 'A universal balance card that can be used at any vendor on the platform. Partial redemptions allowed.'
+                : (flexCard.usage_description || 'Redeemable at approved partner vendors.')}
+            </p>
+          </div>
+
           {/* Message */}
           {flexCard.message && (
             <div className="bg-[var(--v2-surface-container-low)] rounded-2xl p-4 mb-6">

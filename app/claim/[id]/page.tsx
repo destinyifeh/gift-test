@@ -293,7 +293,21 @@ export default function ClaimGiftPage() {
                 A gift from{' '}
                 <span className="text-[var(--v2-primary)] capitalize">{senderName}</span>
               </h1>
-              
+
+              {/* Branded Description Banner */}
+              <div
+                className="rounded-xl p-4 text-white w-full max-w-sm mt-4"
+                style={{ background: `linear-gradient(135deg, ${gift.giftCard?.colorFrom || gift.product?.colorFrom || '#7c3aed'}, ${gift.giftCard?.colorTo || gift.product?.colorTo || '#6d28d9'})` }}>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="v2-icon" style={{ fontVariationSettings: "'FILL' 1" }}>
+                    {gift.giftCard?.icon || gift.product?.icon || 'card_giftcard'}
+                  </span>
+                  <span className="font-bold">{giftName}</span>
+                </div>
+                <p className="text-sm text-white/80">
+                  {gift.giftCard?.usageDescription || gift.description || (gift.isFlexCard ? 'A universal balance card usable at any vendor on the platform.' : 'Redeemable at approved partner vendors.')}
+                </p>
+              </div>
               {/* Message */}
               {gift.message && (
                 <div className="mt-8 w-full max-w-sm">
