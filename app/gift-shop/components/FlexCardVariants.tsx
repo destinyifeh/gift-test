@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { Gift } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 
 export type FlexCardVariant = 'green' | 'orange' | 'dark' | 'glass' | 'emerald' | 'dynamic';
 
@@ -12,11 +13,12 @@ interface FlexCard3DProps {
   onFlipToggle?: (flipped: boolean) => void;
   amount?: number;
   randomId?: string;
+  code?: string;
   dynamicStyle?: {
     colorFrom: string;
     colorTo: string;
   };
-  mode?: 'preview' | 'active';
+  mode?: 'preview' | 'active' | 'live';
 }
 
 export function FlexCard3D({ 
@@ -25,12 +27,13 @@ export function FlexCard3D({
     onFlipToggle, 
     amount, 
     randomId,
+    code,
     dynamicStyle,
     mode = 'preview'
 }: FlexCard3DProps) {
 
   // Auto-generate ID if none provided
-  const rawIdValue = useMemo(() => randomId || Math.random().toString(36).substring(2, 10).toUpperCase(), [randomId]);
+  const rawIdValue = useMemo(() => code || randomId || Math.random().toString(36).substring(2, 10).toUpperCase(), [code, randomId]);
   
   // Hardcoded Flex Card prefix
   const idValue = mode === 'preview' 
@@ -57,7 +60,7 @@ export function FlexCard3D({
   };
 
   const getContainerClasses = () => {
-      const base = "absolute inset-0 w-full h-full rounded-[1.5rem] md:rounded-[2.5rem] p-6 md:p-10 flex flex-col justify-between overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] [backface-visibility:hidden] border border-white/20";
+      const base = "absolute inset-0 w-full h-full rounded-[1.25rem] md:rounded-[2rem] p-4 md:p-7 flex flex-col justify-between overflow-hidden shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5)] md:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] [backface-visibility:hidden] border border-white/20";
       if (variant === 'glass') return base;
       if (variant === 'emerald') return cn(base, "bg-gradient-to-br from-[#1a3d2e]/90 via-[#102d20]/85 to-[#0a1f16]/90 backdrop-blur-2xl");
       return base;
@@ -104,7 +107,7 @@ export function FlexCard3D({
                 </p>
             </div>
 
-            <div className="flex justify-end items-end relative z-10 border-t border-white/10 pt-3 md:pt-8 mt-auto pb-0">
+            <div className={cn("flex justify-end items-end relative z-10 pt-1.5 md:pt-4 mt-auto", mode === 'preview' ? "pb-0" : "pb-3 md:pb-5")}>
                 <div 
                     className="flex shrink-0 items-center gap-2 text-white/50 leading-none mr-2 md:mr-0 hover:text-white transition-colors group/flipBtn z-50 pointer-events-auto cursor-pointer"
                     onClick={(e) => handleToggle(e, true)}
@@ -114,7 +117,7 @@ export function FlexCard3D({
                 </div>
             </div>
             
-            <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/20 rounded-[1.5rem] md:rounded-[2rem] pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/20 rounded-[1.25rem] md:rounded-[2rem] pointer-events-none" />
         </div>
 
         {/* BACK FACE */}
@@ -128,13 +131,23 @@ export function FlexCard3D({
             
             <div className="relative z-10 flex-grow flex flex-col items-center justify-center mt-4 md:mt-6 mb-2 min-h-0">
                 <div className="w-[75px] h-[75px] sm:w-[95px] sm:h-[95px] md:w-[120px] md:h-[120px] bg-white rounded-xl md:rounded-[1.25rem] p-2 md:p-3 flex items-center justify-center shadow-xl flex-shrink-0 relative overflow-hidden">
-                    <svg viewBox="0 0 24 24" fill="black" className={cn("w-full h-full opacity-90", mode === 'preview' && "blur-md opacity-30")} shapeRendering="crispEdges">
-                        <path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm13-2h3v2h-3v-2zm-3 0h2v2h-2v-2zm3 3h3v2h-3v-2zm-3 0h2v2h-2v-2zm3 3h3v2h-3v-2zm-3 0h2v2h-2v-2zm-3-6h2v8h-2v-8z" />
-                        <rect x="15" y="15" width="2" height="2" />
-                        <rect x="19" y="19" width="2" height="2" />
-                        <rect x="15" y="19" width="2" height="2" />
-                        <rect x="19" y="15" width="2" height="2" />
-                    </svg>
+                    {mode !== 'preview' && rawIdValue ? (
+                        <QRCodeSVG 
+                            value={rawIdValue} 
+                            size={120} 
+                            level="H" 
+                            includeMargin={false} 
+                            className="w-full h-full"
+                        />
+                    ) : (
+                        <svg viewBox="0 0 24 24" fill="black" className="w-full h-full opacity-30 blur-[2px]" shapeRendering="crispEdges">
+                            <path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm13-2h3v2h-3v-2zm-3 0h2v2h-2v-2zm3 3h3v2h-3v-2zm-3 0h2v2h-2v-2zm3 3h3v2h-3v-2zm-3 0h2v2h-2v-2zm-3-6h2v8h-2v-8z" />
+                            <rect x="15" y="15" width="2" height="2" />
+                            <rect x="19" y="19" width="2" height="2" />
+                            <rect x="15" y="19" width="2" height="2" />
+                            <rect x="19" y="15" width="2" height="2" />
+                        </svg>
+                    )}
                     
                     {mode === 'preview' && (
                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/40 backdrop-blur-[2px] rounded-[inherit]">
@@ -145,7 +158,7 @@ export function FlexCard3D({
                 </div>
             </div>
 
-            <div className="flex justify-between items-end relative z-10 border-t border-white/10 pt-4 md:pt-8 mt-auto">
+            <div className="flex justify-between items-end relative z-10 pt-4 md:pt-8 mt-auto pb-0">
                  <p className="text-white/80 text-[11px] md:text-sm font-black tracking-[0.2em] font-mono leading-none truncate mr-4">{idValue}</p>
                  <div 
                     className="flex shrink-0 items-center gap-2 text-white/50 leading-none hover:text-white transition-colors group/flipBtnBack z-50 pointer-events-auto cursor-pointer"
@@ -156,7 +169,7 @@ export function FlexCard3D({
                  </div>
             </div>
             
-            <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/20 rounded-[1.5rem] md:rounded-[2rem] pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/20 rounded-[1.25rem] md:rounded-[2rem] pointer-events-none" />
         </div>
     </div>
   );

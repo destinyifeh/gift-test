@@ -112,3 +112,14 @@ export function useMyUserGiftCards() {
     },
   });
 }
+
+export function useFlexCardTransactions(cardId: number) {
+  return useQuery({
+    queryKey: ['flex-card-transactions', cardId],
+    queryFn: async () => {
+      const res = await api.get(`/flex-cards/${cardId}/transactions`);
+      return res.data;
+    },
+    enabled: !!cardId,
+  });
+}

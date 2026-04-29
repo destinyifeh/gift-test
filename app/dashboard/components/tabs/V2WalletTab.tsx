@@ -21,8 +21,10 @@ import {formatCurrency} from '@/lib/utils/currency';
 import {useEffect, useMemo, useState} from 'react';
 import {toast} from 'sonner';
 import {useGiftByCode, useClaimGift, useMyFlexCards, useMyUserGiftCards} from '@/hooks/use-claims';
-import {FlexCardComponent, FlexCardModal} from '../../../components/FlexCard';
+import {FlexCardComponent, FlexCardListItem} from '../../../components/FlexCard';
 import {GiftCardListItem as GiftCardComponent, GiftCardModal} from '../../../components/GiftCard';
+import {V2VendorDiscovery} from '../../../components/V2VendorDiscovery';
+import {Gift} from 'lucide-react';
 
 type TransactionFilter = 'all' | 'gifts' | 'flex_card' | 'withdrawals';
 type DateFilter = 'all' | 'week' | 'month' | '3months';
@@ -49,6 +51,7 @@ export function V2WalletTab() {
 
   // Flex cards
   const [selectedFlexCard, setSelectedFlexCard] = useState<any | null>(null);
+  const [selectedUserGiftCard, setSelectedUserGiftCard] = useState<any | null>(null);
 
   const {data: walletProfile, isLoading} = useWalletProfile();
   const {data: banksData} = useBanks(selectedCountry);
@@ -380,23 +383,19 @@ export function V2WalletTab() {
           </div>
 
           {flexCards.filter((card: any) => card.status === 'active' || card.status === 'partially_used').length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="space-y-3">
               {flexCards.filter((card: any) => card.status !== 'redeemed').map((card: any) => (
-                card.is_flex_card ? (
-                  <FlexCardComponent 
-                    key={card.id} 
-                    card={card} 
-                    variant="compact" 
-                    onClick={() => setSelectedFlexCard(card)}
-                  />
-                ) : (
-                  <GiftCardComponent
-                    key={card.id}
-                    card={card}
-                    variant="compact"
-                    onClick={() => setSelectedFlexCard(card)}
-                  />
-                )
+                <FlexCardListItem
+                  key={card.id}
+                  code={card.code}
+                  initialAmount={card.initial_amount}
+                  currentBalance={card.current_balance}
+                  currency={card.currency}
+                  status={card.status}
+                  senderName={card.sender?.display_name || card.sender_name || undefined}
+                  createdAt={card.created_at}
+                  onClick={() => setSelectedFlexCard(card)}
+                />
               ))}
             </div>
           ) : (
@@ -438,40 +437,62 @@ export function V2WalletTab() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {giftCards.filter((card: any) => card.status !== 'redeemed').map((card: any) => (
-              <div
-                key={card.id}
-                className="bg-[var(--v2-surface-container-lowest)] rounded-2xl p-4 flex items-center gap-4 shadow-sm hover:shadow-md transition-all cursor-pointer border border-[var(--v2-outline-variant)]/10"
-              >
+          <div className="space-y-3">
+            {giftCards.filter((card: any) => card.status !== 'redeemed').map((card: any) => {
+              const statusCfg = ({
+                active: { label: 'Active', text: 'text-emerald-700', bg: 'bg-emerald-100' },
+                partially_used: { label: 'Partially Used', text: 'text-amber-700', bg: 'bg-amber-100' },
+                redeemed: { label: 'Redeemed', text: 'text-[var(--v2-on-surface-variant)]', bg: 'bg-[var(--v2-surface-container-high)]' },
+              } as Record<string, { label: string; text: string; bg: string }>)[card.status] || { label: 'Active', text: 'text-emerald-700', bg: 'bg-emerald-100' };
+
+              return (
                 <div
-                  className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: `linear-gradient(135deg, ${card.giftCard?.colorFrom || '#7c3aed'}, ${card.giftCard?.colorTo || '#6d28d9'})` }}
-                >
-                  <span className="v2-icon text-white text-xl">{card.giftCard?.icon || 'card_giftcard'}</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <h4 className="font-bold text-[var(--v2-on-surface)] truncate">
-                      {card.giftCard?.name || 'Gift Card'}
-                    </h4>
+                  key={card.id}
+                  onClick={() => setSelectedUserGiftCard(card)}
+                  className="bg-[var(--v2-surface-container-lowest)] p-3 sm:p-4 rounded-2xl flex items-center gap-3 sm:gap-4 border border-[var(--v2-outline-variant)]/10 cursor-pointer hover:shadow-lg hover:shadow-[var(--v2-primary)]/5 transition-all group">
+                  
+                  <div
+                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm transition-transform group-hover:scale-105"
+                    style={{ background: `linear-gradient(135deg, ${card.giftCard?.colorFrom || '#7c3aed'}, ${card.giftCard?.colorTo || '#6d28d9'})` }}>
+                    <span className="v2-icon text-white text-lg sm:text-xl">
+                      {card.giftCard?.icon || 'card_giftcard'}
+                    </span>
                   </div>
-                  <p className="text-xs text-[var(--v2-on-surface-variant)]">
-                    From {card.senderName || card.sender?.displayName || 'Someone'}
-                  </p>
-                  <button className="mt-1 text-[10px] font-bold text-[var(--v2-primary)] hover:underline flex items-center gap-0.5">
-                    View details
-                    <span className="v2-icon text-[10px]">chevron_right</span>
-                  </button>
+
+                  <div className="flex-1 min-w-0 pr-1">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-0.5">
+                      <h4 className="font-bold text-[var(--v2-on-surface)] truncate text-sm sm:text-base leading-tight">
+                        {card.giftCard?.name || 'Gift Card'}
+                      </h4>
+                      <span
+                        className={`${statusCfg.bg} ${statusCfg.text} text-[8px] sm:text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest whitespace-nowrap`}>
+                        {statusCfg.label}
+                      </span>
+                    </div>
+                    <p className="font-mono text-[10px] sm:text-xs text-[var(--v2-on-surface-variant)]/70">
+                      {card.code?.length > 8
+                        ? `GFT-••••${card.code.slice(-4).toUpperCase()}`
+                        : card.code}
+                    </p>
+                    <p className="text-[9px] sm:text-[10px] text-[var(--v2-on-surface-variant)] mt-0.5 truncate opacity-60">
+                      From {card.senderName || card.sender?.displayName || 'Anonymous'}
+                    </p>
+                  </div>
+
+                  <div className="text-right flex flex-col items-end gap-1.5 sm:gap-2 pl-1">
+                    <p className="font-black text-[var(--v2-on-surface)] text-sm sm:text-base whitespace-nowrap">
+                      {formatCurrency(card.currentBalance || card.current_balance, userCurrency)}
+                    </p>
+                    <div className="px-3 py-1.5 rounded-xl bg-[#d66514]/10 text-[#d66514] text-[10px] font-bold transition-all group-hover:bg-[#d66514] group-hover:text-white flex items-center gap-1 shadow-sm">
+                      Details
+                      <span className="v2-icon text-[10px] group-hover:translate-x-0.5 transition-transform">
+                        arrow_forward
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-bold text-[var(--v2-on-surface)]">
-                    ₦{Number(card.currentBalance).toLocaleString()}
-                  </p>
-                  <p className="text-[10px] text-[var(--v2-on-surface-variant)]">balance</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
@@ -1054,22 +1075,178 @@ export function V2WalletTab() {
         </ResponsiveModalContent>
       </ResponsiveModal>
 
-      {/* Single Flex Card Detail Modal */}
-      {selectedFlexCard && (
-        selectedFlexCard.is_flex_card ? (
-          <FlexCardModal
-            card={selectedFlexCard}
-            open={!!selectedFlexCard}
-            onClose={() => setSelectedFlexCard(null)}
-          />
-        ) : (
-          <GiftCardModal
-            card={selectedFlexCard}
-            open={!!selectedFlexCard}
-            onClose={() => setSelectedFlexCard(null)}
-          />
-        )
-      )}
+      {/* Flex Card Detail Modal (High-Fidelity) */}
+      <ResponsiveModal
+        open={!!selectedFlexCard}
+        onOpenChange={open => !open && setSelectedFlexCard(null)}>
+        <ResponsiveModalContent className="bg-[var(--v2-surface)] md:max-w-[520px] p-0 overflow-hidden max-h-[90vh] md:max-h-[85vh]">
+          {selectedFlexCard && (
+            <div className="flex flex-col max-h-[90vh] md:max-h-[85vh]">
+              {/* Gradient Header Banner */}
+              <div className="relative bg-gradient-to-br from-[#d66514] to-[#b14902] p-5 pb-8 flex-shrink-0">
+                {/* Background Pattern */}
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute top-4 right-4 w-24 h-24 border-4 border-white rounded-3xl rotate-12" />
+                  <div className="absolute bottom-0 right-8 w-16 h-16 border-4 border-white rounded-2xl -rotate-6" />
+                  <span className="v2-icon absolute top-6 right-12 text-6xl text-white/20">
+                    card_giftcard
+                  </span>
+                </div>
+
+                {/* Close Button */}
+                <button
+                  onClick={() => setSelectedFlexCard(null)}
+                  className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors z-10">
+                  <span className="v2-icon text-lg">close</span>
+                </button>
+
+                {/* Type Badge */}
+                <span className="inline-block px-3 py-1 bg-white/20 text-white text-xs font-bold rounded-full mb-3">
+                  Flex Card
+                </span>
+
+                {/* Gift Name */}
+                <h2 className="text-2xl md:text-3xl font-black text-white v2-headline mb-1 pr-10">
+                  Gifthance Flex
+                </h2>
+                <p className="text-white/70 text-sm">Universal Gift Card</p>
+              </div>
+
+              {/* Content - Scrollable area */}
+              <div className="p-5 space-y-5 overflow-y-auto flex-1">
+                {/* From & Value Row */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
+                      From
+                    </p>
+                    <p className="font-bold text-[var(--v2-on-surface)]">
+                      {selectedFlexCard.sender_name || selectedFlexCard.sender?.display_name || 'Anonymous'}
+                    </p>
+                    {selectedFlexCard.message && (
+                      <p className="text-sm text-[var(--v2-on-surface-variant)] italic mt-1 border-l-2 border-[var(--v2-primary)] pl-2">
+                        "{selectedFlexCard.message}"
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
+                      Value
+                    </p>
+                    <p className="text-2xl font-black text-[var(--v2-primary)] v2-headline">
+                      ₦{Number(selectedFlexCard.current_balance || selectedFlexCard.currentBalance).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+
+                {/* 3D Flex Card Visual */}
+                <div className="w-full flex justify-center items-center py-8 overflow-visible relative min-h-[260px] md:min-h-[340px]">
+                  <div className="w-[300px] sm:w-[320px] md:w-[400px] relative z-20">
+                    <FlexCardComponent
+                      card={selectedFlexCard}
+                      variant="premium"
+                      interactive={true}
+                    />
+                  </div>
+                </div>
+
+                <div className="rounded-2xl overflow-hidden bg-white border border-[var(--v2-outline-variant)]/10">
+                  <V2VendorDiscovery giftCardId={selectedFlexCard.id} variant="list" />
+                </div>
+              </div>
+            </div>
+          )}
+        </ResponsiveModalContent>
+      </ResponsiveModal>
+
+      {/* User Gift Card Detail Modal (High-Fidelity) */}
+      <ResponsiveModal
+        open={!!selectedUserGiftCard}
+        onOpenChange={open => !open && setSelectedUserGiftCard(null)}>
+        <ResponsiveModalContent className="bg-[var(--v2-surface)] md:max-w-[520px] p-0 overflow-hidden max-h-[90vh] md:max-h-[85vh]">
+          {selectedUserGiftCard && (
+            <div className="flex flex-col max-h-[90vh] md:max-h-[85vh]">
+              {/* Gradient Header Banner */}
+              <div
+                className="relative p-5 pb-8 flex-shrink-0"
+                style={{
+                  background: `linear-gradient(135deg, ${selectedUserGiftCard.giftCard?.colorFrom || '#7c3aed'}, ${selectedUserGiftCard.giftCard?.colorTo || '#6d28d9'})`,
+                }}>
+                {/* Background Pattern */}
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute top-4 right-4 w-24 h-24 border-4 border-white rounded-3xl rotate-12" />
+                  <div className="absolute bottom-0 right-8 w-16 h-16 border-4 border-white rounded-2xl -rotate-6" />
+                  <span className="v2-icon absolute top-6 right-12 text-6xl text-white/20">
+                    {selectedUserGiftCard.giftCard?.icon || 'card_giftcard'}
+                  </span>
+                </div>
+
+                {/* Close Button */}
+                <button
+                  onClick={() => setSelectedUserGiftCard(null)}
+                  className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors z-10">
+                  <span className="v2-icon text-lg">close</span>
+                </button>
+
+                {/* Type Badge */}
+                <span className="inline-block px-3 py-1 bg-white/20 text-white text-xs font-bold rounded-full mb-3">
+                  Digital Gift Card
+                </span>
+
+                {/* Gift Name */}
+                <h2 className="text-2xl md:text-3xl font-black text-white v2-headline mb-1 pr-10">
+                  {selectedUserGiftCard.giftCard?.name || 'Gift Card'}
+                </h2>
+                <p className="text-white/70 text-sm">Stored securely in your wallet</p>
+              </div>
+
+              {/* Content - Scrollable area */}
+              <div className="p-5 space-y-5 overflow-y-auto flex-1">
+                {/* From & Value Row */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
+                      From
+                    </p>
+                    <p className="font-bold text-[var(--v2-on-surface)]">
+                      {selectedUserGiftCard.senderName || selectedUserGiftCard.sender?.displayName || 'Anonymous'}
+                    </p>
+                    {selectedUserGiftCard.message && (
+                      <p className="text-sm text-[var(--v2-on-surface-variant)] italic mt-1 border-l-2 border-[var(--v2-primary)] pl-2">
+                        "{selectedUserGiftCard.message}"
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
+                      Value
+                    </p>
+                    <p className="text-2xl font-black text-[var(--v2-primary)] v2-headline">
+                      ₦{Number(selectedUserGiftCard.currentBalance || selectedUserGiftCard.current_balance).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Card Visualization */}
+                <div className="py-4">
+                  <GiftCardComponent
+                    card={selectedUserGiftCard}
+                    variant="premium"
+                    colorVariant={selectedUserGiftCard.giftCard?.colorFrom?.includes('emerald') ? 'emerald' : 'orange'}
+                  />
+                </div>
+
+                {/* Vendor Discovery */}
+                {selectedUserGiftCard.giftCard?.id && (
+                  <div className="rounded-2xl overflow-hidden bg-white border border-[var(--v2-outline-variant)]/10">
+                    <V2VendorDiscovery giftCardId={selectedUserGiftCard.giftCard.id} variant="list" />
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </ResponsiveModalContent>
+      </ResponsiveModal>
     </div>
   );
 }

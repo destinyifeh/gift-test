@@ -18,7 +18,7 @@ import {Compass} from 'lucide-react';
 import {QRCodeSVG} from 'qrcode.react';
 import {useState} from 'react';
 import {toast} from 'sonner';
-import {FlexCardListItem, FlexCardModal} from '../../../components/FlexCard';
+import {FlexCardListItem, FlexCardComponent} from '../../../components/FlexCard';
 import {V2VendorDiscovery} from '../../../components/V2VendorDiscovery';
 import {GiftCard3D} from '../../../gift-shop/components/GiftCardVariants';
 
@@ -656,7 +656,7 @@ export function V2MyGiftsTab() {
                       <p className="font-black text-[var(--v2-on-surface)] text-sm sm:text-base whitespace-nowrap">
                         ₦{Number(card.currentBalance).toLocaleString()}
                       </p>
-                      <div className="px-3 py-1.5 rounded-xl bg-[var(--v2-secondary-container)] text-[var(--v2-on-secondary-container)] text-[10px] font-bold transition-all group-hover:bg-[var(--v2-primary)] group-hover:text-white flex items-center gap-1 shadow-sm">
+                      <div className="px-3 py-1.5 rounded-xl bg-[#d66514]/10 text-[#d66514] text-[10px] font-bold transition-all group-hover:bg-[#d66514] group-hover:text-white flex items-center gap-1 shadow-sm">
                         Details
                         <span className="v2-icon text-[10px] group-hover:translate-x-0.5 transition-transform">
                           arrow_forward
@@ -686,13 +686,6 @@ export function V2MyGiftsTab() {
                     <p className="text-xs text-[var(--v2-on-surface-variant)]">
                       {flexCards.length} card{flexCards.length !== 1 ? 's' : ''}
                     </p>
-                    <span className="w-1 h-1 rounded-full bg-[var(--v2-on-surface-variant)]/20" />
-                    <button
-                      onClick={() => setIsDiscoveryOpen(true)}
-                      className="text-xs font-bold text-[var(--v2-primary)] hover:opacity-80 transition-opacity flex items-center gap-1">
-                      <Compass className="w-3 h-3" />
-                      View all nearby vendors
-                    </button>
                   </div>
                 </div>
               </div>
@@ -883,30 +876,119 @@ export function V2MyGiftsTab() {
         </ResponsiveModalContent>
       </ResponsiveModal>
 
-      {/* Flex Card Modal */}
-      {selectedFlexCard && (
-        <FlexCardModal
-          card={{
-            ...selectedFlexCard,
-            id: selectedFlexCard.id as any,
-            status: selectedFlexCard.status as any,
-          }}
-          open={!!selectedFlexCard}
-          onClose={() => setSelectedFlexCard(null)}
-        />
-      )}
+      {/* Flex Card Detail Modal */}
+      <ResponsiveModal
+        open={!!selectedFlexCard}
+        onOpenChange={open => !open && setSelectedFlexCard(null)}>
+        <ResponsiveModalContent className="bg-[var(--v2-surface)] md:max-w-[520px] p-0 overflow-hidden max-h-[90vh] md:max-h-[85vh]">
+          {selectedFlexCard && (
+            <div className="flex flex-col max-h-[90vh] md:max-h-[85vh]">
+              {/* Gradient Header Banner */}
+              <div className="relative bg-gradient-to-br from-[#d66514] to-[#b14902] p-5 pb-8 flex-shrink-0">
+                {/* Background Pattern */}
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute top-4 right-4 w-24 h-24 border-4 border-white rounded-3xl rotate-12" />
+                  <div className="absolute bottom-0 right-8 w-16 h-16 border-4 border-white rounded-2xl -rotate-6" />
+                  <span className="v2-icon absolute top-6 right-12 text-6xl text-white/20">
+                    card_giftcard
+                  </span>
+                </div>
 
-      <ResponsiveModal open={isDiscoveryOpen} onOpenChange={setIsDiscoveryOpen}>
-        <ResponsiveModalContent className="sm:max-w-[600px] p-0 overflow-hidden bg-[var(--v2-background)] border-none">
-          <div className="p-4 sm:p-8">
-            <V2VendorDiscovery
-              giftCardId={flexCardAsset?.id}
-              variant="list"
-              title="Flex Card Vendors"
-            />
-          </div>
+                {/* Close Button */}
+                <button
+                  onClick={() => setSelectedFlexCard(null)}
+                  className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors z-10">
+                  <span className="v2-icon text-lg">close</span>
+                </button>
+
+                {/* Type Badge */}
+                <span className="inline-block px-3 py-1 bg-white/20 text-white text-xs font-bold rounded-full mb-3">
+                  Flex Card
+                </span>
+
+                {/* Gift Name */}
+                <h2 className="text-2xl md:text-3xl font-black text-white v2-headline mb-1 pr-10">
+                  Gifthance Flex
+                </h2>
+                <p className="text-white/70 text-sm">
+                  Universal Gift Card
+                </p>
+              </div>
+
+              {/* Content - Scrollable area */}
+              <div className="p-5 space-y-5 overflow-y-auto flex-1">
+                {/* From & Value Row */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
+                      From
+                    </p>
+                    <p className="font-bold text-[var(--v2-on-surface)]">
+                      {selectedFlexCard.sender_name || 'Anonymous'}
+                    </p>
+                    {selectedFlexCard.message && (
+                      <p className="text-sm text-[var(--v2-on-surface-variant)] italic mt-1 border-l-2 border-[var(--v2-primary)] pl-2">
+                        "{selectedFlexCard.message}"
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
+                      Value
+                    </p>
+                    <p className="text-2xl font-black text-[var(--v2-primary)] v2-headline">
+                      ₦
+                      {Number(
+                        selectedFlexCard.current_balance,
+                      ).toLocaleString()}
+                    </p>
+                    <span className="inline-block mt-1 px-3 py-1 rounded-full text-[10px] font-bold uppercase bg-[var(--v2-secondary-container)] text-[var(--v2-on-secondary-container)]">
+                      Ready to Use
+                    </span>
+                  </div>
+                </div>
+
+                {/* 3D Flex Card Visual */}
+                <div className="w-full flex justify-center items-center py-8 overflow-visible relative min-h-[260px] md:min-h-[340px]">
+                  <div className="w-[300px] sm:w-[320px] md:w-[400px] relative z-20">
+                    <FlexCardComponent
+                      card={{
+                        ...selectedFlexCard,
+                        id: selectedFlexCard.id as any,
+                        status: selectedFlexCard.status as any,
+                      }}
+                      variant="premium"
+                      interactive={true}
+                    />
+                  </div>
+                </div>
+
+                <div className="rounded-2xl overflow-hidden bg-white border border-[var(--v2-outline-variant)]/10">
+                  <V2VendorDiscovery
+                    giftCardId={flexCardAsset?.id}
+                    variant="list"
+                  />
+                </div>
+
+                {/* Gift Info */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--v2-surface-container-low)]">
+                    <span className="text-sm text-[var(--v2-on-surface-variant)]">
+                      Received
+                    </span>
+                    <span className="text-sm font-medium text-[var(--v2-on-surface)]">
+                      {new Date(
+                        selectedFlexCard.created_at || new Date()
+                      ).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </ResponsiveModalContent>
       </ResponsiveModal>
+
 
       {/* User Gift Card Detail Modal */}
       <ResponsiveModal
