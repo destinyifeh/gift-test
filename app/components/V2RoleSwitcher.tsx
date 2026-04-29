@@ -146,10 +146,10 @@ export function V2MobileRoleSwitcher() {
       {/* Compact trigger button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="w-10 h-10 rounded-xl bg-[var(--v2-surface-container-high)] border border-[var(--v2-outline-variant)]/20 flex items-center justify-center"
+        className="w-8 h-8 rounded-lg bg-[var(--v2-surface-container-high)] border border-[var(--v2-outline-variant)]/20 flex items-center justify-center"
         title="Switch role"
       >
-        <span className="v2-icon text-[var(--v2-primary)]">{currentRole?.icon}</span>
+        <span className="v2-icon text-lg text-[var(--v2-primary)]">{currentRole?.icon}</span>
       </button>
 
       {/* Bottom sheet overlay */}

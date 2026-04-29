@@ -65,11 +65,11 @@ export function V2NotificationsPanel({className}: V2NotificationsPanelProps) {
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-10 h-10 rounded-xl bg-[var(--v2-primary)]/10 flex items-center justify-center relative hover:bg-[var(--v2-primary)]/20 transition-colors"
+        className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-[var(--v2-primary)]/10 flex items-center justify-center relative hover:bg-[var(--v2-primary)]/20 transition-colors"
       >
-        <span className="v2-icon text-[var(--v2-primary)]">notifications</span>
+        <span className="v2-icon text-lg md:text-2xl text-[var(--v2-primary)]">notifications</span>
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-[var(--v2-error)] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+          <span className="absolute -top-1 -right-1 min-w-4 md:min-w-5 h-4 md:h-5 px-0.5 md:px-1 bg-[var(--v2-error)] text-white text-[8px] md:text-[10px] font-bold rounded-full flex items-center justify-center">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}

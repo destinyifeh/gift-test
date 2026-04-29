@@ -1,6 +1,6 @@
 'use client';
 
-type VendorSection = 'dashboard' | 'shop' | 'inventory' | 'orders' | 'codes' | 'wallet' | 'promotions' | 'settings';
+type VendorSection = 'dashboard' | 'orders' | 'codes' | 'wallet' | 'settings';
 
 interface V2VendorBottomTabBarProps {
   activeSection: VendorSection;
@@ -9,8 +9,8 @@ interface V2VendorBottomTabBarProps {
 
 const bottomTabs: {id: VendorSection; label: string; icon: string}[] = [
   {id: 'dashboard', label: 'Home', icon: 'dashboard'},
-  {id: 'orders', label: 'Orders', icon: 'shopping_bag'},
-  {id: 'inventory', label: 'Items', icon: 'inventory_2'},
+  {id: 'orders', label: 'Redeem', icon: 'receipt_long'},
+  {id: 'codes', label: 'Verify', icon: 'qr_code_scanner'},
   {id: 'wallet', label: 'Wallet', icon: 'payments'},
 ];
 

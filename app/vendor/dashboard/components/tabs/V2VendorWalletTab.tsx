@@ -291,7 +291,7 @@ export function V2VendorWalletTab() {
             <div className="hidden md:flex gap-4 mt-4">
               <span className="flex items-center gap-1 bg-white/20 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-white">
                 <span className="v2-icon text-sm">trending_up</span>
-                From {vendorStats?.ordersCount || 0} orders
+                From {vendorStats?.ordersCount || 0} redemptions
               </span>
             </div>
           </div>
@@ -328,23 +328,15 @@ export function V2VendorWalletTab() {
             </div>
           </div>
           <div className="flex-1 bg-[var(--v2-surface-container-lowest)] p-5 rounded-[1.5rem] flex items-center gap-4 shadow-sm">
-            <div className="w-12 h-12 rounded-full bg-[var(--v2-tertiary-container)]/30 flex items-center justify-center">
-              <span className="v2-icon text-[var(--v2-tertiary)]">schedule</span>
+            <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center">
+              <span className="v2-icon text-emerald-600">verified</span>
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <p className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
-                  Pending Redemptions
-                </p>
-                <div className="relative group cursor-help">
-                  <span className="v2-icon text-[10px] text-[var(--v2-on-surface-variant)]">error</span>
-                  <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1 w-48 p-2 bg-[var(--v2-surface-container-highest)] text-[var(--v2-on-surface)] text-[10px] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
-                    Amount of gifts created with your items that haven't been successfully redeemed yet.
-                  </div>
-                </div>
-              </div>
+              <p className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
+                Total Redemptions
+              </p>
               <p className="text-xl font-extrabold text-[var(--v2-on-surface)] tracking-tight v2-headline">
-                {formatCurrency(pendingAmount, userCurrency)}
+                {vendorStats?.ordersCount || 0}
               </p>
             </div>
           </div>
@@ -352,7 +344,7 @@ export function V2VendorWalletTab() {
       </div>
 
       {/* Stats Grid - Mobile */}
-      <div className="grid grid-cols-3 lg:hidden gap-2">
+      <div className="grid grid-cols-2 lg:hidden gap-2">
         <div className="bg-[var(--v2-surface-container-lowest)] p-3 rounded-[1.25rem] shadow-sm">
           <div className="w-8 h-8 rounded-full bg-[var(--v2-secondary-container)]/30 flex items-center justify-center mb-2">
             <span className="v2-icon text-sm text-[var(--v2-secondary)]">call_received</span>
@@ -366,31 +358,11 @@ export function V2VendorWalletTab() {
         </div>
 
         <div className="bg-[var(--v2-surface-container-lowest)] p-3 rounded-[1.25rem] shadow-sm">
-          <div className="w-8 h-8 rounded-full bg-[var(--v2-tertiary-container)]/30 flex items-center justify-center mb-2">
-            <span className="v2-icon text-sm text-[var(--v2-tertiary)]">schedule</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <p className="text-[9px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
-              Pending Redemptions
-            </p>
-            <div className="relative group cursor-help">
-              <span className="v2-icon text-[10px] text-[var(--v2-on-surface-variant)]">error</span>
-              <div className="absolute left-0 bottom-full mb-1 w-32 p-2 bg-[var(--v2-surface-container-highest)] text-[var(--v2-on-surface)] text-[10px] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
-                Gifts with your items not yet redeemed.
-              </div>
-            </div>
-          </div>
-          <p className="text-sm font-extrabold text-[var(--v2-on-surface)] tracking-tight v2-headline">
-            {formatCurrency(pendingAmount, userCurrency)}
-          </p>
-        </div>
-
-        <div className="bg-[var(--v2-surface-container-lowest)] p-3 rounded-[1.25rem] shadow-sm">
-          <div className="w-8 h-8 rounded-full bg-[var(--v2-primary)]/10 flex items-center justify-center mb-2">
-            <span className="v2-icon text-sm text-[var(--v2-primary)]">shopping_cart</span>
+          <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center mb-2">
+            <span className="v2-icon text-sm text-emerald-600">verified</span>
           </div>
           <p className="text-[9px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
-            Orders
+            Redemptions
           </p>
           <p className="text-sm font-extrabold text-[var(--v2-on-surface)] tracking-tight v2-headline">
             {vendorStats?.ordersCount || 0}
@@ -448,7 +420,7 @@ export function V2VendorWalletTab() {
                       key={t.id}
                       className="flex items-center justify-between p-3 rounded-xl bg-[var(--v2-surface-container-low)]">
                       <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isFlex ? 'bg-purple-100 text-purple-700' : 'bg-[var(--v2-secondary-container)]/30 text-[var(--v2-secondary)]'}`}>
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isFlex ? 'bg-[var(--v2-primary-container)]/30 text-[var(--v2-primary)]' : 'bg-[var(--v2-secondary-container)]/30 text-[var(--v2-secondary)]'}`}>
                           <span className="v2-icon">{isFlex ? 'credit_card' : 'check_circle'}</span>
                         </div>
                         <div>
@@ -458,7 +430,7 @@ export function V2VendorWalletTab() {
                           <p className="text-xs text-[var(--v2-on-surface-variant)]">{t.date}</p>
                         </div>
                       </div>
-                      <span className={`font-bold ${isFlex ? 'text-purple-600' : 'text-[var(--v2-secondary)]'}`}>
+                      <span className={`font-bold ${isFlex ? 'text-[var(--v2-primary)]' : 'text-[var(--v2-secondary)]'}`}>
                         +{formatCurrency(t.amount / 100, userCurrency)}
                       </span>
                     </div>
@@ -759,7 +731,7 @@ export function V2VendorWalletTab() {
               <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0">
                 {([
                   {id: 'all', label: 'All', icon: 'list'},
-                  {id: 'sales', label: 'Sales', icon: 'shopping_bag'},
+                  {id: 'sales', label: 'Redemptions', icon: 'verified'},
                   {id: 'flex_redemptions', label: 'Flex Cards', icon: 'credit_card'},
                   {id: 'withdrawals', label: 'Withdrawals', icon: 'account_balance'},
                 ] as const).map(filter => (
@@ -810,12 +782,12 @@ export function V2VendorWalletTab() {
                 </div>
                 <div className="bg-[var(--v2-surface-container-low)] p-3 rounded-xl text-center">
                   <p className="text-xs text-[var(--v2-on-surface-variant)]">Flex Cards</p>
-                  <p className="font-bold text-sm text-purple-600">
+                  <p className="font-bold text-sm text-[var(--v2-primary)]">
                     {formatCurrency(flexRedemptionTotal, userCurrency)}
                   </p>
                 </div>
                 <div className="bg-[var(--v2-surface-container-low)] p-3 rounded-xl text-center">
-                  <p className="text-xs text-[var(--v2-on-surface-variant)]">Orders</p>
+                  <p className="text-xs text-[var(--v2-on-surface-variant)]">Redemptions</p>
                   <p className="font-bold text-sm text-[var(--v2-on-surface)]">
                     {vendorStats?.ordersCount || 0}
                   </p>
@@ -850,7 +822,7 @@ export function V2VendorWalletTab() {
                     };
 
                     const getIconStyle = () => {
-                      if (isFlexRedemption) return 'bg-purple-100 text-purple-700';
+                      if (isFlexRedemption) return 'bg-[var(--v2-primary-container)]/30 text-[var(--v2-primary)]';
                       if (isWithdrawal) return 'bg-orange-100 text-orange-700';
                       return 'bg-[var(--v2-secondary-container)]/30 text-[var(--v2-secondary)]';
                     };
@@ -858,7 +830,7 @@ export function V2VendorWalletTab() {
                     const getTypeLabel = () => {
                       if (isFlexRedemption) return 'Flex Card Redemption';
                       if (isWithdrawal) return 'Withdrawal';
-                      return 'Sale';
+                      return 'Redemption';
                     };
 
                     return (

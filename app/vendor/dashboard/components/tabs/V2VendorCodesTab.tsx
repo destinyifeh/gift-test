@@ -365,23 +365,33 @@ export function V2VendorCodesTab() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="mb-8">
-        <h2 className="text-3xl md:text-4xl font-extrabold v2-headline tracking-tight text-[var(--v2-on-surface)] mb-2">
-          Verify & Redeem
-        </h2>
-        <p className="text-[var(--v2-on-surface-variant)] text-base md:text-lg">
-          Enter a gift code or Flex Card code (FLEX-XXXX), or scan QR to verify and redeem.
-        </p>
+    <div className="space-y-5 md:space-y-6">
+      {/* Hero Header */}
+      <div className="relative rounded-2xl md:rounded-[2rem] p-5 md:p-8 overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--v2-primary), var(--v2-primary-container))' }}>
+        <div className="absolute -right-16 -top-16 w-40 md:w-64 h-40 md:h-64 bg-white/10 rounded-full blur-[60px] md:blur-[80px]" />
+        <div className="absolute -left-8 -bottom-8 w-32 md:w-48 h-32 md:h-48 bg-white/5 rounded-full blur-[40px]" />
+        <div className="relative z-10">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-8 md:w-10 h-8 md:h-10 rounded-full bg-white/15 flex items-center justify-center backdrop-blur-sm">
+              <span className="v2-icon text-white text-lg md:text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>qr_code_scanner</span>
+            </div>
+            <span className="text-white/70 text-xs md:text-sm font-semibold uppercase tracking-widest">Verification</span>
+          </div>
+          <h2 className="text-2xl md:text-4xl font-extrabold text-white v2-headline tracking-tight mb-1">
+            Verify & Redeem
+          </h2>
+          <p className="text-white/60 text-xs md:text-base max-w-lg">
+            Enter a gift code or Flex Card code, or scan a QR to verify and redeem.
+          </p>
+        </div>
       </div>
 
-      {/* Bento Layout */}
-      <div className="grid grid-cols-12 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 items-start">
         {/* Verification Input Section */}
-        <div className="col-span-12 lg:col-span-7 bg-[var(--v2-surface-container-lowest)] rounded-[2rem] p-6 md:p-10 shadow-[0_20px_40px_rgba(73,38,4,0.06)]">
-          <div className="mb-6 md:mb-8">
-            <label className="block text-sm font-bold text-[var(--v2-primary)] uppercase tracking-widest mb-4">
+        <div className="lg:col-span-7 relative bg-[var(--v2-surface-container-lowest)] rounded-2xl md:rounded-[2rem] p-5 md:p-10 overflow-hidden">
+          <div className="absolute -right-20 -top-20 w-48 h-48 bg-[var(--v2-primary)]/5 rounded-full blur-3xl" />
+          <div className="relative z-10 mb-5 md:mb-8">
+            <label className="block text-xs font-bold text-[var(--v2-primary)] uppercase tracking-widest mb-3 md:mb-4">
               Manual Entry
             </label>
             <div className="relative">
@@ -390,15 +400,15 @@ export function V2VendorCodesTab() {
                 value={giftCode}
                 onChange={e => setGiftCode(e.target.value.toUpperCase())}
                 onKeyDown={e => e.key === 'Enter' && handleVerify()}
-                className="w-full text-xl md:text-2xl v2-headline font-bold py-5 md:py-6 px-6 md:px-8 bg-[var(--v2-surface-container-low)] border-none rounded-2xl focus:ring-2 ring-[var(--v2-primary)]/20 focus:bg-white transition-all text-[var(--v2-on-surface)] placeholder:text-[var(--v2-outline-variant)]/50"
+                className="w-full text-lg md:text-2xl v2-headline font-bold py-4 md:py-6 px-5 md:px-8 bg-[var(--v2-surface-container-low)] border-none rounded-xl md:rounded-2xl focus:ring-2 ring-[var(--v2-primary)]/20 focus:bg-white transition-all text-[var(--v2-on-surface)] placeholder:text-[var(--v2-outline-variant)]/50"
                 placeholder="Enter Gift Code"
               />
               {hasCamera && (
                 <button
                   onClick={startScanner}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-xl hover:bg-[var(--v2-primary)]/10 transition-colors">
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-xl hover:bg-[var(--v2-primary)]/10 transition-colors">
                   <span
-                    className="v2-icon text-[var(--v2-primary)] text-3xl md:text-4xl"
+                    className="v2-icon text-[var(--v2-primary)] text-2xl md:text-4xl"
                     style={{fontVariationSettings: "'FILL' 1"}}>
                     qr_code_scanner
                   </span>
@@ -410,7 +420,7 @@ export function V2VendorCodesTab() {
           <button
             onClick={() => handleVerify()}
             disabled={isVerifying || !giftCode.trim()}
-            className="w-full py-5 md:py-6 rounded-2xl v2-hero-gradient text-[var(--v2-on-primary)] text-lg md:text-xl font-bold shadow-[0_20px_40px_rgba(73,38,4,0.06)] hover:opacity-90 transition-opacity flex items-center justify-center gap-3 disabled:opacity-50">
+            className="relative z-10 w-full py-4 md:py-6 rounded-xl md:rounded-2xl v2-hero-gradient text-[var(--v2-on-primary)] text-base md:text-xl font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-3 disabled:opacity-50 active:scale-[0.98]">
             {isVerifying ? (
               <>
                 <span className="v2-icon animate-spin">progress_activity</span>
@@ -428,7 +438,7 @@ export function V2VendorCodesTab() {
           {codeType === 'flex_card' && (verificationResult || flexCardResult) && (
             <div className={`mt-6 md:mt-8 p-5 md:p-6 rounded-2xl ${
               flexCardResult
-                ? 'bg-purple-50 border-2 border-purple-200'
+                ? 'bg-[var(--v2-primary-container)]/20 border-2 border-[var(--v2-primary-container)]'
                 : verificationResult?.message?.includes('fully redeemed')
                 ? 'bg-amber-50 border-2 border-amber-200'
                 : 'bg-red-50 border-2 border-dashed border-red-200'
@@ -436,7 +446,7 @@ export function V2VendorCodesTab() {
               {flexCardResult ? (
                 <div className="space-y-6">
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center flex-shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-[var(--v2-primary-container)]/30 text-[var(--v2-primary)] flex items-center justify-center flex-shrink-0">
                       <span className="v2-icon">credit_card</span>
                     </div>
                     <div className="flex-1">
@@ -446,7 +456,7 @@ export function V2VendorCodesTab() {
                       <div className="bg-white rounded-xl p-4 mb-4 space-y-3">
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-[var(--v2-on-surface-variant)]">Available Balance</span>
-                          <span className="text-2xl font-black text-purple-700">
+                          <span className="text-2xl font-black text-[var(--v2-primary)]">
                             {formatCurrency(flexCardResult.balance, flexCardResult.currency)}
                           </span>
                         </div>
@@ -457,19 +467,19 @@ export function V2VendorCodesTab() {
                       </div>
 
                       <div className="space-y-3 mb-6">
-                        <label className="text-xs font-bold text-purple-700 uppercase tracking-widest">Amount to Charge</label>
+                        <label className="text-xs font-bold text-[var(--v2-primary)] uppercase tracking-widest">Amount to Charge</label>
                         <div className="relative">
-                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-400 font-bold">₦</span>
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--v2-primary)]/50 font-bold">₦</span>
                           <input
                             type="number"
                             value={flexRedeemAmount}
                             onChange={e => setFlexRedeemAmount(e.target.value)}
                             placeholder="0.00"
                             max={flexCardResult.balance}
-                            className="w-full h-14 pl-10 pr-4 text-xl font-bold bg-white rounded-xl border-2 border-purple-200 focus:border-purple-400 focus:ring-0 outline-none"
+                            className="w-full h-14 pl-10 pr-4 text-xl font-bold bg-white rounded-xl border-2 border-[var(--v2-primary-container)] focus:border-[var(--v2-primary)] focus:ring-0 outline-none"
                           />
                         </div>
-                        <div className="flex justify-between text-[10px] font-bold text-purple-600 px-1">
+                        <div className="flex justify-between text-[10px] font-bold text-[var(--v2-primary)] px-1">
                           <span>MAX: {formatCurrency(flexCardResult.balance, flexCardResult.currency)}</span>
                           <button onClick={() => setFlexRedeemAmount(flexCardResult.balance.toString())} className="hover:underline">USE FULL BALANCE</button>
                         </div>
@@ -478,7 +488,7 @@ export function V2VendorCodesTab() {
                       <button
                         onClick={handleFlexCardRedeem}
                         disabled={isRedeeming || !flexRedeemAmount || parseFloat(flexRedeemAmount) <= 0 || parseFloat(flexRedeemAmount) > flexCardResult.balance}
-                        className="w-full py-4 bg-purple-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 transform active:scale-[0.98] transition-all shadow-lg shadow-purple-600/20">
+                        className="w-full py-4 bg-[var(--v2-primary)] text-white font-bold rounded-xl flex items-center justify-center gap-2 transform active:scale-[0.98] transition-all shadow-lg shadow-[var(--v2-primary)]/20">
                          {isRedeeming ? (
                           <span className="v2-icon animate-spin">progress_activity</span>
                         ) : (
@@ -602,7 +612,7 @@ export function V2VendorCodesTab() {
 
           {/* Default State */}
           {!verificationResult && !flexCardResult && (
-            <div className="mt-6 md:mt-8 p-5 md:p-6 bg-[var(--v2-secondary-container)]/30 border-2 border-dashed border-[var(--v2-secondary-container)] rounded-2xl">
+            <div className="mt-5 md:mt-8 p-4 md:p-6 bg-[var(--v2-secondary-container)]/30 border-2 border-dashed border-[var(--v2-secondary-container)] rounded-xl md:rounded-2xl">
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-12 h-12 rounded-full bg-[var(--v2-secondary-container)] flex items-center justify-center text-[var(--v2-on-secondary-container)]">
                   <span className="v2-icon">info</span>
@@ -621,7 +631,7 @@ export function V2VendorCodesTab() {
                   <span className="v2-icon text-sm">redeem</span>
                   Gift Codes
                 </span>
-                <span className="px-3 py-1.5 bg-purple-100 rounded-full text-xs font-bold text-purple-700 flex items-center gap-1.5">
+                <span className="px-3 py-1.5 bg-[var(--v2-primary-container)]/20 rounded-full text-xs font-bold text-[var(--v2-primary)] flex items-center gap-1.5">
                   <span className="v2-icon text-sm">credit_card</span>
                   Flex Cards (FLEX-XXXX)
                 </span>
@@ -631,21 +641,21 @@ export function V2VendorCodesTab() {
         </div>
 
         {/* Secondary Info Section */}
-        <div className="col-span-12 lg:col-span-5 space-y-6">
+        <div className="lg:col-span-5 space-y-4 md:space-y-6">
           {/* Scan QR Card */}
           <button
             onClick={startScanner}
             disabled={!hasCamera}
-            className="w-full bg-[var(--v2-surface-container-low)] rounded-[2rem] p-6 md:p-8 overflow-hidden relative text-left disabled:opacity-50">
-            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-[var(--v2-primary)]/5 rounded-full blur-3xl" />
+            className="w-full bg-[var(--v2-surface-container-lowest)] rounded-2xl md:rounded-[2rem] p-5 md:p-8 overflow-hidden relative text-left disabled:opacity-50 group hover:shadow-xl transition-all active:scale-[0.98]">
+            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-[var(--v2-primary)]/5 rounded-full blur-3xl group-hover:bg-[var(--v2-primary)]/10 transition-all" />
             <div className="relative z-10">
-              <div className="w-14 h-14 rounded-2xl bg-[var(--v2-primary)]/10 flex items-center justify-center mb-4">
-                <span className="v2-icon text-2xl text-[var(--v2-primary)]">qr_code_scanner</span>
+              <div className="w-11 md:w-14 h-11 md:h-14 rounded-xl md:rounded-2xl bg-[var(--v2-primary)]/10 flex items-center justify-center mb-3 md:mb-4">
+                <span className="v2-icon text-xl md:text-2xl text-[var(--v2-primary)]">qr_code_scanner</span>
               </div>
-              <h3 className="text-xl v2-headline font-bold text-[var(--v2-on-surface)] mb-2">
+              <h3 className="text-base md:text-xl v2-headline font-bold text-[var(--v2-on-surface)] mb-1 md:mb-2">
                 Scan QR Code
               </h3>
-              <p className="text-[var(--v2-on-surface-variant)] text-sm">
+              <p className="text-[var(--v2-on-surface-variant)] text-xs md:text-sm">
                 {hasCamera
                   ? 'Tap to open camera and scan customer QR code instantly.'
                   : 'Camera not available on this device.'}
@@ -654,11 +664,12 @@ export function V2VendorCodesTab() {
           </button>
 
           {/* Guidelines Card */}
-          <div className="bg-[var(--v2-surface-container-lowest)] rounded-[2rem] p-6 md:p-8 shadow-[0_20px_40px_rgba(73,38,4,0.06)]">
-            <h3 className="text-lg v2-headline font-bold text-[var(--v2-on-surface)] mb-4">
+          <div className="relative bg-[var(--v2-surface-container-lowest)] rounded-2xl md:rounded-[2rem] p-5 md:p-8 overflow-hidden">
+            <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-[var(--v2-secondary)]/5 rounded-full blur-3xl" />
+            <h3 className="relative z-10 text-base md:text-lg v2-headline font-bold text-[var(--v2-on-surface)] mb-3 md:mb-4">
               Redemption Guide
             </h3>
-            <ul className="space-y-4">
+            <ul className="relative z-10 space-y-3 md:space-y-4">
               <li className="flex items-start gap-3">
                 <span className="v2-icon text-[var(--v2-secondary)] text-lg">check_circle</span>
                 <span className="text-sm text-[var(--v2-on-surface-variant)] leading-relaxed">
@@ -666,7 +677,7 @@ export function V2VendorCodesTab() {
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="v2-icon text-purple-600 text-lg">check_circle</span>
+                <span className="v2-icon text-[var(--v2-primary)] text-lg">check_circle</span>
                 <span className="text-sm text-[var(--v2-on-surface-variant)] leading-relaxed">
                   <strong>Flex Cards:</strong> Support partial redemption. Enter exact purchase amount.
                 </span>
@@ -689,17 +700,19 @@ export function V2VendorCodesTab() {
       </div>
 
       {/* Recent Redemptions */}
-      <section className="bg-[var(--v2-surface-container-low)] rounded-[2rem] p-6 md:p-10">
-        <div className="flex justify-between items-end mb-6 md:mb-8">
+      <section className="bg-[var(--v2-surface-container-lowest)] rounded-2xl md:rounded-[2rem] p-5 md:p-10 relative overflow-hidden">
+        <div className="absolute -right-20 -bottom-20 w-48 h-48 bg-[var(--v2-secondary)]/5 rounded-full blur-3xl" />
+        <div className="relative z-10">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-3 mb-5 md:mb-8">
           <div>
-            <h3 className="text-xl md:text-2xl v2-headline font-bold text-[var(--v2-on-surface)]">
+            <h3 className="text-lg md:text-2xl v2-headline font-bold text-[var(--v2-on-surface)]">
               Recent Activity
             </h3>
             <p className="text-[var(--v2-on-surface-variant)] text-sm">Your latest successful redemptions</p>
           </div>
           <button 
             onClick={() => setShowAllTransactions(true)}
-            className="px-4 py-2 bg-white text-[var(--v2-primary)] text-sm font-bold rounded-full shadow-sm hover:shadow-md transition-all">
+            className="px-4 py-2 bg-[var(--v2-primary)]/10 text-[var(--v2-primary)] text-xs md:text-sm font-bold rounded-full hover:bg-[var(--v2-primary)]/20 transition-all">
             View all
           </button>
         </div>
@@ -721,7 +734,7 @@ export function V2VendorCodesTab() {
                 key={redemption.id}
                 className="bg-[var(--v2-surface-container-lowest)] p-4 md:p-5 rounded-2xl flex items-center justify-between gap-3 overflow-hidden">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${redemption.type === 'flex_card' ? 'bg-purple-100 text-purple-700' : 'bg-[var(--v2-secondary-container)]/50 text-[var(--v2-secondary)]'}`}>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${redemption.type === 'flex_card' ? 'bg-[var(--v2-primary-container)]/30 text-[var(--v2-primary)]' : 'bg-[var(--v2-secondary-container)]/50 text-[var(--v2-secondary)]'}`}>
                     <span className="v2-icon text-lg">{redemption.type === 'flex_card' ? 'credit_card' : 'check_circle'}</span>
                   </div>
                   <div className="min-w-0">
@@ -743,6 +756,7 @@ export function V2VendorCodesTab() {
             ))}
           </div>
         )}
+        </div>
       </section>
 
       {/* All Transactions Modal */}
@@ -757,7 +771,7 @@ export function V2VendorCodesTab() {
                 key={redemption.id}
                 className="flex items-center justify-between p-4 rounded-xl bg-[var(--v2-surface-container-low)] gap-3">
                 <div className="flex items-center gap-4 min-w-0">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${redemption.type === 'flex_card' ? 'bg-purple-100 text-purple-700' : 'bg-[var(--v2-secondary-container)]/50 text-[var(--v2-secondary)]'}`}>
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${redemption.type === 'flex_card' ? 'bg-[var(--v2-primary-container)]/30 text-[var(--v2-primary)]' : 'bg-[var(--v2-secondary-container)]/50 text-[var(--v2-secondary)]'}`}>
                     <span className="v2-icon">{redemption.type === 'flex_card' ? 'credit_card' : 'check_circle'}</span>
                   </div>
                   <div className="min-w-0">

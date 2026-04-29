@@ -69,7 +69,7 @@ export function V2VendorMobileMenu({open, onClose}: V2VendorMobileMenuProps) {
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-[var(--v2-on-surface)] truncate capitalize">{shopName}</p>
                 <p className="text-sm text-[var(--v2-on-surface-variant)] truncate">
-                  Premium Merchant
+                  Verified Business
                 </p>
               </div>
             </div>
@@ -86,27 +86,11 @@ export function V2VendorMobileMenu({open, onClose}: V2VendorMobileMenuProps) {
             </Link>
 
             <Link
-              href="/vendor/dashboard?tab=shop"
-              onClick={onClose}
-              className="flex items-center gap-3 p-4 rounded-xl hover:bg-[var(--v2-surface-container-low)] transition-colors">
-              <span className="v2-icon text-[var(--v2-on-surface-variant)]">store</span>
-              <span className="font-semibold text-[var(--v2-on-surface)]">Shop Details</span>
-            </Link>
-
-            <Link
-              href="/vendor/dashboard?tab=inventory"
-              onClick={onClose}
-              className="flex items-center gap-3 p-4 rounded-xl hover:bg-[var(--v2-surface-container-low)] transition-colors">
-              <span className="v2-icon text-[var(--v2-on-surface-variant)]">inventory_2</span>
-              <span className="font-semibold text-[var(--v2-on-surface)]">Inventory</span>
-            </Link>
-
-            <Link
               href="/vendor/dashboard?tab=orders"
               onClick={onClose}
               className="flex items-center gap-3 p-4 rounded-xl hover:bg-[var(--v2-surface-container-low)] transition-colors">
-              <span className="v2-icon text-[var(--v2-on-surface-variant)]">shopping_bag</span>
-              <span className="font-semibold text-[var(--v2-on-surface)]">Orders</span>
+              <span className="v2-icon text-[var(--v2-on-surface-variant)]">receipt_long</span>
+              <span className="font-semibold text-[var(--v2-on-surface)]">Redemptions</span>
             </Link>
 
             <Link
@@ -122,7 +106,7 @@ export function V2VendorMobileMenu({open, onClose}: V2VendorMobileMenuProps) {
               onClick={onClose}
               className="flex items-center gap-3 p-4 rounded-xl hover:bg-[var(--v2-surface-container-low)] transition-colors">
               <span className="v2-icon text-[var(--v2-on-surface-variant)]">payments</span>
-              <span className="font-semibold text-[var(--v2-on-surface)]">Finances</span>
+              <span className="font-semibold text-[var(--v2-on-surface)]">Wallet</span>
             </Link>
 
             <div className="pt-4 border-t border-[var(--v2-outline-variant)]/10 mt-4">

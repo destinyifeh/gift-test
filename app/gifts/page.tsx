@@ -91,7 +91,7 @@ export default function GiftsPage() {
         <header className="mb-16 relative">
           {/* Ambient glow */}
           <div className="absolute -top-20 -left-20 w-72 h-72 bg-[var(--v2-primary)]/10 rounded-full blur-[100px] pointer-events-none" />
-          <div className="absolute -top-10 right-0 w-56 h-56 bg-purple-500/8 rounded-full blur-[80px] pointer-events-none" />
+          <div className="absolute -top-10 right-0 w-56 h-56 bg-[var(--v2-primary)]/8 rounded-full blur-[80px] pointer-events-none" />
           
           <div className="max-w-3xl relative z-10">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--v2-primary)]/10 border border-[var(--v2-primary)]/20 mb-6">
@@ -101,8 +101,8 @@ export default function GiftsPage() {
             <h1 className="font-headline text-4xl md:text-6xl font-extrabold text-[var(--v2-on-background)] tracking-tight leading-[1.1] mb-5">
               Send the perfect gift,{' '}
               <span className="relative">
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--v2-primary)] to-purple-600">instantly</span>
-                <span className="absolute -bottom-1 left-0 w-full h-1 bg-gradient-to-r from-[var(--v2-primary)] to-purple-600 rounded-full opacity-30" />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--v2-primary)] to-[var(--v2-primary-container)]">instantly</span>
+                <span className="absolute -bottom-1 left-0 w-full h-1 bg-gradient-to-r from-[var(--v2-primary)] to-[var(--v2-primary-container)] rounded-full opacity-30" />
               </span>.
             </h1>
             <p className="text-[var(--v2-on-surface-variant)] text-base md:text-lg max-w-md leading-relaxed opacity-80">
@@ -119,8 +119,8 @@ export default function GiftsPage() {
             <p className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-[var(--v2-on-surface-variant)] mt-1 relative z-10">Gift Cards</p>
           </div>
           <div ref={stat2.ref} className="relative overflow-hidden rounded-2xl bg-[var(--v2-surface-container-low)] border border-[var(--v2-outline-variant)]/10 p-5 text-center group hover:border-[var(--v2-primary)]/20 transition-all">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <p className="text-3xl md:text-4xl font-black text-purple-600 v2-headline relative z-10">{stat2.count}</p>
+            <div className="absolute inset-0 bg-gradient-to-br from-[var(--v2-primary)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <p className="text-3xl md:text-4xl font-black text-[var(--v2-primary)] v2-headline relative z-10">{stat2.count}</p>
             <p className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-[var(--v2-on-surface-variant)] mt-1 relative z-10">Collections</p>
           </div>
           <div ref={stat3.ref} className="relative overflow-hidden rounded-2xl bg-[var(--v2-surface-container-low)] border border-[var(--v2-outline-variant)]/10 p-5 text-center group hover:border-[var(--v2-primary)]/20 transition-all">

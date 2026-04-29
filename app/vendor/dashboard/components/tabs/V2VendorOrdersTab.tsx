@@ -6,7 +6,7 @@ import {getCurrencyByCountry} from '@/lib/currencies';
 import {formatCurrency} from '@/lib/utils/currency';
 import {useEffect, useState} from 'react';
 
-type OrderStatus = 'all' | 'active' | 'claimed' | 'redeemed';
+type OrderStatus = 'all' | 'redeemed';
 
 interface V2VendorOrdersTabProps {
   searchQuery?: string;
@@ -45,8 +45,6 @@ export function V2VendorOrdersTab({searchQuery = ''}: V2VendorOrdersTabProps) {
 
   // Stats
   const totalOrders = orders.length;
-  const activeOrders = orders.filter((o: any) => o.status === 'active').length;
-  const claimedOrders = orders.filter((o: any) => o.status === 'claimed').length;
   const redeemedOrders = orders.filter((o: any) => o.status === 'redeemed').length;
   const totalRevenue = orders.reduce((sum: number, o: any) => sum + (Number(o.goalAmount) || 0), 0);
 
@@ -82,7 +80,7 @@ export function V2VendorOrdersTab({searchQuery = ''}: V2VendorOrdersTabProps) {
         <span className="v2-icon text-4xl text-[var(--v2-primary)] animate-spin mb-3">
           progress_activity
         </span>
-        <p className="text-sm text-[var(--v2-on-surface-variant)]">Loading orders...</p>
+        <p className="text-sm text-[var(--v2-on-surface-variant)]">Loading redemptions...</p>
       </div>
     );
   }
@@ -93,44 +91,24 @@ export function V2VendorOrdersTab({searchQuery = ''}: V2VendorOrdersTabProps) {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h2 className="text-3xl md:text-4xl font-extrabold v2-headline tracking-tight text-[var(--v2-on-surface)] mb-2">
-            Orders
+            Redemptions
           </h2>
           <p className="text-[var(--v2-on-surface-variant)]">
-            Track and manage customer orders for your products.
+            Track gift card redemptions at your business.
           </p>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
         <div className="bg-[var(--v2-surface-container-lowest)] p-4 md:p-5 rounded-2xl">
           <div className="w-10 h-10 rounded-full bg-[var(--v2-primary)]/10 flex items-center justify-center mb-3">
-            <span className="v2-icon text-[var(--v2-primary)]">shopping_bag</span>
+            <span className="v2-icon text-[var(--v2-primary)]">receipt_long</span>
           </div>
           <p className="text-2xl md:text-3xl font-extrabold v2-headline text-[var(--v2-on-surface)]">
             {totalOrders}
           </p>
-          <p className="text-xs text-[var(--v2-on-surface-variant)] font-medium">Total Orders</p>
-        </div>
-
-        <div className="bg-[var(--v2-surface-container-lowest)] p-4 md:p-5 rounded-2xl">
-          <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mb-3">
-            <span className="v2-icon text-blue-600">schedule</span>
-          </div>
-          <p className="text-2xl md:text-3xl font-extrabold v2-headline text-[var(--v2-on-surface)]">
-            {activeOrders}
-          </p>
-          <p className="text-xs text-[var(--v2-on-surface-variant)] font-medium">Pending</p>
-        </div>
-
-        <div className="bg-[var(--v2-surface-container-lowest)] p-4 md:p-5 rounded-2xl">
-          <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center mb-3">
-            <span className="v2-icon text-amber-600">redeem</span>
-          </div>
-          <p className="text-2xl md:text-3xl font-extrabold v2-headline text-[var(--v2-on-surface)]">
-            {claimedOrders}
-          </p>
-          <p className="text-xs text-[var(--v2-on-surface-variant)] font-medium">Claimed</p>
+          <p className="text-xs text-[var(--v2-on-surface-variant)] font-medium">Total Redemptions</p>
         </div>
 
         <div className="bg-[var(--v2-surface-container-lowest)] p-4 md:p-5 rounded-2xl">
@@ -140,20 +118,17 @@ export function V2VendorOrdersTab({searchQuery = ''}: V2VendorOrdersTabProps) {
           <p className="text-2xl md:text-3xl font-extrabold v2-headline text-[var(--v2-on-surface)]">
             {redeemedOrders}
           </p>
-          <p className="text-xs text-[var(--v2-on-surface-variant)] font-medium">Redeemed</p>
+          <p className="text-xs text-[var(--v2-on-surface-variant)] font-medium">Completed</p>
         </div>
-      </div>
 
-      {/* Revenue Banner */}
-      <div className="v2-gradient-primary rounded-2xl p-5 md:p-6 flex items-center justify-between">
-        <div>
-          <p className="text-white/70 text-sm font-medium mb-1">Total Revenue</p>
-          <p className="text-2xl md:text-3xl font-extrabold text-white v2-headline">
+        <div className="col-span-2 md:col-span-1 bg-[var(--v2-surface-container-lowest)] p-4 md:p-5 rounded-2xl">
+          <div className="w-10 h-10 rounded-full bg-[var(--v2-primary)]/10 flex items-center justify-center mb-3">
+            <span className="v2-icon text-[var(--v2-primary)]">payments</span>
+          </div>
+          <p className="text-2xl md:text-3xl font-extrabold v2-headline text-[var(--v2-on-surface)]">
             {formatCurrency(totalRevenue, currency)}
           </p>
-        </div>
-        <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center">
-          <span className="v2-icon text-2xl text-white">payments</span>
+          <p className="text-xs text-[var(--v2-on-surface-variant)] font-medium">Total Value</p>
         </div>
       </div>
 
@@ -169,13 +144,13 @@ export function V2VendorOrdersTab({searchQuery = ''}: V2VendorOrdersTabProps) {
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="w-full bg-[var(--v2-surface-container-low)] border-none rounded-xl py-3 pl-12 pr-4 focus:ring-1 focus:ring-[var(--v2-primary)] text-[var(--v2-on-surface)] placeholder-[var(--v2-on-surface-variant)]/50"
-            placeholder="Search by code, title, or customer..."
+            placeholder="Search by code, card type, or sender..."
           />
         </div>
 
         {/* Status Filter */}
         <div className="flex gap-2 overflow-x-auto pb-1 md:pb-0">
-          {(['all', 'active', 'claimed', 'redeemed'] as OrderStatus[]).map(status => (
+          {(['all', 'redeemed'] as OrderStatus[]).map(status => (
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
@@ -194,11 +169,11 @@ export function V2VendorOrdersTab({searchQuery = ''}: V2VendorOrdersTabProps) {
       {filteredOrders.length === 0 ? (
         <div className="bg-[var(--v2-surface-container-lowest)] rounded-[2rem] p-8 md:p-12 text-center">
           <span className="v2-icon text-5xl text-[var(--v2-on-surface-variant)]/30 mb-4 block">
-            shopping_cart
+            receipt_long
           </span>
-          <h3 className="text-lg font-bold text-[var(--v2-on-surface)] mb-2">No orders yet</h3>
+          <h3 className="text-lg font-bold text-[var(--v2-on-surface)] mb-2">No redemptions yet</h3>
           <p className="text-sm text-[var(--v2-on-surface-variant)]">
-            Orders will appear here when customers purchase your products.
+            Redemptions will appear here when customers use gift cards at your business.
           </p>
         </div>
       ) : (
@@ -209,8 +184,8 @@ export function V2VendorOrdersTab({searchQuery = ''}: V2VendorOrdersTabProps) {
               <table className="w-full">
                 <thead>
                   <tr className="text-[var(--v2-on-surface-variant)]/60 text-xs uppercase tracking-widest border-b border-[var(--v2-outline-variant)]/10">
-                    <th className="py-5 px-6 text-left font-semibold">Order</th>
-                    <th className="py-5 px-4 text-left font-semibold">Customer</th>
+                    <th className="py-5 px-6 text-left font-semibold">Gift Card</th>
+                    <th className="py-5 px-4 text-left font-semibold">Sender</th>
                     <th className="py-5 px-4 text-left font-semibold">Status</th>
                     <th className="py-5 px-4 text-right font-semibold">Amount</th>
                     <th className="py-5 px-4 text-right font-semibold">Date</th>
@@ -240,7 +215,7 @@ export function V2VendorOrdersTab({searchQuery = ''}: V2VendorOrdersTabProps) {
                       </td>
                       <td className="py-4 px-4">
                         <p className="text-sm text-[var(--v2-on-surface)] capitalize">
-                          {order.senderName || order.user?.displayName || order.user?.username || 'Customer'}
+                          {order.senderName || order.user?.displayName || order.user?.username || 'Sender'}
                         </p>
                       </td>
                       <td className="py-4 px-4">
@@ -297,9 +272,9 @@ export function V2VendorOrdersTab({searchQuery = ''}: V2VendorOrdersTabProps) {
 
                 <div className="flex items-center justify-between pt-3 border-t border-[var(--v2-outline-variant)]/10">
                   <div>
-                    <p className="text-xs text-[var(--v2-on-surface-variant)]">Customer</p>
+                    <p className="text-xs text-[var(--v2-on-surface-variant)]">Sender</p>
                     <p className="text-sm font-medium text-[var(--v2-on-surface)] capitalize">
-                      {order.senderName || order.user?.displayName || 'Customer'}
+                      {order.senderName || order.user?.displayName || 'Sender'}
                     </p>
                   </div>
                   <div className="text-right">
