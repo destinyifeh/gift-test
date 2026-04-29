@@ -2,7 +2,7 @@
 
 import {V2RequireAuthUI} from '../components/V2RequireAuthUI';
 import {authClient} from '@/lib/auth-client';
-import {fetchAllProducts} from '@/lib/server/actions/vendor';
+import {useGiftCards} from '@/hooks/use-gift-cards';
 import {cn} from '@/lib/utils';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
@@ -38,30 +38,18 @@ export default function V2SendGiftPage() {
   const [deliveryTime, setDeliveryTime] = useState<DeliveryTime>('now');
   const [scheduledFor, setScheduledFor] = useState('');
 
-  // Vendor gifts
-  const [vendorGifts, setVendorGifts] = useState<any[]>([]);
-  const [search, setSearch] = useState('');
-
   // UI State
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [campaignSlug, setCampaignSlug] = useState('');
   const [expandedSection, setExpandedSection] = useState<string | null>('gift');
-
-  // Fetch vendor gifts when gift-card is selected
-  useEffect(() => {
-    if (giftType === 'gift-card') {
-      const fetchGifts = async () => {
-        const result = await fetchAllProducts(1, 100);
-        if (result.success && result.data) {
-          setVendorGifts(result.data);
-        } else if (result.error) {
-          console.error('Error fetching vendor gifts:', result.error);
-        }
-      };
-      fetchGifts();
-    }
-  }, [giftType]);
+  
+  // Gift Cards from platform
+  const {data: giftCardsData} = useGiftCards();
+  const giftCards = (giftCardsData || []).filter((gc: any) => !gc.isFlexCard && gc.status === 'active');
+  const [search, setSearch] = useState('');
+  const [giftCardAmount, setGiftCardAmount] = useState<number | null>(null);
+  const [customGiftCardAmount, setCustomGiftCardAmount] = useState('');
 
   // Handle constraints
   useEffect(() => {
@@ -74,7 +62,7 @@ export default function V2SendGiftPage() {
     }
   }, [deliveryType, deliveryTime]);
 
-  const selectedGift = vendorGifts.find(g => g.id === giftId);
+  const selectedGift = giftCards.find((g: any) => g.id === giftId);
 
   // Flex Card amount presets
   const flexCardPresets = [1000, 3000, 5000, 10000];
@@ -84,7 +72,7 @@ export default function V2SendGiftPage() {
   const canProceed = () => {
     if (!giftType) return false;
     if (giftType === 'money' && !amount) return false;
-    if (giftType === 'gift-card' && !giftId) return false;
+    if (giftType === 'gift-card' && (!giftId || (!giftCardAmount && !customGiftCardAmount))) return false;
     if (giftType === 'flex-card' && !flexCardAmount && !customFlexAmount) return false;
     if (deliveryType === 'direct') {
       if (deliveryMethod === 'email' && !recipientEmail) return false;
@@ -120,8 +108,7 @@ export default function V2SendGiftPage() {
 
       let finalGoal = Number(amount);
       if (giftType === 'gift-card' && giftId) {
-        const selectedVendorGift = vendorGifts.find(g => g.id === giftId);
-        if (selectedVendorGift) finalGoal = Number(selectedVendorGift.price);
+        finalGoal = giftCardAmount || Number(customGiftCardAmount);
       }
       if (giftType === 'flex-card') {
         finalGoal = flexCardAmount || Number(customFlexAmount);
@@ -278,7 +265,7 @@ export default function V2SendGiftPage() {
     ? Number(amount)
     : giftType === 'flex-card'
       ? (flexCardAmount || Number(customFlexAmount) || 0)
-      : Number(selectedGift?.price || 0);
+      : Number(selectedGift ? (giftCardAmount || Number(customGiftCardAmount) || 0) : 0);
   const whatsappDeliveryFee = deliveryType === 'direct' && deliveryMethod === 'whatsapp' ? WHATSAPP_FEE : 0;
   const totalAmount = baseAmount + whatsappDeliveryFee;
 
@@ -372,7 +359,7 @@ export default function V2SendGiftPage() {
                     onClick={() => setGiftType('gift-card')}
                     icon="redeem"
                     title="Gift Card"
-                    description="From verified vendors"
+                    description="Category-based gift card"
                   />
                   <V2ListItemRadio
                     selected={giftType === 'money'}
@@ -463,6 +450,10 @@ export default function V2SendGiftPage() {
                 {/* Gift Card Selection */}
                 {giftType === 'gift-card' && (
                   <div className="mt-4 space-y-3">
+                    {/* Gift Card Type Selection */}
+                    <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider ml-1">
+                      Select Gift Card
+                    </label>
                     <div className="relative">
                       <span className="v2-icon absolute left-3 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)]">
                         search
@@ -474,46 +465,125 @@ export default function V2SendGiftPage() {
                         className="w-full h-11 pl-10 pr-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-[var(--v2-on-surface)] focus:ring-2 focus:ring-[var(--v2-primary)]/20 transition-all"
                       />
                     </div>
-                    <div className="max-h-[200px] overflow-y-auto space-y-2 v2-no-scrollbar">
-                      {vendorGifts
-                        .filter(g => !search || g.name.toLowerCase().includes(search.toLowerCase()))
-                        .map(g => (
+                    <div className="max-h-[280px] overflow-y-auto space-y-2 v2-no-scrollbar">
+                      {giftCards
+                        .filter((g: any) => !search || g.name.toLowerCase().includes(search.toLowerCase()))
+                        .map((g: any) => (
                           <button
                             key={g.id}
-                            onClick={() => setGiftId(g.id)}
+                            onClick={() => {
+                              setGiftId(g.id);
+                              setGiftCardAmount(null);
+                              setCustomGiftCardAmount('');
+                            }}
                             className={cn(
-                              'w-full p-4 rounded-xl text-left flex items-center justify-between transition-all active:scale-[0.98]',
+                              'w-full p-4 rounded-xl text-left flex items-center gap-3 transition-all active:scale-[0.98]',
                               giftId === g.id
-                                ? 'bg-[var(--v2-primary)]/10 ring-2 ring-[var(--v2-primary)]'
+                                ? 'ring-2 ring-[var(--v2-primary)] bg-[var(--v2-primary)]/5'
                                 : 'bg-[var(--v2-surface-container-low)] hover:bg-[var(--v2-surface-container-high)]',
                             )}>
-                            <div>
-                              <p className="font-bold text-sm text-[var(--v2-on-surface)] capitalize">
+                            <div
+                              className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                              style={{ background: `linear-gradient(135deg, ${g.colorFrom || '#7c3aed'}, ${g.colorTo || '#6d28d9'})` }}>
+                              <span className="v2-icon text-white text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                                {g.icon || 'card_giftcard'}
+                              </span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-bold text-sm text-[var(--v2-on-surface)]">
                                 {g.name}
                               </p>
-                              <p className="text-xs text-[var(--v2-on-surface-variant)] capitalize">
-                                {g.profiles?.shop_name || 'Vendor'}
+                              <p className="text-xs text-[var(--v2-on-surface-variant)] truncate">
+                                {g.usageDescription || g.description || `${g.category} gift card`}
                               </p>
                             </div>
-                            <span className="font-bold text-[var(--v2-primary)]">
-                              ₦{Number(g.price).toLocaleString()}
-                            </span>
+                            {giftId === g.id && (
+                              <span className="v2-icon text-[var(--v2-primary)]">check_circle</span>
+                            )}
                           </button>
                         ))}
-                      {vendorGifts.length === 0 && (
+                      {giftCards.length === 0 && (
                         <div className="text-center py-6">
                           <span className="v2-icon text-3xl text-[var(--v2-on-surface-variant)]/40 block mb-2">inventory_2</span>
                           <p className="text-sm text-[var(--v2-on-surface-variant)]">
                             No gift cards available
                           </p>
-                          <Link
-                            href="/gift-shop"
-                            className="text-xs text-[var(--v2-primary)] font-medium mt-1 inline-block">
-                            Browse Gift Shop
-                          </Link>
                         </div>
                       )}
                     </div>
+
+                    {/* Amount Selection for Selected Gift Card */}
+                    {giftId && selectedGift && (
+                      <div className="space-y-3 pt-2">
+                        <div
+                          className="rounded-xl p-4 text-white"
+                          style={{ background: `linear-gradient(135deg, ${selectedGift.colorFrom || '#7c3aed'}, ${selectedGift.colorTo || '#6d28d9'})` }}>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="v2-icon" style={{ fontVariationSettings: "'FILL' 1" }}>
+                              {selectedGift.icon || 'card_giftcard'}
+                            </span>
+                            <span className="font-bold">{selectedGift.name}</span>
+                          </div>
+                          <p className="text-sm text-white/80">
+                            {selectedGift.usageDescription || `Redeemable at approved ${selectedGift.category} vendors`}
+                          </p>
+                        </div>
+
+                        <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider ml-1">
+                          Select Amount
+                        </label>
+                        {/* Preset amounts from the card config */}
+                        {selectedGift.amountOptions && Array.isArray(selectedGift.amountOptions) && selectedGift.amountOptions.length > 0 && (
+                          <div className="grid grid-cols-2 gap-2">
+                            {selectedGift.amountOptions.map((preset: number) => (
+                              <button
+                                key={preset}
+                                onClick={() => {
+                                  setGiftCardAmount(preset);
+                                  setCustomGiftCardAmount('');
+                                }}
+                                className={cn(
+                                  'p-4 rounded-xl font-bold text-lg transition-all',
+                                  giftCardAmount === preset && !customGiftCardAmount
+                                    ? 'text-white'
+                                    : 'bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] hover:bg-[var(--v2-surface-container-high)]',
+                                )}
+                                style={
+                                  giftCardAmount === preset && !customGiftCardAmount
+                                    ? { background: `linear-gradient(135deg, ${selectedGift.colorFrom || '#7c3aed'}, ${selectedGift.colorTo || '#6d28d9'})` }
+                                    : undefined
+                                }>
+                                ₦{preset.toLocaleString()}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Custom amount */}
+                        {selectedGift.allowCustomAmount !== false && (
+                          <div className="relative">
+                            <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider ml-1 block mb-2">
+                              Or enter custom amount
+                            </label>
+                            <span className="absolute left-4 bottom-4 text-[var(--v2-on-surface-variant)] font-bold text-lg">
+                              ₦
+                            </span>
+                            <input
+                              type="number"
+                              placeholder={`Min ₦${Number(selectedGift.minAmount || 500).toLocaleString()}`}
+                              value={customGiftCardAmount}
+                              onChange={e => {
+                                setCustomGiftCardAmount(e.target.value);
+                                setGiftCardAmount(null);
+                              }}
+                              min={Number(selectedGift.minAmount || 500)}
+                              max={Number(selectedGift.maxAmount || 500000)}
+                              className="w-full h-14 pl-10 pr-4 bg-[var(--v2-surface-container-low)] border-none rounded-xl text-xl font-bold text-[var(--v2-on-surface)] focus:ring-2 focus:ring-[var(--v2-primary)]/20 transition-all"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </V2FormSection>
