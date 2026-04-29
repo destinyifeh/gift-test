@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useGiftCardBySlug, useGiftCards } from '@/hooks/use-gift-cards';
@@ -14,6 +14,107 @@ import { useUserStore } from '@/lib/store/useUserStore';
 import { formatCurrency } from '@/lib/utils/currency';
 import { getCurrencyByCountry } from '@/lib/currencies';
 import { V2VendorDiscovery } from '../../components/V2VendorDiscovery';
+import { Gift } from 'lucide-react';
+
+function RelatedCardItem({ card, isHovered, onHover }: { card: any; isHovered: boolean; onHover: (id: number | null) => void }) {
+  const minAmount = Math.min(...(card.amountOptions as number[] || [0]));
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+    setTilt({
+      x: (y - 0.5) * -8,
+      y: (x - 0.5) * 8,
+    });
+  };
+
+  const handleMouseLeave = () => {
+    setTilt({ x: 0, y: 0 });
+    onHover(null);
+  };
+
+  return (
+    <Link href={`/gifts/${card.slug}`} className="block group">
+      <div
+        ref={cardRef}
+        onMouseEnter={() => onHover(card.id)}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        className="relative rounded-[1.75rem] overflow-hidden transition-all duration-300 ease-out"
+        style={{
+          transform: isHovered
+            ? `perspective(800px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(1.02)`
+            : 'perspective(800px) rotateX(0) rotateY(0) scale(1)',
+          transformStyle: 'preserve-3d',
+        }}
+      >
+        <div
+          className="relative p-6 flex flex-col justify-between min-h-[220px]"
+          style={{ background: `linear-gradient(135deg, ${card.colorFrom || '#1e1e1e'}, ${card.colorTo || '#111111'})` }}
+        >
+          {/* Shimmer overlay on hover */}
+          <div
+            className={cn(
+              "absolute inset-0 opacity-0 transition-opacity duration-500 pointer-events-none overflow-hidden",
+              isHovered && "opacity-100"
+            )}
+          >
+            <div
+              className="absolute inset-0 -translate-x-full"
+              style={{
+                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)',
+                animation: isHovered ? 'shimmer 1.5s ease-in-out infinite' : 'none',
+              }}
+            />
+          </div>
+
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_0%,rgba(255,255,255,0.12),transparent_60%)] pointer-events-none" />
+          
+          <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none opacity-[0.03]">
+            <span className="text-white text-[3rem] font-black tracking-[0.3em] whitespace-nowrap rotate-[-15deg]">GIFTHANCE</span>
+          </div>
+
+          <div className="relative z-10 flex justify-between items-start">
+            <div className="flex items-center gap-2">
+              <div className="bg-white/15 p-1.5 rounded-lg border border-white/15 backdrop-blur-sm">
+                <Gift className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+              </div>
+            </div>
+            <div className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center backdrop-blur-sm group-hover:bg-white/10 transition-colors">
+              <span className="v2-icon text-lg text-white/50 group-hover:text-white/80 transition-colors" style={{ fontVariationSettings: "'FILL' 1" }}>{card.icon || 'redeem'}</span>
+            </div>
+          </div>
+
+          <div className="relative z-10 space-y-1 mt-auto">
+            <h3 className="text-lg font-black text-white leading-none tracking-tight uppercase truncate">{card.name}</h3>
+            <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest line-clamp-1">
+              {card.usageDescription || card.description || 'Premium Gift Card'}
+            </p>
+          </div>
+
+          <div className="relative z-10 flex items-end justify-between border-t border-white/5 pt-4 mt-4">
+            <div>
+              <p className="text-[8px] font-black uppercase tracking-[0.1em] text-white/30">From</p>
+              <p className="text-lg font-black text-white">₦{minAmount.toLocaleString()}</p>
+            </div>
+            <div className={cn(
+              "px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border transition-all duration-300",
+              isHovered
+                ? "bg-white text-gray-900 border-white shadow-lg shadow-white/20"
+                : "bg-white/10 text-white/80 border-white/5 backdrop-blur-sm"
+            )}>
+              {isHovered ? 'View Card' : 'Get Card'}
+            </div>
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+}
 
 export default function GiftCardDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -25,6 +126,7 @@ export default function GiftCardDetailPage() {
   const [customAmount, setCustomAmount] = useState('');
   const [showGiftModal, setShowGiftModal] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [hoveredRelatedCard, setHoveredRelatedCard] = useState<number | null>(null);
 
   const {toggleFavorite, isToggling} = useFavorites();
   const {data: isFavorited} = useIsFavorited(card?.id);
@@ -181,6 +283,27 @@ export default function GiftCardDetailPage() {
                   </div>
                 </div>
 
+                {/* Related Assets Section (Taken up from bottom) */}
+                {relatedCards.length > 0 && (
+                  <section className="pt-8 border-t border-[var(--v2-outline-variant)]/10">
+                      <div className="flex items-center justify-between mb-8">
+                          <div>
+                              <h2 className="v2-headline text-2xl font-black text-[var(--v2-on-background)] tracking-tight">You might also like</h2>
+                              <p className="text-[var(--v2-on-surface-variant)] text-sm font-medium opacity-60">Discover similar gift assets</p>
+                          </div>
+                      </div>
+                      <div className="grid grid-cols-2 lg:grid-cols-2 gap-6">
+                          {relatedCards.map((rc: any) => (
+                              <RelatedCardItem 
+                                  key={rc.slug} 
+                                  card={rc}
+                                  isHovered={hoveredRelatedCard === rc.id}
+                                  onHover={setHoveredRelatedCard}
+                              />
+                          ))}
+                      </div>
+                  </section>
+                )}
             </div>
 
             {/* RIGHT: INFO & SEND PANEL (Cols 8-12) */}
@@ -281,43 +404,6 @@ export default function GiftCardDetailPage() {
                 </div>
             </div>
           </div>
-
-
-          {/* Related Assets Section */}
-          {relatedCards.length > 0 && (
-            <section className="mt-24 px-6 md:px-12 max-w-7xl mx-auto">
-                <div className="flex items-center justify-between mb-10">
-                    <div>
-                        <h2 className="v2-headline text-3xl font-black text-[var(--v2-on-background)] tracking-tight">You might also like</h2>
-                        <p className="text-[var(--v2-on-surface-variant)] font-medium opacity-60">Discover similar gift assets</p>
-                    </div>
-                </div>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                    {relatedCards.map((rc: any) => (
-                        <Link 
-                            key={rc.slug} 
-                            href={`/gifts/${rc.slug}`}
-                            className="group space-y-4"
-                        >
-                            <div 
-                                className="aspect-[1.586/1] rounded-3xl p-6 flex flex-col justify-between relative overflow-hidden transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-xl"
-                                style={{ background: `linear-gradient(135deg, ${rc.colorFrom}, ${rc.colorTo})` }}
-                            >
-                                <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_50%_0%,white,transparent)]" />
-                                <div className="relative z-10 flex justify-between items-start">
-                                    <span className="v2-icon text-white/40 text-2xl">{rc.icon || 'redeem'}</span>
-                                    <div className="w-2 h-2 rounded-full bg-white/20" />
-                                </div>
-                                <div className="relative z-10">
-                                    <h4 className="text-white font-black text-lg leading-tight truncate uppercase">{rc.name}</h4>
-                                    <p className="text-white/50 text-[10px] font-black uppercase tracking-widest">{rc.category}</p>
-                                </div>
-                            </div>
-                        </Link>
-                    ))}
-                </div>
-            </section>
-          )}
         </main>
 
         <V2SendGiftCardModal
@@ -333,6 +419,14 @@ export default function GiftCardDetailPage() {
                 serviceFeePercent: Number(card.serviceFeePercent),
             }}
         />
+
+        {/* Global animation keyframes */}
+        <style jsx global>{`
+          @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+          }
+        `}</style>
       </div>
   );
 }
