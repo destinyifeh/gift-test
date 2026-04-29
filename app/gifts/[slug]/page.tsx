@@ -197,9 +197,22 @@ export default function GiftCardDetailPage() {
                         <h1 className="text-4xl font-black v2-headline text-[var(--v2-on-surface)] leading-tight tracking-tight capitalize">
                             {card.name}
                         </h1>
-                        <p className="text-[var(--v2-on-surface-variant)] font-medium text-sm leading-relaxed">
-                            {card.description || 'Premium digital gift asset.'}
-                        </p>
+
+
+                        {/* Branded Usage Info Banner */}
+                        <div
+                          className="rounded-xl p-4 text-white"
+                          style={{ background: `linear-gradient(135deg, ${card.colorFrom || '#7c3aed'}, ${card.colorTo || '#6d28d9'})` }}>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="v2-icon" style={{ fontVariationSettings: "'FILL' 1" }}>
+                              {card.icon || 'card_giftcard'}
+                            </span>
+                            <span className="font-bold">{card.name}</span>
+                          </div>
+                          <p className="text-sm text-white/80">
+                            {card.usageDescription || `Redeemable at approved ${card.category || 'partner'} vendors. Choose an amount and send it as a gift.`}
+                          </p>
+                        </div>
                         
                         {/* Vendor Discovery Section */}
                         <V2VendorDiscovery 
