@@ -143,7 +143,7 @@ export function HeroFeatureCard({product, isSponsored, showDots, dotsElement}: P
                 <div className="w-3 h-3 md:w-4 md:h-4 rounded-full bg-[#ff6b3d] flex items-center justify-center">
                     <span className="v2-icon text-[8px] md:text-[10px] text-white font-bold">check</span>
                 </div>
-                <span className="text-[#ff6b3d] text-[8px] md:text-xs font-black uppercase tracking-[0.1em]">Exclusive Member Access</span>
+                <span className="text-[#ff6b3d] text-[8px] md:text-xs font-black uppercase tracking-[0.1em]">Universal Gift Card</span>
             </div>
           ) : isSponsored && !isFeatured ? (
             <SponsoredLabel light />
@@ -872,7 +872,7 @@ export function FlexHeroBanner() {
                             <span className="v2-icon text-white text-[10px] font-bold">check</span>
                         </div>
                         <span className="text-[#ff6b3d] text-[9px] md:text-xs font-black uppercase tracking-[0.15em]">
-                            Exclusive Member Access
+                            Universal Gift Card
                         </span>
                     </div>
 
