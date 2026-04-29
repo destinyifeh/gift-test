@@ -398,7 +398,7 @@ export default function GiftCardDetailPage() {
                           disabled={finalAmount <= 0}
                           className="w-full h-16 v2-btn-primary rounded-2xl font-black text-lg shadow-2xl shadow-[var(--v2-primary)]/30 active:scale-[0.98] transition-all disabled:opacity-40 flex items-center justify-center gap-3"
                       >
-                          Send Asset <span className="v2-icon">send</span>
+                          Send Gift <span className="v2-icon">send</span>
                       </button>
                     </div>
                 </div>
