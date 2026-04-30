@@ -379,7 +379,9 @@ export function V2OverviewTab({creatorEnabled, setCreatorEnabled, setSection}: V
                )}
                {(stats.recentActivity.sent.length > 0 || stats.recentActivity.received.length > 0) && (
                   <div className="p-4 border-t border-[var(--v2-outline-variant)]/5">
-                     <button className="w-full py-3 text-sm font-black text-[var(--v2-primary)] uppercase tracking-widest hover:bg-[var(--v2-primary)]/5 rounded-2xl transition-all">
+                     <button 
+                        onClick={() => setSection('wallet')}
+                        className="w-full py-3 text-sm font-black text-[var(--v2-primary)] uppercase tracking-widest hover:bg-[var(--v2-primary)]/5 rounded-2xl transition-all">
                         View Full History
                      </button>
                   </div>
