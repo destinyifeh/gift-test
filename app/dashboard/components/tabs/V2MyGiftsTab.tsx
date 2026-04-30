@@ -1003,7 +1003,7 @@ export function V2MyGiftsTab() {
                   <div className="flex justify-center py-4">
                     <div className="bg-white p-4 rounded-2xl shadow-sm border border-[var(--v2-outline-variant)]/10">
                       <QRCodeSVG
-                        value={`gifthance://flex/${selectedFlexCard.code || ''}`}
+                        value={selectedFlexCard.code || ''}
                         size={180}
                         level="H"
                         includeMargin={false}
@@ -1196,7 +1196,7 @@ export function V2MyGiftsTab() {
                   <div className="flex justify-center py-4">
                     <div className="bg-white p-4 rounded-2xl shadow-sm border border-[var(--v2-outline-variant)]/10">
                       <QRCodeSVG
-                        value={`gifthance://giftcard/${selectedUserGiftCard.code || ''}`}
+                        value={selectedUserGiftCard.code || ''}
                         size={180}
                         level="H"
                         includeMargin={false}
