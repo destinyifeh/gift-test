@@ -459,6 +459,44 @@ export class VendorService {
       };
     }
 
+    // 3. Try User Gift Card (Vendor Gift Card)
+    const userGiftCard = await (this.prisma as any).userGiftCard.findFirst({
+      where: {
+        code: { equals: trimmedCode, mode: 'insensitive' }
+      },
+      include: {
+        recipient: { select: { displayName: true, avatarUrl: true } },
+        sender: { select: { displayName: true, avatarUrl: true } },
+        giftCard: { include: { vendors: true } }
+      }
+    });
+
+    if (userGiftCard) {
+      if (userGiftCard.status === 'redeemed') {
+        throw new BadRequestException('This gift card has been fully redeemed');
+      }
+
+      // Check if vendor accepts this gift card
+      if (userGiftCard.giftCard?.vendors?.length > 0) {
+        const vendorAccepted = userGiftCard.giftCard.vendors.some((v: any) => v.vendorId === userId);
+        if (!vendorAccepted) {
+          throw new ForbiddenException('You do not accept this gift card brand.');
+        }
+      }
+
+      return {
+        id: userGiftCard.id,
+        code: userGiftCard.code,
+        balance: userGiftCard.currentBalance,
+        currency: userGiftCard.currency,
+        status: userGiftCard.status,
+        userName: userGiftCard.recipient?.displayName || userGiftCard.sender?.displayName || 'Unknown User',
+        userAvatar: userGiftCard.recipient?.avatarUrl || userGiftCard.sender?.avatarUrl,
+        type: 'user_gift_card',
+        cardBrand: userGiftCard.giftCard?.name
+      };
+    }
+
     throw new NotFoundException('Invalid or expired code');
   }
 

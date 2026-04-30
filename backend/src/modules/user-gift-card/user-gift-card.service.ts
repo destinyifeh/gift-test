@@ -151,7 +151,7 @@ export class UserGiftCardService {
     const card = await (this.prisma as any).userGiftCard.findFirst({
       where: { code: code.toUpperCase() },
       include: { 
-        user: { select: { displayName: true, avatarUrl: true } },
+        recipient: { select: { displayName: true, avatarUrl: true } },
         giftCard: { include: { vendors: true } }
       }
     });
@@ -165,7 +165,7 @@ export class UserGiftCardService {
 
     return {
       id: card.id, code: card.code, balance: card.currentBalance, currency: card.currency,
-      status: card.status, userName: card.user?.displayName || 'Unknown User', userAvatar: card.user?.avatarUrl,
+      status: card.status, userName: card.recipient?.displayName || 'Unknown User', userAvatar: card.recipient?.avatarUrl,
       cardBrand: card.giftCard.name
     };
   }

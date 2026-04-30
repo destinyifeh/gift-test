@@ -16,7 +16,7 @@ import {useEffect, useRef, useState} from 'react';
 import {toast} from 'sonner';
 import jsQR from 'jsqr';
 
-type CodeType = 'gift' | 'flex_card' | null;
+type CodeType = 'gift' | 'flex_card' | 'user_gift_card' | null;
 
 interface FlexCardResult {
   id: number;
@@ -45,6 +45,19 @@ interface VerificationResult {
   };
 }
 
+const extractErrorMessage = (error: any, fallback: string): string => {
+  if (error.response?.data) {
+    const data = error.response.data;
+    if (typeof data === 'string') return data;
+    if (data.message) {
+      if (Array.isArray(data.message)) return data.message[0];
+      return data.message;
+    }
+    if (data.error) return data.error;
+  }
+  return error.message || fallback;
+};
+
 export function V2VendorCodesTab() {
   const {data: profile} = useProfile();
   const {data: vendorStats} = useVendorWallet();
@@ -54,6 +67,7 @@ export function V2VendorCodesTab() {
   const [isRedeeming, setIsRedeeming] = useState(false);
   const [verificationResult, setVerificationResult] = useState<VerificationResult | null>(null);
   const [flexCardResult, setFlexCardResult] = useState<FlexCardResult | null>(null);
+  const [redeemError, setRedeemError] = useState<string | null>(null);
   const [codeType, setCodeType] = useState<CodeType>(null);
   const [flexRedeemAmount, setFlexRedeemAmount] = useState('');
   const [showScanner, setShowScanner] = useState(false);
@@ -210,6 +224,7 @@ export function V2VendorCodesTab() {
     setIsVerifying(true);
     setVerificationResult(null);
     setFlexCardResult(null);
+    setRedeemError(null);
     setCodeType(null);
     setFlexRedeemAmount('');
 
@@ -227,11 +242,12 @@ export function V2VendorCodesTab() {
         return;
       }
 
-      // Check if it's a Flex Card based on the returned type
-      if (result.type === 'flex_card') {
-        setCodeType('flex_card');
+      // Check if it's a Flex Card or User Gift Card based on the returned type
+      if (result.type === 'flex_card' || result.type === 'user_gift_card') {
+        setCodeType(result.type as CodeType);
         setFlexCardResult(result);
-        toast.success('Flex Card verified!');
+        const cardName = result.type === 'flex_card' ? 'Flex Card' : (result.cardBrand || 'Gift Card');
+        toast.success(`${cardName} verified!`);
         return;
       }
 
@@ -268,12 +284,12 @@ export function V2VendorCodesTab() {
       });
       toast.success('Gift code verified successfully!');
     } catch (error: any) {
-      const msg = error.response?.data?.message || 'Error verifying code. Please try again.';
+      const msg = extractErrorMessage(error, 'Error verifying code. Please try again.');
       setVerificationResult({
         success: false,
         message: msg,
       });
-      toast.error(msg === 'Invalid or expired code' ? msg : 'Verification failed');
+      toast.error(msg);
     } finally {
       setIsVerifying(false);
     }
@@ -307,8 +323,10 @@ export function V2VendorCodesTab() {
 
       // Refresh vendor wallet to update transactions
       queryClient.invalidateQueries({queryKey: ['vendor-wallet']});
-    } catch (error) {
-      toast.error('Failed to redeem gift');
+    } catch (error: any) {
+      const msg = extractErrorMessage(error, 'Failed to redeem gift');
+      setRedeemError(msg);
+      toast.error(msg);
     } finally {
       setIsRedeeming(false);
     }
@@ -330,7 +348,8 @@ export function V2VendorCodesTab() {
 
     setIsRedeeming(true);
     try {
-      const res = await api.post('/flex-cards/redeem', {
+      const endpoint = codeType === 'flex_card' ? '/flex-cards/redeem' : '/user-gift-cards/redeem';
+      const res = await api.post(endpoint, {
         code: flexCardResult.code,
         amount,
         description: `Purchase at ${profile.shop_name || profile.display_name}`,
@@ -338,7 +357,7 @@ export function V2VendorCodesTab() {
       const result = res.data;
 
       if (!result) {
-        toast.error('Failed to redeem flex card');
+        toast.error('Failed to redeem card');
         return;
       }
 
@@ -357,8 +376,10 @@ export function V2VendorCodesTab() {
 
       // Refresh vendor wallet
       queryClient.invalidateQueries({queryKey: ['vendor-wallet']});
-    } catch (error) {
-      toast.error('Failed to redeem flex card');
+    } catch (error: any) {
+      const msg = extractErrorMessage(error, 'Failed to redeem card');
+      setRedeemError(msg);
+      toast.error(msg);
     } finally {
       setIsRedeeming(false);
     }
@@ -434,8 +455,8 @@ export function V2VendorCodesTab() {
             )}
           </button>
 
-          {/* Flex Card Result State */}
-          {codeType === 'flex_card' && (verificationResult || flexCardResult) && (
+          {/* Flex/User Gift Card Result State */}
+          {(codeType === 'flex_card' || codeType === 'user_gift_card') && (verificationResult || flexCardResult) && (
             <div className={`mt-6 md:mt-8 p-5 md:p-6 rounded-2xl ${
               flexCardResult
                 ? 'bg-[var(--v2-primary-container)]/20 border-2 border-[var(--v2-primary-container)]'
@@ -450,7 +471,7 @@ export function V2VendorCodesTab() {
                       <span className="v2-icon">credit_card</span>
                     </div>
                     <div className="flex-1">
-                      <p className="font-bold text-[var(--v2-on-surface)] tracking-tight">Flex Card Verified!</p>
+                      <p className="font-bold text-[var(--v2-on-surface)] tracking-tight">{(flexCardResult as any)?.cardBrand || 'Card'} Verified!</p>
                       <p className="text-[var(--v2-on-surface-variant)] text-sm mb-4">Ready for partial or full redemption</p>
                       
                       <div className="bg-white rounded-xl p-4 mb-4 space-y-3">
@@ -496,6 +517,13 @@ export function V2VendorCodesTab() {
                         )}
                         {isRedeeming ? 'Charging...' : `Confirm Charge ${flexRedeemAmount ? formatCurrency(parseFloat(flexRedeemAmount), 'NGN') : ''}`}
                       </button>
+
+                      {redeemError && (
+                        <div className="mt-3 p-3 bg-red-50 text-red-700 text-sm font-bold rounded-xl border border-red-200 flex items-start gap-2">
+                          <span className="v2-icon text-base shrink-0 mt-0.5">error</span>
+                          {redeemError}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -506,7 +534,7 @@ export function V2VendorCodesTab() {
                   </div>
                   <div>
                     <p className={`font-bold tracking-tight ${verificationResult?.message?.includes('fully redeemed') ? 'text-amber-800' : 'text-red-700'}`}>
-                      {verificationResult?.message?.includes('fully redeemed') ? 'Already Redeemed' : 'Flex Card Error'}
+                      {verificationResult?.message?.includes('fully redeemed') ? 'Already Redeemed' : 'Card Error'}
                     </p>
                     <p className={`text-sm ${verificationResult?.message?.includes('fully redeemed') ? 'text-amber-700/80' : 'text-red-600/70'}`}>
                       {verificationResult?.message}
@@ -604,6 +632,13 @@ export function V2VendorCodesTab() {
                       )}
                       {isRedeeming ? 'Redeeming...' : 'Confirm Redemption'}
                     </button>
+                  )}
+
+                  {redeemError && (
+                    <div className="mt-4 p-3 bg-red-50 text-red-700 text-sm font-bold rounded-xl border border-red-200 flex items-start gap-2">
+                      <span className="v2-icon text-base shrink-0 mt-0.5">error</span>
+                      {redeemError}
+                    </div>
                   )}
                 </div>
               </div>
