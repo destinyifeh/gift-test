@@ -67,7 +67,12 @@ const statusConfig: Record<string, {bg: string; text: string; label: string}> =
     redeemed: {
       bg: 'bg-[var(--v2-surface-container-high)]',
       text: 'text-[var(--v2-on-surface-variant)]',
-      label: 'Redeemed',
+      label: 'Used',
+    },
+    partially_used: {
+      bg: 'bg-amber-100',
+      text: 'text-amber-700',
+      label: 'Partially Used',
     },
     expired: {
       bg: 'bg-[var(--v2-error-container)]',
@@ -190,8 +195,6 @@ export function V2MyGiftsTab() {
   const [giftCardQRVisible, setGiftCardQRVisible] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
   const [isDiscoveryOpen, setIsDiscoveryOpen] = useState(false);
-  const [isGiftCardsExpanded, setIsGiftCardsExpanded] = useState(false);
-  const [isFlexCardsExpanded, setIsFlexCardsExpanded] = useState(false);
 
   const [page, setPage] = useState(1);
   const {data: giftsRes, isLoading, refetch} = useMyGifts(page);
@@ -255,31 +258,98 @@ export function V2MyGiftsTab() {
     gifts.filter((g: any) => g.status === 'redeemed').length +
     flexCards.filter((c: any) => c.status === 'redeemed').length;
 
-  // Filter and sort gifts
+  // Consolidate and Normalize all Received Assets
+  const normalizedGifts = [
+    ...gifts.map((g: any) => ({
+      ...g,
+      id: `gift-${g.id}`,
+      assetType: 'gift',
+      displayName: g.name || 'Gift Card',
+      displaySender: g.sender || 'Anonymous',
+      displayAmount: g.amount,
+      displayCurrency: g.currency,
+      displayDate: g.date,
+      timestamp: new Date(g.timestamp || g.date || 0).getTime(),
+      displayImage: g.imageUrl,
+      displayIcon: 'card_giftcard',
+      raw: g,
+    })),
+    ...flexCards.map((c: any) => {
+      const balance = Number(c.current_balance || 0);
+      const initial = Number(c.initial_amount || 0);
+      let derivedStatus = c.status;
+      if (balance === 0) derivedStatus = 'redeemed';
+      else if (balance < initial) derivedStatus = 'partially_used';
+
+      return {
+        ...c,
+        status: derivedStatus,
+        id: `flex-${c.id}`,
+        assetType: 'flex',
+        displayName: 'Flex Card',
+        displaySender: c.sender?.display_name || c.sender_name || 'Anonymous',
+        displayAmount: balance,
+        displayCurrency: c.currency,
+        displayDate: new Date(c.created_at).toLocaleDateString(),
+        timestamp: new Date(c.created_at).getTime(),
+        displayImage: null,
+        displayIcon: 'credit_card',
+        raw: c,
+      };
+    }),
+    ...giftCards.map((c: any) => {
+      const balance = Number(c.currentBalance || c.current_balance || 0);
+      const initial = Number(c.initialAmount || c.initial_amount || balance);
+      let derivedStatus = c.status;
+      if (balance === 0) derivedStatus = 'redeemed';
+      else if (balance < initial) derivedStatus = 'partially_used';
+
+      return {
+        ...c,
+        status: derivedStatus,
+        id: `vendor-${c.id}`,
+        assetType: 'vendor',
+        displayName: c.giftCard?.name || 'Gift Card',
+        displaySender: c.senderName || c.sender?.displayName || 'Anonymous',
+        displayAmount: balance,
+        displayCurrency: c.currency || 'NGN',
+        displayDate: new Date(c.createdAt || c.created_at).toLocaleDateString(),
+        timestamp: new Date(c.createdAt || c.created_at).getTime(),
+        displayImage: null,
+        displayIcon: c.giftCard?.icon || 'card_giftcard',
+        raw: c,
+      };
+    }),
+  ];
+
+  // Apply Status Filtering
   let filteredGifts =
     filterStatus === 'all'
-      ? gifts
-      : gifts.filter((g: any) => g.status === filterStatus);
+      ? normalizedGifts
+      : normalizedGifts.filter((g: any) => g.status === filterStatus);
 
+  // Apply Type Filtering
   if (typeFilter !== 'all') {
     filteredGifts = filteredGifts.filter((g: any) => {
-      const giftType = g.type?.toLowerCase() || 'giftcard';
-      return giftType === typeFilter;
+      const gType = g.assetType === 'gift' ? (g.type?.toLowerCase() || 'giftcard') : g.assetType;
+      // Map 'flex' and 'vendor' to 'giftcard' for unified filtering if needed, 
+      // but let's keep them distinct for now or align with typeLabels
+      if (typeFilter === 'giftcard') return ['giftcard', 'flex', 'vendor'].includes(gType);
+      return gType === typeFilter;
     });
   }
 
+  // Apply Sorting
   filteredGifts = [...filteredGifts].sort((a: any, b: any) => {
-    const timeA = new Date(a.timestamp || a.date || 0).getTime();
-    const timeB = new Date(b.timestamp || b.date || 0).getTime();
     switch (sortOption) {
       case 'recent':
-        return timeB - timeA;
+        return b.timestamp - a.timestamp;
       case 'oldest':
-        return timeA - timeB;
+        return a.timestamp - b.timestamp;
       case 'highest':
-        return (b.amount || 0) - (a.amount || 0);
+        return (b.displayAmount || 0) - (a.displayAmount || 0);
       case 'lowest':
-        return (a.amount || 0) - (b.amount || 0);
+        return (a.displayAmount || 0) - (b.displayAmount || 0);
       default:
         return 0;
     }
@@ -665,227 +735,58 @@ export function V2MyGiftsTab() {
           </div>
         </div>
 
-        {/* User Gift Cards Section */}
-        {giftCards.length > 0 && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center">
-                  <span className="v2-icon text-white">card_giftcard</span>
-                </div>
-                <div>
-                  <h3 className="font-bold text-[var(--v2-on-surface)]">
-                    Gift Cards
-                  </h3>
-                  <p className="text-xs text-[var(--v2-on-surface-variant)]">
-                    {giftCards.length} card{giftCards.length !== 1 ? 's' : ''}
-                  </p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-lg font-bold text-violet-500">
-                  {formatCurrency(totalGiftCardsValue, 'NGN')}
-                </p>
-                <p className="text-[10px] text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
-                  Total Balance
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              {(isGiftCardsExpanded
-                ? giftCards
-                : giftCards.slice(0, 3)
-              ).map((card: any) => {
-                const statusCfg =
-                  statusConfig[card.status] || statusConfig.active;
-                return (
-                  <div
-                    key={card.id}
-                    onClick={() => {
-                      setSelectedUserGiftCard(card);
-                      setIsCodeVisible(false);
-                      setIsQRVisible(false);
-                    }}
-                    className="bg-[var(--v2-surface-container-lowest)] p-3 sm:p-4 rounded-2xl flex items-center gap-3 sm:gap-4 border border-[var(--v2-outline-variant)]/10 cursor-pointer hover:shadow-lg hover:shadow-[var(--v2-primary)]/5 transition-all group">
-                    {/* Icon Section */}
-                    <div
-                      className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm transition-transform group-hover:scale-105"
-                      style={{
-                        background: `linear-gradient(135deg, ${card.giftCard?.colorFrom || '#7c3aed'}, ${card.giftCard?.colorTo || '#6d28d9'})`,
-                      }}>
-                      <span className="v2-icon text-white text-lg sm:text-xl">
-                        {card.giftCard?.icon || 'card_giftcard'}
-                      </span>
-                    </div>
-
-                    {/* Info Section */}
-                    <div className="flex-1 min-w-0 pr-1">
-                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-0.5">
-                        <h4 className="font-bold text-[var(--v2-on-surface)] truncate text-sm sm:text-base leading-tight">
-                          {card.giftCard?.name || 'Gift Card'}
-                        </h4>
-                        <span
-                          className={`${statusCfg.bg} ${statusCfg.text} text-[8px] sm:text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest whitespace-nowrap`}>
-                          {statusCfg.label}
-                        </span>
-                      </div>
-                      <p className="font-mono text-[10px] sm:text-xs text-[var(--v2-on-surface-variant)]/70">
-                        {card.code.length > 8
-                          ? `GFT-••••${card.code.slice(-4).toUpperCase()}`
-                          : card.code}
-                      </p>
-                      <p className="text-[9px] sm:text-[10px] text-[var(--v2-on-surface-variant)] mt-0.5 truncate opacity-60">
-                        From{' '}
-                        {card.senderName ||
-                          card.sender?.displayName ||
-                          'Anonymous'}
-                      </p>
-                    </div>
-
-                    {/* Action Section */}
-                    <div className="text-right flex flex-col items-end gap-1.5 sm:gap-2 pl-1">
-                      <p className="font-black text-[var(--v2-on-surface)] text-sm sm:text-base whitespace-nowrap">
-                        ₦{Number(card.currentBalance).toLocaleString()}
-                      </p>
-                      <div className="px-3 py-1.5 rounded-xl bg-[#d66514]/10 text-[#d66514] text-[10px] font-bold transition-all group-hover:bg-[#d66514] group-hover:text-white flex items-center gap-1 shadow-sm">
-                        Details
-                        <span className="v2-icon text-[10px] group-hover:translate-x-0.5 transition-transform">
-                          arrow_forward
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {giftCards.length > 3 && (
-              <div className="flex justify-center pt-2">
-                <button
-                  onClick={() => setIsGiftCardsExpanded(!isGiftCardsExpanded)}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[var(--v2-primary)]/5 text-[var(--v2-primary)] text-sm font-bold hover:bg-[var(--v2-primary)]/10 transition-colors border border-[var(--v2-primary)]/10">
-                  <span className="v2-icon text-lg">
-                    {isGiftCardsExpanded ? 'expand_less' : 'expand_more'}
-                  </span>
-                  {isGiftCardsExpanded ? 'Show Less' : `View All (${giftCards.length})`}
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Flex Cards Section */}
-        {flexCards.length > 0 && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
-                  <span className="v2-icon text-white">credit_card</span>
-                </div>
-                <div>
-                  <h3 className="font-bold text-[var(--v2-on-surface)]">
-                    Flex Cards
-                  </h3>
-                  <div className="flex items-center gap-2">
-                    <p className="text-xs text-[var(--v2-on-surface-variant)]">
-                      {flexCards.length} card{flexCards.length !== 1 ? 's' : ''}
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-lg font-bold text-emerald-500">
-                  {formatCurrency(
-                    flexCards.reduce(
-                      (sum: number, c: any) => sum + (c.current_balance || 0),
-                      0,
-                    ),
-                    'NGN',
-                  )}
-                </p>
-                <p className="text-[10px] text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
-                  Total Balance
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              {(isFlexCardsExpanded
-                ? flexCards
-                : flexCards.slice(0, 3)
-              ).map((card: any) => (
-                <FlexCardListItem
-                  key={card.id}
-                  code={card.code}
-                  initialAmount={card.initial_amount}
-                  currentBalance={card.current_balance}
-                  currency={card.currency}
-                  status={card.status}
-                  senderName={
-                    card.sender?.display_name || card.sender_name || undefined
-                  }
-                  createdAt={card.created_at}
-                  onClick={() => setSelectedFlexCard(card)}
-                />
-              ))}
-            </div>
-
-            {flexCards.length > 3 && (
-              <div className="flex justify-center pt-2">
-                <button
-                  onClick={() => setIsFlexCardsExpanded(!isFlexCardsExpanded)}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-50 text-emerald-600 text-sm font-bold hover:bg-emerald-100 transition-colors border border-emerald-100">
-                  <span className="v2-icon text-lg">
-                    {isFlexCardsExpanded ? 'expand_less' : 'expand_more'}
-                  </span>
-                  {isFlexCardsExpanded ? 'Show Less' : `View All (${flexCards.length})`}
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-
         <div className="space-y-3">
           {filteredGifts.map((g: any) => {
             const status = statusConfig[g.status] || statusConfig.pending;
-            const isReady = [
+            const isUnclaimed = [
               'pending',
               'pending-claim',
-              'active',
-              'claimed',
               'unclaimed',
             ].includes(g.status);
+            const isRedeemed = g.status === 'redeemed';
 
             return (
               <button
                 key={g.id}
                 onClick={() => {
-                  setSelectedGift(g);
+                  if (g.assetType === 'flex') {
+                    setSelectedFlexCard(g.raw);
+                  } else if (g.assetType === 'vendor') {
+                    setSelectedUserGiftCard(g.raw);
+                  } else {
+                    setSelectedGift(g.raw);
+                  }
                   setIsCodeVisible(false);
                   setIsQRVisible(false);
                 }}
                 className={`w-full bg-[var(--v2-surface-container-lowest)] p-3 sm:p-4 rounded-2xl flex items-center gap-3 sm:gap-4 border border-[var(--v2-outline-variant)]/10 cursor-pointer hover:shadow-lg hover:shadow-[var(--v2-primary)]/5 transition-all group ${
-                  isReady ? 'border-[var(--v2-primary)]/20' : ''
+                  isUnclaimed ? 'border-[var(--v2-primary)]/20' : ''
                 }`}>
                 
                 <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm transition-transform group-hover:scale-105 overflow-hidden bg-[var(--v2-surface-container)]">
-                  {g.imageUrl ? (
+                  {g.displayImage ? (
                     <img
-                      src={g.imageUrl}
-                      alt={g.name}
+                      src={g.displayImage}
+                      alt={g.displayName}
                       className={`w-full h-full object-cover ${
                         g.status === 'redeemed' ? 'opacity-60 grayscale' : ''
                       }`}
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-[var(--v2-primary)]/10">
+                    <div className={cn(
+                      "w-full h-full flex items-center justify-center",
+                      g.assetType === 'flex' ? "bg-gradient-to-br from-emerald-500 to-teal-500" : 
+                      g.assetType === 'vendor' ? "" : "bg-[var(--v2-primary)]/10"
+                    )}
+                    style={g.assetType === 'vendor' ? { background: `linear-gradient(135deg, ${g.raw.giftCard?.colorFrom || '#7c3aed'}, ${g.raw.giftCard?.colorTo || '#6d28d9'})` } : {}}>
                       <span
-                        className={`v2-icon text-lg sm:text-xl text-[var(--v2-primary)] ${
+                        className={cn(
+                          "v2-icon text-lg sm:text-xl",
+                          (g.assetType === 'flex' || g.assetType === 'vendor') ? "text-white" : "text-[var(--v2-primary)]",
                           g.status === 'redeemed' ? 'opacity-60' : ''
-                        }`}
+                        )}
                         style={{fontVariationSettings: "'FILL' 1"}}>
-                        card_giftcard
+                        {g.displayIcon}
                       </span>
                     </div>
                   )}
@@ -894,7 +795,7 @@ export function V2MyGiftsTab() {
                 <div className="flex-1 min-w-0 pr-1 text-left">
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-0.5">
                     <h4 className="font-bold text-[var(--v2-on-surface)] truncate text-sm sm:text-base leading-tight">
-                      {g.name || 'Gift Card'}
+                      {g.displayName}
                     </h4>
                     <span
                       className={`${status.bg} ${status.text} text-[8px] sm:text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest whitespace-nowrap`}>
@@ -902,7 +803,7 @@ export function V2MyGiftsTab() {
                     </span>
                   </div>
                   <p className="text-[9px] sm:text-[10px] text-[var(--v2-on-surface-variant)] mt-0.5 truncate opacity-60">
-                    From {g.sender || 'Anonymous'} • {g.date}
+                    From {g.displaySender} • {g.displayDate}
                   </p>
                 </div>
 
@@ -911,22 +812,22 @@ export function V2MyGiftsTab() {
                     className={`font-black text-[var(--v2-on-surface)] text-sm sm:text-base whitespace-nowrap ${
                       g.status === 'redeemed' ? 'opacity-50' : ''
                     }`}>
-                    {formatCurrency(g.amount, g.currency)}
+                    {formatCurrency(g.displayAmount, g.displayCurrency)}
                   </div>
                   <div
                     className={cn(
                       'px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all flex items-center gap-1 shadow-sm',
-                      isReady 
+                      isUnclaimed 
                         ? 'v2-hero-gradient text-white' 
                         : 'bg-[#d66514]/10 text-[#d66514] group-hover:bg-[#d66514] group-hover:text-white'
                     )}>
-                    {isReady
+                    {isUnclaimed
                       ? 'Claim Now'
-                      : g.status === 'redeemed'
+                      : (isRedeemed || (g.assetType === 'gift' && g.status === 'claimed'))
                         ? 'Receipt'
                         : 'Details'}
                     <span className="v2-icon text-[10px] group-hover:translate-x-0.5 transition-transform">
-                      {isReady ? 'arrow_forward' : 'visibility'}
+                      {isUnclaimed ? 'arrow_forward' : 'visibility'}
                     </span>
                   </div>
                 </div>
