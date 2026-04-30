@@ -31,7 +31,10 @@ export class CampaignService {
     const campaignSlug = generateUniqueSlug(data.title, slugs);
 
     // Always generate a fresh, secure gift code on the backend for claimable gifts
-    const giftCode = data.category.toLowerCase().includes('claimable') || data.claimableType ? generateGiftCode() : null;
+    const isFlexCardCode = data.claimableType === 'flex_card' || data.claimableType === 'flex-card';
+    const giftCode = data.category.toLowerCase().includes('claimable') || data.claimableType 
+      ? generateGiftCode(isFlexCardCode ? 'FLEX-' : 'GFT-') 
+      : null;
 
     // Prisma Campaign model doesn't have an isAnonymous or scheduledFor column
     // Also strip snake_case aliases sent from frontend

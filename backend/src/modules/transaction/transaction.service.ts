@@ -589,13 +589,13 @@ export class TransactionService {
     let newGiftId: string | null = null;
 
     if (data.giftId) {
-      giftCode = generateGiftCode();
+      giftCode = generateGiftCode('GFT-');
       // Ensure uniqueness
       let isUnique = false;
       while (!isUnique) {
         const existing = await (this.prisma as any).directGift.findFirst({ where: { giftCode } });
         if (!existing) isUnique = true;
-        else giftCode = generateGiftCode();
+        else giftCode = generateGiftCode('GFT-');
       }
 
       const newGift = await (this.prisma as any).directGift.create({
@@ -832,12 +832,12 @@ export class TransactionService {
     const vendorShopName = vendorProfile?.shopName || vendorProfile?.displayName || 'Gifthance Partner';
 
     // Generate unique gift code
-    let giftCode = generateGiftCode();
+    let giftCode = generateGiftCode('GFT-');
     let isUnique = false;
     while (!isUnique) {
       const existing = await (this.prisma as any).directGift.findFirst({ where: { giftCode } });
       if (!existing) isUnique = true;
-      else giftCode = generateGiftCode();
+      else giftCode = generateGiftCode('GFT-');
     }
 
     await (this.prisma as any).$transaction(async (tx: any) => {

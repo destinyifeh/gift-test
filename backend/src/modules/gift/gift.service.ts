@@ -221,7 +221,8 @@ export class GiftService {
   // ─────────────────────────────────────────────
 
   async createDirectGift(userId: string, data: any) {
-    const giftCode = generateGiftCode();
+    const isFlexCard = data.claimableType === 'flex_card';
+    const giftCode = generateGiftCode(isFlexCard ? 'FLEX-' : 'GFT-');
     
     // Omit fields not needed for DirectGift
     const { isAnonymous, scheduledFor, endDate, minAmount, goalAmount, currentAmount, contributorsSeeEachOther, visibility, coverImage, ...giftData } = data;
@@ -262,7 +263,7 @@ export class GiftService {
 
     if (data.deliveryMethod === 'email' && data.recipientEmail) {
       const siteUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-      const claimUrl = `${siteUrl}/claim/${giftCode}`;
+      const claimUrl = `${siteUrl}/claim/${data.claimableType === 'money' ? 'cash/' : ''}${giftCode}`;
       
       try {
         console.log(`[GiftService] Attempting to send gift email to: ${data.recipientEmail}`);

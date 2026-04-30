@@ -7,7 +7,7 @@ import {authClient} from '@/lib/auth-client';
 import {useGiftCardBySlug} from '@/hooks/use-gift-cards';
 import Link from 'next/link';
 import {useParams, useRouter} from 'next/navigation';
-import {useMemo, useState} from 'react';
+import {useMemo, useState, useEffect} from 'react';
 import {toast} from 'sonner';
 import {V2VendorDiscovery} from '../../components/V2VendorDiscovery';
 import { GiftCard3D } from '../../gift-shop/components/GiftCardVariants';
@@ -26,15 +26,27 @@ export default function ClaimGiftPage() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
 
+  // Redirect to dedicated pages for better UX and backward compatibility
+  useEffect(() => {
+    if (gift) {
+      if (gift.claimableType === 'money') {
+        router.replace(`/claim/cash/${code}`);
+      } else if (gift.claimableType === 'gift-card') {
+        router.replace(`/claim/gift-card/${code}`);
+      }
+    }
+  }, [gift, code, router]);
+
   const handleClaim = async () => {
     claimMutation.mutate(code, {
       onSuccess: () => {
+        const isMoney = gift?.claimableType === 'money';
         toast.success(
-          gift?.claimableType === 'money'
+          isMoney
             ? 'Gift claimed and added to your wallet!'
             : 'Gift successfully claimed!'
         );
-        router.push('/dashboard?tab=my-gifts');
+        router.push(`/dashboard?tab=${isMoney ? 'wallet' : 'my-gifts'}`);
       }
     });
   };
@@ -240,8 +252,10 @@ export default function ClaimGiftPage() {
   }
 
   // Already Claimed State
-  if (gift.status === 'claimed' || gift.status === 'redeemed' || gift.userId) {
+  if (gift.status === 'claimed' || gift.status === 'redeemed') {
     const isOwner = gift.userId === profile.id;
+    const isMoney = gift.claimableType === 'money';
+    
     return (
       <div className="min-h-screen bg-[var(--v2-background)] flex flex-col">
         <Header />
@@ -253,18 +267,20 @@ export default function ClaimGiftPage() {
               </span>
             </div>
             <h1 className="text-2xl font-bold v2-headline text-[var(--v2-on-surface)] mb-3">
-              {isOwner ? 'Already Claimed' : 'Gift Not Available'}
+              {isOwner ? (isMoney ? 'Already Claimed to Wallet' : 'Already Claimed') : 'Gift Not Available'}
             </h1>
             <p className="text-[var(--v2-on-surface-variant)] mb-8">
               {isOwner 
-                ? 'You have already claimed this gift. It is now available in your dashboard.' 
+                ? (isMoney 
+                    ? 'You have already claimed this cash gift. It has been added to your main wallet balance (Platform Balance).' 
+                    : 'You have already claimed this gift. It is now available in your dashboard.')
                 : 'This gift has already been claimed by another user.'}
             </p>
             <Link
-              href="/dashboard?tab=my-gifts"
+              href={isMoney ? "/dashboard?tab=wallet" : "/dashboard?tab=my-gifts"}
               className="inline-flex items-center justify-center w-full h-12 v2-hero-gradient text-[var(--v2-on-primary)] font-bold rounded-2xl shadow-lg shadow-[var(--v2-primary)]/20"
             >
-              View My Gifts
+              {isMoney ? 'View Wallet' : 'View My Gifts'}
             </Link>
           </div>
         </main>
@@ -291,7 +307,7 @@ export default function ClaimGiftPage() {
             {/* Premium 3D Card Display */}
             <div className="p-6 md:p-8 flex-1 flex flex-col items-center justify-center text-center overflow-visible">
               <div className="w-[330px] sm:w-[360px] md:w-[460px] aspect-[1.586/1] relative z-20 mb-8" style={{ perspective: '2000px' }}>
-                {gift.claimableType === 'money' || gift.isFlexCard ? (
+                {gift.isFlexCard ? (
                   <FlexCard3D
                     variant="dynamic"
                     dynamicStyle={{
@@ -302,6 +318,17 @@ export default function ClaimGiftPage() {
                     onFlipToggle={setIsFlipped}
                     amount={Number(gift.goalAmount || gift.amount)}
                     mode="preview"
+                  />
+                ) : gift.claimableType === 'money' ? (
+                  <GiftCard3D
+                    variant="emerald"
+                    isFlipped={isFlipped}
+                    onFlipToggle={setIsFlipped}
+                    amount={Number(gift.goalAmount || gift.amount)}
+                    mode="preview"
+                    cardName="Cash Gift"
+                    icon="payments"
+                    description="Funds added to your main wallet balance for withdrawal to your bank account."
                   />
                 ) : (
                   <GiftCard3D

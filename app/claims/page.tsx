@@ -318,7 +318,7 @@ export default function V2ClaimsPage() {
                       <GiftCard
                         key={gift.id}
                         gift={gift}
-                        href={`/claim/${gift.gift_code}`}
+                        href={`/claim/gift-card/${gift.gift_code}`}
                         type="gift-card"
                         title={gift.title || 'Gift Card'}
                         subtitle={`${gift.goal_amount ? formatCurrency(gift.goal_amount, gift.currency || 'NGN') : ''}${gift.sender_name ? ` · from ${gift.sender_name}` : ''}`}
@@ -343,7 +343,7 @@ export default function V2ClaimsPage() {
                       <GiftCard
                         key={gift.id}
                         gift={gift}
-                        href={`/claim/${gift.gift_code}`}
+                        href={`/claim/cash/${gift.gift_code}`}
                         type="money"
                         title="Cash Gift"
                         subtitle={`${gift.goal_amount ? formatCurrency(gift.goal_amount, gift.currency || 'NGN') : ''}${gift.sender_name ? ` · from ${gift.sender_name}` : ''}`}

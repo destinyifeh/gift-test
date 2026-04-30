@@ -38,7 +38,11 @@ export function FlexCard3D({
   // Hardcoded Flex Card prefix
   const idValue = mode === 'preview' 
     ? `FLEX-••••••••` 
-    : (rawIdValue.startsWith('FLEX-') ? rawIdValue : `FLEX-${rawIdValue}`);
+    : (rawIdValue.startsWith('FLEX-') 
+        ? rawIdValue 
+        : (rawIdValue.startsWith('GFT-') 
+            ? `FLEX-${rawIdValue.slice(4)}` 
+            : `FLEX-${rawIdValue}`));
   
   const getContainerStyle = () => {
       switch(variant) {

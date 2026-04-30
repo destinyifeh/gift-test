@@ -12,7 +12,7 @@ export class UserGiftCardService {
     giftCardId: number; initialAmount: number; recipientEmail?: string; recipientPhone?: string;
     deliveryMethod?: string; senderName?: string; message?: string; currency?: string;
   }) {
-    const code = generateGiftCode();
+    const code = generateGiftCode('GFT-');
     const claimToken = randomBytes(8).toString('hex');
 
     const card = await (this.prisma as any).userGiftCard.create({
