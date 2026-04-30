@@ -57,6 +57,8 @@ export function V2WalletTab() {
   const [showFlexCode, setShowFlexCode] = useState(false);
   const [showGiftCode, setShowGiftCode] = useState(false);
   const [isGiftFlipped, setIsGiftFlipped] = useState(false);
+  const [isGiftCardsExpanded, setIsGiftCardsExpanded] = useState(false);
+  const [isFlexCardsExpanded, setIsFlexCardsExpanded] = useState(false);
 
   const {data: walletProfile, isLoading} = useWalletProfile();
   const {data: banksData} = useBanks(selectedCountry);
@@ -390,7 +392,10 @@ export function V2WalletTab() {
 
           {flexCards.filter((card: any) => card.status === 'active' || card.status === 'partially_used').length > 0 ? (
             <div className="space-y-3">
-              {flexCards.filter((card: any) => card.status !== 'redeemed').map((card: any) => (
+              {(isFlexCardsExpanded 
+                ? flexCards.filter((card: any) => card.status !== 'redeemed')
+                : flexCards.filter((card: any) => card.status !== 'redeemed').slice(0, 3)
+              ).map((card: any) => (
                 <FlexCardListItem
                   key={card.id}
                   code={card.code}
@@ -416,12 +421,17 @@ export function V2WalletTab() {
             </div>
           )}
 
-          {flexCards.length > 3 && flexCards.filter((card: any) => card.status === 'active' || card.status === 'partially_used').length > 0 && (
-            <button
-              onClick={() => setActiveModal('flex_cards')}
-              className="w-full py-3 text-center text-[var(--v2-primary)] font-bold text-sm hover:underline">
-              View all {flexCards.length} Flex Cards
-            </button>
+          {flexCards.filter((card: any) => card.status !== 'redeemed').length > 3 && (
+            <div className="flex justify-center pt-2">
+              <button
+                onClick={() => setIsFlexCardsExpanded(!isFlexCardsExpanded)}
+                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-50 text-emerald-600 text-sm font-bold hover:bg-emerald-100 transition-colors border border-emerald-100">
+                <span className="v2-icon text-lg">
+                  {isFlexCardsExpanded ? 'expand_less' : 'expand_more'}
+                </span>
+                {isFlexCardsExpanded ? 'Show Less' : `View All (${flexCards.filter((card: any) => card.status !== 'redeemed').length})`}
+              </button>
+            </div>
           )}
         </div>
       )}
@@ -444,7 +454,10 @@ export function V2WalletTab() {
           </div>
 
           <div className="space-y-3">
-            {giftCards.filter((card: any) => card.status !== 'redeemed').map((card: any) => {
+            {(isGiftCardsExpanded
+              ? giftCards.filter((card: any) => card.status !== 'redeemed')
+              : giftCards.filter((card: any) => card.status !== 'redeemed').slice(0, 3)
+            ).map((card: any) => {
               const statusCfg = ({
                 active: { label: 'Active', text: 'text-emerald-700', bg: 'bg-emerald-100' },
                 partially_used: { label: 'Partially Used', text: 'text-amber-700', bg: 'bg-amber-100' },
@@ -500,6 +513,19 @@ export function V2WalletTab() {
               );
             })}
           </div>
+
+          {giftCards.filter((card: any) => card.status !== 'redeemed').length > 3 && (
+            <div className="flex justify-center pt-2">
+              <button
+                onClick={() => setIsGiftCardsExpanded(!isGiftCardsExpanded)}
+                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[var(--v2-primary)]/5 text-[var(--v2-primary)] text-sm font-bold hover:bg-[var(--v2-primary)]/10 transition-colors border border-[var(--v2-primary)]/10">
+                <span className="v2-icon text-lg">
+                  {isGiftCardsExpanded ? 'expand_less' : 'expand_more'}
+                </span>
+                {isGiftCardsExpanded ? 'Show Less' : `View All (${giftCards.filter((card: any) => card.status !== 'redeemed').length})`}
+              </button>
+            </div>
+          )}
         </div>
       )}
 

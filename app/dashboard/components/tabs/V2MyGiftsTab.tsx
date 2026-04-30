@@ -189,6 +189,8 @@ export function V2MyGiftsTab() {
   const [giftCardQRVisible, setGiftCardQRVisible] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
   const [isDiscoveryOpen, setIsDiscoveryOpen] = useState(false);
+  const [isGiftCardsExpanded, setIsGiftCardsExpanded] = useState(false);
+  const [isFlexCardsExpanded, setIsFlexCardsExpanded] = useState(false);
 
   const [page, setPage] = useState(1);
   const {data: giftsRes, isLoading, refetch} = useMyGifts(page);
@@ -690,7 +692,10 @@ export function V2MyGiftsTab() {
             </div>
 
             <div className="space-y-3">
-              {giftCards.map((card: any) => {
+              {(isGiftCardsExpanded
+                ? giftCards
+                : giftCards.slice(0, 3)
+              ).map((card: any) => {
                 const statusCfg =
                   statusConfig[card.status] || statusConfig.active;
                 return (
@@ -753,6 +758,19 @@ export function V2MyGiftsTab() {
                 );
               })}
             </div>
+
+            {giftCards.length > 3 && (
+              <div className="flex justify-center pt-2">
+                <button
+                  onClick={() => setIsGiftCardsExpanded(!isGiftCardsExpanded)}
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[var(--v2-primary)]/5 text-[var(--v2-primary)] text-sm font-bold hover:bg-[var(--v2-primary)]/10 transition-colors border border-[var(--v2-primary)]/10">
+                  <span className="v2-icon text-lg">
+                    {isGiftCardsExpanded ? 'expand_less' : 'expand_more'}
+                  </span>
+                  {isGiftCardsExpanded ? 'Show Less' : `View All (${giftCards.length})`}
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -792,7 +810,10 @@ export function V2MyGiftsTab() {
             </div>
 
             <div className="space-y-3">
-              {flexCards.map((card: any) => (
+              {(isFlexCardsExpanded
+                ? flexCards
+                : flexCards.slice(0, 3)
+              ).map((card: any) => (
                 <FlexCardListItem
                   key={card.id}
                   code={card.code}
@@ -808,6 +829,19 @@ export function V2MyGiftsTab() {
                 />
               ))}
             </div>
+
+            {flexCards.length > 3 && (
+              <div className="flex justify-center pt-2">
+                <button
+                  onClick={() => setIsFlexCardsExpanded(!isFlexCardsExpanded)}
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-50 text-emerald-600 text-sm font-bold hover:bg-emerald-100 transition-colors border border-emerald-100">
+                  <span className="v2-icon text-lg">
+                    {isFlexCardsExpanded ? 'expand_less' : 'expand_more'}
+                  </span>
+                  {isFlexCardsExpanded ? 'Show Less' : `View All (${flexCards.length})`}
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -1579,6 +1613,157 @@ export function V2MyGiftsTab() {
                     </span>
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
+        </ResponsiveModalContent>
+      </ResponsiveModal>
+
+      {/* 🎁 Regular Gift Detail Modal (Cash / Product) */}
+      <ResponsiveModal
+        open={!!selectedGift}
+        onOpenChange={open => !open && setSelectedGift(null)}>
+        <ResponsiveModalContent className="bg-[var(--v2-surface)] md:max-w-[480px] p-0 overflow-hidden">
+          {selectedGift && (
+            <div className="flex flex-col">
+              {/* Gradient Header Banner */}
+              <div className="relative p-5 pb-8 flex-shrink-0 text-white v2-hero-gradient">
+                {/* Background Pattern */}
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute top-4 right-4 w-24 h-24 border-4 border-white rounded-3xl rotate-12" />
+                  <div className="absolute bottom-0 right-8 w-16 h-16 border-4 border-white rounded-2xl -rotate-6" />
+                  <span className="v2-icon absolute top-6 right-12 text-6xl text-white/20">
+                    {selectedGift.name?.toLowerCase().includes('cash')
+                      ? 'account_balance_wallet'
+                      : 'card_giftcard'}
+                  </span>
+                </div>
+
+                {/* Close Button */}
+                <button
+                  onClick={() => setSelectedGift(null)}
+                  className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors z-10">
+                  <span className="v2-icon text-lg">close</span>
+                </button>
+
+                {/* Type Badge */}
+                <span className="inline-block px-3 py-1 bg-white/20 text-white text-xs font-bold rounded-full mb-3">
+                  Gift Receipt
+                </span>
+
+                {/* Gift Name */}
+                <h2 className="text-2xl md:text-3xl font-black text-white v2-headline mb-1 pr-10">
+                  {selectedGift.name}
+                </h2>
+                <p className="text-white/70 text-sm">
+                  {selectedGift.sender} sent you a gift
+                </p>
+              </div>
+
+              {/* Content - Scrollable area */}
+              <div className="p-5 space-y-5 overflow-y-auto flex-1">
+                {/* Value Section */}
+                <div className="text-center py-6 bg-[var(--v2-surface-container-low)] rounded-3xl border border-[var(--v2-outline-variant)]/10">
+                  <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider mb-1">
+                    Gift Value
+                  </p>
+                  <p className="text-4xl font-black text-[var(--v2-on-surface)] v2-headline">
+                    {formatCurrency(selectedGift.amount, selectedGift.currency)}
+                  </p>
+                  <div className="inline-flex items-center gap-1.5 mt-3 px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase tracking-wide">
+                    <span className="v2-icon text-xs">check_circle</span>
+                    Claimed Successfully
+                  </div>
+                </div>
+
+                {/* Message Section */}
+                {selectedGift.message && (
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider flex items-center gap-2">
+                      <span className="v2-icon text-xs">chat_bubble</span>
+                      Personal Message
+                    </p>
+                    <div className="p-4 bg-[var(--v2-surface-container-lowest)] rounded-2xl border border-dashed border-[var(--v2-outline-variant)]/30">
+                      <p className="text-[var(--v2-on-surface)] italic text-sm leading-relaxed">
+                        "{selectedGift.message}"
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Details List */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-4 rounded-2xl bg-[var(--v2-surface-container-low)]">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-[var(--v2-primary)]/10 flex items-center justify-center text-[var(--v2-primary)]">
+                        <span className="v2-icon text-lg">person</span>
+                      </div>
+                      <span className="text-sm text-[var(--v2-on-surface-variant)]">
+                        Sender
+                      </span>
+                    </div>
+                    <span className="text-sm font-bold text-[var(--v2-on-surface)]">
+                      {selectedGift.sender}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 rounded-2xl bg-[var(--v2-surface-container-low)]">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-[var(--v2-secondary)]/10 flex items-center justify-center text-[var(--v2-secondary)]">
+                        <span className="v2-icon text-lg">calendar_today</span>
+                      </div>
+                      <span className="text-sm text-[var(--v2-on-surface-variant)]">
+                        Received On
+                      </span>
+                    </div>
+                    <span className="text-sm font-bold text-[var(--v2-on-surface)]">
+                      {selectedGift.date}
+                    </span>
+                  </div>
+
+                  {selectedGift.vendorShopName && (
+                    <div className="flex items-center justify-between p-4 rounded-2xl bg-[var(--v2-surface-container-low)]">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-600">
+                          <span className="v2-icon text-lg">storefront</span>
+                        </div>
+                        <span className="text-sm text-[var(--v2-on-surface-variant)]">
+                          Vendor
+                        </span>
+                      </div>
+                      <span className="text-sm font-bold text-[var(--v2-on-surface)]">
+                        {selectedGift.vendorShopName}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Status Specific Info */}
+                {selectedGift.name?.toLowerCase().includes('cash') ? (
+                  <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex gap-3">
+                    <span className="v2-icon text-emerald-600">info</span>
+                    <p className="text-[10px] text-emerald-800 leading-relaxed">
+                      This cash gift was added directly to your **Wallet**. You
+                      can withdraw it to your bank account at any time.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100 flex gap-3">
+                    <span className="v2-icon text-blue-600">info</span>
+                    <p className="text-[10px] text-blue-800 leading-relaxed">
+                      This gift was claimed as a{' '}
+                      {selectedGift.vendorShopName ? 'vendor voucher' : 'gift'}.
+                      You can find more details in your transaction history.
+                    </p>
+                  </div>
+                )}
+
+                {/* Actions */}
+                <button
+                  onClick={() => setSelectedGift(null)}
+                  className="w-full h-14 rounded-2xl v2-hero-gradient text-[var(--v2-on-primary)] font-bold text-lg shadow-lg shadow-[var(--v2-primary)]/20 hover:opacity-90 transition-all active:scale-[0.98]">
+                  Close Receipt
+                </button>
               </div>
             </div>
           )}
