@@ -78,6 +78,90 @@ const statusConfig: Record<string, {bg: string; text: string; label: string}> =
 type SortOption = 'recent' | 'oldest' | 'highest' | 'lowest';
 type TypeFilter = 'all' | 'giftcard' | 'voucher' | 'experience';
 
+function BalanceBreakdown({
+  currentBalance,
+  initialAmount,
+  currency = 'NGN',
+  accentColor = '#d66514',
+}: {
+  currentBalance: number;
+  initialAmount: number;
+  currency?: string;
+  accentColor?: string;
+}) {
+  const totalUsed = initialAmount - currentBalance;
+  const percentageRemaining =
+    initialAmount > 0 ? Math.round((currentBalance / initialAmount) * 100) : 0;
+
+  return (
+    <div className="bg-[var(--v2-surface-container-low)] rounded-2xl p-4 border border-[var(--v2-outline-variant)]/10">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="v2-icon" style={{color: accentColor}}>
+          account_balance_wallet
+        </span>
+        <h3 className="font-bold text-[var(--v2-on-surface)] text-sm">
+          Balance Breakdown
+        </h3>
+      </div>
+
+      {/* Available Balance - Big */}
+      <div className="text-center py-3 mb-3 bg-[var(--v2-surface-container-lowest)] rounded-xl">
+        <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider mb-1">
+          Available Balance
+        </p>
+        <p
+          className="text-3xl font-black v2-headline"
+          style={{color: accentColor}}>
+          {currency === 'NGN' ? '₦' : currency}
+          {currentBalance.toLocaleString()}
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div className="bg-[var(--v2-surface-container-lowest)] rounded-xl p-3 text-center">
+          <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider mb-1">
+            Total Received
+          </p>
+          <p className="text-lg font-black text-emerald-600">
+            {currency === 'NGN' ? '₦' : currency}
+            {initialAmount.toLocaleString()}
+          </p>
+        </div>
+        <div className="bg-[var(--v2-surface-container-lowest)] rounded-xl p-3 text-center">
+          <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider mb-1">
+            Total Used
+          </p>
+          <p className="text-lg font-black text-[var(--v2-error)]">
+            {currency === 'NGN' ? '₦' : currency}
+            {totalUsed.toLocaleString()}
+          </p>
+        </div>
+      </div>
+
+      {/* Usage Progress Bar */}
+      {initialAmount > 0 && (
+        <div className="mt-3">
+          <div className="h-2 bg-[var(--v2-outline-variant)]/20 rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all"
+              style={{
+                width: `${Math.min(
+                  100,
+                  (currentBalance / initialAmount) * 100,
+                )}%`,
+                background: `linear-gradient(to right, ${accentColor}, ${accentColor}cc)`,
+              }}
+            />
+          </div>
+          <p className="text-[10px] text-[var(--v2-on-surface-variant)] mt-1 text-right">
+            {percentageRemaining}% remaining
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function V2MyGiftsTab() {
   const [ratings, setRatings] = useState<Record<string | number, number>>({});
   const [hoverRating, setHoverRating] = useState<
@@ -965,6 +1049,14 @@ export function V2MyGiftsTab() {
                   </div>
                 </div>
 
+                {/* Balance Breakdown */}
+                <BalanceBreakdown
+                  currentBalance={Number(selectedFlexCard.current_balance)}
+                  initialAmount={Number(selectedFlexCard.initial_amount)}
+                  currency={selectedFlexCard.currency}
+                  accentColor="#d66514"
+                />
+
                 <div className="rounded-2xl overflow-hidden bg-white border border-[var(--v2-outline-variant)]/10">
                   <V2VendorDiscovery
                     giftCardId={flexCardAsset?.id}
@@ -1146,6 +1238,14 @@ export function V2MyGiftsTab() {
                     />
                   </div>
                 </div>
+
+                {/* Balance Breakdown */}
+                <BalanceBreakdown
+                  currentBalance={Number(selectedUserGiftCard.currentBalance)}
+                  initialAmount={Number(selectedUserGiftCard.initialAmount)}
+                  currency={selectedUserGiftCard.currency}
+                  accentColor={selectedUserGiftCard.giftCard?.colorFrom || '#7c3aed'}
+                />
 
                 {selectedUserGiftCard.giftCardId && (
                   <div className="rounded-2xl overflow-hidden bg-white border border-[var(--v2-outline-variant)]/10">
