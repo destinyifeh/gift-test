@@ -577,9 +577,16 @@ export class VendorService {
       include: { flexCard: { select: { code: true } } },
     });
 
+    // Vendor Gift Card transactions (as vendor)
+    const vendorCardTxs = await (this.prisma as any).userGiftCardTransaction.findMany({
+      where: { vendorId: userId },
+      include: { userGiftCard: { select: { code: true } } },
+    });
+
     const flexCardTotal = flexCardTxs.reduce((acc: number, t: any) => acc + Number(t.amount || 0), 0);
-    const totalSalesFinal = totalSales + flexCardTotal;
-    const availableFinal = Math.max(0, available + flexCardTotal - totalWithdrawn);
+    const vendorCardTotal = vendorCardTxs.reduce((acc: number, t: any) => acc + Number(t.amount || 0), 0);
+    const totalSalesFinal = totalSales + flexCardTotal + vendorCardTotal;
+    const availableFinal = Math.max(0, available + flexCardTotal + vendorCardTotal - totalWithdrawn);
 
     // Build transaction list
     const voucherTxs = redeemedVouchers.map((r: any, i: number) => ({
@@ -600,6 +607,15 @@ export class VendorService {
       timestamp: new Date(t.createdAt).getTime(),
     }));
 
+    const vendorCardTxList = vendorCardTxs.map((t: any, i: number) => ({
+      id: `vcard-${i}`,
+      type: 'user_gift_card',
+      desc: `Vendor Card: ${t.userGiftCard?.code || 'CARD'}`,
+      amount: Number(t.amount),
+      date: t.createdAt ? new Date(t.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+      timestamp: t.createdAt ? new Date(t.createdAt).getTime() : Date.now(),
+    }));
+
     const withdrawalTxs = withdrawals.map((w: any, i: number) => ({
       id: `with-${i}`,
       type: 'withdrawal',
@@ -609,7 +625,7 @@ export class VendorService {
       timestamp: Date.now(),
     }));
 
-    const allTxs = [...voucherTxs, ...flexTxs, ...withdrawalTxs].sort((a, b) => b.timestamp - a.timestamp);
+    const allTxs = [...voucherTxs, ...flexTxs, ...vendorCardTxList, ...withdrawalTxs].sort((a, b) => b.timestamp - a.timestamp);
 
     return {
       available: availableFinal,

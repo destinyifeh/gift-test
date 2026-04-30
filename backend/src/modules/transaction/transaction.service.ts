@@ -211,7 +211,7 @@ export class TransactionService {
     });
     const vendorProductIds = products.map((p: any) => p.id);
 
-    const [accounts, userCampaigns, redeemedVouchers, flexCardRedemptions, pendingUserGifts, vendorPendingGifts] = await Promise.all([
+    const [accounts, userCampaigns, redeemedVouchers, flexCardRedemptions, userGiftCardRedemptions, pendingUserGifts, vendorPendingGifts] = await Promise.all([
       (this.prisma as any).bankAccount.findMany({ where: { userId } }),
       (this.prisma as any).campaign.findMany({
         where: { userId, giftCode: null }, // Crowdfunding
@@ -224,6 +224,10 @@ export class TransactionService {
       (this.prisma as any).flexCardTransaction.findMany({
         where: { vendorId: userId },
         include: { flexCard: { select: { code: true } } },
+      }),
+      (this.prisma as any).userGiftCardTransaction.findMany({
+        where: { vendorId: userId },
+        include: { userGiftCard: { select: { code: true } } },
       }),
       (this.prisma as any).directGift.findMany({
         where: { 
@@ -356,6 +360,19 @@ export class TransactionService {
       } as any);
     });
 
+    // Add Vendor Gift Card income for vendors to history
+    userGiftCardRedemptions.forEach((u: any) => {
+      mergedTxs.push({
+        id: `ugc-income-${u.id}`,
+        userId,
+        amount: Number(u.amount) * 100,
+        type: 'vendor_redemption',
+        status: 'success',
+        created_at: u.createdAt,
+        description: `Vendor Card Payment: ${u.userGiftCard?.code || 'CARD'}`,
+      } as any);
+    });
+
     mergedTxs.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
     // 2. Balance Calculation
@@ -371,9 +388,11 @@ export class TransactionService {
       (acc: number, v: any) => acc + (Number(v.amount || 0) * 100), 0);
     const vendorFlexInflowKobo = (flexCardRedemptions as any[]).reduce(
       (acc: number, f: any) => acc + (Number(f.amount) || 0) * 100, 0);
+    const vendorCardInflowKobo = (userGiftCardRedemptions as any[]).reduce(
+      (acc: number, u: any) => acc + (Number(u.amount) || 0) * 100, 0);
 
-    const totalInflowKobo = userTotalInflowKobo + vendorVoucherInflowKobo + vendorFlexInflowKobo;
-    const vendorTotalInflowKobo = vendorVoucherInflowKobo + vendorFlexInflowKobo;
+    const totalInflowKobo = userTotalInflowKobo + vendorVoucherInflowKobo + vendorFlexInflowKobo + vendorCardInflowKobo;
+    const vendorTotalInflowKobo = vendorVoucherInflowKobo + vendorFlexInflowKobo + vendorCardInflowKobo;
     // Note: Vendor usually withdraws their specific earnings. 
     // If they have one wallet, we'll just show the separate subtotals.
     const vendorBalanceKobo = vendorTotalInflowKobo; // Without subtracting withdrawals for now to show "Total Successful Redeemed" as requested? 
