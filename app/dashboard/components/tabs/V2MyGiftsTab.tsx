@@ -14,6 +14,7 @@ import {useGiftCardBySlug} from '@/hooks/use-gift-cards';
 import {useRateVoucher} from '@/hooks/use-rating';
 import {useConvertToCredit} from '@/hooks/use-transactions';
 import {formatCurrency} from '@/lib/utils/currency';
+import {cn} from '@/lib/utils';
 import {Compass} from 'lucide-react';
 import {QRCodeSVG} from 'qrcode.react';
 import {useState} from 'react';
@@ -845,8 +846,7 @@ export function V2MyGiftsTab() {
           </div>
         )}
 
-        {/* Gifts List */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           {filteredGifts.map((g: any) => {
             const status = statusConfig[g.status] || statusConfig.pending;
             const isReady = [
@@ -862,16 +862,14 @@ export function V2MyGiftsTab() {
                 key={g.id}
                 onClick={() => {
                   setSelectedGift(g);
-                  setIsCodeVisible(false); // Reset code visibility when selecting new gift
-                  setIsQRVisible(false); // Reset QR visibility when selecting new gift
+                  setIsCodeVisible(false);
+                  setIsQRVisible(false);
                 }}
-                className={`w-full bg-[var(--v2-surface-container-lowest)] p-5 md:p-6 rounded-[2rem] flex flex-col md:flex-row items-center gap-4 md:gap-6 text-left cursor-pointer hover:shadow-xl hover:shadow-[var(--v2-primary)]/5 transition-all duration-300 group ${
-                  isReady
-                    ? 'border-2 border-[var(--v2-primary-container)]/20'
-                    : ''
+                className={`w-full bg-[var(--v2-surface-container-lowest)] p-3 sm:p-4 rounded-2xl flex items-center gap-3 sm:gap-4 border border-[var(--v2-outline-variant)]/10 cursor-pointer hover:shadow-lg hover:shadow-[var(--v2-primary)]/5 transition-all group ${
+                  isReady ? 'border-[var(--v2-primary)]/20' : ''
                 }`}>
-                {/* Gift Image/Icon */}
-                <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden flex-shrink-0 bg-[var(--v2-surface-container)]">
+                
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm transition-transform group-hover:scale-105 overflow-hidden bg-[var(--v2-surface-container)]">
                   {g.imageUrl ? (
                     <img
                       src={g.imageUrl}
@@ -883,7 +881,7 @@ export function V2MyGiftsTab() {
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-[var(--v2-primary)]/10">
                       <span
-                        className={`v2-icon text-3xl md:text-4xl text-[var(--v2-primary)] ${
+                        className={`v2-icon text-lg sm:text-xl text-[var(--v2-primary)] ${
                           g.status === 'redeemed' ? 'opacity-60' : ''
                         }`}
                         style={{fontVariationSettings: "'FILL' 1"}}>
@@ -893,47 +891,43 @@ export function V2MyGiftsTab() {
                   )}
                 </div>
 
-                {/* Details */}
-                <div className="flex-1 text-center md:text-left min-w-0">
-                  <div className="flex flex-wrap justify-center md:justify-start items-center gap-2 mb-1">
+                <div className="flex-1 min-w-0 pr-1 text-left">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-0.5">
+                    <h4 className="font-bold text-[var(--v2-on-surface)] truncate text-sm sm:text-base leading-tight">
+                      {g.name || 'Gift Card'}
+                    </h4>
                     <span
-                      className={`${status.bg} ${status.text} text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest`}>
+                      className={`${status.bg} ${status.text} text-[8px] sm:text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest whitespace-nowrap`}>
                       {status.label}
                     </span>
-                    <span className="text-[var(--v2-on-surface-variant)] text-xs font-medium">
-                      {g.date}
-                    </span>
                   </div>
-                  <h3 className="text-lg md:text-xl font-bold text-[var(--v2-on-surface)] group-hover:text-[var(--v2-primary)] transition-colors truncate">
-                    {g.name || 'Gift Card'}
-                  </h3>
-                  <p className="text-[var(--v2-on-surface-variant)] text-sm">
-                    Sent by{' '}
-                    <span className="font-bold text-[var(--v2-on-surface)]">
-                      {g.sender || 'Anonymous'}
-                    </span>
+                  <p className="text-[9px] sm:text-[10px] text-[var(--v2-on-surface-variant)] mt-0.5 truncate opacity-60">
+                    From {g.sender || 'Anonymous'} • {g.date}
                   </p>
                 </div>
 
-                {/* Amount & Actions */}
-                <div className="text-center md:text-right flex flex-col gap-2">
+                <div className="text-right flex flex-col items-end gap-1.5 sm:gap-2 pl-1">
                   <div
-                    className={`text-xl md:text-2xl font-black v2-headline text-[var(--v2-on-surface)] ${
+                    className={`font-black text-[var(--v2-on-surface)] text-sm sm:text-base whitespace-nowrap ${
                       g.status === 'redeemed' ? 'opacity-50' : ''
                     }`}>
                     {formatCurrency(g.amount, g.currency)}
                   </div>
                   <div
-                    className={`px-4 md:px-6 py-2 rounded-full font-bold text-sm transition-colors ${
-                      isReady
-                        ? 'v2-hero-gradient text-[var(--v2-on-primary)] shadow-md'
-                        : 'bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface-variant)]'
-                    }`}>
+                    className={cn(
+                      'px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all flex items-center gap-1 shadow-sm',
+                      isReady 
+                        ? 'v2-hero-gradient text-white' 
+                        : 'bg-[#d66514]/10 text-[#d66514] group-hover:bg-[#d66514] group-hover:text-white'
+                    )}>
                     {isReady
                       ? 'Claim Now'
                       : g.status === 'redeemed'
-                        ? 'View Receipt'
+                        ? 'Receipt'
                         : 'Details'}
+                    <span className="v2-icon text-[10px] group-hover:translate-x-0.5 transition-transform">
+                      {isReady ? 'arrow_forward' : 'visibility'}
+                    </span>
                   </div>
                 </div>
               </button>
