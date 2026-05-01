@@ -19,7 +19,7 @@ import {V2VendorBottomTabBar} from './components/V2VendorBottomTabBar';
 import {V2VendorMobileMenu} from './components/V2VendorMobileMenu';
 import {V2RoleSwitcher, V2MobileRoleSwitcher} from '../../components/V2RoleSwitcher';
 import {V2NotificationsPanel} from '../../components/V2NotificationsPanel';
-import {V2LogoutModal} from '@/components/V2LogoutModal';
+import {V2LogoutModal} from '../../components/V2LogoutModal';
 
 
 type VendorSection = 'dashboard' | 'orders' | 'codes' | 'wallet' | 'settings';
@@ -136,7 +136,12 @@ function V2VendorDashboardContent() {
       </header>
 
       {/* Mobile Menu */}
-      <V2VendorMobileMenu open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
+      <V2VendorMobileMenu 
+        open={mobileMenuOpen} 
+        onClose={() => setMobileMenuOpen(false)} 
+        section={section}
+        onSectionChange={handleSectionChange}
+      />
 
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex fixed left-0 top-0 h-full py-8 px-4 w-64 flex-col bg-[var(--v2-surface-container-low)] z-30">

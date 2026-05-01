@@ -14,7 +14,7 @@ import {V2BottomTabBar} from './components/V2BottomTabBar';
 import {V2RoleSwitcher} from '../components/V2RoleSwitcher';
 import {V2NotificationsPanel} from '../components/V2NotificationsPanel';
 import {V2MobileMenu} from './components/V2MobileMenu';
-import {V2LogoutModal} from '@/components/V2LogoutModal';
+import {V2LogoutModal} from '../components/V2LogoutModal';
 
 import {GifthanceLogo} from '@/components/GifthanceLogo';
 import {

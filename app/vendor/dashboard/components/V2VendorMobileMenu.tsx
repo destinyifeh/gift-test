@@ -8,15 +8,20 @@ import {useState} from 'react';
 import {useRouter} from 'next/navigation';
 import {toast} from 'sonner';
 import {authClient} from '@/lib/auth-client';
-import {V2LogoutModal} from '@/components/V2LogoutModal';
+import {V2LogoutModal} from '../../../components/V2LogoutModal';
+
+type VendorSection = 'dashboard' | 'orders' | 'codes' | 'wallet' | 'settings';
 
 
 interface V2VendorMobileMenuProps {
   open: boolean;
   onClose: () => void;
+  section: VendorSection;
+  onSectionChange: (section: VendorSection) => void;
 }
 
-export function V2VendorMobileMenu({open, onClose}: V2VendorMobileMenuProps) {
+
+export function V2VendorMobileMenu({open, onClose, section, onSectionChange}: V2VendorMobileMenuProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const {data: profile} = useProfile();
@@ -86,37 +91,61 @@ export function V2VendorMobileMenu({open, onClose}: V2VendorMobileMenuProps) {
 
           {/* Menu Items */}
           <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-            <Link
-              href="/vendor/dashboard"
-              onClick={onClose}
-              className="flex items-center gap-3 p-4 rounded-xl hover:bg-[var(--v2-surface-container-low)] transition-colors">
-              <span className="v2-icon text-[var(--v2-primary)]">dashboard</span>
-              <span className="font-semibold text-[var(--v2-on-surface)]">Dashboard</span>
-            </Link>
+            <button
+              onClick={() => {
+                onSectionChange('dashboard');
+                onClose();
+              }}
+              className={`w-full flex items-center gap-3 p-4 rounded-xl transition-colors ${
+                section === 'dashboard'
+                  ? 'bg-[var(--v2-primary)]/10 text-[var(--v2-primary)]'
+                  : 'hover:bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)]'
+              }`}>
+              <span className={`v2-icon ${section === 'dashboard' ? 'text-[var(--v2-primary)]' : 'text-[var(--v2-on-surface-variant)]'}`}>dashboard</span>
+              <span className={`font-semibold ${section === 'dashboard' ? 'text-[var(--v2-primary)]' : ''}`}>Dashboard</span>
+            </button>
 
-            <Link
-              href="/vendor/dashboard?tab=orders"
-              onClick={onClose}
-              className="flex items-center gap-3 p-4 rounded-xl hover:bg-[var(--v2-surface-container-low)] transition-colors">
-              <span className="v2-icon text-[var(--v2-on-surface-variant)]">receipt_long</span>
-              <span className="font-semibold text-[var(--v2-on-surface)]">Redemptions</span>
-            </Link>
+            <button
+              onClick={() => {
+                onSectionChange('orders');
+                onClose();
+              }}
+              className={`w-full flex items-center gap-3 p-4 rounded-xl transition-colors ${
+                section === 'orders'
+                  ? 'bg-[var(--v2-primary)]/10 text-[var(--v2-primary)]'
+                  : 'hover:bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)]'
+              }`}>
+              <span className={`v2-icon ${section === 'orders' ? 'text-[var(--v2-primary)]' : 'text-[var(--v2-on-surface-variant)]'}`}>receipt_long</span>
+              <span className={`font-semibold ${section === 'orders' ? 'text-[var(--v2-primary)]' : ''}`}>Redemptions</span>
+            </button>
 
-            <Link
-              href="/vendor/dashboard?tab=codes"
-              onClick={onClose}
-              className="flex items-center gap-3 p-4 rounded-xl hover:bg-[var(--v2-surface-container-low)] transition-colors">
-              <span className="v2-icon text-[var(--v2-on-surface-variant)]">qr_code_scanner</span>
-              <span className="font-semibold text-[var(--v2-on-surface)]">Verify Codes</span>
-            </Link>
+            <button
+              onClick={() => {
+                onSectionChange('codes');
+                onClose();
+              }}
+              className={`w-full flex items-center gap-3 p-4 rounded-xl transition-colors ${
+                section === 'codes'
+                  ? 'bg-[var(--v2-primary)]/10 text-[var(--v2-primary)]'
+                  : 'hover:bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)]'
+              }`}>
+              <span className={`v2-icon ${section === 'codes' ? 'text-[var(--v2-primary)]' : 'text-[var(--v2-on-surface-variant)]'}`}>qr_code_scanner</span>
+              <span className={`font-semibold ${section === 'codes' ? 'text-[var(--v2-primary)]' : ''}`}>Verify Codes</span>
+            </button>
 
-            <Link
-              href="/vendor/dashboard?tab=wallet"
-              onClick={onClose}
-              className="flex items-center gap-3 p-4 rounded-xl hover:bg-[var(--v2-surface-container-low)] transition-colors">
-              <span className="v2-icon text-[var(--v2-on-surface-variant)]">payments</span>
-              <span className="font-semibold text-[var(--v2-on-surface)]">Wallet</span>
-            </Link>
+            <button
+              onClick={() => {
+                onSectionChange('wallet');
+                onClose();
+              }}
+              className={`w-full flex items-center gap-3 p-4 rounded-xl transition-colors ${
+                section === 'wallet'
+                  ? 'bg-[var(--v2-primary)]/10 text-[var(--v2-primary)]'
+                  : 'hover:bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)]'
+              }`}>
+              <span className={`v2-icon ${section === 'wallet' ? 'text-[var(--v2-primary)]' : 'text-[var(--v2-on-surface-variant)]'}`}>payments</span>
+              <span className={`font-semibold ${section === 'wallet' ? 'text-[var(--v2-primary)]' : ''}`}>Wallet</span>
+            </button>
 
             <div className="pt-4 border-t border-[var(--v2-outline-variant)]/10 mt-4">
               <Link
@@ -127,13 +156,19 @@ export function V2VendorMobileMenu({open, onClose}: V2VendorMobileMenuProps) {
                 <span className="font-semibold text-[var(--v2-on-surface)]">Switch to User</span>
               </Link>
 
-              <Link
-                href="/vendor/dashboard?tab=settings"
-                onClick={onClose}
-                className="flex items-center gap-3 p-4 rounded-xl hover:bg-[var(--v2-surface-container-low)] transition-colors">
-                <span className="v2-icon text-[var(--v2-on-surface-variant)]">settings</span>
-                <span className="font-semibold text-[var(--v2-on-surface)]">Settings</span>
-              </Link>
+              <button
+                onClick={() => {
+                  onSectionChange('settings');
+                  onClose();
+                }}
+                className={`w-full flex items-center gap-3 p-4 rounded-xl transition-colors ${
+                  section === 'settings'
+                    ? 'bg-[var(--v2-primary)]/10 text-[var(--v2-primary)]'
+                    : 'hover:bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)]'
+                }`}>
+                <span className={`v2-icon ${section === 'settings' ? 'text-[var(--v2-primary)]' : 'text-[var(--v2-on-surface-variant)]'}`}>settings</span>
+                <span className={`font-semibold ${section === 'settings' ? 'text-[var(--v2-primary)]' : ''}`}>Settings</span>
+              </button>
             </div>
           </nav>
 

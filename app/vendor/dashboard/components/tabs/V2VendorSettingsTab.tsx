@@ -11,7 +11,7 @@ import {useRouter} from 'next/navigation';
 import {useEffect, useRef, useState} from 'react';
 import {toast} from 'sonner';
 import {uploadAvatar, uploadShopLogo, deleteUploadedFile, updateProfile} from '@/lib/server/actions/auth';
-import {V2LogoutModal} from '@/components/V2LogoutModal';
+import {V2LogoutModal} from '../../../../components/V2LogoutModal';
 
 
 

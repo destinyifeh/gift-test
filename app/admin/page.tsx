@@ -42,7 +42,7 @@ import {
   V2AdminGiftCardsTab,
 } from './components/tabs';
 import {V2NotificationsPanel} from '../components/V2NotificationsPanel';
-import {V2LogoutModal} from '@/components/V2LogoutModal';
+import {V2LogoutModal} from '../components/V2LogoutModal';
 
 function AdminLoadingFallback() {
   return (
