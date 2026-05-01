@@ -19,7 +19,7 @@ import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {useEffect, useMemo, useState} from 'react';
 import {toast} from 'sonner';
 
-type VendorTransactionFilter = 'all' | 'sales' | 'flex_redemptions' | 'withdrawals';
+type VendorTransactionFilter = 'all' | 'sales' | 'gift_cards' | 'flex_redemptions' | 'withdrawals';
 type DateFilter = 'today' | 'all' | 'week' | 'month' | '3months';
 
 export function V2VendorWalletTab() {
@@ -117,7 +117,11 @@ export function V2VendorWalletTab() {
     // 2. Filter by type
     if (transactionFilter === 'sales') {
       result = result.filter((t: any) =>
-        t.type === 'vendor_redemption' || t.type === 'sale' || (!t.description?.toLowerCase().includes('flex') && !t.type?.includes('flex'))
+        (t.type === 'vendor_redemption' || t.type === 'sale') && !t.description?.toLowerCase().includes('flex') && !t.type?.includes('flex')
+      );
+    } else if (transactionFilter === 'gift_cards') {
+      result = result.filter((t: any) =>
+        t.type === 'user_gift_card' || t.type === 'gift_card_redemption' || t.type?.includes('gift_card')
       );
     } else if (transactionFilter === 'flex_redemptions') {
       result = result.filter((t: any) =>
@@ -767,17 +771,19 @@ export function V2VendorWalletTab() {
             {/* Filters */}
             <div className="space-y-3">
               {/* Type Filter */}
-              <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0">
+              <div 
+                className="flex flex-nowrap md:flex-wrap gap-2 overflow-x-auto md:overflow-x-visible pb-2 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-thin">
                 {([
                   {id: 'all', label: 'All', icon: 'list'},
                   {id: 'sales', label: 'Redemptions', icon: 'verified'},
+                  {id: 'gift_cards', label: 'Gift Cards', icon: 'card_giftcard'},
                   {id: 'flex_redemptions', label: 'Flex Cards', icon: 'credit_card'},
                   {id: 'withdrawals', label: 'Withdrawals', icon: 'account_balance'},
                 ] as const).map(filter => (
                   <button
                     key={filter.id}
                     onClick={() => setTransactionFilter(filter.id)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-colors ${
+                    className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-colors ${
                       transactionFilter === filter.id
                         ? 'bg-[var(--v2-primary)] text-white'
                         : 'bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface-variant)] hover:bg-[var(--v2-surface-container-high)]'

@@ -28,7 +28,7 @@ import {Gift} from 'lucide-react';
 import {QRCodeSVG} from 'qrcode.react';
 import {GiftCard3D} from '../../../gift-shop/components/GiftCardVariants';
 
-type TransactionFilter = 'all' | 'gifts' | 'flex_card' | 'withdrawals';
+type TransactionFilter = 'all' | 'gifts' | 'gift_cards' | 'flex_card' | 'withdrawals';
 type DateFilter = 'all' | 'week' | 'month' | '3months';
 
 export function V2WalletTab() {
@@ -111,7 +111,12 @@ export function V2WalletTab() {
     // 0. Filter by type
     if (transactionFilter === 'gifts') {
       txs = txs.filter((t: any) =>
-        ['receipt', 'creator_support', 'campaign_contribution', 'gift_redemption'].includes(t.type)
+        (['receipt', 'creator_support', 'campaign_contribution', 'gift_redemption'].includes(t.type)) && 
+        t.type !== 'user_gift_card' && t.type !== 'gift_card_redemption'
+      );
+    } else if (transactionFilter === 'gift_cards') {
+      txs = txs.filter((t: any) =>
+        t.type === 'user_gift_card' || t.type === 'gift_card_redemption' || t.type?.includes('gift_card')
       );
     } else if (transactionFilter === 'flex_card') {
       txs = txs.filter((t: any) =>
@@ -955,17 +960,19 @@ export function V2WalletTab() {
             {/* Filters */}
             <div className="space-y-3">
               {/* Type Filter */}
-              <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0">
+              <div 
+                className="flex flex-nowrap md:flex-wrap gap-2 overflow-x-auto md:overflow-x-visible pb-2 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-thin">
                 {([
                   {id: 'all', label: 'All', icon: 'list'},
                   {id: 'gifts', label: 'Gifts', icon: 'redeem'},
+                  {id: 'gift_cards', label: 'Gift Cards', icon: 'card_giftcard'},
                   {id: 'flex_card', label: 'Flex Card', icon: 'credit_card'},
                   {id: 'withdrawals', label: 'Withdrawals', icon: 'account_balance'},
                 ] as const).map(filter => (
                   <button
                     key={filter.id}
                     onClick={() => setTransactionFilter(filter.id)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-colors ${
+                    className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-colors ${
                       transactionFilter === filter.id
                         ? 'bg-[var(--v2-primary)] text-white'
                         : 'bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface-variant)] hover:bg-[var(--v2-surface-container-high)]'
