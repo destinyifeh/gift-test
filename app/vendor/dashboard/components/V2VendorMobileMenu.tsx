@@ -8,7 +8,7 @@ import {useState} from 'react';
 import {useRouter} from 'next/navigation';
 import {toast} from 'sonner';
 import {authClient} from '@/lib/auth-client';
-import {V2LogoutModal} from './V2LogoutModal';
+import {V2LogoutModal} from '@/components/V2LogoutModal';
 
 
 interface V2VendorMobileMenuProps {
@@ -154,6 +154,7 @@ export function V2VendorMobileMenu({open, onClose}: V2VendorMobileMenuProps) {
         onOpenChange={setIsLogoutModalOpen}
         onConfirm={handleSignOut}
         isLoggingOut={isLoggingOut}
+        portalName="Vendor"
       />
     </>
   );

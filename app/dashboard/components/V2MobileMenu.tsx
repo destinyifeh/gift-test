@@ -39,9 +39,11 @@ const roleConfigs = [
 interface V2MobileMenuProps {
   open: boolean;
   onClose: () => void;
+  onLogoutClick?: () => void;
 }
 
-export function V2MobileMenu({open, onClose}: V2MobileMenuProps) {
+
+export function V2MobileMenu({open, onClose, onLogoutClick}: V2MobileMenuProps) {
   const router = useRouter();
   const pathname = usePathname();
   const queryClient = useQueryClient();
@@ -184,7 +186,10 @@ export function V2MobileMenu({open, onClose}: V2MobileMenuProps) {
         {/* Logout */}
         <div className="pt-4 border-t border-[var(--v2-outline-variant)]/10">
           <button
-            onClick={handleSignOut}
+            onClick={() => {
+              onClose();
+              onLogoutClick?.();
+            }}
             className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl hover:bg-[var(--v2-error)]/10 transition-colors"
           >
             <div className="w-10 h-10 rounded-xl bg-[var(--v2-error)]/10 flex items-center justify-center">

@@ -19,7 +19,7 @@ import {V2VendorBottomTabBar} from './components/V2VendorBottomTabBar';
 import {V2VendorMobileMenu} from './components/V2VendorMobileMenu';
 import {V2RoleSwitcher, V2MobileRoleSwitcher} from '../../components/V2RoleSwitcher';
 import {V2NotificationsPanel} from '../../components/V2NotificationsPanel';
-import {V2LogoutModal} from './components/V2LogoutModal';
+import {V2LogoutModal} from '@/components/V2LogoutModal';
 
 
 type VendorSection = 'dashboard' | 'orders' | 'codes' | 'wallet' | 'settings';
@@ -200,6 +200,7 @@ function V2VendorDashboardContent() {
           onOpenChange={setIsLogoutModalOpen}
           onConfirm={handleSignOut}
           isLoggingOut={isLoggingOut}
+          portalName="Vendor"
         />
       </aside>
 

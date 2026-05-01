@@ -42,6 +42,7 @@ import {
   V2AdminGiftCardsTab,
 } from './components/tabs';
 import {V2NotificationsPanel} from '../components/V2NotificationsPanel';
+import {V2LogoutModal} from '@/components/V2LogoutModal';
 
 function AdminLoadingFallback() {
   return (
@@ -376,6 +377,9 @@ function V2AdminContent() {
   const [section, setSection] = useState<AdminSection>(initialSection);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
 
   // Modals state
   const [viewDetailsModal, setViewDetailsModal] = useState<{
@@ -402,6 +406,7 @@ function V2AdminContent() {
   };
 
   const handleSignOut = async () => {
+    setIsLoggingOut(true);
     try {
       await authClient.signOut();
       queryClient.clear();
@@ -410,8 +415,12 @@ function V2AdminContent() {
       router.push('/login');
     } catch (error: any) {
       toast.error(error.message || 'Failed to sign out');
+    } finally {
+      setIsLoggingOut(false);
+      setIsLogoutModalOpen(false);
     }
   };
+
 
   const formatAdminRole = (role: string | null) => {
     if (!role) return 'Admin';
@@ -461,7 +470,7 @@ function V2AdminContent() {
         onClose={() => setMobileMenuOpen(false)}
         section={section}
         onSectionChange={handleSectionChange}
-        onSignOut={handleSignOut}
+        onSignOut={() => setIsLogoutModalOpen(true)}
         adminName={adminName}
         adminRole={adminRole}
       />
@@ -470,7 +479,7 @@ function V2AdminContent() {
       <V2AdminSidebar
         section={section}
         onSectionChange={handleSectionChange}
-        onSignOut={handleSignOut}
+        onSignOut={() => setIsLogoutModalOpen(true)}
         adminName={adminName}
         adminRole={adminRole}
         avatarUrl={profile?.avatar_url}
@@ -621,7 +630,16 @@ function V2AdminContent() {
             <V2AdminLogsTab setSection={handleSectionChange} />
           )}
         </div>
+
+        <V2LogoutModal
+          open={isLogoutModalOpen}
+          onOpenChange={setIsLogoutModalOpen}
+          onConfirm={handleSignOut}
+          isLoggingOut={isLoggingOut}
+          portalName="Admin"
+        />
       </main>
+
 
       {/* Mobile Bottom Nav */}
       {isMobile && (

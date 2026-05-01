@@ -14,6 +14,8 @@ import {V2BottomTabBar} from './components/V2BottomTabBar';
 import {V2RoleSwitcher} from '../components/V2RoleSwitcher';
 import {V2NotificationsPanel} from '../components/V2NotificationsPanel';
 import {V2MobileMenu} from './components/V2MobileMenu';
+import {V2LogoutModal} from '@/components/V2LogoutModal';
+
 import {GifthanceLogo} from '@/components/GifthanceLogo';
 import {
   V2OverviewTab,
@@ -90,6 +92,9 @@ function V2DashboardContent() {
   const [dbIsCreator, setDbIsCreator] = useState(false);
   const [dbPlan, setDbPlan] = useState<'free' | 'pro'>('free');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
 
   useEffect(() => {
     if (profile) {
@@ -124,6 +129,7 @@ function V2DashboardContent() {
   }
 
   const handleSignOut = async () => {
+    setIsLoggingOut(true);
     try {
       await authClient.signOut();
       queryClient.clear();
@@ -132,8 +138,12 @@ function V2DashboardContent() {
       router.push('/login');
     } catch (error) {
       toast.error('Failed to sign out');
+    } finally {
+      setIsLoggingOut(false);
+      setIsLogoutModalOpen(false);
     }
   };
+
 
   const handleSectionChange = (newSection: SelectedSection) => {
     setSection(newSection);
@@ -157,7 +167,11 @@ function V2DashboardContent() {
       </header>
 
       {/* Mobile Menu */}
-      <V2MobileMenu open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
+      <V2MobileMenu 
+        open={mobileMenuOpen} 
+        onClose={() => setMobileMenuOpen(false)} 
+        onLogoutClick={() => setIsLogoutModalOpen(true)}
+      />
 
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex fixed left-0 top-0 h-full py-6 px-4 w-64 flex-col bg-[var(--v2-surface-container-low)] z-30 border-r border-[var(--v2-outline-variant)]/10">
@@ -244,13 +258,21 @@ function V2DashboardContent() {
               </p>
             </div>
             <button
-              onClick={handleSignOut}
+              onClick={() => setIsLogoutModalOpen(true)}
               className="p-2 rounded-lg hover:bg-[var(--v2-error)]/10 text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-error)] transition-colors"
               title="Sign out">
               <span className="v2-icon text-lg">logout</span>
             </button>
           </div>
         </div>
+
+        <V2LogoutModal
+          open={isLogoutModalOpen}
+          onOpenChange={setIsLogoutModalOpen}
+          onConfirm={handleSignOut}
+          isLoggingOut={isLoggingOut}
+          portalName="Personal"
+        />
       </aside>
 
       {/* Main Content */}

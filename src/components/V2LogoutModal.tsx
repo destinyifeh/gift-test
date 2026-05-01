@@ -6,13 +6,14 @@ import {
   ResponsiveModalTitle,
 } from '@/components/ui/responsive-modal';
 import { VisuallyHidden } from '@/components/ui/visually-hidden';
-import { LogOut, X } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 
 interface V2LogoutModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
   isLoggingOut?: boolean;
+  portalName?: string;
 }
 
 export function V2LogoutModal({
@@ -20,6 +21,7 @@ export function V2LogoutModal({
   onOpenChange,
   onConfirm,
   isLoggingOut = false,
+  portalName = 'Gifthance',
 }: V2LogoutModalProps) {
   return (
     <ResponsiveModal open={open} onOpenChange={onOpenChange}>
@@ -39,7 +41,7 @@ export function V2LogoutModal({
             Confirm Logout
           </h3>
           <p className="text-sm text-[var(--v2-on-surface-variant)] mb-8">
-            Are you sure you want to sign out of the Vendor Portal? You will need to sign in again to access your dashboard.
+            Are you sure you want to sign out of the {portalName}? You will need to sign in again to access your dashboard.
           </p>
 
           {/* Actions */}
@@ -70,7 +72,7 @@ export function V2LogoutModal({
 
         <div className="p-4 bg-[var(--v2-surface-container)]/30 text-center">
           <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-[0.3em]">
-            Gifthance Vendor Portal
+            {portalName} Portal
           </p>
         </div>
       </ResponsiveModalContent>
