@@ -105,11 +105,10 @@ export function V2WalletTab() {
   const accounts = walletData.accounts || [];
   const walletTransactions = walletData.transactions || [];
 
-  // Filter transactions based on type and date
   const filteredTransactions = useMemo(() => {
     let txs = walletTransactions || [];
 
-    // Filter by type
+    // 0. Filter by type
     if (transactionFilter === 'gifts') {
       txs = txs.filter((t: any) =>
         ['receipt', 'creator_support', 'campaign_contribution', 'gift_redemption'].includes(t.type)
@@ -124,7 +123,27 @@ export function V2WalletTab() {
       );
     }
 
-    // Filter by date
+    // 1. Map and normalize
+    let transactions = txs.map((t: any) => ({
+      ...t,
+      id: t.id || `tx-${t.reference}-${t.created_at}`,
+      description: t.description || t.desc,
+      rawDate: t.created_at || t.date || t.createdAt,
+    }));
+
+    // 2. De-duplicate by amount and time (5s window)
+    const uniqueMap = new Map();
+    transactions.forEach((t: any) => {
+      const timeStr = new Date(t.rawDate).getTime();
+      const key = `${Math.abs(Math.round(t.amount))}-${Math.floor(timeStr / 5000)}`;
+      if (!uniqueMap.has(key) || t.cardBrand || t.customer) {
+        uniqueMap.set(key, t);
+      }
+    });
+
+    let result = Array.from(uniqueMap.values());
+
+    // 3. Filter by date
     if (dateFilter !== 'all') {
       const now = new Date();
       let cutoffDate: Date;
@@ -137,12 +156,14 @@ export function V2WalletTab() {
         cutoffDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
       }
 
-      txs = txs.filter((t: any) =>
-        new Date(t.created_at) >= cutoffDate
+      result = result.filter((t: any) =>
+        new Date(t.rawDate) >= cutoffDate
       );
     }
 
-    return txs;
+    return result.sort((a: any, b: any) => 
+      new Date(b.rawDate).getTime() - new Date(a.rawDate).getTime()
+    );
   }, [walletTransactions, transactionFilter, dateFilter]);
 
   // Calculate flex card total balance
@@ -557,7 +578,7 @@ export function V2WalletTab() {
                 {filteredTransactions.slice(0, 5).map((t: any) => {
                   const isInflow = ['receipt', 'creator_support'].includes(t.type) || (t.type === 'campaign_contribution' && t.metadata?.is_outbound !== true);
                   const isFlexCard = t.type === 'flex_card' || t.type === 'flex_card_redemption' || t.description?.toLowerCase().includes('flex');
-                  const isGiftRedemption = t.type === 'gift_redemption';
+                  const isGiftRedemption = t.type === 'gift_redemption' || t.type === 'user_gift_card' || t.type === 'gift_card_redemption' || t.type?.includes('redemption');
                   const isWithdrawal = t.type === 'withdrawal' || t.type === 'payout';
                   const isOutbound = t.metadata?.is_outbound === true;
 
@@ -579,7 +600,7 @@ export function V2WalletTab() {
                   const getTypeLabel = () => {
                     if (isOutbound) return 'Payment Sent';
                     if (isFlexCard) return 'Flex Card Payment';
-                    if (isGiftRedemption) return 'Gift Redemption';
+                    if (isGiftRedemption || t.type === 'gift_card_redemption') return 'Gift Card Payment';
                     if (isWithdrawal) return 'Withdrawal';
                     if (t.type === 'creator_support') return 'Gift Received';
                     if (t.type === 'campaign_contribution') return 'Contribution Received';
@@ -599,10 +620,11 @@ export function V2WalletTab() {
                         </div>
                         <div>
                           <p className="font-bold text-sm md:text-base text-[var(--v2-on-surface)] truncate max-w-[150px] md:max-w-[200px]">
-                            {t.description || 'Transaction'}
+                            {t.description?.replace(/Payment from .*/i, t.type === 'flex_card' ? 'Flex Payment' : (t.type === 'gift_card_redemption' ? 'Card Payment' : 'Payment'))
+                               .replace(/Purchase at .*/i, t.type === 'flex_card' ? 'Flex Payment' : (t.type === 'gift_card_redemption' ? 'Card Payment' : 'Payment')) || 'Transaction'}
                           </p>
                           <p className="text-xs text-[var(--v2-on-surface-variant)]">
-                            {new Date(t.created_at).toLocaleDateString()} • {getTypeLabel()}
+                            {new Date(t.rawDate).toLocaleDateString()} • {getTypeLabel()}
                           </p>
                         </div>
                       </div>
@@ -995,7 +1017,7 @@ export function V2WalletTab() {
                   {filteredTransactions.map((t: any) => {
                     const isInflow = ['receipt', 'creator_support'].includes(t.type);
                     const isFlexCard = t.type === 'flex_card' || t.type === 'flex_card_redemption' || t.description?.toLowerCase().includes('flex');
-                    const isGiftRedemption = t.type === 'gift_redemption';
+                    const isGiftRedemption = t.type === 'gift_redemption' || t.type === 'user_gift_card' || t.type === 'gift_card_redemption' || t.type?.includes('redemption');
                     const isWithdrawal = t.type === 'withdrawal' || t.type === 'payout';
 
                     const getIcon = () => {

@@ -155,7 +155,45 @@ export class AnalyticsService {
       });
     });
 
-    const finalSent = recentSent
+    // Add User Gift Card transactions if any
+    const userGiftCards = await (this.prisma as any).userGiftCard.findMany({
+      where: { userId },
+      select: { id: true, code: true }
+    });
+    if (userGiftCards.length > 0) {
+      const ugcIds = userGiftCards.map((c: any) => c.id);
+      const ugcMap = new Map(userGiftCards.map((c: any) => [c.id, c.code]));
+      const ugcTxs = await (this.prisma as any).userGiftCardTransaction.findMany({
+        where: { userGiftCardId: { in: ugcIds } },
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+      });
+
+      ugcTxs.forEach((f: any) => {
+        recentSent.push({
+          id: `ugc-${f.id}`,
+          name: f.description || `Spent with Gift Card ${ugcMap.get(f.userGiftCardId) || ''}`,
+          date: f.createdAt.toLocaleDateString(),
+          status: 'success',
+          type: 'gift_card_redemption',
+          timestamp: f.createdAt.getTime(),
+          amount: Number(f.amount) / 100
+        });
+      });
+    }
+
+    // De-duplicate recentSent by amount and time (5s window)
+    const uniqueSentMap = new Map();
+    recentSent.forEach((s: any) => {
+      const amount = Math.abs(Math.round(Number(s.amount || 0)));
+      const timeKey = Math.floor(s.timestamp / 5000);
+      const key = `${amount}-${timeKey}`;
+      if (!uniqueSentMap.has(key)) {
+        uniqueSentMap.set(key, s);
+      }
+    });
+
+    const finalSent = Array.from(uniqueSentMap.values())
       .sort((a, b) => b.timestamp - a.timestamp)
       .slice(0, 5);
 
@@ -275,43 +313,75 @@ export class AnalyticsService {
   async fetchSentGiftsList(userId: string, page: number = 1, limit: number = 10) {
     const { skip, take } = getPaginationOptions(page, limit);
 
-    const [gifts, total] = await Promise.all([
+    const [directGifts, flexCards, userGiftCards] = await Promise.all([
       (this.prisma as any).directGift.findMany({
-        where: {
-          userId,
-        },
+        where: { userId },
         orderBy: { createdAt: 'desc' },
-        skip,
-        take,
         include: {
           product: {
             include: {
-              vendor: { select: { shopName: true, displayName: true, username: true } },
+              vendor: { select: { shopName: true, displayName: true } },
             },
           },
         },
       }),
-      (this.prisma as any).directGift.count({
-        where: {
-          userId,
-        },
+      (this.prisma as any).flexCard.findMany({
+        where: { senderId: userId },
+        orderBy: { createdAt: 'desc' },
+      }),
+      (this.prisma as any).userGiftCard.findMany({
+        where: { senderId: userId },
+        orderBy: { createdAt: 'desc' },
+        include: { giftCard: true }
       }),
     ]);
 
-    const formatted = gifts.map((c: any) => ({
-      id: `sent-${c.id}`,
-      name: c.title || c.product?.name || (c.claimableType === 'money' ? 'Cash Gift' : 'Gift Card'),
-      recipient: c.recipientEmail || c.recipientPhone || 'Unknown',
-      date: c.createdAt,
-      amount: Number(c.amount),
-      currency: c.currency || 'NGN',
-      status: c.status,
-      code: c.giftCode,
-      vendorShopName: c.product?.vendor?.shopName || c.product?.vendor?.displayName,
-      message: c.message,
-    }));
+    const allSent = [
+      ...directGifts.map((c: any) => ({
+        id: `sent-${c.id}`,
+        name: c.title || c.product?.name || (c.claimableType === 'money' ? 'Cash Gift' : 'Gift Card'),
+        recipient: c.recipientEmail || c.recipientPhone || 'Unknown',
+        date: c.createdAt,
+        amount: Number(c.amount),
+        currency: c.currency || 'NGN',
+        status: c.status,
+        code: c.giftCode,
+        vendorShopName: c.product?.vendor?.shopName || c.product?.vendor?.displayName,
+        type: 'direct',
+        timestamp: c.createdAt.getTime()
+      })),
+      ...flexCards.map((c: any) => ({
+        id: `fc-sent-${c.id}`,
+        name: 'Flex Gift Card',
+        recipient: c.recipientEmail || c.recipientPhone || 'Claim Link',
+        date: c.createdAt,
+        amount: Number(c.initialAmount),
+        currency: c.currency || 'NGN',
+        status: c.status,
+        code: c.code,
+        vendorShopName: 'Gifthance Flex',
+        type: 'flex',
+        timestamp: c.createdAt.getTime()
+      })),
+      ...userGiftCards.map((c: any) => ({
+        id: `ugc-sent-${c.id}`,
+        name: c.giftCard?.name || 'Branded Gift Card',
+        recipient: c.recipientEmail || c.recipientPhone || 'Claim Link',
+        date: c.createdAt,
+        amount: Number(c.initialAmount),
+        currency: c.currency || 'NGN',
+        status: c.status,
+        code: c.code,
+        vendorShopName: c.giftCard?.name || 'Gift Card',
+        type: 'user_gift_card',
+        timestamp: c.createdAt.getTime()
+      }))
+    ].sort((a, b) => b.timestamp - a.timestamp);
 
-    return paginate(formatted, total, page, limit);
+    const total = allSent.length;
+    const paginated = allSent.slice(skip, skip + take);
+
+    return paginate(paginated, total, page, limit);
   }
 
   /**

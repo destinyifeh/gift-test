@@ -253,7 +253,7 @@ export function V2SentGiftsTab() {
                         {g.name || 'Gift'}
                       </h3>
                       <p className="text-xs md:text-sm text-[var(--v2-on-surface-variant)]">
-                        To: <span className="font-medium text-[var(--v2-primary)]">{g.recipient || 'Anonymous'}</span> • {g.date}
+                        To: <span className="font-medium text-[var(--v2-primary)]">{g.recipient || 'Anonymous'}</span> • {new Date(g.date).toLocaleDateString()}
                       </p>
                     </div>
                     <span

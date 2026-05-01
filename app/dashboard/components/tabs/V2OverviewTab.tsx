@@ -358,9 +358,14 @@ export function V2OverviewTab({creatorEnabled, setCreatorEnabled, setSection}: V
                                  </span>
                               </div>
                               <div className="min-w-0 flex-1">
-                                 <p className="font-black text-[var(--v2-on-surface)] truncate text-sm md:text-base leading-tight">{g.name}</p>
+                                 <p className="font-black text-[var(--v2-on-surface)] truncate text-sm md:text-base leading-tight">
+                                    {g.name?.replace(/Purchase at .*/i, 'Flex Payment')
+                                           .replace(/Payment from .*/i, 'Flex Payment')
+                                           .replace(/Spent with Flex Card .*/i, 'Flex Payment')
+                                           .replace(/Spent with Gift Card .*/i, 'Card Redemption')}
+                                 </p>
                                  <div className="text-[9px] md:text-xs font-bold text-[var(--v2-on-surface-variant)] opacity-50 flex items-center gap-1.5 uppercase tracking-normal md:tracking-widest mt-1">
-                                   <span className="truncate">{g.giftCategory || g.type || 'Asset'}</span>
+                                   <span className="truncate">{g.type?.replace(/_/g, ' ') || 'Asset'}</span>
                                    <span className="w-0.5 h-0.5 rounded-full bg-current opacity-30 flex-shrink-0" />
                                    <span className="flex-shrink-0">{g.date}</span>
                                  </div>

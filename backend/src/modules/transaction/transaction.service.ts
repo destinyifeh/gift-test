@@ -277,8 +277,8 @@ export class TransactionService {
       }),
       (this.prisma as any).transaction.aggregate({
         where: { 
-          userId, 
-          type: { in: [TX_WITHDRAWAL, 'payout', 'fee'] },
+          userId,
+          type: { in: [TX_WITHDRAWAL, 'payout', 'fee', TX_GIFT_REDEMPTION, TX_FLEX_CARD_REDEMPTION, 'gift_card_redemption'] },
           status: { in: ['success', 'pending'] }
         },
         _sum: { amount: true },
@@ -401,11 +401,11 @@ export class TransactionService {
     // Final de-duplication logic
     const uniqueMap = new Map();
     mergedTxs.forEach((tx: any) => {
-      // Extract a base reference (strip suffixes like timestamps from FLEX-ABCD-12345)
-      let baseRef = tx.reference || (tx.description?.match(/(FLEX|GFT)-[A-Z0-9-]+/i)?.[0]) || tx.id;
+      // Extract a base reference (strip suffixes like timestamps)
+      let baseRef = tx.reference || (tx.description?.match(/(FLEX|GFT|GFTC|RED)-[A-Z0-9-]+/i)?.[0]) || tx.id || '';
       if (typeof baseRef === 'string') {
-        // Strip common timestamp suffixes (e.g. FLEX-ABCD-1714578900000)
-        baseRef = baseRef.replace(/-(\d{13})$/, '').toUpperCase();
+        // Strip any trailing digits that look like a timestamp (10+ digits)
+        baseRef = baseRef.replace(/-(\d{10,16})$/, '').toUpperCase().trim();
       }
       
       const key = `${tx.amount}-${baseRef}`;
