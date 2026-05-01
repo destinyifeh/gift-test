@@ -26,6 +26,7 @@ interface FlexCardResult {
   status: string;
   userName: string;
   userAvatar?: string;
+  cardBrand?: string;
 }
 
 interface VerificationResult {
@@ -349,10 +350,11 @@ export function V2VendorCodesTab() {
     setIsRedeeming(true);
     try {
       const endpoint = codeType === 'flex_card' ? '/flex-cards/redeem' : '/user-gift-cards/redeem';
+      const cardName = codeType === 'flex_card' ? 'Flex Card' : (flexCardResult.cardBrand || 'Gift Card');
       const res = await api.post(endpoint, {
         code: flexCardResult.code,
         amount,
-        description: `Purchase at ${profile.shop_name || profile.display_name}`,
+        description: `${cardName} Payment`,
       });
       const result = res.data;
 
@@ -595,8 +597,8 @@ export function V2VendorCodesTab() {
                       
                       <div className="px-1 space-y-1">
                         <p className="text-sm text-[var(--v2-on-surface-variant)] flex justify-between">
-                          <span className="opacity-60">Gift item:</span> 
-                          <span className="font-bold truncate max-w-[150px]">{verificationResult.data.title || 'Gift Card'}</span>
+                          <span className="opacity-60">Item:</span> 
+                          <span className="font-bold truncate max-w-[150px]">{verificationResult.data.title || ((codeType as string) === 'flex_card' ? 'Flex Card' : 'Gift Card')}</span>
                         </p>
                         {verificationResult.data.user?.displayName && (
                           <p className="text-sm text-[var(--v2-on-surface-variant)] flex justify-between">
@@ -773,10 +775,30 @@ export function V2VendorCodesTab() {
                     <span className="v2-icon text-lg">{redemption.type === 'flex_card' ? 'credit_card' : 'check_circle'}</span>
                   </div>
                   <div className="min-w-0">
-                    <p className="font-bold text-sm text-[var(--v2-on-surface)] truncate">
-                      {redemption.desc || 'Redemption'}
+                    <p className="font-bold text-sm text-[var(--v2-on-surface)] truncate leading-tight">
+                      {redemption.desc?.replace(/Payment from .*/i, redemption.type === 'flex_card' ? 'Flex Payment' : (redemption.cardBrand || 'Card Payment'))
+                        .replace(/Purchase at .*/i, redemption.type === 'flex_card' ? 'Flex Payment' : (redemption.cardBrand || 'Card Payment')) || 'Redemption'}
                     </p>
-                    <p className="text-[10px] text-[var(--v2-on-surface-variant)]">{redemption.date}</p>
+                    {redemption.customer && (
+                      <p className="text-[9px] text-[var(--v2-primary)] font-bold uppercase tracking-wider mb-0.5">
+                        {redemption.customer}
+                      </p>
+                    )}
+                    <p className="text-[10px] text-[var(--v2-on-surface-variant)]">
+                      {(() => {
+                        const dateVal = redemption.createdAt || redemption.date;
+                        if (!dateVal) return 'Date Pending';
+                        const d = new Date(dateVal);
+                        if (isNaN(d.getTime())) return String(dateVal);
+                        return d.toLocaleDateString(undefined, { 
+                          month: 'short', 
+                          day: 'numeric', 
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        });
+                      })()}
+                    </p>
                   </div>
                 </div>
                 <div className="text-right flex-shrink-0 flex flex-col items-end">

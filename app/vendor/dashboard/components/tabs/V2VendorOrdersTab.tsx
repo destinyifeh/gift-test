@@ -232,7 +232,13 @@ export function V2VendorOrdersTab({searchQuery = ''}: V2VendorOrdersTabProps) {
                       </td>
                       <td className="py-4 px-4 text-right">
                         <p className="text-sm text-[var(--v2-on-surface-variant)]">
-                          {new Date(order.createdAt).toLocaleDateString()}
+                          {new Date(order.createdAt).toLocaleDateString(undefined, {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
                         </p>
                       </td>
                     </tr>

@@ -20,7 +20,7 @@ import {useEffect, useMemo, useState} from 'react';
 import {toast} from 'sonner';
 
 type VendorTransactionFilter = 'all' | 'sales' | 'flex_redemptions' | 'withdrawals';
-type DateFilter = 'all' | 'week' | 'month' | '3months';
+type DateFilter = 'today' | 'all' | 'week' | 'month' | '3months';
 
 export function V2VendorWalletTab() {
   const queryClient = useQueryClient();
@@ -89,57 +89,60 @@ export function V2VendorWalletTab() {
   const pendingAmount = wallet.pending || 0;
   // Transactions are pre-calculated by backend now, simplify frontend
   const vendorTransactions = walletTransactions.filter((t: any) => 
-    ['vendor_redemption', 'withdrawal', 'payout'].includes(t.type)
+    ['vendor_redemption', 'withdrawal', 'payout', 'flex_card', 'user_gift_card', 'flex_card_redemption'].includes(t.type)
   );
 
   // Filter transactions based on type and date
   const filteredTransactions = useMemo(() => {
     let transactions = vendorTransactions.map((t: any) => ({
+      ...t,
       id: `vendor-${t.id}`,
       description: t.description || t.desc,
-      amount: t.amount,
-      date: t.date,
-      type: t.type || 'sale',
-      rawDate: t.date,
-      timestamp: t.timestamp,
+      rawDate: t.date || t.createdAt,
     }));
 
-    // Filter by type
+    // 1. De-duplicate by amount and time (1s window)
+    const uniqueMap = new Map();
+    transactions.forEach((t: any) => {
+      const timeStr = new Date(t.createdAt || t.created_at || t.date).getTime();
+      // Use amount + timestamp (grouped by 5s) as a robust signature
+      const key = `${Math.round(t.amount)}-${Math.floor(timeStr / 5000)}`;
+      if (!uniqueMap.has(key) || t.customer) {
+        uniqueMap.set(key, t);
+      }
+    });
+
+    let result = Array.from(uniqueMap.values());
+
+    // 2. Filter by type
     if (transactionFilter === 'sales') {
-      transactions = transactions.filter((t: any) =>
-        t.type === 'sale' || t.type === 'redeemed' || !t.description?.toLowerCase().includes('flex')
+      result = result.filter((t: any) =>
+        t.type === 'vendor_redemption' || t.type === 'sale' || (!t.description?.toLowerCase().includes('flex') && !t.type?.includes('flex'))
       );
     } else if (transactionFilter === 'flex_redemptions') {
-      transactions = transactions.filter((t: any) =>
-        t.type === 'flex_card' || t.description?.toLowerCase().includes('flex')
+      result = result.filter((t: any) =>
+        t.type === 'flex_card' || t.type === 'flex_card_redemption' || t.description?.toLowerCase().includes('flex')
       );
     } else if (transactionFilter === 'withdrawals') {
-      transactions = transactions.filter((t: any) =>
-        t.type === 'withdrawal' || t.type === 'payout'
+      result = result.filter((t: any) =>
+        ['withdrawal', 'payout', 'fee'].includes(t.type)
       );
     }
 
-    // Filter by date
+    // 3. Filter by date
     if (dateFilter !== 'all') {
       const now = new Date();
-      let cutoffDate: Date;
-
-      if (dateFilter === 'week') {
-        cutoffDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      } else if (dateFilter === 'month') {
-        cutoffDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-      } else {
-        cutoffDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
-      }
-
-      transactions = transactions.filter((t: any) => {
-        const transactionDate = new Date(t.rawDate || t.date);
-        return transactionDate >= cutoffDate;
+      result = result.filter((t: any) => {
+        const d = new Date(t.rawDate);
+        if (dateFilter === 'today') return d.toDateString() === now.toDateString();
+        if (dateFilter === 'week') return (now.getTime() - d.getTime()) <= 7 * 24 * 60 * 60 * 1000;
+        if (dateFilter === 'month') return (now.getTime() - d.getTime()) <= 30 * 24 * 60 * 60 * 1000;
+        return true;
       });
     }
 
-    return transactions.sort((a: any, b: any) =>
-      (b.timestamp || 0) - (a.timestamp || 0)
+    return result.sort((a: any, b: any) => 
+      new Date(b.rawDate).getTime() - new Date(a.rawDate).getTime()
     );
   }, [vendorTransactions, transactionFilter, dateFilter]);
 
@@ -388,14 +391,17 @@ export function V2VendorWalletTab() {
           {(() => {
             // Only show successful redemption transactions from vendor stats
             const redemptionTransactions = vendorTransactions
-              .filter((t: any) => t.type === 'vendor_redemption' || t.type === 'flex_card_redemption' || t.type === 'flex_card')
+              .filter((t: any) => 
+                t.type === 'vendor_redemption' || 
+                t.type === 'flex_card_redemption' || 
+                t.type === 'flex_card' ||
+                t.type === 'user_gift_card'
+              )
               .map((t: any) => ({
+                ...t,
                 id: `vendor-${t.id}`,
                 description: t.description || t.desc,
-                amount: t.amount,
-                date: t.date,
-                type: t.type,
-              })).sort((a: any, b: any) => (new Date(b.date).getTime() || 0) - (new Date(a.date).getTime() || 0));
+              })).sort((a: any, b: any) => (new Date(b.date || b.createdAt).getTime() || 0) - (new Date(a.date || a.createdAt).getTime() || 0));
 
             if (redemptionTransactions.length === 0) {
               return (
@@ -411,9 +417,22 @@ export function V2VendorWalletTab() {
               );
             }
 
+            // Group by amount and time to remove duplicates effectively
+            const uniqueMap = new Map();
+            redemptionTransactions.forEach((t: any) => {
+              const timeStr = new Date(t.createdAt || t.created_at || t.date).getTime();
+              // Key: amount plus time (allow 5s drift for safety)
+              const key = `${Math.round(t.amount)}-${Math.floor(timeStr / 5000)}`;
+              if (!uniqueMap.has(key) || t.customer) {
+                uniqueMap.set(key, t);
+              }
+            });
+            const uniqueTransactions = Array.from(uniqueMap.values())
+              .sort((a: any, b: any) => (new Date(b.date || b.createdAt).getTime() || 0) - (new Date(a.date || a.createdAt).getTime() || 0));
+
             return (
               <div className="space-y-3">
-                {redemptionTransactions.slice(0, 5).map((t: any) => {
+                {uniqueTransactions.slice(0, 5).map((t: any) => {
                   const isFlex = t.type === 'flex_card_redemption' || (t.description || '').toLowerCase().includes('flex');
                   return (
                     <div
@@ -424,10 +443,30 @@ export function V2VendorWalletTab() {
                           <span className="v2-icon">{isFlex ? 'credit_card' : 'check_circle'}</span>
                         </div>
                         <div>
-                          <p className="font-bold text-sm text-[var(--v2-on-surface)]">
-                            {t.description || (t.type === 'flex_card' ? 'Flex Card' : 'Transaction')}
+                          <p className="font-bold text-sm text-[var(--v2-on-surface)] leading-tight">
+                            {t.description?.replace(/Payment from .*/i, t.type === 'flex_card' ? 'Flex Payment' : (t.cardBrand || 'Card Payment'))
+                               .replace(/Purchase at .*/i, t.type === 'flex_card' ? 'Flex Payment' : (t.cardBrand || 'Card Payment'))}
                           </p>
-                          <p className="text-xs text-[var(--v2-on-surface-variant)]">{t.date}</p>
+                          {t.customer && (
+                            <p className="text-[10px] text-[var(--v2-primary)] font-bold uppercase tracking-wider mb-0.5">
+                              {t.customer}
+                            </p>
+                          )}
+                          <p className="text-[10px] text-[var(--v2-on-surface-variant)] uppercase tracking-widest font-bold opacity-70">
+                            {(() => {
+                              const dateVal = t.createdAt || t.created_at || t.date || t.rawDate;
+                              if (!dateVal) return 'Date Pending';
+                              const d = new Date(dateVal);
+                              if (isNaN(d.getTime())) return String(dateVal);
+                              return d.toLocaleDateString(undefined, { 
+                                month: 'short', 
+                                day: 'numeric', 
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              });
+                            })()}
+                          </p>
                         </div>
                       </div>
                       <span className={`font-bold ${isFlex ? 'text-[var(--v2-primary)]' : 'text-[var(--v2-secondary)]'}`}>
@@ -812,6 +851,16 @@ export function V2VendorWalletTab() {
               ) : (
                 <div className="space-y-2">
                   {filteredTransactions.map((t: any) => {
+                    // Extract a base reference (strip suffixes like timestamps)
+                    let baseRef = t.reference || (t.description?.match(/(FLEX|GFT)-[A-Z0-9-]+/i)?.[0]) || t.id || '';
+                    if (typeof baseRef === 'string') {
+                      // Strip any trailing digits that look like a timestamp (10+ digits)
+                      baseRef = baseRef.replace(/-(\d{10,16})$/, '').toUpperCase().trim();
+                    }
+                    
+                    const amount = Math.abs(Math.round(Number(t.amount || 0)));
+                    const key = `${amount}-${baseRef}`;
+                    
                     const isFlexRedemption = t.type === 'flex_redemption' || t.description?.toLowerCase().includes('flex');
                     const isWithdrawal = t.type === 'withdrawal' || t.type === 'payout';
 
@@ -830,7 +879,7 @@ export function V2VendorWalletTab() {
                     const getTypeLabel = () => {
                       if (isFlexRedemption) return 'Flex Card Redemption';
                       if (isWithdrawal) return 'Withdrawal';
-                      return 'Redemption';
+                      return t.cardBrand || 'Redemption';
                     };
 
                     return (
@@ -842,11 +891,29 @@ export function V2VendorWalletTab() {
                             <span className="v2-icon">{getIcon()}</span>
                           </div>
                           <div>
-                            <p className="font-bold text-sm text-[var(--v2-on-surface)]">
-                              {t.description}
+                            <p className="font-bold text-sm text-[var(--v2-on-surface)] leading-tight">
+                              {t.description?.replace(/Payment from .*/i, t.type === 'flex_card' ? 'Flex Payment' : (t.cardBrand || 'Card Payment'))
+                                 .replace(/Purchase at .*/i, t.type === 'flex_card' ? 'Flex Payment' : (t.cardBrand || 'Card Payment'))}
                             </p>
-                            <p className="text-xs text-[var(--v2-on-surface-variant)]">
-                              {t.date} • {getTypeLabel()}
+                            {t.customer && (
+                              <p className="text-[10px] text-[var(--v2-primary)] font-bold uppercase tracking-wider mb-0.5">
+                                {t.customer}
+                              </p>
+                            )}
+                            <p className="text-xs text-[var(--v2-on-surface-variant)] uppercase tracking-tight font-medium">
+                              {(() => {
+                                const dateVal = t.createdAt || t.created_at || t.date || t.rawDate;
+                                if (!dateVal) return 'Date Pending';
+                                const d = new Date(dateVal);
+                                if (isNaN(d.getTime())) return String(dateVal);
+                                return d.toLocaleDateString(undefined, { 
+                                  month: 'short', 
+                                  day: 'numeric', 
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                });
+                              })()} • {getTypeLabel()}
                             </p>
                           </div>
                         </div>

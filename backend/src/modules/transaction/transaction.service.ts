@@ -223,11 +223,28 @@ export class TransactionService {
       }),
       (this.prisma as any).flexCardTransaction.findMany({
         where: { vendorId: userId },
-        include: { flexCard: { select: { code: true } } },
+        include: { 
+          flexCard: { 
+            select: { 
+              code: true, 
+              recipient: { select: { displayName: true } }, 
+              sender: { select: { displayName: true } } 
+            } 
+          } 
+        },
       }),
       (this.prisma as any).userGiftCardTransaction.findMany({
         where: { vendorId: userId },
-        include: { userGiftCard: { select: { code: true } } },
+        include: { 
+          userGiftCard: { 
+            select: { 
+              code: true, 
+              giftCard: { select: { name: true } },
+              recipient: { select: { displayName: true } }, 
+              sender: { select: { displayName: true } } 
+            } 
+          } 
+        },
       }),
       (this.prisma as any).directGift.findMany({
         where: { 
@@ -353,27 +370,57 @@ export class TransactionService {
         id: `fc-income-${f.id}`,
         userId,
         amount: Number(f.amount) * 100,
-        type: 'vendor_redemption',
+        type: 'flex_card',
         status: 'success',
+        createdAt: f.createdAt,
         created_at: f.createdAt,
-        description: `Flex Card Payment: ${f.flexCard?.code || 'FLEX'}`,
+        reference: f.flexCard?.code,
+        customer: f.flexCard?.user?.displayName || f.flexCard?.recipient?.displayName || 'Customer',
+        description: f.description || `Flex Card Payment: ${f.flexCard?.code || 'FLEX'}`,
       } as any);
     });
 
     // Add Vendor Gift Card income for vendors to history
     userGiftCardRedemptions.forEach((u: any) => {
+      const cardTitle = u.userGiftCard?.giftCard?.name || 'Gift Card';
       mergedTxs.push({
         id: `ugc-income-${u.id}`,
         userId,
         amount: Number(u.amount) * 100,
-        type: 'vendor_redemption',
+        type: 'user_gift_card',
+        cardBrand: cardTitle,
         status: 'success',
+        createdAt: u.createdAt,
         created_at: u.createdAt,
-        description: `Vendor Card Payment: ${u.userGiftCard?.code || 'CARD'}`,
+        reference: u.userGiftCard?.code,
+        customer: u.userGiftCard?.recipient?.displayName || u.userGiftCard?.sender?.displayName || 'Customer',
+        description: u.description || `${cardTitle} Payment: ${u.userGiftCard?.code || 'CARD'}`,
       } as any);
     });
 
-    mergedTxs.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    // Final de-duplication logic
+    const uniqueMap = new Map();
+    mergedTxs.forEach((tx: any) => {
+      // Extract a base reference (strip suffixes like timestamps from FLEX-ABCD-12345)
+      let baseRef = tx.reference || (tx.description?.match(/(FLEX|GFT)-[A-Z0-9-]+/i)?.[0]) || tx.id;
+      if (typeof baseRef === 'string') {
+        // Strip common timestamp suffixes (e.g. FLEX-ABCD-1714578900000)
+        baseRef = baseRef.replace(/-(\d{13})$/, '').toUpperCase();
+      }
+      
+      const key = `${tx.amount}-${baseRef}`;
+      const existing = uniqueMap.get(key);
+      
+      // Prefer specialized types (flex_card, user_gift_card) over generic ones
+      if (!existing || 
+          (['flex_card', 'user_gift_card', 'vendor_redemption'].includes(tx.type))
+      ) {
+        uniqueMap.set(key, tx);
+      }
+    });
+
+    const finalMergedTxs = Array.from(uniqueMap.values());
+    finalMergedTxs.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
     // 2. Balance Calculation
     const directInflowKobo = Number(inflowAggr._sum.amount || 0);
@@ -420,7 +467,7 @@ export class TransactionService {
         account_name: a.accountName,
         bank_name: a.bankName,
       })),
-      transactions: mergedTxs.slice(0, 50),
+      transactions: finalMergedTxs.slice(0, 50),
     };
   }
 

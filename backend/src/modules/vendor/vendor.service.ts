@@ -554,7 +554,7 @@ export class VendorService {
     const [redeemedVouchers, allOrders, withdrawals] = await Promise.all([
       (this.prisma as any).directGift.findMany({
         where: { redeemedByVendorId: userId, status: 'redeemed' },
-        select: { amount: true, status: true, redeemedAt: true, giftCode: true },
+        select: { amount: true, status: true, redeemedAt: true, giftCode: true, title: true, user: { select: { displayName: true } } },
       }),
       (this.prisma as any).directGift.findMany({
         where: { claimableGiftId: { in: productIds } },
@@ -562,7 +562,7 @@ export class VendorService {
       }),
       (this.prisma as any).transaction.findMany({
         where: { userId, type: { in: ['withdrawal', 'payout', 'fee'] }, status: { in: ['success', 'pending'] } },
-        select: { amount: true },
+        select: { amount: true, createdAt: true },
       }),
     ]);
 
@@ -574,13 +574,25 @@ export class VendorService {
     // Flex card transactions (as vendor)
     const flexCardTxs = await (this.prisma as any).flexCardTransaction.findMany({
       where: { vendorId: userId },
-      include: { flexCard: { select: { code: true } } },
+      select: { 
+        id: true, amount: true, createdAt: true, description: true, 
+        flexCard: { select: { code: true, recipient: { select: { displayName: true } }, sender: { select: { displayName: true } } } } 
+      },
     });
 
-    // Vendor Gift Card transactions (as vendor)
     const vendorCardTxs = await (this.prisma as any).userGiftCardTransaction.findMany({
       where: { vendorId: userId },
-      include: { userGiftCard: { select: { code: true } } },
+      select: { 
+        id: true, amount: true, createdAt: true, description: true, 
+        userGiftCard: { 
+          select: { 
+            code: true, 
+            giftCard: { select: { name: true } },
+            recipient: { select: { displayName: true } }, 
+            sender: { select: { displayName: true } } 
+          } 
+        } 
+      },
     });
 
     const flexCardTotal = flexCardTxs.reduce((acc: number, t: any) => acc + Number(t.amount || 0), 0);
@@ -591,28 +603,35 @@ export class VendorService {
     // Build transaction list
     const voucherTxs = redeemedVouchers.map((r: any, i: number) => ({
       id: `vouch-${i}`,
-      type: 'redeemed',
-      desc: `Redemption: ${r.giftCode || 'GIFT'}`,
+      type: 'vendor_redemption',
+      desc: r.name || r.title || `Redemption: ${r.giftCode || 'GIFT'}`,
+      customer: r.user?.displayName || 'Customer',
       amount: Number(r.amount || 0),
       date: r.redeemedAt?.toISOString().split('T')[0],
+      createdAt: r.redeemedAt,
       timestamp: new Date(r.redeemedAt || 0).getTime(),
     }));
 
     const flexTxs = flexCardTxs.map((t: any, i: number) => ({
       id: `flex-${i}`,
       type: 'flex_card',
-      desc: `Flex Card: ${t.flexCard?.code || 'FLEX'}`,
+      desc: t.description || `Flex Card: ${t.flexCard?.code || 'FLEX'}`,
+      customer: t.flexCard?.recipient?.displayName || t.flexCard?.sender?.displayName || 'Customer',
       amount: Number(t.amount),
       date: (t.createdAt as Date).toISOString().split('T')[0],
+      createdAt: t.createdAt,
       timestamp: new Date(t.createdAt).getTime(),
     }));
 
     const vendorCardTxList = vendorCardTxs.map((t: any, i: number) => ({
       id: `vcard-${i}`,
       type: 'user_gift_card',
-      desc: `Vendor Card: ${t.userGiftCard?.code || 'CARD'}`,
+      cardBrand: t.userGiftCard?.giftCard?.name || 'Gift Card',
+      desc: t.description || `${t.userGiftCard?.giftCard?.name || 'Vendor Card'}: ${t.userGiftCard?.code || 'CARD'}`,
+      customer: t.userGiftCard?.recipient?.displayName || t.userGiftCard?.sender?.displayName || 'Customer',
       amount: Number(t.amount),
       date: t.createdAt ? new Date(t.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+      createdAt: t.createdAt,
       timestamp: t.createdAt ? new Date(t.createdAt).getTime() : Date.now(),
     }));
 
@@ -621,8 +640,8 @@ export class VendorService {
       type: 'withdrawal',
       desc: 'Withdrawal',
       amount: Number(w.amount) / 100,
-      date: new Date().toISOString().split('T')[0], // Withdrawal might not have date in this query
-      timestamp: Date.now(),
+      date: w.createdAt ? new Date(w.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+      timestamp: w.createdAt ? new Date(w.createdAt).getTime() : Date.now(),
     }));
 
     const allTxs = [...voucherTxs, ...flexTxs, ...vendorCardTxList, ...withdrawalTxs].sort((a, b) => b.timestamp - a.timestamp);
