@@ -115,11 +115,7 @@ export function V2VendorWalletTab() {
     let result = Array.from(uniqueMap.values());
 
     // 2. Filter by type
-    if (transactionFilter === 'sales') {
-      result = result.filter((t: any) =>
-        (t.type === 'vendor_redemption' || t.type === 'sale') && !t.description?.toLowerCase().includes('flex') && !t.type?.includes('flex')
-      );
-    } else if (transactionFilter === 'gift_cards') {
+    if (transactionFilter === 'gift_cards') {
       result = result.filter((t: any) =>
         t.type === 'user_gift_card' || t.type === 'gift_card_redemption' || t.type?.includes('gift_card')
       );
@@ -775,7 +771,6 @@ export function V2VendorWalletTab() {
                 className="flex flex-nowrap md:flex-wrap gap-2 overflow-x-auto md:overflow-x-visible pb-2 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-thin">
                 {([
                   {id: 'all', label: 'All', icon: 'list'},
-                  {id: 'sales', label: 'Redemptions', icon: 'verified'},
                   {id: 'gift_cards', label: 'Gift Cards', icon: 'card_giftcard'},
                   {id: 'flex_redemptions', label: 'Flex Cards', icon: 'credit_card'},
                   {id: 'withdrawals', label: 'Withdrawals', icon: 'account_balance'},
