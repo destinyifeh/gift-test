@@ -4,8 +4,12 @@ import {useProfile} from '@/hooks/use-profile';
 import {signOut} from '@/lib/server/actions/auth';
 import {useQueryClient} from '@tanstack/react-query';
 import Link from 'next/link';
+import {useState} from 'react';
 import {useRouter} from 'next/navigation';
 import {toast} from 'sonner';
+import {authClient} from '@/lib/auth-client';
+import {V2LogoutModal} from './V2LogoutModal';
+
 
 interface V2VendorMobileMenuProps {
   open: boolean;
@@ -16,20 +20,28 @@ export function V2VendorMobileMenu({open, onClose}: V2VendorMobileMenuProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const {data: profile} = useProfile();
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
 
   const shopName = profile?.shop_name || profile?.display_name || 'Vendor';
 
   const handleSignOut = async () => {
-    const result = await signOut();
-    if (result.success) {
+    setIsLoggingOut(true);
+    try {
+      await authClient.signOut();
       queryClient.clear();
       toast.success('Signed out successfully');
       router.push('/login');
-    } else {
-      toast.error(result.error || 'Failed to sign out');
+    } catch (error: any) {
+      toast.error('Failed to sign out');
+    } finally {
+      setIsLoggingOut(false);
+      setIsLogoutModalOpen(false);
+      onClose();
     }
-    onClose();
   };
+
 
   if (!open) return null;
 
@@ -58,8 +70,8 @@ export function V2VendorMobileMenu({open, onClose}: V2VendorMobileMenuProps) {
             {/* Profile Card */}
             <div className="flex items-center gap-3 p-4 rounded-2xl bg-[var(--v2-surface-container-low)]">
               <div className="w-12 h-12 rounded-full bg-[var(--v2-primary)]/10 flex items-center justify-center overflow-hidden">
-                {profile?.avatar_url ? (
-                  <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                {profile?.shop_logo_url ? (
+                  <img src={profile.shop_logo_url} alt="" className="w-full h-full object-cover" />
                 ) : (
                   <span className="text-xl font-bold text-[var(--v2-primary)] capitalize">
                     {shopName.charAt(0)}
@@ -68,9 +80,6 @@ export function V2VendorMobileMenu({open, onClose}: V2VendorMobileMenuProps) {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-[var(--v2-on-surface)] truncate capitalize">{shopName}</p>
-                <p className="text-sm text-[var(--v2-on-surface-variant)] truncate">
-                  Verified Business
-                </p>
               </div>
             </div>
           </div>
@@ -131,7 +140,7 @@ export function V2VendorMobileMenu({open, onClose}: V2VendorMobileMenuProps) {
           {/* Footer */}
           <div className="p-4 border-t border-[var(--v2-outline-variant)]/10">
             <button
-              onClick={handleSignOut}
+              onClick={() => setIsLogoutModalOpen(true)}
               className="w-full flex items-center justify-center gap-2 p-4 rounded-xl bg-[var(--v2-error)]/10 text-[var(--v2-error)] font-bold transition-colors">
               <span className="v2-icon">logout</span>
               Sign Out
@@ -139,6 +148,13 @@ export function V2VendorMobileMenu({open, onClose}: V2VendorMobileMenuProps) {
           </div>
         </div>
       </div>
+
+      <V2LogoutModal
+        open={isLogoutModalOpen}
+        onOpenChange={setIsLogoutModalOpen}
+        onConfirm={handleSignOut}
+        isLoggingOut={isLoggingOut}
+      />
     </>
   );
 }

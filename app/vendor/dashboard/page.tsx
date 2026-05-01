@@ -19,6 +19,8 @@ import {V2VendorBottomTabBar} from './components/V2VendorBottomTabBar';
 import {V2VendorMobileMenu} from './components/V2VendorMobileMenu';
 import {V2RoleSwitcher, V2MobileRoleSwitcher} from '../../components/V2RoleSwitcher';
 import {V2NotificationsPanel} from '../../components/V2NotificationsPanel';
+import {V2LogoutModal} from './components/V2LogoutModal';
+
 
 type VendorSection = 'dashboard' | 'orders' | 'codes' | 'wallet' | 'settings';
 
@@ -71,7 +73,10 @@ function V2VendorDashboardContent() {
   const [section, setSection] = useState<VendorSection>(initialTab);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+
 
   // Update URL when section changes
   useEffect(() => {
@@ -80,6 +85,7 @@ function V2VendorDashboardContent() {
   }, [section]);
 
   const handleSignOut = async () => {
+    setIsLoggingOut(true);
     try {
       await authClient.signOut();
       queryClient.clear();
@@ -87,8 +93,12 @@ function V2VendorDashboardContent() {
       router.push('/login');
     } catch (error: any) {
       toast.error('Failed to sign out');
+    } finally {
+      setIsLoggingOut(false);
+      setIsLogoutModalOpen(false);
     }
   };
+
 
   const handleSectionChange = (newSection: VendorSection) => {
     setSection(newSection);
@@ -102,8 +112,8 @@ function V2VendorDashboardContent() {
       <header className="md:hidden fixed top-0 z-50 w-full px-3 h-13 flex justify-between items-center v2-glass-nav pt-safe">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-[var(--v2-primary-container)] flex items-center justify-center overflow-hidden shrink-0">
-            {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+            {profile?.shop_logo_url ? (
+              <img src={profile.shop_logo_url} alt="" className="w-full h-full object-cover" />
             ) : (
               <span className="text-xs font-bold text-[var(--v2-on-primary-container)] capitalize">
                 {shopName.charAt(0)}
@@ -163,8 +173,8 @@ function V2VendorDashboardContent() {
 
           <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--v2-surface-container-high)] transition-colors cursor-pointer">
             <div className="w-10 h-10 rounded-full bg-[var(--v2-primary)]/10 flex items-center justify-center overflow-hidden">
-              {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+              {profile?.shop_logo_url ? (
+                <img src={profile.shop_logo_url} alt="" className="w-full h-full object-cover" />
               ) : (
                 <span className="text-lg font-bold text-[var(--v2-primary)] capitalize">
                   {shopName.charAt(0)}
@@ -175,18 +185,22 @@ function V2VendorDashboardContent() {
               <p className="font-bold text-sm text-[var(--v2-on-surface)] truncate capitalize">
                 {shopName}
               </p>
-              <p className="text-xs text-[var(--v2-on-surface-variant)] truncate">
-                @{profile?.username || 'vendor'}
-              </p>
             </div>
             <button
-              onClick={handleSignOut}
+              onClick={() => setIsLogoutModalOpen(true)}
               className="p-2 rounded-lg hover:bg-[var(--v2-error)]/10 text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-error)] transition-colors"
               title="Sign out">
               <span className="v2-icon text-lg">logout</span>
             </button>
           </div>
         </div>
+
+        <V2LogoutModal
+          open={isLogoutModalOpen}
+          onOpenChange={setIsLogoutModalOpen}
+          onConfirm={handleSignOut}
+          isLoggingOut={isLoggingOut}
+        />
       </aside>
 
       {/* Main Content */}
@@ -211,8 +225,8 @@ function V2VendorDashboardContent() {
             <V2RoleSwitcher />
             <V2NotificationsPanel />
             <div className="h-8 w-8 rounded-full bg-[var(--v2-primary-container)]/20 overflow-hidden">
-              {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+              {profile?.shop_logo_url ? (
+                <img src={profile.shop_logo_url} alt="" className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <span className="text-xs font-bold text-[var(--v2-primary)] capitalize">

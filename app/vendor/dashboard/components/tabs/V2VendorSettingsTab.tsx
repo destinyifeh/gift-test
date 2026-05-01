@@ -11,6 +11,8 @@ import {useRouter} from 'next/navigation';
 import {useEffect, useRef, useState} from 'react';
 import {toast} from 'sonner';
 import {uploadAvatar, uploadShopLogo, deleteUploadedFile, updateProfile} from '@/lib/server/actions/auth';
+import {V2LogoutModal} from '../V2LogoutModal';
+
 
 
 export function V2VendorSettingsTab() {
@@ -46,12 +48,14 @@ export function V2VendorSettingsTab() {
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<'profile' | 'business' | 'cards' | 'social'>('profile');
+
 
   useEffect(() => {
     if (profile) {
       setFormData({
-        shop_name: profile.shop_name || '',
+        shop_name: (profile.shop_name && profile.shop_name !== 'free' ? profile.shop_name : ''),
         shop_description: profile.shop_description || '',
         shop_slug: profile.shop_slug || profile.username || '',
         shop_street: profile.shop_street || '',
@@ -187,13 +191,20 @@ export function V2VendorSettingsTab() {
   };
 
   const handleSignOut = async () => {
+    setIsSaving(true); // Using isSaving for logout loading too
     try {
       await authClient.signOut();
       queryClient.clear();
       toast.success('Signed out successfully');
       router.push('/login');
-    } catch { toast.error('Failed to sign out'); }
+    } catch { 
+      toast.error('Failed to sign out'); 
+    } finally {
+      setIsSaving(false);
+      setIsLogoutModalOpen(false);
+    }
   };
+
 
   if (isLoading) {
     return (
@@ -204,7 +215,7 @@ export function V2VendorSettingsTab() {
     );
   }
 
-  const businessName = profile?.shop_name || profile?.display_name || 'Business';
+  const businessName = (profile?.shop_name && profile.shop_name !== 'free' ? profile.shop_name : '') || profile?.display_name || 'Business';
 
   // Section config for internal navigation
   const sections = [
@@ -263,59 +274,9 @@ export function V2VendorSettingsTab() {
       {/* PROFILE SECTION */}
       {/* ═══════════════════════════════════════════ */}
       {activeSection === 'profile' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Avatar Card */}
-          <div className="lg:col-span-4 bg-[var(--v2-surface-container-lowest)] rounded-[2rem] p-6 text-center">
-            <div className="relative inline-block mb-4 group">
-              <div
-                className="w-28 h-28 rounded-full bg-[var(--v2-surface-container-high)] overflow-hidden mx-auto ring-4 ring-[var(--v2-surface-container-highest)] cursor-pointer relative"
-                onClick={handleAvatarClick}>
-                {isUploadingAvatar && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[2px] z-10">
-                    <span className="v2-icon text-white animate-spin text-3xl">progress_activity</span>
-                  </div>
-                )}
-                {profile?.avatar_url ? (
-                  <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-[var(--v2-primary)]/10">
-                    <span className="text-4xl font-bold text-[var(--v2-primary)] capitalize">
-                      {formData.shop_name?.charAt(0) || '?'}
-                    </span>
-                  </div>
-                )}
-              </div>
-              <input type="file" ref={avatarInputRef} onChange={handleAvatarChange} accept="image/*" className="hidden" />
-              <button onClick={handleAvatarClick} className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-[var(--v2-primary)] text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
-                <span className="v2-icon text-sm">edit</span>
-              </button>
-              {profile?.avatar_url && !isUploadingAvatar && (
-                <button onClick={handleRemoveAvatar} className="absolute -top-1 -right-1 w-8 h-8 rounded-full bg-[var(--v2-error)] text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform opacity-0 group-hover:opacity-100 duration-200" title="Remove">
-                  <span className="v2-icon text-sm">delete</span>
-                </button>
-              )}
-            </div>
-            <h3 className="text-xl font-bold v2-headline text-[var(--v2-on-surface)]">{formData.shop_name || 'Your Business'}</h3>
-            <p className="text-sm text-[var(--v2-on-surface-variant)]">@{profile?.username || 'username'}</p>
-            <span className="inline-block mt-2 px-3 py-1 rounded-full text-xs font-bold bg-[var(--v2-primary-container)] text-[var(--v2-on-primary-container)]">
-              Verified Business
-            </span>
-
-            {/* Quick Info */}
-            <div className="mt-6 pt-6 border-t border-[var(--v2-outline-variant)]/10 text-left space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-[var(--v2-on-surface-variant)]">Status</span>
-                <span className="px-3 py-1 rounded-full text-xs font-bold bg-[var(--v2-secondary-container)] text-[var(--v2-on-secondary-container)]">Active</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-[var(--v2-on-surface-variant)]">Member Since</span>
-                <span className="text-sm font-bold text-[var(--v2-on-surface)]">{profile?.created_at ? new Date(profile.created_at).getFullYear() : '2024'}</span>
-              </div>
-            </div>
-          </div>
-
+        <div className="space-y-6">
           {/* Business Identity Form */}
-          <div className="lg:col-span-8 space-y-6">
+          <div className="space-y-6">
             <div className="bg-[var(--v2-surface-container-lowest)] rounded-[2rem] p-5 md:p-6">
               <div className="mb-6">
                 <h3 className="text-lg font-bold v2-headline text-[var(--v2-on-surface)]">Business Identity</h3>
@@ -367,14 +328,15 @@ export function V2VendorSettingsTab() {
 
             {/* Sign Out — Mobile */}
             <div className="md:hidden space-y-3">
-              <button onClick={handleSignOut} className="w-full flex items-center justify-center gap-2 p-4 rounded-xl bg-[var(--v2-error)]/10 text-[var(--v2-error)] font-bold">
+              <button onClick={() => setIsLogoutModalOpen(true)} className="w-full flex items-center justify-center gap-2 p-4 rounded-xl bg-[var(--v2-error)]/10 text-[var(--v2-error)] font-bold">
                 <span className="v2-icon">logout</span> Sign Out
               </button>
             </div>
 
+
             {/* Logout — Desktop */}
             <div className="hidden md:block bg-[var(--v2-surface-container-lowest)] rounded-[2rem] p-6">
-              <button onClick={handleSignOut} className="w-full flex items-center gap-3 p-3 rounded-xl bg-[var(--v2-error)]/5 hover:bg-[var(--v2-error)]/10 transition-colors text-left">
+              <button onClick={() => setIsLogoutModalOpen(true)} className="w-full flex items-center gap-3 p-3 rounded-xl bg-[var(--v2-error)]/5 hover:bg-[var(--v2-error)]/10 transition-colors text-left">
                 <div className="w-10 h-10 rounded-full bg-[var(--v2-error)]/10 flex items-center justify-center">
                   <span className="v2-icon text-[var(--v2-error)]">logout</span>
                 </div>
@@ -610,6 +572,14 @@ export function V2VendorSettingsTab() {
           </div>
         </div>
       )}
+
+      <V2LogoutModal 
+        open={isLogoutModalOpen}
+        onOpenChange={setIsLogoutModalOpen}
+        onConfirm={handleSignOut}
+        isLoggingOut={isSaving}
+      />
     </div>
   );
 }
+
