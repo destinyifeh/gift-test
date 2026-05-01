@@ -627,12 +627,15 @@ export class VendorService {
 
     const allTxs = [...voucherTxs, ...flexTxs, ...vendorCardTxList, ...withdrawalTxs].sort((a, b) => b.timestamp - a.timestamp);
 
+    // Total redemption count across all types
+    const totalRedemptionsCount = redeemedVouchers.length + flexCardTxs.length + vendorCardTxs.length;
+
     return {
       available: availableFinal,
       pending,
       totalSales: totalSalesFinal,
       productsCount: products.length,
-      ordersCount: allOrders.length,
+      ordersCount: totalRedemptionsCount, // Now accurately reflects ALL redemptions
       transactions: allTxs.slice(0, 10),
     };
   }
@@ -644,17 +647,64 @@ export class VendorService {
     });
     const productIds = products.map((p: any) => p.id);
 
-    const orders = await (this.prisma as any).directGift.findMany({
-      where: { claimableGiftId: { in: productIds } },
-      orderBy: { createdAt: 'desc' },
-      include: { user: { select: { username: true, displayName: true } } },
-    });
+    const [directRedemptions, flexTxs, vendorCardTxs] = await Promise.all([
+      (this.prisma as any).directGift.findMany({
+        where: { redeemedByVendorId: userId, status: 'redeemed' },
+        orderBy: { redeemedAt: 'desc' },
+        include: { user: { select: { username: true, displayName: true } } },
+      }),
+      (this.prisma as any).flexCardTransaction.findMany({
+        where: { vendorId: userId },
+        orderBy: { createdAt: 'desc' },
+        include: { flexCard: { include: { recipient: { select: { displayName: true } }, sender: { select: { displayName: true } } } } },
+      }),
+      (this.prisma as any).userGiftCardTransaction.findMany({
+        where: { vendorId: userId },
+        orderBy: { createdAt: 'desc' },
+        include: { userGiftCard: { include: { recipient: { select: { displayName: true } }, sender: { select: { displayName: true } }, giftCard: { select: { name: true } } } } },
+      }),
+    ]);
 
-    return orders.map((o: any) => ({
-      ...o,
+    // Map and normalize all sources
+    const normalizedDirect = directRedemptions.map((o: any) => ({
+      id: `dir-${o.id}`,
+      giftCode: o.giftCode,
+      title: o.title || 'Product Voucher',
+      senderName: o.senderName || o.user?.displayName || o.user?.username || 'Sender',
+      status: o.status,
+      amount: Number(o.amount || 0),
       goalAmount: o.amount?.toString(),
-      currentAmount: o.amount?.toString(),
+      createdAt: o.redeemedAt || o.createdAt,
+      type: 'direct',
     }));
+
+    const normalizedFlex = flexTxs.map((t: any) => ({
+      id: `flex-${t.id}`,
+      giftCode: t.flexCard?.code,
+      title: 'Flex Card Redemption',
+      senderName: t.flexCard?.recipient?.displayName || t.flexCard?.sender?.displayName || 'Card Holder',
+      status: 'redeemed',
+      amount: Number(t.amount || 0),
+      goalAmount: t.amount?.toString(),
+      createdAt: t.createdAt,
+      type: 'flex_card',
+    }));
+
+    const normalizedVendorCard = vendorCardTxs.map((t: any) => ({
+      id: `vcard-${t.id}`,
+      giftCode: t.userGiftCard?.code,
+      title: `${t.userGiftCard?.giftCard?.name || 'Vendor'} Card Redemption`,
+      senderName: t.userGiftCard?.recipient?.displayName || t.userGiftCard?.sender?.displayName || 'Card Holder',
+      status: 'redeemed',
+      amount: Number(t.amount || 0),
+      goalAmount: t.amount?.toString(),
+      createdAt: t.createdAt,
+      type: 'user_gift_card',
+    }));
+
+    return [...normalizedDirect, ...normalizedFlex, ...normalizedVendorCard].sort(
+      (a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
   }
 
   /**
