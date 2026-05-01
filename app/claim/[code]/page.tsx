@@ -17,7 +17,7 @@ export default function ClaimGiftPage() {
   const params = useParams();
   const router = useRouter();
   const {data: profile, isLoading: profileLoading} = useProfile();
-  const code = params.id as string;
+  const code = (params.code || params.id) as string;
   
   const {data: gift, isLoading: giftLoading} = useGiftByCode(code);
   const {data: globalFlexCard} = useGiftCardBySlug('flex-card');

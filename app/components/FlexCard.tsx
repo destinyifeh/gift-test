@@ -114,8 +114,8 @@ export function FlexCard({
             isFlipped={isFlipped}
             onFlipToggle={setIsFlipped}
             amount={currentBalance}
-            code={cleanFlexCode(code)}
-            mode="active"
+            code={`FLEX-${cleanFlexCode(code)}`}
+            mode={interactive ? "active" : "preview"}
           />
         </div>
       </div>

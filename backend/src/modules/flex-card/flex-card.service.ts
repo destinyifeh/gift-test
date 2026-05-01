@@ -120,6 +120,7 @@ export class FlexCardService {
     const card = await (this.prisma as any).flexCard.findFirst({ where: { code: code.toUpperCase() } });
     if (!card) throw new NotFoundException('Flex card not found');
     if (card.status === 'redeemed') throw new BadRequestException('This flex card has been fully redeemed');
+    if (!card.userId) throw new BadRequestException('This flex card must be claimed before it can be used');
     if (amount > card.currentBalance) throw new BadRequestException(`Insufficient balance. Available: ${card.currentBalance}`);
     if (amount <= 0) throw new BadRequestException('Amount must be greater than 0');
 
@@ -165,6 +166,7 @@ export class FlexCardService {
     });
     if (!card) throw new NotFoundException('Flex card not found');
     if (card.status === 'redeemed') throw new BadRequestException('This flex card has been fully redeemed');
+    if (!card.userId) throw new BadRequestException('This flex card must be claimed before it can be used');
 
     return {
       id: card.id, code: card.code, balance: card.currentBalance, currency: card.currency,

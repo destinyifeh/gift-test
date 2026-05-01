@@ -24,7 +24,7 @@ export default function ClaimCashPage() {
   const params = useParams();
   const router = useRouter();
   const {data: profile, isLoading: profileLoading} = useProfile();
-  const code = params.code as string;
+  const code = (params.id || params.code) as string;
   
   const {data: gift, isLoading: giftLoading} = useGiftByCode(code);
   

@@ -222,8 +222,8 @@ export default function V2SendGiftPage() {
               whatsappFee: whatsappFee,
             };
 
-            const {createCampaign} = await import('@/lib/server/actions/campaigns');
-            const result = await createCampaign(payload as any);
+            const {createDirectGift} = await import('@/lib/server/actions/gifts');
+            const result = await createDirectGift(payload as any);
 
             if (result.success && result.data) {
               setCampaignSlug(deliveryType === 'claim-link' ? result.data.giftCode : (result.data.campaignShortId || result.data.campaign_short_id || ''));
@@ -969,7 +969,9 @@ function V2SuccessScreen({slug, isClaimLink, giftType}: {slug: string; isClaimLi
     ? `${origin}/claim/flex/${slug}` 
     : giftType === 'gift-card'
       ? `${origin}/claim/gift-card/${slug}`
-      : `${origin}/claim/${slug}`;
+      : giftType === 'money'
+        ? `${origin}/claim/cash/${slug}`
+        : `${origin}/claim/${slug}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(claimUrl);

@@ -1201,7 +1201,7 @@ export function V2WalletTab() {
                   <div className="flex justify-center py-4">
                     <div className="bg-white p-4 rounded-2xl shadow-sm border border-[var(--v2-outline-variant)]/10">
                       <QRCodeSVG
-                        value={rawCode}
+                        value={rawCode?.startsWith('FLEX-') ? rawCode : `FLEX-${rawCode}`}
                         size={180}
                         level="H"
                         includeMargin={false}
@@ -1407,7 +1407,7 @@ export function V2WalletTab() {
                   <div className="flex justify-center py-4">
                     <div className="bg-white p-4 rounded-2xl shadow-sm border border-[var(--v2-outline-variant)]/10">
                       <QRCodeSVG
-                        value={rawCode}
+                        value={rawCode?.startsWith('GFT-') ? rawCode : `GFT-${rawCode}`}
                         size={180}
                         level="H"
                         includeMargin={false}

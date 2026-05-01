@@ -222,7 +222,9 @@ export class GiftService {
 
   async createDirectGift(userId: string, data: any) {
     const isFlexCard = data.claimableType === 'flex_card';
-    const giftCode = generateGiftCode(isFlexCard ? 'FLEX-' : 'GFT-');
+    const giftCode = data.claimableType === 'money' 
+      ? require('crypto').randomBytes(8).toString('hex') 
+      : generateGiftCode(isFlexCard ? 'FLEX-' : 'GFT-');
     
     // Omit fields not needed for DirectGift
     const { isAnonymous, scheduledFor, endDate, minAmount, goalAmount, currentAmount, contributorsSeeEachOther, visibility, coverImage, ...giftData } = data;
@@ -315,8 +317,9 @@ export class GiftService {
   }
 
   async fetchGiftByCode(code: string) {
-    const gift = await (this.prisma as any).directGift.findFirst({
-      where: { giftCode: code.trim() },
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(code.trim());
+    let gift = await (this.prisma as any).directGift.findFirst({
+      where: isUuid ? { id: code.trim() } : { giftCode: code.trim() },
       include: {
         user: { select: { displayName: true, email: true } },
         product: {
@@ -328,19 +331,47 @@ export class GiftService {
       }
     });
 
+    // If not found in DirectGift, check Campaign table
+    if (!gift) {
+      gift = await (this.prisma as any).campaign.findFirst({
+        where: isUuid ? { id: code.trim() } : { giftCode: code.trim() },
+        include: {
+          user: { select: { displayName: true, email: true, avatarUrl: true } },
+          product: {
+            include: {
+              vendor: { select: { shopName: true, displayName: true, avatarUrl: true } }
+            }
+          },
+          giftCard: true,
+        }
+      });
+      if (gift) {
+        (gift as any).isCampaign = true;
+      }
+    }
+
     if (!gift) throw new NotFoundException('Gift not found or invalid code');
 
     return {
       ...gift,
-      goalAmount: gift.amount?.toString(),
-      currentAmount: gift.amount?.toString()
+      goalAmount: (gift.amount || (gift as any).goalAmount)?.toString(),
+      currentAmount: (gift.amount || (gift as any).currentAmount)?.toString()
     };
   }
 
   async claimGiftByCode(userId: string, code: string) {
-    const gift = await (this.prisma as any).directGift.findFirst({
-      where: { giftCode: { equals: code.trim(), mode: 'insensitive' } },
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(code.trim());
+    let gift = await (this.prisma as any).directGift.findFirst({
+      where: isUuid ? { id: code.trim() } : { giftCode: { equals: code.trim(), mode: 'insensitive' } },
     });
+
+    let isCampaign = false;
+    if (!gift) {
+      gift = await (this.prisma as any).campaign.findFirst({
+        where: isUuid ? { id: code.trim() } : { giftCode: { equals: code.trim(), mode: 'insensitive' } },
+      });
+      if (gift) isCampaign = true;
+    }
 
     if (!gift) throw new NotFoundException('Gift not found');
     if (gift.status === 'claimed' || gift.status === 'redeemed') {
@@ -348,24 +379,39 @@ export class GiftService {
     }
 
     const isMoney = gift.claimableType === 'money';
-    const amountToClaim = Number(gift.amount || 0);
+    const amountToClaimNum = isCampaign 
+      ? (gift.goalAmount ? Number(gift.goalAmount) : (gift.currentAmount ? Number(gift.currentAmount) : 0))
+      : Number(gift.amount || 0);
+
+    const amountToClaimBigInt = BigInt(Math.round(amountToClaimNum * 100));
 
     return (this.prisma as any).$transaction(async (tx: any) => {
-      // 1. Update directGift status
-      await (tx as any).directGift.update({
-        where: { id: gift.id },
-        data: {
-          userId,
-          status: isMoney ? 'redeemed' : 'claimed',
-          category: 'gift-received',
-        }
-      });
+      // 1. Update gift status
+      if (isCampaign) {
+        await (tx as any).campaign.update({
+          where: { id: gift.id },
+          data: {
+            userId,
+            status: isMoney ? 'redeemed' : 'claimed',
+            category: 'gift-received',
+          }
+        });
+      } else {
+        await (tx as any).directGift.update({
+          where: { id: gift.id },
+          data: {
+            userId,
+            status: isMoney ? 'redeemed' : 'claimed',
+            category: 'gift-received',
+          }
+        });
+      }
 
       // 2. Record transaction
       const transaction = await (tx as any).transaction.create({
         data: {
           userId,
-          amount: BigInt(Math.round(amountToClaim * 100)),
+          amount: amountToClaimBigInt,
           currency: gift.currency || 'NGN',
           type: isMoney ? 'creator_support' : 'receipt',
           status: 'success',
@@ -378,14 +424,14 @@ export class GiftService {
       if (isMoney) {
         await (tx as any).user.update({
           where: { id: userId },
-          data: { platformBalance: { increment: BigInt(Math.round(amountToClaim * 100)) } }
+          data: { platformBalance: { increment: amountToClaimBigInt } }
         });
 
         await (tx as any).creatorSupport.create({
           data: {
             userId,
             transactionId: transaction.id,
-            amount: amountToClaim,
+            amount: amountToClaimNum,
             currency: gift.currency || 'NGN',
             donorName: gift.senderName || 'A Friend',
             donorEmail: gift.senderEmail || '',

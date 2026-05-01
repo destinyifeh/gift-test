@@ -125,7 +125,8 @@ export function GiftCard({
             onFlipToggle={setIsFlipped}
             amount={currentBalance}
             randomId={code}
-            mode="live"
+            code={code.startsWith('GFT-') ? code : `GFT-${code}`}
+            mode={interactive ? "live" : "preview"}
             cardName={cardName}
             vendorName={vendorName}
             icon={icon}

@@ -349,7 +349,7 @@ export default function ClaimFlexCardPage() {
                 message={flexCard.message}
                 createdAt={flexCard.created_at}
                 variant="premium"
-                interactive={true}
+                interactive={false}
               />
             ) : (
               <GiftCard
@@ -362,7 +362,7 @@ export default function ClaimFlexCardPage() {
                 message={flexCard.message}
                 createdAt={flexCard.created_at}
                 variant="premium"
-                interactive={true}
+                interactive={false}
                 cardName={flexCard.name}
                 vendorName={flexCard.vendor_name || flexCard.vendor?.name}
               />

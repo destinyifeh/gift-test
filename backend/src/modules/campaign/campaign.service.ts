@@ -32,8 +32,9 @@ export class CampaignService {
 
     // Always generate a fresh, secure gift code on the backend for claimable gifts
     const isFlexCardCode = data.claimableType === 'flex_card' || data.claimableType === 'flex-card';
+    const isMoneyCode = data.claimableType === 'money';
     const giftCode = data.category.toLowerCase().includes('claimable') || data.claimableType 
-      ? generateGiftCode(isFlexCardCode ? 'FLEX-' : 'GFT-') 
+      ? (isMoneyCode ? require('crypto').randomBytes(8).toString('hex') : generateGiftCode(isFlexCardCode ? 'FLEX-' : 'GFT-'))
       : null;
 
     // Prisma Campaign model doesn't have an isAnonymous or scheduledFor column

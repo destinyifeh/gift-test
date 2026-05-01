@@ -11,6 +11,13 @@ export class GiftController {
   // ── Flex Cards ──
 
   @UseGuards(AuthGuard)
+  @Post()
+  async createDirect(@Req() req: Request, @Body() data: any) {
+    const userId = (req as any).user.id;
+    return this.giftService.createDirectGift(userId, data);
+  }
+
+  @UseGuards(AuthGuard)
   @Post('flex-card')
   async createCard(@Req() req: Request, @Body() data: CreateFlexCardDto) {
     const userId = (req as any).user?.id || null;
