@@ -324,6 +324,7 @@ export function V2VendorCodesTab() {
 
       // Refresh vendor wallet to update transactions
       queryClient.invalidateQueries({queryKey: ['vendor-wallet']});
+      queryClient.invalidateQueries({queryKey: ['wallet-profile']});
     } catch (error: any) {
       const msg = extractErrorMessage(error, 'Failed to redeem gift');
       setRedeemError(msg);
@@ -378,6 +379,7 @@ export function V2VendorCodesTab() {
 
       // Refresh vendor wallet
       queryClient.invalidateQueries({queryKey: ['vendor-wallet']});
+      queryClient.invalidateQueries({queryKey: ['wallet-profile']});
     } catch (error: any) {
       const msg = extractErrorMessage(error, 'Failed to redeem card');
       setRedeemError(msg);

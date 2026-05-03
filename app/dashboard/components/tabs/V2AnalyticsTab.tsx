@@ -1,6 +1,7 @@
 'use client';
 
 import {useCreatorAnalytics, useCreatorSupporters} from '@/hooks/use-analytics';
+import {useProfile} from '@/hooks/use-profile';
 import {useUserStore} from '@/lib/store/useUserStore';
 import {formatCurrency} from '@/lib/utils/currency';
 import Link from 'next/link';
@@ -39,7 +40,8 @@ const parseGiftTier = (giftName: string | null | undefined): { emoji: string; la
 
 export function V2AnalyticsTab({setSection, setWalletView}: V2AnalyticsTabProps) {
   const user = useUserStore(state => state.user);
-  const username = user?.username || '';
+  const {data: profile} = useProfile();
+  const username = profile?.username || '';
 
   const {data: analyticsRes, isLoading} = useCreatorAnalytics();
 

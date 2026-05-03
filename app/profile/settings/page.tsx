@@ -24,7 +24,6 @@ export default function ProfileSettingsPage() {
   const [website, setWebsite] = useState('https://destiny.dev');
   const [showSupporters, setShowSupporters] = useState(true);
   const [showAmounts, setShowAmounts] = useState(true);
-  const [suggestedAmounts, setSuggestedAmounts] = useState('5, 10, 20');
   const [acceptMoney, setAcceptMoney] = useState(true);
   const [acceptVendorGifts, setAcceptVendorGifts] = useState(true);
   const [acceptGiftCards, setAcceptGiftCards] = useState(true);
@@ -187,19 +186,6 @@ export default function ProfileSettingsPage() {
                     />
                   </div>
 
-                  <div className="border-t border-border pt-4 space-y-3">
-                    <div className="space-y-2">
-                      <Label>Suggested Amounts</Label>
-                      <Input
-                        value={suggestedAmounts}
-                        onChange={e => setSuggestedAmounts(e.target.value)}
-                        placeholder="5, 10, 25"
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Comma-separated values shown on your gift page
-                      </p>
-                    </div>
-                  </div>
 
                   <div className="border-t border-border pt-4 space-y-3">
                     <h3 className="font-semibold text-foreground">

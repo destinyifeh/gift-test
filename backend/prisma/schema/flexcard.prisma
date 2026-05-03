@@ -29,7 +29,7 @@ model FlexCardTransaction {
   flexCardId   Int
   flexCard     FlexCard @relation(fields: [flexCardId], references: [id], onDelete: Cascade)
   vendorId     String
-  vendor       User     @relation("VendorTransactions", fields: [vendorId], references: [id], onDelete: Cascade)
+  vendor       Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
   amount       Decimal
   balanceAfter Decimal
   description  String?

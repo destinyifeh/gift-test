@@ -20,14 +20,8 @@ export function V2SettingsTab() {
 
   const [formData, setFormData] = useState({
     display_name: '',
-    username: '',
     country: '',
     bio: '',
-  });
-  const [socialLinks, setSocialLinks] = useState({
-    twitter: '',
-    instagram: '',
-    website: '',
   });
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
@@ -37,14 +31,8 @@ export function V2SettingsTab() {
     if (profile) {
       setFormData({
         display_name: profile.display_name || '',
-        username: profile.username || '',
         country: profile.country || '',
         bio: profile.bio || '',
-      });
-      setSocialLinks({
-        twitter: profile.social_links?.twitter || '',
-        instagram: profile.social_links?.instagram || '',
-        website: profile.social_links?.website || '',
       });
     }
   }, [profile]);
@@ -54,7 +42,6 @@ export function V2SettingsTab() {
     try {
       const result = await updateProfile({
         ...formData,
-        social_links: socialLinks,
       });
       if (result.success) {
         toast.success('Profile updated!');
@@ -64,8 +51,7 @@ export function V2SettingsTab() {
             id: profile.id,
             email: profile.email || '',
             display_name: formData.display_name || profile.display_name || '',
-            username: formData.username || profile.username || '',
-          });
+          } as any);
         }
       } else {
         toast.error(result.error || 'Failed to update profile');
@@ -232,9 +218,6 @@ export function V2SettingsTab() {
             <h3 className="text-xl font-bold v2-headline text-[var(--v2-on-surface)]">
               {formData.display_name || 'Your Name'}
             </h3>
-            <p className="text-sm text-[var(--v2-on-surface-variant)]">
-              @{formData.username || 'username'}
-            </p>
 
             {/* Account Status - Desktop */}
             <div className="hidden lg:block mt-6 pt-6 border-t border-[var(--v2-outline-variant)]/10">
@@ -269,8 +252,7 @@ export function V2SettingsTab() {
             </div>
 
             <div className="space-y-4">
-              {/* Display Name & Username - side by side on desktop */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
                     Display Name
@@ -282,25 +264,6 @@ export function V2SettingsTab() {
                     className="w-full h-12 px-4 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] border-none focus:ring-2 focus:ring-[var(--v2-primary)]"
                     placeholder="Your display name"
                   />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">
-                    Username
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)]">
-                      @
-                    </span>
-                    <input
-                      type="text"
-                      value={formData.username}
-                      onChange={e =>
-                        setFormData({...formData, username: e.target.value.toLowerCase()})
-                      }
-                      className="w-full h-12 pl-8 pr-4 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] border-none focus:ring-2 focus:ring-[var(--v2-primary)]"
-                      placeholder="username"
-                    />
-                  </div>
                 </div>
               </div>
 
@@ -350,97 +313,7 @@ export function V2SettingsTab() {
             </div>
           </div>
 
-          {/* Social Presence - Desktop */}
-          <div className="hidden md:block bg-[var(--v2-surface-container-lowest)] rounded-[2rem] p-6">
-            <div className="mb-6">
-              <h3 className="text-lg font-bold v2-headline text-[var(--v2-on-surface)]">
-                Social Presence
-              </h3>
-              <p className="text-sm text-[var(--v2-on-surface-variant)]">
-                Connect your digital touchpoints.
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--v2-surface-container-low)]">
-                <div className="w-10 h-10 rounded-full bg-[#1DA1F2]/10 flex items-center justify-center">
-                  <span className="v2-icon text-[#1DA1F2]">alternate_email</span>
-                </div>
-                <input
-                  type="text"
-                  value={socialLinks.twitter}
-                  onChange={e => setSocialLinks({...socialLinks, twitter: e.target.value})}
-                  placeholder="Twitter/X Profile URL"
-                  className="flex-1 bg-transparent border-none focus:ring-0 text-[var(--v2-on-surface)] placeholder:text-[var(--v2-on-surface-variant)]/50"
-                />
-              </div>
-
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--v2-surface-container-low)]">
-                <div className="w-10 h-10 rounded-full bg-[#E4405F]/10 flex items-center justify-center">
-                  <span className="v2-icon text-[#E4405F]">photo_camera</span>
-                </div>
-                <input
-                  type="text"
-                  value={socialLinks.instagram}
-                  onChange={e => setSocialLinks({...socialLinks, instagram: e.target.value})}
-                  placeholder="Instagram Username"
-                  className="flex-1 bg-transparent border-none focus:ring-0 text-[var(--v2-on-surface)] placeholder:text-[var(--v2-on-surface-variant)]/50"
-                />
-              </div>
-
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--v2-surface-container-low)]">
-                <div className="w-10 h-10 rounded-full bg-[var(--v2-primary)]/10 flex items-center justify-center">
-                  <span className="v2-icon text-[var(--v2-primary)]">language</span>
-                </div>
-                <input
-                  type="text"
-                  value={socialLinks.website}
-                  onChange={e => setSocialLinks({...socialLinks, website: e.target.value})}
-                  placeholder="Personal Website"
-                  className="flex-1 bg-transparent border-none focus:ring-0 text-[var(--v2-on-surface)] placeholder:text-[var(--v2-on-surface-variant)]/50"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Linked Accounts - Mobile only */}
-          <div className="md:hidden bg-[var(--v2-surface-container-lowest)] rounded-[2rem] p-5">
-            <h3 className="text-base font-bold v2-headline text-[var(--v2-on-surface)] mb-4">
-              Linked Accounts
-            </h3>
-
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--v2-surface-container-low)]">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#1DA1F2]/10 flex items-center justify-center">
-                    <span className="v2-icon text-[#1DA1F2]">alternate_email</span>
-                  </div>
-                  <div>
-                    <p className="font-bold text-sm text-[var(--v2-on-surface)]">Twitter / X</p>
-                    <p className="text-xs text-[var(--v2-on-surface-variant)]">
-                      {socialLinks.twitter ? `Connected as ${socialLinks.twitter}` : 'Not connected'}
-                    </p>
-                  </div>
-                </div>
-                <span className="v2-icon text-[var(--v2-on-surface-variant)]">chevron_right</span>
-              </div>
-
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--v2-surface-container-low)]">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#E4405F]/10 flex items-center justify-center">
-                    <span className="v2-icon text-[#E4405F]">photo_camera</span>
-                  </div>
-                  <div>
-                    <p className="font-bold text-sm text-[var(--v2-on-surface)]">Instagram</p>
-                    <p className="text-xs text-[var(--v2-on-surface-variant)]">Not connected</p>
-                  </div>
-                </div>
-                <button className="px-3 py-1 rounded-full text-xs font-bold bg-[var(--v2-primary)]/10 text-[var(--v2-primary)]">
-                  Link
-                </button>
-              </div>
-            </div>
-          </div>
+{/* Removed Social Presence Block */}
 
           {/* Change Password - Mobile */}
           <div className="md:hidden">
@@ -464,7 +337,7 @@ export function V2SettingsTab() {
                     Public Gift Page
                   </h3>
                   <p className="text-xs text-[var(--v2-on-surface-variant)]">
-                    {profile?.is_creator 
+                    {profile?.is_creator && profile?.username
                       ? `Active at gifthance.com/${profile?.username}`
                       : 'Disabled (People cannot send you gifts)'}
                   </p>

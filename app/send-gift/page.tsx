@@ -8,7 +8,10 @@ import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {useEffect, useState} from 'react';
 import {toast} from 'sonner';
+import {GifthanceLogo} from '@/components/GifthanceLogo';
 import {CountryPhoneInput, formatE164} from '@/components/CountryPhoneInput';
+import {formatCurrency as formatPrice} from '@/lib/utils/currency';
+import {useProfile} from '@/hooks/use-profile';
 
 type GiftType = 'money' | 'gift-card' | 'flex-card' | null;
 type DeliveryType = 'direct' | 'claim-link';
@@ -19,6 +22,12 @@ const WHATSAPP_FEE = 100; // Flat fee in NGN
 
 export default function V2SendGiftPage() {
   const router = useRouter();
+  const {data: session, isPending: sessionPending} = authClient.useSession();
+  const {data: profile} = useProfile();
+  const avatarUrl = profile?.avatar_url;
+  const initial = (profile?.display_name || profile?.username || profile?.email || '?')
+    .charAt(0)
+    .toUpperCase();
 
   // Form State
   const [giftType, setGiftType] = useState<GiftType>(null);
@@ -43,6 +52,7 @@ export default function V2SendGiftPage() {
   const [submitted, setSubmitted] = useState(false);
   const [campaignSlug, setCampaignSlug] = useState('');
   const [expandedSection, setExpandedSection] = useState<string | null>('gift');
+  const [showSummaryModal, setShowSummaryModal] = useState(false);
   
   // Gift Cards from platform
   const {data: giftCardsData} = useGiftCards();
@@ -82,17 +92,21 @@ export default function V2SendGiftPage() {
     return true;
   };
 
-  const handleSendGift = async () => {
+  const handleSendGift = () => {
     if (!canProceed()) {
       toast.error('Please fill in all required fields');
       return;
     }
+    setShowSummaryModal(true);
+  };
 
+  const processPayment = async () => {
     if (!process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY) {
       toast.error('Payment gateway not configured. Please contact support.');
       return;
     }
 
+    setShowSummaryModal(false);
     setIsSubmitting(true);
     try {
       const { data: session } = await authClient.getSession();
@@ -106,17 +120,8 @@ export default function V2SendGiftPage() {
         return;
       }
 
-      let finalGoal = Number(amount);
-      if (giftType === 'gift-card' && giftId) {
-        finalGoal = giftCardAmount || Number(customGiftCardAmount);
-      }
-      if (giftType === 'flex-card') {
-        finalGoal = flexCardAmount || Number(customFlexAmount);
-      }
-
-      // Calculate total with WhatsApp fee if applicable
-      const whatsappFee = deliveryType === 'direct' && deliveryMethod === 'whatsapp' ? WHATSAPP_FEE : 0;
-      const totalAmount = finalGoal + whatsappFee;
+      // totalAmount and related variables are available in the scope
+      const totalAmountKobo = Math.round(totalAmount * 100);
 
       // Initialize Paystack payment
       const PaystackPop = (await import('@paystack/inline-js')).default;
@@ -125,7 +130,7 @@ export default function V2SendGiftPage() {
       paystack.newTransaction({
         key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY as string,
         email: userEmail,
-        amount: Math.round(totalAmount * 100), // Convert to kobo
+        amount: totalAmountKobo,
         currency: 'NGN',
         metadata: {
           gift_type: giftType,
@@ -138,6 +143,11 @@ export default function V2SendGiftPage() {
               variable_name: 'gift_type',
               value: giftType,
             },
+            {
+              display_name: 'Platform Fee',
+              variable_name: 'platform_fee',
+              value: platformFee,
+            }
           ],
         },
         onSuccess: async (response: {reference: string}) => {
@@ -147,7 +157,7 @@ export default function V2SendGiftPage() {
             if (giftType === 'flex-card') {
               const {createFlexCard} = await import('@/lib/server/actions/flex-cards');
               const flexResult = await createFlexCard({
-                initial_amount: finalGoal,
+                initial_amount: baseAmount,
                 recipient_email: deliveryType === 'direct' && deliveryMethod === 'email' ? recipientEmail : undefined,
                 recipient_phone: deliveryType === 'direct' && deliveryMethod === 'whatsapp'
                   ? formatE164(recipientPhone, recipientCountryCode)
@@ -172,7 +182,7 @@ export default function V2SendGiftPage() {
               const {createUserGiftCard} = await import('@/lib/server/actions/user-gift-cards');
               const giftCardResult = await createUserGiftCard({
                 giftCardId: giftId,
-                initialAmount: finalGoal,
+                initialAmount: baseAmount,
                 currency: 'NGN',
                 recipientEmail: deliveryType === 'direct' && deliveryMethod === 'email' ? recipientEmail : undefined,
                 senderName: isAnonymous ? (senderName || 'Someone') : (senderName || undefined),
@@ -199,7 +209,7 @@ export default function V2SendGiftPage() {
               category: 'claimable',
               title: 'Cash Gift',
               claimableType: giftType,
-              goalAmount: finalGoal,
+              goalAmount: baseAmount,
               currency: 'NGN',
               recipientEmail: deliveryType === 'direct' && deliveryMethod === 'email' ? recipientEmail : undefined,
               senderEmail: userEmail,
@@ -219,7 +229,7 @@ export default function V2SendGiftPage() {
               recipientCountryCode: deliveryType === 'direct' && deliveryMethod === 'whatsapp'
                 ? recipientCountryCode
                 : undefined,
-              whatsappFee: whatsappFee,
+              whatsappFee: whatsappDeliveryFee,
             };
 
             const {createDirectGift} = await import('@/lib/server/actions/gifts');
@@ -266,37 +276,52 @@ export default function V2SendGiftPage() {
     : giftType === 'flex-card'
       ? (flexCardAmount || Number(customFlexAmount) || 0)
       : Number(selectedGift ? (giftCardAmount || Number(customGiftCardAmount) || 0) : 0);
+  const platformFee = Math.round(baseAmount * 0.04);
   const whatsappDeliveryFee = deliveryType === 'direct' && deliveryMethod === 'whatsapp' ? WHATSAPP_FEE : 0;
-  const totalAmount = baseAmount + whatsappDeliveryFee;
+  const totalAmount = baseAmount + platformFee + whatsappDeliveryFee;
 
   return (
     <V2RequireAuthUI redirectPath="/send-gift">
       <div className="min-h-screen bg-[var(--v2-background)]">
         {/* Desktop Navigation */}
-        <nav className="hidden md:block fixed top-0 w-full z-50 v2-glass-nav">
-          <div className="flex justify-between items-center px-8 h-16 max-w-7xl mx-auto">
-            <Link href="/" className="text-xl font-extrabold text-[var(--v2-primary)] tracking-tight v2-headline">
-              Gifthance
-            </Link>
-            <div className="flex items-center gap-6">
-              <Link href="/gift-shop" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] font-medium transition-colors">
-                Gift Shop
+        <nav className="hidden md:block fixed top-0 w-full z-50 v2-glass-nav border-b border-[var(--v2-outline-variant)]/5">
+          <div className="flex justify-between items-center px-8 h-20 max-w-7xl mx-auto">
+            <GifthanceLogo size="md" />
+            <div className="flex items-center gap-10 v2-headline font-bold tracking-tight">
+              <Link href="/gifts" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors text-sm">
+                Gifts
               </Link>
-              <Link href="/campaigns" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] font-medium transition-colors">
+              <Link href="/campaigns" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors text-sm">
                 Campaigns
               </Link>
-              <Link href="/dashboard" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] font-medium transition-colors">
-                Dashboard
+              <Link href="/send-gift" className="text-[var(--v2-primary)] border-b-2 border-[var(--v2-primary)] pb-1 text-sm">
+                Send Gift
+              </Link>
+              <Link href="/dashboard" className="flex items-center text-[var(--v2-primary)] hover:opacity-80 transition-opacity">
+                {avatarUrl ? (
+                  <div className="w-9 h-9 rounded-full overflow-hidden ring-2 ring-[var(--v2-primary)]/20 shadow-sm transition-transform hover:scale-105 active:scale-95">
+                    <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+                  </div>
+                ) : profile ? (
+                  <div className="w-9 h-9 rounded-full bg-[var(--v2-primary)] text-white flex items-center justify-center font-bold text-sm shadow-sm transition-transform hover:scale-105 active:scale-95">
+                    {initial}
+                  </div>
+                ) : (
+                  <span className="v2-icon text-2xl">account_circle</span>
+                )}
               </Link>
             </div>
           </div>
         </nav>
 
         {/* Mobile Header */}
-        <header className="md:hidden fixed top-0 w-full z-50 v2-glass-nav h-14 flex items-center justify-between px-4">
-          <button onClick={() => router.back()} className="flex items-center gap-1 text-[var(--v2-primary)]">
-            <span className="v2-icon">arrow_back</span>
-          </button>
+        <header className="md:hidden fixed top-0 w-full z-50 v2-glass-nav h-16 flex items-center justify-between px-4">
+          <div className="flex items-center gap-3">
+            <button onClick={() => router.back()} className="w-10 h-10 rounded-xl bg-[var(--v2-surface-container-high)] flex items-center justify-center text-[var(--v2-primary)]">
+              <span className="v2-icon">arrow_back</span>
+            </button>
+            <GifthanceLogo size="sm" />
+          </div>
           <h1 className="text-lg font-bold v2-headline text-[var(--v2-on-surface)]">Send Gift</h1>
           <div className="w-10" />
         </header>
@@ -796,16 +821,22 @@ export default function V2SendGiftPage() {
           <div className="flex items-center gap-4">
             {/* Price Summary */}
             {totalAmount > 0 && (
-              <div className="flex-1">
-                <p className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">Total</p>
-                <p className="text-2xl font-extrabold v2-headline text-[var(--v2-on-surface)]">
-                  ₦{totalAmount.toLocaleString()}
-                </p>
-                {whatsappDeliveryFee > 0 && (
-                  <p className="text-xs text-[#25D366] font-medium">
-                    incl. ₦{whatsappDeliveryFee} WhatsApp fee
-                  </p>
-                )}
+              <div className="flex-1 flex flex-col">
+                <div className="flex items-center gap-1.5 overflow-hidden">
+                  <span className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">Sub: ₦{baseAmount.toLocaleString()}</span>
+                  <span className="text-[10px] text-[var(--v2-on-surface-variant)] opacity-30">•</span>
+                  <span className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">Fee: ₦{platformFee.toLocaleString()}</span>
+                  {whatsappDeliveryFee > 0 && (
+                    <>
+                      <span className="text-[10px] text-[var(--v2-on-surface-variant)] opacity-30">•</span>
+                      <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">WA: ₦{whatsappDeliveryFee.toLocaleString()}</span>
+                    </>
+                  )}
+                </div>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">Total:</span>
+                  <p className="text-xl font-black text-[var(--v2-primary)]">₦{totalAmount.toLocaleString()}</p>
+                </div>
               </div>
             )}
 
@@ -831,6 +862,82 @@ export default function V2SendGiftPage() {
           </div>
         </div>
       </div>
+      {/* Summary Modal */}
+      {showSummaryModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+          <div className="w-full max-w-md bg-[var(--v2-surface)] rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden">
+            {/* Background Decoration */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--v2-primary)]/5 rounded-full -mr-16 -mt-16 blur-3xl" />
+            
+            <div className="relative">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold v2-headline text-[var(--v2-on-surface)]">Payment Summary</h3>
+                <button onClick={() => setShowSummaryModal(false)} className="v2-icon text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-on-surface)] transition-colors">
+                  close
+                </button>
+              </div>
+
+              {/* Gift Details Context */}
+              <div className="mb-6 p-4 rounded-2xl bg-[var(--v2-surface)] border border-[var(--v2-outline-variant)]/10">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[var(--v2-primary)]/10 text-[var(--v2-primary)] flex items-center justify-center">
+                    <span className="v2-icon" style={{fontVariationSettings: "'FILL' 1"}}>
+                      {giftType === 'money' ? 'payments' : 'card_giftcard'}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-widest opacity-70">Category</p>
+                    <p className="font-bold text-[var(--v2-on-surface)]">
+                      {giftType === 'money' ? 'Cash Gift' : 
+                       giftType === 'flex-card' ? 'Gifthance Flex Card' : 
+                       `Gift Card: ${selectedGift?.name || 'Vendor'}`}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4 mb-8 text-sm">
+                <div className="flex items-center justify-between py-2 border-b border-[var(--v2-outline-variant)]/10">
+                  <span className="text-[var(--v2-on-surface-variant)] font-medium">Principal Amount</span>
+                  <span className="font-bold text-[var(--v2-on-surface)]">{formatPrice(baseAmount, 'NGN')}</span>
+                </div>
+                <div className="flex items-center justify-between py-2 border-b border-[var(--v2-outline-variant)]/10">
+                  <span className="text-[var(--v2-on-surface-variant)] font-medium">Platform Fee (4%)</span>
+                  <span className="font-bold text-[var(--v2-on-surface)]">{formatPrice(platformFee, 'NGN')}</span>
+                </div>
+                {whatsappDeliveryFee > 0 && (
+                  <div className="flex items-center justify-between py-2 border-b border-[var(--v2-outline-variant)]/10">
+                    <span className="text-[var(--v2-on-surface-variant)] font-medium">WhatsApp Delivery</span>
+                    <span className="font-bold text-[var(--v2-on-surface)]">{formatPrice(whatsappDeliveryFee, 'NGN')}</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between py-4 mt-2">
+                  <span className="text-lg font-black v2-headline text-[var(--v2-primary)] uppercase tracking-wider">Total Payable</span>
+                  <span className="text-2xl font-black v2-headline text-[var(--v2-primary)]">
+                    {formatPrice(totalAmount, 'NGN')}
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <button
+                  onClick={processPayment}
+                  className="w-full h-14 bg-[var(--v2-primary)] text-[var(--v2-on-primary)] rounded-2xl font-bold text-lg shadow-lg shadow-[var(--v2-primary)]/20 hover:shadow-xl hover:shadow-[var(--v2-primary)]/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                >
+                  <span className="v2-icon" style={{fontVariationSettings: "'FILL' 1"}}>payments</span>
+                  Confirm & Pay {formatPrice(totalAmount, 'NGN')}
+                </button>
+                <button
+                  onClick={() => setShowSummaryModal(false)}
+                  className="w-full h-14 bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface)] rounded-2xl font-medium hover:bg-[var(--v2-surface-container-highest)] transition-all"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </V2RequireAuthUI>
   );
 }

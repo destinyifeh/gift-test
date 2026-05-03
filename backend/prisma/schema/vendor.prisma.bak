@@ -1,0 +1,179 @@
+model Vendor {
+  id          String   @id @default(uuid())
+  userId      String   @unique @map("user_id")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  businessName        String   @map("business_name")
+  businessDescription String?  @map("business_description")
+  businessSlug        String   @unique @map("business_slug")
+  businessLogoUrl     String?  @map("business_logo_url")
+  bannerUrl           String?  @map("banner_url")
+
+  // Address fields
+  streetAddress       String?  @map("street_address")
+  city                String?  @map("city")
+  state               String?  @map("state")
+  country             String?  @map("country")
+  postalCode          String?  @map("postal_code")
+
+  // Status & Metadata
+  status              String   @default("pending") // 'pending', 'approved', 'rejected'
+  isVerified          Boolean  @default(false)     @map("is_verified")
+  categories          String[] @default([])        @map("categories")
+  wallet              BigInt   @default(0)         @map("vendor_wallet")
+
+  createdAt           DateTime @default(now())     @map("created_at")
+  updatedAt           DateTime @updatedAt          @map("updated_at")
+
+  @@map("vendors")
+}
+
+model VendorGift {
+  id          Int      @id @default(autoincrement())
+  vendorId    String   @map("vendor_id")
+  vendor      User     @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  name        String
+  slug        String?
+  productShortId String?  @unique @map("product_short_id")
+  price       Decimal
+  description String?
+  imageUrl    String?  @map("image_url")
+  categoryId    Int?               @map("category_id")
+  categoryRel   ProductCategory?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  subcategoryId Int?               @map("subcategory_id")
+  subcategoryRel ProductSubcategory? @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
+  
+  category    String? // Legacy category field, will be deprecated
+  tags        String[] @default([]) // Legacy tags field, will be deprecated
+  productTags VendorGiftTag[]
+  
+  type        String   @default("digital") // 'digital' or 'physical'
+  status      String   @default("active") // 'draft', 'active', 'suspended', 'rejected'
+
+  // V2 specific
+  stockQuantity Int?     @map("stock_quantity")
+  unitsSold     Int      @default(0) @map("units_sold") // Legacy, will use salesCount for ranking
+  images        String[] @default([])
+
+  // Ranking & Engagement
+  viewsCount    Int      @default(0) @map("views_count")
+  clicksCount   Int      @default(0) @map("clicks_count")
+  salesCount    Int      @default(0) @map("sales_count")
+  rankingScore  Float    @default(0) @map("ranking_score")
+  lastEngagementAt DateTime @default(now()) @map("last_engagement_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  giftImages   VendorGiftImage[]
+  favorites    Favorite[]
+  featuredAds  FeaturedAd[]      @relation("GiftFeaturedAds")
+  sponsoredAds SponsoredAd[]     @relation("GiftSponsoredAds")
+  campaigns    Campaign[]        @relation("CampaignProduct")
+  directGifts  DirectGift[]      @relation("DirectGiftProduct")
+
+  @@map("vendor_gifts")
+}
+
+model VendorGiftImage {
+  id        Int        @id @default(autoincrement())
+  giftId    Int        @map("gift_id")
+  gift      VendorGift @relation(fields: [giftId], references: [id], onDelete: Cascade)
+  url       String
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  @@map("vendor_gift_images")
+}
+
+model Favorite {
+  id           Int        @id @default(autoincrement())
+  userId       String     @map("user_id")
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vendorGiftId Int        @map("vendor_gift_id")
+  vendorGift   VendorGift @relation(fields: [vendorGiftId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  @@unique([userId, vendorGiftId], name: "userId_vendorGiftId")
+  @@map("favorites")
+}
+
+model Rating {
+  id         Int      @id @default(autoincrement())
+  targetId   String   @map("target_id") // Can be vendorId or campaignId
+  targetType String   @map("target_type") // 'vendor', 'campaign'
+  userId     String   @map("user_id")
+  rating     Int
+  comment    String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("ratings")
+}
+
+model ProductCategory {
+  id            Int                  @id @default(autoincrement())
+  name          String               @unique
+  slug          String               @unique
+  subcategories ProductSubcategory[]
+  vendorGifts   VendorGift[]
+  createdAt     DateTime             @default(now()) @map("created_at")
+  updatedAt     DateTime             @updatedAt @map("updated_at")
+
+  @@map("product_categories")
+}
+
+model ProductSubcategory {
+  id          Int             @id @default(autoincrement())
+  categoryId  Int             @map("category_id")
+  category    ProductCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  name        String
+  slug        String
+  tags        ProductTag[]
+  vendorGifts VendorGift[]
+  tagRequests TagRequest[]     @relation("SubcategoryTagRequests")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  @@unique([categoryId, name])
+  @@unique([categoryId, slug])
+  @@map("product_subcategories")
+}
+
+model ProductTag {
+  id            Int                @id @default(autoincrement())
+  subcategoryId Int                @map("subcategory_id")
+  subcategory   ProductSubcategory @relation(fields: [subcategoryId], references: [id], onDelete: Cascade)
+  name          String
+  slug          String
+  vendorGifts   VendorGiftTag[]
+  createdAt     DateTime           @default(now()) @map("created_at")
+  updatedAt     DateTime           @updatedAt @map("updated_at")
+
+  @@unique([subcategoryId, name])
+  @@unique([subcategoryId, slug])
+  @@map("product_tags")
+}
+
+model VendorGiftTag {
+  giftId Int @map("gift_id")
+  tagId  Int @map("tag_id")
+  gift   VendorGift @relation(fields: [giftId], references: [id], onDelete: Cascade)
+  tag    ProductTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([giftId, tagId])
+  @@map("vendor_gift_tags")
+}
+
+model TagRequest {
+  id            Int                @id @default(autoincrement())
+  vendorId      String             @map("vendor_id")
+  vendor        User               @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  subcategoryId Int                @map("subcategory_id")
+  subcategory   ProductSubcategory @relation(name: "SubcategoryTagRequests", fields: [subcategoryId], references: [id], onDelete: Cascade)
+  tagName       String             @map("tag_name")
+  status        String             @default("pending") // 'pending', 'approved', 'rejected'
+  adminNotes    String?            @map("admin_notes")
+  createdAt     DateTime           @default(now()) @map("created_at")
+  updatedAt     DateTime           @updatedAt @map("updated_at")
+
+  @@map("tag_requests")
+}

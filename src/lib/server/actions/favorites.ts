@@ -37,9 +37,9 @@ export async function fetchUserFavorites() {
       return {
         favoriteId: f.id || f.favoriteId,
         ...(f.vendor_gifts || f.vendorGift || f),
-        shopSlug: f.vendor_gifts?.profiles?.shop_slug || f.shopSlug,
+        businessSlug: f.vendor_gifts?.profiles?.business_slug || f.businessSlug,
         vendor:
-          f.vendor_gifts?.profiles?.shop_name ||
+          f.vendor_gifts?.profiles?.business_name ||
           f.vendor_gifts?.profiles?.display_name ||
           f.vendor ||
           'Vendor',

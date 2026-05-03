@@ -40,6 +40,14 @@ export function V2OverviewTab({creatorEnabled, setCreatorEnabled, setSection}: V
 
   const isLoading = analyticsLoading || unclaimedLoading;
 
+  console.log('[V2OverviewTab Render]', {
+    analyticsLoading,
+    unclaimedLoading,
+    isLoading,
+    hasAnalyticsData: !!analytics,
+    hasUnclaimedData: !!unclaimedQuery
+  });
+
   // Extremely robust data extraction
   const unclaimedRes = unclaimedQuery || { data: [], flexCards: [] };
   const unclaimedGifts = Array.isArray(unclaimedRes.data) 
@@ -184,7 +192,15 @@ export function V2OverviewTab({creatorEnabled, setCreatorEnabled, setSection}: V
         <div className="col-span-2 md:col-span-8 p-8 md:p-10 rounded-[2.5rem] bg-[var(--v2-surface-container-high)] border border-[var(--v2-outline-variant)]/5 shadow-sm relative overflow-hidden group">
           <div className="relative z-10 hidden md:block">
             <p className="text-[var(--v2-on-surface-variant)] font-black uppercase tracking-[0.2em] text-xs opacity-50 mb-1">Impact Overview</p>
-            <h3 className="text-lg font-bold v2-headline text-[var(--v2-on-surface)] mb-8">Total Contributions</h3>
+            <h3 className="text-lg font-bold v2-headline text-[var(--v2-on-surface)] mb-8 flex items-center gap-2">
+              Total Impact Shared
+              <div className="group/info relative inline-block">
+                <span className="v2-icon text-base opacity-40 hover:opacity-100 cursor-help transition-opacity">info</span>
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-3 w-max max-w-[280px] p-4 bg-[var(--v2-on-surface)] text-[var(--v2-surface)] text-[11px] leading-relaxed rounded-2xl opacity-0 invisible group-hover/info:opacity-100 group-hover/info:visible transition-all z-20 shadow-2xl font-medium normal-case tracking-normal border border-white/10 text-center">
+                  Total value of gifts you have sent and contributions you have made to campaigns.
+                </div>
+              </div>
+            </h3>
             
             <div className="flex items-end justify-between">
               <div>
@@ -193,7 +209,7 @@ export function V2OverviewTab({creatorEnabled, setCreatorEnabled, setSection}: V
                 </p>
                 <div className="flex items-center gap-2 mt-4 text-[var(--v2-primary)] font-bold text-sm">
                    <span className="v2-icon text-sm">trending_up</span>
-                   <span>Generosity Score: High</span>
+                   <span>Generosity Score: {stats.generosityScore || 'Growing'}</span>
                 </div>
               </div>
               <button 
@@ -206,10 +222,14 @@ export function V2OverviewTab({creatorEnabled, setCreatorEnabled, setSection}: V
 
           {/* Mobile version of Total Given */}
           <div className="md:hidden relative z-10">
-             <p className="text-[var(--v2-on-surface-variant)] text-xs font-black uppercase tracking-widest opacity-50 mb-1">Total Given</p>
+             <p className="text-[var(--v2-on-surface-variant)] text-xs font-black uppercase tracking-widest opacity-50 mb-1">Total Impact Shared</p>
              <h2 className="text-4xl font-black v2-headline text-[var(--v2-on-surface)] tracking-tighter">
                 {formatCurrency(stats.totalGiven, userCurrency)}
              </h2>
+             <div className="mt-2 text-[var(--v2-primary)] font-bold text-xs flex items-center gap-1">
+                <span className="v2-icon text-xs">trending_up</span>
+                Generosity: {stats.generosityScore || 'Growing'}
+             </div>
              <button 
                 onClick={() => setSection('wallet')}
                 className="mt-6 w-full h-12 rounded-xl border border-[var(--v2-outline-variant)] text-[var(--v2-on-surface)] font-bold text-sm">
@@ -344,7 +364,9 @@ export function V2OverviewTab({creatorEnabled, setCreatorEnabled, setSection}: V
                   </div>
                ) : (
                   <div className="divide-y divide-[var(--v2-outline-variant)]/5">
-                     {[...stats.recentActivity.sent, ...stats.recentActivity.received].slice(0, 8).map((g: any, i) => (
+                     {[...stats.recentActivity.sent, ...stats.recentActivity.received]
+                        .filter((g: any) => g.type !== 'creator_support' && g.type !== 'fee')
+                        .slice(0, 8).map((g: any, i) => (
                         <div key={g.id || i} className="group flex items-center justify-between p-3.5 md:p-5 transition-all hover:bg-[var(--v2-surface-container-high)]">
                            <div className="flex items-center gap-3 md:gap-4 min-w-0 flex-1 mr-3">
                               <div className={cn(
@@ -359,7 +381,8 @@ export function V2OverviewTab({creatorEnabled, setCreatorEnabled, setSection}: V
                               </div>
                               <div className="min-w-0 flex-1">
                                  <p className="font-black text-[var(--v2-on-surface)] truncate text-sm md:text-base leading-tight">
-                                    {g.name?.replace(/Purchase at .*/i, 'Flex Payment')
+                                    {(g.name || 'Activity')
+                                           .replace(/Purchase at .*/i, 'Flex Payment')
                                            .replace(/Payment from .*/i, 'Flex Payment')
                                            .replace(/Spent with Flex Card .*/i, 'Flex Payment')
                                            .replace(/Spent with Gift Card .*/i, 'Card Redemption')}
@@ -415,7 +438,9 @@ export function V2OverviewTab({creatorEnabled, setCreatorEnabled, setSection}: V
                 </h3>
                 <p className="text-[var(--v2-on-surface-variant)] font-medium mt-2 opacity-70">
                   Allow your community to send you appreciation gifts directly at 
-                  <span className="text-[var(--v2-primary)] font-black italic ml-1">gifthance.com/{user?.username || 'user'}</span>
+                  <span className="text-[var(--v2-primary)] font-black italic ml-1">
+                    {profile?.username ? `gifthance.com/${profile.username}` : 'gifthance.com/yourname'}
+                  </span>
                 </p>
               </div>
             </div>

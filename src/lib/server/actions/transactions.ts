@@ -57,3 +57,15 @@ export async function recordShopGiftPurchase(data: any) {
     return { success: false, error: error.message };
   }
 }
+export async function collectCreatorEarnings(amount?: number) {
+  try {
+    const res = await serverFetch('transactions/collect-earnings', {
+      method: 'POST',
+      body: amount ? JSON.stringify({ amount }) : undefined,
+    });
+    return { success: true, amount: res.amount };
+  } catch (error: any) {
+    console.error('Error collecting creator earnings:', error);
+    return { success: false, error: error.message };
+  }
+}

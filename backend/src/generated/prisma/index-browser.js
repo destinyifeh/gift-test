@@ -120,6 +120,15 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.AdminScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  role: 'role',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -128,30 +137,13 @@ exports.Prisma.UserScalarFieldEnum = {
   image: 'image',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  username: 'username',
   displayName: 'displayName',
   avatarUrl: 'avatarUrl',
-  bio: 'bio',
-  isCreator: 'isCreator',
-  suggestedAmounts: 'suggestedAmounts',
-  socialLinks: 'socialLinks',
-  themeSettings: 'themeSettings',
   country: 'country',
+  isCreator: 'isCreator',
   roles: 'roles',
-  adminRole: 'adminRole',
-  platformBalance: 'platformBalance',
-  status: 'status',
-  walletStatus: 'walletStatus',
-  suspensionEnd: 'suspensionEnd',
-  shopName: 'shopName',
-  shopDescription: 'shopDescription',
-  shopAddress: 'shopAddress',
-  shopSlug: 'shopSlug',
-  shopLogoUrl: 'shopLogoUrl',
-  bannerUrl: 'bannerUrl',
-  isVerifiedVendor: 'isVerifiedVendor',
-  vendorStatus: 'vendorStatus',
-  vendorCategories: 'vendorCategories'
+  userWallet: 'userWallet',
+  suspensionEnd: 'suspensionEnd'
 };
 
 exports.Prisma.SessionScalarFieldEnum = {
@@ -216,15 +208,13 @@ exports.Prisma.CampaignScalarFieldEnum = {
   campaignSlug: 'campaignSlug',
   claimableType: 'claimableType',
   claimableGiftId: 'claimableGiftId',
+  giftCardId: 'giftCardId',
   claimableRecipientType: 'claimableRecipientType',
   recipientEmail: 'recipientEmail',
   senderEmail: 'senderEmail',
   paymentReference: 'paymentReference',
   currency: 'currency',
   giftCode: 'giftCode',
-  redeemedAt: 'redeemedAt',
-  redeemedByVendorId: 'redeemedByVendorId',
-  vendorRating: 'vendorRating',
   message: 'message',
   deliveryMethod: 'deliveryMethod',
   recipientPhone: 'recipientPhone',
@@ -259,6 +249,20 @@ exports.Prisma.ContributionScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.CreatorScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  username: 'username',
+  bio: 'bio',
+  bannerUrl: 'bannerUrl',
+  socialLinks: 'socialLinks',
+  themeSettings: 'themeSettings',
+  wallet: 'wallet',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.DirectGiftScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -270,6 +274,7 @@ exports.Prisma.DirectGiftScalarFieldEnum = {
   status: 'status',
   claimableType: 'claimableType',
   claimableGiftId: 'claimableGiftId',
+  giftCardId: 'giftCardId',
   claimableRecipientType: 'claimableRecipientType',
   recipientEmail: 'recipientEmail',
   senderEmail: 'senderEmail',
@@ -360,6 +365,7 @@ exports.Prisma.FeaturedItemScalarFieldEnum = {
 exports.Prisma.TransactionScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
+  vendorId: 'vendorId',
   campaignId: 'campaignId',
   amount: 'amount',
   currency: 'currency',
@@ -374,6 +380,7 @@ exports.Prisma.TransactionScalarFieldEnum = {
 exports.Prisma.BankAccountScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
+  vendorId: 'vendorId',
   bankName: 'bankName',
   bankCode: 'bankCode',
   accountNumber: 'accountNumber',
@@ -389,6 +396,7 @@ exports.Prisma.BankAccountScalarFieldEnum = {
 exports.Prisma.WithdrawalScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
+  vendorId: 'vendorId',
   bankAccountId: 'bankAccountId',
   amount: 'amount',
   currency: 'currency',
@@ -430,6 +438,39 @@ exports.Prisma.FlexCardTransactionScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.GiftCardScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  description: 'description',
+  category: 'category',
+  icon: 'icon',
+  colorFrom: 'colorFrom',
+  colorTo: 'colorTo',
+  imageUrl: 'imageUrl',
+  amountOptions: 'amountOptions',
+  allowCustomAmount: 'allowCustomAmount',
+  minAmount: 'minAmount',
+  maxAmount: 'maxAmount',
+  currency: 'currency',
+  serviceFeePercent: 'serviceFeePercent',
+  country: 'country',
+  status: 'status',
+  isFlexCard: 'isFlexCard',
+  usageDescription: 'usageDescription',
+  metadata: 'metadata',
+  displayOrder: 'displayOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.VendorAcceptedGiftCardScalarFieldEnum = {
+  id: 'id',
+  vendorId: 'vendorId',
+  giftCardId: 'giftCardId',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.ModerationReportScalarFieldEnum = {
   id: 'id',
   targetId: 'targetId',
@@ -466,7 +507,7 @@ exports.Prisma.AdminLogScalarFieldEnum = {
 
 exports.Prisma.CreatorSupportScalarFieldEnum = {
   id: 'id',
-  userId: 'userId',
+  creatorId: 'creatorId',
   transactionId: 'transactionId',
   amount: 'amount',
   currency: 'currency',
@@ -492,14 +533,18 @@ exports.Prisma.NotificationScalarFieldEnum = {
   targetRole: 'targetRole',
   read: 'read',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  vendorId: 'vendorId',
+  adminId: 'adminId'
 };
 
 exports.Prisma.NotificationReadScalarFieldEnum = {
   id: 'id',
   notificationId: 'notificationId',
   userId: 'userId',
-  createdAt: 'createdAt'
+  vendorId: 'vendorId',
+  createdAt: 'createdAt',
+  adminId: 'adminId'
 };
 
 exports.Prisma.SystemSettingScalarFieldEnum = {
@@ -527,11 +572,64 @@ exports.Prisma.CountryConfigScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.UserGiftCardScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  senderId: 'senderId',
+  giftCardId: 'giftCardId',
+  initialAmount: 'initialAmount',
+  currentBalance: 'currentBalance',
+  currency: 'currency',
+  code: 'code',
+  claimToken: 'claimToken',
+  status: 'status',
+  senderName: 'senderName',
+  recipientEmail: 'recipientEmail',
+  recipientPhone: 'recipientPhone',
+  deliveryMethod: 'deliveryMethod',
+  message: 'message',
+  claimedAt: 'claimedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.UserGiftCardTransactionScalarFieldEnum = {
+  id: 'id',
+  userGiftCardId: 'userGiftCardId',
+  vendorId: 'vendorId',
+  amount: 'amount',
+  balanceAfter: 'balanceAfter',
+  description: 'description',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.VendorScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  businessName: 'businessName',
+  businessDescription: 'businessDescription',
+  businessSlug: 'businessSlug',
+  businessLogoUrl: 'businessLogoUrl',
+  socialLinks: 'socialLinks',
+  streetAddress: 'streetAddress',
+  city: 'city',
+  state: 'state',
+  country: 'country',
+  postalCode: 'postalCode',
+  status: 'status',
+  isVerified: 'isVerified',
+  categories: 'categories',
+  wallet: 'wallet',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.VendorGiftScalarFieldEnum = {
   id: 'id',
   vendorId: 'vendorId',
   name: 'name',
   slug: 'slug',
+  productShortId: 'productShortId',
   price: 'price',
   description: 'description',
   imageUrl: 'imageUrl',
@@ -542,7 +640,6 @@ exports.Prisma.VendorGiftScalarFieldEnum = {
   type: 'type',
   status: 'status',
   stockQuantity: 'stockQuantity',
-  unitsSold: 'unitsSold',
   images: 'images',
   viewsCount: 'viewsCount',
   clicksCount: 'clicksCount',
@@ -638,15 +735,15 @@ exports.Prisma.QueryMode = {
   insensitive: 'insensitive'
 };
 
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+
 exports.Prisma.JsonNullValueFilter = {
   DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
-};
-
-exports.Prisma.NullsOrder = {
-  first: 'first',
-  last: 'last'
 };
 exports.AdminRole = exports.$Enums.AdminRole = {
   support: 'support',
@@ -663,6 +760,7 @@ exports.UserRole = exports.$Enums.UserRole = {
 };
 
 exports.Prisma.ModelName = {
+  Admin: 'Admin',
   User: 'User',
   Session: 'Session',
   Account: 'Account',
@@ -670,6 +768,7 @@ exports.Prisma.ModelName = {
   Campaign: 'Campaign',
   CampaignWithdrawal: 'CampaignWithdrawal',
   Contribution: 'Contribution',
+  Creator: 'Creator',
   DirectGift: 'DirectGift',
   FeaturedAd: 'FeaturedAd',
   SponsoredAd: 'SponsoredAd',
@@ -680,6 +779,8 @@ exports.Prisma.ModelName = {
   Withdrawal: 'Withdrawal',
   FlexCard: 'FlexCard',
   FlexCardTransaction: 'FlexCardTransaction',
+  GiftCard: 'GiftCard',
+  VendorAcceptedGiftCard: 'VendorAcceptedGiftCard',
   ModerationReport: 'ModerationReport',
   ModerationTicket: 'ModerationTicket',
   AdminLog: 'AdminLog',
@@ -688,6 +789,9 @@ exports.Prisma.ModelName = {
   NotificationRead: 'NotificationRead',
   SystemSetting: 'SystemSetting',
   CountryConfig: 'CountryConfig',
+  UserGiftCard: 'UserGiftCard',
+  UserGiftCardTransaction: 'UserGiftCardTransaction',
+  Vendor: 'Vendor',
   VendorGift: 'VendorGift',
   VendorGiftImage: 'VendorGiftImage',
   Favorite: 'Favorite',

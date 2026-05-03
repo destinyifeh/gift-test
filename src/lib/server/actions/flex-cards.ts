@@ -52,7 +52,7 @@ export interface FlexCardTransaction {
   description: string | null;
   created_at: string;
   vendor?: {
-    shop_name: string;
+    business_name: string;
     display_name: string;
   };
 }

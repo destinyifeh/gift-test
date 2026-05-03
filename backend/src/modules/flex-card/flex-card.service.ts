@@ -66,7 +66,7 @@ export class FlexCardService {
     return (this.prisma as any).flexCard.findMany({
       where, orderBy: { createdAt: 'desc' },
       include: {
-        sender: { select: { displayName: true, username: true, avatarUrl: true } }
+        sender: { select: { displayName: true, avatarUrl: true } }
       }
     });
   }
@@ -74,7 +74,7 @@ export class FlexCardService {
   async fetchFlexCardByCode(code: string) {
     const card = await (this.prisma as any).flexCard.findFirst({
       where: { code: code.toUpperCase() },
-      include: { sender: { select: { displayName: true, username: true, avatarUrl: true } } }
+      include: { sender: { select: { displayName: true, avatarUrl: true } } }
     });
     if (!card) throw new NotFoundException('Flex card not found');
     return card;
@@ -133,6 +133,12 @@ export class FlexCardService {
 
     await (this.prisma as any).flexCard.update({ where: { id: card.id }, data: { currentBalance: newBalance, status: newStatus } });
 
+    // Increment vendor's wallet balance
+    await (this.prisma as any).user.update({
+      where: { id: vendorId },
+      data: { vendorWallet: { increment: BigInt(amount * 100) } }
+    });
+
     if (card.userId) {
       await (this.prisma as any).transaction.create({
         data: {
@@ -152,7 +158,7 @@ export class FlexCardService {
     return (this.prisma as any).flexCardTransaction.findMany({
       where: { flexCardId: cardId },
       orderBy: { createdAt: 'desc' },
-      include: { vendor: { select: { shopName: true, displayName: true } } }
+      include: { vendor: { select: { businessName: true, displayName: true } } }
     });
   }
 

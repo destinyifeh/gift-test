@@ -26,72 +26,34 @@ model User {
   accounts Account[]
 
   // --- Gift/Platform Profile Fields ---
-  username         String?    @unique
   displayName      String?    @map("display_name")
   avatarUrl        String?    @map("avatar_url")
-  bio              String?
-  isCreator        Boolean    @default(false) @map("is_creator")
-  suggestedAmounts Int[]      @default([5, 10, 25]) @map("suggested_amounts")
-  socialLinks      Json?      @default("{}") @map("social_links")
-  themeSettings    Json?      @default("{}") @map("theme_settings")
   country          String?
+  isCreator        Boolean    @default(false) @map("is_creator")
   roles            UserRole[] @default([user])
-  adminRole        AdminRole? @map("admin_role")
-  platformBalance  BigInt     @default(0) @map("platform_balance")
-  status           String     @default("active") // 'active', 'suspended', 'banned'
-  walletStatus     String     @default("active") @map("wallet_status") // 'active', 'restricted'
+  userWallet       BigInt     @default(0) @map("user_wallet")
   suspensionEnd    DateTime?  @map("suspension_end")
 
-  // --- Vendor Shop Fields ---
-  shopName         String?  @map("shop_name")
-  shopDescription  String?  @map("shop_description")
-  shopAddress      String?  @map("shop_address")
-  shopSlug         String?  @unique @map("shop_slug")
-  shopLogoUrl      String?  @map("shop_logo_url")
-  bannerUrl        String?  @map("banner_url")
-  isVerifiedVendor Boolean  @default(false) @map("is_verified_vendor")
-  vendorStatus     String   @default("pending") @map("vendor_status") // 'pending', 'approved', 'rejected'
-  vendorCategories String[] @default([]) @map("vendor_categories")
-
-  // --- Business Address ---
-  shopStreet       String?  @map("shop_street")
-  shopCity         String?  @map("shop_city")
-  shopState        String?  @map("shop_state")
-  shopCountry      String?  @map("shop_country")
-  shopZip          String?  @map("shop_zip")
-
-  // Relations
-  acceptedGiftCards       VendorAcceptedGiftCard[]
+  admin            Admin?
+  vendor           Vendor?
+  creator          Creator?
 
   // Relations
   campaigns               Campaign[]            @relation("UserCampaigns")
   bankAccounts            BankAccount[]
   transactions            Transaction[]
-  vendorGifts             VendorGift[]
   favorites               Favorite[]
-  featuredAds             FeaturedAd[]          @relation("VendorFeaturedAds")
-  sponsoredAds            SponsoredAd[]         @relation("VendorSponsoredAds")
   sentFlexCards           FlexCard[]            @relation("SentFlexCards")
   receivedFlexCards       FlexCard[]            @relation("ReceivedFlexCards")
   moderationReportsMade   ModerationReport[]    @relation("Reporter")
-  moderationReportsFixed  ModerationReport[]    @relation("Resolver")
   moderationTickets       ModerationTicket[]    @relation("TicketReporter")
-  adminResolvedTickets    ModerationTicket[]    @relation("TicketResolver")
-  flexCardTransactions    FlexCardTransaction[] @relation("VendorTransactions")
-  redeemedCampaigns       Campaign[]            @relation("RedeemedByVendor")
-  creatorSupportReceived  CreatorSupport[]      @relation("SupportRecipient")
-  adminResolvedPromotions ExternalPromotion[]   @relation("AdminExternalPromotions")
-  withdrawals             Withdrawal[]
   directGiftsSent         DirectGift[]          @relation("UserDirectGifts")
-  directGiftsRedeemed     DirectGift[]          @relation("DirectGiftRedeemedByVendor")
   sentUserGiftCards         UserGiftCard[]          @relation("SentUserGiftCards")
   receivedUserGiftCards     UserGiftCard[]          @relation("ReceivedUserGiftCards")
-  userGiftCardTransactions  UserGiftCardTransaction[] @relation("UserGiftCardTransactions")
+  withdrawals             Withdrawal[]
 
-  adminLogs         AdminLog[]
   notifications     Notification[]
   notificationReads NotificationRead[]
-  tagRequests       TagRequest[]
 
   @@map("users")
 }

@@ -33,12 +33,14 @@ function SignupForm() {
   } = useForm<SignupInput>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
-      username: '',
+      display_name: '',
       email: searchParams.get('email') || '',
+      password: '',
+      country: '',
     },
   });
 
-  const username = watch('username');
+
   const password = watch('password') || '';
 
   // Password strength indicators
@@ -54,7 +56,6 @@ function SignupForm() {
       email: data.email,
       password: data.password,
       name: data.display_name,
-      username: data.username,
       displayName: data.display_name,
       country: data.country,
     });
@@ -230,34 +231,6 @@ function SignupForm() {
               )}
             </div>
 
-            {/* Username */}
-            <div className="space-y-2">
-              <label
-                htmlFor="username"
-                className="block text-sm font-bold text-[var(--v2-on-surface)]">
-                Username
-              </label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--v2-on-surface-variant)] font-bold">
-                  @
-                </span>
-                <input
-                  id="username"
-                  placeholder="yourname"
-                  className="w-full pl-10 pr-4 h-14 bg-[var(--v2-surface-container-low)] rounded-2xl text-[var(--v2-on-surface)] placeholder:text-[var(--v2-on-surface-variant)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 focus:bg-[var(--v2-surface-container-lowest)] transition-colors"
-                  {...register('username')}
-                />
-              </div>
-              {errors.username ? (
-                <p className="text-xs text-[var(--v2-error)]">
-                  {errors.username.message}
-                </p>
-              ) : (
-                <p className="text-xs text-[var(--v2-on-surface-variant)]">
-                  gifthance.com/{username || 'yourname'}
-                </p>
-              )}
-            </div>
 
             {/* Email */}
             <div className="space-y-2">

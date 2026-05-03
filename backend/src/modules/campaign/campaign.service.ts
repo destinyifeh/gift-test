@@ -148,7 +148,7 @@ export class CampaignService {
         orderBy: { createdAt: 'desc' },
         include: {
           user: {
-            select: { id: true, displayName: true, username: true, avatarUrl: true },
+            select: { id: true, displayName: true, avatarUrl: true },
           },
           contributions: {
             select: { id: true, amount: true, isAnonymous: true, donorName: true, createdAt: true }
@@ -178,7 +178,7 @@ export class CampaignService {
       where,
       orderBy: { createdAt: 'desc' },
       include: {
-        user: { select: { displayName: true, username: true, avatarUrl: true } },
+        user: { select: { displayName: true, avatarUrl: true } },
         contributions: {
             select: { id: true, amount: true, isAnonymous: true, donorName: true, createdAt: true }
         },
@@ -202,7 +202,7 @@ export class CampaignService {
         OR: [{ id: slugOrId }, { campaignSlug: slugOrId }, { campaignShortId: slugOrId }],
       },
       include: {
-        user: { select: { id: true, displayName: true, username: true, avatarUrl: true } },
+        user: { select: { id: true, displayName: true, avatarUrl: true } },
         contributions: {
           orderBy: { createdAt: 'desc' },
           take: 50,
@@ -287,7 +287,7 @@ export class CampaignService {
       if (isMoney) {
         await (tx as any).user.update({
           where: { id: userId },
-          data: { platformBalance: { increment: amountToClaim } },
+          data: { userWallet: { increment: amountToClaim } }
         });
 
         // 4. Record Creator Support
@@ -360,7 +360,7 @@ export class CampaignService {
       orderBy: { currentAmount: 'desc' },
       take: limit,
       include: {
-        user: { select: { displayName: true, username: true, avatarUrl: true } },
+        user: { select: { displayName: true, avatarUrl: true } },
       },
     });
 
@@ -419,7 +419,7 @@ export class CampaignService {
         skip,
         take: limit,
         include: {
-          user: { select: { displayName: true, username: true, avatarUrl: true } },
+          user: { select: { displayName: true, avatarUrl: true } },
           contributions: {
             select: { id: true, amount: true, isAnonymous: true, donorName: true, createdAt: true }
           }

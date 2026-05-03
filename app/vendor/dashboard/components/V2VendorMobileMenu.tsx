@@ -29,7 +29,7 @@ export function V2VendorMobileMenu({open, onClose, section, onSectionChange}: V2
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
 
-  const shopName = profile?.shop_name || profile?.display_name || 'Vendor';
+  const businessName = profile?.business_name || profile?.display_name || 'Vendor';
 
   const handleSignOut = async () => {
     setIsLoggingOut(true);
@@ -75,16 +75,16 @@ export function V2VendorMobileMenu({open, onClose, section, onSectionChange}: V2
             {/* Profile Card */}
             <div className="flex items-center gap-3 p-4 rounded-2xl bg-[var(--v2-surface-container-low)]">
               <div className="w-12 h-12 rounded-full bg-[var(--v2-primary)]/10 flex items-center justify-center overflow-hidden">
-                {profile?.shop_logo_url ? (
-                  <img src={profile.shop_logo_url} alt="" className="w-full h-full object-cover" />
+                {profile?.business_logo_url ? (
+                  <img src={profile.business_logo_url} alt="" className="w-full h-full object-cover" />
                 ) : (
                   <span className="text-xl font-bold text-[var(--v2-primary)] capitalize">
-                    {shopName.charAt(0)}
+                    {businessName.charAt(0)}
                   </span>
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-bold text-[var(--v2-on-surface)] truncate capitalize">{shopName}</p>
+                <p className="font-bold text-[var(--v2-on-surface)] truncate capitalize">{businessName}</p>
               </div>
             </div>
           </div>

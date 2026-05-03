@@ -115,7 +115,7 @@ const V2SendCampaignGiftModal = ({
       paystack.newTransaction({
         key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY as string,
         email: donorEmail,
-        amount: Math.round(finalAmount * 100),
+        amount: Math.round(finalAmount * 1.04 * 100),
         currency: 'NGN',
         onSuccess: async (response: any) => {
           recordContribution.mutate({
@@ -126,7 +126,7 @@ const V2SendCampaignGiftModal = ({
             message,
             isAnonymous,
             hideAmount,
-            expectedAmount: finalAmount,
+            expectedAmount: Math.round(finalAmount * 1.04 * 100) / 100,
             currency,
           }, {
             onSuccess: (res) => {
@@ -321,16 +321,38 @@ const V2SendCampaignGiftModal = ({
 
             {step === 'payment' && (
               <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                <div className="p-6 bg-[var(--v2-surface-container-low)] rounded-3xl border border-[var(--v2-outline-variant)]/30 flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-widest">
-                      Your Contribution
+                <div className="p-6 bg-[var(--v2-surface-container-low)] rounded-3xl border border-[var(--v2-outline-variant)]/30 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-widest">
+                        Your Contribution
+                      </p>
+                      <p className="font-bold text-lg text-[var(--v2-on-surface)]">To Campaign</p>
+                    </div>
+                    <p className="text-xl font-bold text-[var(--v2-on-surface)]">
+                      {formatCurrency(finalAmount, currency)}
                     </p>
-                    <p className="font-bold text-lg text-[var(--v2-on-surface)]">Campaign Gift</p>
                   </div>
-                  <p className="text-3xl font-black text-[var(--v2-primary)]">
-                    {formatCurrency(finalAmount, currency)}
-                  </p>
+                  <div className="flex items-center justify-between pt-3 border-t border-[var(--v2-outline-variant)]/10">
+                    <div>
+                      <p className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-widest">
+                        Platform Fee (4%)
+                      </p>
+                    </div>
+                    <p className="text-lg font-bold text-[var(--v2-on-surface)]">
+                      {formatCurrency(finalAmount * 0.04, currency)}
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between pt-3 border-t-2 border-[var(--v2-primary)]/20">
+                    <div>
+                      <p className="text-xs font-black text-[var(--v2-primary)] uppercase tracking-widest">
+                        Total Payable
+                      </p>
+                    </div>
+                    <p className="text-3xl font-black text-[var(--v2-primary)]">
+                       {formatCurrency(finalAmount * 1.04, currency)}
+                    </p>
+                  </div>
                 </div>
 
                 <div className="flex gap-3 pt-2">
@@ -366,7 +388,7 @@ const V2SendCampaignGiftModal = ({
                 </div>
                 <h3 className="text-3xl font-black v2-headline text-[var(--v2-on-surface)] mb-2">Thank You!</h3>
                 <p className="text-[var(--v2-on-surface-variant)] mb-10 text-balance px-4 leading-relaxed">
-                  Your contribution of <span className="text-[var(--v2-primary)] font-black">{formatCurrency(finalAmount, currency)}</span> has been securely added to the campaign.
+                  Your contribution of <span className="text-[var(--v2-primary)] font-black">{formatCurrency(finalAmount, currency)}</span> (plus 4% platform fee) has been securely added to the campaign.
                 </p>
                 <button
                   className="w-full h-14 v2-btn-primary rounded-2xl font-bold text-lg"

@@ -378,9 +378,9 @@ export class AdminController {
     @Req() req: Request,
     @Param('id') id: string,
     @Body() data: {
-      shopName?: string;
-      shopSlug?: string;
-      shopDescription?: string;
+      businessName?: string;
+      businessSlug?: string;
+      businessDescription?: string;
       isVerified?: boolean;
       status?: string;
       vendorStatus?: string;

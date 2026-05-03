@@ -1,6 +1,7 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Request } from 'express';
 import { auth } from '../../modules/auth/better-auth';
+import { fromNodeHeaders } from 'better-auth/node';
 
 @Injectable()
 export class OptionalAuthGuard implements CanActivate {
@@ -9,7 +10,7 @@ export class OptionalAuthGuard implements CanActivate {
     
     try {
       const session = await auth.api.getSession({
-        headers: req.headers as Record<string, string>,
+        headers: fromNodeHeaders(req.headers),
       });
 
       if (session) {

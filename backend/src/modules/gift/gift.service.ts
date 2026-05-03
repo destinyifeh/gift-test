@@ -167,10 +167,10 @@ export class GiftService {
     };
   }
 
-  async redeemFlexCard(vendorId: string, code: string, amount: number, description?: string) {
-     const vendor = await (this.prisma as any).user.findUnique({ where: { id: vendorId } });
-     if (!vendor || !(vendor.roles as string[]).includes('vendor')) {
-       throw new BadRequestException('Unauthorized. Only vendors can redeem flex cards.');
+  async redeemFlexCard(vendorUserId: string, code: string, amount: number, description?: string) {
+     const vendor = await (this.prisma as any).vendor.findUnique({ where: { userId: vendorUserId } });
+     if (!vendor) {
+       throw new BadRequestException('Unauthorized. Vendor profile not found.');
      }
 
      return (this.prisma as any).$transaction(async (tx: any) => {
@@ -192,7 +192,7 @@ export class GiftService {
        const transaction = await (tx as any).flexCardTransaction.create({
          data: {
            flexCardId: flexCard.id,
-           vendorId: vendorId,
+           vendorId: vendor.id,
            amount: amount,
            balanceAfter: newBalance,
            description: description || 'Redeemed at vendor'
@@ -324,7 +324,7 @@ export class GiftService {
         user: { select: { displayName: true, email: true } },
         product: {
           include: {
-            vendor: { select: { shopName: true, displayName: true, avatarUrl: true } }
+            vendor: { select: { businessName: true, displayName: true, avatarUrl: true } }
           }
         },
         giftCard: true,
@@ -339,7 +339,7 @@ export class GiftService {
           user: { select: { displayName: true, email: true, avatarUrl: true } },
           product: {
             include: {
-              vendor: { select: { shopName: true, displayName: true, avatarUrl: true } }
+              vendor: { select: { businessName: true, displayName: true, avatarUrl: true } }
             }
           },
           giftCard: true,
@@ -424,7 +424,7 @@ export class GiftService {
       if (isMoney) {
         await (tx as any).user.update({
           where: { id: userId },
-          data: { platformBalance: { increment: amountToClaimBigInt } }
+          data: { userWallet: { increment: amountToClaimBigInt } }
         });
 
         await (tx as any).creatorSupport.create({
@@ -482,7 +482,7 @@ export class GiftService {
       where: { code },
       include: {
         sender: { select: { displayName: true, username: true, avatarUrl: true } },
-        transactions: { include: { vendor: { select: { shopName: true, displayName: true } } }, orderBy: { createdAt: 'desc' } }
+        transactions: { include: { vendor: { select: { businessName: true, displayName: true } } }, orderBy: { createdAt: 'desc' } }
       }
     });
 
@@ -550,10 +550,10 @@ export class GiftService {
       include: {
         vendor: {
           select: {
-            shopName: true,
+            businessName: true,
             displayName: true,
             avatarUrl: true,
-            shopSlug: true,
+            businessSlug: true,
             country: true,
           },
         },

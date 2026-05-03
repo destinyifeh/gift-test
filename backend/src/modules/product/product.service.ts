@@ -52,7 +52,7 @@ export class ProductService {
         take,
         orderBy: { createdAt: 'desc' },
         include: {
-          vendor: { select: { shopName: true, shopSlug: true } },
+          vendor: { select: { businessName: true, businessSlug: true } },
           giftImages: true
         }
       }),
@@ -71,7 +71,7 @@ export class ProductService {
     const product = await (this.prisma as any).vendorGift.findUnique({
       where: { id },
       include: {
-        vendor: { select: { shopName: true, shopSlug: true, avatarUrl: true } },
+        vendor: { select: { businessName: true, businessSlug: true, avatarUrl: true } },
         giftImages: true
       }
     });

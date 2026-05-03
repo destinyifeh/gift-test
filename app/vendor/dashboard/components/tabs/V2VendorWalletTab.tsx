@@ -85,8 +85,8 @@ export function V2VendorWalletTab() {
   const currencySymbol = getCurrencySymbol(userCurrency);
 
   // Use vendor stats for revenue and transactions
-  const totalRevenue = wallet.totalRevenue || 0;
-  const pendingAmount = wallet.pending || 0;
+  const totalRevenue = vendorStats?.totalSales || 0;
+  const pendingAmount = wallet.pending || vendorStats?.pending || 0;
   // Transactions are pre-calculated by backend now, simplify frontend
   const vendorTransactions = walletTransactions.filter((t: any) => 
     ['vendor_redemption', 'withdrawal', 'payout', 'flex_card', 'user_gift_card', 'flex_card_redemption'].includes(t.type)
@@ -207,6 +207,7 @@ export function V2VendorWalletTab() {
       const res = await api.post('/transactions/withdraw', {
         amount: Number(withdrawAmount),
         bankAccountId: withdrawBank,
+        source: 'vendor',
       });
       const result = res.data;
       if (result.success) {

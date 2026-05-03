@@ -10,11 +10,11 @@ export class WalletService {
   async getBalance(userId: string) {
     const user = await (this.prisma as any).user.findUnique({
       where: { id: userId },
-      select: { platformBalance: true },
+      select: { userWallet: true },
     });
     
     // Prisma returns BigInt, convert to string/number if needed 
-    return { balance: (user as any)?.platformBalance?.toString() || '0' };
+    return { balance: user?.userWallet?.toString() || '0' };
   }
 
   async getBankAccounts(userId: string) {
@@ -92,7 +92,7 @@ export class WalletService {
     return (this.prisma as any).$transaction(async (tx: any) => {
       const user = await (tx as any).user.update({
         where: { id: userId },
-        data: { platformBalance: { increment: amount } },
+        data: { userWallet: { increment: amount } },
       });
 
       const transaction = await (tx as any).transaction.create({
@@ -113,13 +113,13 @@ export class WalletService {
   async deductFunds(userId: string, amount: bigint, type: string, description: string) {
     return (this.prisma as any).$transaction(async (tx: any) => {
       const user = await (tx as any).user.findUnique({ where: { id: userId } });
-      if (!user || (user as any).platformBalance < amount) {
+      if (!user || user.userWallet < amount) {
         throw new BadRequestException('Insufficient balance');
       }
 
       await (tx as any).user.update({
         where: { id: userId },
-        data: { platformBalance: { decrement: amount } },
+        data: { userWallet: { decrement: amount } },
       });
 
       const transaction = await (tx as any).transaction.create({

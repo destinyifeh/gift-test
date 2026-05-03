@@ -10,7 +10,7 @@ model ModerationReport {
   status           String  @default("pending") // 'pending', 'resolved', 'dismissed'
   resolutionNotes  String?
   resolvedById     String?
-  resolver         User?   @relation("Resolver", fields: [resolvedById], references: [id], onDelete: SetNull)
+  resolver         Admin?  @relation("Resolver", fields: [resolvedById], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -27,7 +27,7 @@ model ModerationTicket {
   status       String  @default("open") // 'open', 'in_progress', 'resolved', 'closed'
   priority     String  @default("medium") // 'low', 'medium', 'high'
   resolvedById String?
-  resolver     User?   @relation("TicketResolver", fields: [resolvedById], references: [id], onDelete: SetNull)
+  resolver     Admin?  @relation("TicketResolver", fields: [resolvedById], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -38,7 +38,7 @@ model ModerationTicket {
 model AdminLog {
   id        Int      @id @default(autoincrement())
   adminId   String
-  admin     User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  admin     Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
   action    String
   createdAt DateTime @default(now())
 
@@ -47,8 +47,8 @@ model AdminLog {
 
 model CreatorSupport {
   id            String       @id @default(uuid())
-  userId        String
-  user          User         @relation("SupportRecipient", fields: [userId], references: [id], onDelete: Cascade)
+  creatorId     String       @map("creator_id")
+  creator       Creator      @relation("CreatorSupportRecipient", fields: [creatorId], references: [id], onDelete: Cascade)
   transactionId String?      @unique
   transaction   Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
   amount        Decimal

@@ -30,7 +30,7 @@ export function getProductHref(product: any): string {
 
   // Unwrap promotion objects if present
   const p = product.vendor_gifts || product;
-  const vendorSlug = p.vendor?.shopSlug || p.vendor?.shop_slug || p.profiles?.shop_slug || p.profiles?.shopSlug || p.vendor_id || p.vendorId;
+  const vendorSlug = p.vendor?.businessSlug || p.vendor?.business_slug || p.profiles?.business_slug || p.profiles?.businessSlug || p.vendor_id || p.vendorId;
   const productSlug = p.slug || p.id;
   const shortId = p.productShortId || p.product_short_id;
 

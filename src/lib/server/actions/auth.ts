@@ -121,17 +121,16 @@ export async function updateProfile(updates: {
   display_name?: string;
   username?: string;
   bio?: string;
-  suggested_amounts?: number[];
   social_links?: any;
   theme_settings?: any;
   avatar_url?: string;
   is_creator?: boolean;
   country?: string;
-  shop_name?: string;
-  shop_description?: string;
-  shop_address?: string;
-  shop_slug?: string;
-  shop_logo_url?: string;
+  business_name?: string;
+  business_description?: string;
+  business_address?: string;
+  business_slug?: string;
+  business_logo_url?: string;
 }) {
   try {
     // Map snake_case to camelCase for backend
@@ -139,17 +138,16 @@ export async function updateProfile(updates: {
     if (updates.display_name !== undefined) payload.displayName = updates.display_name;
     if (updates.username !== undefined) payload.username = updates.username.toLowerCase();
     if (updates.bio !== undefined) payload.bio = updates.bio;
-    if (updates.suggested_amounts !== undefined) payload.suggestedAmounts = updates.suggested_amounts;
     if (updates.social_links !== undefined) payload.socialLinks = updates.social_links;
     if (updates.theme_settings !== undefined) payload.themeSettings = updates.theme_settings;
     if (updates.avatar_url !== undefined) payload.avatarUrl = updates.avatar_url;
     if (updates.is_creator !== undefined) payload.isCreator = updates.is_creator;
     if (updates.country !== undefined) payload.country = updates.country;
-    if (updates.shop_name !== undefined) payload.shopName = updates.shop_name;
-    if (updates.shop_description !== undefined) payload.shopDescription = updates.shop_description;
-    if (updates.shop_address !== undefined) payload.shopAddress = updates.shop_address;
-    if (updates.shop_slug !== undefined) payload.shopSlug = updates.shop_slug.toLowerCase();
-    if (updates.shop_logo_url !== undefined) payload.shopLogoUrl = updates.shop_logo_url;
+    if (updates.business_name !== undefined) payload.businessName = updates.business_name;
+    if (updates.business_description !== undefined) payload.businessDescription = updates.business_description;
+    if (updates.business_address !== undefined) payload.businessAddress = updates.business_address;
+    if (updates.business_slug !== undefined) payload.businessSlug = updates.business_slug.toLowerCase();
+    if (updates.business_logo_url !== undefined) payload.businessLogoUrl = updates.business_logo_url;
 
     const data = await serverFetch('/users', {
       method: 'PATCH',
@@ -202,7 +200,7 @@ export async function uploadAvatar(formData: FormData) {
   }
 }
 
-export async function uploadShopLogo(formData: FormData) {
+export async function uploadBusinessLogo(formData: FormData) {
   try {
     const res = await serverFetch('/files/upload?folder=vendors', {
       method: 'POST',

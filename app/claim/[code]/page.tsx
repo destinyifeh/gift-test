@@ -293,7 +293,7 @@ export default function ClaimGiftPage() {
   const giftName = gift.product?.name || gift.title || 'Gift';
   const giftImage = gift.product?.imageUrl || null;
   const vendorName =
-    gift.product?.vendor?.shopName || gift.product?.vendor?.displayName || 'Vendor';
+    gift.product?.vendor?.businessName || gift.product?.vendor?.displayName || 'Vendor';
   const currency = getCurrencySymbol(gift.currency || 'USD');
 
   return (

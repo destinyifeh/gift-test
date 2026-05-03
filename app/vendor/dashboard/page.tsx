@@ -104,7 +104,7 @@ function V2VendorDashboardContent() {
     setSection(newSection);
   };
 
-  const shopName = profile?.shop_name || profile?.display_name || 'Vendor';
+  const businessName = profile?.business_name || profile?.display_name || 'Vendor';
 
   return (
     <div className="min-h-screen bg-[var(--v2-background)]">
@@ -112,11 +112,11 @@ function V2VendorDashboardContent() {
       <header className="md:hidden fixed top-0 z-50 w-full px-3 h-13 flex justify-between items-center v2-glass-nav pt-safe">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-[var(--v2-primary-container)] flex items-center justify-center overflow-hidden shrink-0">
-            {profile?.shop_logo_url ? (
-              <img src={profile.shop_logo_url} alt="" className="w-full h-full object-cover" />
+            {profile?.business_logo_url ? (
+              <img src={profile.business_logo_url} alt="" className="w-full h-full object-cover" />
             ) : (
               <span className="text-xs font-bold text-[var(--v2-on-primary-container)] capitalize">
-                {shopName.charAt(0)}
+                {businessName.charAt(0)}
               </span>
             )}
           </div>
@@ -178,17 +178,17 @@ function V2VendorDashboardContent() {
 
           <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--v2-surface-container-high)] transition-colors cursor-pointer">
             <div className="w-10 h-10 rounded-full bg-[var(--v2-primary)]/10 flex items-center justify-center overflow-hidden">
-              {profile?.shop_logo_url ? (
-                <img src={profile.shop_logo_url} alt="" className="w-full h-full object-cover" />
+              {profile?.business_logo_url ? (
+                <img src={profile.business_logo_url} alt="" className="w-full h-full object-cover" />
               ) : (
                 <span className="text-lg font-bold text-[var(--v2-primary)] capitalize">
-                  {shopName.charAt(0)}
+                  {businessName.charAt(0)}
                 </span>
               )}
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-bold text-sm text-[var(--v2-on-surface)] truncate capitalize">
-                {shopName}
+                {businessName}
               </p>
             </div>
             <button
@@ -231,12 +231,12 @@ function V2VendorDashboardContent() {
             <V2RoleSwitcher />
             <V2NotificationsPanel />
             <div className="h-8 w-8 rounded-full bg-[var(--v2-primary-container)]/20 overflow-hidden">
-              {profile?.shop_logo_url ? (
-                <img src={profile.shop_logo_url} alt="" className="w-full h-full object-cover" />
+              {profile?.business_logo_url ? (
+                <img src={profile.business_logo_url} alt="" className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <span className="text-xs font-bold text-[var(--v2-primary)] capitalize">
-                    {shopName.charAt(0)}
+                    {businessName.charAt(0)}
                   </span>
                 </div>
               )}

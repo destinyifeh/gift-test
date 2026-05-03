@@ -2,7 +2,7 @@
 
 import {useProfile} from '@/hooks/use-profile';
 import api from '@/lib/api-client';
-import {deleteUploadedFile, updateProfile, uploadShopLogo} from '@/lib/server/actions/auth';
+import {deleteUploadedFile, updateProfile, uploadBusinessLogo} from '@/lib/server/actions/auth';
 import {useQueryClient} from '@tanstack/react-query';
 import {useEffect, useRef, useState} from 'react';
 import {toast} from 'sonner';
@@ -16,7 +16,7 @@ export function V2VendorShopTab() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form state
-  const [shopName, setShopName] = useState('');
+  const [businessName, setBusinessName] = useState('');
   const [storeUrl, setStoreUrl] = useState('');
   const [description, setDescription] = useState('');
   const [address, setAddress] = useState('');
@@ -32,14 +32,14 @@ export function V2VendorShopTab() {
   // Initialize form with profile data
   useEffect(() => {
     if (profile) {
-      setShopName(profile.shop_name || '');
-      setStoreUrl(profile.shop_slug || profile.username || '');
-      setDescription(profile.shop_description || profile.bio || '');
-      setAddress(profile.shop_street || '');
-      setCity(profile.shop_city || '');
-      setState(profile.shop_state || '');
-      setPostalCode(profile.shop_zip || '');
-      setCountry(profile.shop_country || profile.country || 'Nigeria');
+      setBusinessName(profile.business_name || '');
+      setStoreUrl(profile.business_slug || profile.username || '');
+      setDescription(profile.business_description || profile.bio || '');
+      setAddress(profile.business_street || '');
+      setCity(profile.business_city || '');
+      setState(profile.business_state || '');
+      setPostalCode(profile.business_zip || '');
+      setCountry(profile.business_country || profile.country || 'Nigeria');
       setAcceptedGiftCards(profile.vendor_accepted_gift_cards || []);
     }
   }, [profile]);
@@ -48,19 +48,19 @@ export function V2VendorShopTab() {
     setIsSaving(true);
     try {
       await api.patch('/users', {
-        shopName,
-        shopDescription: description,
-        shopSlug: storeUrl,
-        shopStreet: address,
-        shopCity: city,
-        shopState: state,
-        shopZip: postalCode,
-        shopCountry: country,
+        businessName,
+        businessDescription: description,
+        businessSlug: storeUrl,
+        businessStreet: address,
+        businessCity: city,
+        businessState: state,
+        businessZip: postalCode,
+        businessCountry: country,
         acceptedGiftCards: acceptedGiftCards.filter((id) => id !== flexCardId), // Clean out flex card ID just in case
       });
 
       queryClient.invalidateQueries({queryKey: ['profile']});
-      toast.success('Shop details saved successfully');
+      toast.success('Business details saved successfully');
     } catch (error: any) {
       console.error('API Error:', error.response?.data || error);
       const serverMessage = error.response?.data?.message;
@@ -68,7 +68,7 @@ export function V2VendorShopTab() {
         ? serverMessage[0]
         : serverMessage;
       toast.error(
-        displayError || error.message || 'Failed to save shop details',
+        displayError || error.message || 'Failed to save business details',
       );
     } finally {
       setIsSaving(false);
@@ -77,14 +77,14 @@ export function V2VendorShopTab() {
 
   const handleDiscard = () => {
     if (profile) {
-      setShopName(profile.shop_name || '');
-      setStoreUrl(profile.shop_slug || profile.username || '');
-      setDescription(profile.shop_description || profile.bio || '');
-      setAddress(profile.shop_street || '');
-      setCity(profile.shop_city || '');
-      setState(profile.shop_state || '');
-      setPostalCode(profile.shop_zip || '');
-      setCountry(profile.shop_country || profile.country || 'Nigeria');
+      setBusinessName(profile.business_name || '');
+      setStoreUrl(profile.business_slug || profile.username || '');
+      setDescription(profile.business_description || profile.bio || '');
+      setAddress(profile.business_street || '');
+      setCity(profile.business_city || '');
+      setState(profile.business_state || '');
+      setPostalCode(profile.business_zip || '');
+      setCountry(profile.business_country || profile.country || 'Nigeria');
       setAcceptedGiftCards(profile.vendor_accepted_gift_cards || []);
     }
     toast.info('Changes discarded');
@@ -114,8 +114,8 @@ export function V2VendorShopTab() {
     setIsUploadingLogo(true);
     try {
       // 1. Delete old logo if it exists
-      if (profile?.shop_logo_url) {
-        await deleteUploadedFile(profile.shop_logo_url).catch(err =>
+      if (profile?.business_logo_url) {
+        await deleteUploadedFile(profile.business_logo_url).catch(err =>
           console.warn('Failed to cleanup old logo:', err),
         );
       }
@@ -124,12 +124,12 @@ export function V2VendorShopTab() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const result = await uploadShopLogo(formData);
+      const result = await uploadBusinessLogo(formData);
 
       if (result.success && result.url) {
         // 3. Update profile with new logo URL
-        await updateProfile({shop_logo_url: result.url});
-        toast.success('Shop logo updated successfully!');
+        await updateProfile({business_logo_url: result.url});
+        toast.success('Business logo updated successfully!');
         queryClient.invalidateQueries({queryKey: ['profile']});
       } else {
         toast.error(result.error || 'Failed to upload logo');
@@ -143,22 +143,22 @@ export function V2VendorShopTab() {
 
   const handleRemoveLogo = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!profile?.shop_logo_url) return;
+    if (!profile?.business_logo_url) return;
 
     const confirmRemove = confirm(
-      'Are you sure you want to remove your shop logo?',
+      'Are you sure you want to remove your business logo?',
     );
     if (!confirmRemove) return;
 
     setIsUploadingLogo(true);
     try {
       // 1. Delete from storage
-      await deleteUploadedFile(profile.shop_logo_url);
+      await deleteUploadedFile(profile.business_logo_url);
 
       // 2. Clear in database
-      await updateProfile({shop_logo_url: ''});
+      await updateProfile({business_logo_url: ''});
 
-      toast.success('Shop logo removed');
+      toast.success('Business logo removed');
       queryClient.invalidateQueries({queryKey: ['profile']});
     } catch (error) {
       toast.error('Failed to remove logo');
@@ -173,7 +173,7 @@ export function V2VendorShopTab() {
       <div className="flex flex-col md:flex-row justify-between md:items-end gap-6 mb-8">
         <div>
           <h2 className="text-3xl md:text-4xl font-extrabold v2-headline tracking-tight text-[var(--v2-on-surface)]">
-            Shop Details
+            Business Details
           </h2>
           <p className="text-[var(--v2-on-surface-variant)] mt-2">
             Manage your brand identity and public storefront information.
@@ -199,7 +199,7 @@ export function V2VendorShopTab() {
         {/* Logo Upload */}
         <div className="col-span-12 lg:col-span-4 bg-[var(--v2-surface-container-lowest)] rounded-3xl p-6 md:p-8 flex flex-col items-center text-center">
           <h3 className="w-full text-left text-lg font-bold v2-headline mb-6">
-            Shop Logo
+            Business Logo
           </h3>
 
           <input
@@ -219,10 +219,10 @@ export function V2VendorShopTab() {
                   ? 'border-[var(--v2-primary)] opacity-50'
                   : 'border-[var(--v2-outline-variant)]/30 group-hover:border-[var(--v2-primary)]/50'
               }`}>
-              {profile?.shop_logo_url ? (
+              {profile?.business_logo_url ? (
                 <img
-                  src={profile.shop_logo_url}
-                  alt="Shop Logo"
+                  src={profile.business_logo_url}
+                  alt="Business Logo"
                   className="w-full h-full object-cover opacity-90 group-hover:opacity-40 transition-opacity"
                 />
               ) : (
@@ -252,7 +252,7 @@ export function V2VendorShopTab() {
             </div>
 
             {/* Remove Button Overlay */}
-            {profile?.shop_logo_url && !isUploadingLogo && (
+            {profile?.business_logo_url && !isUploadingLogo && (
               <button
                 onClick={handleRemoveLogo}
                 className="absolute -top-3 -right-3 w-10 h-10 rounded-full bg-[var(--v2-error)] text-[var(--v2-on-error)] flex items-center justify-center shadow-lg hover:scale-110 transition-transform opacity-0 group-hover:opacity-100 z-10"
@@ -273,9 +273,9 @@ export function V2VendorShopTab() {
               onClick={handleLogoClick}
               className="mt-6 text-sm font-bold text-[var(--v2-primary)] flex items-center gap-2 hover:underline">
               <span className="v2-icon text-sm">
-                {profile?.shop_logo_url ? 'edit' : 'add_photo_alternate'}
+                {profile?.business_logo_url ? 'edit' : 'add_photo_alternate'}
               </span>
-              {profile?.shop_logo_url ? 'Change Image' : 'Add Logo'}
+              {profile?.business_logo_url ? 'Change Image' : 'Add Logo'}
             </button>
           )}
         </div>
@@ -289,14 +289,14 @@ export function V2VendorShopTab() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-bold text-[var(--v2-on-surface-variant)] ml-1">
-                  Shop Name
+                  Business Name
                 </label>
                 <input
                   type="text"
-                  value={shopName}
+                  value={businessName}
                   onChange={e => {
                     const value = e.target.value;
-                    setShopName(value);
+                    setBusinessName(value);
                     // Automatically generate matching URL slug
                     setStoreUrl(
                       value
@@ -306,12 +306,12 @@ export function V2VendorShopTab() {
                     );
                   }}
                   className="bg-[var(--v2-surface-container-lowest)] border-none rounded-xl px-4 py-4 text-[var(--v2-on-surface)] shadow-sm focus:ring-1 ring-[var(--v2-outline-variant)]/30 transition-all"
-                  placeholder="Your Shop Name"
+                  placeholder="Your Business Name"
                 />
               </div>
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-bold text-[var(--v2-on-surface-variant)] ml-1">
-                  Shop URL
+                  Business URL
                 </label>
                 <div className="flex items-center bg-[var(--v2-surface-container-lowest)] rounded-xl px-4 py-4 shadow-sm border-none focus-within:ring-1 ring-[var(--v2-outline-variant)]/30 transition-all">
                   <span className="text-[var(--v2-on-surface-variant)]/60 text-sm">
@@ -329,7 +329,7 @@ export function V2VendorShopTab() {
             </div>
             <div className="flex flex-col gap-2">
               <label className="text-sm font-bold text-[var(--v2-on-surface-variant)] ml-1">
-                Shop Description
+                Business Description
               </label>
               <textarea
                 value={description}
@@ -337,7 +337,7 @@ export function V2VendorShopTab() {
                 rows={4}
                 maxLength={500}
                 className="bg-[var(--v2-surface-container-lowest)] border-none rounded-xl px-4 py-4 text-[var(--v2-on-surface)] shadow-sm focus:ring-1 ring-[var(--v2-outline-variant)]/30 transition-all resize-none leading-relaxed"
-                placeholder="Tell customers about your shop..."
+                placeholder="Tell customers about your business..."
               />
               <div className="flex justify-end">
                 <span className="text-[10px] font-bold text-[var(--v2-on-surface-variant)]/40 uppercase tracking-tighter">
@@ -442,7 +442,7 @@ export function V2VendorShopTab() {
                 Accepted Gift Cards
               </h3>
               <p className="text-sm text-[var(--v2-on-surface-variant)] mt-1">
-                Select which gift cards can be redeemed at your shop.
+                Select which gift cards can be redeemed at your business.
               </p>
             </div>
             <div className="flex flex-col items-end gap-2">
@@ -541,22 +541,22 @@ export function V2VendorShopTab() {
               How your customers see you
             </h2>
             <p className="opacity-90 leading-relaxed max-w-lg mb-6 md:mb-8 text-sm md:text-base">
-              Your shop profile is the first impression customers get. We've
+              Your business profile is the first impression customers get. We've
               optimized the layout to highlight your unique brand story and
               high-quality product imagery.
             </p>
             <button className="flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 transition-colors rounded-xl font-bold border border-white/20">
               <span className="v2-icon">visibility</span>
-              View Live Store
+              View Live Business Page
             </button>
           </div>
           <div className="relative z-10 md:w-1/3 w-full hidden md:block">
             <div className="bg-white/10 backdrop-blur-xl p-6 rounded-2xl border border-white/10 transform rotate-3 shadow-2xl">
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-12 h-12 rounded-lg bg-white overflow-hidden p-1 flex items-center justify-center">
-                  {profile?.shop_logo_url ? (
+                  {profile?.business_logo_url ? (
                     <img
-                      src={profile.shop_logo_url}
+                      src={profile.business_logo_url}
                       alt=""
                       className="w-full h-full object-contain"
                     />

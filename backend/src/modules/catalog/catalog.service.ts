@@ -142,7 +142,7 @@ export class CatalogService {
     return this.prisma.tagRequest.findMany({
       where: { status: 'pending' },
       include: {
-        vendor: { select: { username: true, displayName: true } },
+        vendor: { select: { businessName: true } },
         subcategory: { select: { name: true, category: { select: { name: true } } } }
       },
       orderBy: { createdAt: 'desc' }

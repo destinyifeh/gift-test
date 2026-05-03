@@ -84,7 +84,7 @@ export class AdsService {
       },
       include: {
         product: { select: { id: true, name: true, imageUrl: true } },
-        vendor: { select: { shopName: true, displayName: true } },
+        vendor: { select: { businessName: true, displayName: true } },
       },
     });
 
@@ -97,7 +97,7 @@ export class AdsService {
       },
       include: {
         product: { select: { id: true, name: true, imageUrl: true } },
-        vendor: { select: { shopName: true, displayName: true } },
+        vendor: { select: { businessName: true, displayName: true } },
       },
     });
 
@@ -261,7 +261,7 @@ export class AdsService {
       },
       include: {
         product: { select: { id: true, name: true, imageUrl: true, price: true } },
-        vendor: { select: { shopName: true, displayName: true } },
+        vendor: { select: { businessName: true, displayName: true } },
       },
     });
 
@@ -282,7 +282,7 @@ export class AdsService {
       include: {
         product: {
           include: {
-            vendor: { select: { shopName: true, shopSlug: true, displayName: true, avatarUrl: true } },
+            vendor: { select: { businessName: true, businessSlug: true, displayName: true, avatarUrl: true } },
           },
         },
       },
@@ -444,7 +444,7 @@ export class AdsService {
       include: {
         product: {
           include: {
-            vendor: { select: { shopName: true, shopSlug: true, displayName: true, avatarUrl: true } },
+            vendor: { select: { businessName: true, businessSlug: true, displayName: true, avatarUrl: true } },
           },
         },
       },
@@ -477,7 +477,7 @@ export class AdsService {
       orderBy: { createdAt: 'desc' },
       include: {
         product: { select: { id: true, name: true, imageUrl: true, price: true } },
-        vendor: { select: { shopName: true, displayName: true, email: true } },
+        vendor: { select: { businessName: true, displayName: true, email: true } },
       },
     });
     return ads.map((a: any) => this.serializeFeaturedAd(a));
@@ -494,7 +494,7 @@ export class AdsService {
       orderBy: { createdAt: 'desc' },
       include: {
         product: { select: { id: true, name: true, imageUrl: true, price: true } },
-        vendor: { select: { shopName: true, displayName: true, email: true } },
+        vendor: { select: { businessName: true, displayName: true, email: true } },
       },
     });
     return ads.map((a: any) => this.serializeSponsoredAd(a));

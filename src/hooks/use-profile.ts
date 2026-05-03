@@ -32,23 +32,23 @@ export function useProfile() {
         bio: user.bio || '',
         is_creator: user.isCreator === true,
         creator_plan: user.themeSettings?.plan || 'free',
-        suggested_amounts: user.suggestedAmounts || [5, 10, 25],
         social_links: user.socialLinks || {},
         theme_settings: user.themeSettings || {},
         country: user.country || '',
         roles: user.roles || ['user'],
         admin_role: user.adminRole || null,
-        shop_name: user.shopName || null,
-        shop_description: user.shopDescription || null,
-        shop_address: user.shopAddress || null,
-        shop_street: user.shopStreet || null,
-        shop_city: user.shopCity || null,
-        shop_state: user.shopState || null,
-        shop_country: user.shopCountry || null,
-        shop_zip: user.shopZip || null,
-        shop_slug: user.shopSlug || null,
-        shop_logo_url: user.shopLogoUrl || null,
-        platform_balance: Number(user.platformBalance) || 0,
+        business_name: user.businessName || null,
+        business_description: user.businessDescription || null,
+        business_address: user.businessAddress || null,
+        business_street: user.businessStreet || null,
+        business_city: user.businessCity || null,
+        business_state: user.businessState || null,
+        business_country: user.businessCountry || null,
+        business_zip: user.businessZip || null,
+        business_slug: user.businessSlug || null,
+        business_logo_url: user.businessLogoUrl || null,
+        user_wallet: Number(user.userWallet) || 0,
+        wallet: user.wallet || '0', // creator wallet (from creator.wallet)
         bank_accounts: accounts || [],
         vendor_accepted_gift_cards: user.acceptedGiftCards?.map((g: any) => g.giftCardId) || [],
         created_at: user.createdAt,
@@ -81,17 +81,16 @@ export function useProfileByUsername(username: string | null) {
         bio: user.bio,
         is_creator: user.isCreator,
         creator_plan: user.themeSettings?.plan || 'free',
-        suggested_amounts: user.suggestedAmounts || [5, 10, 25],
         social_links: user.socialLinks || {},
         theme_settings: user.themeSettings || {},
         country: user.country,
         roles: user.roles || ['user'],
         admin_role: user.adminRole || null,
-        shop_name: user.shopName || null,
-        shop_description: user.shopDescription || null,
-        shop_address: user.shopAddress || null,
-        shop_slug: user.shopSlug || null,
-        shop_logo_url: user.shopLogoUrl || null,
+        business_name: user.businessName || null,
+        business_description: user.businessDescription || null,
+        business_address: user.businessAddress || null,
+        business_slug: user.businessSlug || null,
+        business_logo_url: user.businessLogoUrl || null,
         bank_accounts: user.bankAccounts || [], // Assuming backend includes it or separate call
         created_at: user.createdAt,
       };
@@ -101,13 +100,13 @@ export function useProfileByUsername(username: string | null) {
   });
 }
 
-export function useProfileByShopSlug(shopSlug: string | null) {
+export function useProfileByShopSlug(businessSlug: string | null) {
   return useQuery({
-    queryKey: ['profile', 'shop', shopSlug],
+    queryKey: ['profile', 'shop', businessSlug],
     queryFn: async () => {
-      if (!shopSlug) return null;
+      if (!businessSlug) return null;
 
-      const userRes = await api.get(`/users/${shopSlug}`);
+      const userRes = await api.get(`/users/${businessSlug}`);
       const user = userRes.data;
 
       return {
@@ -118,22 +117,27 @@ export function useProfileByShopSlug(shopSlug: string | null) {
         avatar_url: user.avatarUrl,
         bio: user.bio,
         is_creator: user.isCreator === true,
-        suggested_amounts: user.suggestedAmounts || [5, 10, 25],
         social_links: user.socialLinks || {},
         theme_settings: user.themeSettings || {},
         country: user.country || '',
         roles: user.roles || ['user'],
         admin_role: user.adminRole || null,
-        shop_name: user.shopName || null,
-        shop_description: user.shopDescription || null,
-        shop_address: user.shopAddress || null,
-        shop_slug: user.shopSlug || null,
-        shop_logo_url: user.shopLogoUrl || null,
+        business_name: user.businessName || null,
+        business_description: user.businessDescription || null,
+        business_address: user.businessAddress || null,
+        business_street: user.businessStreet || null,
+        business_city: user.businessCity || null,
+        business_state: user.businessState || null,
+        business_country: user.businessCountry || null,
+        business_zip: user.businessZip || null,
+        business_slug: user.businessSlug || null,
+        business_logo_url: user.businessLogoUrl || null,
+        accepted_gift_cards: user.acceptedGiftCards ? user.acceptedGiftCards.map((gc: { type: string }) => gc.type) : [],
         bank_accounts: user.bankAccounts || [],
         created_at: user.createdAt,
       };
     },
-    enabled: !!shopSlug,
+    enabled: !!businessSlug,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }

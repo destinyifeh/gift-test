@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import {use} from 'react';
 import {useAuth} from '@/hooks/use-auth';
-import {useProfileByShopSlug} from '@/hooks/use-profile';
+import {useProfile, useProfileByShopSlug} from '@/hooks/use-profile';
 import {useVendorProducts} from '@/hooks/use-vendor';
+import {GifthanceLogo} from '@/components/GifthanceLogo';
 import {formatCurrency} from '@/lib/utils/currency';
 import {useState} from 'react';
 import {V2ReportModal} from '@/components/modals/V2ReportModal';
@@ -26,9 +27,14 @@ export default function V2VendorShopPage({
 
   // Centralized auth
   const {isLoggedIn} = useAuth();
+  const {data: profile} = useProfile();
+  const avatarUrl = profile?.avatar_url;
+  const initial = (profile?.display_name || profile?.username || profile?.email || '?')
+    .charAt(0)
+    .toUpperCase();
   const [showReportModal, setShowReportModal] = useState(false);
 
-  // TanStack Query: Fetch vendor by shop_slug
+  // TanStack Query: Fetch vendor by business_slug
   const {data: vendor, isLoading: vendorLoading} = useProfileByShopSlug(vendor_slug);
 
   // TanStack Query: Fetch vendor's products
@@ -68,31 +74,26 @@ export default function V2VendorShopPage({
   return (
     <div className="min-h-screen bg-[var(--v2-background)]">
       {/* Top App Bar */}
-      <header className="fixed top-0 w-full z-50 v2-glass-nav">
-        <div className="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto">
-          <div className="flex items-center gap-8">
-            <Link
-              href="/"
-              className="text-2xl font-black text-[var(--v2-primary)] tracking-tight v2-headline"
-            >
-              Gifthance
-            </Link>
-            <nav className="hidden md:flex gap-6 items-center">
+      <header className="fixed top-0 w-full z-50 v2-glass-nav border-b border-[var(--v2-outline-variant)]/5">
+        <div className="flex justify-between items-center px-6 h-20 max-w-7xl mx-auto">
+          <div className="flex items-center gap-12">
+            <GifthanceLogo size="md" />
+            <nav className="hidden md:flex gap-8 items-center v2-headline font-bold tracking-tight">
               <Link
-                href="/gift-shop"
-                className="text-[var(--v2-primary)] border-b-2 border-[var(--v2-primary)] pb-1 v2-headline font-bold text-sm"
+                href="/gifts"
+                className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors text-sm"
               >
-                Gift Shop
+                Gifts
               </Link>
               <Link
                 href="/campaigns"
-                className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-on-surface)] v2-headline font-bold text-sm transition-colors"
+                className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors text-sm"
               >
                 Campaigns
               </Link>
               <Link
                 href="/send-gift"
-                className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-on-surface)] v2-headline font-bold text-sm transition-colors"
+                className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors text-sm"
               >
                 Send Gift
               </Link>
@@ -100,11 +101,19 @@ export default function V2VendorShopPage({
           </div>
           <div className="flex items-center gap-4">
             {isLoggedIn ? (
-              <Link href="/dashboard" className="p-2 text-[var(--v2-primary)]">
-                <span className="v2-icon">account_circle</span>
+              <Link href="/dashboard" className="flex items-center text-[var(--v2-primary)] hover:opacity-80 transition-opacity">
+                {avatarUrl ? (
+                  <div className="w-9 h-9 rounded-full overflow-hidden ring-2 ring-[var(--v2-primary)]/20 shadow-sm transition-transform hover:scale-105 active:scale-95">
+                    <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+                  </div>
+                ) : (
+                  <div className="w-9 h-9 rounded-full bg-[var(--v2-primary)] text-white flex items-center justify-center font-bold text-sm shadow-sm transition-transform hover:scale-105 active:scale-95">
+                    {initial}
+                  </div>
+                )}
               </Link>
             ) : (
-              <Link href="/login" className="text-[var(--v2-primary)] font-semibold">
+              <Link href="/login" className="text-[var(--v2-primary)] font-bold v2-headline hover:text-[var(--v2-primary-dim)] transition-colors text-sm">
                 Login
               </Link>
             )}
@@ -123,7 +132,7 @@ export default function V2VendorShopPage({
             Gift Shop
           </Link>
           <span className="v2-icon text-xs">chevron_right</span>
-          <span className="text-[var(--v2-on-surface)] capitalize">{vendor.shop_name || vendor.display_name}</span>
+          <span className="text-[var(--v2-on-surface)] capitalize">{vendor.business_name || vendor.display_name}</span>
         </nav>
 
         {/* Vendor Profile Section */}
@@ -133,8 +142,8 @@ export default function V2VendorShopPage({
             <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-center text-center md:items-start md:text-left">
               {/* Vendor Logo */}
               <div className="w-28 h-28 rounded-3xl bg-[var(--v2-surface-container-low)] flex items-center justify-center shadow-[0_20px_40px_rgba(73,38,4,0.04)] overflow-hidden">
-                {vendor.shop_logo_url ? (
-                  <img src={vendor.shop_logo_url} alt="" className="w-full h-full object-cover" />
+                {vendor.business_logo_url ? (
+                  <img src={vendor.business_logo_url} alt="" className="w-full h-full object-cover" />
                 ) : (
                   <span
                     className="v2-icon text-[var(--v2-primary)] text-5xl"
@@ -149,7 +158,7 @@ export default function V2VendorShopPage({
               <div className="flex-1 w-full">
                 <div className="flex flex-col md:flex-row flex-wrap items-center md:items-baseline gap-3 md:gap-4 mb-3">
                   <h1 className="text-3xl md:text-5xl font-black v2-headline tracking-tighter text-[var(--v2-on-surface)] capitalize">
-                    {vendor.shop_name || vendor.display_name || 'Vendor Shop'}
+                    {vendor.business_name || vendor.display_name || 'Vendor Shop'}
                   </h1>
                   <div className="flex items-center gap-2">
                     {vendor.roles?.includes('vendor') && (
@@ -167,15 +176,15 @@ export default function V2VendorShopPage({
                   </div>
                 </div>
 
-                {vendor.shop_address && (
+                {vendor.business_address && (
                   <div className="flex items-center justify-center md:justify-start gap-2 text-[var(--v2-on-surface-variant)] mb-4">
                     <span className="v2-icon text-lg">location_on</span>
-                    <span className="text-sm font-semibold">{vendor.shop_address}</span>
+                    <span className="text-sm font-semibold">{vendor.business_address}</span>
                   </div>
                 )}
 
                 <p className="text-base md:text-lg text-[var(--v2-on-surface-variant)] leading-relaxed max-w-2xl mx-auto md:mx-0">
-                  {vendor.shop_description || vendor.bio || 'This vendor has not added a description yet.'}
+                  {vendor.business_description || vendor.bio || 'This vendor has not added a description yet.'}
                 </p>
               </div>
             </div>
@@ -308,7 +317,7 @@ export default function V2VendorShopPage({
         onClose={() => setShowReportModal(false)}
         targetId={vendor.id}
         targetType="vendor"
-        targetName={vendor.shop_name || vendor.display_name}
+        targetName={vendor.business_name || vendor.display_name}
       />
     </div>
   );

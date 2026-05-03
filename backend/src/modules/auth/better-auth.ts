@@ -1,3 +1,8 @@
+// Ensure BigInt is serialized correctly
+(BigInt.prototype as any).toJSON = function () {
+  return Number(this);
+};
+
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { betterAuth } from 'better-auth';
@@ -23,31 +28,12 @@ export const auth = betterAuth({
   }),
   user: {
     additionalFields: {
-      username: { type: 'string', required: false },
       displayName: { type: 'string', required: false },
       avatarUrl: { type: 'string', required: false },
-      bio: { type: 'string', required: false },
       isCreator: { type: 'boolean', defaultValue: false },
-      suggestedAmounts: {
-        type: 'number[]' as any,
-        defaultValue: [5, 10, 25] as any,
-      },
-      socialLinks: { type: 'string' as any, defaultValue: '{}' },
-      themeSettings: { type: 'string' as any, defaultValue: '{}' },
       country: { type: 'string', required: false },
       roles: { type: 'string[]' as any, defaultValue: ['user'] as any },
       adminRole: { type: 'string', required: false },
-      platformBalance: { type: 'number' as any, defaultValue: 0 as any },
-      status: { type: 'string', defaultValue: 'active' },
-      walletStatus: { type: 'string', defaultValue: 'active' },
-      shopName: { type: 'string', required: false },
-      shopDescription: { type: 'string', required: false },
-      shopAddress: { type: 'string', required: false },
-      shopSlug: { type: 'string', required: false },
-      shopLogoUrl: { type: 'string', required: false },
-      bannerUrl: { type: 'string', required: false },
-      isVerifiedVendor: { type: 'boolean', defaultValue: false },
-      vendorStatus: { type: 'string', defaultValue: 'pending' },
     },
   },
   emailAndPassword: {
@@ -143,5 +129,56 @@ export const auth = betterAuth({
         ],
       },
     },
+    {
+      id: 'account-vendor',
+      hooks: {
+        after: [
+          {
+            matcher: (ctx: any) => ctx.path === '/sign-up/email',
+            handler: async (ctx: any) => {
+              const user = ctx.response?.user;
+              if (!user) return {}; // Prevent crashes if registration failed and ctx.response.user is undefined
+              
+              const roles = ctx.body.roles || [];
+              const fallbackUsername = user.name.replace(/\s+/g, '').toLowerCase() + Math.random().toString(36).substring(2, 6);
+              const username = ctx.body.username || fallbackUsername;
+              
+              try {
+                // Ensure every user has a creator profile (where the username lives now)
+                await (prisma as any).creator.upsert({
+                  where: { userId: user.id },
+                  update: {},
+                  create: {
+                    userId: user.id,
+                    username: username,
+                    bio: ctx.body.bio || null,
+                  }
+                });
+              } catch (e) {
+                console.error("Failed to automatically create Creator relation on signup", e);
+              }
+              
+              if (roles.includes('vendor')) {
+                // Create vendor record
+                await (prisma as any).vendor.upsert({
+                  where: { userId: user.id },
+                  update: {},
+                  create: {
+                    id: user.id,
+                    userId: user.id,
+                    businessName: ctx.body.businessName || user.name,
+                    businessSlug: ctx.body.businessSlug || user.id,
+                    status: ctx.body.isVerifiedVendor ? 'approved' : 'pending',
+                    isVerified: ctx.body.isVerifiedVendor || false,
+                  },
+                });
+              }
+              
+              return {}; // Explicitly return empty object to bypass result.headers crash in better-auth core
+            }
+          }
+        ]
+      }
+    }
   ],
 });

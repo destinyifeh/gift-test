@@ -1,6 +1,7 @@
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { Request } from 'express';
 import { auth } from '../../modules/auth/better-auth';
+import { fromNodeHeaders } from 'better-auth/node';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -9,7 +10,7 @@ export class AuthGuard implements CanActivate {
     
     try {
       const session = await auth.api.getSession({
-        headers: req.headers as Record<string, string>,
+        headers: fromNodeHeaders(req.headers),
       });
 
       if (!session) {
@@ -22,6 +23,7 @@ export class AuthGuard implements CanActivate {
 
       return true;
     } catch (error) {
+      console.error('[AuthGuard] getSession failed:', error);
       throw new UnauthorizedException('Invalid or expired session');
     }
   }

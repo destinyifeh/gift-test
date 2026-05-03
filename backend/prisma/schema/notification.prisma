@@ -11,8 +11,12 @@ model Notification {
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
 
-  user  User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  reads NotificationRead[]
+  user      User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vendorId  String?            @map("vendor_id")
+  vendor    Vendor?            @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  adminId   String?            @map("admin_id")
+  admin     Admin?             @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  reads     NotificationRead[]
 
   @@map("notifications")
 }
@@ -20,12 +24,19 @@ model Notification {
 model NotificationRead {
   id             Int      @id @default(autoincrement())
   notificationId Int      @map("notification_id")
-  userId         String   @map("user_id")
+  userId         String?  @map("user_id")
+  vendorId       String?  @map("vendor_id")
   createdAt      DateTime @default(now()) @map("created_at")
 
   notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vendor       Vendor?      @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  admin        Admin?       @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  adminId        String?  @map("admin_id")
 
   @@unique([notificationId, userId])
+  @@unique([notificationId, vendorId])
+  @@unique([notificationId, adminId])
   @@map("notification_reads")
 }

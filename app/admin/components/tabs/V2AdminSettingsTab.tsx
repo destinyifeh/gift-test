@@ -27,6 +27,7 @@ export function V2AdminSettingsTab() {
     platformFee: 5,
     minWithdrawal: 1000,
     maxWithdrawal: 500000,
+    creatorProSubscriptionPrice: 10000,
     maintenanceMode: false,
     newRegistrations: true,
     vendorApplications: true,
@@ -580,6 +581,25 @@ export function V2AdminSettingsTab() {
                 type="number"
                 value={settings.maxWithdrawal}
                 onChange={e => setSettings({ ...settings, maxWithdrawal: parseInt(e.target.value) })}
+                className="w-32 px-4 py-2 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Creator Subscription Price */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-t border-[var(--v2-surface-container)] pt-6">
+            <div>
+              <p className="font-bold">Creator Subscription Price</p>
+              <p className="text-sm text-[var(--v2-on-surface-variant)]">
+                Amount charged monthly for Pro status
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[var(--v2-on-surface-variant)]">₦</span>
+              <input
+                type="number"
+                value={settings.creatorProSubscriptionPrice}
+                onChange={e => setSettings({ ...settings, creatorProSubscriptionPrice: parseInt(e.target.value) })}
                 className="w-32 px-4 py-2 bg-[var(--v2-surface-container)] rounded-xl border-none focus:ring-2 focus:ring-[var(--v2-primary)]/20 outline-none"
               />
             </div>

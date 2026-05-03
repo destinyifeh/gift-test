@@ -31,6 +31,8 @@ const creatorMenuItems: MenuItem[] = [
   {id: 'gift-page', label: 'My Gift Page', icon: 'auto_awesome'},
   {id: 'supporters', label: 'Supporters', icon: 'group'},
   {id: 'analytics', label: 'Analytics', icon: 'analytics'},
+  {id: 'creator-wallet', label: 'Creator Wallet', icon: 'account_balance'},
+  {id: 'creator-settings', label: 'Creator Settings', icon: 'manage_accounts'},
 ];
 
 interface V2MoreDrawerProps {
@@ -94,7 +96,9 @@ export function V2MoreDrawer({open, onOpenChange, onNavigate, activeSection}: V2
               <p className="font-bold text-lg text-[var(--v2-on-surface)] truncate capitalize">
                 {userName}
               </p>
-              <p className="text-sm text-[var(--v2-on-surface-variant)] truncate">@{userUsername}</p>
+              <p className="text-sm text-[var(--v2-on-surface-variant)] truncate">
+                {isCreator ? `@${userUsername}` : 'Personal Account'}
+              </p>
             </div>
           </div>
 

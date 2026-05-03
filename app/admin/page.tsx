@@ -151,8 +151,8 @@ function ViewDetailsContent({data, title}: {data: any; title: string}) {
             <p className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider mb-2">Vendor</p>
           </div>
           <Field label="Vendor Name" value={data.profiles?.display_name || data.profiles?.username || data.vendor_name || '—'} />
-          <Field label="Shop Name" value={data.profiles?.shop_name || data.shop_name || '—'} />
-          <Field label="Shop Address" value={data.profiles?.shop_address || '—'} />
+          <Field label="Shop Name" value={data.profiles?.business_name || data.business_name || '—'} />
+          <Field label="Shop Address" value={data.profiles?.business_address || '—'} />
 
           {/* Meta */}
           <div className="pt-3 mt-3 border-t border-[var(--v2-outline-variant)]/20">
@@ -271,20 +271,20 @@ function ViewDetailsContent({data, title}: {data: any; title: string}) {
     return (
       <div className="space-y-0">
         <div className="flex items-center gap-4 mb-4">
-          {data.avatar_url || data.shop_logo_url ? (
-            <img src={data.shop_logo_url || data.avatar_url} alt="" className="w-16 h-16 rounded-xl object-cover" />
+          {data.avatar_url || data.business_logo_url ? (
+            <img src={data.business_logo_url || data.avatar_url} alt="" className="w-16 h-16 rounded-xl object-cover" />
           ) : (
             <div className="w-16 h-16 rounded-xl bg-[var(--v2-primary)]/10 flex items-center justify-center">
               <span className="v2-icon text-2xl text-[var(--v2-primary)]">storefront</span>
             </div>
           )}
           <div>
-            <p className="font-bold text-lg">{data.shop_name || data.display_name || data.username}</p>
+            <p className="font-bold text-lg">{data.business_name || data.display_name || data.username}</p>
             <p className="text-sm text-[var(--v2-on-surface-variant)]">@{data.username}</p>
           </div>
         </div>
-        <Field label="Shop Name" value={data.shop_name} />
-        <Field label="Shop Address" value={data.shop_address} />
+        <Field label="Shop Name" value={data.business_name} />
+        <Field label="Shop Address" value={data.business_address} />
         <Field label="Email" value={data.email} />
         <Field label="Country" value={data.country} />
         <Field label="Products" value={data.orders_count || 0} />

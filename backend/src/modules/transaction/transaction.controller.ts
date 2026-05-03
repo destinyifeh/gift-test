@@ -59,8 +59,8 @@ export class TransactionController {
   // ── Withdrawal ──
   @UseGuards(AuthGuard)
   @Post('withdraw')
-  async withdraw(@Req() req: any, @Body() body: { amount: number; bankAccountId: string }) {
-    return this.transactionService.initiateWithdrawal(req.user.id, body.amount, body.bankAccountId);
+  async withdraw(@Req() req: any, @Body() body: { amount: number; bankAccountId: string; source?: 'user' | 'vendor' }) {
+    return this.transactionService.initiateWithdrawal(req.user.id, body.amount, body.bankAccountId, body.source || 'user');
   }
 
   // ── Plan Management ──
@@ -127,5 +127,11 @@ export class TransactionController {
     @Query('currentGiftId') currentGiftId: string,
   ) {
     return this.transactionService.fetchEligibleSwapGifts(vendorId, Number(amount), Number(currentGiftId));
+  }
+  @UseGuards(AuthGuard)
+  @Post('collect-earnings')
+  async collectEarnings(@Req() req: any, @Body() body: { amount?: number }) {
+    const amountKobo = body.amount ? Math.round(body.amount * 100) : undefined;
+    return this.transactionService.collectCreatorEarnings(req.user.id, amountKobo);
   }
 }

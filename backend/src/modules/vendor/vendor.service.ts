@@ -16,7 +16,7 @@ export class VendorService {
 
   async getVendorsByGiftCard(giftCardId: number, country?: string) {
     const where: any = {
-      acceptedGiftCards: {
+      acceptedCards: {
         some: {
           giftCardId
         }
@@ -24,21 +24,21 @@ export class VendorService {
     };
 
     if (country) {
-      where.shopCountry = country;
+      where.country = country;
     }
 
-    const vendors = await (this.prisma as any).user.findMany({
+    const vendors = await (this.prisma as any).vendor.findMany({
       where,
       select: {
         id: true,
-        shopName: true,
-        shopDescription: true,
-        shopStreet: true,
-        shopCity: true,
-        shopState: true,
-        shopCountry: true,
-        shopLogoUrl: true,
-        shopSlug: true,
+        businessName: true,
+        businessDescription: true,
+        streetAddress: true,
+        city: true,
+        state: true,
+        country: true,
+        businessLogoUrl: true,
+        businessSlug: true,
       }
     });
 
@@ -58,7 +58,14 @@ export class VendorService {
       where,
       orderBy: { createdAt: 'desc' },
       include: {
-        vendor: { select: { displayName: true, country: true, shopSlug: true, shopName: true } },
+        vendor: { 
+          select: { 
+            businessName: true, 
+            businessSlug: true,
+            country: true,
+            user: { select: { displayName: true } }
+          } 
+        },
       },
     });
 
@@ -137,7 +144,15 @@ export class VendorService {
           { createdAt: 'desc' }
         ],
         include: {
-          vendor: { select: { displayName: true, country: true, shopSlug: true, shopName: true, image: true } },
+          vendor: { 
+            select: { 
+              businessName: true, 
+              businessSlug: true,
+              businessLogoUrl: true,
+              country: true,
+              user: { select: { displayName: true, avatarUrl: true } }
+            } 
+          },
         },
       }),
       (this.prisma as any).vendorGift.count({ where }),
@@ -161,7 +176,19 @@ export class VendorService {
     const product = await (this.prisma as any).vendorGift.findUnique({
       where: { id: productId },
       include: {
-        vendor: { select: { displayName: true, country: true, bio: true, shopName: true, shopSlug: true, shopDescription: true, shopAddress: true } },
+        vendor: { 
+          select: { 
+            businessName: true, 
+            businessSlug: true, 
+            businessDescription: true, 
+            streetAddress: true,
+            city: true,
+            state: true,
+            country: true,
+            postalCode: true,
+            user: { select: { displayName: true } }
+          } 
+        },
       },
     });
     if (!product) throw new NotFoundException('Product not found');
@@ -176,14 +203,14 @@ export class VendorService {
   }
 
   async fetchProductBySlugs(vendorSlug: string, productSlug: string, recordView = false) {
-    let vendor = await (this.prisma as any).user.findFirst({
-      where: { shopSlug: vendorSlug },
+    let vendor = await (this.prisma as any).vendor.findFirst({
+      where: { businessSlug: vendorSlug },
       select: { id: true },
     });
 
     if (!vendor) {
       // Fallback: Check if vendorSlug is actually an ID
-      vendor = await (this.prisma as any).user.findUnique({
+      vendor = await (this.prisma as any).vendor.findUnique({
         where: { id: vendorSlug },
         select: { id: true },
       });
@@ -202,7 +229,7 @@ export class VendorService {
       product = await (this.prisma as any).vendorGift.findFirst({
         where: { vendorId: vendor.id, productShortId: shortId },
         include: {
-          vendor: { select: { displayName: true, country: true, bio: true, shopSlug: true, shopName: true, shopDescription: true, shopAddress: true } },
+          vendor: { select: { country: true, businessSlug: true, businessName: true, businessDescription: true, streetAddress: true, city: true, state: true } },
         },
       });
     }
@@ -212,7 +239,7 @@ export class VendorService {
       product = await (this.prisma as any).vendorGift.findFirst({
         where: { vendorId: vendor.id, slug: productSlug },
         include: {
-          vendor: { select: { displayName: true, country: true, bio: true, shopSlug: true, shopName: true, shopDescription: true, shopAddress: true } },
+          vendor: { select: { country: true, businessSlug: true, businessName: true, businessDescription: true, streetAddress: true, city: true, state: true } },
         },
       });
     }
@@ -224,7 +251,7 @@ export class VendorService {
         product = await (this.prisma as any).vendorGift.findFirst({
           where: { vendorId: vendor.id, id: numId },
           include: {
-            vendor: { select: { displayName: true, country: true, bio: true, shopSlug: true, shopName: true, shopDescription: true, shopAddress: true } },
+            vendor: { select: { country: true, businessSlug: true, businessName: true, businessDescription: true, streetAddress: true, city: true, state: true } },
           },
         });
       }
@@ -288,6 +315,8 @@ export class VendorService {
     });
 
     const giftId = productData.id && !String(productData.id).includes('new') ? Number(productData.id) : null;
+    const vendor = await (this.prisma as any).vendor.findUnique({ where: { userId } });
+    if (!vendor) throw new NotFoundException('Vendor profile not found');
 
     if (giftId) {
       // Update
@@ -295,7 +324,7 @@ export class VendorService {
         where: { id: giftId },
         data: {
           ...safeData,
-          vendorId: userId,
+          vendorId: vendor.id,
           productTags: {
             deleteMany: {}, // Clear old tags
             create: selectedTagIds.map((tagId: any) => ({
@@ -315,7 +344,7 @@ export class VendorService {
       const created = await (this.prisma as any).vendorGift.create({
         data: {
           ...safeData,
-          vendorId: userId,
+          vendorId: vendor.id,
           productTags: {
             create: selectedTagIds.map((tagId: any) => ({
               tag: { connect: { id: Number(tagId) } },
@@ -328,8 +357,11 @@ export class VendorService {
   }
 
   async deleteProduct(userId: string, productId: number) {
+    const vendor = await (this.prisma as any).vendor.findUnique({ where: { userId } });
+    if (!vendor) throw new NotFoundException('Vendor profile not found');
+
     const product = await (this.prisma as any).vendorGift.findFirst({
-      where: { id: productId, vendorId: userId },
+      where: { id: productId, vendorId: vendor.id },
     });
     if (!product) throw new NotFoundException('Product not found');
 
@@ -379,7 +411,7 @@ export class VendorService {
         giftCode: { equals: trimmedCode, mode: 'insensitive' } 
       },
       include: {
-        user: { select: { username: true, displayName: true } },
+        user: { select: { displayName: true, creator: { select: { username: true } } } },
       },
     });
 
@@ -390,7 +422,7 @@ export class VendorService {
           giftCode: { equals: `GFT-${trimmedCode}`, mode: 'insensitive' } 
         },
         include: {
-          user: { select: { username: true, displayName: true } },
+          user: { select: { displayName: true, creator: { select: { username: true } } } },
         },
       });
     }
@@ -404,7 +436,7 @@ export class VendorService {
           ]
         },
         include: {
-          user: { select: { username: true, displayName: true } },
+          user: { select: { displayName: true, creator: { select: { username: true } } } },
         },
       });
     }
@@ -416,7 +448,9 @@ export class VendorService {
           where: { id: directGift.claimableGiftId },
           select: { vendorId: true, name: true },
         });
-        if (gift && gift.vendorId !== userId) {
+        
+        const vendor = await (this.prisma as any).vendor.findUnique({ where: { userId } });
+        if (!vendor || (gift && gift.vendorId !== vendor.id)) {
           throw new ForbiddenException('This gift card belongs to another vendor.');
         }
       }
@@ -478,7 +512,8 @@ export class VendorService {
 
       // Check if vendor accepts this gift card
       if (userGiftCard.giftCard?.vendors?.length > 0) {
-        const vendorAccepted = userGiftCard.giftCard.vendors.some((v: any) => v.vendorId === userId);
+        const vendor = await (this.prisma as any).vendor.findUnique({ where: { userId } });
+        const vendorAccepted = userGiftCard.giftCard.vendors.some((v: any) => v.vendorId === (vendor?.id || ''));
         if (!vendorAccepted) {
           throw new ForbiddenException('You do not accept this gift card brand.');
         }
@@ -514,12 +549,15 @@ export class VendorService {
       throw new BadRequestException(msg);
     }
 
+    const vendor = await (this.prisma as any).vendor.findUnique({ where: { userId } });
+    if (!vendor) throw new NotFoundException('Vendor profile not found');
+
     await (this.prisma as any).directGift.update({
       where: { id: gift.id },
       data: {
         status: 'redeemed',
         redeemedAt: new Date(),
-        redeemedByVendorId: userId,
+        redeemedByVendorId: vendor.id,
       },
     });
 
@@ -537,6 +575,12 @@ export class VendorService {
       });
     }
 
+    // Increment vendor's wallet balance in Vendor table
+    await (this.prisma as any).vendor.update({
+      where: { userId: userId },
+      data: { wallet: { increment: BigInt(Math.round(Number(gift.amount || 0) * 100)) } },
+    });
+
     return { success: true };
   }
 
@@ -545,15 +589,22 @@ export class VendorService {
   // ─────────────────────────────────────────────
 
   async fetchVendorWallet(userId: string) {
+    const vendorRecord = await (this.prisma as any).vendor.findUnique({
+      where: { userId },
+      select: { wallet: true, id: true },
+    });
+
+    if (!vendorRecord) throw new NotFoundException('Vendor profile not found');
+
     const products = await (this.prisma as any).vendorGift.findMany({
-      where: { vendorId: userId },
+      where: { vendorId: vendorRecord.id },
       select: { id: true },
     });
     const productIds = products.map((p: any) => p.id);
 
-    const [redeemedVouchers, allOrders, withdrawals] = await Promise.all([
+    const [redeemedVouchers, allOrders, transactions] = await Promise.all([
       (this.prisma as any).directGift.findMany({
-        where: { redeemedByVendorId: userId, status: 'redeemed' },
+        where: { redeemedByVendorId: vendorRecord.id, status: 'redeemed' },
         select: { amount: true, status: true, redeemedAt: true, giftCode: true, title: true, user: { select: { displayName: true } } },
       }),
       (this.prisma as any).directGift.findMany({
@@ -561,19 +612,21 @@ export class VendorService {
         select: { amount: true, status: true, createdAt: true, giftCode: true },
       }),
       (this.prisma as any).transaction.findMany({
-        where: { userId, type: { in: ['withdrawal', 'payout', 'fee'] }, status: { in: ['success', 'pending'] } },
-        select: { amount: true, createdAt: true },
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        take: 50
       }),
     ]);
 
     const totalSales = allOrders.reduce((acc: number, c: any) => acc + (Number(c.amount || 0)), 0);
-    const available = redeemedVouchers.reduce((acc: number, c: any) => acc + (Number(c.amount || 0)), 0);
-    const totalWithdrawn = withdrawals.reduce((acc: number, w: any) => acc + (Number(w.amount) / 100), 0);
-    const pending = Math.max(0, totalSales - available);
+    const availableKobo = Number(vendorRecord.wallet || 0);
+    
+    // Pending are claimed but not yet redeemed vouchers
+    const pendingSales = allOrders.filter((o: any) => o.status === 'claimed').reduce((acc: number, o: any) => acc + (Number(o.amount || 0)), 0);
 
     // Flex card transactions (as vendor)
     const flexCardTxs = await (this.prisma as any).flexCardTransaction.findMany({
-      where: { vendorId: userId },
+      where: { vendorId: vendorRecord.id },
       select: { 
         id: true, amount: true, createdAt: true, description: true, 
         flexCard: { select: { code: true, recipient: { select: { displayName: true } }, sender: { select: { displayName: true } } } } 
@@ -581,7 +634,7 @@ export class VendorService {
     });
 
     const vendorCardTxs = await (this.prisma as any).userGiftCardTransaction.findMany({
-      where: { vendorId: userId },
+      where: { vendorId: vendorRecord.id },
       select: { 
         id: true, amount: true, createdAt: true, description: true, 
         userGiftCard: { 
@@ -597,10 +650,14 @@ export class VendorService {
 
     const flexCardTotal = flexCardTxs.reduce((acc: number, t: any) => acc + Number(t.amount || 0), 0);
     const vendorCardTotal = vendorCardTxs.reduce((acc: number, t: any) => acc + Number(t.amount || 0), 0);
-    const totalSalesFinal = totalSales + flexCardTotal + vendorCardTotal;
-    const availableFinal = Math.max(0, available + flexCardTotal + vendorCardTotal - totalWithdrawn);
+    const genericVoucherTotal = redeemedVouchers.reduce((acc: number, r: any) => acc + (Number(r.amount || 0)), 0);
+    const totalSalesFinal = totalSales + flexCardTotal + vendorCardTotal + genericVoucherTotal;
+    const availableFinal = Number(vendorRecord.wallet) / 100;
+    const pending = pendingSales;
 
-    // Build transaction list
+    // Total redemption count across all types
+    const totalRedemptionsCount = redeemedVouchers.length + flexCardTxs.length + vendorCardTxs.length;
+
     const voucherTxs = redeemedVouchers.map((r: any, i: number) => ({
       id: `vouch-${i}`,
       type: 'vendor_redemption',
@@ -635,19 +692,18 @@ export class VendorService {
       timestamp: t.createdAt ? new Date(t.createdAt).getTime() : Date.now(),
     }));
 
-    const withdrawalTxs = withdrawals.map((w: any, i: number) => ({
-      id: `with-${i}`,
-      type: 'withdrawal',
-      desc: 'Withdrawal',
-      amount: Number(w.amount) / 100,
-      date: w.createdAt ? new Date(w.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-      timestamp: w.createdAt ? new Date(w.createdAt).getTime() : Date.now(),
-    }));
+    const withdrawalTxs = transactions
+      .filter((t: any) => ['withdrawal', 'payout', 'fee'].includes(t.type))
+      .map((w: any, i: number) => ({
+        id: `with-${i}`,
+        type: 'withdrawal',
+        desc: w.description || 'Withdrawal',
+        amount: Number(w.amount) / 100,
+        date: w.createdAt ? new Date(w.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        timestamp: w.createdAt ? new Date(w.createdAt).getTime() : Date.now(),
+      }));
 
     const allTxs = [...voucherTxs, ...flexTxs, ...vendorCardTxList, ...withdrawalTxs].sort((a, b) => b.timestamp - a.timestamp);
-
-    // Total redemption count across all types
-    const totalRedemptionsCount = redeemedVouchers.length + flexCardTxs.length + vendorCardTxs.length;
 
     return {
       available: availableFinal,
@@ -670,17 +726,32 @@ export class VendorService {
       (this.prisma as any).directGift.findMany({
         where: { redeemedByVendorId: userId, status: 'redeemed' },
         orderBy: { redeemedAt: 'desc' },
-        include: { user: { select: { username: true, displayName: true } } },
+        include: { user: { select: { displayName: true, creator: { select: { username: true } } } } },
       }),
       (this.prisma as any).flexCardTransaction.findMany({
         where: { vendorId: userId },
         orderBy: { createdAt: 'desc' },
-        include: { flexCard: { include: { recipient: { select: { displayName: true } }, sender: { select: { displayName: true } } } } },
+        include: { 
+          flexCard: { 
+            include: { 
+              recipient: { select: { displayName: true } }, 
+              sender: { select: { displayName: true } } 
+            } 
+          } 
+        },
       }),
       (this.prisma as any).userGiftCardTransaction.findMany({
         where: { vendorId: userId },
         orderBy: { createdAt: 'desc' },
-        include: { userGiftCard: { include: { recipient: { select: { displayName: true } }, sender: { select: { displayName: true } }, giftCard: { select: { name: true } } } } },
+        include: { 
+          userGiftCard: { 
+            include: { 
+              recipient: { select: { displayName: true } }, 
+              sender: { select: { displayName: true } }, 
+              giftCard: { select: { name: true } } 
+            } 
+          } 
+        },
       }),
     ]);
 
@@ -689,7 +760,7 @@ export class VendorService {
       id: `dir-${o.id}`,
       giftCode: o.giftCode,
       title: o.title || 'Product Voucher',
-      senderName: o.senderName || o.user?.displayName || o.user?.username || 'Sender',
+      senderName: o.senderName || o.user?.displayName || o.user?.creator?.username || 'Sender',
       status: o.status,
       amount: Number(o.amount || 0),
       goalAmount: o.amount?.toString(),

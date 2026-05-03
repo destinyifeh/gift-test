@@ -5,6 +5,7 @@ import { PrismaService } from '../../prisma/prisma.service.js';
 import { EmailService } from '../email/email.service.js';
 import { AuthEmailHelper } from './auth-email.helper.js';
 import { auth } from './better-auth.js';
+import { fromNodeHeaders } from 'better-auth/node';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -34,7 +35,7 @@ export class AuthService implements OnModuleInit {
    */
   async getSession(req: Request) {
     const session = await auth.api.getSession({
-      headers: new Headers(req.headers as any),
+      headers: fromNodeHeaders(req.headers as import('http').IncomingHttpHeaders),
     });
     return session;
   }
@@ -207,9 +208,6 @@ export class AuthService implements OnModuleInit {
         password: data.password || 'TemporaryPassword123!',
         name: data.name,
         roles: data.roles || ['user'],
-        isVerifiedVendor: data.isVerifiedVendor || false,
-        suggestedAmounts: [5, 10, 25],
-        platformBalance: 0,
       },
     });
   }

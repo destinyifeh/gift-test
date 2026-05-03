@@ -24,7 +24,7 @@ model DirectGift {
   // Custom/Voucher redemption
   redeemedAt         DateTime? @map("redeemed_at")
   redeemedByVendorId String?   @map("redeemed_by_vendor_id")
-  redeemedByVendor   User?     @relation("DirectGiftRedeemedByVendor", fields: [redeemedByVendorId], references: [id], onDelete: SetNull)
+  redeemedByVendor   Vendor?   @relation("DirectGiftRedeemedByVendor", fields: [redeemedByVendorId], references: [id], onDelete: SetNull)
   vendorRating       Int?      @map("vendor_rating")
   message            String?
 

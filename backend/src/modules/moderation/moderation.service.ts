@@ -146,12 +146,18 @@ export class ModerationService {
               where: { id: ticket.targetId },
               select: {
                 displayName: true,
-                username: true,
                 email: true,
                 avatarUrl: true,
-                shopName: true,
+                creator: { select: { username: true } },
+                vendor: { select: { businessName: true } },
               },
             });
+            if (targetDetails) {
+              (targetDetails as any).username = targetDetails.creator?.username || null;
+            }
+            if (targetDetails?.vendor) {
+              (targetDetails as any).businessName = targetDetails.vendor.businessName;
+            }
           } else if (ticket.targetType === 'product') {
             targetDetails = await (this.prisma as any).vendorGift.findUnique({
               where: { id: parseInt(ticket.targetId) },
@@ -159,7 +165,7 @@ export class ModerationService {
                 name: true,
                 imageUrl: true,
                 price: true,
-                vendor: { select: { shopName: true, displayName: true } },
+                vendor: { select: { businessName: true } },
               },
             });
           } else if (ticket.targetType === 'campaign') {
@@ -168,7 +174,7 @@ export class ModerationService {
               select: {
                 title: true,
                 description: true,
-                user: { select: { displayName: true, username: true } },
+                user: { select: { displayName: true, creator: { select: { username: true } } } },
               },
             });
           }

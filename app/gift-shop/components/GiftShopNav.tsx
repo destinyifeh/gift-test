@@ -15,35 +15,38 @@ interface GiftShopNavProps {
 export function GiftShopDesktopNav({isLoggedIn, searchQuery, onSearchChange}: GiftShopNavProps) {
   const {data: profile} = useProfile();
   const avatarUrl = profile?.avatar_url;
+  const initial = (profile?.display_name || profile?.username || profile?.email || '?')
+    .charAt(0)
+    .toUpperCase();
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-orange-50/80 backdrop-blur-xl hidden md:block">
-      <div className="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
+    <nav className="fixed top-0 w-full z-50 v2-glass-nav border-b border-[var(--v2-outline-variant)]/5 hidden md:block">
+      <div className="flex justify-between items-center px-8 h-20 max-w-7xl mx-auto">
         <div className="flex items-center gap-12">
           <GifthanceLogo size="md" />
-          <div className="hidden md:flex items-center gap-8 text-sm font-semibold tracking-tight">
+          <div className="hidden md:flex items-center gap-8 v2-headline font-bold tracking-tight">
             <Link
-              href="/gift-shop"
-              className="text-orange-800 border-b-2 border-orange-600 pb-1 hover:text-orange-700 transition-colors"
+              href="/gifts"
+              className="text-[var(--v2-primary)] border-b-2 border-[var(--v2-primary)] pb-1 text-sm"
             >
-              Gift Shop
+              Gifts
             </Link>
             <Link
               href="/campaigns"
-              className="text-stone-600 font-medium hover:text-orange-700 transition-colors"
+              className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors text-sm"
             >
               Campaigns
             </Link>
             <Link
               href="/send-gift"
-              className="text-stone-600 font-medium hover:text-orange-700 transition-colors"
+              className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors text-sm"
             >
               Send Gift
             </Link>
             {isLoggedIn && (
               <Link
                 href="/dashboard"
-                className="text-stone-600 font-medium hover:text-orange-700 transition-colors"
+                className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors text-sm"
               >
                 Dashboard
               </Link>
@@ -64,17 +67,19 @@ export function GiftShopDesktopNav({isLoggedIn, searchQuery, onSearchChange}: Gi
             />
           </div>
           {isLoggedIn ? (
-            <Link href="/dashboard" className="flex items-center text-orange-700 hover:opacity-80 duration-200">
+            <Link href="/dashboard" className="flex items-center text-[var(--v2-primary)] hover:opacity-80 duration-200">
               {avatarUrl ? (
-                <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-orange-200 shadow-sm transition-transform hover:scale-105 active:scale-95">
+                <div className="w-9 h-9 rounded-full overflow-hidden ring-2 ring-[var(--v2-primary)]/20 shadow-sm transition-transform hover:scale-105 active:scale-95">
                   <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
                 </div>
               ) : (
-                <span className="v2-icon text-2xl">account_circle</span>
+                <div className="w-9 h-9 rounded-full bg-[var(--v2-primary)] text-white flex items-center justify-center font-bold text-sm shadow-sm transition-transform hover:scale-105 active:scale-95">
+                  {initial}
+                </div>
               )}
             </Link>
           ) : (
-            <Link href="/login" className="text-orange-700 font-semibold">
+            <Link href="/login" className="text-[var(--v2-primary)] font-bold v2-headline hover:text-[var(--v2-primary-dim)] transition-colors text-sm">
               Login
             </Link>
           )}
@@ -92,16 +97,23 @@ export function GiftShopMobileNav({isLoggedIn}: GiftShopMobileNavProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const {data: profile} = useProfile();
   const avatarUrl = profile?.avatar_url;
+  const initial = (profile?.display_name || profile?.username || profile?.email || '?')
+    .charAt(0)
+    .toUpperCase();
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-orange-50/80 backdrop-blur-xl md:hidden">
-      <div className="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto">
+    <nav className="fixed top-0 w-full z-50 v2-glass-nav md:hidden">
+      <div className="flex justify-between items-center px-6 h-16 max-w-7xl mx-auto">
         <GifthanceLogo size="md" />
         <div className="flex items-center gap-3">
-          <Link href={isLoggedIn ? '/dashboard' : '/login'} className="p-2 text-orange-700">
+          <Link href={isLoggedIn ? '/dashboard' : '/login'} className="p-2 text-[var(--v2-primary)]">
             {isLoggedIn && avatarUrl ? (
-              <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-orange-200 shadow-sm transition-transform active:scale-95">
+              <div className="w-9 h-9 rounded-full overflow-hidden ring-2 ring-[var(--v2-primary)]/20 shadow-sm transition-transform active:scale-95">
                 <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+              </div>
+            ) : isLoggedIn ? (
+              <div className="w-9 h-9 rounded-full bg-[var(--v2-primary)] text-white flex items-center justify-center font-bold text-sm shadow-sm transition-transform active:scale-95">
+                {initial}
               </div>
             ) : (
               <span className="v2-icon text-2xl">account_circle</span>
@@ -109,7 +121,7 @@ export function GiftShopMobileNav({isLoggedIn}: GiftShopMobileNavProps) {
           </Link>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-orange-700 hover:bg-[var(--v2-surface-container-low)] rounded-full transition-colors"
+            className="p-2 text-[var(--v2-on-surface-variant)] hover:bg-[var(--v2-surface-container-low)] rounded-full transition-colors"
           >
             <span className="v2-icon text-2xl">{mobileMenuOpen ? 'close' : 'menu'}</span>
           </button>
@@ -130,11 +142,11 @@ export function GiftShopMobileNav({isLoggedIn}: GiftShopMobileNavProps) {
               </Link>
             )}
             <Link
-              href="/gift-shop"
+              href="/gifts"
               className="px-4 py-3 rounded-xl bg-[var(--v2-primary)]/10 text-[var(--v2-primary)] font-semibold"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Gift Shop
+              Gifts
             </Link>
             <Link
               href="/campaigns"

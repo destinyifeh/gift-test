@@ -14,24 +14,27 @@ interface CampaignNavProps {
 export function CampaignDesktopNav({isLoggedIn, searchQuery, onSearchChange}: CampaignNavProps) {
   const {data: profile} = useProfile();
   const avatarUrl = profile?.avatar_url;
+  const initial = (profile?.display_name || profile?.username || profile?.email || '?')
+    .charAt(0)
+    .toUpperCase();
 
   return (
-    <nav className="hidden md:block fixed top-0 w-full z-50 v2-glass-nav">
-      <div className="flex justify-between items-center h-16 px-8 max-w-7xl mx-auto">
+    <nav className="hidden md:block fixed top-0 w-full z-50 v2-glass-nav border-b border-[var(--v2-outline-variant)]/5">
+      <div className="flex justify-between items-center h-20 px-8 max-w-7xl mx-auto">
         <div className="flex items-center gap-12">
           <GifthanceLogo size="md" />
-          <div className="flex items-center gap-8 text-sm font-semibold">
-            <Link href="/gifts" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors">
+          <div className="flex items-center gap-8 v2-headline font-bold tracking-tight">
+            <Link href="/gifts" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors text-sm">
               Gifts
             </Link>
-            <Link href="/campaigns" className="text-[var(--v2-primary)] border-b-2 border-[var(--v2-primary)] pb-1">
+            <Link href="/campaigns" className="text-[var(--v2-primary)] border-b-2 border-[var(--v2-primary)] pb-1 text-sm">
               Campaigns
             </Link>
-            <Link href="/send-gift" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors">
+            <Link href="/send-gift" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors text-sm">
               Send Gift
             </Link>
             {isLoggedIn && (
-              <Link href="/dashboard" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors">
+              <Link href="/dashboard" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors text-sm">
                 Dashboard
               </Link>
             )}
@@ -53,11 +56,13 @@ export function CampaignDesktopNav({isLoggedIn, searchQuery, onSearchChange}: Ca
           {isLoggedIn ? (
             <Link href="/dashboard" className="flex items-center text-[var(--v2-primary)] hover:opacity-80 transition-opacity">
               {avatarUrl ? (
-                <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-[var(--v2-primary)]/20 shadow-sm transition-transform hover:scale-105 active:scale-95">
+                <div className="w-9 h-9 rounded-full overflow-hidden ring-2 ring-[var(--v2-primary)]/20 shadow-sm transition-transform hover:scale-105 active:scale-95">
                   <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
                 </div>
               ) : (
-                <span className="v2-icon text-2xl">account_circle</span>
+                <div className="w-9 h-9 rounded-full bg-[var(--v2-primary)] text-white flex items-center justify-center font-bold text-sm shadow-sm transition-transform hover:scale-105 active:scale-95">
+                  {initial}
+                </div>
               )}
             </Link>
           ) : (
@@ -81,6 +86,9 @@ export function CampaignMobileNav({isLoggedIn}: CampaignNavProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const {data: profile} = useProfile();
   const avatarUrl = profile?.avatar_url;
+  const initial = (profile?.display_name || profile?.username || profile?.email || '?')
+    .charAt(0)
+    .toUpperCase();
 
   return (
     <nav className="md:hidden fixed top-0 w-full z-50 v2-glass-nav">
@@ -89,13 +97,17 @@ export function CampaignMobileNav({isLoggedIn}: CampaignNavProps) {
         <div className="flex items-center gap-2">
           {isLoggedIn ? (
             <Link href="/dashboard" className="p-2 text-[var(--v2-primary)]">
-              {avatarUrl ? (
-                <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-[var(--v2-primary)]/20 shadow-sm transition-transform active:scale-95">
-                  <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
-                </div>
-              ) : (
-                <span className="v2-icon">account_circle</span>
-              )}
+            {avatarUrl ? (
+              <div className="w-9 h-9 rounded-full overflow-hidden ring-2 ring-[var(--v2-primary)]/20 shadow-sm transition-transform active:scale-95">
+                <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+              </div>
+            ) : isLoggedIn ? (
+              <div className="w-9 h-9 rounded-full bg-[var(--v2-primary)] text-white flex items-center justify-center font-bold text-sm shadow-sm transition-transform active:scale-95">
+                {initial}
+              </div>
+            ) : (
+              <span className="v2-icon">account_circle</span>
+            )}
             </Link>
           ) : (
             <Link href="/login" className="px-4 py-2 text-[var(--v2-primary)] font-semibold text-sm">

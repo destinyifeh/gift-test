@@ -10,7 +10,7 @@ import {useQueryClient} from '@tanstack/react-query';
 import {useRouter} from 'next/navigation';
 import {useEffect, useRef, useState} from 'react';
 import {toast} from 'sonner';
-import {uploadAvatar, uploadShopLogo, deleteUploadedFile, updateProfile} from '@/lib/server/actions/auth';
+import {uploadAvatar, uploadBusinessLogo, deleteUploadedFile, updateProfile} from '@/lib/server/actions/auth';
 import {V2LogoutModal} from '../../../../components/V2LogoutModal';
 
 
@@ -28,14 +28,14 @@ export function V2VendorSettingsTab() {
   const flexCardId = allGiftCards.find((c: any) => c.name === 'Flex Card')?.id;
 
   const [formData, setFormData] = useState({
-    shop_name: '',
-    shop_description: '',
-    shop_slug: '',
-    shop_street: '',
-    shop_city: '',
-    shop_state: '',
-    shop_country: 'Nigeria',
-    shop_zip: '',
+    business_name: '',
+    business_description: '',
+    business_slug: '',
+    business_street: '',
+    business_city: '',
+    business_state: '',
+    business_country: 'Nigeria',
+    business_zip: '',
   });
   const [socialLinks, setSocialLinks] = useState({
     twitter: '',
@@ -55,14 +55,14 @@ export function V2VendorSettingsTab() {
   useEffect(() => {
     if (profile) {
       setFormData({
-        shop_name: (profile.shop_name && profile.shop_name !== 'free' ? profile.shop_name : ''),
-        shop_description: profile.shop_description || '',
-        shop_slug: profile.shop_slug || profile.username || '',
-        shop_street: profile.shop_street || '',
-        shop_city: profile.shop_city || '',
-        shop_state: profile.shop_state || '',
-        shop_country: profile.shop_country || 'Nigeria',
-        shop_zip: profile.shop_zip || '',
+        business_name: (profile.business_name && profile.business_name !== 'free' ? profile.business_name : ''),
+        business_description: profile.business_description || '',
+        business_slug: profile.business_slug || profile.username || '',
+        business_street: profile.business_street || '',
+        business_city: profile.business_city || '',
+        business_state: profile.business_state || '',
+        business_country: profile.business_country || 'Nigeria',
+        business_zip: profile.business_zip || '',
       });
       setSocialLinks({
         twitter: profile.social_links?.twitter || '',
@@ -77,14 +77,14 @@ export function V2VendorSettingsTab() {
     setIsSaving(true);
     try {
       await api.patch('/users', {
-        shopName: formData.shop_name,
-        shopDescription: formData.shop_description,
-        shopSlug: formData.shop_slug,
-        shopStreet: formData.shop_street,
-        shopCity: formData.shop_city,
-        shopState: formData.shop_state,
-        shopCountry: formData.shop_country,
-        shopZip: formData.shop_zip,
+        businessName: formData.business_name,
+        businessDescription: formData.business_description,
+        businessSlug: formData.business_slug,
+        businessStreet: formData.business_street,
+        businessCity: formData.business_city,
+        businessState: formData.business_state,
+        businessCountry: formData.business_country,
+        businessZip: formData.business_zip,
         socialLinks: socialLinks,
         acceptedGiftCards: acceptedGiftCards.filter((id) => id !== flexCardId),
       });
@@ -95,7 +95,7 @@ export function V2VendorSettingsTab() {
         setUser({
           id: profile.id,
           email: profile.email || '',
-          display_name: formData.shop_name || profile.display_name || '',
+          display_name: formData.business_name || profile.display_name || '',
           username: profile.username || '',
         });
       }
@@ -159,14 +159,14 @@ export function V2VendorSettingsTab() {
 
     setIsUploadingLogo(true);
     try {
-      if (profile?.shop_logo_url) {
-        await deleteUploadedFile(profile.shop_logo_url).catch(() => {});
+      if (profile?.business_logo_url) {
+        await deleteUploadedFile(profile.business_logo_url).catch(() => {});
       }
       const formData = new FormData();
       formData.append('file', file);
-      const result = await uploadShopLogo(formData);
+      const result = await uploadBusinessLogo(formData);
       if (result.success && result.url) {
-        await updateProfile({ shop_logo_url: result.url });
+        await updateProfile({ business_logo_url: result.url });
         toast.success('Business logo updated!');
         queryClient.invalidateQueries({queryKey: ['profile']});
       } else {
@@ -178,12 +178,12 @@ export function V2VendorSettingsTab() {
 
   const handleRemoveLogo = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!profile?.shop_logo_url) return;
+    if (!profile?.business_logo_url) return;
     if (!confirm('Remove your business logo?')) return;
     setIsUploadingLogo(true);
     try {
-      await deleteUploadedFile(profile.shop_logo_url);
-      await updateProfile({ shop_logo_url: '' });
+      await deleteUploadedFile(profile.business_logo_url);
+      await updateProfile({ business_logo_url: '' });
       toast.success('Logo removed');
       queryClient.invalidateQueries({queryKey: ['profile']});
     } catch { toast.error('Failed to remove logo'); }
@@ -215,7 +215,7 @@ export function V2VendorSettingsTab() {
     );
   }
 
-  const businessName = (profile?.shop_name && profile.shop_name !== 'free' ? profile.shop_name : '') || profile?.display_name || 'Business';
+  const businessName = (profile?.business_name && profile.business_name !== 'free' ? profile.business_name : '') || profile?.display_name || 'Business';
 
   // Section config for internal navigation
   const sections = [
@@ -287,10 +287,10 @@ export function V2VendorSettingsTab() {
                   <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">Business Name</label>
                   <input
                     type="text"
-                    value={formData.shop_name}
+                    value={formData.business_name}
                     onChange={e => {
                       const value = e.target.value;
-                      setFormData({...formData, shop_name: value, shop_slug: value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')});
+                      setFormData({...formData, business_name: value, business_slug: value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')});
                     }}
                     className="w-full h-12 px-4 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] border-none focus:ring-2 focus:ring-[var(--v2-primary)]"
                     placeholder="e.g. Shoprite Ikeja"
@@ -303,8 +303,8 @@ export function V2VendorSettingsTab() {
                     <span className="text-[var(--v2-on-surface-variant)]/60 text-sm">gifthance.com/vendor/</span>
                     <input
                       type="text"
-                      value={formData.shop_slug}
-                      onChange={e => setFormData({...formData, shop_slug: e.target.value})}
+                      value={formData.business_slug}
+                      onChange={e => setFormData({...formData, business_slug: e.target.value})}
                       className="bg-transparent border-none p-0 ml-1 text-[var(--v2-on-surface)] w-full focus:ring-0"
                       placeholder="your-business"
                     />
@@ -314,14 +314,14 @@ export function V2VendorSettingsTab() {
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">Business Description</label>
                   <textarea
-                    value={formData.shop_description}
-                    onChange={e => setFormData({...formData, shop_description: e.target.value})}
+                    value={formData.business_description}
+                    onChange={e => setFormData({...formData, business_description: e.target.value})}
                     rows={3}
                     maxLength={500}
                     className="w-full px-4 py-3 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] border-none focus:ring-2 focus:ring-[var(--v2-primary)] resize-none"
                     placeholder="Tell customers about your business..."
                   />
-                  <p className="text-right text-[10px] font-bold text-[var(--v2-on-surface-variant)]/40 uppercase">{formData.shop_description.length}/500</p>
+                  <p className="text-right text-[10px] font-bold text-[var(--v2-on-surface-variant)]/40 uppercase">{formData.business_description.length}/500</p>
                 </div>
               </div>
             </div>
@@ -364,8 +364,8 @@ export function V2VendorSettingsTab() {
                 <div className={`w-32 h-32 rounded-2xl overflow-hidden bg-[var(--v2-surface-container-low)] flex items-center justify-center border-2 border-dashed transition-all ${
                   isUploadingLogo ? 'border-[var(--v2-primary)] opacity-50' : 'border-[var(--v2-outline-variant)]/30 group-hover:border-[var(--v2-primary)]/50'
                 }`}>
-                  {profile?.shop_logo_url ? (
-                    <img src={profile.shop_logo_url} alt="Logo" className="w-full h-full object-cover opacity-90 group-hover:opacity-40 transition-opacity" />
+                  {profile?.business_logo_url ? (
+                    <img src={profile.business_logo_url} alt="Logo" className="w-full h-full object-cover opacity-90 group-hover:opacity-40 transition-opacity" />
                   ) : (
                     <span className="v2-icon text-4xl text-[var(--v2-on-surface-variant)]/30">store</span>
                   )}
@@ -379,7 +379,7 @@ export function V2VendorSettingsTab() {
                     </div>
                   )}
                 </div>
-                {profile?.shop_logo_url && !isUploadingLogo && (
+                {profile?.business_logo_url && !isUploadingLogo && (
                   <button onClick={handleRemoveLogo} className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-[var(--v2-error)] text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform opacity-0 group-hover:opacity-100 z-10">
                     <span className="v2-icon text-sm">delete</span>
                   </button>
@@ -389,8 +389,8 @@ export function V2VendorSettingsTab() {
                 <p className="font-bold text-[var(--v2-on-surface)] mb-1">Upload your business logo</p>
                 <p className="text-xs text-[var(--v2-on-surface-variant)]">Recommended 512×512px. PNG, JPG, or WEBP. Max 2MB.</p>
                 <button onClick={handleLogoClick} className="mt-3 text-sm font-bold text-[var(--v2-primary)] flex items-center gap-1 hover:underline mx-auto md:mx-0">
-                  <span className="v2-icon text-sm">{profile?.shop_logo_url ? 'edit' : 'add_photo_alternate'}</span>
-                  {profile?.shop_logo_url ? 'Change Logo' : 'Add Logo'}
+                  <span className="v2-icon text-sm">{profile?.business_logo_url ? 'edit' : 'add_photo_alternate'}</span>
+                  {profile?.business_logo_url ? 'Change Logo' : 'Add Logo'}
                 </button>
               </div>
             </div>
@@ -411,23 +411,23 @@ export function V2VendorSettingsTab() {
             <div className="space-y-4">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">Street Address</label>
-                <input type="text" value={formData.shop_street} onChange={e => setFormData({...formData, shop_street: e.target.value})} className="w-full h-12 px-4 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] border-none focus:ring-2 focus:ring-[var(--v2-primary)]" placeholder="123 Business Way" />
+                <input type="text" value={formData.business_street} onChange={e => setFormData({...formData, business_street: e.target.value})} className="w-full h-12 px-4 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] border-none focus:ring-2 focus:ring-[var(--v2-primary)]" placeholder="123 Business Way" />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">City</label>
-                  <input type="text" value={formData.shop_city} onChange={e => setFormData({...formData, shop_city: e.target.value})} className="w-full h-12 px-4 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] border-none focus:ring-2 focus:ring-[var(--v2-primary)]" placeholder="Ikeja" />
+                  <input type="text" value={formData.business_city} onChange={e => setFormData({...formData, business_city: e.target.value})} className="w-full h-12 px-4 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] border-none focus:ring-2 focus:ring-[var(--v2-primary)]" placeholder="Ikeja" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">State</label>
-                  <input type="text" value={formData.shop_state} onChange={e => setFormData({...formData, shop_state: e.target.value})} className="w-full h-12 px-4 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] border-none focus:ring-2 focus:ring-[var(--v2-primary)]" placeholder="Lagos" />
+                  <input type="text" value={formData.business_state} onChange={e => setFormData({...formData, business_state: e.target.value})} className="w-full h-12 px-4 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] border-none focus:ring-2 focus:ring-[var(--v2-primary)]" placeholder="Lagos" />
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">Country</label>
                   <div className="relative">
-                    <select value={formData.shop_country} onChange={e => setFormData({...formData, shop_country: e.target.value})} className="w-full h-12 px-4 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] border-none focus:ring-2 focus:ring-[var(--v2-primary)] appearance-none">
+                    <select value={formData.business_country} onChange={e => setFormData({...formData, business_country: e.target.value})} className="w-full h-12 px-4 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] border-none focus:ring-2 focus:ring-[var(--v2-primary)] appearance-none">
                       <option value="Nigeria">Nigeria</option>
                       <option value="Ghana">Ghana</option>
                       <option value="Kenya">Kenya</option>
@@ -439,7 +439,7 @@ export function V2VendorSettingsTab() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">Zip / Postal Code</label>
-                  <input type="text" value={formData.shop_zip} onChange={e => setFormData({...formData, shop_zip: e.target.value})} className="w-full h-12 px-4 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] border-none focus:ring-2 focus:ring-[var(--v2-primary)]" placeholder="101233" />
+                  <input type="text" value={formData.business_zip} onChange={e => setFormData({...formData, business_zip: e.target.value})} className="w-full h-12 px-4 rounded-xl bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface)] border-none focus:ring-2 focus:ring-[var(--v2-primary)]" placeholder="101233" />
                 </div>
               </div>
             </div>

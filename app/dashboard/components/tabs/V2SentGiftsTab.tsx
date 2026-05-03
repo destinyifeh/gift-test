@@ -75,8 +75,9 @@ export function V2SentGiftsTab() {
   const sentGiftsList = sentGiftsData;
 
   // Calculate stats
-  const totalSent = sentGiftsList.length;
-  const totalValue = sentGiftsList.reduce((sum: number, g: any) => sum + (g.amount || 0), 0);
+  const pagination = sentRes?.pagination || { totalCount: 0, totalPages: 1 };
+  const totalSent = pagination.totalCount;
+  const totalValue = sentRes?.totalSum || 0;
   const scheduledCount = sentGiftsList.filter((g: any) => g.status === 'scheduled' || g.status === 'claimable').length;
 
   // Filter gifts
@@ -280,6 +281,29 @@ export function V2SentGiftsTab() {
             );
           })}
         </div>
+
+        {/* Pagination Controls */}
+        {pagination.totalPages > 1 && (
+          <div className="flex items-center justify-between mt-6 px-2">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface)] font-bold text-sm disabled:opacity-30 transition-all border border-[var(--v2-outline-variant)]/10">
+              <span className="v2-icon text-sm">arrow_back</span>
+              Previous
+            </button>
+            <span className="text-sm font-bold text-[var(--v2-on-surface-variant)]">
+              Page {page} of {pagination.totalPages}
+            </span>
+            <button
+              onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))}
+              disabled={page === pagination.totalPages}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface)] font-bold text-sm disabled:opacity-30 transition-all border border-[var(--v2-outline-variant)]/10">
+              Next
+              <span className="v2-icon text-sm">arrow_forward</span>
+            </button>
+          </div>
+        )}
       </div>
 
 

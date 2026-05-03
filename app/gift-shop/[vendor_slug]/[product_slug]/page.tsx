@@ -11,6 +11,9 @@ import {useFavorites, useIsFavorited} from '@/hooks/use-favorites';
 import {useUserStore} from '@/lib/store/useUserStore';
 import { V2ReportModal } from '@/components/modals/V2ReportModal';
 import {useRecordClick, useRecordView} from '@/hooks/use-vendor';
+import {useAuth} from '@/hooks/use-auth';
+import {useProfile} from '@/hooks/use-profile';
+import {GifthanceLogo} from '@/components/GifthanceLogo';
 
 // Helper to get all images from product
 function getProductImages(product: any): string[] {
@@ -41,6 +44,12 @@ export default function V2ProductDetailsPage({
   const {mutate: recordClick} = useRecordClick();
 
   const images = product ? getProductImages(product) : [];
+  const {isLoggedIn} = useAuth();
+  const {data: profile} = useProfile();
+  const avatarUrl = profile?.avatar_url;
+  const initial = (profile?.display_name || profile?.username || profile?.email || '?')
+    .charAt(0)
+    .toUpperCase();
   const currency = getCurrencyByCountry(product?.profiles?.country || 'Nigeria');
 
   const {data: allProducts} = useVendorProducts();
@@ -127,40 +136,48 @@ export default function V2ProductDetailsPage({
   return (
     <div className="min-h-screen bg-[var(--v2-background)]">
       {/* Desktop Navigation */}
-      <nav className="hidden md:block fixed top-0 w-full z-50 v2-glass-nav">
-        <div className="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
-          <Link
-            href="/"
-            className="text-2xl font-bold text-[var(--v2-primary)] tracking-tighter v2-headline"
-          >
-            Gifthance
-          </Link>
-          <div className="flex items-center gap-8">
+      <nav className="hidden md:block fixed top-0 w-full z-50 v2-glass-nav border-b border-[var(--v2-outline-variant)]/5">
+        <div className="flex justify-between items-center px-8 h-20 max-w-7xl mx-auto">
+          <GifthanceLogo size="md" />
+          <div className="flex items-center gap-10 v2-headline font-bold tracking-tight">
             <Link
-              href="/gift-shop"
-              className="text-[var(--v2-primary)] border-b-2 border-[var(--v2-primary)] pb-1 v2-headline text-sm font-semibold tracking-tight"
+              href="/gifts"
+              className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors text-sm"
             >
-              Gift Shop
+              Gifts
             </Link>
             <Link
               href="/campaigns"
-              className="text-[var(--v2-on-surface-variant)] font-medium v2-headline text-sm tracking-tight hover:text-[var(--v2-primary)] transition-colors"
+              className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors text-sm"
             >
               Campaigns
             </Link>
             <Link
               href="/send-gift"
-              className="text-[var(--v2-on-surface-variant)] font-medium v2-headline text-sm tracking-tight hover:text-[var(--v2-primary)] transition-colors"
+              className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors text-sm"
             >
               Send Gift
             </Link>
           </div>
-          <Link 
-            href="/dashboard"
-            className="p-2 text-[var(--v2-primary)] hover:opacity-80 transition-all active:scale-95"
-          >
-            <span className="v2-icon text-2xl">account_circle</span>
-          </Link>
+          <div className="flex items-center gap-4">
+            {isLoggedIn ? (
+              <Link href="/dashboard" className="flex items-center text-[var(--v2-primary)] hover:opacity-80 transition-opacity">
+                {avatarUrl ? (
+                  <div className="w-9 h-9 rounded-full overflow-hidden ring-2 ring-[var(--v2-primary)]/20 shadow-sm transition-transform hover:scale-105 active:scale-95">
+                    <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+                  </div>
+                ) : (
+                  <div className="w-9 h-9 rounded-full bg-[var(--v2-primary)] text-white flex items-center justify-center font-bold text-sm shadow-sm transition-transform hover:scale-105 active:scale-95">
+                    {initial}
+                  </div>
+                )}
+              </Link>
+            ) : (
+              <Link href="/login" className="text-[var(--v2-primary)] font-bold v2-headline hover:text-[var(--v2-primary-dim)] transition-colors text-sm">
+                Login
+              </Link>
+            )}
+          </div>
         </div>
       </nav>
 
@@ -185,7 +202,7 @@ export default function V2ProductDetailsPage({
           </Link>
           <span className="v2-icon text-xs">chevron_right</span>
           <Link href={`/gift-shop/${vendor_slug}`} className="hover:text-[var(--v2-primary)] capitalize">
-            {product.profiles?.shop_name || 'Vendor'}
+            {product.profiles?.business_name || 'Vendor'}
           </Link>
           <span className="v2-icon text-xs">chevron_right</span>
           <span className="text-[var(--v2-primary)] font-bold">
@@ -372,8 +389,8 @@ export default function V2ProductDetailsPage({
               </h3>
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 rounded-full overflow-hidden bg-[var(--v2-surface-container)] flex items-center justify-center">
-                  {product.profiles?.shop_logo_url ? (
-                    <img src={product.profiles.shop_logo_url} alt="" className="w-full h-full object-cover" />
+                  {product.profiles?.business_logo_url ? (
+                    <img src={product.profiles.business_logo_url} alt="" className="w-full h-full object-cover" />
                   ) : (
                     <span className="v2-icon text-2xl text-[var(--v2-outline-variant)]">
                       storefront
@@ -382,12 +399,12 @@ export default function V2ProductDetailsPage({
                 </div>
                 <div className="flex-1">
                   <p className="font-bold text-lg text-[var(--v2-on-surface)] capitalize">
-                    {product.profiles?.shop_name || product.profiles?.display_name || 'Vendor'}
+                    {product.profiles?.business_name || product.profiles?.display_name || 'Vendor'}
                   </p>
-                  {product.profiles?.shop_address && (
+                  {product.profiles?.business_address && (
                     <p className="text-sm text-[var(--v2-on-surface-variant)] flex items-center gap-1">
                       <span className="v2-icon text-sm">location_on</span>
-                      {product.profiles.shop_address}
+                      {product.profiles.business_address}
                     </p>
                   )}
                 </div>
@@ -407,9 +424,9 @@ export default function V2ProductDetailsPage({
                   </button>
                 </div>
               </div>
-              {product.profiles?.shop_description && (
+              {product.profiles?.business_description && (
                 <p className="text-sm text-[var(--v2-on-surface-variant)] leading-relaxed">
-                  {product.profiles.shop_description}
+                  {product.profiles.business_description}
                 </p>
               )}
             </div>
@@ -465,8 +482,8 @@ export default function V2ProductDetailsPage({
           </h3>
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0 bg-[var(--v2-surface-container)] flex items-center justify-center">
-              {product.profiles?.shop_logo_url ? (
-                <img src={product.profiles.shop_logo_url} alt="" className="w-full h-full object-cover" />
+              {product.profiles?.business_logo_url ? (
+                <img src={product.profiles.business_logo_url} alt="" className="w-full h-full object-cover" />
               ) : (
                 <span className="v2-icon text-2xl text-[var(--v2-outline-variant)]">
                   storefront
@@ -475,12 +492,12 @@ export default function V2ProductDetailsPage({
             </div>
             <div className="flex-1">
               <h4 className="font-bold text-lg text-[var(--v2-on-surface)] capitalize">
-                {product.profiles?.shop_name || product.profiles?.display_name || 'Vendor'}
+                {product.profiles?.business_name || product.profiles?.display_name || 'Vendor'}
               </h4>
-              {product.profiles?.shop_address && (
+              {product.profiles?.business_address && (
                 <p className="text-xs text-[var(--v2-on-surface-variant)] flex items-center gap-1">
                   <span className="v2-icon text-xs">location_on</span>
-                  {product.profiles.shop_address}
+                  {product.profiles.business_address}
                 </p>
               )}
             </div>
@@ -491,9 +508,9 @@ export default function V2ProductDetailsPage({
               View
             </Link>
           </div>
-          {product.profiles?.shop_description && (
+          {product.profiles?.business_description && (
             <p className="text-sm text-[var(--v2-on-surface-variant)] leading-relaxed mt-4">
-              {product.profiles.shop_description}
+              {product.profiles.business_description}
             </p>
           )}
         </section>
@@ -521,7 +538,7 @@ export default function V2ProductDetailsPage({
             {/* Desktop Grid */}
             <div className="hidden md:grid grid-cols-4 gap-6">
               {relatedProducts.map((relatedProduct) => {
-                const vendorSlug = relatedProduct.vendor?.shopSlug || relatedProduct.vendor?.shop_slug || relatedProduct.profiles?.shop_slug || relatedProduct.profiles?.shopSlug || relatedProduct.vendor_id || relatedProduct.vendorId;
+                const vendorSlug = relatedProduct.vendor?.businessSlug || relatedProduct.vendor?.business_slug || relatedProduct.profiles?.business_slug || relatedProduct.profiles?.businessSlug || relatedProduct.vendor_id || relatedProduct.vendorId;
                 const baseSlug = relatedProduct.slug || relatedProduct.id;
                 const shortId = relatedProduct.productShortId || relatedProduct.product_short_id;
                 const href = shortId 
@@ -564,7 +581,7 @@ export default function V2ProductDetailsPage({
             {/* Mobile Horizontal Scroll */}
             <div className="md:hidden flex gap-4 overflow-x-auto v2-no-scrollbar -mx-6 px-6 pb-2">
               {relatedProducts.map((relatedProduct) => {
-                const vendorSlug = relatedProduct.vendor?.shopSlug || relatedProduct.vendor?.shop_slug || relatedProduct.profiles?.shop_slug || relatedProduct.profiles?.shopSlug || relatedProduct.vendor_id || relatedProduct.vendorId;
+                const vendorSlug = relatedProduct.vendor?.businessSlug || relatedProduct.vendor?.business_slug || relatedProduct.profiles?.business_slug || relatedProduct.profiles?.businessSlug || relatedProduct.vendor_id || relatedProduct.vendorId;
                 const baseSlug = relatedProduct.slug || relatedProduct.id;
                 const shortId = relatedProduct.productShortId || relatedProduct.product_short_id;
                 const href = shortId 
@@ -623,7 +640,7 @@ export default function V2ProductDetailsPage({
           id: product.id,
           name: product.name,
           price: product.price,
-          vendor: product.profiles?.shop_name || product.profiles?.display_name || 'Vendor',
+          vendor: product.profiles?.business_name || product.profiles?.display_name || 'Vendor',
           image: images[0] || undefined,
           currency: currency,
           symbol: getCurrencyByCountry(product.profiles?.country || 'Nigeria') === 'NGN' ? '₦' : '$',
@@ -634,7 +651,7 @@ export default function V2ProductDetailsPage({
         onClose={() => setShowReportModal(false)}
         targetId={product.vendor_id}
         targetType="vendor"
-        targetName={product.profiles?.shop_name || 'Vendor'}
+        targetName={product.profiles?.business_name || 'Vendor'}
       />
     </div>
   );

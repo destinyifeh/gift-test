@@ -106,9 +106,12 @@ export function V2WalletTab() {
   const walletTransactions = walletData.transactions || [];
 
   const filteredTransactions = useMemo(() => {
-    let txs = walletTransactions || [];
+    // 0. Initial filter to exclude creator-specific transactions from main wallet
+    let txs = (walletTransactions || []).filter(
+      (t: any) => t.type !== 'creator_support' && t.type !== 'fee'
+    );
 
-    // 0. Filter by type
+    // 1. Filter by category view
     if (transactionFilter === 'gifts') {
       txs = txs.filter((t: any) =>
         (['receipt', 'creator_support', 'campaign_contribution', 'gift_redemption'].includes(t.type)) && 
@@ -234,7 +237,8 @@ export function V2WalletTab() {
     setIsWithdrawing(true);
     withdrawMutation.mutate({
       amount: Number(withdrawAmount),
-      bankAccountId: withdrawBank
+      bankAccountId: withdrawBank,
+      source: 'user',
     }, {
       onSuccess: () => {
         setActiveModal(null);
@@ -612,7 +616,7 @@ export function V2WalletTab() {
                     return t.type?.replace(/_/g, ' ');
                   };
 
-                  const isDebit = isWithdrawal || isFlexCard || isGiftRedemption || isOutbound;
+                  const isDebit = isWithdrawal || isFlexCard || isGiftRedemption || isOutbound || t.type === 'fee';
 
                   return (
                     <div
@@ -1290,7 +1294,7 @@ export function V2WalletTab() {
                             </div>
                             <div>
                               <p className="font-bold text-sm text-[var(--v2-on-surface)] truncate max-w-[160px]">
-                                {tx.vendor?.shopName || tx.vendor?.displayName || tx.description || 'Transaction'}
+                                {tx.vendor?.businessName || tx.vendor?.displayName || tx.description || 'Transaction'}
                               </p>
                               <p className="text-[10px] text-[var(--v2-on-surface-variant)]">
                                 {new Date(tx.createdAt || tx.created_at).toLocaleDateString()}

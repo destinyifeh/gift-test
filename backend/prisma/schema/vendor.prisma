@@ -1,8 +1,53 @@
+model Vendor {
+  id          String   @id @default(uuid())
+  userId      String   @unique @map("user_id")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  businessName        String   @map("business_name")
+  businessDescription String?  @map("business_description")
+  businessSlug        String   @unique @map("business_slug")
+  businessLogoUrl     String?  @map("business_logo_url")
+  socialLinks         Json?    @default("{}") @map("social_links")
+
+  // Address fields
+  streetAddress       String?  @map("street_address")
+  city                String?  @map("city")
+  state               String?  @map("state")
+  country             String?  @map("country")
+  postalCode          String?  @map("postal_code")
+
+  // Status & Metadata
+  status              String   @default("pending") // 'pending', 'approved', 'rejected'
+  isVerified          Boolean  @default(false)     @map("is_verified")
+  categories          String[] @default([])        @map("categories")
+  wallet              BigInt   @default(0)         @map("vendor_wallet")
+
+  createdAt           DateTime @default(now())     @map("created_at")
+  updatedAt           DateTime @updatedAt          @map("updated_at")
+
+  // Relations
+  vendorGifts              VendorGift[]
+  featuredAds              FeaturedAd[]
+  sponsoredAds             SponsoredAd[]
+  tagRequests              TagRequest[]
+  acceptedCards            VendorAcceptedGiftCard[]
+  bankAccounts             BankAccount[]
+  withdrawals              Withdrawal[]
+  transactions             Transaction[]
+  notifications            Notification[]
+  flexCardTransactions     FlexCardTransaction[]
+  userGiftCardTransactions UserGiftCardTransaction[]
+  redeemedDirectGifts      DirectGift[]              @relation("DirectGiftRedeemedByVendor")
+  notificationReads        NotificationRead[]
+
+  @@map("vendors")
+}
+
 model VendorGift {
-  id          Int      @id @default(autoincrement())
-  vendorId    String   @map("vendor_id")
-  vendor      User     @relation(fields: [vendorId], references: [id], onDelete: Cascade)
-  name        String
+  id             Int      @id @default(autoincrement())
+  vendorId       String   @map("vendor_id")
+  vendor         Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  name           String
   slug        String?
   productShortId String?  @unique @map("product_short_id")
   price       Decimal
@@ -22,7 +67,6 @@ model VendorGift {
 
   // V2 specific
   stockQuantity Int?     @map("stock_quantity")
-  unitsSold     Int      @default(0) @map("units_sold") // Legacy, will use salesCount for ranking
   images        String[] @default([])
 
   // Ranking & Engagement
@@ -136,7 +180,7 @@ model VendorGiftTag {
 model TagRequest {
   id            Int                @id @default(autoincrement())
   vendorId      String             @map("vendor_id")
-  vendor        User               @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  vendor        Vendor             @relation(fields: [vendorId], references: [id], onDelete: Cascade)
   subcategoryId Int                @map("subcategory_id")
   subcategory   ProductSubcategory @relation(name: "SubcategoryTagRequests", fields: [subcategoryId], references: [id], onDelete: Cascade)
   tagName       String             @map("tag_name")

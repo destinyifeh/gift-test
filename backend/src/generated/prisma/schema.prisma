@@ -1,3 +1,25 @@
+model Admin {
+  id     String @id @default(uuid())
+  userId String @unique @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  role   AdminRole @default(support)
+  status String    @default("active") // 'active', 'suspended'
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  adminLogs          AdminLog[]
+  resolvedReports    ModerationReport[]  @relation("Resolver")
+  resolvedTickets    ModerationTicket[]  @relation("TicketResolver")
+  resolvedPromotions ExternalPromotion[] @relation("AdminExternalPromotions")
+  notifications      Notification[]
+  notificationReads  NotificationRead[]
+
+  @@map("admins")
+}
+
 enum UserRole {
   user
   admin
@@ -26,59 +48,34 @@ model User {
   accounts Account[]
 
   // --- Gift/Platform Profile Fields ---
-  username         String?    @unique
-  displayName      String?    @map("display_name")
-  avatarUrl        String?    @map("avatar_url")
-  bio              String?
-  isCreator        Boolean    @default(false) @map("is_creator")
-  suggestedAmounts Int[]      @default([5, 10, 25]) @map("suggested_amounts")
-  socialLinks      Json?      @default("{}") @map("social_links")
-  themeSettings    Json?      @default("{}") @map("theme_settings")
-  country          String?
-  roles            UserRole[] @default([user])
-  adminRole        AdminRole? @map("admin_role")
-  platformBalance  BigInt     @default(0) @map("platform_balance")
-  status           String     @default("active") // 'active', 'suspended', 'banned'
-  walletStatus     String     @default("active") @map("wallet_status") // 'active', 'restricted'
-  suspensionEnd    DateTime?  @map("suspension_end")
+  displayName   String?    @map("display_name")
+  avatarUrl     String?    @map("avatar_url")
+  country       String?
+  isCreator     Boolean    @default(false) @map("is_creator")
+  roles         UserRole[] @default([user])
+  userWallet    BigInt     @default(0) @map("user_wallet")
+  suspensionEnd DateTime?  @map("suspension_end")
 
-  // --- Vendor Shop Fields ---
-  shopName         String?  @map("shop_name")
-  shopDescription  String?  @map("shop_description")
-  shopAddress      String?  @map("shop_address")
-  shopSlug         String?  @unique @map("shop_slug")
-  shopLogoUrl      String?  @map("shop_logo_url")
-  bannerUrl        String?  @map("banner_url")
-  isVerifiedVendor Boolean  @default(false) @map("is_verified_vendor")
-  vendorStatus     String   @default("pending") @map("vendor_status") // 'pending', 'approved', 'rejected'
-  vendorCategories String[] @default([]) @map("vendor_categories")
+  admin   Admin?
+  vendor  Vendor?
+  creator Creator?
 
   // Relations
-  campaigns               Campaign[]            @relation("UserCampaigns")
-  bankAccounts            BankAccount[]
-  transactions            Transaction[]
-  vendorGifts             VendorGift[]
-  favorites               Favorite[]
-  featuredAds             FeaturedAd[]          @relation("VendorFeaturedAds")
-  sponsoredAds            SponsoredAd[]         @relation("VendorSponsoredAds")
-  sentFlexCards           FlexCard[]            @relation("SentFlexCards")
-  receivedFlexCards       FlexCard[]            @relation("ReceivedFlexCards")
-  moderationReportsMade   ModerationReport[]    @relation("Reporter")
-  moderationReportsFixed  ModerationReport[]    @relation("Resolver")
-  moderationTickets       ModerationTicket[]    @relation("TicketReporter")
-  adminResolvedTickets    ModerationTicket[]    @relation("TicketResolver")
-  flexCardTransactions    FlexCardTransaction[] @relation("VendorTransactions")
-  redeemedCampaigns       Campaign[]            @relation("RedeemedByVendor")
-  creatorSupportReceived  CreatorSupport[]      @relation("SupportRecipient")
-  adminResolvedPromotions ExternalPromotion[]   @relation("AdminExternalPromotions")
-  withdrawals             Withdrawal[]
-  directGiftsSent         DirectGift[]          @relation("UserDirectGifts")
-  directGiftsRedeemed     DirectGift[]          @relation("DirectGiftRedeemedByVendor")
+  campaigns             Campaign[]         @relation("UserCampaigns")
+  bankAccounts          BankAccount[]
+  transactions          Transaction[]
+  favorites             Favorite[]
+  sentFlexCards         FlexCard[]         @relation("SentFlexCards")
+  receivedFlexCards     FlexCard[]         @relation("ReceivedFlexCards")
+  moderationReportsMade ModerationReport[] @relation("Reporter")
+  moderationTickets     ModerationTicket[] @relation("TicketReporter")
+  directGiftsSent       DirectGift[]       @relation("UserDirectGifts")
+  sentUserGiftCards     UserGiftCard[]     @relation("SentUserGiftCards")
+  receivedUserGiftCards UserGiftCard[]     @relation("ReceivedUserGiftCards")
+  withdrawals           Withdrawal[]
 
-  adminLogs         AdminLog[]
   notifications     Notification[]
   notificationReads NotificationRead[]
-  tagRequests       TagRequest[]
 
   @@map("users")
 }
@@ -157,19 +154,15 @@ model Campaign {
   claimableType          String?     @map("claimable_type")
   claimableGiftId        Int?        @map("claimable_gift_id")
   product                VendorGift? @relation("CampaignProduct", fields: [claimableGiftId], references: [id], onDelete: SetNull)
+  giftCardId             Int?        @map("gift_card_id")
+  giftCard               GiftCard?   @relation(fields: [giftCardId], references: [id], onDelete: SetNull)
   claimableRecipientType String?     @map("claimable_recipient_type")
   recipientEmail         String?     @map("recipient_email")
   senderEmail            String?     @map("sender_email")
   paymentReference       String?     @map("payment_reference")
   currency               String      @default("NGN")
   giftCode               String?     @map("gift_code")
-
-  // Custom/Voucher redemption
-  redeemedAt         DateTime? @map("redeemed_at")
-  redeemedByVendorId String?   @map("redeemed_by_vendor_id")
-  redeemedByVendor   User?     @relation("RedeemedByVendor", fields: [redeemedByVendorId], references: [id], onDelete: SetNull)
-  vendorRating       Int?      @map("vendor_rating")
-  message            String?
+  message                String?
 
   // V2 WhatsApp/Delivery
   deliveryMethod       String? @default("email") @map("delivery_method")
@@ -222,6 +215,29 @@ model Contribution {
   @@map("contributions")
 }
 
+model Creator {
+  id     String @id @default(uuid())
+  userId String @unique @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  username      String  @unique
+  bio           String?
+  bannerUrl     String? @map("banner_url")
+  socialLinks   Json?   @default("{}") @map("social_links")
+  themeSettings Json?   @default("{}") @map("theme_settings")
+
+  wallet BigInt @default(0)
+  status String @default("active") // active, suspended
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  supportReceived CreatorSupport[] @relation("CreatorSupportRecipient")
+
+  @@map("creators")
+}
+
 model DirectGift {
   id          String  @id @default(uuid())
   userId      String  @map("user_id")
@@ -237,6 +253,8 @@ model DirectGift {
   claimableType          String?     @map("claimable_type") // null for some legacy? Usually 'money' or 'gift-card'
   claimableGiftId        Int?        @map("claimable_gift_id")
   product                VendorGift? @relation("DirectGiftProduct", fields: [claimableGiftId], references: [id], onDelete: SetNull)
+  giftCardId             Int?        @map("gift_card_id")
+  giftCard               GiftCard?   @relation(fields: [giftCardId], references: [id], onDelete: SetNull)
   claimableRecipientType String?     @map("claimable_recipient_type")
   recipientEmail         String?     @map("recipient_email")
   senderEmail            String?     @map("sender_email")
@@ -246,7 +264,7 @@ model DirectGift {
   // Custom/Voucher redemption
   redeemedAt         DateTime? @map("redeemed_at")
   redeemedByVendorId String?   @map("redeemed_by_vendor_id")
-  redeemedByVendor   User?     @relation("DirectGiftRedeemedByVendor", fields: [redeemedByVendorId], references: [id], onDelete: SetNull)
+  redeemedByVendor   Vendor?   @relation("DirectGiftRedeemedByVendor", fields: [redeemedByVendorId], references: [id], onDelete: SetNull)
   vendorRating       Int?      @map("vendor_rating")
   message            String?
 
@@ -266,7 +284,7 @@ model DirectGift {
 model FeaturedAd {
   id               Int        @id @default(autoincrement())
   vendorId         String     @map("vendor_id")
-  vendor           User       @relation("VendorFeaturedAds", fields: [vendorId], references: [id], onDelete: Cascade)
+  vendor           Vendor     @relation(fields: [vendorId], references: [id], onDelete: Cascade)
   vendorGiftId     Int        @map("vendor_gift_id")
   product          VendorGift @relation("GiftFeaturedAds", fields: [vendorGiftId], references: [id], onDelete: Cascade)
   country          String
@@ -294,7 +312,7 @@ model FeaturedAd {
 model SponsoredAd {
   id               Int        @id @default(autoincrement())
   vendorId         String     @map("vendor_id")
-  vendor           User       @relation("VendorSponsoredAds", fields: [vendorId], references: [id], onDelete: Cascade)
+  vendor           Vendor     @relation(fields: [vendorId], references: [id], onDelete: Cascade)
   vendorGiftId     Int        @map("vendor_gift_id")
   product          VendorGift @relation("GiftSponsoredAds", fields: [vendorGiftId], references: [id], onDelete: Cascade)
   country          String
@@ -323,7 +341,7 @@ model SponsoredAd {
 model ExternalPromotion {
   id          Int       @id @default(autoincrement())
   adminId     String
-  admin       User      @relation("AdminExternalPromotions", fields: [adminId], references: [id], onDelete: Cascade)
+  admin       Admin     @relation("AdminExternalPromotions", fields: [adminId], references: [id], onDelete: Cascade)
   title       String
   description String?
   imageUrl    String?
@@ -362,6 +380,8 @@ model Transaction {
   id          String    @id @default(uuid())
   userId      String?   @map("user_id")
   user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  vendorId    String?   @map("vendor_id")
+  vendor      Vendor?   @relation(fields: [vendorId], references: [id], onDelete: SetNull)
   campaignId  String?   @map("campaign_id")
   campaign    Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
   amount      BigInt // In smallest currency unit (kobo/cents)
@@ -388,6 +408,8 @@ model BankAccount {
   id            String   @id @default(uuid())
   userId        String   @map("user_id")
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vendorId      String?  @map("vendor_id")
+  vendor        Vendor?  @relation(fields: [vendorId], references: [id], onDelete: Cascade)
   bankName      String   @map("bank_name")
   bankCode      String   @map("bank_code")
   accountNumber String   @map("account_number")
@@ -408,6 +430,8 @@ model Withdrawal {
   id              String       @id @default(uuid())
   userId          String       @map("user_id")
   user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vendorId        String?      @map("vendor_id")
+  vendor          Vendor?      @relation(fields: [vendorId], references: [id], onDelete: Cascade)
   bankAccountId   String       @map("bank_account_id")
   bankAccount     BankAccount  @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
   amount          Decimal
@@ -455,13 +479,60 @@ model FlexCardTransaction {
   flexCardId   Int
   flexCard     FlexCard @relation(fields: [flexCardId], references: [id], onDelete: Cascade)
   vendorId     String
-  vendor       User     @relation("VendorTransactions", fields: [vendorId], references: [id], onDelete: Cascade)
+  vendor       Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
   amount       Decimal
   balanceAfter Decimal
   description  String?
   createdAt    DateTime @default(now())
 
   @@map("flex_card_transactions")
+}
+
+model GiftCard {
+  id                Int     @id @default(autoincrement())
+  name              String
+  slug              String  @unique
+  description       String?
+  category          String // food, fashion, electronics, shopping, lifestyle, everyday, occasions, brand, gadgets, location
+  icon              String? // Material icon name
+  colorFrom         String? @map("color_from") // gradient start hex
+  colorTo           String? @map("color_to") // gradient end hex
+  imageUrl          String? @map("image_url")
+  amountOptions     Json    @default("[]") // e.g. [1000, 3000, 5000, 10000]
+  allowCustomAmount Boolean @default(true) @map("allow_custom_amount")
+  minAmount         Decimal @default(500) @map("min_amount")
+  maxAmount         Decimal @default(500000) @map("max_amount")
+  currency          String  @default("NGN")
+  serviceFeePercent Decimal @default(4) @map("service_fee_percent")
+  country           String? // null = available everywhere
+  status            String  @default("draft") // draft, active, paused, archived
+  isFlexCard        Boolean @default(false) @map("is_flex_card") // true for the special Flex Card entry
+  usageDescription  String? @map("usage_description") // "Redeemable at food vendors"
+  metadata          Json?   @default("{}")
+  displayOrder      Int     @default(0) @map("display_order")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  vendors       VendorAcceptedGiftCard[]
+  directGifts   DirectGift[]
+  campaigns     Campaign[]
+  userGiftCards UserGiftCard[]
+
+  @@map("gift_cards")
+}
+
+model VendorAcceptedGiftCard {
+  id         Int      @id @default(autoincrement())
+  vendorId   String   @map("vendor_id")
+  vendor     Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  giftCardId Int      @map("gift_card_id")
+  giftCard   GiftCard @relation(fields: [giftCardId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([vendorId, giftCardId])
+  @@map("vendor_accepted_gift_cards")
 }
 
 model ModerationReport {
@@ -476,7 +547,7 @@ model ModerationReport {
   status           String  @default("pending") // 'pending', 'resolved', 'dismissed'
   resolutionNotes  String?
   resolvedById     String?
-  resolver         User?   @relation("Resolver", fields: [resolvedById], references: [id], onDelete: SetNull)
+  resolver         Admin?  @relation("Resolver", fields: [resolvedById], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -493,7 +564,7 @@ model ModerationTicket {
   status       String  @default("open") // 'open', 'in_progress', 'resolved', 'closed'
   priority     String  @default("medium") // 'low', 'medium', 'high'
   resolvedById String?
-  resolver     User?   @relation("TicketResolver", fields: [resolvedById], references: [id], onDelete: SetNull)
+  resolver     Admin?  @relation("TicketResolver", fields: [resolvedById], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -504,7 +575,7 @@ model ModerationTicket {
 model AdminLog {
   id        Int      @id @default(autoincrement())
   adminId   String
-  admin     User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  admin     Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
   action    String
   createdAt DateTime @default(now())
 
@@ -513,8 +584,8 @@ model AdminLog {
 
 model CreatorSupport {
   id            String       @id @default(uuid())
-  userId        String
-  user          User         @relation("SupportRecipient", fields: [userId], references: [id], onDelete: Cascade)
+  creatorId     String       @map("creator_id")
+  creator       Creator      @relation("CreatorSupportRecipient", fields: [creatorId], references: [id], onDelete: Cascade)
   transactionId String?      @unique
   transaction   Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
   amount        Decimal
@@ -546,8 +617,12 @@ model Notification {
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
 
-  user  User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  reads NotificationRead[]
+  user     User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vendorId String?            @map("vendor_id")
+  vendor   Vendor?            @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  adminId  String?            @map("admin_id")
+  admin    Admin?             @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  reads    NotificationRead[]
 
   @@map("notifications")
 }
@@ -555,13 +630,20 @@ model Notification {
 model NotificationRead {
   id             Int      @id @default(autoincrement())
   notificationId Int      @map("notification_id")
-  userId         String   @map("user_id")
+  userId         String?  @map("user_id")
+  vendorId       String?  @map("vendor_id")
   createdAt      DateTime @default(now()) @map("created_at")
 
   notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vendor       Vendor?      @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  admin        Admin?       @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  adminId String? @map("admin_id")
 
   @@unique([notificationId, userId])
+  @@unique([notificationId, vendorId])
+  @@unique([notificationId, adminId])
   @@map("notification_reads")
 }
 
@@ -612,12 +694,100 @@ model CountryConfig {
   @@map("country_configs")
 }
 
+model UserGiftCard {
+  id             Int       @id @default(autoincrement())
+  userId         String?
+  recipient      User?     @relation("ReceivedUserGiftCards", fields: [userId], references: [id], onDelete: SetNull)
+  senderId       String?
+  sender         User?     @relation("SentUserGiftCards", fields: [senderId], references: [id], onDelete: SetNull)
+  giftCardId     Int
+  giftCard       GiftCard  @relation(fields: [giftCardId], references: [id], onDelete: Cascade)
+  initialAmount  Decimal
+  currentBalance Decimal
+  currency       String    @default("NGN")
+  code           String    @unique
+  claimToken     String?   @unique
+  status         String    @default("active")
+  senderName     String?
+  recipientEmail String?
+  recipientPhone String?
+  deliveryMethod String    @default("email")
+  message        String?
+  claimedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  transactions UserGiftCardTransaction[]
+
+  @@map("user_gift_cards")
+}
+
+model UserGiftCardTransaction {
+  id             Int          @id @default(autoincrement())
+  userGiftCardId Int
+  userGiftCard   UserGiftCard @relation(fields: [userGiftCardId], references: [id], onDelete: Cascade)
+  vendorId       String
+  vendor         Vendor       @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  amount         Decimal
+  balanceAfter   Decimal
+  description    String?
+  createdAt      DateTime     @default(now())
+
+  @@map("user_gift_card_transactions")
+}
+
+model Vendor {
+  id     String @id @default(uuid())
+  userId String @unique @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  businessName        String  @map("business_name")
+  businessDescription String? @map("business_description")
+  businessSlug        String  @unique @map("business_slug")
+  businessLogoUrl     String? @map("business_logo_url")
+  socialLinks         Json?   @default("{}") @map("social_links")
+
+  // Address fields
+  streetAddress String? @map("street_address")
+  city          String? @map("city")
+  state         String? @map("state")
+  country       String? @map("country")
+  postalCode    String? @map("postal_code")
+
+  // Status & Metadata
+  status     String   @default("pending") // 'pending', 'approved', 'rejected'
+  isVerified Boolean  @default(false) @map("is_verified")
+  categories String[] @default([]) @map("categories")
+  wallet     BigInt   @default(0) @map("vendor_wallet")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  vendorGifts              VendorGift[]
+  featuredAds              FeaturedAd[]
+  sponsoredAds             SponsoredAd[]
+  tagRequests              TagRequest[]
+  acceptedCards            VendorAcceptedGiftCard[]
+  bankAccounts             BankAccount[]
+  withdrawals              Withdrawal[]
+  transactions             Transaction[]
+  notifications            Notification[]
+  flexCardTransactions     FlexCardTransaction[]
+  userGiftCardTransactions UserGiftCardTransaction[]
+  redeemedDirectGifts      DirectGift[]              @relation("DirectGiftRedeemedByVendor")
+  notificationReads        NotificationRead[]
+
+  @@map("vendors")
+}
+
 model VendorGift {
   id             Int                 @id @default(autoincrement())
   vendorId       String              @map("vendor_id")
-  vendor         User                @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  vendor         Vendor              @relation(fields: [vendorId], references: [id], onDelete: Cascade)
   name           String
   slug           String?
+  productShortId String?             @unique @map("product_short_id")
   price          Decimal
   description    String?
   imageUrl       String?             @map("image_url")
@@ -635,7 +805,6 @@ model VendorGift {
 
   // V2 specific
   stockQuantity Int?     @map("stock_quantity")
-  unitsSold     Int      @default(0) @map("units_sold") // Legacy, will use salesCount for ranking
   images        String[] @default([])
 
   // Ranking & Engagement
@@ -749,7 +918,7 @@ model VendorGiftTag {
 model TagRequest {
   id            Int                @id @default(autoincrement())
   vendorId      String             @map("vendor_id")
-  vendor        User               @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  vendor        Vendor             @relation(fields: [vendorId], references: [id], onDelete: Cascade)
   subcategoryId Int                @map("subcategory_id")
   subcategory   ProductSubcategory @relation(name: "SubcategoryTagRequests", fields: [subcategoryId], references: [id], onDelete: Cascade)
   tagName       String             @map("tag_name")

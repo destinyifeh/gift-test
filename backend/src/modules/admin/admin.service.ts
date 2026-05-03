@@ -22,6 +22,32 @@ export class AdminService {
   ) {}
 
   // ─────────────────────────────────────────────
+  // Helpers
+  // ─────────────────────────────────────────────
+
+  async resolveAdminId(userId: string): Promise<string> {
+    const admin = await (this.prisma as any).admin.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
+    if (!admin) {
+      throw new ForbiddenException('Admin profile not found for this user');
+    }
+    return admin.id;
+  }
+
+  async resolveVendorId(userId: string): Promise<string> {
+    const vendor = await (this.prisma as any).vendor.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
+    if (!vendor) {
+      throw new NotFoundException('Vendor profile not found for this user');
+    }
+    return vendor.id;
+  }
+
+  // ─────────────────────────────────────────────
   // User Management
   // ─────────────────────────────────────────────
 
@@ -35,9 +61,9 @@ export class AdminService {
     }
     if (search) {
       where.OR = [
-        { username: { contains: search, mode: 'insensitive' } },
         { displayName: { contains: search, mode: 'insensitive' } },
         { email: { contains: search, mode: 'insensitive' } },
+        { creator: { username: { contains: search, mode: 'insensitive' } } }
       ];
     }
 
@@ -49,18 +75,17 @@ export class AdminService {
         orderBy: { createdAt: 'desc' },
         select: {
           id: true,
-          username: true,
           displayName: true,
           email: true,
           avatarUrl: true,
           country: true,
           roles: true,
-          adminRole: true,
           isCreator: true,
-          status: true,
           createdAt: true,
           updatedAt: true,
-          platformBalance: true,
+          creator: { select: { username: true, wallet: true } },
+          admin: { select: { role: true } },
+          userWallet: true,
         },
       }),
       (this.prisma as any).user.count({ where }),
@@ -68,7 +93,9 @@ export class AdminService {
 
     const formatted = users.map((u: any) => ({
       ...u,
-      platformBalance: u.platformBalance.toString(),
+      username: u.creator?.username || null,
+      adminRole: u.admin?.role || null,
+      userWallet: u.userWallet?.toString() || '0',
     }));
 
     return paginate(formatted, total, page, limit);
@@ -86,7 +113,7 @@ export class AdminService {
       data: {
         roles,
         adminRole: roles.includes('admin') ? adminRole : null,
-        ...(profileData?.username && { username: profileData.username.toLowerCase() }),
+        ...(profileData?.username && { creator: { update: { username: profileData.username.toLowerCase() } } }),
         ...(profileData?.fullName && { 
           displayName: profileData.fullName,
           name: profileData.fullName 
@@ -95,12 +122,13 @@ export class AdminService {
       },
     });
 
-    await this.logAction(adminId, `Updated profile/roles for user @${updatedUser.username || updatedUser.email || userId}`);
+    const adminRecordId = await this.resolveAdminId(adminId);
+    await this.logAction(adminRecordId, `Updated profile/roles for user @${updatedUser.username || updatedUser.email || userId}`);
     
     // Explicitly stringify BigInt values to prevent JSON serialization errors
     return {
       ...updatedUser,
-      platformBalance: updatedUser.platformBalance?.toString(),
+      userWallet: updatedUser.userWallet?.toString() || '0',
     };
   }
 
@@ -108,10 +136,12 @@ export class AdminService {
     const user = await (this.prisma as any).user.update({
       where: { id: userId },
       data: { status, suspensionEnd },
+      include: { creator: true }
     });
 
-    await this.logAction(adminId, `Updated status for user @${user.username || user.email || userId} to ${status}`);
-    return { ...user, platformBalance: user.platformBalance?.toString() };
+    const adminRecordId = await this.resolveAdminId(adminId);
+    await this.logAction(adminRecordId, `Updated status for user @${user.creator?.username || user.email || userId} to ${status}`);
+    return { ...user, userWallet: user.userWallet?.toString() || '0' };
   }
 
   async deleteUser(adminId: string, userId: string) {
@@ -120,7 +150,8 @@ export class AdminService {
       where: { id: userId },
     });
 
-    await this.logAction(adminId, `Permanently deleted user @${user.username || userId} (${user.email})`);
+    const adminRecordId = await this.resolveAdminId(adminId);
+    await this.logAction(adminRecordId, `Permanently deleted user @${user.creator?.username || user.email || userId}`);
     return { success: true };
   }
 
@@ -128,10 +159,12 @@ export class AdminService {
     const user = await (this.prisma as any).user.update({
       where: { id: userId },
       data: { walletStatus },
+      include: { creator: true }
     });
 
-    await this.logAction(adminId, `Updated wallet status for user @${user.username || user.email || userId} to ${walletStatus}`);
-    return { ...user, platformBalance: user.platformBalance?.toString() };
+    const adminRecordId = await this.resolveAdminId(adminId);
+    await this.logAction(adminRecordId, `Updated wallet status for user @${user.creator?.username || user.email || userId} to ${walletStatus}`);
+    return { ...user, userWallet: user.userWallet?.toString() || '0' };
   }
 
   // ─────────────────────────────────────────────
@@ -233,14 +266,14 @@ export class AdminService {
 
     const creatorProfiles = await (this.prisma as any).user.findMany({
       where: { id: { in: topCreatorsRaw.map((r: any) => r.userId) } },
-      select: { id: true, username: true, displayName: true },
+      select: { id: true, displayName: true, creator: { select: { username: true } } },
     });
 
     const topCreators = topCreatorsRaw.map((r: any) => {
       const p = creatorProfiles.find((cp: any) => cp.id === r.userId);
       return {
         id: r.userId,
-        name: p?.displayName || p?.username || 'Unknown',
+        name: p?.displayName || p?.creator?.username || 'Unknown',
         total: Number(r._sum.amount || 0),
       };
     });
@@ -260,14 +293,14 @@ export class AdminService {
 
     const donorProfiles = await (this.prisma as any).user.findMany({
       where: { id: { in: topDonorsRaw.map((r: any) => r.userId as string) } },
-      select: { id: true, username: true, displayName: true },
+      select: { id: true, displayName: true, creator: { select: { username: true } } },
     });
 
     const topDonors = topDonorsRaw.map((r: any) => {
       const p = donorProfiles.find((dp: any) => dp.id === r.userId);
       return {
         id: r.userId,
-        name: p?.displayName || p?.username || 'Anonymous',
+        name: p?.displayName || p?.creator?.username || 'Anonymous',
         total: Number(r._sum.amount || 0) / 100,
       };
     });
@@ -327,7 +360,7 @@ export class AdminService {
         skip,
         take,
         orderBy: { createdAt: 'desc' },
-        include: { user: { select: { username: true, displayName: true } } },
+        include: { user: { select: { displayName: true, avatarUrl: true } } },
       }),
       (this.prisma as any).campaign.count({ where }),
     ]);
@@ -364,11 +397,14 @@ export class AdminService {
         include: { 
           user: { 
             select: { 
-              username: true, 
               displayName: true,
               country: true,
-              shopName: true,
-              shopAddress: true,
+              vendor: {
+                select: {
+                  businessName: true,
+                  streetAddress: true,
+                }
+              }
             } 
           } 
         },
@@ -386,7 +422,7 @@ export class AdminService {
       sender_email: g.senderEmail,
       profiles: {
         ...g.user,
-        shop_name: g.user?.shopName,
+        business_name: g.user?.vendor?.businessName,
       },
     }));
 
@@ -401,7 +437,8 @@ export class AdminService {
       },
     });
 
-    await this.logAction(adminId, `Invalidated shop gift code ${gift.giftCode} (ID: ${giftId}) for reason: ${reason}`);
+    const adminRecordId = await this.resolveAdminId(adminId);
+    await this.logAction(adminRecordId, `Invalidated shop gift code ${gift.giftCode} (ID: ${giftId}) for reason: ${reason}`);
     return gift;
   }
 
@@ -409,7 +446,7 @@ export class AdminService {
     const { search, page = 1, limit = 20 } = options;
     const { skip, take } = getPaginationOptions(page, limit);
 
-    // Plan is stored in themeSettings JSON
+    // Plan is stored in themeSettings JSON on Creator table
     const where: any = {
       themeSettings: {
         path: ['plan'],
@@ -417,55 +454,68 @@ export class AdminService {
       } as any,
     };
 
-
     if (search) {
       where.OR = [
         { username: { contains: search, mode: 'insensitive' } },
-        { displayName: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } },
+        { user: { displayName: { contains: search, mode: 'insensitive' } } },
+        { user: { email: { contains: search, mode: 'insensitive' } } },
       ];
     }
 
-    const [proUsers, total] = await Promise.all([
-      (this.prisma as any).user.findMany({
+    const [proCreators, total] = await Promise.all([
+      (this.prisma as any).creator.findMany({
         where,
         skip,
         take,
         orderBy: { updatedAt: 'desc' },
+        include: { user: { select: { id: true, email: true, displayName: true, avatarUrl: true, createdAt: true, updatedAt: true } } },
       }),
-      (this.prisma as any).user.count({ where }),
+      (this.prisma as any).creator.count({ where }),
     ]);
 
-    const formatted = proUsers.map((u: any) => ({
-      ...u,
-      plan: 'Pro',
-      price: '$8/mo',
-      status: 'active',
-      started: u.createdAt,
-      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Mocked for now to match frontend
-    }));
+    const formatted = proCreators.map((c: any) => {
+      const themeSettings = (c.themeSettings as any) || {};
+      const amount = themeSettings.subscriptionAmount || 10000;
+      const currency = themeSettings.subscriptionCurrency || 'NGN';
+      
+      return {
+        id: c.user?.id || c.userId,
+        username: c.username,
+        displayName: c.user?.displayName,
+        email: c.user?.email,
+        avatarUrl: c.user?.avatarUrl,
+        plan: 'Pro',
+        price: `${currency} ${amount.toLocaleString()}/mo`,
+        status: 'active',
+        started: themeSettings.subscriptionStartedAt || c.user?.createdAt || c.createdAt,
+        expires: themeSettings.subscriptionExpiresAt || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        createdAt: c.user?.createdAt,
+        updatedAt: c.user?.updatedAt,
+      };
+    });
 
     return paginate(formatted, total, page, limit);
   }
 
   async cancelSubscription(adminId: string, userId: string, reason: string) {
-    const user = await (this.prisma as any).user.findUnique({
-      where: { id: userId },
+    const creator = await (this.prisma as any).creator.findUnique({
+      where: { userId: userId },
       select: { themeSettings: true },
     });
 
-    if (!user) throw new NotFoundException('User not found');
+    if (!creator) throw new NotFoundException('Creator profile not found');
 
-    const themeSettings = (user.themeSettings as any) || {};
+    const themeSettings = (creator.themeSettings as any) || {};
     const updatedSettings = { ...themeSettings, plan: 'basic', cancelReason: reason };
 
-    const updatedUser = await (this.prisma as any).user.update({
-      where: { id: userId },
+    const updatedCreator = await (this.prisma as any).creator.update({
+      where: { userId: userId },
       data: { themeSettings: updatedSettings },
     });
 
-    await this.logAction(adminId, `Cancelled Pro subscription for user ${userId}. Reason: ${reason}`);
-    return updatedUser;
+    const adminRecordId = await this.resolveAdminId(adminId);
+    await this.logAction(adminRecordId, `Cancelled Pro subscription for user ${userId}. Reason: ${reason}`);
+    return updatedCreator;
   }
 
   async changePassword(adminId: string, currentPassword: string, newPassword: string, headers?: any) {
@@ -475,7 +525,8 @@ export class AdminService {
   async extendSubscription(adminId: string, userId: string, days: number) {
     // Note: Since expiry date is currently mocked/not in schema, this just logs for now.
     // In a real implementation, we would update a 'subscriptionExpiresAt' field.
-    await this.logAction(adminId, `Extended subscription for user ${userId} by ${days} days (Logged action only).`);
+    const adminRecordId = await this.resolveAdminId(adminId);
+    await this.logAction(adminRecordId, `Extended subscription for user ${userId} by ${days} days (Logged action only).`);
     return { success: true, userId, extendedBy: days };
   }
 
@@ -497,7 +548,7 @@ export class AdminService {
         skip,
         take,
         orderBy: { createdAt: 'desc' },
-        include: { user: { select: { username: true, displayName: true } } },
+        include: { user: { select: { displayName: true, avatarUrl: true } } },
       }),
       (this.prisma as any).transaction.count({ where }),
     ]);
@@ -520,7 +571,7 @@ export class AdminService {
         skip,
         take,
         orderBy: { createdAt: 'desc' },
-        include: { user: { select: { username: true, displayName: true } } },
+        include: { user: { select: { displayName: true, avatarUrl: true } } },
       }),
       (this.prisma as any).transaction.count({ where: { type: 'withdrawal' } }),
     ]);
@@ -539,7 +590,11 @@ export class AdminService {
 
     const where: any = {};
     if (search) {
-      where.username = { contains: search, mode: 'insensitive' };
+      where.OR = [
+        { email: { contains: search, mode: 'insensitive' } },
+        { displayName: { contains: search, mode: 'insensitive' } },
+        { creator: { username: { contains: search, mode: 'insensitive' } } }
+      ];
     }
 
     const [users, total] = await Promise.all([
@@ -547,8 +602,8 @@ export class AdminService {
         where,
         skip,
         take,
-        orderBy: { username: 'asc' },
-        select: { id: true, username: true, email: true, country: true, platformBalance: true, walletStatus: true, roles: true },
+        orderBy: { email: 'asc' },
+        select: { id: true, email: true, country: true, userWallet: true, creator: { select: { username: true, wallet: true } }, roles: true, vendor: { select: { wallet: true } } },
       }),
       (this.prisma as any).user.count({ where }),
     ]);
@@ -658,25 +713,25 @@ export class AdminService {
         .reduce((sum: number, t: any) => sum + Number((t._sum as any).amount), 0) / 100;
 
       const userOutflowPending = userTransactions
-        .filter((t: any) => t.status === 'pending' && t.type === 'withdrawal')
+        .filter((t: any) => t.status === 'pending' && t.type === 'withdrawal' && t.metadata?.source !== 'vendor' && t.metadata?.wallet_source !== 'vendorWallet')
         .reduce((sum: number, t: any) => sum + Number((t._sum as any).amount), 0) / 100;
+        
+      const userAvailableBalance = Number(u.userWallet || 0) / 100;
 
-      const userAvailableBalance = Math.max(0, userInflow - userOutflowSuccess - userOutflowPending);
-      
       const unclaimedCash = u.email ? (Number(unclaimedMap.get(u.email.toLowerCase()) || 0)) : 0;
       
       stats.push({
         id: `user-${u.id}`,
         originalId: u.id,
-        user: `${u.username} (User)`,
-        username: u.username,
+        user: `${u.creator?.username || u.email} (User)`,
+        username: u.creator?.username || u.email,
         type: 'user',
         country: u.country,
         balance: userAvailableBalance,
         earned: userInflow,
         withdrawn: userOutflowSuccess,
         pending: userOutflowPending + unclaimedCash, 
-        status: u.walletStatus || 'active',
+        status: 'active',
       });
 
       // ─────────────────────────────────────────────
@@ -684,7 +739,11 @@ export class AdminService {
       // ─────────────────────────────────────────────
       if (u.roles?.includes('vendor')) {
         const vendorPayouts = userTransactions
-          .filter((t: any) => (t.type === 'payout' || t.type === 'fee') && (t.status === 'success' || t.status === 'pending'))
+          .filter((t: any) => (t.type === 'payout' || t.type === 'fee' || t.type === 'withdrawal') && (t.status === 'success') && (t.metadata?.source === 'vendor' || t.metadata?.wallet_source === 'vendorWallet' || t.type === 'payout'))
+          .reduce((sum: number, t: any) => sum + Number((t._sum as any).amount), 0) / 100;
+
+        const vendorOutflowPending = userTransactions
+          .filter((t: any) => (t.type === 'payout' || t.type === 'fee' || t.type === 'withdrawal') && (t.status === 'pending') && (t.metadata?.source === 'vendor' || t.metadata?.wallet_source === 'vendorWallet' || t.type === 'payout'))
           .reduce((sum: number, t: any) => sum + Number((t._sum as any).amount), 0) / 100;
 
         const vProductIds = vendorToProductIds[u.id] || [];
@@ -709,19 +768,19 @@ export class AdminService {
         const flexRedeemed = (flexSalesMap.get(u.id) as number) || 0;
 
         const vendorEarned = Number(vendorProductTotalSales) + Number(genericRedeemed) + Number(flexRedeemed);
-        const vendorAvailable = (Number(vendorProductRedeemed) + Number(genericRedeemed) + Number(flexRedeemed)) - Number(vendorPayouts);
+        const vendorAvailableBalance = Number(u.vendor?.wallet || 0) / 100;
 
         stats.push({
           id: `vendor-${u.id}`,
           originalId: u.id,
-          user: `${u.username} (Vendor)`,
-          username: u.username,
+          user: `${u.creator?.username || u.email} (Vendor)`,
+          username: u.creator?.username || u.email,
           type: 'vendor',
           country: u.country,
-          balance: Math.max(0, vendorAvailable),
+          balance: vendorAvailableBalance,
           earned: vendorEarned,
           withdrawn: vendorPayouts,
-          pending: vendorProductPending,
+          pending: vendorOutflowPending + vendorProductPending,
           status: u.walletStatus || 'active',
         });
       }
@@ -792,7 +851,8 @@ export class AdminService {
       },
     });
 
-    await this.logAction(adminId, `Updated campaign ${campaignId} status to ${status}${reason ? ` (Reason: ${reason})` : ''}`);
+    const adminRecordId = await this.resolveAdminId(adminId);
+    await this.logAction(adminRecordId, `Updated campaign ${campaignId} status to ${status}${reason ? ` (Reason: ${reason})` : ''}`);
     return campaign;
   }
 
@@ -810,7 +870,8 @@ export class AdminService {
       data: updateData,
     });
 
-    await this.logAction(adminId, `Admin updated campaign ${campaignId}: ${JSON.stringify(data)}`);
+    const adminRecordId = await this.resolveAdminId(adminId);
+    await this.logAction(adminRecordId, `Admin updated campaign ${campaignId}: ${JSON.stringify(data)}`);
     return campaign;
   }
 
@@ -827,7 +888,8 @@ export class AdminService {
       data: { isFeatured: !campaign.isFeatured },
     });
 
-    await this.logAction(adminId, `${updated.isFeatured ? 'Featured' : 'Unfeatured'} campaign ${campaignId}`);
+    const adminRecordId = await this.resolveAdminId(adminId);
+    await this.logAction(adminRecordId, `${updated.isFeatured ? 'Featured' : 'Unfeatured'} campaign ${campaignId}`);
     return updated;
   }
 
@@ -847,7 +909,7 @@ export class AdminService {
         orderBy: { createdAt: 'desc' },
         include: { 
           reporter: { select: { username: true } },
-          resolver: { select: { username: true } }
+          resolver: { include: { user: { select: { username: true } } } }
         }
       }),
       (this.prisma as any).moderationReport.count({ where })
@@ -895,20 +957,21 @@ export class AdminService {
   }
 
   async resolveReport(adminId: string, id: string, resolutionNotes: string, newStatus: string) {
+    const adminRecordId = await this.resolveAdminId(adminId);
     return (this.prisma as any).$transaction(async (tx: any) => {
       const updated = await (tx as any).moderationReport.update({
         where: { id },
         data: {
           status: newStatus,
           resolutionNotes,
-          resolvedById: adminId
+          resolvedById: adminRecordId
         }
       });
 
 
       await (tx as any).adminLog.create({
         data: {
-          adminId,
+          adminId: adminRecordId,
           action: `Resolved report ${id} with status ${newStatus}`
         }
       });
@@ -988,12 +1051,13 @@ export class AdminService {
       throw new Error('Admin log not found');
     }
 
+    const adminRecordId = await this.resolveAdminId(adminId);
     await (this.prisma as any).adminLog.delete({
       where: { id: logId },
     });
 
     // Log this action
-    await this.logAction(adminId, `Deleted admin log entry #${logId}`);
+    await this.logAction(adminRecordId, `Deleted admin log entry #${logId}`);
 
     return { success: true };
   }
@@ -1016,18 +1080,19 @@ export class AdminService {
       throw new Error('Campaign/Gift not found');
     }
 
+    const adminRecordId = await this.resolveAdminId(adminId);
     const updatedCampaign = await (this.prisma as any).campaign.update({
       where: { id: giftId },
       data: {
         isFlagged: action === 'flag',
         flagReason: action === 'flag' ? flagReason : null,
         flaggedAt: action === 'flag' ? new Date() : null,
-        flaggedBy: action === 'flag' ? adminId : null,
+        flaggedBy: action === 'flag' ? adminRecordId : null,
       },
     });
 
     await this.logAction(
-      adminId,
+      adminRecordId,
       action === 'flag'
         ? `Flagged gift ${giftId}: ${flagReason}`
         : `Unflagged gift ${giftId}`,
@@ -1044,40 +1109,41 @@ export class AdminService {
     adminId: string,
     vendorId: string,
     data: {
-      shopName?: string;
-      shopSlug?: string;
-      shopDescription?: string;
+      businessName?: string;
+      businessSlug?: string;
+      businessDescription?: string;
       isVerified?: boolean;
       status?: string;
       vendorStatus?: string;
       vendorCategories?: string[];
     },
   ) {
-    const vendor = await (this.prisma as any).user.findUnique({
-      where: { id: vendorId },
+    const adminRecordId = await this.resolveAdminId(adminId);
+    const vendor = await (this.prisma as any).vendor.findUnique({
+      where: { userId: vendorId },
     });
 
-    if (!vendor || !vendor.roles.includes('vendor')) {
-      throw new Error('Vendor not found');
+    if (!vendor) {
+      throw new Error('Vendor profile not found');
     }
 
     const updateData: any = {};
-    if (data.shopName !== undefined) updateData.shopName = data.shopName;
-    if (data.shopSlug !== undefined) updateData.shopSlug = data.shopSlug;
-    if (data.shopDescription !== undefined) updateData.shopDescription = data.shopDescription;
-    if (data.isVerified !== undefined) updateData.isVerifiedVendor = data.isVerified;
+    if (data.businessName !== undefined) updateData.businessName = data.businessName;
+    if (data.businessSlug !== undefined) updateData.businessSlug = data.businessSlug;
+    if (data.businessDescription !== undefined) updateData.businessDescription = data.businessDescription;
+    if (data.isVerified !== undefined) updateData.isVerified = data.isVerified;
     if (data.status !== undefined) updateData.status = data.status;
     if (data.vendorStatus !== undefined) updateData.vendorStatus = data.vendorStatus;
     if (data.vendorCategories !== undefined) updateData.vendorCategories = data.vendorCategories;
 
-    const updatedVendor = await (this.prisma as any).user.update({
-      where: { id: vendorId },
+    const updatedVendor = await (this.prisma as any).vendor.update({
+      where: { id: vendor.id },
       data: updateData,
     });
 
     await this.logAction(
-      adminId,
-      `Updated vendor shop ${vendorId}: ${JSON.stringify(data)}`,
+      adminRecordId,
+      `Updated vendor shop ${vendor.id}: ${JSON.stringify(data)}`,
     );
 
     return updatedVendor;
@@ -1097,16 +1163,14 @@ export class AdminService {
     const limit = options.limit || 20;
     const skip = (page - 1) * limit;
 
-    const where: any = {
-      roles: { has: 'vendor' },
-    };
+    const where: any = {};
 
     if (options.search) {
       where.OR = [
-        { shopName: { contains: options.search, mode: 'insensitive' } },
-        { displayName: { contains: options.search, mode: 'insensitive' } },
-        { email: { contains: options.search, mode: 'insensitive' } },
-        { username: { contains: options.search, mode: 'insensitive' } },
+        { businessName: { contains: options.search, mode: 'insensitive' } },
+        { user: { displayName: { contains: options.search, mode: 'insensitive' } } },
+        { user: { email: { contains: options.search, mode: 'insensitive' } } },
+        { user: { username: { contains: options.search, mode: 'insensitive' } } },
       ];
     }
 
@@ -1115,25 +1179,22 @@ export class AdminService {
     }
 
     const [vendors, total] = await Promise.all([
-      (this.prisma as any).user.findMany({
+      (this.prisma as any).vendor.findMany({
         where,
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
-        select: {
-          id: true,
-          email: true,
-          username: true,
-          displayName: true,
-          avatarUrl: true,
-          shopName: true,
-          shopSlug: true,
-          shopDescription: true,
-          isVerifiedVendor: true,
-          vendorStatus: true,
-          vendorCategories: true,
-          status: true,
-          createdAt: true,
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              username: true,
+              displayName: true,
+              avatarUrl: true,
+              status: true,
+            },
+          },
           _count: {
             select: {
               vendorGifts: true,
@@ -1141,7 +1202,7 @@ export class AdminService {
           },
         },
       }),
-      (this.prisma as any).user.count({ where }),
+      (this.prisma as any).vendor.count({ where }),
     ]);
 
     // Consolidate Stats for returned vendors
@@ -1207,6 +1268,7 @@ export class AdminService {
 
     const data = vendors.map((v: any) => {
       const vProductIds = vendorToProductIds[v.id] || [];
+      const user = v.user || {};
       
       // Sum up stats for all products owned by this vendor
       let productOrdersCount = 0;
@@ -1238,6 +1300,9 @@ export class AdminService {
 
       return {
         ...v,
+        ...user,
+        userId: user.id,
+        id: v.id,
         orders_count: productOrdersCount,
         sales_volume: productSalesVolume,
         productsCount: v._count?.vendorGifts || 0,
@@ -1258,22 +1323,23 @@ export class AdminService {
    * Mirrors frontend: admin.ts → verifyVendor
    */
   async verifyVendor(adminId: string, vendorId: string, isVerified: boolean) {
-    const vendor = await (this.prisma as any).user.findUnique({
-      where: { id: vendorId },
+    const adminRecordId = await this.resolveAdminId(adminId);
+    const vendor = await (this.prisma as any).vendor.findUnique({
+      where: { userId: vendorId },
     });
 
-    if (!vendor || !vendor.roles.includes('vendor')) {
+    if (!vendor) {
       throw new Error('Vendor not found');
     }
 
-    const updated = await (this.prisma as any).user.update({
-      where: { id: vendorId },
-      data: { isVerifiedVendor: isVerified },
+    const updated = await (this.prisma as any).vendor.update({
+      where: { id: vendor.id },
+      data: { isVerified: isVerified },
     });
 
     await this.logAction(
-      adminId,
-      isVerified ? `Verified vendor ${vendorId}` : `Unverified vendor ${vendorId}`,
+      adminRecordId,
+      isVerified ? `Verified vendor ${vendor.id}` : `Unverified vendor ${vendor.id}`,
     );
 
     return updated;
@@ -1284,20 +1350,21 @@ export class AdminService {
    * Mirrors frontend: admin.ts → updateVendorStatus
    */
   async updateVendorStatus(adminId: string, vendorId: string, vendorStatus: string) {
-    const vendor = await (this.prisma as any).user.findUnique({
-      where: { id: vendorId },
+    const adminRecordId = await this.resolveAdminId(adminId);
+    const vendor = await (this.prisma as any).vendor.findUnique({
+      where: { userId: vendorId },
     });
 
-    if (!vendor || !vendor.roles.includes('vendor')) {
+    if (!vendor) {
       throw new Error('Vendor not found');
     }
 
-    const updated = await (this.prisma as any).user.update({
-      where: { id: vendorId },
+    const updated = await (this.prisma as any).vendor.update({
+      where: { id: vendor.id },
       data: { vendorStatus },
     });
 
-    await this.logAction(adminId, `Updated vendor ${vendorId} status to ${vendorStatus}`);
+    await this.logAction(adminRecordId, `Updated vendor ${vendor.id} status to ${vendorStatus}`);
 
     return updated;
   }
@@ -1328,7 +1395,7 @@ export class AdminService {
         take,
         orderBy: { createdAt: 'desc' },
         include: {
-          vendor: { select: { username: true, displayName: true, shopName: true } },
+          vendor: { select: { businessName: true, user: { select: { displayName: true } } } },
           categoryRel: { select: { name: true } },
           subcategoryRel: { select: { name: true } },
         },
@@ -1350,13 +1417,13 @@ export class AdminService {
     const product = await (this.prisma as any).vendorGift.update({
       where: { id: productId },
       data: { status: 'draft' },
-      include: { vendor: { select: { email: true, username: true } } },
+      include: { vendor: { select: { businessName: true, user: { select: { email: true } } } } },
     });
 
     try {
-      if (product.vendor?.email) {
+      if (product.vendor?.user?.email) {
         await this.notificationService.create({
-          userId: product.vendorId, 
+          vendorId: product.vendorId, 
           type: 'system', 
           title: 'Action Required: Product Update', 
           message: `Your product "${product.name}" requires an update. Reason: ${defaultReason}`, 
@@ -1365,7 +1432,8 @@ export class AdminService {
       }
     } catch(e) {}
 
-    await this.logAction(adminId, `Requested update for product ${productId} (assigned to draft). Reason: ${defaultReason}`);
+    const adminRecordId = await this.resolveAdminId(adminId);
+    await this.logAction(adminRecordId, `Requested update for product ${productId} (assigned to draft). Reason: ${defaultReason}`);
     return { ...product, price: product.price.toString() };
   }
 
@@ -1380,7 +1448,8 @@ export class AdminService {
       data,
     });
 
-    await this.logAction(adminId, `Updated product details for product ${productId}`);
+    const adminRecordId = await this.resolveAdminId(adminId);
+    await this.logAction(adminRecordId, `Updated product details for product ${productId}`);
     return { ...updated, price: updated.price.toString() };
   }
 
@@ -1429,7 +1498,8 @@ export class AdminService {
       where: { id: productId },
     });
 
-    await this.logAction(adminId, `Deleted product #${productId} (${product.name})`);
+    const adminRecordId = await this.resolveAdminId(adminId);
+    await this.logAction(adminRecordId, `Deleted product #${productId} (${product.name})`);
 
     return { success: true };
   }
@@ -1452,7 +1522,8 @@ export class AdminService {
       data: { status },
     });
 
-    await this.logAction(adminId, `Updated product #${productId} status to ${status}`);
+    const adminRecordId = await this.resolveAdminId(adminId);
+    await this.logAction(adminRecordId, `Updated product #${productId} status to ${status}`);
 
     return updated;
   }
@@ -1546,7 +1617,8 @@ export class AdminService {
           },
         });
 
-        await this.logAction(adminId, `Approved withdrawal #${withdrawalId}`);
+        const adminRecordId = await this.resolveAdminId(adminId);
+        await this.logAction(adminRecordId, `Approved withdrawal #${withdrawalId}`);
         return updated;
       } else {
         // Reject and refund balance
@@ -1563,14 +1635,15 @@ export class AdminService {
         await (tx as any).user.update({
           where: { id: withdrawal.userId },
           data: {
-            platformBalance: {
+            userWallet: {
               increment: withdrawal.amount,
             },
           },
         });
 
+        const adminRecordId = await this.resolveAdminId(adminId);
         await this.logAction(
-          adminId,
+          adminRecordId,
           `Rejected withdrawal #${withdrawalId}: ${rejectionReason || 'No reason provided'}`,
         );
         return updated;
@@ -1602,9 +1675,9 @@ export class AdminService {
     ] = await Promise.all([
       (this.prisma as any).user.count(),
       (this.prisma as any).user.count({ where: { createdAt: { gte: thirtyDaysAgo } } }),
-      (this.prisma as any).user.count({ where: { roles: { has: 'vendor' } } }),
-      (this.prisma as any).user.count({
-        where: { roles: { has: 'vendor' }, vendorStatus: 'active' },
+      (this.prisma as any).vendor.count(),
+      (this.prisma as any).vendor.count({
+        where: { status: 'active' },
       }),
       (this.prisma as any).campaign.count({ where: { giftCode: null } }),
       (this.prisma as any).campaign.count({ where: { giftCode: null, status: 'active' } }),
@@ -1714,7 +1787,6 @@ export class AdminService {
           currency: config.currency,
           currencySymbol: config.currencySymbol,
           flag: config.flag,
-          suggestedAmounts: config.suggestedAmounts,
           features: config.features,
           isEnabled: config.isEnabled,
         };
@@ -1728,6 +1800,7 @@ export class AdminService {
         withdrawalFee: nigeriaConfig.withdrawalFeeFlat ?? 100,
         minWithdrawal: nigeriaConfig.minWithdrawal ?? 1000,
         maxWithdrawal: nigeriaConfig.maxWithdrawal ?? 500000,
+        creatorProSubscriptionPrice: 10000,
         maintenanceMode: false,
         newRegistrations: true,
         vendorApplications: true,
@@ -1742,6 +1815,7 @@ export class AdminService {
         withdrawalFee: 100,
         minWithdrawal: 1000,
         maxWithdrawal: 500000,
+        creatorProSubscriptionPrice: 10000,
         maintenanceMode: false,
         newRegistrations: true,
         vendorApplications: true,
@@ -1776,7 +1850,8 @@ export class AdminService {
       ),
     );
 
-    await this.logAction(adminId, `Updated system settings: ${Object.keys(settings).join(', ')}`);
+    const adminRecordId = await this.resolveAdminId(adminId);
+    await this.logAction(adminRecordId, `Updated system settings: ${Object.keys(settings).join(', ')}`);
     return { success: true };
   }
 
@@ -1794,6 +1869,7 @@ export class AdminService {
     };
     acceptedGiftCards: number[];
   }) {
+    const adminRecordId = await this.resolveAdminId(adminId);
     // 1. Check if user already exists
     const existingUser = await (this.prisma as any).user.findFirst({
       where: { email: data.email },
@@ -1806,39 +1882,57 @@ export class AdminService {
       }
       
       // Upgrade existing user to vendor
-      const updatedUser = await (this.prisma as any).user.update({
+      await (this.prisma as any).user.update({
         where: { id: existingUser.id },
-        data: {
-          roles: ['vendor'], // Requirement: role is fixed to vendor only
-          isVerifiedVendor: true,
-          vendorStatus: 'active',
-          shopName: data.businessName,
-          shopDescription: data.businessDescription,
-          shopStreet: data.address.street,
-          shopCity: data.address.city,
-          shopState: data.address.state,
-          shopCountry: data.address.country,
-          shopZip: data.address.zip,
-          shopLogoUrl: data.businessLogo,
+        data: { roles: { set: ['vendor'] } }
+      });
+
+      const vendor = await (this.prisma as any).vendor.upsert({
+        where: { userId: existingUser.id },
+        create: {
+          userId: existingUser.id,
+          businessName: data.businessName,
+          businessDescription: data.businessDescription,
+          businessSlug: data.businessName.toLowerCase().replace(/\s+/g, '-') + '-' + Math.random().toString(36).substring(2, 6),
+          businessLogoUrl: data.businessLogo,
+          streetAddress: data.address.street,
+          city: data.address.city,
+          state: data.address.state,
+          country: data.address.country,
+          postalCode: data.address.zip,
+          status: 'active',
+          isVerified: true
         },
+        update: {
+          businessName: data.businessName,
+          businessDescription: data.businessDescription,
+          businessLogoUrl: data.businessLogo,
+          streetAddress: data.address.street,
+          city: data.address.city,
+          state: data.address.state,
+          country: data.address.country,
+          postalCode: data.address.zip,
+          status: 'active',
+          isVerified: true
+        }
       });
 
       // Handle Gift Cards
       if (data.acceptedGiftCards && data.acceptedGiftCards.length > 0) {
         await (this.prisma as any).vendorAcceptedGiftCard.deleteMany({
-          where: { vendorId: updatedUser.id }
+          where: { vendorId: vendor.id }
         });
         
         await (this.prisma as any).vendorAcceptedGiftCard.createMany({
           data: data.acceptedGiftCards.map(id => ({
-            vendorId: updatedUser.id,
+            vendorId: vendor.id,
             giftCardId: id
           }))
         });
       }
 
-      await this.logAction(adminId, `Upgraded user ${data.email} to Vendor and set shop details`);
-      return { success: true, userId: updatedUser.id, upgraded: true };
+      await this.logAction(adminRecordId, `Upgraded user ${data.email} to Vendor and set shop details`);
+      return { success: true, userId: existingUser.id, upgraded: true };
     }
 
     // 2. New Vendor Creation
@@ -1858,26 +1952,21 @@ export class AdminService {
         throw new Error('Failed to create user account');
       }
 
-      // Update with full business profile
-      const updatedUser = await (this.prisma as any).user.update({
-        where: { email: data.email },
+      // Create Vendor profile
+      const vendor = await (this.prisma as any).vendor.create({
         data: {
-          displayName: data.businessName,
-          name: data.businessName,
+          userId: newUserBody.id,
+          businessName: data.businessName,
+          businessDescription: data.businessDescription,
+          businessLogoUrl: data.businessLogo,
+          streetAddress: data.address.street,
+          city: data.address.city,
+          state: data.address.state,
           country: data.address.country,
-          roles: ['vendor'],
-          emailVerified: true,
-          isVerifiedVendor: true,
-          vendorStatus: 'active',
-          shopName: data.businessName,
-          shopDescription: data.businessDescription,
-          shopStreet: data.address.street,
-          shopCity: data.address.city,
-          shopState: data.address.state,
-          shopCountry: data.address.country,
-          shopZip: data.address.zip,
-          shopLogoUrl: data.businessLogo,
-          shopSlug: data.businessName.toLowerCase().replace(/\s+/g, '-') + '-' + Math.random().toString(36).substring(2, 6)
+          postalCode: data.address.zip,
+          businessSlug: data.businessName.toLowerCase().replace(/\s+/g, '-') + '-' + Math.random().toString(36).substring(2, 6),
+          status: 'active',
+          isVerified: true
         }
       });
 
@@ -1885,7 +1974,7 @@ export class AdminService {
       if (data.acceptedGiftCards && data.acceptedGiftCards.length > 0) {
         await (this.prisma as any).vendorAcceptedGiftCard.createMany({
           data: data.acceptedGiftCards.map(id => ({
-            vendorId: updatedUser.id,
+            vendorId: vendor.id,
             giftCardId: id
           }))
         });
@@ -1898,8 +1987,8 @@ export class AdminService {
         temporaryPassword: tempPassword
       });
 
-      await this.logAction(adminId, `Created new vendor account for ${data.email} and assigned ${data.acceptedGiftCards.length} gift cards`);
-      return { success: true, userId: updatedUser.id };
+      await this.logAction(adminRecordId, `Created new vendor account for ${data.email} and assigned ${data.acceptedGiftCards.length} gift cards`);
+      return { success: true, userId: newUserBody.id };
     } catch (error: any) {
       this.logger.error(`Vendor creation failed: ${error.message}`);
       throw new BadRequestException(error.message || 'Vendor creation failed');
@@ -1964,7 +2053,7 @@ export class AdminService {
         take,
         orderBy: { createdAt: 'desc' },
         include: {
-          vendor: { select: { username: true, displayName: true, email: true } },
+          vendor: { include: { user: { select: { displayName: true, email: true, creator: { select: { username: true } } } } } },
           subcategory: {
             select: { name: true, category: { select: { name: true } } },
           },
@@ -1989,6 +2078,7 @@ export class AdminService {
     if (!request) throw new NotFoundException('Tag request not found');
     if (request.status !== 'pending') throw new BadRequestException('Request already processed');
 
+    const adminRecordId = await this.resolveAdminId(adminId);
     return this.prisma.$transaction(async (tx) => {
       if (action === 'approve') {
         const slug = request.tagName
@@ -2018,7 +2108,7 @@ export class AdminService {
           data: { status: 'approved', adminNotes },
         });
 
-        await this.logAction(adminId, `Approved tag request: "${request.tagName}" for subcategory ID ${request.subcategoryId}`);
+        await this.logAction(adminRecordId, `Approved tag request: "${request.tagName}" for subcategory ID ${request.subcategoryId}`);
         return updated;
       } else {
         const updated = await (tx as any).tagRequest.update({
@@ -2026,7 +2116,7 @@ export class AdminService {
           data: { status: 'rejected', adminNotes },
         });
 
-        await this.logAction(adminId, `Rejected tag request: "${request.tagName}" (Reason: ${adminNotes || 'None'})`);
+        await this.logAction(adminRecordId, `Rejected tag request: "${request.tagName}" (Reason: ${adminNotes || 'None'})`);
         return updated;
       }
     });

@@ -36,13 +36,7 @@ model Campaign {
   paymentReference       String?     @map("payment_reference")
   currency               String      @default("NGN")
   giftCode               String?     @map("gift_code")
-
-  // Custom/Voucher redemption
-  redeemedAt         DateTime? @map("redeemed_at")
-  redeemedByVendorId String?   @map("redeemed_by_vendor_id")
-  redeemedByVendor   User?     @relation("RedeemedByVendor", fields: [redeemedByVendorId], references: [id], onDelete: SetNull)
-  vendorRating       Int?      @map("vendor_rating")
-  message            String?
+  message                String?
 
   // V2 WhatsApp/Delivery
   deliveryMethod       String? @default("email") @map("delivery_method")

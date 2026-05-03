@@ -3,6 +3,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { FileService } from '../file/file.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { paginate, getPaginationOptions } from '../../common/utils/pagination.util';
+import { generateSlug, generateShortId } from '../../common/utils/slug.util';
 
 @Injectable()
 export class UserService {
@@ -14,34 +15,109 @@ export class UserService {
   ) {}
 
   async findMe(userId: string) {
-    const user = await (this.prisma as any).user.findUnique({
+    const userArr = await (this.prisma as any).user.findMany({
       where: { id: userId },
       include: {
-        acceptedGiftCards: {
-          select: { giftCardId: true }
-        }
+        vendor: {
+          include: {
+            acceptedCards: {
+              select: { giftCardId: true }
+            }
+          }
+        },
+        creator: true,
+        admin: true
       }
     });
+
+    const user = userArr[0];
     if (!user) throw new NotFoundException('User not found');
-    return {
+
+    // Smooth transition: map vendor and creator fields back to the top level for the UI
+    const result = {
       ...user,
-      platformBalance: user.platformBalance.toString(),
+      userWallet: user.userWallet?.toString() ?? '0',
     };
+
+    if (user.vendor) {
+      result.businessName = user.vendor.businessName;
+      result.businessDescription = user.vendor.businessDescription;
+      result.businessSlug = user.vendor.businessSlug;
+      result.businessLogoUrl = user.vendor.businessLogoUrl;
+      result.vendorStatus = user.vendor.status;
+      result.isVerifiedVendor = user.vendor.isVerified;
+      result.vendorCategories = user.vendor.categories;
+      result.vendorWallet = user.vendor.wallet.toString();
+      result.acceptedGiftCards = user.vendor.acceptedCards;
+    }
+
+    if (user.creator && user.isCreator) {
+      result.username = user.creator.username;
+      result.bio = user.creator.bio;
+      result.bannerUrl = user.creator.bannerUrl || result.bannerUrl; // Prefer creator banner if it exists
+      result.socialLinks = user.creator.socialLinks;
+      result.themeSettings = user.creator.themeSettings;
+      result.wallet = user.creator.wallet.toString();
+      result.isCreator = true;
+    } else {
+      result.isCreator = false;
+    }
+
+    if (user.admin) {
+      result.adminRole = user.admin.role;
+    }
+
+    return result;
   }
 
   async findOne(idOrUsername: string) {
     const user = await (this.prisma as any).user.findFirst({
       where: {
-        OR: [{ id: idOrUsername }, { username: idOrUsername }, { shopSlug: idOrUsername }],
+        OR: [
+          { id: idOrUsername }, 
+          { creator: { username: idOrUsername } }, 
+          { vendor: { businessSlug: idOrUsername } }
+        ],
       },
+      include: {
+        vendor: true,
+        creator: true,
+        admin: true
+      }
     });
 
     if (!user) throw new NotFoundException('User not found');
     
-    return {
+    const result = {
       ...user,
-      platformBalance: user.platformBalance.toString(),
+      userWallet: user.userWallet?.toString() ?? '0',
     };
+
+    if (user.vendor) {
+      result.businessName = user.vendor.businessName;
+      result.businessDescription = user.vendor.businessDescription;
+      result.businessSlug = user.vendor.businessSlug;
+      result.businessLogoUrl = user.vendor.businessLogoUrl;
+      result.vendorWallet = user.vendor.wallet.toString();
+    }
+
+    if (user.creator && user.isCreator) {
+      result.username = user.creator.username;
+      result.bio = user.creator.bio;
+      result.bannerUrl = user.creator.bannerUrl || result.bannerUrl;
+      result.socialLinks = user.creator.socialLinks;
+      result.themeSettings = user.creator.themeSettings;
+      result.wallet = user.creator.wallet.toString();
+      result.isCreator = true;
+    } else {
+      result.isCreator = false;
+    }
+
+    if (user.admin) {
+      result.adminRole = user.admin.role;
+    }
+
+    return result;
   }
 
   async update(userId: string, data: UpdateUserDto) {
@@ -49,31 +125,31 @@ export class UserService {
 
     // 1. Data Sanitization
     if (updates.username) updates.username = updates.username.toLowerCase().trim();
-    if (updates.shopSlug) updates.shopSlug = updates.shopSlug.toLowerCase().trim();
+    if (updates.businessSlug) updates.businessSlug = updates.businessSlug.toLowerCase().trim();
 
     // 2. Uniqueness Checks
     if (updates.username) {
-      const existing = await (this.prisma as any).user.findFirst({
-        where: { username: updates.username, NOT: { id: userId } },
+      const existing = await (this.prisma as any).creator.findFirst({
+        where: { username: updates.username, NOT: { userId: userId } },
       });
       if (existing) throw new BadRequestException('Username is already taken');
     }
 
-    if (updates.shopSlug) {
-      const existing = await (this.prisma as any).user.findFirst({
-        where: { shopSlug: updates.shopSlug, NOT: { id: userId } },
+    if (updates.businessSlug) {
+      const existing = await (this.prisma as any).vendor.findFirst({
+        where: { businessSlug: updates.businessSlug, NOT: { userId: userId } },
       });
       if (existing) throw new BadRequestException('Shop URL identifier is already taken');
     }
 
     // 3. Plan Protection & Creator Sync
     if (updates.themeSettings) {
-      const current = await (this.prisma as any).user.findUnique({
-        where: { id: userId },
+      const currentCreator = await (this.prisma as any).creator.findUnique({
+        where: { userId: userId },
         select: { themeSettings: true },
       });
       
-      const existingTheme = (current?.themeSettings as any) || {};
+      const existingTheme = (currentCreator?.themeSettings as any) || {};
       const existingPlan = existingTheme.plan || 'free';
 
       if (existingPlan === 'pro') {
@@ -86,23 +162,110 @@ export class UserService {
       };
     }
 
-    const { acceptedGiftCards, ...restUpdates } = updates;
+    const { 
+      acceptedGiftCards, businessName, businessDescription, businessSlug, businessLogoUrl, 
+      bannerUrl, vendorStatus, isVerifiedVendor, vendorCategories, 
+      username, bio, socialLinks, themeSettings, isCreator,
+      ...restUpdates 
+    } = updates;
 
     try {
-      const updated = await (this.prisma as any).user.update({
-        where: { id: userId },
-        data: restUpdates,
-      });
+      // Update User table
+      let updatedUser;
+      if (Object.keys(restUpdates).length > 0) {
+        updatedUser = await (this.prisma as any).user.update({
+          where: { id: userId },
+          data: restUpdates,
+        });
+      } else {
+        updatedUser = await (this.prisma as any).user.findUnique({ where: { id: userId } });
+      }
+
+      // Update Creator table if there are creator updates
+      const creatorUpdates: any = {};
+      if (username !== undefined) creatorUpdates.username = username;
+      if (bio !== undefined) creatorUpdates.bio = bio;
+      if (bannerUrl !== undefined) creatorUpdates.bannerUrl = bannerUrl;
+      if (socialLinks !== undefined) creatorUpdates.socialLinks = socialLinks;
+      if (themeSettings !== undefined) creatorUpdates.themeSettings = themeSettings;
+      
+      let creator: any = null;
+      if (Object.keys(creatorUpdates).length > 0 || isCreator) {
+        const userForSlug = updatedUser || await (this.prisma as any).user.findUnique({ where: { id: userId } });
+        let finalUsername = username;
+
+        if (!finalUsername) {
+          const baseSlug = userForSlug.displayName 
+            ? generateSlug(userForSlug.displayName) 
+            : `creator_${userId.slice(0, 8)}`;
+          
+          // Check if this username is already taken by someone else
+          const existing = await (this.prisma as any).creator.findUnique({
+            where: { username: baseSlug }
+          });
+
+          if (existing && existing.userId !== userId) {
+            finalUsername = `${baseSlug}-${generateShortId().toLowerCase()}`;
+          } else {
+            finalUsername = baseSlug;
+          }
+        }
+
+        creator = await (this.prisma as any).creator.upsert({
+          where: { userId },
+          update: creatorUpdates,
+          create: {
+            userId,
+            username: finalUsername,
+            ...creatorUpdates,
+          },
+        });
+      }
+
+      // Update Vendor table if there are vendor updates
+      const vendorUpdates: any = {};
+      if (businessName !== undefined) vendorUpdates.businessName = businessName;
+      if (businessDescription !== undefined) vendorUpdates.businessDescription = businessDescription;
+      if (businessSlug !== undefined) vendorUpdates.businessSlug = businessSlug;
+      if (businessLogoUrl !== undefined) vendorUpdates.businessLogoUrl = businessLogoUrl;
+      // vendorUpdates.bannerUrl was removed from vendor
+      if (vendorStatus !== undefined) vendorUpdates.status = vendorStatus;
+      if (isVerifiedVendor !== undefined) vendorUpdates.isVerified = isVerifiedVendor;
+      if (vendorCategories !== undefined) vendorUpdates.categories = vendorCategories;
+
+      let vendor: any = null;
+      if (Object.keys(vendorUpdates).length > 0 || updatedUser.roles.includes('vendor')) {
+        vendor = await (this.prisma as any).vendor.upsert({
+          where: { userId },
+          update: vendorUpdates,
+          create: {
+            id: userId,
+            userId,
+            businessName: businessName || updatedUser.name,
+            businessSlug: businessSlug || updatedUser.username || userId,
+            ...vendorUpdates,
+          },
+        });
+      }
 
       if (acceptedGiftCards && Array.isArray(acceptedGiftCards)) {
-        // Enforce 5 card limit logic happens in the frontend/DTO, but we'll safely map it here
+        // Enforce 5 card limit logic happens in the frontend/DTO
+        // First ensure vendor exists
+        if (!vendor) {
+           vendor = await (this.prisma as any).vendor.upsert({
+             where: { userId },
+             update: {},
+             create: { id: userId, userId, businessName: updatedUser.name, businessSlug: updatedUser.username || userId }
+           });
+        }
+
         await (this.prisma as any).vendorAcceptedGiftCard.deleteMany({
-          where: { vendorId: userId }
+          where: { vendorId: vendor.id }
         });
         
         if (acceptedGiftCards.length > 0) {
           const mappingData = acceptedGiftCards.map((cardId: number) => ({
-            vendorId: userId,
+            vendorId: vendor.id,
             giftCardId: cardId
           }));
           await (this.prisma as any).vendorAcceptedGiftCard.createMany({
@@ -112,8 +275,8 @@ export class UserService {
       }
 
       return {
-        ...updated,
-        platformBalance: updated.platformBalance?.toString() ?? '0',
+        ...updatedUser,
+        userWallet: updatedUser.userWallet?.toString() ?? '0',
       };
     } catch (error) {
       this.logger.error('User update failed:', error);
@@ -129,7 +292,7 @@ export class UserService {
           OR: [
             { name: { contains: search, mode: 'insensitive' as any } },
             { displayName: { contains: search, mode: 'insensitive' as any } },
-            { username: { contains: search, mode: 'insensitive' as any } },
+            { creator: { username: { contains: search, mode: 'insensitive' as any } } },
           ],
         }
       : {};
@@ -144,18 +307,30 @@ export class UserService {
           id: true,
           name: true,
           displayName: true,
-          username: true,
           avatarUrl: true,
-          isCreator: true,
           roles: true,
           createdAt: true,
-          shopName: true
+          creator: {
+            select: { username: true }
+          },
+          vendor: {
+            select: { businessName: true }
+          }
         }
       }),
       (this.prisma as any).user.count({ where }),
     ]);
 
-    return paginate(users, total, page, limit);
+    const mappedUsers = users.map((user: any) => ({
+      ...user,
+      username: user.creator?.username,
+      isCreator: !!user.creator,
+      businessName: user.vendor?.businessName,
+      creator: undefined,
+      vendor: undefined
+    }));
+
+    return paginate(mappedUsers, total, page, limit);
   }
 
   /**
@@ -164,12 +339,12 @@ export class UserService {
    */
   async updateCreatorStatus(userId: string, enabled: boolean) {
     // Check plan status before allowing creator status change
-    const user = await (this.prisma as any).user.findUnique({
-      where: { id: userId },
+    const creator = await (this.prisma as any).creator.findUnique({
+      where: { userId: userId },
       select: { themeSettings: true },
     });
 
-    const themeSettings = (user?.themeSettings as any) || {};
+    const themeSettings = (creator?.themeSettings as any) || {};
     const plan = themeSettings.plan || 'free';
 
     // If pro plan, always keep creator true
@@ -177,14 +352,69 @@ export class UserService {
       throw new BadRequestException('Cannot disable creator mode on Pro plan');
     }
 
+    if (enabled) {
+      // Get display name for a better default username
+      const user = await (this.prisma as any).user.findUnique({
+        where: { id: userId },
+        select: { displayName: true }
+      });
+      
+      const baseSlug = user?.displayName 
+        ? generateSlug(user.displayName) 
+        : `creator_${userId.slice(0, 8)}`;
+
+      // Check for collision and "upgrade" status
+      const existing = await (this.prisma as any).creator.findUnique({
+        where: { userId }
+      });
+
+      // We only auto-upgrade if they don't exist yet OR if their current name is the old 'creator_ID' format
+      const isNewOrLegacy = !existing || existing.username.startsWith('creator_');
+
+      // If we are upgrading or new, check if the baseSlug is taken by someone ELSE
+      let finalUsername = baseSlug;
+      if (isNewOrLegacy) {
+        const takenByOther = await (this.prisma as any).creator.findUnique({
+          where: { username: baseSlug }
+        });
+        if (takenByOther && takenByOther.userId !== userId) {
+          finalUsername = `${baseSlug}-${generateShortId().toLowerCase()}`;
+        }
+      } else {
+        finalUsername = existing.username; // Keep their custom username if they already have one
+      }
+
+      // Upsert a Creator specific relation
+      await (this.prisma as any).creator.upsert({
+        where: { userId },
+        update: { 
+          status: 'active',
+          ...(isNewOrLegacy ? { username: finalUsername } : {})
+        },
+        create: {
+          userId,
+          username: finalUsername,
+        }
+      });
+    } else {
+      // Instead of deleting, just set status or leave it.
+      await (this.prisma as any).creator.update({
+        where: { userId },
+        data: { status: 'disabled' },
+      }).catch(() => null); // ignore if it doesn't exist
+    }
+
+    // CRITICAL: Update the User record's isCreator flag so it persists
     const updated = await (this.prisma as any).user.update({
       where: { id: userId },
       data: { isCreator: enabled },
+      include: { creator: true }
     });
 
     return {
       ...updated,
-      platformBalance: updated.platformBalance?.toString() ?? '0',
+      userWallet: updated.userWallet?.toString() ?? '0',
+      isCreator: enabled,
     };
   }
 
@@ -192,21 +422,19 @@ export class UserService {
    * Fetch a creator's public supporters
    */
   async getPublicSupporters(username: string, page: number = 1, limit: number = 10) {
-    const user = await (this.prisma as any).user.findFirst({
-      where: {
-        OR: [
-          { username: { equals: username, mode: 'insensitive' } },
-        ]
-      }
+    const creator = await (this.prisma as any).creator.findFirst({
+      where: { username: { equals: username, mode: 'insensitive' } },
+      select: { id: true, userId: true }
     });
 
-    if (!user) throw new NotFoundException('User not found');
+    if (!creator) throw new NotFoundException('Creator not found');
 
     const skip = (page - 1) * limit;
     const take = limit;
 
     const supportPageFilter = {
-      userId: user.id,
+      creatorId: creator.id, // CreatorSupport is linked to Creator now, or does it still link to userId? Let's check support relations. Wait! It goes to Creator model!
+      // In moderation.prisma: CreatorSupport -> creatorId
       NOT: {
         message: { contains: 'Claimed cash gift' },
       },
@@ -257,14 +485,14 @@ export class UserService {
    * Only pro plan users can have a banner.
    */
   async updateBannerImage(userId: string, bannerUrl: string | null) {
-    // Get current user to check for existing banner and plan
-    const user = await (this.prisma as any).user.findUnique({
-      where: { id: userId },
+    // Get current creator to check for existing banner and plan
+    const creator = await (this.prisma as any).creator.findUnique({
+      where: { userId: userId },
       select: { bannerUrl: true, themeSettings: true },
     });
 
     // Check if user has pro plan (banner is a pro-only feature)
-    const themeSettings = (user?.themeSettings as any) || {};
+    const themeSettings = (creator?.themeSettings as any) || {};
     const plan = themeSettings.plan || 'free';
 
     if (plan !== 'pro' && bannerUrl) {
@@ -272,22 +500,21 @@ export class UserService {
     }
 
     // Delete old banner from R2 if it exists and is different
-    if (user?.bannerUrl && user.bannerUrl !== bannerUrl) {
+    if (creator?.bannerUrl && creator.bannerUrl !== bannerUrl) {
       try {
-        await this.fileService.deleteFile(user.bannerUrl);
+        await this.fileService.deleteFile(creator.bannerUrl);
       } catch (error) {
-        this.logger.warn(`Failed to delete old banner image: ${user.bannerUrl}`, error);
+        this.logger.warn(`Failed to delete old banner image: ${creator.bannerUrl}`, error);
       }
     }
 
-    const updated = await (this.prisma as any).user.update({
-      where: { id: userId },
+    const updated = await (this.prisma as any).creator.update({
+      where: { userId: userId },
       data: { bannerUrl },
     });
 
     return {
       ...updated,
-      platformBalance: updated.platformBalance?.toString() ?? '0',
     };
   }
 
@@ -317,7 +544,7 @@ export class UserService {
 
     return {
       ...updated,
-      platformBalance: updated.platformBalance?.toString() ?? '0',
+      userWallet: '0', 
     };
   }
 
@@ -325,27 +552,27 @@ export class UserService {
    * Delete user banner image.
    */
   async deleteBannerImage(userId: string) {
-    const user = await (this.prisma as any).user.findUnique({
-      where: { id: userId },
+    const creator = await (this.prisma as any).creator.findUnique({
+      where: { userId: userId },
       select: { bannerUrl: true },
     });
 
-    if (user?.bannerUrl) {
+    if (creator?.bannerUrl) {
       try {
-        await this.fileService.deleteFile(user.bannerUrl);
+        await this.fileService.deleteFile(creator.bannerUrl);
       } catch (error) {
-        this.logger.warn(`Failed to delete banner image: ${user.bannerUrl}`, error);
+        this.logger.warn(`Failed to delete banner image: ${creator.bannerUrl}`, error);
       }
     }
 
-    const updated = await (this.prisma as any).user.update({
-      where: { id: userId },
+    const updated = await (this.prisma as any).creator.update({
+      where: { userId: userId },
       data: { bannerUrl: null },
     });
 
     return {
       ...updated,
-      platformBalance: updated.platformBalance?.toString() ?? '0',
+      userWallet: '0',
     };
   }
 
@@ -373,7 +600,6 @@ export class UserService {
 
     return {
       ...updated,
-      platformBalance: updated.platformBalance?.toString() ?? '0',
     };
   }
 
@@ -384,7 +610,7 @@ export class UserService {
   async deleteUser(userId: string) {
     const user = await (this.prisma as any).user.findUnique({
       where: { id: userId },
-      select: { avatarUrl: true, bannerUrl: true },
+      select: { avatarUrl: true, creator: { select: { bannerUrl: true } } },
     });
 
     if (!user) {
@@ -394,7 +620,7 @@ export class UserService {
     // Collect all user images to delete
     const imagesToDelete: string[] = [];
     if (user.avatarUrl) imagesToDelete.push(user.avatarUrl);
-    if (user.bannerUrl) imagesToDelete.push(user.bannerUrl);
+    if (user.creator?.bannerUrl) imagesToDelete.push(user.creator.bannerUrl);
 
     // Get user's campaigns and their images
     const campaigns = await (this.prisma as any).campaign.findMany({

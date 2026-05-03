@@ -29,7 +29,7 @@ export function V2VendorOverviewTab({setSection}: V2VendorOverviewTabProps) {
   const totalEarnings = stats?.totalSales || 0;
   const redemptionsCount = stats?.ordersCount || 0;
   const acceptedCardsCount = profile?.vendor_accepted_gift_cards?.length || 0;
-  const businessName = profile?.shop_name || profile?.display_name || 'Vendor';
+  const businessName = profile?.business_name || profile?.display_name || 'Vendor';
 
   return (
     <div className="space-y-5 md:space-y-8">
@@ -184,7 +184,7 @@ export function V2VendorOverviewTab({setSection}: V2VendorOverviewTabProps) {
                 <span className="v2-icon text-blue-500" style={{ fontVariationSettings: "'FILL' 1" }}>location_on</span>
               </div>
               <p className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider mb-1">Location</p>
-              <p className="text-sm font-bold text-[var(--v2-on-surface)]">{profile?.shop_city || profile?.shop_country || 'Set up'}</p>
+              <p className="text-sm font-bold text-[var(--v2-on-surface)]">{profile?.business_city || profile?.business_country || 'Set up'}</p>
             </div>
             {/* Member Since */}
             <div className="bg-[var(--v2-surface-container-low)] rounded-2xl p-4 text-center">

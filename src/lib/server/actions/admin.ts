@@ -385,21 +385,21 @@ export async function updateWalletStatus(id: string, wallet_status: string) {
 export async function updateVendorShopAdmin(
   userId: string,
   updates: {
-    shop_name?: string;
-    shop_description?: string;
-    shop_address?: string;
-    shop_slug?: string;
-    shop_logo_url?: string;
+    business_name?: string;
+    business_description?: string;
+    business_address?: string;
+    business_slug?: string;
+    business_logo_url?: string;
   },
 ) {
   try {
     const response = await serverFetch(`admin/vendors/${userId}`, {
       method: 'PATCH',
       body: JSON.stringify({
-        shopName: updates.shop_name,
-        shopDescription: updates.shop_description,
-        shopSlug: updates.shop_slug,
-        shopLogoUrl: updates.shop_logo_url,
+        businessName: updates.business_name,
+        businessDescription: updates.business_description,
+        businessSlug: updates.business_slug,
+        businessLogoUrl: updates.business_logo_url,
       }),
     });
     return { success: true, data: response };

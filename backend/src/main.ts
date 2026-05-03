@@ -1,3 +1,15 @@
+// Ensure BigInt is serialized correctly globally
+(BigInt.prototype as any).toJSON = function () {
+  return Number(this);
+};
+
+const fs = require('fs');
+const originalConsoleError = console.error;
+console.error = function(...args) {
+  originalConsoleError(...args);
+  fs.appendFileSync('/tmp/backend-error.log', new Date().toISOString() + ' ' + args.join(' ') + '\n');
+};
+
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';

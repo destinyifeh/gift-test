@@ -70,7 +70,7 @@ export class UserGiftCardService {
     return (this.prisma as any).userGiftCard.findMany({
       where, orderBy: { createdAt: 'desc' },
       include: {
-        sender: { select: { displayName: true, username: true, avatarUrl: true } },
+        sender: { select: { displayName: true, avatarUrl: true, email: true } },
         giftCard: true
       }
     });
@@ -80,7 +80,7 @@ export class UserGiftCardService {
     const card = await (this.prisma as any).userGiftCard.findFirst({
       where: { claimToken },
       include: { 
-        sender: { select: { displayName: true, username: true, avatarUrl: true } },
+        sender: { select: { displayName: true, avatarUrl: true, email: true } },
         giftCard: true,
       }
     });
@@ -131,6 +131,12 @@ export class UserGiftCardService {
     });
 
     await (this.prisma as any).userGiftCard.update({ where: { id: card.id }, data: { currentBalance: newBalance, status: newStatus } });
+
+    // Increment vendor's wallet balance
+    await (this.prisma as any).user.update({
+      where: { id: vendorId },
+      data: { vendorWallet: { increment: BigInt(Math.round(amount * 100)) } }
+    });
 
     if (card.userId) {
       await (this.prisma as any).transaction.create({

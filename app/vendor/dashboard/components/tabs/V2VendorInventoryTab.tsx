@@ -127,7 +127,7 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct, onViewPr
   const currencySymbol = getCurrencySymbol(currency);
 
   // Check if shop is set up
-  const isShopSetup = !!profile?.shop_name && !!profile?.shop_description;
+  const isShopSetup = !!profile?.business_name && !!profile?.business_description;
 
   // Filter products
   const filteredProducts = products.filter((p: any) => {
@@ -385,12 +385,12 @@ export function V2VendorInventoryTab({searchQuery = '', onBoostProduct, onViewPr
         <div className="w-20 h-20 rounded-full bg-[var(--v2-primary)]/10 flex items-center justify-center mb-4">
           <span className="v2-icon text-4xl text-[var(--v2-primary)]">storefront</span>
         </div>
-        <h3 className="text-xl font-bold text-[var(--v2-on-surface)] mb-2">Shop Setup Required</h3>
+        <h3 className="text-xl font-bold text-[var(--v2-on-surface)] mb-2">Business Setup Required</h3>
         <p className="text-[var(--v2-on-surface-variant)] max-w-md mb-4">
-          Complete your shop details in the <strong>Shop</strong> tab before adding products.
+          Complete your business details in the <strong>Business</strong> tab before adding products.
         </p>
         <p className="text-sm text-[var(--v2-on-surface-variant)]/70">
-          A professional shop profile helps build trust with customers.
+          A professional business profile helps build trust with customers.
         </p>
       </div>
     );

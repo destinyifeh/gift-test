@@ -10,3 +10,5 @@ export {V2SettingsTab} from './V2SettingsTab';
 export {V2GiftPageTab} from './V2GiftPageTab';
 export {V2SupportersTab} from './V2SupportersTab';
 export {V2AnalyticsTab} from './V2AnalyticsTab';
+export {V2CreatorWalletTab} from './V2CreatorWalletTab';
+export * from './V2CreatorSettingsTab';

@@ -6,8 +6,15 @@ export function useDashboardAnalytics() {
   return useQuery({
     queryKey: ['dashboard-analytics'],
     queryFn: async () => {
-      const res = await api.get('/analytics/dashboard');
-      return res.data;
+      console.log('[useDashboardAnalytics] Request initiated');
+      try {
+        const res = await api.get('/analytics/dashboard');
+        console.log('[useDashboardAnalytics] Success:', res.data);
+        return res.data;
+      } catch (err: any) {
+        console.error('[useDashboardAnalytics] FAILED:', err?.message || err);
+        throw err;
+      }
     },
   });
 }
@@ -15,7 +22,21 @@ export function useDashboardAnalytics() {
 export function useUnclaimedGifts() {
   return useQuery({
     queryKey: ['unclaimed-gifts'],
-    queryFn: () => fetchUnclaimedGifts(),
+    queryFn: async () => {
+      console.log('[useUnclaimedGifts] Request initiated');
+      try {
+        const res = await api.get('/analytics/unclaimed');
+        console.log('[useUnclaimedGifts] Success:', res.data);
+        return {
+          success: true,
+          data: res.data?.data || res.data || [],
+          flexCards: res.data?.flexCards || [],
+        };
+      } catch (err: any) {
+        console.error('[useUnclaimedGifts] FAILED:', err?.message || err);
+        throw err;
+      }
+    },
   });
 }
 

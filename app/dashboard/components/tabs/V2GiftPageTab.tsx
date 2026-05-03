@@ -187,7 +187,7 @@ export function V2GiftPageTab({creatorPlan, setCreatorPlan}: V2GiftPageTabProps)
       if (result.success) {
         toast.success('Settings saved!');
         queryClient.invalidateQueries({queryKey: ['profile']});
-        queryClient.invalidateQueries({queryKey: ['profile', user?.username]});
+        queryClient.invalidateQueries({queryKey: ['profile', profile?.username]});
       } else {
         toast.error(result.error || 'Failed to save settings');
       }
@@ -334,14 +334,14 @@ export function V2GiftPageTab({creatorPlan, setCreatorPlan}: V2GiftPageTabProps)
                   <h2 className="v2-headline font-bold text-xl text-white">
                     {user?.display_name || 'Your Name'}
                   </h2>
-                  <p className="text-sm text-white/90">@{user?.username || 'username'}</p>
+                  <p className="text-sm text-white/90">@{profile?.username || 'username'}</p>
                 </div>
               </div>
             </section>
 
             {/* Mobile: View Public Page Link */}
             <Link
-            href={`/u/${user?.username || 'username'}`}
+            href={`/u/${profile?.username || 'username'}`}
               className="flex items-center justify-between p-4 bg-[var(--v2-primary)]/10 rounded-2xl mb-4">
               <div className="flex items-center gap-3">
                 <span className="v2-icon text-[var(--v2-primary)]">open_in_new</span>
@@ -903,9 +903,8 @@ export function V2GiftPageTab({creatorPlan, setCreatorPlan}: V2GiftPageTabProps)
             </div>
           </div>
 
-          {/* Preview Link */}
           <Link
-            href={`/u/${user?.username || 'username'}`}
+            href={`/u/${profile?.username || 'username'}`}
             className="flex items-center justify-center gap-2 mt-4 p-4 rounded-2xl bg-[var(--v2-primary)]/10 text-[var(--v2-primary)] font-bold hover:bg-[var(--v2-primary)]/20 transition-colors">
             <span className="v2-icon">open_in_new</span>
             View Live Page

@@ -401,7 +401,7 @@ export function BoostProductModal({open, onOpenChange, onSuccess, preselectedPro
                         <div>
                           <p className="font-bold text-[var(--v2-on-surface)]">Slot {slot.slotNumber}</p>
                           <p className="text-xs text-[var(--v2-on-surface-variant)]">
-                            {slot.available ? 'Available' : `Booked by ${slot.booking?.vendor?.shopName || 'vendor'}`}
+                            {slot.available ? 'Available' : `Booked by ${slot.booking?.vendor?.businessName || 'vendor'}`}
                           </p>
                         </div>
                       </div>

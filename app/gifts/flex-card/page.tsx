@@ -14,12 +14,19 @@ import { getCurrencyByCountry } from '@/lib/currencies';
 
 import { useGiftCardBySlug } from '@/hooks/use-gift-cards';
 import { V2VendorDiscovery } from '../../components/V2VendorDiscovery';
+import { GifthanceLogo } from '@/components/GifthanceLogo';
+import { useProfile } from '@/hooks/use-profile';
 
 const AMOUNT_TIERS = [1500, 3000, 5000, 10000];
 
 export default function FlexCardPage() {
   const router = useRouter();
   const { data: card } = useGiftCardBySlug('flex-card');
+  const { data: profile } = useProfile();
+  const avatarUrl = profile?.avatar_url;
+  const initial = (profile?.display_name || profile?.username || profile?.email || '?')
+    .charAt(0)
+    .toUpperCase();
 
   const [selectedVariant, setSelectedVariant] = useState<FlexCardVariant>('orange');
   const [selectedAmount, setSelectedAmount] = useState<number | null>(AMOUNT_TIERS[1]); // Default 3000
@@ -77,34 +84,46 @@ export default function FlexCardPage() {
   return (
       <div className="min-h-screen bg-[var(--v2-background)]">
         {/* Desktop Navigation */}
-        <nav className="hidden md:block fixed top-0 w-full z-50 v2-glass-nav">
-          <div className="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
-            <Link href="/" className="text-2xl font-bold text-[var(--v2-primary)] tracking-tighter v2-headline">
-              Gifthance
-            </Link>
-            <div className="flex items-center gap-8">
-              <Link href="/gifts" className="text-[var(--v2-primary)] border-b-2 border-[var(--v2-primary)] pb-1 v2-headline text-sm font-semibold tracking-tight">
+        <nav className="hidden md:block fixed top-0 w-full z-50 v2-glass-nav border-b border-[var(--v2-outline-variant)]/5">
+          <div className="flex justify-between items-center px-8 h-20 max-w-7xl mx-auto">
+            <GifthanceLogo size="md" />
+            <div className="flex items-center gap-10 v2-headline font-bold tracking-tight">
+              <Link href="/gifts" className="text-[var(--v2-primary)] border-b-2 border-[var(--v2-primary)] pb-1 text-sm">
                 Gifts
               </Link>
-              <Link href="/campaigns" className="text-[var(--v2-on-surface-variant)] font-medium v2-headline text-sm tracking-tight hover:text-[var(--v2-primary)] transition-colors">
+              <Link href="/campaigns" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors text-sm">
                 Campaigns
               </Link>
-              <Link href="/send-gift" className="text-[var(--v2-on-surface-variant)] font-medium v2-headline text-sm tracking-tight hover:text-[var(--v2-primary)] transition-colors">
+              <Link href="/send-gift" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors text-sm">
                 Send Gift
               </Link>
+              <Link href="/dashboard" className="flex items-center text-[var(--v2-primary)] hover:opacity-80 transition-opacity">
+                {avatarUrl ? (
+                  <div className="w-9 h-9 rounded-full overflow-hidden ring-2 ring-[var(--v2-primary)]/20 shadow-sm transition-transform hover:scale-105 active:scale-95">
+                    <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+                  </div>
+                ) : profile ? (
+                  <div className="w-9 h-9 rounded-full bg-[var(--v2-primary)] text-white flex items-center justify-center font-bold text-sm shadow-sm transition-transform hover:scale-105 active:scale-95">
+                    {initial}
+                  </div>
+                ) : (
+                  <span className="v2-icon text-2xl">account_circle</span>
+                )}
+              </Link>
             </div>
-            <Link href="/dashboard" className="p-2 text-[var(--v2-primary)] hover:opacity-80 transition-all active:scale-95">
-              <span className="v2-icon text-2xl">account_circle</span>
-            </Link>
           </div>
         </nav>
 
-        <header className="md:hidden fixed top-0 w-full z-50 v2-glass-nav flex items-center justify-between px-6 h-16">
-          <button onClick={() => router.back()} className="p-2 text-[var(--v2-primary)]">
-            <span className="v2-icon">arrow_back</span>
-          </button>
-          <h1 className="v2-headline text-lg font-bold text-[var(--v2-primary)]">Flex Card</h1>
-          <button onClick={onShare} className="p-2 text-[var(--v2-primary)]">
+        {/* Mobile Header */}
+        <header className="md:hidden fixed top-0 w-full z-50 v2-glass-nav h-16 flex items-center justify-between px-4">
+          <div className="flex items-center gap-3">
+            <button onClick={() => router.back()} className="w-10 h-10 rounded-xl bg-[var(--v2-surface-container-high)] flex items-center justify-center text-[var(--v2-primary)]">
+              <span className="v2-icon">arrow_back</span>
+            </button>
+            <GifthanceLogo size="sm" />
+          </div>
+          <h1 className="v2-headline text-lg font-bold text-[var(--v2-on-surface)]">Flex Card</h1>
+          <button onClick={onShare} className="w-10 h-10 rounded-xl bg-[var(--v2-surface-container-high)] flex items-center justify-center text-[var(--v2-primary)]">
             <span className="v2-icon">share</span>
           </button>
         </header>
@@ -191,11 +210,25 @@ export default function FlexCardPage() {
                         />
                     </div>
 
-                    <div className="p-6 rounded-2xl bg-[var(--v2-surface-container-low)] border border-[var(--v2-outline-variant)]/10 flex items-center justify-between">
-                         <span className="text-sm font-bold text-[var(--v2-on-surface-variant)]">Gift Value</span>
-                         <span className="text-2xl font-black text-[var(--v2-primary)]">
-                            {finalAmount > 0 ? formatCurrency(finalAmount, currency) : "Select Value"}
-                         </span>
+                    <div className="p-6 rounded-2xl bg-[var(--v2-surface-container-low)] border border-[var(--v2-outline-variant)]/10 space-y-3">
+                        <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">Gift Value</span>
+                            <span className="text-xl font-bold text-[var(--v2-on-surface)]">
+                                {finalAmount > 0 ? formatCurrency(finalAmount, currency) : "₦0.00"}
+                            </span>
+                        </div>
+                        <div className="flex items-center justify-between pt-2 border-t border-[var(--v2-outline-variant)]/10">
+                            <span className="text-xs font-bold text-[var(--v2-on-surface-variant)] uppercase tracking-wider">Platform Fee (4%)</span>
+                            <span className="text-sm font-bold text-[var(--v2-on-surface)]">
+                                {formatCurrency(Math.round(finalAmount * 0.04), currency)}
+                            </span>
+                        </div>
+                        <div className="flex items-center justify-between pt-3 border-t border-[var(--v2-outline-variant)]/20">
+                            <span className="text-sm font-black text-[var(--v2-primary)] uppercase tracking-widest">Total Payable</span>
+                            <span className="text-2xl font-black text-[var(--v2-primary)]">
+                                {formatCurrency(Math.round(finalAmount * 1.04), currency)}
+                            </span>
+                        </div>
                     </div>
 
                     {/* Amount Tiers Selection */}

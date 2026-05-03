@@ -55,9 +55,9 @@ export class PromotionService {
     // Admin notification
     const vendorProfile = await (this.prisma as any).user.findUnique({
       where: { id: vendorId },
-      select: { shopName: true, displayName: true },
+      select: { businessName: true, displayName: true },
     });
-    const vendorName = vendorProfile?.shopName || vendorProfile?.displayName || 'A vendor';
+    const vendorName = vendorProfile?.businessName || vendorProfile?.displayName || 'A vendor';
 
     await this.notificationService.createAdminNotification({
       type: 'system',
@@ -122,7 +122,7 @@ export class PromotionService {
       include: {
         product: {
           include: {
-            vendor: { select: { shopName: true, shopSlug: true, displayName: true, avatarUrl: true, shopAddress: true } },
+            vendor: { select: { businessName: true, businessSlug: true, displayName: true, avatarUrl: true, businessAddress: true } },
           },
         },
       },
@@ -168,7 +168,7 @@ export class PromotionService {
       where: { id: promotionId },
       include: {
         product: { select: { name: true, price: true } },
-        vendor: { select: { email: true, displayName: true, shopName: true } },
+        vendor: { select: { email: true, displayName: true, businessName: true } },
       },
     });
     if (!promotion) throw new NotFoundException('Promotion not found');
@@ -186,7 +186,7 @@ export class PromotionService {
     const productName = promotion.product?.name || 'your product';
 
     await this.notificationService.create({
-      userId: promotion.vendorId,
+      vendorId: promotion.vendorId,
       type: 'promotion_approved',
       title: 'Promotion Approved!',
       message: `Your promotion for "${productName}" is now live for ${promotion.durationDays} days until ${endDate.toLocaleDateString()}.`,
@@ -206,7 +206,7 @@ export class PromotionService {
       where: { id: promotionId },
       include: {
         product: { select: { name: true } },
-        vendor: { select: { email: true, displayName: true, shopName: true } },
+        vendor: { select: { email: true, displayName: true, businessName: true } },
       },
     });
     if (!promotion) throw new NotFoundException('Promotion not found or already processed');
@@ -220,7 +220,7 @@ export class PromotionService {
     const productName = promotion.product?.name || 'your product';
 
     await this.notificationService.create({
-      userId: promotion.vendorId,
+      vendorId: promotion.vendorId,
       type: 'promotion_rejected',
       title: 'Promotion Request Rejected',
       message: `Your promotion for "${productName}" was rejected. Reason: ${reason}. Refund will be processed within 3-5 business days.`,
@@ -249,7 +249,7 @@ export class PromotionService {
       orderBy: { createdAt: 'desc' },
       include: {
         product: { select: { id: true, name: true, price: true, imageUrl: true } },
-        vendor: { select: { shopName: true, displayName: true } },
+        vendor: { select: { businessName: true, displayName: true } },
       },
     });
   }

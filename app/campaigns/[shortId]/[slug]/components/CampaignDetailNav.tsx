@@ -9,34 +9,37 @@ export function CampaignDetailDesktopNav() {
   const {isLoggedIn} = useAuth();
   const {data: profile} = useProfile();
   const avatarUrl = profile?.avatar_url;
+  const initial = (profile?.display_name || profile?.username || profile?.email || '?')
+    .charAt(0)
+    .toUpperCase();
 
   return (
     <nav className="hidden md:block fixed top-0 w-full z-50 v2-glass-nav shadow-sm">
       <div className="flex justify-between items-center px-8 h-20 max-w-7xl mx-auto">
         <GifthanceLogo size="md" />
-        <div className="flex items-center space-x-8 v2-headline font-bold tracking-tight">
+        <div className="flex items-center space-x-10 v2-headline font-bold tracking-tight">
           <Link
             href="/gifts"
-            className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors"
+            className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors text-sm"
           >
             Gifts
           </Link>
           <Link
             href="/campaigns"
-            className="text-[var(--v2-primary)] border-b-2 border-[var(--v2-primary)] pb-1"
+            className="text-[var(--v2-primary)] border-b-2 border-[var(--v2-primary)] pb-1 text-sm"
           >
             Campaigns
           </Link>
           <Link
             href="/send-gift"
-            className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors"
+            className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors text-sm"
           >
             Send Gift
           </Link>
           {isLoggedIn && (
             <Link
               href="/dashboard"
-              className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors"
+              className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors text-sm"
             >
               Dashboard
             </Link>
@@ -46,11 +49,13 @@ export function CampaignDetailDesktopNav() {
           {isLoggedIn ? (
             <Link href="/dashboard" className="flex items-center text-[var(--v2-primary)] hover:opacity-80 transition-opacity">
               {avatarUrl ? (
-                <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-[var(--v2-primary)]/20 shadow-sm transition-transform hover:scale-105 active:scale-95">
+                <div className="w-9 h-9 rounded-full overflow-hidden ring-2 ring-[var(--v2-primary)]/20 shadow-sm transition-transform hover:scale-105 active:scale-95">
                   <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
                 </div>
               ) : (
-                <span className="v2-icon text-2xl">account_circle</span>
+                <div className="w-9 h-9 rounded-full bg-[var(--v2-primary)] text-white flex items-center justify-center font-bold text-sm shadow-sm transition-transform hover:scale-105 active:scale-95">
+                  {initial}
+                </div>
               )}
             </Link>
           ) : (

@@ -30,6 +30,8 @@ import {
   V2GiftPageTab,
   V2SupportersTab,
   V2AnalyticsTab,
+  V2CreatorWalletTab,
+  V2CreatorSettingsTab,
 } from './components/tabs';
 
 // Desktop sidebar nav items
@@ -49,6 +51,8 @@ const creatorNavItems: {id: SelectedSection; label: string; icon: string}[] = [
   {id: 'gift-page', label: 'My Gift Page', icon: 'auto_awesome'},
   {id: 'supporters', label: 'Supporters', icon: 'group'},
   {id: 'analytics', label: 'Analytics', icon: 'analytics'},
+  {id: 'creator-wallet', label: 'Creator Wallet', icon: 'account_balance'},
+  {id: 'creator-settings', label: 'Creator Settings', icon: 'manage_accounts'},
 ];
 
 function DashboardLoadingFallback() {
@@ -103,13 +107,20 @@ function V2DashboardContent() {
     }
   }, [profile]);
 
+  const isEffectivelyCreator = dbIsCreator || dbPlan === 'pro';
+
   // Update URL when section changes
   useEffect(() => {
+    // Redirection safety for creator tabs
+    const creatorSections: SelectedSection[] = ['gift-page', 'supporters', 'analytics', 'creator-wallet', 'creator-settings'];
+    if (!isEffectivelyCreator && creatorSections.includes(section)) {
+      setSection('overview');
+      return;
+    }
+
     const url = section === 'overview' ? '/dashboard' : `/dashboard?tab=${section}`;
     window.history.replaceState(null, '', url);
-  }, [section]);
-
-  const isEffectivelyCreator = dbIsCreator || dbPlan === 'pro';
+  }, [section, isEffectivelyCreator]);
 
   // Prevent hydration errors by ensuring client and server match on initial render
   const [mounted, setMounted] = useState(false);
@@ -254,7 +265,7 @@ function V2DashboardContent() {
                 {userName}
               </p>
               <p className="text-xs text-[var(--v2-on-surface-variant)] truncate">
-                @{user?.username || 'username'}
+                {isEffectivelyCreator ? `@${profile?.username || 'username'}` : 'Personal Account'}
               </p>
             </div>
             <button
@@ -278,24 +289,24 @@ function V2DashboardContent() {
       {/* Main Content */}
       <main className="md:ml-64 min-h-screen pt-14 md:pt-0 pb-24 md:pb-8">
         {/* Desktop Header */}
-        <header className="hidden md:flex sticky top-0 z-40 bg-[var(--v2-background)]/80 backdrop-blur-xl border-b border-[var(--v2-outline-variant)]/10 px-6 h-16 items-center justify-between">
-          <h1 className="text-xl font-bold v2-headline text-[var(--v2-on-surface)]">
+        <header className="hidden md:flex sticky top-0 z-40 bg-[var(--v2-background)]/80 backdrop-blur-xl border-b border-[var(--v2-outline-variant)]/10 px-8 h-20 items-center justify-between">
+          <h1 className="text-xl font-black v2-headline text-[var(--v2-on-surface)] tracking-tight">
             {sectionTitles[section]}
           </h1>
           <div className="flex items-center gap-3">
             <Link
               href="/send-gift"
-              className="h-10 px-4 text-[var(--v2-on-surface-variant)] font-medium text-sm rounded-xl flex items-center gap-2 hover:bg-[var(--v2-surface-container-low)] transition-colors">
+              className="h-11 px-5 text-[var(--v2-on-surface-variant)] font-bold v2-headline tracking-tight text-sm rounded-xl flex items-center gap-2 hover:bg-[var(--v2-surface-container-low)] transition-colors">
               Send Gift
             </Link>
             <Link
               href="/gifts"
-              className="h-10 px-4 text-[var(--v2-on-surface-variant)] font-medium text-sm rounded-xl flex items-center gap-2 hover:bg-[var(--v2-surface-container-low)] transition-colors">
+              className="h-11 px-5 text-[var(--v2-on-surface-variant)] font-bold v2-headline tracking-tight text-sm rounded-xl flex items-center gap-2 hover:bg-[var(--v2-surface-container-low)] transition-colors">
               Gifts
             </Link>
             <Link
               href="/campaigns"
-              className="h-10 px-4 text-[var(--v2-on-surface-variant)] font-medium text-sm rounded-xl flex items-center gap-2 hover:bg-[var(--v2-surface-container-low)] transition-colors">
+              className="h-11 px-5 text-[var(--v2-on-surface-variant)] font-bold v2-headline tracking-tight text-sm rounded-xl flex items-center gap-2 hover:bg-[var(--v2-surface-container-low)] transition-colors">
               Campaigns
             </Link>
             <V2NotificationsPanel />
@@ -346,6 +357,14 @@ function V2DashboardContent() {
               setSection={handleSectionChange}
               setWalletView={() => handleSectionChange('wallet')}
             />
+          )}
+
+          {section === 'creator-wallet' && isEffectivelyCreator && (
+            <V2CreatorWalletTab />
+          )}
+
+          {section === 'creator-settings' && isEffectivelyCreator && (
+            <V2CreatorSettingsTab />
           )}
         </div>
       </main>

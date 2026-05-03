@@ -29,34 +29,34 @@ async function main() {
     {
       email: 'kfc@test.com',
       name: 'KFC Ikorodu',
-      shopName: 'KFC',
-      shopCity: 'Ikorodu',
-      shopState: 'Lagos',
-      shopCountry: 'Nigeria',
-      shopSlug: 'kfc-ikorodu',
-      shopDescription: 'The best finger-lickin good chicken.',
+      businessName: 'KFC',
+      businessCity: 'Ikorodu',
+      businessState: 'Lagos',
+      businessCountry: 'Nigeria',
+      businessSlug: 'kfc-ikorodu',
+      businessDescription: 'The best finger-lickin good chicken.',
       roles: ['vendor'],
     },
     {
       email: 'chicken-republic@test.com',
       name: 'Chicken Republic Ketu',
-      shopName: 'Chicken Republic',
-      shopCity: 'Ketu',
-      shopState: 'Lagos',
-      shopCountry: 'Nigeria',
-      shopSlug: 'chicken-republic-ketu',
-      shopDescription: 'Authentic African soul food.',
+      businessName: 'Chicken Republic',
+      businessCity: 'Ketu',
+      businessState: 'Lagos',
+      businessCountry: 'Nigeria',
+      businessSlug: 'chicken-republic-ketu',
+      businessDescription: 'Authentic African soul food.',
       roles: ['vendor'],
     },
     {
       email: 'local-restaurant@test.com',
       name: 'Local Restaurant Yaba',
-      shopName: 'Local Restaurant',
-      shopCity: 'Yaba',
-      shopState: 'Lagos',
-      shopCountry: 'Nigeria',
-      shopSlug: 'local-restaurant-yaba',
-      shopDescription: 'Delicious home-cooked meals.',
+      businessName: 'Local Restaurant',
+      businessCity: 'Yaba',
+      businessState: 'Lagos',
+      businessCountry: 'Nigeria',
+      businessSlug: 'local-restaurant-yaba',
+      businessDescription: 'Delicious home-cooked meals.',
       roles: ['vendor'],
     },
   ];
@@ -67,11 +67,11 @@ async function main() {
       update: { ...v },
       create: { 
         ...v,
-        username: v.shopSlug,
+        username: v.businessSlug,
       },
     });
 
-    console.log(`  ✓ Vendor: ${user.shopName} - ${user.shopCity}`);
+    console.log(`  ✓ Vendor: ${user.businessName} - ${user.businessCity}`);
 
     // Link to Flex Card
     await prisma.vendorAcceptedGiftCard.upsert({

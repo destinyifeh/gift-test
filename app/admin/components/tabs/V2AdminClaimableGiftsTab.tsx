@@ -374,8 +374,8 @@ export function V2AdminClaimableGiftsTab({
                     <p className="font-medium text-[var(--v2-on-surface)]">
                       {gift.profiles?.displayName || gift.profiles?.username || 'System'}
                     </p>
-                    {gift.profiles?.shop_name && (
-                      <p className="text-xs text-[var(--v2-on-surface-variant)]">{gift.profiles.shop_name}</p>
+                    {gift.profiles?.business_name && (
+                      <p className="text-xs text-[var(--v2-on-surface-variant)]">{gift.profiles.business_name}</p>
                     )}
                   </td>
                   <td className="px-6 py-4">
@@ -447,7 +447,7 @@ export function V2AdminClaimableGiftsTab({
                         data: {
                           ...gift,
                           vendor_name: gift.profiles?.displayName || gift.profiles?.username,
-                          shop_name: gift.profiles?.shop_name,
+                          business_name: gift.profiles?.business_name,
                         },
                       });
                       setOpenDropdown(null);
@@ -496,7 +496,7 @@ export function V2AdminClaimableGiftsTab({
                     data: {
                       ...mobileSheet.gift,
                       vendor_name: mobileSheet.gift?.profiles?.displayName || mobileSheet.gift?.profiles?.username,
-                      shop_name: mobileSheet.gift?.profiles?.shop_name,
+                      business_name: mobileSheet.gift?.profiles?.business_name,
                     },
                   });
                   setMobileSheet({isOpen: false, gift: null});

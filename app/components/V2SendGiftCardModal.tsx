@@ -294,7 +294,7 @@ export const V2SendGiftCardModal = ({
                   </div>
 
                   <div className="flex items-center justify-between pt-3 border-t border-[var(--v2-outline-variant)]/20">
-                     <p className="text-sm text-[var(--v2-on-surface-variant)] font-medium">Service Fee ({serviceFeePercent}%)</p>
+                     <p className="text-sm text-[var(--v2-on-surface-variant)] font-medium">Platform Fee ({serviceFeePercent}%)</p>
                      <p className="font-bold text-[var(--v2-on-surface)]">₦{serviceFee.toLocaleString()}</p>
                   </div>
 

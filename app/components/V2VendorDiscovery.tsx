@@ -13,14 +13,14 @@ import {useEffect, useState} from 'react';
 
 interface Vendor {
   id: string;
-  shopName: string;
-  shopDescription: string;
-  shopStreet: string;
-  shopCity: string;
-  shopState: string;
-  shopCountry: string;
-  shopLogoUrl: string;
-  shopSlug: string;
+  businessName: string;
+  businessDescription: string;
+  businessStreet: string;
+  businessCity: string;
+  businessState: string;
+  businessCountry: string;
+  businessLogoUrl: string;
+  businessSlug: string;
 }
 
 interface VendorDiscoveryProps {
@@ -101,9 +101,9 @@ export function V2VendorDiscovery({
   const sortedVendors = [...vendors].sort((a, b) => {
     if (!userLocation) return 0;
     const aInCity =
-      a.shopCity?.toLowerCase() === userLocation.city?.toLowerCase();
+      a.businessCity?.toLowerCase() === userLocation.city?.toLowerCase();
     const bInCity =
-      b.shopCity?.toLowerCase() === userLocation.city?.toLowerCase();
+      b.businessCity?.toLowerCase() === userLocation.city?.toLowerCase();
     if (aInCity && !bInCity) return -1;
     if (!aInCity && bInCity) return 1;
     return 0;
@@ -112,9 +112,9 @@ export function V2VendorDiscovery({
   const filteredVendors = sortedVendors.filter(vendor => {
     const searchLower = searchQuery.toLowerCase();
     return (
-      vendor.shopName?.toLowerCase().includes(searchLower) ||
-      vendor.shopCity?.toLowerCase().includes(searchLower) ||
-      vendor.shopState?.toLowerCase().includes(searchLower)
+      vendor.businessName?.toLowerCase().includes(searchLower) ||
+      vendor.businessCity?.toLowerCase().includes(searchLower) ||
+      vendor.businessState?.toLowerCase().includes(searchLower)
     );
   });
 
@@ -159,16 +159,16 @@ export function V2VendorDiscovery({
                     <div
                       key={vendor.id}
                       onClick={() => {
-                        const query = encodeURIComponent(`${vendor.shopName} ${vendor.shopCity} ${vendor.shopState}`);
+                        const query = encodeURIComponent(`${vendor.businessName} ${vendor.businessCity} ${vendor.businessState}`);
                         window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
                       }}
                       className="p-3.5 rounded-2xl bg-[var(--v2-surface-container-low)]/50 border border-[var(--v2-outline-variant)]/20 hover:border-[var(--v2-primary)]/30 hover:bg-[var(--v2-surface-container-low)] transition-all flex items-center gap-4 group cursor-pointer shadow-sm active:scale-[0.98]">
                       {/* Mini Logo */}
                       <div className="w-11 h-11 rounded-xl bg-[var(--v2-surface-container-lowest)] overflow-hidden flex-shrink-0 flex items-center justify-center border border-[var(--v2-outline-variant)]/10 group-hover:scale-105 transition-transform">
-                        {vendor.shopLogoUrl ? (
+                        {vendor.businessLogoUrl ? (
                           <img
-                            src={vendor.shopLogoUrl}
-                            alt={vendor.shopName}
+                            src={vendor.businessLogoUrl}
+                            alt={vendor.businessName}
                             className="w-full h-full object-cover"
                           />
                         ) : (
@@ -178,12 +178,12 @@ export function V2VendorDiscovery({
                       
                       <div className="flex-1 min-w-0">
                         <h4 className="text-sm font-bold text-[var(--v2-on-surface)] truncate group-hover:text-[var(--v2-primary)] transition-colors">
-                          {vendor.shopName}
+                          {vendor.businessName}
                         </h4>
                         <div className="flex items-center gap-1 text-[10px] font-medium text-[var(--v2-on-surface-variant)] mt-0.5">
                           <MapPin className="w-3 h-3 text-[var(--v2-secondary)]" />
                           <span className="truncate opacity-80">
-                            {vendor.shopCity}, {vendor.shopState}
+                            {vendor.businessCity}, {vendor.businessState}
                           </span>
                         </div>
                       </div>
@@ -252,16 +252,16 @@ export function V2VendorDiscovery({
                     <div
                       key={vendor.id}
                       onClick={() => {
-                        const query = encodeURIComponent(`${vendor.shopName} ${vendor.shopCity} ${vendor.shopState}`);
+                        const query = encodeURIComponent(`${vendor.businessName} ${vendor.businessCity} ${vendor.businessState}`);
                         window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
                       }}
                       className="p-4 rounded-2xl bg-[var(--v2-surface-container-lowest)] border border-[var(--v2-outline-variant)]/40 hover:border-[var(--v2-primary)]/50 transition-all flex flex-col gap-3 group cursor-pointer shadow-sm hover:shadow-lg hover:shadow-[var(--v2-primary)]/5">
                     <div className="flex gap-4 items-center">
                       <div className="w-12 h-12 rounded-xl bg-[var(--v2-surface-container-low)] overflow-hidden flex-shrink-0 flex items-center justify-center border border-[var(--v2-outline-variant)]/20 group-hover:scale-105 transition-transform">
-                        {vendor.shopLogoUrl ? (
+                        {vendor.businessLogoUrl ? (
                           <img
-                            src={vendor.shopLogoUrl}
-                            alt={vendor.shopName}
+                            src={vendor.businessLogoUrl}
+                            alt={vendor.businessName}
                             className="w-full h-full object-cover"
                           />
                         ) : (
@@ -270,19 +270,19 @@ export function V2VendorDiscovery({
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-bold text-[var(--v2-on-surface)] truncate group-hover:text-[var(--v2-primary)] transition-colors">
-                          {vendor.shopName}
+                          {vendor.businessName}
                         </h4>
                         <div className="flex items-center gap-1.5 text-[11px] font-bold text-[var(--v2-on-secondary-container)] mt-1 px-2 py-0.5 rounded-full bg-[var(--v2-secondary-container)] w-fit uppercase tracking-wider">
                           <MapPin className="w-3 h-3" />
                           <span className="truncate">
-                            {vendor.shopCity}, {vendor.shopState}
+                            {vendor.businessCity}, {vendor.businessState}
                           </span>
                         </div>
                       </div>
                     </div>
-                    {vendor.shopDescription && (
+                    {vendor.businessDescription && (
                       <p className="text-xs text-[var(--v2-on-surface-variant)]/70 line-clamp-2 leading-relaxed pl-1">
-                        {vendor.shopDescription}
+                        {vendor.businessDescription}
                       </p>
                     )}
                   </div>
@@ -348,10 +348,10 @@ export function V2VendorDiscovery({
                 className="min-w-[300px] md:min-w-[340px] p-5 bg-[var(--v2-surface-container-lowest)] rounded-3xl border border-[var(--v2-outline-variant)]/40 hover:border-[var(--v2-primary)]/50 transition-all flex flex-col gap-4 group cursor-pointer shadow-sm hover:shadow-xl hover:shadow-[var(--v2-primary)]/10 hover:-translate-y-1">
                 <div className="flex gap-4 items-center">
                   <div className="w-14 h-14 rounded-2xl bg-[var(--v2-surface-container-low)] overflow-hidden flex-shrink-0 flex items-center justify-center border border-[var(--v2-outline-variant)]/20 group-hover:scale-105 transition-transform">
-                    {vendor.shopLogoUrl ? (
+                    {vendor.businessLogoUrl ? (
                       <img
-                        src={vendor.shopLogoUrl}
-                        alt={vendor.shopName}
+                        src={vendor.businessLogoUrl}
+                        alt={vendor.businessName}
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -361,20 +361,20 @@ export function V2VendorDiscovery({
 
                   <div className="flex-1 min-w-0">
                     <h4 className="font-bold text-[var(--v2-on-surface)] truncate group-hover:text-[var(--v2-primary)] transition-colors text-base">
-                      {vendor.shopName}
+                      {vendor.businessName}
                     </h4>
                     <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--v2-on-secondary-container)] mt-1 bg-[var(--v2-secondary-container)] w-fit px-2 py-0.5 rounded-full uppercase tracking-wider">
                       <MapPin className="w-3 h-3" />
                       <span className="truncate">
-                        {vendor.shopCity}, {vendor.shopState}
+                        {vendor.businessCity}, {vendor.businessState}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {vendor.shopDescription && (
+                {vendor.businessDescription && (
                   <p className="text-xs text-[var(--v2-on-surface-variant)]/80 line-clamp-2 leading-relaxed pl-1">
-                    {vendor.shopDescription}
+                    {vendor.businessDescription}
                   </p>
                 )}
               </div>

@@ -36,9 +36,9 @@ export class FavoriteService {
           include: {
             vendor: {
               select: {
-                shopName: true,
+                businessName: true,
                 displayName: true,
-                shopSlug: true,
+                businessSlug: true,
                 country: true,
               },
             },
@@ -52,9 +52,9 @@ export class FavoriteService {
       favoriteId: f.id,
       ...f.vendorGift,
       price: f.vendorGift.price.toString(),
-      shopSlug: f.vendorGift.vendor.shopSlug,
+      businessSlug: f.vendorGift.vendor.businessSlug,
       productShortId: f.vendorGift.productShortId,
-      vendor: f.vendorGift.vendor.shopName || f.vendorGift.vendor.displayName || 'Vendor',
+      vendor: f.vendorGift.vendor.businessName || f.vendorGift.vendor.displayName || 'Vendor',
     }));
   }
 

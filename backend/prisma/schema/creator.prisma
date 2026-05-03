@@ -1,0 +1,22 @@
+model Creator {
+  id               String   @id @default(uuid())
+  userId           String   @unique @map("user_id")
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  username         String   @unique
+  bio              String?
+  bannerUrl        String?  @map("banner_url")
+  socialLinks      Json?    @default("{}") @map("social_links")
+  themeSettings    Json?    @default("{}") @map("theme_settings")
+  
+  wallet           BigInt   @default(0)
+  status           String   @default("active") // active, suspended
+
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  supportReceived  CreatorSupport[] @relation("CreatorSupportRecipient")
+
+  @@map("creators")
+}

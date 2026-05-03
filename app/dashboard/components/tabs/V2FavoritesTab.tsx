@@ -98,7 +98,7 @@ export function V2FavoritesTab() {
             key={fav.favoriteId}
             href={
               (() => {
-                const vendorSlug = fav.shopSlug || fav.shop_slug || fav.profiles?.shop_slug || fav.vendorId || fav.vendor_id;
+                const vendorSlug = fav.businessSlug || fav.business_slug || fav.profiles?.business_slug || fav.vendorId || fav.vendor_id;
                 const productSlug = fav.slug || fav.id;
                 const shortId = fav.productShortId || fav.product_short_id || fav.profiles?.product_short_id;
                 return shortId 
@@ -157,7 +157,7 @@ export function V2FavoritesTab() {
             key={fav.favoriteId}
             href={
               (() => {
-                const vendorSlug = fav.shopSlug || fav.shop_slug || fav.profiles?.shop_slug || fav.vendorId || fav.vendor_id;
+                const vendorSlug = fav.businessSlug || fav.business_slug || fav.profiles?.business_slug || fav.vendorId || fav.vendor_id;
                 const productSlug = fav.slug || fav.id;
                 const shortId = fav.productShortId || fav.product_short_id || fav.profiles?.product_short_id;
                 return shortId 

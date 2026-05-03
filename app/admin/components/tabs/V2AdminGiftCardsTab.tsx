@@ -235,7 +235,7 @@ export default function V2AdminGiftCardsTab() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <ModalField label="Service Fee %" value={editingCard.serviceFeePercent} onChange={v => updateField('serviceFeePercent', Number(v))} type="number" />
+              <ModalField label="Platform Fee %" value={editingCard.serviceFeePercent} onChange={v => updateField('serviceFeePercent', Number(v))} type="number" />
               <ModalField label="Display Order" value={editingCard.displayOrder} onChange={v => updateField('displayOrder', Number(v))} type="number" />
             </div>
 

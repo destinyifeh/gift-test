@@ -26,7 +26,7 @@ interface FeaturedAd {
   slotNumber: number; startDate: string; endDate: string; status: string;
   amountPaid: number; views: number; clicks: number;
   product?: { name: string; imageUrl: string; price: number };
-  vendor?: { shopName: string; displayName: string };
+  vendor?: { businessName: string; displayName: string };
 }
 
 interface SponsoredAd {
@@ -34,7 +34,7 @@ interface SponsoredAd {
   budget: number; remainingBudget: number; costPerClick: number; status: string;
   views: number; clicks: number;
   product?: { name: string; imageUrl: string; price: number };
-  vendor?: { shopName: string; displayName: string };
+  vendor?: { businessName: string; displayName: string };
 }
 
 interface CountryAdConfig {
@@ -186,12 +186,12 @@ export function V2AdminPromotionsTab({searchQuery = '', addLog}: V2AdminPromotio
   };
 
   // Filter based on search
-  const filterAds = <T extends {product?: {name: string}; vendor?: {shopName: string}}>(items: T[]) => {
+  const filterAds = <T extends {product?: {name: string}; vendor?: {businessName: string}}>(items: T[]) => {
     if (!searchQuery) return items;
     const q = searchQuery.toLowerCase();
     return items.filter(item =>
       item.product?.name?.toLowerCase().includes(q) ||
-      item.vendor?.shopName?.toLowerCase().includes(q)
+      item.vendor?.businessName?.toLowerCase().includes(q)
     );
   };
 
@@ -354,7 +354,7 @@ export function V2AdminPromotionsTab({searchQuery = '', addLog}: V2AdminPromotio
                       <div className="flex-1 min-w-0">
                         <h3 className="font-bold text-[var(--v2-on-surface)] truncate capitalize">{ad.product?.name || 'Unknown'}</h3>
                         <p className="text-xs text-[var(--v2-on-surface-variant)]">
-                          {ad.vendor?.shopName || 'Vendor'} · Slot {ad.slotNumber} · {countryInfo?.flag} {ad.country}
+                          {ad.vendor?.businessName || 'Vendor'} · Slot {ad.slotNumber} · {countryInfo?.flag} {ad.country}
                         </p>
                       </div>
                       <div className="text-right text-sm">
@@ -419,7 +419,7 @@ export function V2AdminPromotionsTab({searchQuery = '', addLog}: V2AdminPromotio
                             <div>
                               <h3 className="font-bold text-[var(--v2-on-surface)] capitalize">{ad.product?.name}</h3>
                               <p className="text-xs text-[var(--v2-on-surface-variant)]">
-                                {ad.vendor?.shopName} · {countryInfo?.flag} {ad.country}
+                                {ad.vendor?.businessName} · {countryInfo?.flag} {ad.country}
                               </p>
                             </div>
                             <div className="flex items-center gap-2">

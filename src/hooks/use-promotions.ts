@@ -48,14 +48,14 @@ const mapPromotion = (p: any) => {
       vendor: product.vendor ? {
         ...product.vendor,
         display_name: product.vendor.displayName,
-        shop_slug: product.vendor.shopSlug,
-        shop_name: product.vendor.shopName,
+        business_slug: product.vendor.businessSlug,
+        business_name: product.vendor.businessName,
       } : undefined,
       profiles: product.vendor ? {
         ...product.vendor,
         display_name: product.vendor.displayName,
-        shop_slug: product.vendor.shopSlug,
-        shop_name: product.vendor.shopName,
+        business_slug: product.vendor.businessSlug,
+        business_name: product.vendor.businessName,
       } : undefined
     } : undefined
   };

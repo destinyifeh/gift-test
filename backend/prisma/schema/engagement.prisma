@@ -1,7 +1,7 @@
 model FeaturedAd {
   id               Int        @id @default(autoincrement())
   vendorId         String     @map("vendor_id")
-  vendor           User       @relation("VendorFeaturedAds", fields: [vendorId], references: [id], onDelete: Cascade)
+  vendor           Vendor     @relation(fields: [vendorId], references: [id], onDelete: Cascade)
   vendorGiftId     Int        @map("vendor_gift_id")
   product          VendorGift @relation("GiftFeaturedAds", fields: [vendorGiftId], references: [id], onDelete: Cascade)
   country          String
@@ -29,7 +29,7 @@ model FeaturedAd {
 model SponsoredAd {
   id               Int        @id @default(autoincrement())
   vendorId         String     @map("vendor_id")
-  vendor           User       @relation("VendorSponsoredAds", fields: [vendorId], references: [id], onDelete: Cascade)
+  vendor           Vendor     @relation(fields: [vendorId], references: [id], onDelete: Cascade)
   vendorGiftId     Int        @map("vendor_gift_id")
   product          VendorGift @relation("GiftSponsoredAds", fields: [vendorGiftId], references: [id], onDelete: Cascade)
   country          String
@@ -58,7 +58,7 @@ model SponsoredAd {
 model ExternalPromotion {
   id          Int       @id @default(autoincrement())
   adminId     String
-  admin       User      @relation("AdminExternalPromotions", fields: [adminId], references: [id], onDelete: Cascade)
+  admin       Admin     @relation("AdminExternalPromotions", fields: [adminId], references: [id], onDelete: Cascade)
   title       String
   description String?
   imageUrl    String?

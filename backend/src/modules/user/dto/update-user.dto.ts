@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsArray, IsBoolean, IsObject } from 'class-validator';
+import { IsString, IsOptional, IsArray, IsBoolean, IsObject, Matches, MinLength, MaxLength } from 'class-validator';
 
 export class UpdateUserDto {
   @IsString()
@@ -7,6 +7,11 @@ export class UpdateUserDto {
 
   @IsString()
   @IsOptional()
+  @MinLength(3, { message: 'Username must be at least 3 characters' })
+  @MaxLength(30, { message: 'Username cannot exceed 30 characters' })
+  @Matches(/^[a-z0-9_-]+$/, { 
+    message: 'Username can only contain lowercase letters, numbers, hyphens, and underscores' 
+  })
   username?: string;
 
   @IsString()
@@ -17,9 +22,6 @@ export class UpdateUserDto {
   @IsOptional()
   bio?: string;
 
-  @IsArray()
-  @IsOptional()
-  suggestedAmounts?: number[];
 
   @IsString()
   @IsOptional()
@@ -31,31 +33,31 @@ export class UpdateUserDto {
 
   @IsString()
   @IsOptional()
-  shopName?: string;
+  businessName?: string;
 
   @IsString()
   @IsOptional()
-  shopDescription?: string;
+  businessDescription?: string;
 
   @IsString()
   @IsOptional()
-  shopAddress?: string;
+  businessAddress?: string;
 
   @IsString()
   @IsOptional()
-  shopSlug?: string;
+  businessSlug?: string;
 
   @IsString()
   @IsOptional()
-  shopLogoUrl?: string;
+  businessLogoUrl?: string;
 
   @IsString()
   @IsOptional()
-  shopStreet?: string;
+  businessStreet?: string;
 
   @IsString()
   @IsOptional()
-  shopCity?: string;
+  businessCity?: string;
 
   @IsArray()
   @IsOptional()
@@ -63,15 +65,15 @@ export class UpdateUserDto {
 
   @IsString()
   @IsOptional()
-  shopState?: string;
+  businessState?: string;
 
   @IsString()
   @IsOptional()
-  shopCountry?: string;
+  businessCountry?: string;
 
   @IsString()
   @IsOptional()
-  shopZip?: string;
+  businessZip?: string;
 
   @IsObject()
   @IsOptional()

@@ -146,51 +146,75 @@ export class TransactionService {
   // ─────────────────────────────────────────────
 
   async verifyPaymentAndUpgrade(userId: string, reference: string) {
-    await this.verifyPaystackPayment(reference, 10000 * 100);
+    const setting = await (this.prisma as any).systemSetting.findUnique({
+      where: { key: 'creatorProSubscriptionPrice' },
+    });
+    const subPrice = setting?.value ? Number(setting.value) : 10000;
 
-    const profile = await (this.prisma as any).user.findUnique({
-      where: { id: userId },
+    await this.verifyPaystackPayment(reference, subPrice * 100);
+
+    const creator = await (this.prisma as any).creator.findUnique({
+      where: { userId: userId },
       select: { themeSettings: true },
     });
 
-    const themeSettings = (profile?.themeSettings as any) || {};
+    const themeSettings = (creator?.themeSettings as any) || {};
 
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days from now
+
+    // Update creator themeSettings with exact subscription metadata
+    if (creator) {
+      await (this.prisma as any).creator.update({
+        where: { userId: userId },
+        data: { 
+          themeSettings: { 
+            ...themeSettings, 
+            plan: 'pro',
+            subscriptionStartedAt: now.toISOString(),
+            subscriptionExpiresAt: expiresAt.toISOString(),
+            subscriptionAmount: subPrice,
+            subscriptionCurrency: 'NGN'
+          } 
+        },
+      });
+    }
+
+    // Also set isCreator on User
     await (this.prisma as any).user.update({
       where: { id: userId },
-      data: {
-        isCreator: true,
-        themeSettings: { ...themeSettings, plan: 'pro' },
-      },
+      data: { isCreator: true },
     });
 
     return { success: true };
   }
 
   async resetPlan(userId: string) {
-    const profile = await (this.prisma as any).user.findUnique({
-      where: { id: userId },
+    const creator = await (this.prisma as any).creator.findUnique({
+      where: { userId: userId },
       select: { themeSettings: true, bannerUrl: true },
     });
-    const themeSettings = (profile?.themeSettings as any) || {};
+    const themeSettings = (creator?.themeSettings as any) || {};
     const currentPlan = themeSettings.plan || 'free';
 
     // If downgrading from pro, delete the banner (pro-only feature)
-    if (currentPlan === 'pro' && profile?.bannerUrl) {
+    if (currentPlan === 'pro' && creator?.bannerUrl) {
       try {
-        await this.fileService.deleteFile(profile.bannerUrl);
+        await this.fileService.deleteFile(creator.bannerUrl);
       } catch (error) {
-        this.logger.warn(`Failed to delete banner on plan reset: ${profile.bannerUrl}`, error);
+        this.logger.warn(`Failed to delete banner on plan reset: ${creator.bannerUrl}`, error);
       }
     }
 
-    await (this.prisma as any).user.update({
-      where: { id: userId },
-      data: {
-        themeSettings: { ...themeSettings, plan: 'free' },
-        // Remove banner when downgrading from pro
-        bannerUrl: currentPlan === 'pro' ? null : profile?.bannerUrl,
-      },
-    });
+    if (creator) {
+      await (this.prisma as any).creator.update({
+        where: { userId: userId },
+        data: {
+          themeSettings: { ...themeSettings, plan: 'free' },
+          bannerUrl: currentPlan === 'pro' ? null : creator?.bannerUrl,
+        },
+      });
+    }
 
     return { success: true };
   }
@@ -202,27 +226,37 @@ export class TransactionService {
   async fetchWalletProfile(userId: string) {
     const userProfile = await (this.prisma as any).user.findUnique({
       where: { id: userId },
-      select: { email: true, platformBalance: true },
+      select: { email: true, userWallet: true, vendor: { select: { id: true, wallet: true } } },
     });
+    const vendorId = userProfile?.vendor?.id;
 
     const products = await (this.prisma as any).vendorGift.findMany({
-      where: { vendorId: userId },
+      where: { vendorId: vendorId || '' },
       select: { id: true },
     });
     const vendorProductIds = products.map((p: any) => p.id);
 
-    const [accounts, userCampaigns, redeemedVouchers, flexCardRedemptions, userGiftCardRedemptions, pendingUserGifts, vendorPendingGifts] = await Promise.all([
+    const [
+      accounts, 
+      userCampaigns, 
+      redeemedVouchers, 
+      flexCardRedemptions, 
+      userGiftCardRedemptions, 
+      pendingUserGifts, 
+      vendorPendingGifts,
+      transactions
+    ] = await Promise.all([
       (this.prisma as any).bankAccount.findMany({ where: { userId } }),
       (this.prisma as any).campaign.findMany({
-        where: { userId, giftCode: null }, // Crowdfunding
+        where: { userId, giftCode: null },
         select: { currentAmount: true },
       }),
       (this.prisma as any).directGift.findMany({
-        where: { redeemedByVendorId: userId, status: STATUS_REDEEMED },
+        where: { redeemedByVendorId: vendorId || '', status: STATUS_REDEEMED },
         select: { amount: true, giftCode: true, redeemedAt: true },
       }),
       (this.prisma as any).flexCardTransaction.findMany({
-        where: { vendorId: userId },
+        where: { vendorId: vendorId || '' },
         include: { 
           flexCard: { 
             select: { 
@@ -234,7 +268,7 @@ export class TransactionService {
         },
       }),
       (this.prisma as any).userGiftCardTransaction.findMany({
-        where: { vendorId: userId },
+        where: { vendorId: vendorId || '' },
         include: { 
           userGiftCard: { 
             select: { 
@@ -263,30 +297,9 @@ export class TransactionService {
         where: { claimableGiftId: { in: vendorProductIds }, status: 'claimed' }, // Claimed but not redeemed at vendor yet
         select: { amount: true },
       }),
-    ]);
-
-    // Aggregate ALL transactions for balance (don't limit to 50 for math)
-    const [inflowAggr, outflowAggr, transactions] = await Promise.all([
-      (this.prisma as any).transaction.aggregate({
-        where: { 
-          userId, 
-          status: 'success',
-          type: { in: [TX_CREATOR_SUPPORT, TX_RECEIPT, TX_DEPOSIT, TX_PLATFORM_CREDIT_CONVERSION, TX_CAMPAIGN_WITHDRAWAL] },
-        },
-        _sum: { amount: true },
-      }),
-      (this.prisma as any).transaction.aggregate({
-        where: { 
-          userId,
-          type: { in: [TX_WITHDRAWAL, 'payout', 'fee', TX_GIFT_REDEMPTION, TX_FLEX_CARD_REDEMPTION, 'gift_card_redemption'] },
-          status: { in: ['success', 'pending'] }
-        },
-        _sum: { amount: true },
-      }),
       (this.prisma as any).transaction.findMany({
         where: { userId },
         orderBy: { createdAt: 'desc' },
-        take: 50,
       }),
     ]);
 
@@ -303,7 +316,7 @@ export class TransactionService {
     if (receivedCardIds.length > 0) {
       receivedCardSpending = await (this.prisma as any).flexCardTransaction.findMany({
         where: { flexCardId: { in: receivedCardIds } },
-        include: { vendor: { select: { shopName: true, displayName: true } } },
+        include: { vendor: { select: { businessName: true, displayName: true } } },
       });
     }
 
@@ -422,44 +435,21 @@ export class TransactionService {
     const finalMergedTxs = Array.from(uniqueMap.values());
     finalMergedTxs.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-    // 2. Balance Calculation
-    const directInflowKobo = Number(inflowAggr._sum.amount || 0);
-    const userWithdrawalsKobo = Number(outflowAggr._sum.amount || 0);
+    const userWalletKobo = Number(userProfile?.userWallet || 0);
+    const vendorWalletKobo = Number(userProfile?.vendor?.wallet || 0);
 
-    const userTotalInflowKobo = directInflowKobo;
-    const userBalanceKobo = Math.max(0, userTotalInflowKobo - userWithdrawalsKobo);
     const userPendingKobo = (pendingUserGifts as any[]).reduce((acc: number, g: any) => acc + (Number(g.amount || 0) * 100), 0);
-
-    // B. Vendor Section
-    const vendorVoucherInflowKobo = (redeemedVouchers as any[]).reduce(
-      (acc: number, v: any) => acc + (Number(v.amount || 0) * 100), 0);
-    const vendorFlexInflowKobo = (flexCardRedemptions as any[]).reduce(
-      (acc: number, f: any) => acc + (Number(f.amount) || 0) * 100, 0);
-    const vendorCardInflowKobo = (userGiftCardRedemptions as any[]).reduce(
-      (acc: number, u: any) => acc + (Number(u.amount) || 0) * 100, 0);
-
-    const totalInflowKobo = userTotalInflowKobo + vendorVoucherInflowKobo + vendorFlexInflowKobo + vendorCardInflowKobo;
-    const vendorTotalInflowKobo = vendorVoucherInflowKobo + vendorFlexInflowKobo + vendorCardInflowKobo;
-    // Note: Vendor usually withdraws their specific earnings. 
-    // If they have one wallet, we'll just show the separate subtotals.
-    const vendorBalanceKobo = vendorTotalInflowKobo; // Without subtracting withdrawals for now to show "Total Successful Redeemed" as requested? 
-    // User said: "Total revenue is how much you have successfully made so far, the total amount of all the successful redeemed of the vendor"
-    // Available balance for vendor should be redemptions.
-
     const vendorPendingKobo = (vendorPendingGifts as any[]).reduce((acc: number, g: any) => acc + (Number(g.amount || 0) * 100), 0);
 
     return {
-      balance: (userBalanceKobo + vendorBalanceKobo) / 100, // Total legacy balance if anyone still uses it
+      balance: (userWalletKobo + vendorWalletKobo) / 100,
       user: {
-        balance: userBalanceKobo / 100,
+        balance: userWalletKobo / 100,
         pending: userPendingKobo / 100,
-        totalInflow: userTotalInflowKobo / 100,
-        outflow: userWithdrawalsKobo / 100,
       },
       vendor: {
-        balance: vendorBalanceKobo / 100, // Success redemptions
-        pending: vendorPendingKobo / 100, // Claimed but not redeemed at vendor
-        totalRevenue: vendorTotalInflowKobo / 100,
+        balance: vendorWalletKobo / 100,
+        pending: vendorPendingKobo / 100,
       },
       accounts: accounts.map((a: any) => ({
         ...a,
@@ -475,19 +465,31 @@ export class TransactionService {
   // Withdrawal
   // ─────────────────────────────────────────────
 
-  async initiateWithdrawal(userId: string, amount: number, bankAccountId: string) {
-    const [account, profile] = await Promise.all([
+  async initiateWithdrawal(userId: string, amount: number, bankAccountId: string, source: 'user' | 'vendor' = 'user') {
+    const [account, user] = await Promise.all([
       (this.prisma as any).bankAccount.findFirst({ where: { id: bankAccountId, userId } }),
-      (this.prisma as any).user.findUnique({ where: { id: userId }, select: { country: true } }),
+      (this.prisma as any).user.findUnique({ 
+        where: { id: userId }, 
+        select: { country: true, userWallet: true, vendor: { select: { wallet: true } } } 
+      }),
     ]);
-    if (!account) throw new NotFoundException('Bank account not found');
 
-    const userCurrency = getCurrencyByCountry(profile?.country);
+    if (!account) throw new BadRequestException('Bank account not found');
+    if (!user) throw new BadRequestException('User not found');
+
+    const balanceKobo = source === 'vendor' ? Number(user.vendor?.wallet || 0) : Number(user.userWallet || 0);
+    const withdrawAmountKobo = Math.round(amount * 100);
+
+    if (balanceKobo < withdrawAmountKobo) {
+      throw new BadRequestException('Insufficient balance in selected wallet');
+    }
+
+    const userCurrency = getCurrencyByCountry(user?.country);
     if (account.currency !== userCurrency) {
       throw new BadRequestException('Payout not supported. Please select a supported payout account.');
     }
 
-    const config = await this.getCountryConfig(profile?.country || 'Nigeria');
+    const config = await this.getCountryConfig(user?.country || 'Nigeria');
     const withdrawalFee = Number(config.withdrawalFeeFlat || 100);
     const netAmount = amount - withdrawalFee;
     
@@ -519,13 +521,26 @@ export class TransactionService {
       const record = await (tx as any).transaction.create({
         data: {
           userId,
-          amount: BigInt(Math.round(amount * 100)),
+          amount: BigInt(withdrawAmountKobo),
           type: 'withdrawal',
           status: 'pending',
           reference: transferBody.data.reference,
           description: `Withdrawal to ${account.bankName}`,
+          metadata: { source },
         },
       });
+
+      if (source === 'user') {
+        await (tx as any).user.update({
+          where: { id: userId },
+          data: { userWallet: { decrement: withdrawAmountKobo } },
+        });
+      } else {
+        await (tx as any).vendor.update({
+          where: { userId: userId },
+          data: { wallet: { decrement: BigInt(withdrawAmountKobo) } },
+        });
+      }
 
       await (tx as any).withdrawal.create({
         data: {
@@ -539,7 +554,7 @@ export class TransactionService {
         },
       });
 
-      // Record the ₦100 platform fee as a separate transaction
+      // Record the fee as a separate transaction
       await (tx as any).transaction.create({
         data: {
           userId,
@@ -550,7 +565,6 @@ export class TransactionService {
           description: `Withdrawal Service Fee`,
         },
       });
-
 
       return { success: true };
     });
@@ -644,10 +658,11 @@ export class TransactionService {
     message?: string; isAnonymous: boolean; hideAmount: boolean;
     expectedAmount: number; currency: string; giftId?: number | null; giftName?: string | null;
   }, donorId?: string) {
-    const creator = await (this.prisma as any).user.findFirst({
+    const creatorRel = await (this.prisma as any).creator.findFirst({
       where: { username: { equals: data.creatorUsername, mode: 'insensitive' } },
-      select: { id: true, displayName: true, email: true, themeSettings: true },
+      include: { user: { select: { id: true, displayName: true, email: true } } },
     });
+    const creator = creatorRel?.user;
     if (!creator) throw new NotFoundException('Creator not found');
 
     // If it's a vendor gift, generate a directGift record
@@ -703,7 +718,7 @@ export class TransactionService {
 
       await (this.prisma as any).creatorSupport.create({
         data: {
-          userId: creator.id,
+          creatorId: creatorRel.id,
           transactionId: record.id,
           amount: 0,
           currency: data.currency,
@@ -722,12 +737,12 @@ export class TransactionService {
         await (this.prisma as any).transaction.create({
           data: {
             userId: donorId,
-            amount: 0n,
+            amount: BigInt(Math.round(data.expectedAmount * 100)),
             currency: data.currency,
-            type: TX_CAMPAIGN_CONTRIBUTION,
+            type: TX_GIFT_SENT,
             status: 'success',
             reference: `${data.reference}-out`,
-            description: `Gift to ${data.creatorUsername}`,
+            description: `Support for ${data.creatorUsername}`,
             metadata: { is_outbound: true },
           },
         });
@@ -754,12 +769,18 @@ export class TransactionService {
       const record = await (this.prisma as any).transaction.create({
         data: {
           userId: creator.id,
-          amount: BigInt(baseAmountKobo),
-          currency: paymentData.currency || data.currency,
+          amount: BigInt(totalPaidKobo), // Record Gross
+          currency: data.currency || 'NGN',
           type: TX_CREATOR_SUPPORT,
           status: 'success',
-          reference: data.reference,
-          description: `Direct support from ${data.isAnonymous ? 'Anonymous' : data.donorName}`,
+          reference: `SUP-${data.donorName?.slice(0, 3)}-${Date.now()}`,
+          description: `Direct support from ${data.donorName || 'a supporter'}`,
+          metadata: {
+            gross_amount: totalPaidKobo,
+            fee_amount: feeKobo,
+            net_amount: baseAmountKobo,
+            fee_percent: platformFeePercent
+          }
         },
       });
 
@@ -775,10 +796,10 @@ export class TransactionService {
         },
       });
 
-      // Update recipient's platform balance (use atomic increment)
-      await (this.prisma as any).user.update({
-        where: { id: creator.id },
-        data: { platformBalance: { increment: BigInt(baseAmountKobo) } },
+      // Update recipient's creator wallet (creator support goes to creator.wallet)
+      await (this.prisma as any).creator.update({
+        where: { userId: creator.id },
+        data: { wallet: { increment: BigInt(baseAmountKobo) } },
       });
 
       recordId = record.id;
@@ -799,10 +820,10 @@ export class TransactionService {
       recordId = record.id;
     }
 
-    if (recordId) {
+    if (recordId && creatorRel) {
       await (this.prisma as any).creatorSupport.create({
         data: {
-          userId: creator.id,
+          creatorId: creatorRel.id,
           transactionId: recordId,
           amount: paidAmount,
           currency: paymentData.currency || data.currency,
@@ -834,9 +855,9 @@ export class TransactionService {
           select: { vendorId: true },
         });
         const vendorProfile = vendorGift
-          ? await (this.prisma as any).user.findUnique({ where: { id: vendorGift.vendorId }, select: { shopName: true } })
+          ? await (this.prisma as any).user.findUnique({ where: { id: vendorGift.vendorId }, select: { businessName: true } })
           : null;
-        vendorShopName = vendorProfile?.shopName || vendorShopName;
+        vendorShopName = vendorProfile?.businessName || vendorShopName;
       } else {
         vendorShopName = 'Gifthance Wallet';
         displayGiftName = 'Direct Cash Support';
@@ -893,9 +914,9 @@ export class TransactionService {
 
     const vendorProfile = await (this.prisma as any).user.findUnique({
       where: { id: gift.vendorId },
-      select: { shopName: true, displayName: true },
+      select: { businessName: true, displayName: true },
     });
-    const vendorShopName = vendorProfile?.shopName || vendorProfile?.displayName || 'Gifthance Partner';
+    const vendorShopName = vendorProfile?.businessName || vendorProfile?.displayName || 'Gifthance Partner';
 
     // Generate unique gift code
     let giftCode = generateGiftCode('GFT-');
@@ -1035,14 +1056,11 @@ export class TransactionService {
     return (this.prisma as any).$transaction(async (tx: any) => {
       const profile = await tx.user.findUnique({
         where: { id: userId },
-        select: { platformBalance: true },
       });
-
-      const newBalance = Number(profile?.platformBalance || 0) + Math.round(creditAmount * 100);
 
       await tx.user.update({
         where: { id: userId },
-        data: { platformBalance: { increment: BigInt(Math.round(creditAmount * 100)) } },
+        data: { userWallet: { increment: BigInt(Math.round(creditAmount * 100)) } }
       });
 
       await tx.directGift.update({
@@ -1131,7 +1149,7 @@ export class TransactionService {
   async withdrawCampaignFunds(userId: string, campaignId: string, amount: number) {
     const campaign = await (this.prisma as any).campaign.findUnique({
       where: { id: campaignId },
-      include: { user: { select: { platformBalance: true } } },
+      include: { user: { select: { userWallet: true } } },
     });
 
     if (!campaign) throw new NotFoundException('Campaign not found');
@@ -1174,7 +1192,7 @@ export class TransactionService {
       await (tx as any).user.update({
         where: { id: userId },
         data: {
-          platformBalance: { increment: amountKobo },
+          userWallet: { increment: amountKobo },
         },
       });
 
@@ -1183,6 +1201,61 @@ export class TransactionService {
         message: `${campaign.currency} ${amount} moved to your wallet`,
         balance: amount
       };
+    });
+  }
+
+  async collectCreatorEarnings(userId: string, amountKobo?: number) {
+    const creator = await (this.prisma as any).creator.findUnique({
+      where: { userId },
+      include: { user: { select: { userWallet: true, country: true } } },
+    });
+
+    if (!creator) throw new NotFoundException('Creator profile not found');
+    const availableKobo = Number(creator.wallet || 0);
+
+    if (availableKobo <= 0) {
+      throw new BadRequestException('No earnings available to collect');
+    }
+
+    const collectionAmountKobo = amountKobo ?? availableKobo;
+
+    if (collectionAmountKobo > availableKobo) {
+      throw new BadRequestException('Insufficient creator wallet balance');
+    }
+
+    if (collectionAmountKobo <= 0) {
+      throw new BadRequestException('Invalid collection amount');
+    }
+
+    const userCurrency = getCurrencyByCountry(creator.user?.country);
+
+    return (this.prisma as any).$transaction(async (tx: any) => {
+      // 1. Decrement Creator Wallet
+      await (tx as any).creator.update({
+        where: { userId },
+        data: { wallet: { decrement: BigInt(collectionAmountKobo) } },
+      });
+
+      // 2. Increment User Wallet
+      await (tx as any).user.update({
+        where: { id: userId },
+        data: { userWallet: { increment: collectionAmountKobo } },
+      });
+
+      // 3. Record Transaction
+      const record = await (tx as any).transaction.create({
+        data: {
+          userId,
+          amount: BigInt(collectionAmountKobo),
+          currency: userCurrency,
+          type: 'platform_credit_conversion', // Existing constant for internal movement
+          status: 'success',
+          reference: `COLLECT-${userId.slice(0, 8)}-${Date.now()}`,
+          description: 'Creator Earnings Collection',
+        },
+      });
+
+      return { success: true, amount: collectionAmountKobo / 100 };
     });
   }
 }

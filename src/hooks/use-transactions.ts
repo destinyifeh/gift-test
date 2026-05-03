@@ -89,8 +89,8 @@ export function useDeleteBankAccount() {
 export function useWithdraw() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({amount, bankAccountId}: {amount: number, bankAccountId: string}) => {
-      const res = await api.post('/transactions/withdraw', {amount, bankAccountId});
+    mutationFn: async ({amount, bankAccountId, source}: {amount: number; bankAccountId: string; source?: 'user' | 'vendor'}) => {
+      const res = await api.post('/transactions/withdraw', {amount, bankAccountId, source});
       return res.data;
     },
     onSuccess: () => {

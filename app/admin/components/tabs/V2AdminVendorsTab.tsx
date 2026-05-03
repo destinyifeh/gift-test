@@ -4,7 +4,7 @@ import {useIsMobile} from '@/hooks/use-mobile';
 import {getCurrencyByCountry, getCurrencySymbol} from '@/lib/currencies';
 import {useEffect, useState, useMemo, useRef} from 'react';
 import {toast} from 'sonner';
-import {uploadShopLogo} from '@/lib/server/actions/auth';
+import {uploadBusinessLogo} from '@/lib/server/actions/auth';
 import {useForm, useWatch} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {createVendorSchema, type CreateVendorInput} from '@/lib/validations/admin';
@@ -130,7 +130,7 @@ export function V2AdminVendorsTab({
       const formData = new FormData();
       formData.append('file', file);
 
-      const result = await uploadShopLogo(formData);
+      const result = await uploadBusinessLogo(formData);
       if (result.success && result.url) {
         setValue('businessLogo', result.url);
         toast.success('Business logo uploaded successfully');
@@ -264,7 +264,7 @@ export function V2AdminVendorsTab({
       deleteUserMutation.mutate(confirmModal.vendor.id, {
         onSuccess: () => {
           setConfirmModal({isOpen: false, type: 'suspend', vendor: null});
-          addLog(`Permanently deleted vendor @${confirmModal.vendor.username || confirmModal.vendor.displayName || confirmModal.vendor.shop_name || confirmModal.vendor.email || 'unknown'}`);
+          addLog(`Permanently deleted vendor @${confirmModal.vendor.username || confirmModal.vendor.displayName || confirmModal.vendor.business_name || confirmModal.vendor.email || 'unknown'}`);
         },
       });
       return;
@@ -275,7 +275,7 @@ export function V2AdminVendorsTab({
         toast.error('Please provide a reason');
         return;
       }
-      addLog(`Warned vendor @${confirmModal.vendor.username || confirmModal.vendor.displayName || confirmModal.vendor.shop_name || confirmModal.vendor.email || 'unknown'}. Reason: ${suspensionReason}`);
+      addLog(`Warned vendor @${confirmModal.vendor.username || confirmModal.vendor.displayName || confirmModal.vendor.business_name || confirmModal.vendor.email || 'unknown'}. Reason: ${suspensionReason}`);
       toast.success('Vendor warned successfully');
       setConfirmModal({isOpen: false, type: 'suspend', vendor: null});
       setSuspensionReason('');
@@ -297,7 +297,7 @@ export function V2AdminVendorsTab({
           suspensionEnd,
         });
         addLog(
-          `Suspended vendor @${confirmModal.vendor.username || confirmModal.vendor.displayName || confirmModal.vendor.shop_name || confirmModal.vendor.email || 'unknown'} for ${suspensionDays} days. Reason: ${suspensionReason}`,
+          `Suspended vendor @${confirmModal.vendor.username || confirmModal.vendor.displayName || confirmModal.vendor.business_name || confirmModal.vendor.email || 'unknown'} for ${suspensionDays} days. Reason: ${suspensionReason}`,
         );
       } else if (confirmModal.type === 'ban') {
         if (!suspensionReason.trim()) {
@@ -308,13 +308,13 @@ export function V2AdminVendorsTab({
           userId: confirmModal.vendor.id,
           status: 'banned',
         });
-        addLog(`Banned vendor @${confirmModal.vendor.username || confirmModal.vendor.displayName || confirmModal.vendor.shop_name || confirmModal.vendor.email || 'unknown'}. Reason: ${suspensionReason}`);
+        addLog(`Banned vendor @${confirmModal.vendor.username || confirmModal.vendor.displayName || confirmModal.vendor.business_name || confirmModal.vendor.email || 'unknown'}. Reason: ${suspensionReason}`);
       } else {
         await updateStatusMutation.mutateAsync({
           userId: confirmModal.vendor.id,
           status: 'active',
         });
-        addLog(`Restored access for vendor @${confirmModal.vendor.username || confirmModal.vendor.displayName || confirmModal.vendor.shop_name || confirmModal.vendor.email || 'unknown'}`);
+        addLog(`Restored access for vendor @${confirmModal.vendor.username || confirmModal.vendor.displayName || confirmModal.vendor.business_name || confirmModal.vendor.email || 'unknown'}`);
       }
 
       toast.success('Vendor status updated successfully');
@@ -406,7 +406,7 @@ export function V2AdminVendorsTab({
       ].join(','),
       ...vendors.map((v: any) =>
         [
-          v.shop_name || v.displayName || '',
+          v.business_name || v.displayName || '',
           v.username,
           v.email || '',
           v.status || 'active',
@@ -590,7 +590,7 @@ export function V2AdminVendorsTab({
                           />
                         ) : (
                           <span className="text-lg font-bold text-[var(--v2-primary)]">
-                            {(vendor.shop_name || vendor.displayName || 'V')
+                            {(vendor.business_name || vendor.displayName || 'V')
                               .charAt(0)
                               .toUpperCase()}
                           </span>
@@ -598,7 +598,7 @@ export function V2AdminVendorsTab({
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-bold capitalize truncate">
-                          {vendor.shop_name ||
+                          {vendor.business_name ||
                             vendor.displayName ||
                             vendor.username}
                         </p>
@@ -684,7 +684,7 @@ export function V2AdminVendorsTab({
                             />
                           ) : (
                             <span className="font-bold text-[var(--v2-primary)]">
-                              {(vendor.shop_name || vendor.displayName || 'V')
+                              {(vendor.business_name || vendor.displayName || 'V')
                                 .charAt(0)
                                 .toUpperCase()}
                             </span>
@@ -692,7 +692,7 @@ export function V2AdminVendorsTab({
                         </div>
                         <div>
                           <p className="font-bold capitalize">
-                            {vendor.shop_name ||
+                            {vendor.business_name ||
                               vendor.displayName ||
                               vendor.username}
                           </p>
@@ -870,7 +870,7 @@ export function V2AdminVendorsTab({
                 <div className="w-12 h-12 rounded-xl bg-[var(--v2-primary-container)]/20 flex items-center justify-center">
                   <span className="font-bold text-[var(--v2-primary)]">
                     {(
-                      mobileActionSheet.vendor.shop_name ||
+                      mobileActionSheet.vendor.business_name ||
                       mobileActionSheet.vendor.username ||
                       'V'
                     )
@@ -880,7 +880,7 @@ export function V2AdminVendorsTab({
                 </div>
                 <div>
                   <p className="font-bold capitalize">
-                    {mobileActionSheet.vendor.shop_name ||
+                    {mobileActionSheet.vendor.business_name ||
                       mobileActionSheet.vendor.displayName}
                   </p>
                   <p className="text-sm text-gray-500">
@@ -984,7 +984,7 @@ export function V2AdminVendorsTab({
                   ) : (
                     <span className="text-2xl font-bold text-[var(--v2-primary)]">
                       {(
-                        viewDetailsModal.vendor.shop_name ||
+                        viewDetailsModal.vendor.business_name ||
                         viewDetailsModal.vendor.username ||
                         'V'
                       )
@@ -995,7 +995,7 @@ export function V2AdminVendorsTab({
                 </div>
                 <div>
                   <p className="text-xl font-bold capitalize">
-                    {viewDetailsModal.vendor.shop_name ||
+                    {viewDetailsModal.vendor.business_name ||
                       viewDetailsModal.vendor.displayName}
                   </p>
                   <p className="text-gray-500">
@@ -1071,13 +1071,13 @@ export function V2AdminVendorsTab({
                   </div>
                 </div>
 
-                {viewDetailsModal.vendor.shop_address && (
+                {viewDetailsModal.vendor.business_address && (
                   <div className="p-4 bg-gray-50 rounded-2xl">
                     <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
                       Shop Address
                     </p>
                     <p className="font-medium">
-                      {viewDetailsModal.vendor.shop_address}
+                      {viewDetailsModal.vendor.business_address}
                     </p>
                   </div>
                 )}
@@ -1732,7 +1732,7 @@ export function V2AdminVendorsTab({
                   {confirmModal.type === 'activate' ? 'Restore Access' : `${confirmModal.type} Vendor`}
                 </h3>
                 <p className="text-sm text-[var(--v2-on-surface-variant)]">
-                  {confirmModal.vendor.shop_name ||
+                  {confirmModal.vendor.business_name ||
                     confirmModal.vendor.username}
                 </p>
               </div>

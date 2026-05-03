@@ -1,0 +1,21 @@
+model Admin {
+  id        String    @id @default(uuid())
+  userId    String    @unique @map("user_id")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  role      AdminRole  @default(support)
+  status    String     @default("active") // 'active', 'suspended'
+  
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  adminLogs         AdminLog[]
+  resolvedReports   ModerationReport[] @relation("Resolver")
+  resolvedTickets    ModerationTicket[] @relation("TicketResolver")
+  resolvedPromotions ExternalPromotion[] @relation("AdminExternalPromotions")
+  notifications      Notification[]
+  notificationReads  NotificationRead[]
+
+  @@map("admins")
+}

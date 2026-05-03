@@ -25,7 +25,7 @@ export interface Promotion {
     vendor_id: string;
   };
   profiles?: {
-    shop_name: string;
+    business_name: string;
     display_name: string;
   };
 }

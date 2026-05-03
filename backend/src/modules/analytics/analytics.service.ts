@@ -14,12 +14,68 @@ export class AnalyticsService {
   constructor(private prisma: PrismaService) {}
 
   async fetchDashboardAnalytics(userId: string) {
-    const [outTxs, userCampaigns, directSupport, vendorGiftCampaigns, receivedCards, sentCards] = await Promise.all([
-      // Outbound transactions
+    const contributionTypes = [TX_CAMPAIGN_CONTRIBUTION, TX_GIFT_SENT, 'gift_purchase'];
+
+    const [
+      lifetimeTotal,
+      lifetimeCount,
+      platformStats,
+      donorUsers,
+      outTxs, 
+      userCampaigns, 
+      directSupport, 
+      vendorGiftCampaigns, 
+      receivedCards, 
+      sentCards
+    ] = await Promise.all([
+      // 1. Lifetime Total Given (Sum)
+      (this.prisma as any).transaction.aggregate({
+        where: { 
+          userId, 
+          type: { in: contributionTypes }, 
+          status: 'success',
+          NOT: [
+            { reference: { startsWith: 'CREDIT-' } },
+            { reference: { startsWith: 'REWARD-' } },
+            { reference: { startsWith: 'conv-' } },
+            { reference: { startsWith: 'FEE-' } },
+            { description: { contains: 'Platform Credits' } },
+            { description: { contains: 'Referral Reward' } }
+          ]
+        },
+        _sum: { amount: true },
+      }),
+      // 2. Lifetime Impact Count
+      (this.prisma as any).transaction.count({
+        where: { 
+          userId, 
+          type: { in: contributionTypes }, 
+          status: 'success',
+          NOT: [
+            { reference: { startsWith: 'CREDIT-' } },
+            { reference: { startsWith: 'REWARD-' } },
+            { reference: { startsWith: 'conv-' } },
+            { reference: { startsWith: 'FEE-' } },
+            { description: { contains: 'Platform Credits' } },
+            { description: { contains: 'Referral Reward' } }
+          ]
+        },
+      }),
+      // 3. Platform Total for average comparison
+      (this.prisma as any).transaction.aggregate({
+        where: { type: { in: contributionTypes }, status: 'success' },
+        _sum: { amount: true },
+      }),
+      // 4. Unique donors count for average comparison
+      (this.prisma as any).transaction.groupBy({
+        by: ['userId'],
+        where: { type: { in: contributionTypes }, status: 'success' },
+      }),
+      // Outbound transactions (Recent 10 for history)
       (this.prisma as any).transaction.findMany({
         where: {
           userId,
-          type: { in: [TX_CAMPAIGN_CONTRIBUTION, 'gift_redemption', 'flex_card_redemption', 'gift_sent'] },
+          type: { in: [TX_CAMPAIGN_CONTRIBUTION, TX_CREATOR_SUPPORT, 'gift_purchase', 'gift_redemption', 'flex_card_redemption', 'gift_sent'] },
         },
         orderBy: { createdAt: 'desc' },
         take: 10,
@@ -31,11 +87,11 @@ export class AnalyticsService {
       }),
       // Direct support received
       (this.prisma as any).creatorSupport.findMany({
-        where: { userId },
+        where: { creator: { userId } },
         orderBy: { createdAt: 'desc' },
         take: 5,
       }),
-      // Vendor gifts received (claimed/redeemed) — now from DirectGift table
+      // Vendor gifts received (claimed/redeemed)
       (this.prisma as any).directGift.findMany({
         where: {
           userId,
@@ -57,11 +113,21 @@ export class AnalyticsService {
     ]);
 
     // Calculate donor stats
-    const giftsSentCount = outTxs.filter((t: any) => t.status === 'success' && t.type === TX_CAMPAIGN_CONTRIBUTION).length;
-    const totalGivenKobo = outTxs.reduce((acc: number, t: any) => {
-      if (t.status === 'success' && t.type === TX_CAMPAIGN_CONTRIBUTION) return acc + Number(t.amount);
-      return acc;
-    }, 0);
+    const totalGivenKobo = Number(lifetimeTotal._sum.amount || 0);
+    const giftsSentCount = lifetimeCount;
+
+    // Calculate Dynamic Generosity Score
+    const totalPlatformGiftsKobo = Number(platformStats._sum.amount || 0);
+    const platformDonorCount = donorUsers.length || 1;
+    const platformAvgKobo = totalPlatformGiftsKobo / platformDonorCount;
+
+    let generosityScore = 'Growing';
+    if (totalGivenKobo > 0) {
+      if (totalGivenKobo >= platformAvgKobo * 5) generosityScore = 'Legendary';
+      else if (totalGivenKobo >= platformAvgKobo * 2) generosityScore = 'Impactful';
+      else if (totalGivenKobo >= platformAvgKobo) generosityScore = 'Generous';
+      else if (totalGivenKobo > 0) generosityScore = 'Active';
+    }
 
     const campaignIds: string[] = userCampaigns.map((c: any) => (c as any).id);
 
@@ -201,6 +267,7 @@ export class AnalyticsService {
       giftsSent: giftsSentCount,
       giftsReceived: giftsReceivedCount,
       totalGiven: totalGivenKobo / 100,
+      generosityScore,
       campaignsCount: userCampaigns.length,
       recentActivity: {
         sent: finalSent,
@@ -284,7 +351,7 @@ export class AnalyticsService {
     const giftIds = allGifts.map((c: any) => c.claimableGiftId).filter((id: any): id is number => !!id);
     const vendorGifts = await (this.prisma as any).vendorGift.findMany({
       where: { id: { in: giftIds } },
-      include: { vendor: { select: { shopName: true, displayName: true, username: true } } },
+      include: { vendor: { select: { businessName: true } } },
     });
 
     const formatted = allGifts.map((c: any) => {
@@ -298,7 +365,7 @@ export class AnalyticsService {
         currency: (c as any).currency,
         status: (c as any).status,
         code: (c as any).giftCode,
-        vendorShopName: vg?.vendor?.shopName || vg?.vendor?.displayName || vg?.vendor?.username,
+        vendorShopName: vg?.vendor?.businessName,
         message: (c as any).message,
       };
     });
@@ -307,81 +374,136 @@ export class AnalyticsService {
   }
 
   /**
-   * Fetch gifts sent by the user.
-   * Mirrors frontend: analytics.ts → fetchSentGiftsList
+   * Fetch a comprehensive list of all impact transactions (sent gifts + campaign support).
    */
   async fetchSentGiftsList(userId: string, page: number = 1, limit: number = 10) {
     const { skip, take } = getPaginationOptions(page, limit);
+    const contributionTypes = [TX_CAMPAIGN_CONTRIBUTION, TX_GIFT_SENT, 'gift_purchase'];
 
-    const [directGifts, flexCards, userGiftCards] = await Promise.all([
-      (this.prisma as any).directGift.findMany({
-        where: { userId },
+    const [transactions, total, totalSumAgg] = await Promise.all([
+      (this.prisma as any).transaction.findMany({
+        where: {
+          userId,
+          type: { in: contributionTypes },
+          status: 'success',
+          NOT: [
+            { reference: { startsWith: 'CREDIT-' } },
+            { reference: { startsWith: 'REWARD-' } },
+            { reference: { startsWith: 'conv-' } },
+            { reference: { startsWith: 'FEE-' } },
+            { description: { contains: 'Platform Credits' } },
+            { description: { contains: 'Referral Reward' } }
+          ]
+        },
         orderBy: { createdAt: 'desc' },
-        include: {
-          product: {
-            include: {
-              vendor: { select: { shopName: true, displayName: true } },
-            },
-          },
+        skip,
+        take,
+      }),
+      (this.prisma as any).transaction.count({
+        where: {
+          userId,
+          type: { in: contributionTypes },
+          status: 'success',
+          NOT: [
+            { reference: { startsWith: 'CREDIT-' } },
+            { reference: { startsWith: 'REWARD-' } },
+            { reference: { startsWith: 'conv-' } },
+            { reference: { startsWith: 'FEE-' } },
+            { description: { contains: 'Platform Credits' } },
+            { description: { contains: 'Referral Reward' } }
+          ]
         },
       }),
-      (this.prisma as any).flexCard.findMany({
-        where: { senderId: userId },
-        orderBy: { createdAt: 'desc' },
-      }),
-      (this.prisma as any).userGiftCard.findMany({
-        where: { senderId: userId },
-        orderBy: { createdAt: 'desc' },
-        include: { giftCard: true }
-      }),
+      (this.prisma as any).transaction.aggregate({
+        where: {
+          userId,
+          type: { in: contributionTypes },
+          status: 'success',
+          NOT: [
+            { reference: { startsWith: 'CREDIT-' } },
+            { reference: { startsWith: 'REWARD-' } },
+            { reference: { startsWith: 'conv-' } },
+            { reference: { startsWith: 'FEE-' } },
+            { description: { contains: 'Platform Credits' } },
+            { description: { contains: 'Referral Reward' } }
+          ]
+        },
+        _sum: { amount: true }
+      })
     ]);
 
-    const allSent = [
-      ...directGifts.map((c: any) => ({
-        id: `sent-${c.id}`,
-        name: c.title || c.product?.name || (c.claimableType === 'money' ? 'Cash Gift' : 'Gift Card'),
-        recipient: c.recipientEmail || c.recipientPhone || 'Unknown',
-        date: c.createdAt,
-        amount: Number(c.amount),
-        currency: c.currency || 'NGN',
-        status: c.status,
-        code: c.giftCode,
-        vendorShopName: c.product?.vendor?.shopName || c.product?.vendor?.displayName,
-        type: 'direct',
-        timestamp: c.createdAt.getTime()
-      })),
-      ...flexCards.map((c: any) => ({
-        id: `fc-sent-${c.id}`,
-        name: 'Flex Gift Card',
-        recipient: c.recipientEmail || c.recipientPhone || 'Claim Link',
-        date: c.createdAt,
-        amount: Number(c.initialAmount),
-        currency: c.currency || 'NGN',
-        status: c.status,
-        code: c.code,
-        vendorShopName: 'Gifthance Flex',
-        type: 'flex',
-        timestamp: c.createdAt.getTime()
-      })),
-      ...userGiftCards.map((c: any) => ({
-        id: `ugc-sent-${c.id}`,
-        name: c.giftCard?.name || 'Branded Gift Card',
-        recipient: c.recipientEmail || c.recipientPhone || 'Claim Link',
-        date: c.createdAt,
-        amount: Number(c.initialAmount),
-        currency: c.currency || 'NGN',
-        status: c.status,
-        code: c.code,
-        vendorShopName: c.giftCard?.name || 'Gift Card',
-        type: 'user_gift_card',
-        timestamp: c.createdAt.getTime()
-      }))
-    ].sort((a, b) => b.timestamp - a.timestamp);
+    // Enhance transactions with metadata from specific tables
+    const formatted = await Promise.all(transactions.map(async (t: any) => {
+      const amount = Number(t.amount) / 100;
+      let name = t.description || t.type.replace(/_/g, ' ');
+      let recipient = 'Someone';
+      let vendorShopName = 'Gifthance';
 
-    const total = allSent.length;
-    const paginated = allSent.slice(skip, skip + take);
+      // 1. If Campaign Contribution
+      if (t.type === TX_CAMPAIGN_CONTRIBUTION && t.campaignId) {
+        const campaign = await (this.prisma as any).campaign.findUnique({
+          where: { id: t.campaignId },
+          select: { title: true }
+        });
+        name = `Donation to ${campaign?.title || 'Campaign'}`;
+        recipient = campaign?.title || 'Campaign';
+      }
 
-    return paginate(paginated, total, page, limit);
+      // 2. If Creator Support
+      if (t.type === TX_CREATOR_SUPPORT) {
+        const support = await (this.prisma as any).creatorSupport.findFirst({
+          where: { transactionId: t.id },
+          include: { creator: { include: { user: { select: { displayName: true } } } } }
+        });
+        if (support) {
+          name = support.giftName ? `Gift: ${support.giftName}` : 'Monetary Support';
+          recipient = support.creator?.user?.displayName || 'Creator';
+        }
+      }
+
+      // 3. If Shop Gift Purchase
+      if (t.type === 'gift_purchase') {
+        const gift = await (this.prisma as any).directGift.findFirst({
+          where: { paymentReference: t.reference },
+          include: { product: { include: { vendor: { select: { businessName: true } } } } }
+        });
+        if (gift) {
+          name = gift.title || gift.product?.name || 'Gift Card';
+          recipient = gift.recipientEmail || gift.recipientPhone || 'A Friend';
+          vendorShopName = gift.product?.vendor?.businessName || 'Vendor';
+        }
+      }
+
+      // 4. If Flex/User Gift Card Sent
+      if (t.type === TX_GIFT_SENT) {
+        const flex = await (this.prisma as any).flexCard.findFirst({
+          where: { OR: [{ code: t.reference?.split('-')[1] }, { senderId: userId }] }
+        });
+        if (flex) {
+          name = 'Flex Gift Card';
+          recipient = flex.recipientEmail || 'Claim Link';
+        }
+      }
+
+      return {
+        id: t.id,
+        name,
+        recipient,
+        date: t.createdAt.toLocaleDateString(),
+        amount,
+        currency: t.currency || 'NGN',
+        status: t.status,
+        vendorShopName,
+        type: t.type,
+        timestamp: t.createdAt.getTime()
+      };
+    }));
+
+    const res = paginate(formatted, total, page, limit);
+    return {
+      ...res,
+      totalSum: Number(totalSumAgg?._sum?.amount || 0) / 100,
+    };
   }
 
   /**
@@ -403,7 +525,7 @@ export class AnalyticsService {
         include: {
           product: {
             include: {
-              vendor: { select: { shopName: true, displayName: true, username: true } },
+              vendor: { select: { businessName: true } },
             },
           },
         },
@@ -425,7 +547,7 @@ export class AnalyticsService {
       currency: c.currency || 'NGN',
       status: c.status,
       code: c.giftCode,
-      vendorShopName: c.product?.vendor?.shopName || c.product?.vendor?.displayName,
+      vendorShopName: c.product?.vendor?.businessName || c.product?.vendor?.displayName,
       message: c.message,
     }));
 
@@ -441,7 +563,7 @@ export class AnalyticsService {
 
     // Filter: only support page gifts (exclude claimed gifts)
     const supportPageFilter = {
-      userId,
+      creator: { userId },
       AND: [
         {
           NOT: {
@@ -545,7 +667,7 @@ export class AnalyticsService {
   async fetchCreatorAnalytics(userId: string) {
     // Filter: only support page gifts (exclude claimed gifts)
     const supportPageFilter = {
-      userId,
+      creator: { userId },
       AND: [
         {
           NOT: {
@@ -631,7 +753,7 @@ export class AnalyticsService {
         include: {
           product: {
             include: {
-              vendor: { select: { shopName: true, displayName: true } },
+              vendor: { select: { businessName: true } },
             },
           },
         },
@@ -659,7 +781,7 @@ export class AnalyticsService {
             include: {
               vendors: { 
                 include: { 
-                  vendor: { select: { shopName: true, displayName: true } } 
+                  vendor: { select: { businessName: true, displayName: true } } 
                 } 
               }
             }
@@ -678,7 +800,7 @@ export class AnalyticsService {
         goal_amount: Number(c.amount),
         currency: c.currency || 'NGN',
         gift_code: c.giftCode,
-        vendorShopName: c.product?.vendor?.shopName || c.product?.vendor?.displayName,
+        vendorShopName: c.product?.vendor?.businessName || c.product?.vendor?.displayName,
         message: c.message,
         claimable_type: c.claimableType || (c.product ? 'gift-card' : 'money'),
         sender_name: c.senderName || 'A Friend',
