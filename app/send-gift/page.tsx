@@ -281,7 +281,11 @@ export default function V2SendGiftPage() {
   const totalAmount = baseAmount + platformFee + whatsappDeliveryFee;
 
   return (
-    <V2RequireAuthUI redirectPath="/send-gift">
+    <V2RequireAuthUI
+      title="Sign in to Send a Gift"
+      description="Create an account or sign in to send gifts to your loved ones."
+      redirectPath="/send-gift"
+    >
       <div className="min-h-screen bg-[var(--v2-background)]">
         {/* Desktop Navigation */}
         <nav className="hidden md:block fixed top-0 w-full z-50 v2-glass-nav border-b border-[var(--v2-outline-variant)]/5">

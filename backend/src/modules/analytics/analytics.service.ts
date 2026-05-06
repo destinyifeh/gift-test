@@ -794,6 +794,7 @@ export class AnalyticsService {
         message: c.message,
         claimable_type: c.claimableType || (c.giftCard ? 'gift-card' : 'money'),
         sender_name: c.senderName || 'A Friend',
+        claim_token: c.claimToken || c.giftCode,
       })),
       ...unclaimedUserGiftCards.map((c: any) => ({
         id: c.id,
@@ -808,6 +809,7 @@ export class AnalyticsService {
         claimable_type: 'gift-card',
         sender_name: c.senderName || c.sender?.displayName || 'A Friend',
         isUserGiftCard: true,
+        claim_token: c.claimToken || c.code,
       }))
     ];
 

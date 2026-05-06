@@ -230,11 +230,11 @@ export class TransactionService {
     });
     const vendorId = userProfile?.vendor?.id;
 
-    const products = await (this.prisma as any).vendorGift.findMany({
+    const products = await (this.prisma as any).vendorAcceptedGiftCard.findMany({
       where: { vendorId: vendorId || '' },
-      select: { id: true },
+      select: { giftCardId: true },
     });
-    const vendorProductIds = products.map((p: any) => p.id);
+    const vendorProductIds = products.map((p: any) => p.giftCardId);
 
     const [
       accounts, 
@@ -244,7 +244,8 @@ export class TransactionService {
       userGiftCardRedemptions, 
       pendingUserGifts, 
       vendorPendingGifts,
-      transactions
+      transactions,
+      userGiftCards
     ] = await Promise.all([
       (this.prisma as any).bankAccount.findMany({ where: { userId } }),
       (this.prisma as any).campaign.findMany({
@@ -288,20 +289,47 @@ export class TransactionService {
           // Only cash gifts count towards wallet pending balance
           OR: [
             { claimableType: 'money' },
-            { claimableGiftId: null }
+            { giftCardId: null }
           ]
         },
         select: { amount: true },
       }),
       (this.prisma as any).directGift.findMany({
-        where: { claimableGiftId: { in: vendorProductIds }, status: 'claimed' }, // Claimed but not redeemed at vendor yet
+        where: { giftCardId: { in: vendorProductIds }, status: 'claimed' }, // Claimed but not redeemed at vendor yet
         select: { amount: true },
       }),
       (this.prisma as any).transaction.findMany({
         where: { userId },
         orderBy: { createdAt: 'desc' },
       }),
+      (this.prisma as any).userGiftCard.findMany({
+        where: { OR: [{ userId }, { senderId: userId }] },
+        include: { giftCard: { select: { name: true } } },
+      }),
     ]);
+
+    // Calculate Inflow (Gifts Received) and Outflow (Withdrawals)
+    const INFLOW_TYPES = ['receipt', 'creator_support', 'gift_redemption', 'campaign_contribution'];
+    const OUTFLOW_TYPES = ['withdrawal'];
+
+    const allSuccessTxsForStats = await (this.prisma as any).transaction.findMany({
+      where: { userId, status: 'success' },
+      select: { amount: true, type: true }
+    });
+
+    let userInflowKobo = 0;
+    let userOutflowKobo = 0;
+
+    allSuccessTxsForStats.forEach((t: any) => {
+      const amt = Number(t.amount);
+      if (INFLOW_TYPES.includes(t.type)) userInflowKobo += amt;
+      else if (OUTFLOW_TYPES.includes(t.type)) userOutflowKobo += amt;
+    });
+
+    const userWalletKobo = Number(userProfile?.userWallet || 0);
+    const vendorWalletKobo = Number(userProfile?.vendor?.wallet || 0);
+    const userPendingKobo = (pendingUserGifts as any[]).reduce((acc: number, g: any) => acc + (Number(g.amount || 0) * 100), 0);
+    const vendorPendingKobo = (vendorPendingGifts as any[]).reduce((acc: number, g: any) => acc + (Number(g.amount || 0) * 100), 0);
 
     // Flex cards sent/received for transaction history
     const cards = await (this.prisma as any).flexCard.findMany({
@@ -316,18 +344,38 @@ export class TransactionService {
     if (receivedCardIds.length > 0) {
       receivedCardSpending = await (this.prisma as any).flexCardTransaction.findMany({
         where: { flexCardId: { in: receivedCardIds } },
-        include: { vendor: { select: { businessName: true, displayName: true } } },
+        include: { vendor: { select: { businessName: true } } },
       });
     }
 
-    // --- 1. Transaction History Merging ---
-    const mergedTxs = transactions.map((t: any) => ({
-      ...t,
-      amount: Number(t.amount), // BigInt safety
-      created_at: t.createdAt, // Frontend expects snake_case for legacy compatibility
-    }));
-
     const cardMap = new Map(cards.map((c: any) => [c.id, c.code]));
+    const receivedFlexCodes = new Set(cards.filter((c: any) => c.userId === userId).map((c: any) => c.code));
+    const receivedGiftCodes = new Set(userGiftCards.filter((c: any) => c.userId === userId).map((c: any) => (c as any).code)); // Cast for safety
+
+    // --- 1. Transaction History Merging ---
+    const mergedTxs = transactions.map((t: any) => {
+      let description = t.description || t.desc;
+      let metadata = t.metadata || {};
+
+      // If it's a "Sent" description but user is actually the recipient (self-gift or just claimed)
+      if (description?.toLowerCase().startsWith('sent') || t.type === 'gift_sent') {
+        const codeMatch = description?.match(/(FLEX|GFT|GFTC)-[A-Z0-9-]+/i);
+        const code = codeMatch ? codeMatch[0].toUpperCase() : null;
+        
+        if (code && (receivedFlexCodes.has(code) || receivedGiftCodes.has(code) || description.includes(code))) {
+          description = description.replace(/Sent/i, 'Purchased');
+          metadata = { ...metadata, is_outbound: false };
+        }
+      }
+
+      return {
+        ...t,
+        amount: Number(t.amount), // BigInt safety
+        description,
+        metadata,
+        created_at: t.createdAt, // Frontend expects snake_case for legacy compatibility
+      };
+    });
 
     // Add Flex Card spending (where current user spent money from a received card)
     receivedCardSpending.forEach((f: any) => {
@@ -359,8 +407,75 @@ export class TransactionService {
           status: 'success',
           created_at: card.createdAt,
           description: `Sent Flex Card ${card.code}`,
-          metadata: { flex_card_id: card.id },
+          metadata: { flex_card_id: card.id, is_outbound: true },
         } as any);
+      }
+    });
+
+    // Add Flex Cards received (where current user is the recipient)
+    const receivedFlexCards = cards.filter((c: any) => c.userId === userId);
+    receivedFlexCards.forEach((card: any) => {
+      // Skip if a "Received" or "Purchased" (self-gift) transaction already exists for this card
+      const alreadyHasEntry = mergedTxs.some((t: any) => {
+        const desc = (t.description || '').toLowerCase();
+        return (t.reference?.includes(card.code) || desc.includes(card.code?.toLowerCase())) &&
+          (desc.includes('received') || desc.includes('purchased') || t.type === 'receipt');
+      });
+      if (!alreadyHasEntry) {
+        mergedTxs.push({
+          id: `fc-received-${card.id}`,
+          userId,
+          amount: Number(card.initialAmount) * 100,
+          type: 'receipt',
+          status: 'success',
+          created_at: card.createdAt,
+          description: `Received Flex Card ${card.code}`,
+          metadata: { flex_card_id: card.id, is_outbound: false },
+        } as any);
+      }
+    });
+
+    // Add Gift Cards received (from UserGiftCard table)
+    userGiftCards.forEach((card: any) => {
+      const isRecipient = card.userId === userId;
+      const isSender = card.senderId === userId;
+      const cardName = card.giftCard?.name || 'Gift Card';
+
+      if (isRecipient) {
+        // Skip if a "Received" or "Purchased" (self-gift) transaction already exists for this card
+        const alreadyHasEntry = mergedTxs.some((t: any) => {
+          const desc = (t.description || '').toLowerCase();
+          return (t.reference?.includes(card.code) || desc.includes(card.code?.toLowerCase())) &&
+            (desc.includes('received') || desc.includes('purchased') || t.type === 'receipt');
+        });
+        if (!alreadyHasEntry) {
+          mergedTxs.push({
+            id: `ugc-received-${card.id}`,
+            userId,
+            amount: Number(card.initialAmount) * 100,
+            type: 'receipt',
+            status: 'success',
+            created_at: card.createdAt,
+            description: `Received ${cardName} ${card.code}`,
+            metadata: { user_gift_card_id: card.id, is_outbound: false },
+          } as any);
+        }
+      }
+      
+      if (isSender) {
+        const exists = mergedTxs.some((t: any) => t.reference?.includes(card.code));
+        if (!exists) {
+          mergedTxs.push({
+            id: `ugc-sent-${card.id}`,
+            userId,
+            amount: Number(card.initialAmount) * 100,
+            type: TX_GIFT_SENT,
+            status: 'success',
+            created_at: card.createdAt,
+            description: `Sent ${cardName} ${card.code}`,
+            metadata: { user_gift_card_id: card.id, is_outbound: false },
+          } as any);
+        }
       }
     });
 
@@ -435,17 +550,13 @@ export class TransactionService {
     const finalMergedTxs = Array.from(uniqueMap.values());
     finalMergedTxs.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-    const userWalletKobo = Number(userProfile?.userWallet || 0);
-    const vendorWalletKobo = Number(userProfile?.vendor?.wallet || 0);
-
-    const userPendingKobo = (pendingUserGifts as any[]).reduce((acc: number, g: any) => acc + (Number(g.amount || 0) * 100), 0);
-    const vendorPendingKobo = (vendorPendingGifts as any[]).reduce((acc: number, g: any) => acc + (Number(g.amount || 0) * 100), 0);
-
     return {
       balance: (userWalletKobo + vendorWalletKobo) / 100,
       user: {
         balance: userWalletKobo / 100,
         pending: userPendingKobo / 100,
+        totalInflow: userInflowKobo / 100,
+        outflow: userOutflowKobo / 100,
       },
       vendor: {
         balance: vendorWalletKobo / 100,
@@ -912,11 +1023,11 @@ export class TransactionService {
     });
     if (!gift) throw new NotFoundException('Gift product not found');
 
-    const vendorProfile = await (this.prisma as any).user.findUnique({
+    const vendorProfile = await (this.prisma as any).vendor.findUnique({
       where: { id: gift.vendorId },
-      select: { businessName: true, displayName: true },
+      select: { businessName: true },
     });
-    const vendorShopName = vendorProfile?.businessName || vendorProfile?.displayName || 'Gifthance Partner';
+    const vendorShopName = vendorProfile?.businessName || 'Gifthance Partner';
 
     // Generate unique gift code
     let giftCode = generateGiftCode('GFT-');
@@ -979,6 +1090,7 @@ export class TransactionService {
             status: 'success',
             reference: data.reference,
             description: `Purchased ${data.giftName} for ${data.recipientEmail || 'friend'}`,
+            metadata: { is_outbound: false, gift_id: data.giftId },
           },
         });
       }

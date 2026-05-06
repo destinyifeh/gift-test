@@ -143,7 +143,7 @@ export function V2WalletTab() {
     const uniqueMap = new Map();
     transactions.forEach((t: any) => {
       const timeStr = new Date(t.rawDate).getTime();
-      const key = `${Math.abs(Math.round(t.amount))}-${Math.floor(timeStr / 5000)}`;
+      const key = `${Math.abs(Math.round(t.amount))}-${Math.floor(timeStr / 5000)}-${t.description}`;
       if (!uniqueMap.has(key) || t.cardBrand || t.customer) {
         uniqueMap.set(key, t);
       }
@@ -585,13 +585,16 @@ export function V2WalletTab() {
             ) : (
               <div className="space-y-1">
                 {filteredTransactions.slice(0, 5).map((t: any) => {
-                  const isInflow = ['receipt', 'creator_support'].includes(t.type) || (t.type === 'campaign_contribution' && t.metadata?.is_outbound !== true);
-                  const isFlexCard = t.type === 'flex_card' || t.type === 'flex_card_redemption' || t.description?.toLowerCase().includes('flex');
-                  const isGiftRedemption = t.type === 'gift_redemption' || t.type === 'user_gift_card' || t.type === 'gift_card_redemption' || t.type?.includes('redemption');
-                  const isWithdrawal = t.type === 'withdrawal' || t.type === 'payout';
                   const isOutbound = t.metadata?.is_outbound === true;
+                  const descLower = (t.description || '').toLowerCase();
+                  const isPurchasedOrReceived = descLower.startsWith('purchased') || descLower.startsWith('received');
+                  const isInflow = isPurchasedOrReceived || (!isOutbound && (['receipt', 'creator_support', 'gift_purchase', 'gift_sent'].includes(t.type) || (t.type === 'campaign_contribution' && t.metadata?.is_outbound !== true)));
+                  const isFlexCard = !isPurchasedOrReceived && (t.type === 'flex_card' || t.type === 'flex_card_redemption' || (descLower.includes('flex') && !['receipt', 'deposit'].includes(t.type)));
+                  const isGiftRedemption = !isPurchasedOrReceived && (t.type === 'gift_redemption' || t.type === 'user_gift_card' || t.type === 'gift_card_redemption' || t.type?.includes('redemption'));
+                  const isWithdrawal = t.type === 'withdrawal' || t.type === 'payout';
 
                   const getIcon = () => {
+                    if (isPurchasedOrReceived) return 'redeem';
                     if (isFlexCard || isGiftRedemption) return 'shopping_bag';
                     if (isWithdrawal || isOutbound) return 'account_balance';
                     if (isInflow) return 'payments';
@@ -599,6 +602,7 @@ export function V2WalletTab() {
                   };
 
                   const getIconStyle = () => {
+                    if (isPurchasedOrReceived) return 'bg-green-100 text-green-700';
                     if (isFlexCard) return 'bg-purple-100 text-purple-700';
                     if (isGiftRedemption) return 'bg-blue-100 text-blue-700';
                     if (isWithdrawal || isOutbound) return 'bg-orange-100 text-orange-700';
@@ -607,6 +611,8 @@ export function V2WalletTab() {
                   };
 
                   const getTypeLabel = () => {
+                    if (isPurchasedOrReceived && descLower.includes('flex')) return 'Flex Card';
+                    if (isPurchasedOrReceived) return 'Gift Card';
                     if (isOutbound) return 'Payment Sent';
                     if (isFlexCard) return 'Flex Card Payment';
                     if (isGiftRedemption || t.type === 'gift_card_redemption') return 'Gift Card Payment';
@@ -616,7 +622,7 @@ export function V2WalletTab() {
                     return t.type?.replace(/_/g, ' ');
                   };
 
-                  const isDebit = isWithdrawal || isFlexCard || isGiftRedemption || isOutbound || t.type === 'fee';
+                  const isDebit = !isPurchasedOrReceived && (isWithdrawal || isFlexCard || isGiftRedemption || isOutbound || t.type === 'fee');
 
                   return (
                     <div
@@ -1026,27 +1032,35 @@ export function V2WalletTab() {
               ) : (
                 <div className="space-y-2">
                   {filteredTransactions.map((t: any) => {
-                    const isInflow = ['receipt', 'creator_support'].includes(t.type);
-                    const isFlexCard = t.type === 'flex_card' || t.type === 'flex_card_redemption' || t.description?.toLowerCase().includes('flex');
-                    const isGiftRedemption = t.type === 'gift_redemption' || t.type === 'user_gift_card' || t.type === 'gift_card_redemption' || t.type?.includes('redemption');
+                    const isOutbound = t.metadata?.is_outbound === true;
+                    const descLower = (t.description || '').toLowerCase();
+                    const isPurchasedOrReceived = descLower.startsWith('purchased') || descLower.startsWith('received');
+                    const isInflow = isPurchasedOrReceived || (!isOutbound && (['receipt', 'creator_support', 'gift_purchase', 'gift_sent'].includes(t.type) || (t.type === 'campaign_contribution' && t.metadata?.is_outbound !== true)));
+                    const isFlexCard = !isPurchasedOrReceived && (t.type === 'flex_card' || t.type === 'flex_card_redemption' || (descLower.includes('flex') && !['receipt', 'deposit'].includes(t.type)));
+                    const isGiftRedemption = !isPurchasedOrReceived && (t.type === 'gift_redemption' || t.type === 'user_gift_card' || t.type === 'gift_card_redemption' || t.type?.includes('redemption'));
                     const isWithdrawal = t.type === 'withdrawal' || t.type === 'payout';
 
                     const getIcon = () => {
+                      if (isPurchasedOrReceived) return 'redeem';
                       if (isFlexCard || isGiftRedemption) return 'shopping_bag';
-                      if (isWithdrawal) return 'account_balance';
+                      if (isWithdrawal || isOutbound) return 'account_balance';
                       if (isInflow) return 'payments';
                       return 'receipt_long';
                     };
 
                     const getIconStyle = () => {
+                      if (isPurchasedOrReceived) return 'bg-green-100 text-green-700';
                       if (isFlexCard) return 'bg-purple-100 text-purple-700';
                       if (isGiftRedemption) return 'bg-blue-100 text-blue-700';
-                      if (isWithdrawal) return 'bg-orange-100 text-orange-700';
+                      if (isWithdrawal || isOutbound) return 'bg-orange-100 text-orange-700';
                       if (isInflow) return 'bg-green-100 text-green-700';
                       return 'bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface-variant)]';
                     };
 
                     const getTypeLabel = () => {
+                      if (isPurchasedOrReceived && descLower.includes('flex')) return 'Flex Card';
+                      if (isPurchasedOrReceived) return 'Gift Card';
+                      if (isOutbound) return 'Payment Sent';
                       if (isFlexCard) return 'Flex Card Payment';
                       if (isGiftRedemption) return 'Gift Redemption';
                       if (isWithdrawal) return 'Withdrawal';
@@ -1055,7 +1069,7 @@ export function V2WalletTab() {
                       return t.type?.replace(/_/g, ' ');
                     };
 
-                    const isDebit = isWithdrawal || isFlexCard || isGiftRedemption;
+                    const isDebit = !isPurchasedOrReceived && (isWithdrawal || isFlexCard || isGiftRedemption || isOutbound || t.type === 'fee');
 
                     return (
                       <div

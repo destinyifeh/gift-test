@@ -14,7 +14,7 @@ export function usePublicSettings() {
 
 export function useWalletProfile() {
   return useQuery({
-    queryKey: ['wallet-profile'],
+    queryKey: ['personal-wallet-profile'],
     queryFn: async () => {
       const res = await api.get('/transactions/wallet');
       return res.data;
@@ -76,8 +76,9 @@ export function useDeleteBankAccount() {
       const res = await api.delete(`/transactions/bank-accounts/${id}`);
       return res.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: ['wallet-profile']});
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({queryKey: ['personal-wallet-profile']});
+      queryClient.invalidateQueries({queryKey: ['vendor-wallet-profile']});
       toast.success('Bank account removed');
     },
     onError: (error: any) => {
@@ -93,8 +94,9 @@ export function useWithdraw() {
       const res = await api.post('/transactions/withdraw', {amount, bankAccountId, source});
       return res.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: ['wallet-profile']});
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({queryKey: ['personal-wallet-profile']});
+      queryClient.invalidateQueries({queryKey: ['vendor-wallet-profile']});
       toast.success('Withdrawal initiated!');
     },
     onError: (error: any) => {
@@ -137,8 +139,9 @@ export function useConvertToCredit() {
       const res = await api.post('/transactions/convert-to-credit', {campaignId});
       return res.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: ['wallet-profile']});
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({queryKey: ['personal-wallet-profile']});
+      queryClient.invalidateQueries({queryKey: ['vendor-wallet-profile']});
       toast.success('Gift converted to platform credit!');
     },
   });

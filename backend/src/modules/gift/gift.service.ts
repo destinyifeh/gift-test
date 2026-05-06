@@ -1,22 +1,12 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateFlexCardDto, ClaimFlexCardDto } from './dto/flex-card.dto';
-import { generateGiftCode, generateId } from '../../common/utils/token.util';
+import { generateGiftCode, generateId, generateClaimToken } from '../../common/utils/token.util';
 import { paginate, getPaginationOptions } from '../../common/utils/pagination.util';
 import { EmailService } from '../email/email.service';
 import { ConfigService } from '@nestjs/config';
 import { NotificationService } from '../notification/notification.service';
 import { VendorService } from '../vendor/vendor.service';
-
-// Mirrors frontend generateClaimToken
-function generateClaimToken(): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
-  let token = '';
-  for (let i = 0; i < 16; i++) {
-    token += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return token;
-}
 
 @Injectable()
 export class GiftService {
@@ -117,6 +107,7 @@ export class GiftService {
   async claim(userId: string, data: ClaimFlexCardDto) {
     const tokenOrCode = data.code; 
     return (this.prisma as any).$transaction(async (tx: any) => {
+      // 1. Try FlexCard table
       const card = await (tx as any).flexCard.findFirst({
         where: {
           OR: [
@@ -126,37 +117,86 @@ export class GiftService {
         },
       });
 
-      if (!card) {
-        throw new NotFoundException('Flex Card not found or invalid code');
+      if (card) {
+        if (card.userId) {
+          throw new BadRequestException('This Flex Card has already been claimed');
+        }
+        
+        if (card.status === 'redeemed') {
+          throw new BadRequestException('This flex card has been fully redeemed');
+        }
+
+        return (tx as any).flexCard.update({
+          where: { id: card.id },
+          data: { userId, claimedAt: new Date() },
+        });
       }
 
-      if (card.userId) {
-        throw new BadRequestException('This Flex Card has already been claimed');
-      }
-      
-      if (card.status === 'redeemed') {
-        throw new BadRequestException('This flex card has been fully redeemed');
-      }
-
-      const updatedCard = await (tx as any).flexCard.update({
-        where: { id: card.id },
-        data: {
-          userId,
-          claimedAt: new Date(),
+      // 2. Try DirectGift table
+      const gift = await (tx as any).directGift.findFirst({
+        where: {
+          OR: [
+            { giftCode: { equals: tokenOrCode, mode: 'insensitive' } },
+            { claimToken: tokenOrCode }
+          ],
+          claimableType: 'flex_card'
         },
       });
 
-      return updatedCard;
+      if (gift) {
+        if (gift.status === 'claimed' || gift.status === 'redeemed') {
+          throw new BadRequestException('This flex card has already been claimed');
+        }
+
+        return (tx as any).directGift.update({
+          where: { id: gift.id },
+          data: { userId, status: 'claimed' }
+        });
+      }
+
+      throw new NotFoundException('Flex Card not found or invalid code');
     });
   }
 
   async fetchFlexCardByClaimToken(claimToken: string) {
-    const card = await (this.prisma as any).flexCard.findUnique({
+    // 1. Try FlexCard table
+    let card = await (this.prisma as any).flexCard.findFirst({
       where: { claimToken },
       include: {
-        sender: { select: { displayName: true, username: true, avatarUrl: true } }
+        sender: { select: { displayName: true, avatarUrl: true } }
       }
     });
+
+    if (card) {
+      return {
+        ...card,
+        initialAmount: card.initialAmount.toString(),
+        currentBalance: card.currentBalance.toString()
+      };
+    }
+
+    // 2. Fallback to DirectGift table if it's a flex_card gift
+    const gift = await (this.prisma as any).directGift.findFirst({
+      where: { claimToken, claimableType: 'flex_card' },
+      include: { user: { select: { displayName: true, avatarUrl: true } } }
+    });
+
+    if (gift) {
+      return {
+        id: gift.id,
+        code: gift.giftCode,
+        initialAmount: gift.amount.toString(),
+        currentBalance: gift.amount.toString(),
+        currency: gift.currency,
+        status: gift.status,
+        senderName: gift.senderName,
+        message: gift.message,
+        claimToken: gift.claimToken,
+        createdAt: gift.createdAt,
+        isDirectGift: true,
+        sender: gift.user
+      };
+    }
 
     if (!card) throw new NotFoundException('Flex card not found');
     
@@ -253,13 +293,14 @@ export class GiftService {
         claimableType: data.claimableType,
         claimableGiftId: data.claimableGiftId,
         giftCardId: data.giftCardId,
+        claimToken: generateClaimToken(),
       },
     });
 
 
     if (data.deliveryMethod === 'email' && data.recipientEmail) {
       const siteUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-      const claimUrl = `${siteUrl}/claim/${data.claimableType === 'money' ? 'cash/' : ''}${giftCode}`;
+      const claimUrl = `${siteUrl}/claim/${data.claimableType === 'money' ? 'cash/' : 'gift-card/'}${gift.claimToken}`;
       
       try {
         console.log(`[GiftService] Attempting to send gift email to: ${data.recipientEmail}`);
@@ -313,7 +354,12 @@ export class GiftService {
   async fetchGiftByCode(code: string) {
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(code.trim());
     let gift = await (this.prisma as any).directGift.findFirst({
-      where: isUuid ? { id: code.trim() } : { giftCode: code.trim() },
+      where: isUuid ? { id: code.trim() } : { 
+        OR: [
+          { giftCode: code.trim() },
+          { claimToken: code.trim() }
+        ]
+      },
       include: {
         user: { select: { displayName: true, email: true } },
         product: {
@@ -328,7 +374,12 @@ export class GiftService {
     // If not found in DirectGift, check Campaign table
     if (!gift) {
       gift = await (this.prisma as any).campaign.findFirst({
-        where: isUuid ? { id: code.trim() } : { giftCode: code.trim() },
+        where: isUuid ? { id: code.trim() } : { 
+          OR: [
+            { giftCode: code.trim() },
+            { claimToken: code.trim() }
+          ]
+        },
         include: {
           user: { select: { displayName: true, email: true, avatarUrl: true } },
           product: {
@@ -356,13 +407,23 @@ export class GiftService {
   async claimGiftByCode(userId: string, code: string) {
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(code.trim());
     let gift = await (this.prisma as any).directGift.findFirst({
-      where: isUuid ? { id: code.trim() } : { giftCode: { equals: code.trim(), mode: 'insensitive' } },
+      where: isUuid ? { id: code.trim() } : { 
+        OR: [
+          { giftCode: { equals: code.trim(), mode: 'insensitive' } },
+          { claimToken: code.trim() }
+        ]
+      },
     });
 
     let isCampaign = false;
     if (!gift) {
       gift = await (this.prisma as any).campaign.findFirst({
-        where: isUuid ? { id: code.trim() } : { giftCode: { equals: code.trim(), mode: 'insensitive' } },
+        where: isUuid ? { id: code.trim() } : { 
+          OR: [
+            { giftCode: { equals: code.trim(), mode: 'insensitive' } },
+            { claimToken: code.trim() }
+          ]
+        },
       });
       if (gift) isCampaign = true;
     }

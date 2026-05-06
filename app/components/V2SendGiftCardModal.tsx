@@ -145,7 +145,7 @@ export const V2SendGiftCardModal = ({
           try {
             if (giftCard.isFlexCard) {
               const { createFlexCard } = await import('@/lib/server/actions/flex-cards');
-              await createFlexCard({
+              const result = await createFlexCard({
                 initial_amount: giftCard.amount,
                 recipient_email: deliveryMethod === 'email' ? formData.recipientEmail : undefined,
                 recipient_phone: deliveryMethod === 'whatsapp' ? formatE164(phoneNumber, countryCode) : undefined,
@@ -153,9 +153,12 @@ export const V2SendGiftCardModal = ({
                 sender_name: formData.isAnonymous ? 'Anonymous' : formData.senderName || undefined,
                 message: formData.message || undefined,
               });
+              if (result && !result.success) {
+                throw new Error(result.error || 'Failed to create flex card');
+              }
             } else {
               const { createUserGiftCard } = await import('@/lib/server/actions/user-gift-cards');
-              await createUserGiftCard({
+              const result = await createUserGiftCard({
                 giftCardId: Number(giftCard.id),
                 initialAmount: giftCard.amount,
                 currency: giftCard.currency || 'NGN',
@@ -165,6 +168,9 @@ export const V2SendGiftCardModal = ({
                 senderName: formData.isAnonymous ? 'Anonymous' : formData.senderName || undefined,
                 message: formData.message || undefined,
               });
+              if (result && !result.success) {
+                throw new Error(result.error || 'Failed to create gift card');
+              }
             }
             toast.success('Gift card issued successfully!');
           } catch (e: any) {
@@ -259,6 +265,11 @@ export const V2SendGiftCardModal = ({
                        <CountryPhoneInput value={phoneNumber} countryCode={countryCode} onChange={(p, c, v) => { setPhoneNumber(p); setCountryCode(c); setIsPhoneValid(v); }} />
                     </div>
                   )}
+
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold uppercase tracking-wider text-[var(--v2-on-surface-variant)] ml-1">Your Email</Label>
+                    <Input placeholder="you@example.com" type="email" value={formData.senderEmail} onChange={e => setFormData({...formData, senderEmail: e.target.value})} className="h-12 rounded-xl bg-[var(--v2-surface-container-low)] border-none focus-visible:ring-2 focus-visible:ring-[var(--v2-primary)] font-medium" />
+                  </div>
 
                   <div className="space-y-2">
                     <Label className="text-xs font-bold uppercase tracking-wider text-[var(--v2-on-surface-variant)] ml-1">Your Name</Label>

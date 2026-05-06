@@ -1,8 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { EmailService } from '../email/email.service';
-import { generateGiftCode } from '../../common/utils/token.util';
-import { randomBytes } from 'crypto';
+import { generateGiftCode, generateClaimToken } from '../../common/utils/token.util';
 
 @Injectable()
 export class UserGiftCardService {
@@ -13,7 +12,7 @@ export class UserGiftCardService {
     deliveryMethod?: string; senderName?: string; message?: string; currency?: string;
   }) {
     const code = generateGiftCode('GFT-');
-    const claimToken = randomBytes(8).toString('hex');
+    const claimToken = generateClaimToken();
 
     const card = await (this.prisma as any).userGiftCard.create({
       data: {
@@ -106,8 +105,13 @@ export class UserGiftCardService {
   }
 
   async redeemUserGiftCard(vendorId: string, code: string, amount: number, description?: string) {
-    const profile = await (this.prisma as any).user.findUnique({ where: { id: vendorId } });
-    if (!profile.roles.includes('vendor')) throw new BadRequestException('Invalid vendor');
+    const profile = await (this.prisma as any).user.findUnique({ 
+      where: { id: vendorId },
+      include: { vendor: true }
+    });
+    if (!profile?.roles.includes('vendor') || !profile.vendor) throw new BadRequestException('Invalid vendor');
+
+    const actualVendorId = profile.vendor.id;
 
     const card = await (this.prisma as any).userGiftCard.findFirst({ 
       where: { code: code.toUpperCase() },
@@ -116,7 +120,7 @@ export class UserGiftCardService {
     if (!card) throw new NotFoundException('Gift card not found');
 
     // Check if vendor accepts this gift card
-    const vendorAccepted = card.giftCard.vendors.some((v: any) => v.vendorId === vendorId);
+    const vendorAccepted = card.giftCard.vendors.some((v: any) => v.vendorId === actualVendorId);
     if (!vendorAccepted) throw new BadRequestException('You do not accept this gift card brand.');
 
     if (card.status === 'redeemed') throw new BadRequestException('This gift card has been fully redeemed');
@@ -127,15 +131,15 @@ export class UserGiftCardService {
     const newStatus = newBalance === 0 ? 'redeemed' : 'partially_used';
 
     const transaction = await (this.prisma as any).userGiftCardTransaction.create({
-      data: { userGiftCardId: card.id, vendorId, amount, balanceAfter: newBalance, description: description || 'Redeemed at vendor' }
+      data: { userGiftCardId: card.id, vendorId: actualVendorId, amount, balanceAfter: newBalance, description: description || 'Redeemed at vendor' }
     });
 
     await (this.prisma as any).userGiftCard.update({ where: { id: card.id }, data: { currentBalance: newBalance, status: newStatus } });
 
     // Increment vendor's wallet balance
-    await (this.prisma as any).user.update({
-      where: { id: vendorId },
-      data: { vendorWallet: { increment: BigInt(Math.round(amount * 100)) } }
+    await (this.prisma as any).vendor.update({
+      where: { userId: vendorId },
+      data: { wallet: { increment: BigInt(Math.round(amount * 100)) } }
     });
 
     if (card.userId) {
@@ -151,8 +155,13 @@ export class UserGiftCardService {
   }
 
   async lookupUserGiftCardForRedemption(vendorId: string, code: string) {
-    const profile = await (this.prisma as any).user.findUnique({ where: { id: vendorId } });
-    if (!profile.roles.includes('vendor')) throw new BadRequestException('Only vendors can look up gift cards');
+    const profile = await (this.prisma as any).user.findUnique({ 
+      where: { id: vendorId },
+      include: { vendor: true }
+    });
+    if (!profile?.roles.includes('vendor') || !profile.vendor) throw new BadRequestException('Only vendors can look up gift cards');
+
+    const actualVendorId = profile.vendor.id;
 
     const card = await (this.prisma as any).userGiftCard.findFirst({
       where: { code: code.toUpperCase() },
@@ -164,7 +173,7 @@ export class UserGiftCardService {
     if (!card) throw new NotFoundException('Gift card not found');
     
     // Check if vendor accepts this gift card
-    const vendorAccepted = card.giftCard.vendors.some((v: any) => v.vendorId === vendorId);
+    const vendorAccepted = card.giftCard.vendors.some((v: any) => v.vendorId === actualVendorId);
     if (!vendorAccepted) throw new BadRequestException('You do not accept this gift card brand.');
 
     if (card.status === 'redeemed') throw new BadRequestException('This gift card has been fully redeemed');

@@ -14,6 +14,7 @@ import {V2BottomTabBar} from './components/V2BottomTabBar';
 import {V2RoleSwitcher} from '../components/V2RoleSwitcher';
 import {V2NotificationsPanel} from '../components/V2NotificationsPanel';
 import {V2MobileMenu} from './components/V2MobileMenu';
+import {V2RequireAuthUI} from '../components/V2RequireAuthUI';
 import {V2LogoutModal} from '../components/V2LogoutModal';
 
 import {GifthanceLogo} from '@/components/GifthanceLogo';
@@ -85,12 +86,7 @@ function V2DashboardContent() {
   const user = useUserStore(state => state.user);
   const clearUser = useUserStore(state => state.clearUser);
 
-  // Authentication and Redirect
-  useEffect(() => {
-    if (!isPending && !session) {
-      router.push('/login');
-    }
-  }, [session, isPending, router]);
+
 
   // Get initial tab from URL or default to overview
   const initialTab = (searchParams.get('tab') as SelectedSection) || 'overview';
@@ -165,6 +161,11 @@ function V2DashboardContent() {
   const userName = profile?.display_name || user?.display_name || 'User';
 
   return (
+    <V2RequireAuthUI
+      title="Welcome to Your Dashboard"
+      description="Sign in to access your gifts, campaigns, wallet, and more."
+      redirectPath="/dashboard"
+    >
     <div className="min-h-screen bg-[var(--v2-background)]">
       {/* Mobile Top Bar */}
       <header className="md:hidden fixed top-0 z-50 w-full px-4 h-14 flex justify-between items-center v2-glass-nav">
@@ -378,5 +379,6 @@ function V2DashboardContent() {
         <V2BottomTabBar activeSection={section} onNavigate={handleSectionChange} />
       )}
     </div>
+    </V2RequireAuthUI>
   );
 }

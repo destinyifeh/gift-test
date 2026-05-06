@@ -6,6 +6,7 @@ import {CAMPAIGN_CATEGORIES} from '@/lib/constants/campaigns';
 import {SUPPORTED_CURRENCIES, getCurrencySymbol} from '@/lib/constants/currencies';
 import {generateSlug} from '@/lib/utils/slugs';
 import {createCampaign, uploadCampaignImage} from '@/lib/server/actions/campaigns';
+import {V2RequireAuthUI} from '../components/V2RequireAuthUI';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {useEffect, useRef, useState} from 'react';
@@ -175,6 +176,11 @@ export default function CreateCampaignPage() {
   }
 
   return (
+    <V2RequireAuthUI
+      title="Sign in to Create"
+      description="You need an account to create and manage campaigns."
+      redirectPath="/create-campaign"
+    >
     <div className="min-h-screen bg-[var(--v2-background)] pb-32 md:pb-8">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-[var(--v2-surface)]/80 backdrop-blur-xl border-b border-[var(--v2-outline-variant)]/10">
@@ -546,6 +552,7 @@ export default function CreateCampaignPage() {
         </div>
       )}
     </div>
+    </V2RequireAuthUI>
   );
 }
 

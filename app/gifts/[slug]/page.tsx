@@ -8,6 +8,7 @@ import { useFavorites, useIsFavorited } from '@/hooks/use-favorites';
 
 import { cn } from '@/lib/utils';
 import { V2SendGiftCardModal } from '../../components/V2SendGiftCardModal';
+import { V2LoginPromptModal } from '../../components/V2LoginPromptModal';
 import { FlexCard3D } from '../../gifts/components/FlexCardVariants';
 import { GiftCard3D } from '../../gifts/components/GiftCardVariants';
 import { toast } from 'sonner';
@@ -129,6 +130,7 @@ export default function GiftCardDetailPage() {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState('');
   const [showGiftModal, setShowGiftModal] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
   const [hoveredRelatedCard, setHoveredRelatedCard] = useState<number | null>(null);
 
@@ -447,7 +449,13 @@ export default function GiftCardDetailPage() {
 
                     <div className="space-y-4">
                       <button
-                          onClick={() => setShowGiftModal(true)}
+                          onClick={() => {
+                            if (!user) {
+                              setShowLoginPrompt(true);
+                            } else {
+                              setShowGiftModal(true);
+                            }
+                          }}
                           disabled={finalAmount <= 0}
                           className="w-full h-16 v2-btn-primary rounded-2xl font-black text-lg shadow-2xl shadow-[var(--v2-primary)]/30 active:scale-[0.98] transition-all disabled:opacity-40 flex items-center justify-center gap-3"
                       >
@@ -491,6 +499,12 @@ export default function GiftCardDetailPage() {
                 isFlexCard: card.isFlexCard,
                 serviceFeePercent: Number(card.serviceFeePercent),
             }}
+        />
+
+        <V2LoginPromptModal
+            open={showLoginPrompt}
+            onOpenChange={setShowLoginPrompt}
+            action={`send ${card.name}`}
         />
 
         {/* Global animation keyframes */}

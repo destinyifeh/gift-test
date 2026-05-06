@@ -18,6 +18,7 @@ model DirectGift {
   senderEmail            String?     @map("sender_email")
   paymentReference       String?     @map("payment_reference")
   giftCode               String?     @unique @map("gift_code")
+  claimToken             String?     @unique @map("claim_token")
 
   // Custom/Voucher redemption
   redeemedAt         DateTime? @map("redeemed_at")

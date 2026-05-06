@@ -11,7 +11,7 @@ export class UserGiftCardController {
   @UseGuards(AuthGuard)
   @Post()
   async createCard(@Req() req: Request, @Body() data: CreateUserGiftCardDto) {
-    const userId = (req as any).user?.id || null;
+    const userId = (req as any).user.id;
     return this.userGiftCardService.createUserGiftCard(userId, data);
   }
 

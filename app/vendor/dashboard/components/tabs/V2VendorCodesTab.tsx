@@ -499,7 +499,9 @@ export function V2VendorCodesTab() {
                             type="number"
                             value={flexRedeemAmount}
                             onChange={e => setFlexRedeemAmount(e.target.value)}
+                            onWheel={e => (e.target as HTMLInputElement).blur()}
                             placeholder="0.00"
+                            step="any"
                             max={flexCardResult.balance}
                             className="w-full h-14 pl-10 pr-4 text-xl font-bold bg-white rounded-xl border-2 border-[var(--v2-primary-container)] focus:border-[var(--v2-primary)] focus:ring-0 outline-none"
                           />

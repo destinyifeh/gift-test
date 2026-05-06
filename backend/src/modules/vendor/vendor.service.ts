@@ -345,14 +345,22 @@ export class VendorService {
   }
 
   async fetchVendorOrders(userId: string) {
+    const vendorRecord = await (this.prisma as any).vendor.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
+    if (!vendorRecord) throw new NotFoundException('Vendor profile not found');
+
+    const vendorId = vendorRecord.id;
+
     const [directRedemptions, flexTxs, vendorCardTxs] = await Promise.all([
       (this.prisma as any).directGift.findMany({
-        where: { redeemedByVendorId: userId, status: 'redeemed' },
+        where: { redeemedByVendorId: vendorId, status: 'redeemed' },
         orderBy: { redeemedAt: 'desc' },
         include: { user: { select: { displayName: true, creator: { select: { username: true } } } } },
       }),
       (this.prisma as any).flexCardTransaction.findMany({
-        where: { vendorId: userId },
+        where: { vendorId: vendorId },
         orderBy: { createdAt: 'desc' },
         include: { 
           flexCard: { 
@@ -364,7 +372,7 @@ export class VendorService {
         },
       }),
       (this.prisma as any).userGiftCardTransaction.findMany({
-        where: { vendorId: userId },
+        where: { vendorId: vendorId },
         orderBy: { createdAt: 'desc' },
         include: { 
           userGiftCard: { 

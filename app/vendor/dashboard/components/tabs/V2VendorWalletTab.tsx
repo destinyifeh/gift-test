@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/responsive-modal';
 import {BankPicker} from '@/components/ui/bank-picker';
 import {useProfile} from '@/hooks/use-profile';
-import {useVendorWallet} from '@/hooks/use-vendor';
+import {useVendorWallet, useVendorWalletProfile} from '@/hooks/use-vendor';
 import api from '@/lib/api-client';
 import {
   getCurrencyByCountry,
@@ -46,13 +46,7 @@ export function V2VendorWalletTab() {
   const [transactionFilter, setTransactionFilter] = useState<VendorTransactionFilter>('all');
   const [dateFilter, setDateFilter] = useState<DateFilter>('all');
 
-  const {data: walletProfile, isLoading} = useQuery({
-    queryKey: ['wallet-profile'],
-    queryFn: async () => {
-      const res = await api.get('/transactions/wallet');
-      return res.data;
-    },
-  });
+  const {data: walletProfile, isLoading} = useVendorWalletProfile();
 
   const {data: banksData} = useQuery({
     queryKey: ['paystack-banks', selectedCountry],

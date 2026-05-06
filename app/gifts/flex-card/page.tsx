@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { V2SendGiftCardModal } from '../../components/V2SendGiftCardModal';
+import { V2LoginPromptModal } from '../../components/V2LoginPromptModal';
 import { FlexCard3D, FlexCardVariant } from '../../gifts/components/FlexCardVariants';
 import { toast } from 'sonner';
 
@@ -40,6 +41,7 @@ export default function FlexCardPage() {
     }
   }, [card, selectedAmount, defaultAmount]);
   const [showGiftModal, setShowGiftModal] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
 
   const { toggleFavorite, isToggling } = useFavorites();
@@ -273,7 +275,13 @@ export default function FlexCardPage() {
 
                     <div className="space-y-4">
                       <button
-                          onClick={() => setShowGiftModal(true)}
+                          onClick={() => {
+                            if (!user) {
+                              setShowLoginPrompt(true);
+                            } else {
+                              setShowGiftModal(true);
+                            }
+                          }}
                           disabled={finalAmount < 500}
                           className="w-full h-16 v2-btn-primary rounded-2xl font-black text-lg shadow-2xl shadow-[var(--v2-primary)]/30 active:scale-[0.98] transition-all disabled:opacity-40 flex items-center justify-center gap-3"
                       >
@@ -292,6 +300,12 @@ export default function FlexCardPage() {
             open={showGiftModal}
             onOpenChange={setShowGiftModal}
             giftCard={flexCardPayload as any} 
+        />
+
+        <V2LoginPromptModal
+            open={showLoginPrompt}
+            onOpenChange={setShowLoginPrompt}
+            action="send a Flex Card"
         />
       </div>
   );

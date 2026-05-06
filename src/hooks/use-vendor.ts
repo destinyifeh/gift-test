@@ -20,3 +20,13 @@ export function useVendorWallet() {
     },
   });
 }
+
+export function useVendorWalletProfile() {
+  return useQuery({
+    queryKey: ['vendor-wallet-profile'],
+    queryFn: async () => {
+      const res = await api.get('/transactions/wallet');
+      return res.data;
+    },
+  });
+}
