@@ -19,8 +19,7 @@ model Transaction {
   creatorSupport     CreatorSupport?
   contribution       Contribution?
   withdrawal         Withdrawal?
-  featuredAd         FeaturedAd?
-  sponsoredAd        SponsoredAd?
+
   campaignWithdrawal CampaignWithdrawal?
 
   @@map("transactions")

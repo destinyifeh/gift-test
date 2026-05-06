@@ -3,7 +3,7 @@ export {V2SentGiftsTab} from './V2SentGiftsTab';
 export {V2ReceivedGiftsTab} from './V2ReceivedGiftsTab';
 export {V2MyGiftsTab} from './V2MyGiftsTab';
 export {V2ContributionsTab} from './V2ContributionsTab';
-export {V2FavoritesTab} from './V2FavoritesTab';
+
 export {V2MyCampaignsTab} from './V2MyCampaignsTab';
 export {V2WalletTab} from './V2WalletTab';
 export {V2SettingsTab} from './V2SettingsTab';
@@ -11,4 +11,5 @@ export {V2GiftPageTab} from './V2GiftPageTab';
 export {V2SupportersTab} from './V2SupportersTab';
 export {V2AnalyticsTab} from './V2AnalyticsTab';
 export {V2CreatorWalletTab} from './V2CreatorWalletTab';
+export {V2FavoritesTab} from './V2FavoritesTab';
 export * from './V2CreatorSettingsTab';

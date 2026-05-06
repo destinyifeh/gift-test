@@ -26,65 +26,7 @@ function slugify(text: string) {
 async function main() {
   console.log('Starting seed...');
 
-  console.log('Cleaning up old categories...');
-  const activeCategoryNames = catalogData.map(c => c.name);
-  const deleteResult = await prisma.productCategory.deleteMany({
-    where: {
-      name: {
-        notIn: activeCategoryNames
-      }
-    }
-  });
-  console.log(`  Removed ${deleteResult.count} legacy categories.`);
-
-  for (const cat of catalogData) {
-    console.log(`Seeding category: ${cat.name}`);
-    const category = await prisma.productCategory.upsert({
-      where: { name: cat.name },
-      update: {},
-      create: {
-        name: cat.name,
-        slug: slugify(cat.name),
-      },
-    });
-
-    for (const sub of cat.subcategories) {
-      console.log(`  Seeding subcategory: ${sub.name}`);
-      const subcategory = await prisma.productSubcategory.upsert({
-        where: {
-          categoryId_name: {
-            categoryId: category.id,
-            name: sub.name,
-          },
-        },
-        update: {},
-        create: {
-          categoryId: category.id,
-          name: sub.name,
-          slug: slugify(sub.name),
-        },
-      });
-
-      for (const tagName of sub.tags) {
-        console.log(`    Seeding tag: ${tagName}`);
-        await prisma.productTag.upsert({
-          where: {
-            subcategoryId_name: {
-              subcategoryId: subcategory.id,
-              name: tagName,
-            },
-          },
-          update: {},
-          create: {
-            subcategoryId: subcategory.id,
-            name: tagName,
-            slug: slugify(tagName),
-          },
-        });
-      }
-    }
-  }
-
+  console.log('Skipping legacy catalog seed: models removed.');
   console.log('Seed completed successfully!');
 }
 

@@ -72,7 +72,7 @@ export async function createFeaturedItem(data: FeaturedItemCreateData) {
       body: JSON.stringify(data),
     });
     
-    revalidatePath('/gift-shop');
+    revalidatePath('/gifts');
     revalidatePath('/');
     revalidatePath('/admin');
     
@@ -90,7 +90,7 @@ export async function updateFeaturedItem(id: number, data: FeaturedItemUpdateDat
       body: JSON.stringify(data),
     });
     
-    revalidatePath('/gift-shop');
+    revalidatePath('/gifts');
     revalidatePath('/');
     revalidatePath('/admin');
     
@@ -107,7 +107,7 @@ export async function deleteFeaturedItem(id: number) {
       method: 'DELETE',
     });
     
-    revalidatePath('/gift-shop');
+    revalidatePath('/gifts');
     revalidatePath('/');
     revalidatePath('/admin');
     

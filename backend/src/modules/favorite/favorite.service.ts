@@ -1,68 +1,59 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class FavoriteService {
   constructor(private prisma: PrismaService) {}
 
-  async toggle(userId: string, vendorGiftId: number) {
-    const existing = await ((this.prisma as any).favorite as any).findUnique({
-      where: { userId_vendorGiftId: { userId, vendorGiftId } },
+  async toggleFavorite(userId: string, giftCardId: number) {
+    const existing = await (this.prisma as any).favorite.findUnique({
+      where: {
+        userId_giftCardId: {
+          userId,
+          giftCardId,
+        },
+      },
     });
 
-
     if (existing) {
-      await (this.prisma as any).favorite.delete({ where: { id: existing.id } });
-      return { success: true, wasAdded: false };
-    } else {
-      // Check if product exists first
-      const product = await (this.prisma as any).vendorGift.findUnique({ where: { id: vendorGiftId } });
-      if (!product) throw new NotFoundException('Product not found');
-
-      await ((this.prisma as any).favorite as any).create({
-        data: { userId, vendorGiftId },
+      await (this.prisma as any).favorite.delete({
+        where: { id: existing.id },
       });
-
-      return { success: true, wasAdded: true };
+      return { favorited: false };
+    } else {
+      await (this.prisma as any).favorite.create({
+        data: { userId, giftCardId },
+      });
+      return { favorited: true };
     }
   }
 
-  async fetchUserFavorites(userId: string) {
+  async getUserFavorites(userId: string) {
     const favorites = await (this.prisma as any).favorite.findMany({
       where: { userId },
-      orderBy: { createdAt: 'desc' },
       include: {
-        vendorGift: {
-          include: {
-            vendor: {
-              select: {
-                businessName: true,
-                displayName: true,
-                businessSlug: true,
-                country: true,
-              },
-            },
-          },
-        },
+        giftCard: true,
       },
-    } as any);
-
+      orderBy: { createdAt: 'desc' },
+    });
 
     return favorites.map((f: any) => ({
-      favoriteId: f.id,
-      ...f.vendorGift,
-      price: f.vendorGift.price.toString(),
-      businessSlug: f.vendorGift.vendor.businessSlug,
-      productShortId: f.vendorGift.productShortId,
-      vendor: f.vendorGift.vendor.businessName || f.vendorGift.vendor.displayName || 'Vendor',
+      ...f.giftCard,
+      minAmount: f.giftCard.minAmount.toString(),
+      maxAmount: f.giftCard.maxAmount.toString(),
+      serviceFeePercent: f.giftCard.serviceFeePercent.toString(),
     }));
   }
 
-  async checkIsFavorited(userId: string, vendorGiftId: number): Promise<boolean> {
-    const existing = await ((this.prisma as any).favorite as any).findUnique({
-      where: { userId_vendorGiftId: { userId, vendorGiftId } },
+  async isFavorited(userId: string, giftCardId: number) {
+    const favorite = await (this.prisma as any).favorite.findUnique({
+      where: {
+        userId_giftCardId: {
+          userId,
+          giftCardId,
+        },
+      },
     });
-
-    return !!existing;
+    return !!favorite;
   }
 }

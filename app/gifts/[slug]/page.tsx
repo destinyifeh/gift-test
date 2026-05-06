@@ -4,19 +4,21 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useGiftCardBySlug, useGiftCards } from '@/hooks/use-gift-cards';
+import { useFavorites, useIsFavorited } from '@/hooks/use-favorites';
+
 import { cn } from '@/lib/utils';
 import { V2SendGiftCardModal } from '../../components/V2SendGiftCardModal';
-import { FlexCard3D } from '../../gift-shop/components/FlexCardVariants';
-import { GiftCard3D } from '../../gift-shop/components/GiftCardVariants';
+import { FlexCard3D } from '../../gifts/components/FlexCardVariants';
+import { GiftCard3D } from '../../gifts/components/GiftCardVariants';
 import { toast } from 'sonner';
-import { useFavorites, useIsFavorited } from '@/hooks/use-favorites';
+
 import { useUserStore } from '@/lib/store/useUserStore';
 import { useProfile } from '@/hooks/use-profile';
 import { formatCurrency } from '@/lib/utils/currency';
 import { getCurrencyByCountry } from '@/lib/currencies';
 import { V2VendorDiscovery } from '../../components/V2VendorDiscovery';
 import { GifthanceLogo } from '@/components/GifthanceLogo';
-import { Gift } from 'lucide-react';
+import { Gift, Heart, Share2 } from 'lucide-react';
 
 function RelatedCardItem({ card, isHovered, onHover }: { card: any; isHovered: boolean; onHover: (id: number | null) => void }) {
   const minAmount = Math.min(...(card.amountOptions as number[] || [0]));
@@ -132,6 +134,7 @@ export default function GiftCardDetailPage() {
 
   const {toggleFavorite, isToggling} = useFavorites();
   const {data: isFavorited} = useIsFavorited(card?.id);
+
   const user = useUserStore(state => state.user);
   const { data: profile } = useProfile();
   const avatarUrl = profile?.avatar_url;
@@ -223,6 +226,7 @@ export default function GiftCardDetailPage() {
               <Link href="/send-gift" className="text-[var(--v2-on-surface-variant)] hover:text-[var(--v2-primary)] transition-colors text-sm">
                 Send Gift
               </Link>
+              
               <Link href="/dashboard" className="flex items-center text-[var(--v2-primary)] hover:opacity-80 transition-opacity">
                 {avatarUrl ? (
                   <div className="w-9 h-9 rounded-full overflow-hidden ring-2 ring-[var(--v2-primary)]/20 shadow-sm transition-transform hover:scale-105 active:scale-95">
@@ -249,9 +253,7 @@ export default function GiftCardDetailPage() {
             <GifthanceLogo size="sm" />
           </div>
           <h1 className="v2-headline text-lg font-bold text-[var(--v2-on-surface)]">Asset Details</h1>
-          <button onClick={onShare} className="w-10 h-10 rounded-xl bg-[var(--v2-surface-container-high)] flex items-center justify-center text-[var(--v2-primary)]">
-            <span className="v2-icon">share</span>
-          </button>
+          <div className="w-10" /> {/* Spacer for balance */}
         </header>
 
         <main className="pt-14 md:pt-24 pb-32 md:pb-16">
@@ -268,14 +270,15 @@ export default function GiftCardDetailPage() {
             
             {/* LEFT: PREMIUM CARD VISUAL (Cols 1-7) */}
             <div className="col-span-1 md:col-span-7 space-y-8">
-                <div className="w-full flex justify-center items-center pt-6 pb-2 md:pt-4 md:pb-16 overflow-visible relative min-h-[280px] md:min-h-[500px]">
+                <div className="w-full flex flex-col justify-center items-center pt-6 pb-6 md:pt-4 md:pb-10 overflow-visible relative min-h-[280px] md:min-h-[400px]">
                     <div className="w-[330px] sm:w-[360px] md:w-[460px] aspect-[1.586/1] relative z-20" style={{ perspective: '2000px' }}>
                     {card?.isFlexCard ? (
                       <FlexCard3D
                         variant="dynamic"
                         dynamicStyle={{
-                          colorFrom: card.colorFrom || '#1e1e1e',
-                          colorTo: card.colorTo || '#111111'
+                          colorFrom: card.colorFrom || '#d66514',
+                          colorMiddle: card.colorMiddle || undefined,
+                          colorTo: card.colorTo || '#b14902'
                         }}
                         isFlipped={isFlipped}
                         onFlipToggle={setIsFlipped}
@@ -300,11 +303,28 @@ export default function GiftCardDetailPage() {
                       />
                     )}
                   </div>
+                  <div className="flex items-center justify-center gap-4 mt-6">
+                     <button 
+                        onClick={handleFavoriteClick} 
+                        disabled={isToggling}
+                        className={cn(
+                          "w-14 h-14 rounded-2xl flex items-center justify-center transition-all border-2",
+                          isFavorited 
+                            ? "bg-[var(--v2-error-container)] border-[var(--v2-error)]/20 text-[var(--v2-error)] shadow-lg shadow-[var(--v2-error)]/10"
+                            : "bg-[var(--v2-surface-container-low)] border-[var(--v2-outline-variant)]/10 text-[var(--v2-on-surface-variant)] hover:bg-[var(--v2-surface-container-high)]"
+                        )}
+                      >
+                        <span className="v2-icon text-2xl" style={{ fontVariationSettings: isFavorited ? "'FILL' 1" : undefined }}>favorite</span>
+                     </button>
+                     <button onClick={onShare} className="w-14 h-14 rounded-2xl bg-[var(--v2-surface-container-low)] border border-[var(--v2-outline-variant)]/10 flex items-center justify-center text-[var(--v2-primary)] transition-colors hover:bg-[var(--v2-surface-container-high)]">
+                        <span className="v2-icon text-2xl">share</span>
+                     </button>
+                  </div>
                 </div>
 
-                {/* Related Assets Section (Taken up from bottom) */}
+                {/* Related Assets Section (Desktop Only) */}
                 {relatedCards.length > 0 && (
-                  <section className="pt-8 border-t border-[var(--v2-outline-variant)]/10">
+                  <section className="hidden md:block pt-8 border-t border-[var(--v2-outline-variant)]/10">
                       <div className="flex items-center justify-between mb-8">
                           <div>
                               <h2 className="v2-headline text-2xl font-black text-[var(--v2-on-background)] tracking-tight">You might also like</h2>
@@ -326,7 +346,7 @@ export default function GiftCardDetailPage() {
             </div>
 
             {/* RIGHT: INFO & SEND PANEL (Cols 8-12) */}
-            <div className="col-span-1 md:col-span-5 sticky top-28 space-y-8">
+            <div className="col-span-1 md:col-span-5 md:sticky md:top-28 space-y-8">
                 <div className="p-8 md:p-10 rounded-[3rem] bg-white shadow-xl border border-[var(--v2-outline-variant)]/20 space-y-8 mt-0 relative z-30">
                     <div className="space-y-4">
                         <div className="flex gap-2">
@@ -436,6 +456,26 @@ export default function GiftCardDetailPage() {
                     </div>
                 </div>
             </div>
+
+            {/* RELATED ASSETS (Mobile Only - Bottom) */}
+            {relatedCards.length > 0 && (
+              <div className="md:hidden col-span-1 mt-16 pt-10 border-t border-[var(--v2-outline-variant)]/10">
+                  <div className="mb-8">
+                      <h2 className="v2-headline text-3xl font-black text-[var(--v2-on-background)] tracking-tight">You might also like</h2>
+                      <p className="text-[var(--v2-on-surface-variant)] text-sm font-medium opacity-60">Discover similar gift assets</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-6">
+                      {relatedCards.map((rc: any) => (
+                          <RelatedCardItem 
+                              key={rc.slug} 
+                              card={rc}
+                              isHovered={hoveredRelatedCard === rc.id}
+                              onHover={setHoveredRelatedCard}
+                          />
+                      ))}
+                  </div>
+              </div>
+            )}
           </div>
         </main>
 

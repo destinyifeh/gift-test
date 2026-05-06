@@ -48,7 +48,13 @@ export class UserService {
       result.isVerifiedVendor = user.vendor.isVerified;
       result.vendorCategories = user.vendor.categories;
       result.vendorWallet = user.vendor.wallet.toString();
-      result.acceptedGiftCards = user.vendor.acceptedCards;
+      result.acceptedGiftCards = user.vendor.acceptedCards.map((gc: any) => gc.giftCardId);
+      result.businessAddress = user.vendor.streetAddress;
+      result.businessStreet = user.vendor.streetAddress;
+      result.businessCity = user.vendor.city;
+      result.businessState = user.vendor.state;
+      result.businessCountry = user.vendor.country;
+      result.businessZip = user.vendor.postalCode;
     }
 
     if (user.creator && user.isCreator) {
@@ -80,7 +86,13 @@ export class UserService {
         ],
       },
       include: {
-        vendor: true,
+        vendor: {
+          include: {
+            acceptedCards: {
+              select: { giftCardId: true }
+            }
+          }
+        },
         creator: true,
         admin: true
       }
@@ -99,6 +111,13 @@ export class UserService {
       result.businessSlug = user.vendor.businessSlug;
       result.businessLogoUrl = user.vendor.businessLogoUrl;
       result.vendorWallet = user.vendor.wallet.toString();
+      result.businessAddress = user.vendor.streetAddress;
+      result.businessStreet = user.vendor.streetAddress;
+      result.businessCity = user.vendor.city;
+      result.businessState = user.vendor.state;
+      result.businessCountry = user.vendor.country;
+      result.businessZip = user.vendor.postalCode;
+      result.acceptedGiftCards = user.vendor.acceptedCards.map((gc: any) => gc.giftCardId);
     }
 
     if (user.creator && user.isCreator) {
@@ -165,6 +184,7 @@ export class UserService {
     const { 
       acceptedGiftCards, businessName, businessDescription, businessSlug, businessLogoUrl, 
       bannerUrl, vendorStatus, isVerifiedVendor, vendorCategories, 
+      businessStreet, businessCity, businessState, businessCountry, businessZip,
       username, bio, socialLinks, themeSettings, isCreator,
       ...restUpdates 
     } = updates;
@@ -232,6 +252,12 @@ export class UserService {
       if (vendorStatus !== undefined) vendorUpdates.status = vendorStatus;
       if (isVerifiedVendor !== undefined) vendorUpdates.isVerified = isVerifiedVendor;
       if (vendorCategories !== undefined) vendorUpdates.categories = vendorCategories;
+      
+      if (businessStreet !== undefined) vendorUpdates.streetAddress = businessStreet;
+      if (businessCity !== undefined) vendorUpdates.city = businessCity;
+      if (businessState !== undefined) vendorUpdates.state = businessState;
+      if (businessCountry !== undefined) vendorUpdates.country = businessCountry;
+      if (businessZip !== undefined) vendorUpdates.postalCode = businessZip;
 
       let vendor: any = null;
       if (Object.keys(vendorUpdates).length > 0 || updatedUser.roles.includes('vendor')) {

@@ -4,7 +4,7 @@ import {cn} from '@/lib/utils';
 import {formatCurrency} from '@/lib/utils/currency';
 import {QRCodeSVG} from 'qrcode.react';
 import {useState} from 'react';
-import {FlexCard3D} from '../gift-shop/components/FlexCardVariants';
+import {FlexCard3D} from '../gifts/components/FlexCardVariants';
 
 export type FlexCardStatus = 'active' | 'partially_used' | 'redeemed';
 

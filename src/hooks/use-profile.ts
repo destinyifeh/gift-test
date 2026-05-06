@@ -50,7 +50,7 @@ export function useProfile() {
         user_wallet: Number(user.userWallet) || 0,
         wallet: user.wallet || '0', // creator wallet (from creator.wallet)
         bank_accounts: accounts || [],
-        vendor_accepted_gift_cards: user.acceptedGiftCards?.map((g: any) => g.giftCardId) || [],
+        vendor_accepted_gift_cards: user.acceptedGiftCards || [],
         created_at: user.createdAt,
       };
     },
@@ -132,7 +132,8 @@ export function useProfileByShopSlug(businessSlug: string | null) {
         business_zip: user.businessZip || null,
         business_slug: user.businessSlug || null,
         business_logo_url: user.businessLogoUrl || null,
-        accepted_gift_cards: user.acceptedGiftCards ? user.acceptedGiftCards.map((gc: { type: string }) => gc.type) : [],
+        is_verified: user.isVerifiedVendor === true,
+        accepted_gift_cards: user.acceptedGiftCards || [],
         bank_accounts: user.bankAccounts || [],
         created_at: user.createdAt,
       };

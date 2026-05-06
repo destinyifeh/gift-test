@@ -37,7 +37,7 @@ interface MenuItem {
 const menuItems: MenuItem[] = [
   {id: 'contributions', label: 'My Contributions', icon: Send},
   {id: 'campaigns', label: 'My Campaigns', icon: Users},
-  {id: 'favorites', label: 'Favorites', icon: Star},
+  // {id: 'favorites', label: 'Favorites', icon: Star},
   {id: 'settings', label: 'Settings', icon: Settings},
 ];
 
@@ -114,7 +114,7 @@ export function MoreDrawer({open, onOpenChange, onNavigate}: MoreDrawerProps) {
           {/* Quick Links - Gift Shop & Campaigns */}
           <div className="grid grid-cols-2 gap-2">
             <Link
-              href="/gift-shop"
+              href="/gifts"
               onClick={() => onOpenChange(false)}
               className={cn(
                 'flex flex-col items-center gap-2 p-4 rounded-xl',
@@ -125,7 +125,7 @@ export function MoreDrawer({open, onOpenChange, onNavigate}: MoreDrawerProps) {
                 <ShoppingBag className="w-5 h-5 text-primary" />
               </div>
               <span className="text-sm font-medium text-foreground">
-                Gift Shop
+                Gifts Hub
               </span>
             </Link>
             <Link

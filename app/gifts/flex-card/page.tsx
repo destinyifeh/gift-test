@@ -5,19 +5,19 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { V2SendGiftCardModal } from '../../components/V2SendGiftCardModal';
-import { FlexCard3D, FlexCardVariant } from '../../gift-shop/components/FlexCardVariants';
+import { FlexCard3D, FlexCardVariant } from '../../gifts/components/FlexCardVariants';
 import { toast } from 'sonner';
-import { useFavorites, useIsFavorited } from '@/hooks/use-favorites';
+
 import { useUserStore } from '@/lib/store/useUserStore';
 import { formatCurrency } from '@/lib/utils/currency';
 import { getCurrencyByCountry } from '@/lib/currencies';
 
 import { useGiftCardBySlug } from '@/hooks/use-gift-cards';
+import { useFavorites, useIsFavorited } from '@/hooks/use-favorites';
 import { V2VendorDiscovery } from '../../components/V2VendorDiscovery';
 import { GifthanceLogo } from '@/components/GifthanceLogo';
 import { useProfile } from '@/hooks/use-profile';
-
-const AMOUNT_TIERS = [1500, 3000, 5000, 10000];
+import { Heart, Share2 } from 'lucide-react';
 
 export default function FlexCardPage() {
   const router = useRouter();
@@ -28,14 +28,22 @@ export default function FlexCardPage() {
     .charAt(0)
     .toUpperCase();
 
-  const [selectedVariant, setSelectedVariant] = useState<FlexCardVariant>('orange');
-  const [selectedAmount, setSelectedAmount] = useState<number | null>(AMOUNT_TIERS[1]); // Default 3000
+  const activeTiers = card?.amountOptions?.length ? card.amountOptions : [1500, 3000, 5000, 10000];
+  const defaultAmount = activeTiers[1] || 3000;
+
+  const [selectedAmount, setSelectedAmount] = useState<number | null>(null); // Default set via effect
   const [customAmount, setCustomAmount] = useState('');
+
+  useEffect(() => {
+    if (card && selectedAmount === null) {
+      setSelectedAmount(defaultAmount);
+    }
+  }, [card, selectedAmount, defaultAmount]);
   const [showGiftModal, setShowGiftModal] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
 
-  const {toggleFavorite, isToggling} = useFavorites();
-  const {data: isFavorited} = useIsFavorited(card?.id || 999999); 
+  const { toggleFavorite, isToggling } = useFavorites();
+  const { data: isFavorited } = useIsFavorited(card?.id); 
   const user = useUserStore(state => state.user);
   const currency = getCurrencyByCountry('Nigeria');
 
@@ -68,7 +76,7 @@ export default function FlexCardPage() {
     }
   };
 
-  const finalAmount = selectedAmount || Number(customAmount) || 0;
+  const finalAmount = selectedAmount || Number(customAmount) || defaultAmount;
 
   // The Flex Card details for modal payload (mocked structure since this is a dynamic asset)
   const flexCardPayload = {
@@ -123,12 +131,10 @@ export default function FlexCardPage() {
             <GifthanceLogo size="sm" />
           </div>
           <h1 className="v2-headline text-lg font-bold text-[var(--v2-on-surface)]">Flex Card</h1>
-          <button onClick={onShare} className="w-10 h-10 rounded-xl bg-[var(--v2-surface-container-high)] flex items-center justify-center text-[var(--v2-primary)]">
-            <span className="v2-icon">share</span>
-          </button>
+          <div className="w-10" /> {/* Spacer for balance */}
         </header>
 
-        <main className="pt-10 md:pt-24 pb-32 md:pb-16">
+        <main className="pt-14 md:pt-24 pb-32 md:pb-16">
           {/* Desktop Breadcrumbs */}
           <nav className="hidden md:flex items-center gap-2 mb-8 text-[var(--v2-on-surface-variant)] text-sm px-6 max-w-7xl mx-auto font-bold uppercase tracking-widest opacity-60">
             <Link href="/gifts" className="hover:text-[var(--v2-primary)]">Gifts</Link>
@@ -140,10 +146,15 @@ export default function FlexCardPage() {
             
             {/* LEFT: PREMIUM CARD VISUAL (Cols 1-7) */}
             <div className="col-span-1 md:col-span-7 space-y-4 md:space-y-10">
-                <div className="w-full flex justify-center items-center pt-0 pb-6 md:pt-4 md:pb-16 overflow-visible relative min-h-[280px] md:min-h-[480px]">
+                <div className="w-full flex flex-col justify-center items-center pt-6 pb-0 md:pt-4 md:pb-0 overflow-visible relative min-h-[280px] md:min-h-[380px]">
                     <div className="w-[330px] sm:w-[360px] md:w-[460px] aspect-[1.586/1] relative z-20" style={{ perspective: '2000px' }}>
                         <FlexCard3D 
-                            variant={selectedVariant}
+                            variant="dynamic"
+                            dynamicStyle={{
+                              colorFrom: card?.colorFrom || '#d66514',
+                              colorMiddle: card?.colorMiddle || undefined,
+                              colorTo: card?.colorTo || '#b14902'
+                            }}
                             isFlipped={isFlipped}
                             onFlipToggle={setIsFlipped}
                             amount={finalAmount}
@@ -151,33 +162,26 @@ export default function FlexCardPage() {
                         />
                     </div>
 
-                    {/* Centered Style Selectors */}
-                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex items-center gap-4 z-30">
-                        {[
-                          { id: 'orange', name: 'Sunset', color: 'bg-[#d66514]' },
-                          { id: 'emerald', name: 'Emerald', color: 'bg-[#1a3d2e]' },
-                        ].map((v) => (
-                          <div key={v.id} className="relative group">
-                            <button 
-                                onClick={() => setSelectedVariant(v.id as FlexCardVariant)}
-                                className={cn(
-                                    "w-10 h-10 rounded-full border-2 transition-all duration-300 relative z-10",
-                                    selectedVariant === v.id 
-                                      ? "border-[var(--v2-primary)] scale-110 shadow-lg shadow-[var(--v2-primary)]/20" 
-                                      : "border-transparent opacity-60 hover:opacity-100 hover:scale-105"
-                                )}
-                                title={v.name}
-                            >
-                                <div className={cn("w-full h-full rounded-full border-2 border-white shadow-inner", v.color)} />
-                            </button>
-                            {selectedVariant === v.id && (
-                                <div className="absolute inset-0 -m-1.5 rounded-full border border-[var(--v2-primary)]/30 animate-pulse" />
-                            )}
-                          </div>
-                        ))}
-                    </div>
                 </div>
 
+                {/* Favorite & Share Buttons (Below Card) */}
+                <div className="flex items-center justify-center gap-4 mt-2">
+                   <button 
+                      onClick={handleFavoriteClick} 
+                      disabled={isToggling}
+                      className={cn(
+                        "w-14 h-14 rounded-2xl flex items-center justify-center transition-all border-2",
+                        isFavorited 
+                          ? "bg-[var(--v2-error-container)] border-[var(--v2-error)]/20 text-[var(--v2-error)] shadow-lg shadow-[var(--v2-error)]/10"
+                          : "bg-[var(--v2-surface-container-low)] border-[var(--v2-outline-variant)]/10 text-[var(--v2-on-surface-variant)] hover:bg-[var(--v2-surface-container-high)]"
+                      )}
+                    >
+                      <Heart className={cn("w-6 h-6", isFavorited && "fill-current")} />
+                   </button>
+                   <button onClick={onShare} className="w-14 h-14 rounded-2xl bg-[var(--v2-surface-container-low)] border border-[var(--v2-outline-variant)]/10 flex items-center justify-center text-[var(--v2-primary)] transition-colors hover:bg-[var(--v2-surface-container-high)]">
+                      <Share2 className="w-6 h-6" />
+                   </button>
+                </div>
             </div>
 
             {/* RIGHT: INFO & SEND PANEL (Cols 8-12) */}
@@ -190,7 +194,7 @@ export default function FlexCardPage() {
                         {/* Branded Usage Info Banner */}
                         <div
                           className="rounded-xl p-4 text-white"
-                          style={{ background: 'linear-gradient(135deg, #d66514, #b14902)' }}>
+                          style={{ background: `linear-gradient(135deg, ${card?.colorFrom || '#d66514'}, ${card?.colorMiddle ? `${card.colorMiddle}, ` : ''}${card?.colorTo || '#b14902'})` }}>
                           <div className="flex items-center gap-2 mb-1">
                             <span className="v2-icon" style={{ fontVariationSettings: "'FILL' 1" }}>
                               card_giftcard
@@ -235,7 +239,7 @@ export default function FlexCardPage() {
                     <div className="space-y-4">
                         <label className="text-[11px] font-black uppercase tracking-widest text-[var(--v2-on-surface-variant)] opacity-60 ml-1">Select Card value</label>
                         <div className="grid grid-cols-2 gap-3">
-                            {AMOUNT_TIERS.map((amt) => (
+                            {activeTiers.map((amt: number) => (
                                 <button
                                     key={amt}
                                     onClick={() => { setSelectedAmount(amt); setCustomAmount(''); }}

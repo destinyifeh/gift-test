@@ -24,7 +24,7 @@ export default function V2AdminGiftCardsTab() {
   const openCreate = () => {
     setEditingCard({
       name: '', slug: '', description: '', category: 'food', icon: 'redeem',
-      colorFrom: '#6366F1', colorTo: '#4F46E5', amountOptions: [1000, 3000, 5000, 10000],
+      colorFrom: '#6366F1', colorMiddle: '', colorTo: '#4F46E5', amountOptions: [1000, 3000, 5000, 10000],
       allowCustomAmount: true, minAmount: 500, maxAmount: 500000, currency: 'NGN',
       serviceFeePercent: 4, status: 'draft', isFlexCard: false, usageDescription: '',
       displayOrder: 0,
@@ -33,7 +33,10 @@ export default function V2AdminGiftCardsTab() {
   };
 
   const openEdit = (card: any) => {
-    setEditingCard({ ...card });
+    setEditingCard({
+      ...card,
+      colorMiddle: card.colorMiddle || card.color_middle || (card.isFlexCard ? '#e8771a' : '') 
+    });
     setShowModal(true);
   };
 
@@ -42,6 +45,7 @@ export default function V2AdminGiftCardsTab() {
     const payload = { ...editingCard };
     delete payload.createdAt;
     delete payload.updatedAt;
+    if (!payload.colorMiddle) payload.colorMiddle = null;
 
     if (editingCard.id) {
       await updateMutation.mutateAsync({ id: editingCard.id, data: payload });
@@ -124,7 +128,7 @@ export default function V2AdminGiftCardsTab() {
             <div key={card.id} className="rounded-2xl bg-[var(--v2-surface-container-lowest)] overflow-hidden border border-[var(--v2-outline-variant)]/10">
               <div
                 className="h-20 flex items-end p-3"
-                style={{ background: `linear-gradient(135deg, ${card.colorFrom || '#6366F1'}, ${card.colorTo || '#4F46E5'})` }}
+                style={{ background: `linear-gradient(135deg, ${card.colorFrom || '#6366F1'}, ${card.colorMiddle ? `${card.colorMiddle}, ` : ''}${card.colorTo || '#4F46E5'})` }}
               >
                 <div className="flex items-center gap-2 text-white">
                   <span className="v2-icon text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>{card.icon || 'redeem'}</span>
@@ -178,7 +182,7 @@ export default function V2AdminGiftCardsTab() {
 
             {/* Preview */}
             <div className="h-24 rounded-2xl overflow-hidden flex items-end p-4 text-white"
-              style={{ background: `linear-gradient(135deg, ${editingCard.colorFrom}, ${editingCard.colorTo})` }}>
+              style={{ background: `linear-gradient(135deg, ${editingCard.colorFrom}, ${editingCard.colorMiddle ? `${editingCard.colorMiddle}, ` : ''}${editingCard.colorTo})` }}>
               <div className="flex items-center gap-2">
                 <span className="v2-icon text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>{editingCard.icon || 'redeem'}</span>
                 <span className="font-bold">{editingCard.name || 'Gift Card Name'}</span>
@@ -209,19 +213,28 @@ export default function V2AdminGiftCardsTab() {
             <ModalField label="Icon (Material icon name)" value={editingCard.icon} onChange={v => updateField('icon', v)} />
             <ModalField label="Usage Description" value={editingCard.usageDescription} onChange={v => updateField('usageDescription', v)} />
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className={cn("grid gap-3", editingCard.isFlexCard ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-2")}>
               <div>
                 <label className="text-[10px] uppercase font-bold text-[var(--v2-on-surface-variant)] block mb-1">Color From</label>
                 <div className="flex gap-2 items-center">
-                  <input type="color" value={editingCard.colorFrom} onChange={e => updateField('colorFrom', e.target.value)} className="w-8 h-8 rounded-lg border-none cursor-pointer" />
-                  <input value={editingCard.colorFrom} onChange={e => updateField('colorFrom', e.target.value)} className="flex-1 h-9 px-3 bg-[var(--v2-surface-container-low)] rounded-xl border-none text-sm" />
+                  <input type="color" value={editingCard.colorFrom} onChange={e => updateField('colorFrom', e.target.value)} className="w-8 h-8 shrink-0 rounded-lg border border-[var(--v2-outline-variant)]/20 cursor-pointer" />
+                  <input value={editingCard.colorFrom} onChange={e => updateField('colorFrom', e.target.value)} className="flex-1 min-w-0 h-9 px-3 bg-[var(--v2-surface-container-low)] rounded-xl border-none text-sm" />
                 </div>
               </div>
+              {editingCard.isFlexCard && (
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-[var(--v2-on-surface-variant)] block mb-1">Color Mid (Optional)</label>
+                  <div className="flex gap-2 items-center">
+                    <input type="color" value={editingCard.colorMiddle || '#e8771a'} onChange={e => updateField('colorMiddle', e.target.value)} className="w-8 h-8 shrink-0 rounded-lg border border-[var(--v2-outline-variant)]/20 cursor-pointer" />
+                    <input value={editingCard.colorMiddle || ''} onChange={e => updateField('colorMiddle', e.target.value)} placeholder="Hex Code" className="flex-1 min-w-0 h-9 px-3 bg-[var(--v2-surface-container-low)] rounded-xl border-none text-sm" />
+                  </div>
+                </div>
+              )}
               <div>
                 <label className="text-[10px] uppercase font-bold text-[var(--v2-on-surface-variant)] block mb-1">Color To</label>
                 <div className="flex gap-2 items-center">
-                  <input type="color" value={editingCard.colorTo} onChange={e => updateField('colorTo', e.target.value)} className="w-8 h-8 rounded-lg border-none cursor-pointer" />
-                  <input value={editingCard.colorTo} onChange={e => updateField('colorTo', e.target.value)} className="flex-1 h-9 px-3 bg-[var(--v2-surface-container-low)] rounded-xl border-none text-sm" />
+                  <input type="color" value={editingCard.colorTo} onChange={e => updateField('colorTo', e.target.value)} className="w-8 h-8 shrink-0 rounded-lg border border-[var(--v2-outline-variant)]/20 cursor-pointer" />
+                  <input value={editingCard.colorTo} onChange={e => updateField('colorTo', e.target.value)} className="flex-1 min-w-0 h-9 px-3 bg-[var(--v2-surface-container-low)] rounded-xl border-none text-sm" />
                 </div>
               </div>
             </div>

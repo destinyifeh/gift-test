@@ -6,6 +6,7 @@ model GiftCard {
   category         String   // food, fashion, electronics, shopping, lifestyle, everyday, occasions, brand, gadgets, location
   icon             String?  // Material icon name
   colorFrom        String?  @map("color_from")  // gradient start hex
+  colorMiddle      String?  @map("color_middle") // gradient middle hex (optional tritone stop)
   colorTo          String?  @map("color_to")    // gradient end hex
   imageUrl         String?  @map("image_url")
   amountOptions    Json     @default("[]") // e.g. [1000, 3000, 5000, 10000]
@@ -26,8 +27,8 @@ model GiftCard {
 
   vendors VendorAcceptedGiftCard[]
   directGifts DirectGift[]
-  campaigns   Campaign[]
   userGiftCards UserGiftCard[]
+  favorites     Favorite[]
 
   @@map("gift_cards")
 }

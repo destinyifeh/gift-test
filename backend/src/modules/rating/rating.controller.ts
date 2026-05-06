@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Param, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Req } from '@nestjs/common';
 import { RatingService } from './rating.service';
 import { AuthGuard } from '../../common/guards/auth.guard';
 
@@ -7,27 +7,16 @@ export class RatingController {
   constructor(private readonly ratingService: RatingService) {}
 
   @UseGuards(AuthGuard)
-  @Post('voucher')
-  async rateVoucher(
+  @Post('vendor')
+  async rateVendor(
     @Req() req: any,
-    @Body('campaignId') campaignId: string,
-    @Body('rating') rating: number,
+    @Body() data: { vendorId: string; rating: number; comment?: string },
   ) {
-    return this.ratingService.rateVoucherGift(req.user.id, campaignId, rating);
-  }
-
-  @UseGuards(AuthGuard)
-  @Post('support')
-  async rateSupport(
-    @Req() req: any,
-    @Body('supportId') supportId: string,
-    @Body('rating') rating: number,
-  ) {
-    return this.ratingService.rateSupportGift(req.user.id, supportId, rating);
+    return this.ratingService.submitVendorRating(req.user.id, data.vendorId, data.rating, data.comment);
   }
 
   @Get('vendor/:vendorId')
-  async getVendorStats(@Param('vendorId') vendorId: string) {
-    return this.ratingService.getVendorRatingStats(vendorId);
+  async getVendorRating(@Param('vendorId') vendorId: string) {
+    return this.ratingService.getVendorRating(vendorId);
   }
 }

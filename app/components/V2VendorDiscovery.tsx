@@ -10,6 +10,7 @@ import api from '@/lib/api-client';
 import {useQuery} from '@tanstack/react-query';
 import {Compass, MapPin, Search, Store} from 'lucide-react';
 import {useEffect, useState} from 'react';
+import {useRouter} from 'next/navigation';
 
 interface Vendor {
   id: string;
@@ -36,6 +37,7 @@ export function V2VendorDiscovery({
   title = 'Where to use your gift ',
   variant = 'carousel',
 }: VendorDiscoveryProps) {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userLocation, setUserLocation] = useState<{
@@ -159,8 +161,7 @@ export function V2VendorDiscovery({
                     <div
                       key={vendor.id}
                       onClick={() => {
-                        const query = encodeURIComponent(`${vendor.businessName} ${vendor.businessCity} ${vendor.businessState}`);
-                        window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+                        router.push(`/vendor/${vendor.businessSlug}`);
                       }}
                       className="p-3.5 rounded-2xl bg-[var(--v2-surface-container-low)]/50 border border-[var(--v2-outline-variant)]/20 hover:border-[var(--v2-primary)]/30 hover:bg-[var(--v2-surface-container-low)] transition-all flex items-center gap-4 group cursor-pointer shadow-sm active:scale-[0.98]">
                       {/* Mini Logo */}
@@ -180,13 +181,14 @@ export function V2VendorDiscovery({
                         <h4 className="text-sm font-bold text-[var(--v2-on-surface)] truncate group-hover:text-[var(--v2-primary)] transition-colors">
                           {vendor.businessName}
                         </h4>
-                        <div className="flex items-center gap-1 text-[10px] font-medium text-[var(--v2-on-surface-variant)] mt-0.5">
+                        <div className="flex items-center gap-1.5 text-[10px] font-medium text-[var(--v2-on-surface-variant)] mt-0.5">
                           <MapPin className="w-3 h-3 text-[var(--v2-secondary)]" />
                           <span className="truncate opacity-80">
                             {vendor.businessCity}, {vendor.businessState}
                           </span>
                         </div>
                       </div>
+
 
                       <div className="v2-icon text-[var(--v2-on-surface-variant)] opacity-50 group-hover:opacity-100 transition-opacity pr-1">
                         chevron_right
@@ -252,8 +254,7 @@ export function V2VendorDiscovery({
                     <div
                       key={vendor.id}
                       onClick={() => {
-                        const query = encodeURIComponent(`${vendor.businessName} ${vendor.businessCity} ${vendor.businessState}`);
-                        window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+                        router.push(`/vendor/${vendor.businessSlug}`);
                       }}
                       className="p-4 rounded-2xl bg-[var(--v2-surface-container-lowest)] border border-[var(--v2-outline-variant)]/40 hover:border-[var(--v2-primary)]/50 transition-all flex flex-col gap-3 group cursor-pointer shadow-sm hover:shadow-lg hover:shadow-[var(--v2-primary)]/5">
                     <div className="flex gap-4 items-center">
@@ -306,6 +307,7 @@ export function V2VendorDiscovery({
             </div>
           </ResponsiveModalContent>
         </ResponsiveModal>
+
       </>
     );
   }
@@ -345,6 +347,9 @@ export function V2VendorDiscovery({
             filteredVendors.map(vendor => (
               <div
                 key={vendor.id}
+                onClick={() => {
+                  router.push(`/vendor/${vendor.businessSlug}`);
+                }}
                 className="min-w-[300px] md:min-w-[340px] p-5 bg-[var(--v2-surface-container-lowest)] rounded-3xl border border-[var(--v2-outline-variant)]/40 hover:border-[var(--v2-primary)]/50 transition-all flex flex-col gap-4 group cursor-pointer shadow-sm hover:shadow-xl hover:shadow-[var(--v2-primary)]/10 hover:-translate-y-1">
                 <div className="flex gap-4 items-center">
                   <div className="w-14 h-14 rounded-2xl bg-[var(--v2-surface-container-low)] overflow-hidden flex-shrink-0 flex items-center justify-center border border-[var(--v2-outline-variant)]/20 group-hover:scale-105 transition-transform">

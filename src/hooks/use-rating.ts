@@ -1,37 +1,36 @@
 import api from '@/lib/api-client';
-import {useMutation, useQueryClient} from '@tanstack/react-query';
-import {toast} from 'sonner';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
-export function useRateVoucher() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({campaignId, rating}: {campaignId: string; rating: number}) => {
-      const res = await api.post('/ratings/voucher', {campaignId, rating});
+export function useRating() {
+  const qc = useQueryClient();
+
+  const submitVendorRating = useMutation({
+    mutationFn: async (data: { vendorId: string; rating: number; comment?: string }) => {
+      const res = await api.post('/ratings/vendor', data);
       return res.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: ['my-gifts']});
-      toast.success('Rating submitted!');
+    onSuccess: (_, variables) => {
+      qc.invalidateQueries({ queryKey: ['vendor-rating', variables.vendorId] });
+      toast.success('Rating submitted successfully');
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Failed to submit rating');
-    },
+    onError: (e: any) => toast.error(e.response?.data?.message || 'Failed to submit rating'),
   });
+
+  return {
+    submitVendorRating: (data: { vendorId: string; rating: number; comment?: string }) => submitVendorRating.mutate(data),
+    isSubmitting: submitVendorRating.isPending,
+  };
 }
 
-export function useRateSupport() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({supportId, rating}: {supportId: string; rating: number}) => {
-      const res = await api.post('/ratings/support', {supportId, rating});
+export function useVendorRating(vendorId?: string) {
+  return useQuery({
+    queryKey: ['vendor-rating', vendorId],
+    queryFn: async () => {
+      if (!vendorId) return { average: 0, count: 0 };
+      const res = await api.get(`/ratings/vendor/${vendorId}`);
       return res.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: ['received-gifts']});
-      toast.success('Rating submitted!');
-    },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Failed to submit rating');
-    },
+    enabled: !!vendorId,
   });
 }

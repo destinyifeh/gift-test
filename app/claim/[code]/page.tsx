@@ -10,8 +10,8 @@ import {useParams, useRouter} from 'next/navigation';
 import {useMemo, useState, useEffect} from 'react';
 import {toast} from 'sonner';
 import {V2VendorDiscovery} from '../../components/V2VendorDiscovery';
-import { GiftCard3D } from '../../gift-shop/components/GiftCardVariants';
-import { FlexCard3D } from '../../gift-shop/components/FlexCardVariants';
+import { GiftCard3D } from '../../gifts/components/GiftCardVariants';
+import { FlexCard3D } from '../../gifts/components/FlexCardVariants';
 
 export default function ClaimGiftPage() {
   const params = useParams();

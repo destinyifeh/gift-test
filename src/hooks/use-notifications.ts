@@ -16,20 +16,21 @@ export interface Notification {
 const mapNotification = (n: any) => ({
   ...n,
   user_id: n.userId,
-  is_read: n.isRead,
+  is_read: n.read,
   created_at: n.createdAt,
 });
 
 /**
  * Fetch notifications for the current user.
  */
-export function useNotifications(options?: {limit?: number; unreadOnly?: boolean}) {
+export function useNotifications(options?: {limit?: number; unreadOnly?: boolean; target?: string}) {
   return useQuery({
     queryKey: ['notifications', options],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (options?.limit) params.append('limit', String(options.limit));
       if (options?.unreadOnly) params.append('unreadOnly', 'true');
+      if (options?.target) params.append('target', options.target);
 
       const res = await api.get(`/notifications?${params.toString()}`);
       return res.data.map(mapNotification);
@@ -42,11 +43,13 @@ export function useNotifications(options?: {limit?: number; unreadOnly?: boolean
 /**
  * Get unread notification count.
  */
-export function useUnreadNotificationCount() {
+export function useUnreadNotificationCount(target?: string) {
   return useQuery({
-    queryKey: ['notifications', 'unread-count'],
+    queryKey: ['notifications', 'unread-count', target],
     queryFn: async () => {
-      const res = await api.get('/notifications/unread-count');
+      const params = new URLSearchParams();
+      if (target) params.append('target', target);
+      const res = await api.get(`/notifications/unread-count?${params.toString()}`);
       return res.data.count;
     },
     staleTime: 1000 * 30, // 30 seconds
@@ -74,12 +77,14 @@ export function useMarkNotificationAsRead() {
 /**
  * Mark all notifications as read.
  */
-export function useMarkAllNotificationsAsRead() {
+export function useMarkAllNotificationsAsRead(target?: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async () => {
-      const res = await api.patch('/notifications/read-all');
+      const params = new URLSearchParams();
+      if (target) params.append('target', target);
+      const res = await api.patch(`/notifications/read-all?${params.toString()}`);
       return res.data;
     },
     onSuccess: () => {

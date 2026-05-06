@@ -26,7 +26,7 @@ import {GiftCardListItem as GiftCardComponent, GiftCardModal} from '../../../com
 import {V2VendorDiscovery} from '../../../components/V2VendorDiscovery';
 import {Gift} from 'lucide-react';
 import {QRCodeSVG} from 'qrcode.react';
-import {GiftCard3D} from '../../../gift-shop/components/GiftCardVariants';
+import {GiftCard3D} from '../../../gifts/components/GiftCardVariants';
 
 type TransactionFilter = 'all' | 'gifts' | 'gift_cards' | 'flex_card' | 'withdrawals';
 type DateFilter = 'all' | 'week' | 'month' | '3months';

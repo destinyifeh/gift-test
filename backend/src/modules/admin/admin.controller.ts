@@ -3,7 +3,7 @@ import { AdminService } from './admin.service';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
-import { UserRole, AdminRole } from '../../generated/prisma';
+import { UserRole, AdminRole } from '@prisma/client';
 import type { Request } from 'express';
 
 @Controller('admin')
@@ -409,65 +409,6 @@ export class AdminController {
   ) {
     const adminId = (req as any).user.id;
     return this.adminService.updateVendorStatus(adminId, id, vendorStatus);
-  }
-
-  // ── Product Management ──
-  @Get('products')
-  async fetchProducts(
-    @Query('search') search?: string,
-    @Query('vendorId') vendorId?: string,
-    @Query('categoryId') categoryId?: string,
-    @Query('status') status?: string,
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
-  ) {
-    return this.adminService.fetchProductsAdmin({
-      search,
-      vendorId,
-      categoryId: categoryId ? Number(categoryId) : undefined,
-      status,
-      page: Number(page) || 1,
-      limit: Number(limit) || 20,
-    });
-  }
-
-  @Patch('products/:id/request-update')
-  async requestProductUpdate(
-    @Req() req: Request,
-    @Param('id') id: string,
-    @Body('reason') reason: string,
-  ) {
-    const adminId = (req as any).user.id;
-    return this.adminService.requestProductUpdateAdmin(adminId, Number(id), reason);
-  }
-
-  @Patch('products/:id')
-  async updateProductAdmin(
-    @Req() req: Request,
-    @Param('id') id: string,
-    @Body() data: any,
-  ) {
-    const adminId = (req as any).user.id;
-    return this.adminService.updateProductAdmin(adminId, Number(id), data);
-  }
-
-  @Delete('products/:id')
-  async deleteProduct(
-    @Req() req: Request,
-    @Param('id') id: string,
-  ) {
-    const adminId = (req as any).user.id;
-    return this.adminService.deleteProductAdmin(adminId, Number(id));
-  }
-
-  @Patch('products/:id/status')
-  async updateProductStatus(
-    @Req() req: Request,
-    @Param('id') id: string,
-    @Body('status') status: string,
-  ) {
-    const adminId = (req as any).user.id;
-    return this.adminService.updateProductStatusAdmin(adminId, Number(id), status);
   }
 
   // ── FlexCard Management ──

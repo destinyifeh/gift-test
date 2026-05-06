@@ -23,13 +23,14 @@ export const sectionTitles: Record<SelectedSection, string> = {
   'creator-gifts': 'Creator Gifts',
   contributions: 'My Contributions',
   campaigns: 'My Campaigns',
-  favorites: 'Favorites',
+
   wallet: 'Wallet',
   'creator-wallet': 'Creator Wallet',
   settings: 'Settings',
   'gift-page': 'My Gift Page',
   supporters: 'Supporters',
   analytics: 'Analytics',
+  favorites: 'Favorites',
   'creator-settings': 'Creator Settings',
 };
 
@@ -42,13 +43,14 @@ export const sectionIcons: Record<SelectedSection, string> = {
   'creator-gifts': 'redeem',
   contributions: 'paid',
   campaigns: 'campaign',
-  favorites: 'favorite',
+
   wallet: 'account_balance_wallet',
   'creator-wallet': 'account_balance',
   settings: 'settings',
   'gift-page': 'auto_awesome',
   supporters: 'group',
   analytics: 'analytics',
+  favorites: 'favorite',
   'creator-settings': 'manage_accounts',
 };
 
@@ -63,6 +65,7 @@ export const giftSections: SelectedSection[] = [
 export const moreSections: SelectedSection[] = [
   'contributions',
   'campaigns',
+
   'favorites',
   'settings',
 ];

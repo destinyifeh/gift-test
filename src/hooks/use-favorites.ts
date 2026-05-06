@@ -1,71 +1,47 @@
 import api from '@/lib/api-client';
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
-import {toast} from 'sonner';
-
-// Helper to map backend camelCase to frontend snake_case
-const mapFavorite = (f: any) => ({
-  ...f,
-  image_url: f.imageUrl,
-  vendor_id: f.vendorId,
-  business_slug: f.businessSlug,
-  product_short_id: f.productShortId,
-  // Add profiles alias and ensure nested mapping
-  profiles: {
-    business_name: f.vendor, // Backend already maps this to vendor name
-    business_slug: f.businessSlug,
-    product_short_id: f.productShortId,
-  },
-});
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 export function useFavorites() {
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
 
-  const {data, isLoading} = useQuery({
+  const { data: favorites = [], isLoading } = useQuery({
     queryKey: ['favorites'],
     queryFn: async () => {
       const res = await api.get('/favorites');
-      const data = res.data.data || res.data;
-      return Array.isArray(data) ? data.map(mapFavorite) : [];
+      return res.data;
     },
   });
 
-  const favorites = Array.isArray(data) ? data : [];
-
-  const toggleMutation = useMutation({
-    mutationFn: async (productId: number) => {
-      const res = await api.post(`/favorites/toggle/${productId}`);
+  const toggleFavorite = useMutation({
+    mutationFn: async (giftCardId: number) => {
+      const res = await api.post('/favorites/toggle', { giftCardId });
       return res.data;
     },
-    onSuccess: (result, productId) => {
-      queryClient.invalidateQueries({queryKey: ['favorites']});
-      queryClient.invalidateQueries({queryKey: ['is-favorited', productId]});
-
-      if (result.wasAdded) {
-        toast.success('Added to favorites');
-      } else {
-        toast.success('Removed from favorites');
-      }
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ['favorites'] });
+      qc.invalidateQueries({ queryKey: ['is-favorited'] });
+      // toast.success(data.favorited ? 'Added to favorites' : 'Removed from favorites');
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || error.message || 'Failed to update favorites');
-    },
+    onError: () => toast.error('Failed to update favorites'),
   });
 
   return {
     favorites,
     isLoading,
-    toggleFavorite: toggleMutation.mutate,
-    isToggling: toggleMutation.isPending,
+    toggleFavorite: (id: number) => toggleFavorite.mutate(id),
+    isToggling: toggleFavorite.isPending,
   };
 }
 
-export function useIsFavorited(productId: number) {
+export function useIsFavorited(giftCardId?: number) {
   return useQuery({
-    queryKey: ['is-favorited', productId],
+    queryKey: ['is-favorited', giftCardId],
     queryFn: async () => {
-      const res = await api.get(`/favorites/check/${productId}`);
-      return res.data.favorited;
+      if (!giftCardId) return false;
+      const res = await api.get(`/favorites/is-favorited/${giftCardId}`);
+      return res.data;
     },
-    enabled: !!productId,
+    enabled: !!giftCardId,
   });
 }

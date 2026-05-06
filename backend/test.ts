@@ -1,4 +1,4 @@
-import { PrismaClient } from './src/generated/prisma/index.js';
+import { PrismaClient } from '@prisma/client';
 const p = new PrismaClient();
 async function main() {
   const configs = await p.countryConfig.findMany();

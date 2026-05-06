@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  useMarkAllNotificationsAsRead,
   useMarkNotificationAsRead,
   useNotifications,
   useUnreadNotificationCount,
@@ -12,6 +13,7 @@ import {useEffect, useRef, useState} from 'react';
 
 interface V2NotificationsPanelProps {
   className?: string;
+  target?: 'user' | 'vendor' | 'admin' | 'all';
 }
 
 const notificationIcons: Record<string, {icon: string; color: string}> = {
@@ -23,18 +25,20 @@ const notificationIcons: Record<string, {icon: string; color: string}> = {
   order_received: {icon: 'shopping_bag', color: 'text-blue-500'},
   order_completed: {icon: 'local_shipping', color: 'text-emerald-500'},
   withdrawal_completed: {icon: 'account_balance', color: 'text-emerald-500'},
+  contact_request: {icon: 'chat', color: 'text-blue-500'},
   system: {icon: 'info', color: 'text-blue-500'},
 };
 
-export function V2NotificationsPanel({className}: V2NotificationsPanelProps) {
+export function V2NotificationsPanel({className, target = 'user'}: V2NotificationsPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   // Only fetch 5 recent notifications for the dropdown
-  const {data: notifications = [], isLoading} = useNotifications({limit: 5});
-  const {data: unreadCount = 0} = useUnreadNotificationCount();
+  const {data: notifications = [], isLoading} = useNotifications({limit: 5, target});
+  const {data: unreadCount = 0} = useUnreadNotificationCount(target);
   const markAsRead = useMarkNotificationAsRead();
+  const markAllAsRead = useMarkAllNotificationsAsRead(target);
 
   // Close panel when clicking outside
   useEffect(() => {
@@ -91,6 +95,15 @@ export function V2NotificationsPanel({className}: V2NotificationsPanelProps) {
                 </span>
               )}
             </div>
+            {unreadCount > 0 && (
+              <button 
+                onClick={() => markAllAsRead.mutate()}
+                disabled={markAllAsRead.isPending}
+                className="text-xs font-medium text-[var(--v2-primary)] hover:underline disabled:opacity-50"
+              >
+                Mark all as read
+              </button>
+            )}
           </div>
 
           {/* Notifications List */}
@@ -165,7 +178,7 @@ export function V2NotificationsPanel({className}: V2NotificationsPanelProps) {
 
           {/* Footer - View All Link */}
           <Link
-            href="/notifications"
+            href={`/notifications${target ? `?target=${target}` : ''}`}
             onClick={() => setIsOpen(false)}
             className="block px-4 py-3 text-center text-sm font-medium text-[var(--v2-primary)] hover:bg-[var(--v2-surface-container-low)] transition-colors border-t border-[var(--v2-outline-variant)]/10"
           >

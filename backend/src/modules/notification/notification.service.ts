@@ -10,6 +10,7 @@ export type NotificationType =
   | 'order_received'
   | 'order_completed'
   | 'withdrawal_completed'
+  | 'contact_request'
   | 'system';
 
 export interface CreateNotificationData {
@@ -77,12 +78,15 @@ export class NotificationService {
       unreadOnly?: boolean;
       adminId?: string;
       vendorId?: string;
+      userId?: string;
     },
   ) {
     const where: any = { OR: [] };
 
     // 1. Personal notifications (User/Admin/Vendor specific)
-    if (userId) where.OR.push({ userId });
+    // We use the fields from 'options' to filter. 
+    // If options.userId is set, we include personal notifications.
+    if (options?.userId) where.OR.push({ userId: options.userId });
     if (options?.adminId) where.OR.push({ adminId: options.adminId });
     if (options?.vendorId) where.OR.push({ vendorId: options.vendorId });
 
@@ -93,11 +97,24 @@ export class NotificationService {
     });
     const userRoles = user?.roles || [];
 
+    // If we are filtering by a specific role or ALL, include global notifications for those roles
     if (userRoles.length > 0) {
-      where.OR.push({
-        isGlobal: true,
-        targetRole: { in: userRoles },
-      });
+      const targetRoles: string[] = [];
+      if (options?.userId) targetRoles.push('user');
+      if (options?.vendorId) targetRoles.push('vendor');
+      if (options?.adminId) targetRoles.push('admin');
+
+      // If no specific role ID is passed in options, use user's owned roles
+      const rolesToQuery = targetRoles.length > 0 
+        ? userRoles.filter((r: string) => targetRoles.includes(r))
+        : userRoles;
+
+      if (rolesToQuery.length > 0) {
+        where.OR.push({
+          isGlobal: true,
+          targetRole: { in: rolesToQuery },
+        });
+      }
     }
 
     if (where.OR.length === 0) return [];
@@ -139,21 +156,21 @@ export class NotificationService {
   }
 
   async getUnreadCount(
-    userId: string,
-    target?: { adminId?: string; vendorId?: string },
+    sessionUserId: string,
+    options?: { userId?: string; adminId?: string; vendorId?: string },
   ) {
     const user = await (this.prisma as any).user.findUnique({
-      where: { id: userId },
+      where: { id: sessionUserId },
       select: { roles: true },
     });
     const userRoles = user?.roles || [];
 
     const where: any = { OR: [] };
-    if (userId) where.OR.push({ userId, read: false });
-    if (target?.adminId)
-      where.OR.push({ adminId: target.adminId, read: false });
-    if (target?.vendorId)
-      where.OR.push({ vendorId: target.vendorId, read: false });
+    if (options?.userId) where.OR.push({ userId: options.userId, read: false });
+    if (options?.adminId)
+      where.OR.push({ adminId: options.adminId, read: false });
+    if (options?.vendorId)
+      where.OR.push({ vendorId: options.vendorId, read: false });
 
     const personalCount = await (this.prisma as any).notification.count({
       where,
@@ -170,9 +187,9 @@ export class NotificationService {
 
       if (globalNotifications.length > 0) {
         const readWhere: any = { OR: [] };
-        if (userId) readWhere.OR.push({ userId });
-        if (target?.adminId) readWhere.OR.push({ adminId: target.adminId });
-        if (target?.vendorId) readWhere.OR.push({ vendorId: target.vendorId });
+        if (sessionUserId) readWhere.OR.push({ userId: sessionUserId });
+        if (options?.adminId) readWhere.OR.push({ adminId: options.adminId });
+        if (options?.vendorId) readWhere.OR.push({ vendorId: options.vendorId });
 
         const readRecords = await (
           this.prisma as any
@@ -230,20 +247,20 @@ export class NotificationService {
   }
 
   async markAllAsRead(
-    userId: string,
-    target?: { adminId?: string; vendorId?: string },
+    sessionUserId: string,
+    options?: { userId?: string; adminId?: string; vendorId?: string },
   ) {
     const user = await (this.prisma as any).user.findUnique({
-      where: { id: userId },
+      where: { id: sessionUserId },
       select: { roles: true },
     });
     const userRoles = user?.roles || [];
 
     // Mark personal as read
     const where: any = { OR: [], read: false };
-    if (userId) where.OR.push({ userId });
-    if (target?.adminId) where.OR.push({ adminId: target.adminId });
-    if (target?.vendorId) where.OR.push({ vendorId: target.vendorId });
+    if (options?.userId) where.OR.push({ userId: options.userId });
+    if (options?.adminId) where.OR.push({ adminId: options.adminId });
+    if (options?.vendorId) where.OR.push({ vendorId: options.vendorId });
 
     await (this.prisma as any).notification.updateMany({
       where,
@@ -261,9 +278,9 @@ export class NotificationService {
 
       if (globalNotifications.length > 0) {
         const readWhere: any = { OR: [] };
-        if (userId) readWhere.OR.push({ userId });
-        if (target?.adminId) readWhere.OR.push({ adminId: target.adminId });
-        if (target?.vendorId) readWhere.OR.push({ vendorId: target.vendorId });
+        if (sessionUserId) readWhere.OR.push({ userId: sessionUserId });
+        if (options?.adminId) readWhere.OR.push({ adminId: options.adminId });
+        if (options?.vendorId) readWhere.OR.push({ vendorId: options.vendorId });
 
         const alreadyRead = await (
           this.prisma as any
@@ -280,9 +297,9 @@ export class NotificationService {
           .filter((n: any) => !readIds.has(n.id))
           .map((n: any) => ({
             notificationId: n.id,
-            userId: userId || null,
-            adminId: target?.adminId || null,
-            vendorId: target?.vendorId || null,
+            userId: sessionUserId || null,
+            adminId: options?.adminId || null,
+            vendorId: options?.vendorId || null,
           }));
 
         if (unreadGlobalIds.length > 0) {

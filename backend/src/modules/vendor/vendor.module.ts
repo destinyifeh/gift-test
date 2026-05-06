@@ -3,9 +3,10 @@ import { VendorService } from './vendor.service';
 import { VendorController } from './vendor.controller';
 import { PrismaModule } from '../../prisma/prisma.module';
 import { FileModule } from '../file/file.module';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
-  imports: [PrismaModule, FileModule],
+  imports: [PrismaModule, FileModule, NotificationModule],
   controllers: [VendorController],
   providers: [VendorService],
   exports: [VendorService],

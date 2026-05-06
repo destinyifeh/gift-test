@@ -23,7 +23,7 @@ import {
   V2ReceivedGiftsTab,
   V2MyGiftsTab,
   V2ContributionsTab,
-  V2FavoritesTab,
+
   V2MyCampaignsTab,
   V2WalletTab,
   V2SettingsTab,
@@ -31,6 +31,7 @@ import {
   V2SupportersTab,
   V2AnalyticsTab,
   V2CreatorWalletTab,
+  V2FavoritesTab,
   V2CreatorSettingsTab,
 } from './components/tabs';
 
@@ -42,8 +43,9 @@ const navItems: {id: SelectedSection; label: string; icon: string}[] = [
   {id: 'received', label: 'Campaign Donations', icon: 'volunteer_activism'},
   {id: 'contributions', label: 'My Contributions', icon: 'paid'},
   {id: 'campaigns', label: 'My Campaigns', icon: 'campaign'},
-  {id: 'favorites', label: 'Favorites', icon: 'favorite'},
+
   {id: 'wallet', label: 'Wallet', icon: 'account_balance_wallet'},
+  {id: 'favorites', label: 'Favorites', icon: 'favorite'},
   {id: 'settings', label: 'Settings', icon: 'settings'},
 ];
 
@@ -336,11 +338,13 @@ function V2DashboardContent() {
 
           {section === 'contributions' && <V2ContributionsTab />}
 
-          {section === 'favorites' && <V2FavoritesTab />}
+
 
           {section === 'campaigns' && <V2MyCampaignsTab />}
 
           {section === 'wallet' && <V2WalletTab />}
+
+          {section === 'favorites' && <V2FavoritesTab />}
 
           {section === 'settings' && <V2SettingsTab />}
 

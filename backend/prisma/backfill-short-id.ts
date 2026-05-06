@@ -17,24 +17,7 @@ const nanoid = customAlphabet(
 
 async function backfill() {
   console.log('Starting backfill for productShortId...');
-  
-  const products = await prisma.vendorGift.findMany({
-    where: {
-      productShortId: null
-    }
-  });
-  
-  console.log(`Found ${products.length} products to backfill.`);
-  
-  for (const product of products) {
-    const shortId = nanoid();
-    await prisma.vendorGift.update({
-      where: { id: product.id },
-      data: { productShortId: shortId }
-    });
-    console.log(`Updated product ID ${product.id} (${product.name}) with shortId: ${shortId}`);
-  }
-  
+  console.log('Skipping backfill: legacy VendorGift model removed');
   console.log('Backfill completed.');
 }
 

@@ -15,12 +15,12 @@ interface TabItem {
   href?: string;
 }
 
-// Dashboard tabs: Home | Gifts | Wallet | Favorites | More
+// Dashboard tabs: Home | Gifts | Wallet | More
 const tabs: TabItem[] = [
   {id: 'home', label: 'Home', icon: 'dashboard', action: 'navigate', section: 'overview'},
   {id: 'gifts', label: 'Gifts', icon: 'redeem', action: 'open-gifts'},
   {id: 'wallet', label: 'Wallet', icon: 'account_balance_wallet', action: 'navigate', section: 'wallet'},
-  {id: 'favorites', label: 'Favorites', icon: 'favorite', action: 'navigate', section: 'favorites'},
+
   {id: 'more', label: 'More', icon: 'menu', action: 'open-more'},
 ];
 
@@ -45,12 +45,9 @@ export function V2BottomTabBar({activeSection, onNavigate, className, currentPat
     if (tab.id === 'wallet') {
       return activeSection === 'wallet';
     }
-    if (tab.id === 'favorites') {
-      return activeSection === 'favorites';
-    }
+
     if (tab.id === 'more') {
-      return [...moreSections, ...creatorSections].includes(activeSection) &&
-             activeSection !== 'wallet' && activeSection !== 'favorites';
+             activeSection !== 'wallet';
     }
     return false;
   };

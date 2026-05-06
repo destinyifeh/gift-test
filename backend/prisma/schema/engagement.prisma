@@ -1,58 +1,13 @@
-model FeaturedAd {
-  id               Int        @id @default(autoincrement())
-  vendorId         String     @map("vendor_id")
-  vendor           Vendor     @relation(fields: [vendorId], references: [id], onDelete: Cascade)
-  vendorGiftId     Int        @map("vendor_gift_id")
-  product          VendorGift @relation("GiftFeaturedAds", fields: [vendorGiftId], references: [id], onDelete: Cascade)
-  country          String
-  slotNumber       Int        @map("slot_number")
-  startDate        DateTime   @map("start_date")
-  endDate          DateTime   @map("end_date")
-  status           String     @default("active") // 'scheduled', 'active', 'expired'
-  amountPaid       Decimal    @map("amount_paid")
-  currency         String     @default("NGN")
-  paymentReference String?    @map("payment_reference")
+model Favorite {
+  id         Int      @id @default(autoincrement())
+  userId     String   @map("user_id")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  giftCardId Int      @map("gift_card_id")
+  giftCard   GiftCard @relation(fields: [giftCardId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now()) @map("created_at")
 
-  // Stats
-  views  Int @default(0)
-  clicks Int @default(0)
-
-  transactionId String?      @unique @map("transaction_id")
-  transaction   Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@map("featured_ads")
-}
-
-model SponsoredAd {
-  id               Int        @id @default(autoincrement())
-  vendorId         String     @map("vendor_id")
-  vendor           Vendor     @relation(fields: [vendorId], references: [id], onDelete: Cascade)
-  vendorGiftId     Int        @map("vendor_gift_id")
-  product          VendorGift @relation("GiftSponsoredAds", fields: [vendorGiftId], references: [id], onDelete: Cascade)
-  country          String
-  budget           Decimal
-  remainingBudget  Decimal    @map("remaining_budget")
-  costPerClick     Decimal    @map("cost_per_click")
-  currency         String     @default("NGN")
-  startDate        DateTime   @default(now()) @map("start_date")
-  endDate          DateTime?  @map("end_date") // Optional if running until budget ends
-  status           String     @default("active") // 'active', 'paused', 'completed'
-  paymentReference String?    @map("payment_reference")
-
-  // Stats
-  views  Int @default(0)
-  clicks Int @default(0)
-
-  transactionId String?      @unique @map("transaction_id")
-  transaction   Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@map("sponsored_ads")
+  @@unique([userId, giftCardId])
+  @@map("favorites")
 }
 
 model ExternalPromotion {
@@ -92,3 +47,4 @@ model FeaturedItem {
 
   @@map("featured_items")
 }
+

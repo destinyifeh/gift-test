@@ -38,7 +38,6 @@ import {
   V2AdminSettingsTab,
   V2AdminRolesTab,
   V2AdminLogsTab,
-  V2AdminCatalogTab,
   V2AdminGiftCardsTab,
 } from './components/tabs';
 import {V2NotificationsPanel} from '../components/V2NotificationsPanel';
@@ -449,7 +448,7 @@ function V2AdminContent() {
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          <V2NotificationsPanel />
+          <V2NotificationsPanel target="admin" />
           <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-[var(--v2-primary-container)]/20">
             {profile?.avatar_url ? (
               <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
@@ -504,7 +503,7 @@ function V2AdminContent() {
             </div>
           </div>
           <div className="flex items-center gap-6">
-            <V2NotificationsPanel />
+            <V2NotificationsPanel target="admin" />
             <div className="flex items-center gap-3 pl-4 border-l border-[var(--v2-outline-variant)]/20">
               <div className="text-right">
                 <p className="text-sm font-bold text-[var(--v2-on-surface)]">{adminName}</p>
@@ -619,9 +618,6 @@ function V2AdminContent() {
               addLog={addLog}
               setViewDetailsModal={setViewDetailsModal}
             />
-          )}
-          {section === 'catalog' && (
-            <V2AdminCatalogTab />
           )}
           {section === 'gift-cards' && (
             <V2AdminGiftCardsTab />

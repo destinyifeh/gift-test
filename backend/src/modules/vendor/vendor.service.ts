@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException, ForbiddenException,
 import { Cron } from '@nestjs/schedule';
 import { PrismaService } from '../../prisma/prisma.service';
 import { FileService } from '../file/file.service';
+import { NotificationService } from '../notification/notification.service';
 import { paginate, getPaginationOptions } from '../../common/utils/pagination.util';
 import { generateSlug, generateShortId } from '../../common/utils/slug.util';
 
@@ -12,16 +13,27 @@ export class VendorService {
   constructor(
     private prisma: PrismaService,
     private fileService: FileService,
+    private notificationService: NotificationService,
   ) {}
 
   async getVendorsByGiftCard(giftCardId: number, country?: string) {
-    const where: any = {
-      acceptedCards: {
+    const giftCard = await (this.prisma as any).giftCard.findUnique({
+      where: { id: giftCardId },
+      select: { isFlexCard: true }
+    });
+
+    const where: any = {};
+    
+    if (giftCard?.isFlexCard) {
+      // Flex Cards are supported by default by all approved vendors
+      where.status = 'approved';
+    } else {
+      where.acceptedCards = {
         some: {
           giftCardId
         }
-      }
-    };
+      };
+    }
 
     if (country) {
       where.country = country;
@@ -45,357 +57,6 @@ export class VendorService {
     return vendors;
   }
 
-  // ─────────────────────────────────────────────
-  //  Product CRUD
-  // ─────────────────────────────────────────────
-
-  async fetchProducts(vendorId?: string, includeDrafts = false) {
-    const where: any = {};
-    if (vendorId) where.vendorId = vendorId;
-    if (!includeDrafts) where.status = 'active';
-
-    const products = await (this.prisma as any).vendorGift.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        vendor: { 
-          select: { 
-            businessName: true, 
-            businessSlug: true,
-            country: true,
-            user: { select: { displayName: true } }
-          } 
-        },
-      },
-    });
-
-    // Lazy backfill productShortId
-    for (const product of products) {
-      if (!product.productShortId) {
-        const shortId = generateShortId();
-        await (this.prisma as any).vendorGift.update({
-          where: { id: product.id },
-          data: { productShortId: shortId }
-        });
-        product.productShortId = shortId;
-      }
-    }
-
-    if (products.length === 0) return [];
-
-    // Sold counts — from DirectGift table
-    const productIds = products.map((p: any) => p.id);
-    const soldCounts = await (this.prisma as any).directGift.groupBy({
-      by: ['claimableGiftId'],
-      where: { claimableGiftId: { in: productIds } },
-      _count: { id: true },
-    });
-
-    const soldMap = new Map(soldCounts.map((s: any) => [s.claimableGiftId, s._count.id]));
-    
-    return products.map((p: any) => ({
-      ...p,
-      price: p.price.toString(),
-      sold: soldMap.get(p.id) || 0,
-    }));
-  }
-
-  async fetchProductsPaginated(options: {
-    page?: number; limit?: number; category?: string;
-    search?: string; vendorId?: string;
-  }) {
-    const { page = 1, limit = 12, category, search, vendorId } = options;
-    const { skip, take } = getPaginationOptions(page, limit);
-
-    const where: any = { status: 'active' };
-    if (vendorId) where.vendorId = vendorId;
-
-    const conditions: any[] = [];
-
-    if (category && category !== 'All Gifts') {
-      conditions.push({
-        OR: [
-          { category: { equals: category, mode: 'insensitive' } },
-          { tags: { hasSome: [category] } },
-        ],
-      });
-    }
-
-    if (search) {
-      conditions.push({
-        OR: [
-          { name: { contains: search, mode: 'insensitive' } },
-          { description: { contains: search, mode: 'insensitive' } },
-        ],
-      });
-    }
-
-    if (conditions.length > 0) {
-      where.AND = conditions;
-    }
-
-    const [products, total] = await Promise.all([
-      (this.prisma as any).vendorGift.findMany({
-        where,
-        skip,
-        take,
-        orderBy: [
-          { rankingScore: 'desc' },
-          { createdAt: 'desc' }
-        ],
-        include: {
-          vendor: { 
-            select: { 
-              businessName: true, 
-              businessSlug: true,
-              businessLogoUrl: true,
-              country: true,
-              user: { select: { displayName: true, avatarUrl: true } }
-            } 
-          },
-        },
-      }),
-      (this.prisma as any).vendorGift.count({ where }),
-    ]);
-
-    // Sold counts
-    if (products.length > 0) {
-      const formatted = products.map((p: any) => ({
-        ...p,
-        price: p.price.toString(),
-        sold: p.salesCount, // Using the new salesCount field
-      }));
-
-      return paginate(formatted, total, page, limit);
-    }
-
-    return paginate([], 0, page, limit);
-  }
-
-  async fetchProductById(productId: number, recordView = false) {
-    const product = await (this.prisma as any).vendorGift.findUnique({
-      where: { id: productId },
-      include: {
-        vendor: { 
-          select: { 
-            businessName: true, 
-            businessSlug: true, 
-            businessDescription: true, 
-            streetAddress: true,
-            city: true,
-            state: true,
-            country: true,
-            postalCode: true,
-            user: { select: { displayName: true } }
-          } 
-        },
-      },
-    });
-    if (!product) throw new NotFoundException('Product not found');
-    
-    if (recordView) {
-      this.recordProductView(productId).catch(err => 
-        this.logger.error(`Failed to record view for product ${productId}`, err)
-      );
-    }
-
-    return { ...product, price: product.price.toString() };
-  }
-
-  async fetchProductBySlugs(vendorSlug: string, productSlug: string, recordView = false) {
-    let vendor = await (this.prisma as any).vendor.findFirst({
-      where: { businessSlug: vendorSlug },
-      select: { id: true },
-    });
-
-    if (!vendor) {
-      // Fallback: Check if vendorSlug is actually an ID
-      vendor = await (this.prisma as any).vendor.findUnique({
-        where: { id: vendorSlug },
-        select: { id: true },
-      });
-    }
-
-    if (!vendor) throw new NotFoundException('Vendor not found');
-
-    // Handle new format: productSlug-productShortId
-    const parts = productSlug.split('-');
-    const shortId = parts.length > 1 ? parts.pop() : null;
-    const baseSlug = parts.join('-');
-
-    let product;
-
-    if (shortId) {
-      product = await (this.prisma as any).vendorGift.findFirst({
-        where: { vendorId: vendor.id, productShortId: shortId },
-        include: {
-          vendor: { select: { country: true, businessSlug: true, businessName: true, businessDescription: true, streetAddress: true, city: true, state: true } },
-        },
-      });
-    }
-
-    if (!product) {
-      // Fallback: Try exact slug match (for legacy URLs)
-      product = await (this.prisma as any).vendorGift.findFirst({
-        where: { vendorId: vendor.id, slug: productSlug },
-        include: {
-          vendor: { select: { country: true, businessSlug: true, businessName: true, businessDescription: true, streetAddress: true, city: true, state: true } },
-        },
-      });
-    }
-
-    if (!product) {
-      // Fallback: Try by ID if it's numeric
-      const numId = parseInt(productSlug);
-      if (!isNaN(numId)) {
-        product = await (this.prisma as any).vendorGift.findFirst({
-          where: { vendorId: vendor.id, id: numId },
-          include: {
-            vendor: { select: { country: true, businessSlug: true, businessName: true, businessDescription: true, streetAddress: true, city: true, state: true } },
-          },
-        });
-      }
-    }
-
-    if (!product) throw new NotFoundException('Product not found');
-
-    if (recordView) {
-      this.recordProductView(product.id).catch(err => 
-        this.logger.error(`Failed to record view for product ${product.id}`, err)
-      );
-    }
-
-    return { ...product, price: product.price.toString() };
-  }
-
-  async manageProduct(userId: string, productData: any) {
-    const slug = productData.slug || generateSlug(productData.name);
-
-    // Only pick fields that exist in the VendorGift Prisma model
-    // Accept both camelCase and snake_case from the frontend
-    const rawStock = productData.stockQuantity ?? productData.stock_quantity;
-    // Handle new hierarchical categorization
-    const categoryId = productData.categoryId ?? productData.category_id;
-    const subcategoryId = productData.subcategoryId ?? productData.subcategory_id;
-    const selectedTagIds = productData.tagIds ?? productData.tag_ids ?? [];
-
-    const safeData: any = {
-      name: productData.name,
-      description: productData.description || undefined,
-      price: productData.price ? Number(productData.price) : undefined,
-      imageUrl: productData.imageUrl || productData.image_url || undefined,
-      categoryId: categoryId ? Number(categoryId) : undefined,
-      subcategoryId: subcategoryId ? Number(subcategoryId) : undefined,
-      type: productData.type || 'digital',
-      status: productData.status || 'active',
-      stockQuantity: rawStock != null && rawStock !== '' ? Number(rawStock) : null,
-      images: productData.images,
-      slug,
-      productShortId: productData.productShortId || productData.product_short_id || undefined,
-    };
-
-    // Auto-populate legacy fields for backward compatibility
-    if (safeData.categoryId) {
-      const cat = await (this.prisma as any).productCategory.findUnique({ where: { id: safeData.categoryId } });
-      if (cat) safeData.category = cat.name;
-    }
-
-    if (selectedTagIds.length > 0) {
-      const tags = await (this.prisma as any).productTag.findMany({
-        where: { id: { in: selectedTagIds.map(Number) } },
-        select: { name: true },
-      });
-      safeData.tags = tags.map((t: any) => t.name);
-    }
-
-    // Remove undefined keys
-    Object.keys(safeData).forEach(key => {
-      if (key === 'stockQuantity' || key === 'images') return;
-      if (safeData[key] === undefined) delete safeData[key];
-    });
-
-    const giftId = productData.id && !String(productData.id).includes('new') ? Number(productData.id) : null;
-    const vendor = await (this.prisma as any).vendor.findUnique({ where: { userId } });
-    if (!vendor) throw new NotFoundException('Vendor profile not found');
-
-    if (giftId) {
-      // Update
-      const updated = await (this.prisma as any).vendorGift.update({
-        where: { id: giftId },
-        data: {
-          ...safeData,
-          vendorId: vendor.id,
-          productTags: {
-            deleteMany: {}, // Clear old tags
-            create: selectedTagIds.map((tagId: any) => ({
-              tag: { connect: { id: Number(tagId) } },
-            })),
-          },
-        },
-      });
-      return { ...updated, price: updated.price.toString() };
-    } else {
-      // Create
-      // Ensure productShortId is generated if not provided
-      if (!safeData.productShortId) {
-        safeData.productShortId = generateShortId();
-      }
-      
-      const created = await (this.prisma as any).vendorGift.create({
-        data: {
-          ...safeData,
-          vendorId: vendor.id,
-          productTags: {
-            create: selectedTagIds.map((tagId: any) => ({
-              tag: { connect: { id: Number(tagId) } },
-            })),
-          },
-        },
-      });
-      return { ...created, price: created.price.toString() };
-    }
-  }
-
-  async deleteProduct(userId: string, productId: number) {
-    const vendor = await (this.prisma as any).vendor.findUnique({ where: { userId } });
-    if (!vendor) throw new NotFoundException('Vendor profile not found');
-
-    const product = await (this.prisma as any).vendorGift.findFirst({
-      where: { id: productId, vendorId: vendor.id },
-    });
-    if (!product) throw new NotFoundException('Product not found');
-
-    // Collect all images to delete
-    const imagesToDelete: string[] = [];
-    if (product.imageUrl) imagesToDelete.push(product.imageUrl);
-    if (product.images && Array.isArray(product.images)) {
-      imagesToDelete.push(...product.images);
-    }
-
-    // Delete product images from vendorGiftImage table (will be cascade deleted, but get URLs first)
-    const productImages = await (this.prisma as any).vendorGiftImage.findMany({
-      where: { giftId: productId },
-      select: { url: true },
-    });
-    productImages.forEach((img: any) => {
-      if (img.url) imagesToDelete.push(img.url);
-    });
-
-    // Delete all images from R2 (in parallel)
-    const uniqueImages = [...new Set(imagesToDelete)];
-    await Promise.allSettled(
-      uniqueImages.map(async (imageUrl) => {
-        try {
-          await this.fileService.deleteFile(imageUrl);
-        } catch (error) {
-          this.logger.warn(`Failed to delete product image: ${imageUrl}`, error);
-        }
-      }),
-    );
-
-    await (this.prisma as any).vendorGift.delete({ where: { id: productId } });
-    return { success: true };
-  }
 
   // ─────────────────────────────────────────────
   //  Voucher Verification & Redemption
@@ -442,18 +103,6 @@ export class VendorService {
     }
 
     if (directGift) {
-      // Check vendor ownership if it's a specific vendor gift
-      if (directGift.claimableGiftId) {
-        const gift = await (this.prisma as any).vendorGift.findUnique({
-          where: { id: directGift.claimableGiftId },
-          select: { vendorId: true, name: true },
-        });
-        
-        const vendor = await (this.prisma as any).vendor.findUnique({ where: { userId } });
-        if (!vendor || (gift && gift.vendorId !== vendor.id)) {
-          throw new ForbiddenException('This gift card belongs to another vendor.');
-        }
-      }
       return { 
         ...directGift, 
         type: 'gift',
@@ -596,20 +245,10 @@ export class VendorService {
 
     if (!vendorRecord) throw new NotFoundException('Vendor profile not found');
 
-    const products = await (this.prisma as any).vendorGift.findMany({
-      where: { vendorId: vendorRecord.id },
-      select: { id: true },
-    });
-    const productIds = products.map((p: any) => p.id);
-
-    const [redeemedVouchers, allOrders, transactions] = await Promise.all([
+    const [redeemedVouchers, transactions] = await Promise.all([
       (this.prisma as any).directGift.findMany({
         where: { redeemedByVendorId: vendorRecord.id, status: 'redeemed' },
         select: { amount: true, status: true, redeemedAt: true, giftCode: true, title: true, user: { select: { displayName: true } } },
-      }),
-      (this.prisma as any).directGift.findMany({
-        where: { claimableGiftId: { in: productIds } },
-        select: { amount: true, status: true, createdAt: true, giftCode: true },
       }),
       (this.prisma as any).transaction.findMany({
         where: { userId },
@@ -618,13 +257,6 @@ export class VendorService {
       }),
     ]);
 
-    const totalSales = allOrders.reduce((acc: number, c: any) => acc + (Number(c.amount || 0)), 0);
-    const availableKobo = Number(vendorRecord.wallet || 0);
-    
-    // Pending are claimed but not yet redeemed vouchers
-    const pendingSales = allOrders.filter((o: any) => o.status === 'claimed').reduce((acc: number, o: any) => acc + (Number(o.amount || 0)), 0);
-
-    // Flex card transactions (as vendor)
     const flexCardTxs = await (this.prisma as any).flexCardTransaction.findMany({
       where: { vendorId: vendorRecord.id },
       select: { 
@@ -651,9 +283,8 @@ export class VendorService {
     const flexCardTotal = flexCardTxs.reduce((acc: number, t: any) => acc + Number(t.amount || 0), 0);
     const vendorCardTotal = vendorCardTxs.reduce((acc: number, t: any) => acc + Number(t.amount || 0), 0);
     const genericVoucherTotal = redeemedVouchers.reduce((acc: number, r: any) => acc + (Number(r.amount || 0)), 0);
-    const totalSalesFinal = totalSales + flexCardTotal + vendorCardTotal + genericVoucherTotal;
+    const totalSalesFinal = flexCardTotal + vendorCardTotal + genericVoucherTotal;
     const availableFinal = Number(vendorRecord.wallet) / 100;
-    const pending = pendingSales;
 
     // Total redemption count across all types
     const totalRedemptionsCount = redeemedVouchers.length + flexCardTxs.length + vendorCardTxs.length;
@@ -707,21 +338,13 @@ export class VendorService {
 
     return {
       available: availableFinal,
-      pending,
       totalSales: totalSalesFinal,
-      productsCount: products.length,
       ordersCount: totalRedemptionsCount, // Now accurately reflects ALL redemptions
       transactions: allTxs.slice(0, 10),
     };
   }
 
   async fetchVendorOrders(userId: string) {
-    const products = await (this.prisma as any).vendorGift.findMany({
-      where: { vendorId: userId },
-      select: { id: true },
-    });
-    const productIds = products.map((p: any) => p.id);
-
     const [directRedemptions, flexTxs, vendorCardTxs] = await Promise.all([
       (this.prisma as any).directGift.findMany({
         where: { redeemedByVendorId: userId, status: 'redeemed' },
@@ -797,236 +420,32 @@ export class VendorService {
     );
   }
 
-  /**
-   * Add an image to a product's images array.
-   * Mirrors frontend: vendor.ts → uploadVendorProductImage (after upload)
-   */
-  async addProductImage(userId: string, productId: number, imageUrl: string) {
-    const product = await (this.prisma as any).vendorGift.findFirst({
-      where: { id: productId, vendorId: userId },
+  async contactVendor(userId: string, vendorId: string, customMessage?: string) {
+    const user = await (this.prisma as any).user.findUnique({ 
+      where: { id: userId },
+      select: { name: true, displayName: true, creator: { select: { username: true } } }
     });
-
-    if (!product) {
-      throw new Error('Product not found or not yours');
-    }
-
-    const currentImages = product.images || [];
-    const updatedImages = [...currentImages, imageUrl];
-
-    // Also add to vendorGiftImage table for backward compatibility
-    await (this.prisma as any).vendorGiftImage.create({
-      data: { giftId: productId, url: imageUrl },
+    
+    // vendorId is the ID from the Vendor model, we need the userId associated with it
+    const vendor = await (this.prisma as any).vendor.findUnique({ 
+      where: { id: vendorId },
+      select: { userId: true, businessName: true }
     });
+    
+    if (!vendor) throw new NotFoundException('Vendor not found');
 
-    return (this.prisma as any).vendorGift.update({
-      where: { id: productId },
-      data: { images: updatedImages },
-    });
-  }
+    const title = customMessage ? 'New Message from Customer' : 'New Customer Contact';
+    const message = customMessage 
+      ? `"${customMessage}"`
+      : `Someone wants to contact you.`;
 
-  /**
-   * Remove an image from a product's images array and delete from R2.
-   * Mirrors frontend: vendor.ts → deleteVendorProductImage
-   */
-  async removeProductImage(userId: string, productId: number, imageUrl: string) {
-    const product = await (this.prisma as any).vendorGift.findFirst({
-      where: { id: productId, vendorId: userId },
-    });
-
-    if (!product) {
-      throw new Error('Product not found or not yours');
-    }
-
-    const currentImages = product.images || [];
-    const updatedImages = currentImages.filter((img: string) => img !== imageUrl);
-
-    // Also remove from vendorGiftImage table
-    await (this.prisma as any).vendorGiftImage.deleteMany({
-      where: { giftId: productId, url: imageUrl },
-    });
-
-    // Delete image from R2 storage
-    try {
-      await this.fileService.deleteFile(imageUrl);
-    } catch (error) {
-      this.logger.warn(`Failed to delete product image from R2: ${imageUrl}`, error);
-    }
-
-    // If this was the main image, clear it
-    const updateData: any = { images: updatedImages };
-    if (product.imageUrl === imageUrl) {
-      updateData.imageUrl = updatedImages[0] || null;
-    }
-
-    return (this.prisma as any).vendorGift.update({
-      where: { id: productId },
-      data: updateData,
+    return this.notificationService.create({
+      vendorId: vendorId,
+      type: 'contact_request',
+      title,
+      message,
+      data: { customerId: userId, type: 'contact_request', customMessage }
     });
   }
 
-  /**
-   * Set product's main image.
-   */
-  async setProductMainImage(userId: string, productId: number, imageUrl: string) {
-    const product = await (this.prisma as any).vendorGift.findFirst({
-      where: { id: productId, vendorId: userId },
-    });
-
-    if (!product) {
-      throw new Error('Product not found or not yours');
-    }
-
-    return (this.prisma as any).vendorGift.update({
-      where: { id: productId },
-      data: { imageUrl },
-    });
-  }
-
-  // ─────────────────────────────────────────────
-  //  Ranking & Engagement Logic
-  // ─────────────────────────────────────────────
-
-  async recordProductView(productId: number) {
-    const product = await (this.prisma as any).vendorGift.findUnique({ where: { id: productId } });
-    if (!product) return;
-
-    const viewsCount = (product.viewsCount || 0) + 1;
-    const rankingScore = this.calculateRankingScore({ ...product, viewsCount });
-
-    await (this.prisma as any).vendorGift.update({
-      where: { id: productId },
-      data: {
-        viewsCount,
-        rankingScore,
-        lastEngagementAt: new Date(),
-      },
-    });
-  }
-
-  async recordProductClick(productId: number) {
-    const product = await (this.prisma as any).vendorGift.findUnique({ where: { id: productId } });
-    if (!product) return;
-
-    const clicksCount = (product.clicksCount || 0) + 1;
-    const rankingScore = this.calculateRankingScore({ ...product, clicksCount });
-
-    await (this.prisma as any).vendorGift.update({
-      where: { id: productId },
-      data: {
-        clicksCount,
-        rankingScore,
-        lastEngagementAt: new Date(),
-      },
-    });
-  }
-
-  async recordProductSale(productId: number) {
-    const product = await (this.prisma as any).vendorGift.findUnique({ where: { id: productId } });
-    if (!product) return;
-
-    const salesCount = (product.salesCount || 0) + 1;
-    const rankingScore = this.calculateRankingScore({ ...product, salesCount });
-
-    await (this.prisma as any).vendorGift.update({
-      where: { id: productId },
-      data: {
-        salesCount,
-        rankingScore,
-        lastEngagementAt: new Date(),
-      },
-    });
-  }
-
-  /**
-   * Final Refined Formula:
-   * rankingScore = ((sales * 5) + (clicks * 2) + (views * 0.5)) * decayFactor + (coldStartBoost * 100)
-   */
-  private calculateRankingScore(product: any): number {
-    const { salesCount = 0, clicksCount = 0, viewsCount = 0, lastEngagementAt, createdAt } = product;
-
-    // 1. Core Engagement Score
-    const engagement = (salesCount * 5) + (clicksCount * 2) + (viewsCount * 0.5);
-
-    // 2. Decay Factor: 1 / (daysSinceLastEngagement + 1)
-    const now = new Date();
-    const lastEng = new Date(lastEngagementAt || now);
-    const daysSinceLastEng = Math.max(0, (now.getTime() - lastEng.getTime()) / (1000 * 60 * 60 * 24));
-    const decayFactor = 1 / (daysSinceLastEng + 1);
-
-    // 3. Cold Start Boost: max(0, 1 - (hoursSinceCreated / 48))
-    const created = new Date(createdAt);
-    const hoursSinceCreated = Math.max(0, (now.getTime() - created.getTime()) / (1000 * 60 * 60));
-    const coldStartBoost = Math.max(0, 1 - (hoursSinceCreated / 48));
-
-    // 4. Final Balanced Score
-    return (engagement * decayFactor) + (coldStartBoost * 100);
-  }
-
-  /**
-   * Global recalculation (Cron job trigger)
-   * Runs every hour to update decay factors and cold start boosts
-   */
-  @Cron('0 * * * *')
-  async recalculateAllScores() {
-    const products = await (this.prisma as any).vendorGift.findMany({
-      where: { status: 'active' },
-    });
-
-    const updates = products.map((p: any) => {
-      const score = this.calculateRankingScore(p);
-      return (this.prisma as any).vendorGift.update({
-        where: { id: p.id },
-        data: { rankingScore: score },
-      });
-    });
-
-    await Promise.all(updates);
-    this.logger.log(`Recalculated ranking scores for ${products.length} products`);
-  }
-
-  // ─────────────────────────────────────────────
-  //  Tag Requests
-  // ─────────────────────────────────────────────
-
-  async createTagRequest(userId: string, data: { subcategoryId: number; tagName: string }) {
-    // Check if tag already exists in this subcategory
-    const existingTag = await (this.prisma as any).productTag.findFirst({
-      where: {
-        subcategoryId: data.subcategoryId,
-        name: { equals: data.tagName, mode: 'insensitive' },
-      },
-    });
-    if (existingTag) throw new BadRequestException('This tag already exists in this category');
-
-    // Check if there's already a pending request for this
-    const existingRequest = await (this.prisma as any).tagRequest.findFirst({
-      where: {
-        subcategoryId: data.subcategoryId,
-        tagName: { equals: data.tagName, mode: 'insensitive' },
-        status: 'pending',
-      },
-    });
-    if (existingRequest) throw new BadRequestException('A request for this tag is already pending');
-
-    return (this.prisma as any).tagRequest.create({
-      data: {
-        vendorId: userId,
-        subcategoryId: data.subcategoryId,
-        tagName: data.tagName,
-        status: 'pending',
-      },
-    });
-  }
-
-  async fetchMyTagRequests(userId: string) {
-    return (this.prisma as any).tagRequest.findMany({
-      where: { vendorId: userId },
-      include: {
-        subcategory: {
-          select: { name: true, category: { select: { name: true } } },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-  }
 }

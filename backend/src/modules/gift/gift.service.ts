@@ -256,12 +256,6 @@ export class GiftService {
       },
     });
 
-    // Record sale for ranking if it's a vendor product
-    if (gift.claimableGiftId) {
-      this.vendorService.recordProductSale(gift.claimableGiftId).catch(err => 
-        console.error(`Failed to record sale for product ${gift.claimableGiftId}`, err)
-      );
-    }
 
     if (data.deliveryMethod === 'email' && data.recipientEmail) {
       const siteUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
@@ -516,48 +510,6 @@ export class GiftService {
   // ─────────────────────────────────────────────
 
   async getNewArrivals(countryCode?: string) {
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-    // Fetch products that are NOT featured or sponsored
-    // Ordered by createdAt DESC, Limited to 12
-    return (this.prisma as any).vendorGift.findMany({
-      where: {
-        status: 'active',
-        ...(countryCode ? {
-          vendor: {
-            country: countryCode,
-          },
-        } : {}),
-        createdAt: {
-          gte: sevenDaysAgo,
-        },
-        featuredAds: {
-          none: {
-            status: 'active',
-          },
-        },
-        sponsoredAds: {
-          none: {
-            status: 'active',
-          },
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-      take: 12,
-      include: {
-        vendor: {
-          select: {
-            businessName: true,
-            displayName: true,
-            avatarUrl: true,
-            businessSlug: true,
-            country: true,
-          },
-        },
-      },
-    });
+    return [];
   }
 }

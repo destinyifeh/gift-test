@@ -66,7 +66,7 @@ const Navbar = () => {
 
   // Show Developers only on the landing page
   const mainLinks = [
-    {label: 'Gift Shop', href: '/gift-shop'},
+    {label: 'Gifts', href: '/gifts'},
     {label: 'Campaigns', href: '/campaigns'},
     ...(user ? [{label: 'Send Gift', href: '/send-gift'}] : []),
   ].filter(l => user || !['/send-gift', '/dashboard', '/admin', '/vendor'].includes(l.href));

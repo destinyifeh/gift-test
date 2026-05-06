@@ -17,7 +17,6 @@ export type AdminSection =
   | 'notifications'
   | 'settings'
   | 'roles'
-  | 'catalog'
   | 'gift-cards'
   | 'logs';
 
@@ -39,7 +38,6 @@ export const adminNavItems: {id: AdminSection; label: string; icon: string}[] = 
   {id: 'notifications', label: 'Notifications', icon: 'notifications'},
   {id: 'settings', label: 'Settings', icon: 'settings'},
   {id: 'roles', label: 'Role Management', icon: 'admin_panel_settings'},
-  {id: 'catalog', label: 'Catalog Management', icon: 'category'},
   {id: 'gift-cards', label: 'Gift Cards', icon: 'redeem'},
   {id: 'logs', label: 'Audit Logs', icon: 'history'},
 ];
@@ -62,7 +60,6 @@ export const sectionTitles: Record<AdminSection, string> = {
   notifications: 'Notifications',
   settings: 'Platform Settings',
   roles: 'Role Management',
-  catalog: 'Catalog Management',
   'gift-cards': 'Gift Cards Management',
   logs: 'Audit Logs',
 };

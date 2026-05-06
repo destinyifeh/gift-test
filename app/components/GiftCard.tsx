@@ -9,7 +9,7 @@ import {
   ResponsiveModalContent,
 } from '@/components/ui/responsive-modal';
 
-import {GiftCard3D} from '../gift-shop/components/GiftCardVariants';
+import {GiftCard3D} from '../gifts/components/GiftCardVariants';
 
 export type GiftCardStatus = 'active' | 'partially_used' | 'redeemed';
 
@@ -124,8 +124,8 @@ export function GiftCard({
             isFlipped={isFlipped}
             onFlipToggle={setIsFlipped}
             amount={currentBalance}
-            randomId={code}
-            code={code.startsWith('GFT-') ? code : `GFT-${code}`}
+            randomId={code || 'preview'}
+            code={code ? (code.startsWith('GFT-') ? code : `GFT-${code}`) : ''}
             mode={interactive ? "live" : "preview"}
             cardName={cardName}
             vendorName={vendorName}

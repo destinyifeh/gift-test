@@ -8,10 +8,10 @@ import {
   GiftShopDesktopNav, 
   GiftShopMobileNav, 
   MobileBottomNav
-} from '../gift-shop/components/GiftShopNav';
+} from './components/GiftShopNav';
 import { 
   FlexHeroBanner
-} from '../gift-shop/components/ProductCard';
+} from './components/ProductCard';
 import { Gift } from 'lucide-react';
 
 // ── CONFIG ──

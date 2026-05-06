@@ -34,7 +34,7 @@ const CTASection = () => {
                   Start a Campaign
                 </Button>
               </Link>
-              <Link href="/gift-shop" className="flex-1 sm:flex-initial">
+              <Link href="/gifts" className="flex-1 sm:flex-initial">
                 <Button
                   size="lg"
                   variant="outline"

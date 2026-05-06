@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { createReport } from '@/lib/server/actions/moderation';
 import { useProfile } from '@/hooks/use-profile';
+import { CheckCircle2, X } from 'lucide-react';
 
 interface V2ReportModalProps {
   isOpen: boolean;
@@ -13,12 +14,22 @@ interface V2ReportModalProps {
   targetName: string;
 }
 
-const reasons = [
+const commonReasons = [
   'Inappropriate content',
   'Spam or misleading',
   'Fraudulent activity',
   'Intellectual property violation',
   'Harassment or hate speech',
+  'Other'
+];
+
+const vendorReasons = [
+  'Fake Business/Storefront',
+  'Incorrect Location/Address',
+  'Refusal to Accept Gift Card',
+  'Poor Service/Experience',
+  'Pricing Mismatch',
+  'Inappropriate content',
   'Other'
 ];
 
@@ -30,6 +41,7 @@ export function V2ReportModal({
   targetName
 }: V2ReportModalProps) {
   const { data: profile } = useProfile();
+  const reasons = targetType === 'vendor' ? vendorReasons : commonReasons;
   const [reason, setReason] = useState(reasons[0]);
   const [customReason, setCustomReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -90,14 +102,14 @@ export function V2ReportModal({
                 key={r}
                 type="button"
                 onClick={() => setReason(r)}
-                className={`flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-medium transition-all ${
+                className={`flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-bold transition-all ${
                   reason === r 
-                    ? 'bg-[var(--v2-primary-container)] text-[var(--v2-primary)] ring-2 ring-[var(--v2-primary)]' 
+                    ? 'bg-[var(--v2-primary)] text-white shadow-lg shadow-[var(--v2-primary)]/20' 
                     : 'bg-[var(--v2-surface-container)] text-[var(--v2-on-surface-variant)] hover:bg-[var(--v2-surface-container-high)]'
                 }`}
               >
                 {r}
-                {reason === r && <span className="v2-icon text-lg">check_circle</span>}
+                {reason === r && <CheckCircle2 className="w-5 h-5" />}
               </button>
             ))}
           </div>

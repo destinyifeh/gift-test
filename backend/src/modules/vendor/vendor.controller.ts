@@ -6,66 +6,9 @@ import { AuthGuard } from '../../common/guards/auth.guard';
 export class VendorController {
   constructor(private readonly vendorService: VendorService) {}
 
-  // ── Public Product Discovery ──
-  @Get('products')
-  async fetchProducts(@Query('vendorId') vendorId?: string) {
-    return this.vendorService.fetchProducts(vendorId);
-  }
 
-  @Get('products/paginated')
-  async fetchProductsPaginated(
-    @Query('page') page?: string, @Query('limit') limit?: string,
-    @Query('category') category?: string, @Query('search') search?: string,
-    @Query('vendorId') vendorId?: string,
-  ) {
-    return this.vendorService.fetchProductsPaginated({
-      page: Number(page) || 1, limit: Number(limit) || 12,
-      category, search, vendorId,
-    });
-  }
+  // ── Voucher ──
 
-  @Get('products/:id')
-  async fetchProductById(@Param('id') id: string, @Query('recordView') recordView?: string) {
-    return this.vendorService.fetchProductById(Number(id), recordView === 'true');
-  }
-
-  @Get('shop/:vendorSlug/:productSlug')
-  async fetchProductBySlugs(
-    @Param('vendorSlug') vendorSlug: string, 
-    @Param('productSlug') productSlug: string,
-    @Query('recordView') recordView?: string
-  ) {
-    return this.vendorService.fetchProductBySlugs(vendorSlug, productSlug, recordView === 'true');
-  }
-
-  @Post('products/:id/click')
-  async recordProductClick(@Param('id') id: string) {
-    return this.vendorService.recordProductClick(Number(id));
-  }
-
-  @Post('products/:id/view')
-  async recordProductView(@Param('id') id: string) {
-    return this.vendorService.recordProductView(Number(id));
-  }
-
-  // ── Vendor Product Management ──
-  @UseGuards(AuthGuard)
-  @Get('my-products')
-  async fetchMyProducts(@Req() req: any) {
-    return this.vendorService.fetchProducts(req.user.id, true);
-  }
-
-  @UseGuards(AuthGuard)
-  @Post('products')
-  async manageProduct(@Req() req: any, @Body() data: any) {
-    return this.vendorService.manageProduct(req.user.id, data);
-  }
-
-  @UseGuards(AuthGuard)
-  @Delete('products/:id')
-  async deleteProduct(@Req() req: any, @Param('id') id: string) {
-    return this.vendorService.deleteProduct(req.user.id, Number(id));
-  }
 
   // ── Voucher ──
   @UseGuards(AuthGuard)
@@ -95,49 +38,7 @@ export class VendorController {
     return { success: true, data };
   }
 
-  // ── Product Images ──
-  @UseGuards(AuthGuard)
-  @Post('products/:id/images')
-  async addProductImage(
-    @Req() req: any,
-    @Param('id') id: string,
-    @Body('imageUrl') imageUrl: string,
-  ) {
-    return this.vendorService.addProductImage(req.user.id, Number(id), imageUrl);
-  }
 
-  @UseGuards(AuthGuard)
-  @Delete('products/:id/images')
-  async removeProductImage(
-    @Req() req: any,
-    @Param('id') id: string,
-    @Body('imageUrl') imageUrl: string,
-  ) {
-    return this.vendorService.removeProductImage(req.user.id, Number(id), imageUrl);
-  }
-
-  @UseGuards(AuthGuard)
-  @Patch('products/:id/main-image')
-  async setProductMainImage(
-    @Req() req: any,
-    @Param('id') id: string,
-    @Body('imageUrl') imageUrl: string,
-  ) {
-    return this.vendorService.setProductMainImage(req.user.id, Number(id), imageUrl);
-  }
-
-  // ── Tag Requests ──
-  @UseGuards(AuthGuard)
-  @Post('tag-requests')
-  async createTagRequest(@Req() req: any, @Body() data: { subcategoryId: number; tagName: string }) {
-    return this.vendorService.createTagRequest(req.user.id, data);
-  }
-
-  @UseGuards(AuthGuard)
-  @Get('my-tag-requests')
-  async fetchMyTagRequests(@Req() req: any) {
-    return this.vendorService.fetchMyTagRequests(req.user.id);
-  }
 
   @Get('accepted-vendors/:giftCardId')
   async getAcceptedVendors(
@@ -145,5 +46,11 @@ export class VendorController {
     @Query('country') country?: string,
   ) {
     return this.vendorService.getVendorsByGiftCard(Number(giftCardId), country);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post(':id/contact')
+  async contactVendor(@Req() req: any, @Param('id') id: string, @Body('message') message?: string) {
+    return this.vendorService.contactVendor(req.user.id, id, message);
   }
 }

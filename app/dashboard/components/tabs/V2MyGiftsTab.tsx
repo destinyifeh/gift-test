@@ -11,7 +11,7 @@ import {
   useMyUserGiftCards,
 } from '@/hooks/use-claims';
 import {useGiftCardBySlug} from '@/hooks/use-gift-cards';
-import {useRateVoucher} from '@/hooks/use-rating';
+
 import {useConvertToCredit} from '@/hooks/use-transactions';
 import {formatCurrency} from '@/lib/utils/currency';
 import {cn} from '@/lib/utils';
@@ -21,7 +21,7 @@ import {useState} from 'react';
 import {toast} from 'sonner';
 import {FlexCardListItem, FlexCardComponent} from '../../../components/FlexCard';
 import {V2VendorDiscovery} from '../../../components/V2VendorDiscovery';
-import {GiftCard3D} from '../../../gift-shop/components/GiftCardVariants';
+import {GiftCard3D} from '../../../gifts/components/GiftCardVariants';
 
 interface FlexCardType {
   id: string;
@@ -211,7 +211,7 @@ export function V2MyGiftsTab() {
     (unclaimedRes?.data?.length || 0) + (unclaimedRes?.flexCards?.length || 0);
 
   const convertMutation = useConvertToCredit();
-  const rateMutation = useRateVoucher();
+  // const rateMutation = useRateVoucher();
   const claimMutation = useClaimGift();
 
   const handleConvert = (id: string) => {
@@ -228,12 +228,14 @@ export function V2MyGiftsTab() {
   };
 
   const handleRate = (id: string, rating: number) => {
+    /*
     rateMutation.mutate(
       {campaignId: id, rating},
       {
         onSuccess: () => refetch(),
       },
     );
+    */
   };
 
   // Calculate stats - "Gifts to claim" = only unclaimed gifts (not yet claimed by user)

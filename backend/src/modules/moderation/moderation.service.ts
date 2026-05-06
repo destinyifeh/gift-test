@@ -158,16 +158,6 @@ export class ModerationService {
             if (targetDetails?.vendor) {
               (targetDetails as any).businessName = targetDetails.vendor.businessName;
             }
-          } else if (ticket.targetType === 'product') {
-            targetDetails = await (this.prisma as any).vendorGift.findUnique({
-              where: { id: parseInt(ticket.targetId) },
-              select: {
-                name: true,
-                imageUrl: true,
-                price: true,
-                vendor: { select: { businessName: true } },
-              },
-            });
           } else if (ticket.targetType === 'campaign') {
             targetDetails = await (this.prisma as any).campaign.findUnique({
               where: { id: ticket.targetId },

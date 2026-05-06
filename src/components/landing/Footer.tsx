@@ -6,7 +6,7 @@ const Footer = () => {
     {
       title: 'Product',
       links: [
-        {label: 'Gift Shop', to: '/gift-shop'},
+        {label: 'Gifts', to: '/gifts'},
         {label: 'Campaigns', to: '/campaigns'},
         {label: 'Create Campaign', to: '/create-campaign'},
         {label: 'Dashboard', to: '/dashboard'},
@@ -15,10 +15,10 @@ const Footer = () => {
     {
       title: 'Features',
       links: [
-        {label: 'Gift Shop', to: '/gift-shop'},
+        {label: 'Gifts', to: '/gifts'},
         {label: 'Campaigns', to: '/campaigns'},
         {label: 'Creator Support', to: '/campaigns'},
-        {label: 'Vendor Marketplace', to: '/gift-shop'},
+        {label: 'Gifts Marketplace', to: '/gifts'},
       ],
     },
     {

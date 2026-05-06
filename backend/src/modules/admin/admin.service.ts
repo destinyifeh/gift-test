@@ -5,7 +5,7 @@ import { paginate, getPaginationOptions } from '../../common/utils/pagination.ut
 import { NotificationService } from '../notification/notification.service';
 import { AuthService } from '../auth/auth.service';
 import { EmailService } from '../email/email.service';
-import { UserRole, AdminRole } from '../../generated/prisma';
+import { UserRole, AdminRole } from '@prisma/client';
 import { CountryConfigService } from '../country-config/country-config.service';
 
 @Injectable()
@@ -603,7 +603,7 @@ export class AdminService {
         skip,
         take,
         orderBy: { email: 'asc' },
-        select: { id: true, email: true, country: true, userWallet: true, creator: { select: { username: true, wallet: true } }, roles: true, vendor: { select: { wallet: true } } },
+        select: { id: true, email: true, country: true, userWallet: true, creator: { select: { username: true, wallet: true } }, roles: true, vendor: { select: { wallet: true } }, walletStatus: true },
       }),
       (this.prisma as any).user.count({ where }),
     ]);
@@ -627,31 +627,7 @@ export class AdminService {
       _sum: { amount: true },
     });
 
-    // 3. Vendor Product Mapping
-    const vendorGifts = await (this.prisma as any).vendorGift.findMany({
-      where: { vendorId: { in: userIds } },
-      select: { id: true, vendorId: true },
-    });
-
-    const vendorToProductIds: Record<string, number[]> = {};
-    const allProductIds: number[] = [];
-    vendorGifts.forEach((vg: any) => {
-      if (!vendorToProductIds[vg.vendorId]) vendorToProductIds[vg.vendorId] = [];
-      vendorToProductIds[vg.vendorId].push(vg.id);
-      allProductIds.push(vg.id);
-    });
-
-    // 4. Vendor Sales (Product-specific DirectGift)
-    const productSales = await (this.prisma as any).directGift.groupBy({
-      by: ['claimableGiftId', 'status'],
-      where: { 
-        claimableGiftId: { in: allProductIds },
-        status: { in: ['active', 'claimed', 'redeemed'] } 
-      },
-      _sum: { amount: true },
-    });
-
-    // 5. Generic Gift Redemptions
+    // 3. Generic Gift Redemptions
     const genericRedemptions = await (this.prisma as any).directGift.groupBy({
       by: ['redeemedByVendorId'],
       where: { 
@@ -686,12 +662,6 @@ export class AdminService {
     const genericRedemptionMap = new Map(genericRedemptions.map((s: any) => [s.redeemedByVendorId, Number((s._sum as any).amount || 0)]));
     const flexSalesMap = new Map(flexSales.map((s: any) => [s.vendorId, Number((s._sum as any).amount || 0)]));
     const unclaimedMap = new Map(unclaimedGifts.map((s: any) => [(s.recipientEmail as string).toLowerCase(), Number((s._sum as any).amount || 0)]));
-    
-    const productSalesMap = new Map<number, any[]>();
-    productSales.forEach((s: any) => {
-      if (!productSalesMap.has(s.claimableGiftId)) productSalesMap.set(s.claimableGiftId, []);
-      productSalesMap.get(s.claimableGiftId)!.push(s);
-    });
 
     const stats: any[] = [];
     users.forEach((u: any) => {
@@ -746,28 +716,10 @@ export class AdminService {
           .filter((t: any) => (t.type === 'payout' || t.type === 'fee' || t.type === 'withdrawal') && (t.status === 'pending') && (t.metadata?.source === 'vendor' || t.metadata?.wallet_source === 'vendorWallet' || t.type === 'payout'))
           .reduce((sum: number, t: any) => sum + Number((t._sum as any).amount), 0) / 100;
 
-        const vProductIds = vendorToProductIds[u.id] || [];
-        let vendorProductTotalSales = 0;
-        let vendorProductRedeemed = 0;
-        let vendorProductPending = 0; // Purchased but not redeemed (active/claimed)
-        
-        vProductIds.forEach(pid => {
-          const pStats = productSalesMap.get(pid) || [];
-          pStats.forEach((s: any) => {
-            const amt = Number(s._sum.amount || 0);
-            vendorProductTotalSales += amt;
-            if (s.status === 'redeemed') {
-              vendorProductRedeemed += amt;
-            } else if (s.status === 'active' || s.status === 'claimed') {
-              vendorProductPending += amt;
-            }
-          });
-        });
-
         const genericRedeemed = (genericRedemptionMap.get(u.id) as number) || 0;
         const flexRedeemed = (flexSalesMap.get(u.id) as number) || 0;
 
-        const vendorEarned = Number(vendorProductTotalSales) + Number(genericRedeemed) + Number(flexRedeemed);
+        const vendorEarned = Number(genericRedeemed) + Number(flexRedeemed);
         const vendorAvailableBalance = Number(u.vendor?.wallet || 0) / 100;
 
         stats.push({
@@ -780,7 +732,7 @@ export class AdminService {
           balance: vendorAvailableBalance,
           earned: vendorEarned,
           withdrawn: vendorPayouts,
-          pending: vendorOutflowPending + vendorProductPending,
+          pending: vendorOutflowPending,
           status: u.walletStatus || 'active',
         });
       }
@@ -1195,11 +1147,6 @@ export class AdminService {
               status: true,
             },
           },
-          _count: {
-            select: {
-              vendorGifts: true,
-            },
-          },
         },
       }),
       (this.prisma as any).vendor.count({ where }),
@@ -1208,45 +1155,18 @@ export class AdminService {
     // Consolidate Stats for returned vendors
     const vendorIds = vendors.map((v: any) => v.id);
     
-    // Get all product IDs for these vendors
-    const vendorGifts = await (this.prisma as any).vendorGift.findMany({
-      where: { vendorId: { in: vendorIds } },
-      select: { id: true, vendorId: true },
-    });
-
-    const vendorToProductIds: Record<string, number[]> = {};
-    const allProductIds: number[] = [];
-    vendorGifts.forEach((vg: any) => {
-      if (!vendorToProductIds[vg.vendorId]) vendorToProductIds[vg.vendorId] = [];
-      vendorToProductIds[vg.vendorId].push(vg.id);
-      allProductIds.push(vg.id);
-    });
-
-    // 1. Product-specific gifts (Sent/Claimed/Redeemed)
-    const productSales = await (this.prisma as any).directGift.groupBy({
-      by: ['claimableGiftId', 'status'],
-      where: { 
-        claimableGiftId: { in: allProductIds },
-        status: { in: ['active', 'claimed', 'redeemed'] } 
-      },
-      _sum: { amount: true },
-      _count: { id: true },
-    });
-
-    // 2. Generic gift redemptions (Redeemed at shop)
-    // Filter out gifts that already have a claimableGiftId to avoid double counting
+    // 1. Generic gift redemptions (Redeemed at shop)
     const genericRedemptions = await (this.prisma as any).directGift.groupBy({
       by: ['redeemedByVendorId'],
       where: { 
         redeemedByVendorId: { in: vendorIds },
         status: 'redeemed',
-        claimableGiftId: null,
       },
       _sum: { amount: true },
       _count: { id: true },
     });
 
-    // 3. Flex Card transactions
+    // 2. Flex Card transactions
     const flexSales = await (this.prisma as any).flexCardTransaction.groupBy({
       by: ['vendorId'],
       where: { vendorId: { in: vendorIds } },
@@ -1254,58 +1174,27 @@ export class AdminService {
       _count: { id: true },
     });
 
-    // Map stats in-memory
-    // productSales is now grouped by [id, status], so we need to handle multiple entries per product
-    const productSalesMap = new Map<number, any[]>();
-    productSales.forEach((s: any) => {
-      const pid = s.claimableGiftId;
-      if (!productSalesMap.has(pid)) productSalesMap.set(pid, []);
-      productSalesMap.get(pid)!.push(s);
-    });
-
     const genericRedemptionMap = new Map(genericRedemptions.map((s: any) => [s.redeemedByVendorId, s]));
     const flexSalesMap = new Map(flexSales.map((s: any) => [s.vendorId, s]));
 
     const data = vendors.map((v: any) => {
-      const vProductIds = vendorToProductIds[v.id] || [];
       const user = v.user || {};
       
-      // Sum up stats for all products owned by this vendor
-      let productOrdersCount = 0;
-      let productSalesVolume = 0;
-      vProductIds.forEach(pid => {
-        const statsList = productSalesMap.get(pid) || [];
-        statsList.forEach((stats: any) => {
-          // All valid statuses count towards "Orders"
-          productOrdersCount += stats._count.id;
-          
-          // Only "Redeemed" status counts towards "Sales Volume"
-          if (stats.status === 'redeemed') {
-            productSalesVolume += Number(stats._sum.amount || 0);
-          }
-        });
-      });
-
-      // Add generic redemptions (counted as sales volume, separate from product orders)
       const gStats = genericRedemptionMap.get(v.id) as any;
-      if (gStats) {
-        productSalesVolume += Number((gStats._sum as any).amount || 0);
-      }
+      const genericRedeemed = gStats ? Number((gStats._sum as any).amount || 0) : 0;
+      const genericCount = gStats ? gStats._count.id : 0;
 
-      // Add flex card sales (counted as sales volume, separate from product orders)
       const fStats = flexSalesMap.get(v.id) as any;
-      if (fStats) {
-        productSalesVolume += Number((fStats._sum as any).amount || 0);
-      }
+      const flexRedeemed = fStats ? Number((fStats._sum as any).amount || 0) : 0;
+      const flexCount = fStats ? fStats._count.id : 0;
 
       return {
         ...v,
         ...user,
         userId: user.id,
         id: v.id,
-        orders_count: productOrdersCount,
-        sales_volume: productSalesVolume,
-        productsCount: v._count?.vendorGifts || 0,
+        orders_count: genericCount + flexCount,
+        sales_volume: genericRedeemed + flexRedeemed,
       };
     });
 
@@ -1369,164 +1258,10 @@ export class AdminService {
     return updated;
   }
 
+
   // ─────────────────────────────────────────────
-  // Product Management
+  // Flex Card Management
   // ─────────────────────────────────────────────
-
-  async fetchProductsAdmin(options: { search?: string; vendorId?: string; categoryId?: number; status?: string; page?: number; limit?: number }) {
-    const { search, vendorId, categoryId, status, page = 1, limit = 20 } = options;
-    const { skip, take } = getPaginationOptions(page, limit);
-
-    const where: any = {};
-    if (search) {
-      where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { productShortId: { contains: search, mode: 'insensitive' } },
-      ];
-    }
-    if (vendorId) where.vendorId = vendorId;
-    if (categoryId) where.categoryId = categoryId;
-    if (status) where.status = status;
-
-    const [products, total] = await Promise.all([
-      (this.prisma as any).vendorGift.findMany({
-        where,
-        skip,
-        take,
-        orderBy: { createdAt: 'desc' },
-        include: {
-          vendor: { select: { businessName: true, user: { select: { displayName: true } } } },
-          categoryRel: { select: { name: true } },
-          subcategoryRel: { select: { name: true } },
-        },
-      }),
-      (this.prisma as any).vendorGift.count({ where }),
-    ]);
-
-    const formatted = products.map((p: any) => ({
-      ...p,
-      price: p.price.toString(),
-      rankingScore: p.rankingScore?.toString(),
-    }));
-
-    return paginate(formatted, total, page, limit);
-  }
-
-  async requestProductUpdateAdmin(adminId: string, productId: number, reason: string) {
-    const defaultReason = reason || 'Your product requires changes to comply with our catalog guidelines.';
-    const product = await (this.prisma as any).vendorGift.update({
-      where: { id: productId },
-      data: { status: 'draft' },
-      include: { vendor: { select: { businessName: true, user: { select: { email: true } } } } },
-    });
-
-    try {
-      if (product.vendor?.user?.email) {
-        await this.notificationService.create({
-          vendorId: product.vendorId, 
-          type: 'system', 
-          title: 'Action Required: Product Update', 
-          message: `Your product "${product.name}" requires an update. Reason: ${defaultReason}`, 
-          data: { link: `/vendor/dashboard?tab=inventory&edit=${productId}` }
-        });
-      }
-    } catch(e) {}
-
-    const adminRecordId = await this.resolveAdminId(adminId);
-    await this.logAction(adminRecordId, `Requested update for product ${productId} (assigned to draft). Reason: ${defaultReason}`);
-    return { ...product, price: product.price.toString() };
-  }
-
-  async updateProductAdmin(adminId: string, productId: number, data: any) {
-    // Prevent overriding restricted fields silently
-    delete data.id;
-    delete data.vendorId;
-    delete data.productShortId;
-
-    const updated = await (this.prisma as any).vendorGift.update({
-      where: { id: productId },
-      data,
-    });
-
-    const adminRecordId = await this.resolveAdminId(adminId);
-    await this.logAction(adminRecordId, `Updated product details for product ${productId}`);
-    return { ...updated, price: updated.price.toString() };
-  }
-
-  /**
-   * Delete a product (vendor gift) as admin, including all images from R2.
-   * Mirrors frontend: admin.ts → deleteProductAdmin
-   */
-  async deleteProductAdmin(adminId: string, productId: number) {
-    const product = await (this.prisma as any).vendorGift.findUnique({
-      where: { id: productId },
-    });
-
-    if (!product) {
-      throw new Error('Product not found');
-    }
-
-    // Collect all images to delete
-    const imagesToDelete: string[] = [];
-    if (product.imageUrl) imagesToDelete.push(product.imageUrl);
-    if (product.images && Array.isArray(product.images)) {
-      imagesToDelete.push(...product.images);
-    }
-
-    // Get images from vendorGiftImage table
-    const productImages = await (this.prisma as any).vendorGiftImage.findMany({
-      where: { giftId: productId },
-      select: { url: true },
-    });
-    productImages.forEach((img: any) => {
-      if (img.url) imagesToDelete.push(img.url);
-    });
-
-    // Delete all images from R2 (in parallel)
-    const uniqueImages = [...new Set(imagesToDelete)];
-    await Promise.allSettled(
-      uniqueImages.map(async (imageUrl) => {
-        try {
-          await this.fileService.deleteFile(imageUrl);
-        } catch (error) {
-          this.logger.warn(`Failed to delete product image: ${imageUrl}`, error);
-        }
-      }),
-    );
-
-    await (this.prisma as any).vendorGift.delete({
-      where: { id: productId },
-    });
-
-    const adminRecordId = await this.resolveAdminId(adminId);
-    await this.logAction(adminRecordId, `Deleted product #${productId} (${product.name})`);
-
-    return { success: true };
-  }
-
-  /**
-   * Update product status as admin.
-   * Mirrors frontend: admin.ts → updateProductStatusAdmin
-   */
-  async updateProductStatusAdmin(adminId: string, productId: number, status: string) {
-    const product = await (this.prisma as any).vendorGift.findUnique({
-      where: { id: productId },
-    });
-
-    if (!product) {
-      throw new Error('Product not found');
-    }
-
-    const updated = await (this.prisma as any).vendorGift.update({
-      where: { id: productId },
-      data: { status },
-    });
-
-    const adminRecordId = await this.resolveAdminId(adminId);
-    await this.logAction(adminRecordId, `Updated product #${productId} status to ${status}`);
-
-    return updated;
-  }
 
   /**
    * Fetch all flex cards (admin view).

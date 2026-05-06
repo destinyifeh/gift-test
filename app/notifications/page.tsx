@@ -8,6 +8,7 @@ import {
 import {cn} from '@/lib/utils';
 import {formatDistanceToNow} from 'date-fns';
 import Link from 'next/link';
+import {useSearchParams} from 'next/navigation';
 import {useState} from 'react';
 
 const notificationIcons: Record<string, {icon: string; color: string; bg: string}> = {
@@ -19,18 +20,22 @@ const notificationIcons: Record<string, {icon: string; color: string; bg: string
   order_received: {icon: 'shopping_bag', color: 'text-blue-600', bg: 'bg-blue-100'},
   order_completed: {icon: 'local_shipping', color: 'text-emerald-600', bg: 'bg-emerald-100'},
   withdrawal_completed: {icon: 'account_balance', color: 'text-emerald-600', bg: 'bg-emerald-100'},
+  contact_request: {icon: 'chat', color: 'text-blue-600', bg: 'bg-blue-100'},
   system: {icon: 'info', color: 'text-blue-600', bg: 'bg-blue-100'},
 };
 
 type FilterType = 'all' | 'unread' | 'read';
 
+
 export default function NotificationsPage() {
+  const searchParams = useSearchParams();
+  const target = searchParams.get('target') || 'user';
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState<FilterType>('all');
 
-  const {data: notifications = [], isLoading} = useNotifications({limit: 100});
+  const {data: notifications = [], isLoading} = useNotifications({limit: 100, target});
   const markAsRead = useMarkNotificationAsRead();
-  const markAllAsRead = useMarkAllNotificationsAsRead();
+  const markAllAsRead = useMarkAllNotificationsAsRead(target);
 
   // Filter notifications
   const filteredNotifications = notifications.filter((notification: any) => {

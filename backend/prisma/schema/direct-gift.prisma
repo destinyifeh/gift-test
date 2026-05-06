@@ -11,8 +11,6 @@ model DirectGift {
 
   // Claimable logic
   claimableType          String?     @map("claimable_type") // null for some legacy? Usually 'money' or 'gift-card'
-  claimableGiftId        Int?        @map("claimable_gift_id")
-  product                VendorGift? @relation("DirectGiftProduct", fields: [claimableGiftId], references: [id], onDelete: SetNull)
   giftCardId             Int?        @map("gift_card_id")
   giftCard               GiftCard?   @relation(fields: [giftCardId], references: [id], onDelete: SetNull)
   claimableRecipientType String?     @map("claimable_recipient_type")

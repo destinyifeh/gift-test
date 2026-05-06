@@ -126,7 +126,7 @@ function V2VendorDashboardContent() {
         </div>
         <div className="flex items-center gap-1.5">
           <V2MobileRoleSwitcher />
-          <V2NotificationsPanel />
+          <V2NotificationsPanel target="vendor" />
           <button
             onClick={() => setMobileMenuOpen(true)}
             className="w-9 h-9 rounded-xl bg-[var(--v2-surface-container-high)] flex items-center justify-center">
@@ -229,7 +229,7 @@ function V2VendorDashboardContent() {
           </div>
           <div className="flex items-center gap-4 text-[var(--v2-primary)]">
             <V2RoleSwitcher />
-            <V2NotificationsPanel />
+            <V2NotificationsPanel target="vendor" />
             <div className="h-8 w-8 rounded-full bg-[var(--v2-primary-container)]/20 overflow-hidden">
               {profile?.business_logo_url ? (
                 <img src={profile.business_logo_url} alt="" className="w-full h-full object-cover" />

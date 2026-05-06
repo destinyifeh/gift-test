@@ -338,6 +338,10 @@ export class AnalyticsService {
         orderBy: { createdAt: 'desc' },
         skip,
         take,
+        include: {
+          giftCard: true,
+          redeemedByVendor: { select: { businessName: true } },
+        },
       }),
       (this.prisma as any).directGift.count({
         where: {
@@ -347,25 +351,17 @@ export class AnalyticsService {
       }),
     ]);
 
-    // Fetch vendor info for these gifts
-    const giftIds = allGifts.map((c: any) => c.claimableGiftId).filter((id: any): id is number => !!id);
-    const vendorGifts = await (this.prisma as any).vendorGift.findMany({
-      where: { id: { in: giftIds } },
-      include: { vendor: { select: { businessName: true } } },
-    });
-
     const formatted = allGifts.map((c: any) => {
-      const vg = vendorGifts.find((v: any) => v.id === c.claimableGiftId);
       return {
         id: `gift-${c.id}`,
-        name: c.title || vg?.name || ((c as any).claimableType === 'money' ? 'Cash Gift' : 'Gift Card'),
+        name: c.title || c.giftCard?.name || ((c as any).claimableType === 'money' ? 'Cash Gift' : 'Gift Card'),
         sender: (c as any).senderName || 'A Friend',
         date: (c as any).createdAt.toLocaleDateString(),
         amount: Number(c.amount),
         currency: (c as any).currency,
         status: (c as any).status,
         code: (c as any).giftCode,
-        vendorShopName: vg?.vendor?.businessName,
+        vendorShopName: c.redeemedByVendor?.businessName || c.giftCard?.name,
         message: (c as any).message,
       };
     });
@@ -465,12 +461,12 @@ export class AnalyticsService {
       if (t.type === 'gift_purchase') {
         const gift = await (this.prisma as any).directGift.findFirst({
           where: { paymentReference: t.reference },
-          include: { product: { include: { vendor: { select: { businessName: true } } } } }
+          include: { giftCard: true, redeemedByVendor: { select: { businessName: true } } }
         });
         if (gift) {
-          name = gift.title || gift.product?.name || 'Gift Card';
+          name = gift.title || gift.giftCard?.name || 'Gift Card';
           recipient = gift.recipientEmail || gift.recipientPhone || 'A Friend';
-          vendorShopName = gift.product?.vendor?.businessName || 'Vendor';
+          vendorShopName = gift.redeemedByVendor?.businessName || gift.giftCard?.name || 'Vendor';
         }
       }
 
@@ -523,11 +519,8 @@ export class AnalyticsService {
         skip,
         take,
         include: {
-          product: {
-            include: {
-              vendor: { select: { businessName: true } },
-            },
-          },
+          giftCard: true,
+          redeemedByVendor: { select: { businessName: true } },
         },
       }),
       (this.prisma as any).directGift.count({
@@ -540,14 +533,14 @@ export class AnalyticsService {
 
     const formatted = gifts.map((c: any) => ({
       id: `received-${c.id}`,
-      name: c.title || c.product?.name || (c.claimableType === 'money' ? 'Cash Gift' : 'Gift Card'),
+      name: c.title || c.giftCard?.name || (c.claimableType === 'money' ? 'Cash Gift' : 'Gift Card'),
       sender: c.senderName || 'A Friend',
       date: c.createdAt,
       amount: Number(c.amount),
       currency: c.currency || 'NGN',
       status: c.status,
       code: c.giftCode,
-      vendorShopName: c.product?.vendor?.businessName || c.product?.vendor?.displayName,
+      vendorShopName: c.redeemedByVendor?.businessName || c.giftCard?.name,
       message: c.message,
     }));
 
@@ -751,11 +744,8 @@ export class AnalyticsService {
         },
         orderBy: { createdAt: 'desc' },
         include: {
-          product: {
-            include: {
-              vendor: { select: { businessName: true } },
-            },
-          },
+          giftCard: true,
+          redeemedByVendor: { select: { businessName: true } },
         },
       }),
       (this.prisma as any).flexCard.findMany({
@@ -781,7 +771,7 @@ export class AnalyticsService {
             include: {
               vendors: { 
                 include: { 
-                  vendor: { select: { businessName: true, displayName: true } } 
+                  vendor: { select: { businessName: true } } 
                 } 
               }
             }
@@ -794,15 +784,15 @@ export class AnalyticsService {
     const formattedGifts = [
       ...unclaimedGifts.map((c: any) => ({
         id: c.id,
-        name: c.title || c.product?.name || (c.claimableType === 'money' ? 'Cash Gift' : 'Gift Card'),
+        name: c.title || c.giftCard?.name || (c.claimableType === 'money' ? 'Cash Gift' : 'Gift Card'),
         sender: c.senderName || 'A Friend',
         date: c.createdAt,
         goal_amount: Number(c.amount),
         currency: c.currency || 'NGN',
         gift_code: c.giftCode,
-        vendorShopName: c.product?.vendor?.businessName || c.product?.vendor?.displayName,
+        vendorShopName: c.redeemedByVendor?.businessName || c.giftCard?.name,
         message: c.message,
-        claimable_type: c.claimableType || (c.product ? 'gift-card' : 'money'),
+        claimable_type: c.claimableType || (c.giftCard ? 'gift-card' : 'money'),
         sender_name: c.senderName || 'A Friend',
       })),
       ...unclaimedUserGiftCards.map((c: any) => ({

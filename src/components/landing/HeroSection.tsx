@@ -40,7 +40,7 @@ const HeroSection = () => {
 
             {/* CTA Buttons - Full width on mobile */}
             <div className="flex flex-col sm:flex-row gap-3 mb-6 sm:mb-8 max-w-sm sm:max-w-none mx-auto lg:mx-0">
-              <Link href="/gift-shop" className="flex-1 sm:flex-initial">
+              <Link href="/gifts" className="flex-1 sm:flex-initial">
                 <Button
                   variant="hero"
                   size="lg"
@@ -107,7 +107,7 @@ const HeroSection = () => {
                 <ArrowRight className="w-3.5 h-3.5 text-muted-foreground" />
               </div>
             </Link>
-            <Link href="/gift-shop" className="shrink-0">
+            <Link href="/gifts" className="shrink-0">
               <div className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-card border border-border hover:border-primary/30 transition-colors">
                 <ShoppingBag className="w-4 h-4 text-secondary" />
                 <span className="text-sm font-medium text-foreground whitespace-nowrap">
