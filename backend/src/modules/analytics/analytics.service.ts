@@ -9,9 +9,12 @@ import {
   TX_GIFT_SENT,
 } from '../../common/constants';
 
+import { EmailService } from '../email/email.service';
+import { generateClaimToken } from '../../common/utils/token.util';
+
 @Injectable()
 export class AnalyticsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private emailService: EmailService) {}
 
   async fetchDashboardAnalytics(userId: string) {
     const contributionTypes = [TX_CAMPAIGN_CONTRIBUTION, TX_GIFT_SENT, 'gift_purchase'];
@@ -374,131 +377,177 @@ export class AnalyticsService {
    */
   async fetchSentGiftsList(userId: string, page: number = 1, limit: number = 10) {
     const { skip, take } = getPaginationOptions(page, limit);
-    const contributionTypes = [TX_CAMPAIGN_CONTRIBUTION, TX_GIFT_SENT, 'gift_purchase'];
 
-    const [transactions, total, totalSumAgg] = await Promise.all([
-      (this.prisma as any).transaction.findMany({
-        where: {
-          userId,
-          type: { in: contributionTypes },
-          status: 'success',
-          NOT: [
-            { reference: { startsWith: 'CREDIT-' } },
-            { reference: { startsWith: 'REWARD-' } },
-            { reference: { startsWith: 'conv-' } },
-            { reference: { startsWith: 'FEE-' } },
-            { description: { contains: 'Platform Credits' } },
-            { description: { contains: 'Referral Reward' } }
-          ]
-        },
+    const userParams = await (this.prisma as any).user.findUnique({ where: { id: userId }, select: { email: true } });
+    
+    const [cashGifts, userGiftCards, flexCards, contributions] = await Promise.all([
+      (this.prisma as any).directGift.findMany({
+        where: { OR: [{ senderEmail: userParams?.email }, { userId }] },
         orderBy: { createdAt: 'desc' },
-        skip,
-        take,
+        include: { giftCard: true, redeemedByVendor: { select: { businessName: true } } },
       }),
-      (this.prisma as any).transaction.count({
-        where: {
-          userId,
-          type: { in: contributionTypes },
-          status: 'success',
-          NOT: [
-            { reference: { startsWith: 'CREDIT-' } },
-            { reference: { startsWith: 'REWARD-' } },
-            { reference: { startsWith: 'conv-' } },
-            { reference: { startsWith: 'FEE-' } },
-            { description: { contains: 'Platform Credits' } },
-            { description: { contains: 'Referral Reward' } }
-          ]
-        },
+      (this.prisma as any).userGiftCard.findMany({
+        where: { senderId: userId },
+        orderBy: { createdAt: 'desc' },
+        include: { giftCard: true },
       }),
-      (this.prisma as any).transaction.aggregate({
-        where: {
-          userId,
-          type: { in: contributionTypes },
-          status: 'success',
-          NOT: [
-            { reference: { startsWith: 'CREDIT-' } },
-            { reference: { startsWith: 'REWARD-' } },
-            { reference: { startsWith: 'conv-' } },
-            { reference: { startsWith: 'FEE-' } },
-            { description: { contains: 'Platform Credits' } },
-            { description: { contains: 'Referral Reward' } }
-          ]
-        },
-        _sum: { amount: true }
+      (this.prisma as any).flexCard.findMany({
+        where: { senderId: userId },
+        orderBy: { createdAt: 'desc' }
+      }),
+      (this.prisma as any).contribution.findMany({
+        where: { donorEmail: { not: null } },
+        orderBy: { createdAt: 'desc' },
+        include: { campaign: { select: { title: true, userId: true } } }
       })
     ]);
 
-    // Enhance transactions with metadata from specific tables
-    const formatted = await Promise.all(transactions.map(async (t: any) => {
-      const amount = Number(t.amount) / 100;
-      let name = t.description || t.type.replace(/_/g, ' ');
-      let recipient = 'Someone';
-      let vendorShopName = 'Gifthance';
+    // We only want contributions where the current user is the one making the donation
+    // To identify this without a dedicated 'userId' on contribution, we fetch user email
+    // const user = await (this.prisma as any).user.findUnique({ where: { id: userId }, select: { email: true } });
+    const userContributions = contributions.filter((c: any) => c.donorEmail === userParams?.email);
 
-      // 1. If Campaign Contribution
-      if (t.type === TX_CAMPAIGN_CONTRIBUTION && t.campaignId) {
-        const campaign = await (this.prisma as any).campaign.findUnique({
-          where: { id: t.campaignId },
-          select: { title: true }
-        });
-        name = `Donation to ${campaign?.title || 'Campaign'}`;
-        recipient = campaign?.title || 'Campaign';
-      }
+    let allItems: any[] = [];
+    let totalSum = 0;
 
-      // 2. If Creator Support
-      if (t.type === TX_CREATOR_SUPPORT) {
-        const support = await (this.prisma as any).creatorSupport.findFirst({
-          where: { transactionId: t.id },
-          include: { creator: { include: { user: { select: { displayName: true } } } } }
-        });
-        if (support) {
-          name = support.giftName ? `Gift: ${support.giftName}` : 'Monetary Support';
-          recipient = support.creator?.user?.displayName || 'Creator';
+    // Helper to determine accurate status
+    const getStatus = (item: any, isCashGift = false) => {
+      // 1. Initial pending states
+      if (item.status === 'pending') return 'pending';
+      if (item.status === 'active' && !item.claimedAt) return 'pending';
+
+      // 2. Money/Cash gifts: 'redeemed' means successfully claimed to user wallet
+      if (isCashGift && item.status === 'redeemed') return 'claimed';
+      
+      // 3. Standard 'claimed' status for all gift types
+      if (item.status === 'claimed') return 'claimed';
+
+      // 4. FlexCard balance/usage logic
+      if (item.currentBalance !== undefined && item.initialAmount !== undefined) {
+        if (item.claimedAt || item.status !== 'active') {
+          const current = Number(item.currentBalance);
+          const initial = Number(item.initialAmount);
+          if (current === initial) return 'claimed';
+          if (current > 0) return 'partially_used';
+          return 'used'; // Spent
         }
       }
 
-      // 3. If Shop Gift Purchase
-      if (t.type === 'gift_purchase') {
-        const gift = await (this.prisma as any).directGift.findFirst({
-          where: { paymentReference: t.reference },
-          include: { giftCard: true, redeemedByVendor: { select: { businessName: true } } }
-        });
-        if (gift) {
-          name = gift.title || gift.giftCard?.name || 'Gift Card';
-          recipient = gift.recipientEmail || gift.recipientPhone || 'A Friend';
-          vendorShopName = gift.redeemedByVendor?.businessName || gift.giftCard?.name || 'Vendor';
-        }
-      }
+      // 5. Fallbacks for other states (e.g. fully spent flex cards or legacy redeemed markers)
+      if (item.status === 'redeemed') return 'used'; 
+      return item.status || 'delivered'; 
+    };
 
-      // 4. If Flex/User Gift Card Sent
-      if (t.type === TX_GIFT_SENT) {
-        const flex = await (this.prisma as any).flexCard.findFirst({
-          where: { OR: [{ code: t.reference?.split('-')[1] }, { senderId: userId }] }
-        });
-        if (flex) {
-          name = 'Flex Gift Card';
-          recipient = flex.recipientEmail || 'Claim Link';
-        }
-      }
+    // 1. Cash / Direct Gifts
+    cashGifts.forEach((g: any) => {
+      totalSum += Number(g.amount);
+      allItems.push({
+        id: `cash-${g.id}`,
+        origId: g.id,
+        name: g.title || g.giftCard?.name || (g.claimableType === 'money' ? 'Cash Gift' : 'Gift Card'),
+        recipient: g.recipientEmail || g.recipientPhone || 'A Friend',
+        date: g.createdAt,
+        amount: Number(g.amount),
+        currency: g.currency,
+        status: getStatus(g, true),
+        vendorShopName: g.redeemedByVendor?.businessName || g.giftCard?.name,
+        type: g.claimableType === 'money' ? 'direct' : 'gift-card',
+        timestamp: g.createdAt.getTime(),
+        message: g.message,
+        giftCode: g.giftCode,
+        claimToken: g.claimToken,
+        claimedAt: g.claimedAt || g.redeemedAt,
+      });
+    });
 
-      return {
-        id: t.id,
-        name,
-        recipient,
-        date: t.createdAt.toLocaleDateString(),
-        amount,
-        currency: t.currency || 'NGN',
-        status: t.status,
-        vendorShopName,
-        type: t.type,
-        timestamp: t.createdAt.getTime()
-      };
+    // 2. User Gift Cards (Vendor)
+    userGiftCards.forEach((g: any) => {
+      totalSum += Number(g.initialAmount);
+      allItems.push({
+        id: `ugc-${g.id}`,
+        origId: g.id,
+        name: g.giftCard?.name || 'Gift Card',
+        recipient: g.recipientEmail || g.recipientPhone || 'A Friend',
+        date: g.createdAt,
+        amount: Number(g.initialAmount),
+        currency: g.currency,
+        status: getStatus(g),
+        vendorShopName: g.giftCard?.name,
+        type: 'gift-card',
+        timestamp: g.createdAt.getTime(),
+        message: g.message,
+        code: g.code,
+        claimToken: g.claimToken,
+        claimedAt: g.claimedAt,
+      });
+    });
+
+    // 3. Flex Cards
+    flexCards.forEach((g: any) => {
+      totalSum += Number(g.initialAmount);
+      allItems.push({
+        id: `flex-${g.id}`,
+        origId: g.id,
+        name: 'Flex Gift Card',
+        recipient: g.recipientEmail || g.recipientPhone || 'A Friend',
+        date: g.createdAt,
+        amount: Number(g.initialAmount),
+        currency: g.currency,
+        status: getStatus(g),
+        vendorShopName: 'Gifthance',
+        type: 'flex-card',
+        timestamp: g.createdAt.getTime(),
+        message: g.message,
+        code: g.code,
+        claimToken: g.claimToken,
+        claimedAt: g.claimedAt,
+      });
+    });
+
+    // 4. Campaign Contributions (Fallback to Transaction query for total if missing context)
+    userContributions.forEach((c: any) => {
+      totalSum += Number(c.amount);
+      allItems.push({
+        id: `camp-${c.id}`,
+        origId: c.id,
+        name: `Donation to ${c.campaign?.title || 'Campaign'}`,
+        recipient: c.campaign?.title || 'Campaign',
+        date: c.createdAt,
+        amount: Number(c.amount),
+        currency: c.currency,
+        status: 'delivered', // always delivered
+        vendorShopName: '',
+        type: 'campaign',
+        timestamp: c.createdAt.getTime(),
+        message: c.message,
+      });
+    });
+
+    // Sort descending by timestamp
+    allItems.sort((a, b) => b.timestamp - a.timestamp);
+
+    // Manual slice pagination implementation
+    const total = allItems.length;
+    const paginated = allItems.slice(skip, skip + take).map((t) => ({
+      ...t,
+      date: t.date.toLocaleDateString(), // format to string here for JSON safety
     }));
 
-    const res = paginate(formatted, total, page, limit);
+    const res = paginate(paginated, total, page, limit);
+
+    // Also get standard transactions sum as a fallback for total Given
+    const totalSumAgg = await (this.prisma as any).transaction.aggregate({
+      where: {
+        userId,
+        type: { in: [TX_CAMPAIGN_CONTRIBUTION, TX_GIFT_SENT, 'gift_purchase'] },
+        status: 'success',
+      },
+      _sum: { amount: true }
+    });
+
     return {
       ...res,
-      totalSum: Number(totalSumAgg?._sum?.amount || 0) / 100,
+      totalSum: Math.max(totalSum, Number(totalSumAgg?._sum?.amount || 0) / 100),
     };
   }
 
@@ -832,5 +881,127 @@ export class AnalyticsService {
       data: formattedGifts,
       flexCards: formattedFlexCards,
     };
+  }
+
+  /**
+   * Re-send gift notification to the recipient
+   */
+  async resendGift(userId: string, giftId: string | number, giftType: string) {
+    let gift: any = null;
+    let link = '';
+    const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+    
+    // Safely coerce giftId to string for prefix parsing
+    const strGiftId = String(giftId);
+    
+    // Override giftType and clean giftId using deterministic prefixes
+    let cleanGiftId = strGiftId;
+    if (strGiftId.startsWith('cash-')) { giftType = 'direct'; cleanGiftId = strGiftId.replace('cash-', ''); }
+    else if (strGiftId.startsWith('ugc-')) { giftType = 'user-gift-card'; cleanGiftId = strGiftId.replace('ugc-', ''); }
+    else if (strGiftId.startsWith('flex-')) { giftType = 'flex-card'; cleanGiftId = strGiftId.replace('flex-', ''); }
+    
+    // Fetch user to use senderEmail for directGifts
+    const user = await (this.prisma as any).user.findUnique({ where: { id: userId } });
+
+    if (giftType === 'direct') {
+      gift = await (this.prisma as any).directGift.findFirst({ where: { id: cleanGiftId, OR: [{ senderEmail: user?.email }, { userId }] } });
+      if (!gift) throw new Error('Gift not found');
+      if (gift.claimedAt || gift.redeemedAt || gift.status === 'claimed' || gift.status === 'redeemed') {
+        throw new Error('Gift has already been claimed');
+      }
+      link = `${FRONTEND_URL}/claim/cash/${gift.claimToken || gift.giftCode}`;
+    } else if (giftType === 'user-gift-card' || (giftType === 'gift-card' && !isNaN(Number(cleanGiftId)))) {
+      const dbId = parseInt(cleanGiftId, 10);
+      gift = await (this.prisma as any).userGiftCard.findFirst({ where: { id: dbId, senderId: userId }, include: { giftCard: true } });
+      if (!gift) throw new Error('Gift not found');
+      if (gift.claimedAt) throw new Error('Gift has already been claimed');
+      link = `${FRONTEND_URL}/claim/gift-card/${gift.claimToken || gift.code}`;
+    } else if (giftType === 'flex-card') {
+      const dbId = parseInt(cleanGiftId, 10);
+      gift = await (this.prisma as any).flexCard.findFirst({ where: { id: dbId, senderId: userId } });
+      if (!gift) throw new Error('Gift not found');
+      if (gift.claimedAt) throw new Error('Gift has already been claimed');
+      link = `${FRONTEND_URL}/claim/flex-card/${gift.claimToken || gift.code}`;
+    } else {
+      throw new Error(`Unsupported resend type: ${giftType}`);
+    }
+
+    await this.emailService.sendGiftEmail({
+      to: gift.recipientEmail,
+      senderName: user?.displayName || 'Someone',
+      vendorShopName: giftType === 'direct' ? 'Gifthance' : (giftType === 'flex-card' ? 'Gifthance' : gift.giftCard?.name || 'Vendor'),
+      giftName: giftType === 'direct' ? 'Cash Gift' : (giftType === 'flex-card' ? 'Flex Card' : 'Gift Card'),
+      giftAmount: Number(gift.amount || gift.initialAmount || 0),
+      claimUrl: link,
+      message: gift.message || 'Enjoy your gift!'
+    });
+
+    return { success: true, message: 'Gift notification resent successfully' };
+  }
+
+  /**
+   * Edit recipient email/phone for a pending gift
+   */
+  async editRecipient(userId: string, giftId: string | number, giftType: string, email?: string, phone?: string) {
+    if (!email && !phone) throw new Error('Must provide either email or phone');
+
+    const updateData: any = {};
+    if (email) updateData.recipientEmail = email;
+    if (phone) updateData.recipientPhone = phone;
+
+    // IMPORTANT: Rotate claimToken to invalidate old links when recipient changes
+    if (email || phone) {
+      updateData.claimToken = generateClaimToken();
+    }
+
+    let updatedGift: any = null;
+    
+    // Safely coerce giftId to string for prefix parsing
+    const strGiftId = String(giftId);
+    
+    // Override giftType and clean giftId using deterministic prefixes
+    let cleanGiftId = strGiftId;
+    if (strGiftId.startsWith('cash-')) { giftType = 'direct'; cleanGiftId = strGiftId.replace('cash-', ''); }
+    else if (strGiftId.startsWith('ugc-')) { giftType = 'user-gift-card'; cleanGiftId = strGiftId.replace('ugc-', ''); }
+    else if (strGiftId.startsWith('flex-')) { giftType = 'flex-card'; cleanGiftId = strGiftId.replace('flex-', ''); }
+    
+    const user = await (this.prisma as any).user.findUnique({ where: { id: userId } });
+
+    if (giftType === 'direct') {
+      const gift = await (this.prisma as any).directGift.findFirst({ where: { id: cleanGiftId, OR: [{ senderEmail: user?.email }, { userId }] } });
+      if (!gift) throw new Error('Gift not found');
+      if (gift.claimedAt || gift.redeemedAt || gift.status === 'claimed' || gift.status === 'redeemed') {
+        throw new Error('Gift has already been claimed');
+      }
+      updatedGift = await (this.prisma as any).directGift.update({ where: { id: cleanGiftId }, data: updateData });
+
+    } else if (giftType === 'user-gift-card' || (giftType === 'gift-card' && !isNaN(Number(cleanGiftId)))) {
+      const dbId = parseInt(cleanGiftId, 10);
+      const gift = await (this.prisma as any).userGiftCard.findFirst({ where: { id: dbId, senderId: userId } });
+      if (!gift) throw new Error('Gift not found');
+      if (gift.claimedAt) throw new Error('Gift has already been claimed');
+      updatedGift = await (this.prisma as any).userGiftCard.update({ where: { id: dbId }, data: updateData });
+
+    } else if (giftType === 'flex-card') {
+      const dbId = parseInt(cleanGiftId, 10);
+      const gift = await (this.prisma as any).flexCard.findFirst({ where: { id: dbId, senderId: userId } });
+      if (!gift) throw new Error('Gift not found');
+      if (gift.claimedAt) throw new Error('Gift has already been claimed');
+      updatedGift = await (this.prisma as any).flexCard.update({ where: { id: dbId }, data: updateData });
+
+    } else {
+      throw new Error(`Unsupported edit type: ${giftType}`);
+    }
+
+    // Attempt to automatically resend if email was updated
+    if (email) {
+      try {
+         await this.resendGift(userId, giftId, giftType);
+      } catch (err) {
+         console.warn('Silent failure on auto-resend edit recipient:', err);
+      }
+    }
+
+    return { success: true, message: 'Recipient updated successfully' };
   }
 }

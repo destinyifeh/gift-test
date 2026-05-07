@@ -6,10 +6,11 @@ import {
   ResponsiveModalHeader,
   ResponsiveModalTitle,
 } from '@/components/ui/responsive-modal';
-import {useSentGifts} from '@/hooks/use-analytics';
+import {useSentGifts, useResendGift, useEditRecipient} from '@/hooks/use-analytics';
 import {formatCurrency} from '@/lib/utils/currency';
 import Link from 'next/link';
 import {useState} from 'react';
+import {toast} from 'sonner';
 
 const statusConfig: Record<string, {bg: string; text: string; label: string; icon: string}> = {
   delivered: {
@@ -24,43 +25,35 @@ const statusConfig: Record<string, {bg: string; text: string; label: string; ico
     label: 'Scheduled',
     icon: 'schedule',
   },
-  support: {
-    bg: 'bg-[var(--v2-primary-container)]',
-    text: 'text-[var(--v2-on-primary-container)]',
-    label: 'Support',
-    icon: 'volunteer_activism',
-  },
-  direct: {
-    bg: 'bg-[var(--v2-secondary-container)]',
-    text: 'text-[var(--v2-on-secondary-container)]',
-    label: 'Direct',
-    icon: 'send',
-  },
-  claimable: {
-    bg: 'bg-[var(--v2-primary)]/10',
-    text: 'text-[var(--v2-primary)]',
-    label: 'Claimable',
-    icon: 'redeem',
-  },
-  // Map pending to delivered display
   pending: {
     bg: 'bg-[var(--v2-secondary-container)]',
     text: 'text-[var(--v2-on-secondary-container)]',
-    label: 'Delivered',
-    icon: 'check_circle',
+    label: 'Sent',
+    icon: 'mail',
   },
-  // Keep these for data mapping but they'll display as delivered
-  sent: {
-    bg: 'bg-[var(--v2-secondary-container)]',
-    text: 'text-[var(--v2-on-secondary-container)]',
-    label: 'Delivered',
-    icon: 'check_circle',
+  claimed: {
+    bg: 'bg-[var(--v2-primary-container)]',
+    text: 'text-[var(--v2-on-primary-container)]',
+    label: 'Claimed',
+    icon: 'verified',
   },
-  unclaimed: {
-    bg: 'bg-[var(--v2-surface-container-high)]',
-    text: 'text-[var(--v2-on-surface-variant)]',
-    label: 'Unclaimed',
-    icon: 'hourglass_empty',
+  redeemed: {
+    bg: 'bg-[var(--v2-primary-container)]',
+    text: 'text-[var(--v2-on-primary-container)]',
+    label: 'Claimed',
+    icon: 'verified',
+  },
+  used: {
+    bg: 'bg-[var(--v2-tertiary-container)]',
+    text: 'text-[var(--v2-on-tertiary-container)]',
+    label: 'Spent',
+    icon: 'payments',
+  },
+  partially_used: {
+    bg: 'bg-[var(--v2-tertiary-container)]',
+    text: 'text-[var(--v2-on-tertiary-container)]',
+    label: 'Partially Spent',
+    icon: 'clock_loader_40',
   },
 };
 
@@ -69,7 +62,15 @@ export function V2SentGiftsTab() {
   const [selectedGift, setSelectedGift] = useState<any | null>(null);
 
   const [page, setPage] = useState(1);
-  const {data: sentRes, isLoading} = useSentGifts(page);
+  const {data: sentRes, isLoading, refetch} = useSentGifts(page);
+  const {mutateAsync: resendGift} = useResendGift();
+  const {mutateAsync: editRecipient} = useEditRecipient();
+
+  const [isResending, setIsResending] = useState(false);
+  const [isEditingRecipient, setIsEditingRecipient] = useState(false);
+  const [isSavingRecipient, setIsSavingRecipient] = useState(false);
+  const [newRecipientEmail, setNewRecipientEmail] = useState('');
+  const [newRecipientPhone, setNewRecipientPhone] = useState('');
 
   const sentGiftsData = sentRes?.data || [];
   const sentGiftsList = sentGiftsData;
@@ -78,7 +79,50 @@ export function V2SentGiftsTab() {
   const pagination = sentRes?.pagination || { totalCount: 0, totalPages: 1 };
   const totalSent = pagination.totalCount;
   const totalValue = sentRes?.totalSum || 0;
-  const scheduledCount = sentGiftsList.filter((g: any) => g.status === 'scheduled' || g.status === 'claimable').length;
+  const unclaimedCount = sentGiftsList.filter((g: any) => g.status === 'scheduled' || g.status === 'pending').length;
+
+  const handleResend = async (gift: any) => {
+    try {
+      setIsResending(true);
+      await resendGift({ giftId: gift.id, giftType: gift.type });
+      toast.success('Gift notification resent successfully');
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || err.message || 'Failed to resend gift');
+    } finally {
+      setIsResending(false);
+    }
+  };
+
+  const handleSaveRecipient = async () => {
+    if (!newRecipientEmail && !newRecipientPhone) {
+      toast.error('Please enter an email or phone number');
+      return;
+    }
+    
+    try {
+      setIsSavingRecipient(true);
+      const isPhone = newRecipientEmail.startsWith('+') || (/^\d+$/.test(newRecipientEmail) && newRecipientEmail.length > 8);
+      const payload: any = { 
+        giftId: selectedGift.id, 
+        giftType: selectedGift.type 
+      };
+      
+      if (isPhone) {
+        payload.phone = newRecipientEmail;
+      } else {
+        payload.email = newRecipientEmail;
+      }
+      
+      await editRecipient(payload);
+      toast.success('Recipient updated and gift resent!');
+      setIsEditingRecipient(false);
+      refetch();
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || err.message || 'Failed to update recipient');
+    } finally {
+      setIsSavingRecipient(false);
+    }
+  };
 
   // Filter gifts
   const filteredGifts =
@@ -182,12 +226,12 @@ export function V2SentGiftsTab() {
             <span
               className="v2-icon text-white/80 mb-2 block"
               style={{fontVariationSettings: "'FILL' 1"}}>
-              schedule
+              pending_actions
             </span>
             <p className="text-white/70 font-semibold text-xs uppercase tracking-wider">
-              Scheduled
+              Unclaimed
             </p>
-            <p className="text-3xl font-extrabold text-white v2-headline">{scheduledCount} Gifts</p>
+            <p className="text-3xl font-extrabold text-white v2-headline">{unclaimedCount} Gifts</p>
           </div>
         </div>
       </div>
@@ -195,15 +239,15 @@ export function V2SentGiftsTab() {
       {/* Scheduled Count - Mobile only */}
       <div className="md:hidden flex items-center justify-between p-4 rounded-2xl bg-[var(--v2-tertiary-container)]/30">
         <div className="flex items-center gap-3">
-          <span className="v2-icon text-[var(--v2-tertiary)]">schedule</span>
-          <span className="font-medium text-[var(--v2-on-surface)]">{scheduledCount} scheduled gifts</span>
+          <span className="v2-icon text-[var(--v2-tertiary)]">pending_actions</span>
+          <span className="font-medium text-[var(--v2-on-surface)]">{unclaimedCount} unclaimed gifts</span>
         </div>
         <span className="v2-icon text-[var(--v2-on-surface-variant)]">chevron_right</span>
       </div>
 
       {/* Filter Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
-        {['all', 'scheduled', 'support', 'direct', 'claimable'].map(status => (
+        {['all', 'pending', 'claimed', 'used', 'delivered'].map(status => (
           <button
             key={status}
             onClick={() => setFilterStatus(status)}
@@ -212,7 +256,7 @@ export function V2SentGiftsTab() {
                 ? 'bg-[var(--v2-primary)] text-white'
                 : 'bg-[var(--v2-surface-container-low)] text-[var(--v2-on-surface-variant)] hover:bg-[var(--v2-surface-container-high)]'
             }`}>
-            {status === 'all' ? 'All Status' : statusConfig[status]?.label || status.charAt(0).toUpperCase() + status.slice(1)}
+            {status === 'all' ? 'All Status' : status.charAt(0).toUpperCase() + status.slice(1)}
           </button>
         ))}
       </div>
@@ -235,7 +279,11 @@ export function V2SentGiftsTab() {
             return (
               <button
                 key={g.id}
-                onClick={() => setSelectedGift(g)}
+                onClick={() => {
+                  setSelectedGift(g);
+                  setIsEditingRecipient(false);
+                  setNewRecipientEmail(g.recipient || '');
+                }}
                 className="w-full flex items-center gap-4 p-4 md:p-5 rounded-[1.5rem] bg-[var(--v2-surface-container-lowest)] hover:shadow-md transition-all group text-left cursor-pointer">
                 {/* Gift Icon/Image */}
                 <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-[var(--v2-primary)]/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
@@ -359,9 +407,39 @@ export function V2SentGiftsTab() {
                     <span className="v2-icon text-[var(--v2-on-surface-variant)]">person</span>
                     <span className="text-sm text-[var(--v2-on-surface-variant)]">Recipient</span>
                   </div>
-                  <span className="text-sm font-medium text-[var(--v2-on-surface)]">
-                    {selectedGift.recipient || 'Anonymous'}
-                  </span>
+                  {selectedGift.status === 'pending' && isEditingRecipient ? (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={newRecipientEmail}
+                        onChange={(e) => setNewRecipientEmail(e.target.value)}
+                        placeholder="Email or Phone"
+                        className="px-3 py-1.5 rounded-lg border border-[var(--v2-outline-variant)] bg-[var(--v2-surface)] text-sm max-w-[150px] md:max-w-[180px]"
+                        autoFocus
+                      />
+                      <button 
+                        onClick={handleSaveRecipient}
+                        disabled={isSavingRecipient || (!newRecipientEmail && !newRecipientPhone)}
+                        className="p-1.5 rounded-lg bg-[var(--v2-primary)] text-white hover:opacity-90 disabled:opacity-50 min-w-[32px] flex items-center justify-center"
+                      >
+                        {isSavingRecipient ? (
+                          <span className="v2-icon text-sm animate-spin">progress_activity</span>
+                        ) : (
+                          <span className="v2-icon text-sm">check</span>
+                        )}
+                      </button>
+                      <button 
+                        onClick={() => setIsEditingRecipient(false)}
+                        className="p-1.5 rounded-lg bg-[var(--v2-surface-container-high)] hover:opacity-90"
+                      >
+                        <span className="v2-icon text-sm">close</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <span className="text-sm font-medium text-[var(--v2-on-surface)]">
+                      {selectedGift.recipient || 'Anonymous'}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--v2-surface-container-low)]">
                   <div className="flex items-center gap-2">
@@ -370,6 +448,18 @@ export function V2SentGiftsTab() {
                   </div>
                   <span className="text-sm font-medium text-[var(--v2-on-surface)]">
                     {selectedGift.date}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--v2-surface-container-low)]">
+                  <div className="flex items-center gap-2">
+                    <span className="v2-icon text-[var(--v2-on-surface-variant)]">info</span>
+                    <span className="text-sm text-[var(--v2-on-surface-variant)]">Status</span>
+                  </div>
+                  <span className="text-sm font-medium text-[var(--v2-on-surface)]">
+                    {['pending', 'unclaimed'].includes(selectedGift.status) ? 'Pending Claim' : 
+                     ['claimed', 'redeemed'].includes(selectedGift.status) ? 'Claimed (Ready for use)' : 
+                     selectedGift.status === 'partially_used' ? 'Partially Spent' :
+                     selectedGift.status === 'used' ? 'Spent' : 'Delivered'}
                   </span>
                 </div>
                 {selectedGift.message && (
@@ -410,7 +500,29 @@ export function V2SentGiftsTab() {
 
               {/* Actions */}
               <div className="pt-4 border-t border-[var(--v2-outline-variant)]/10 space-y-3">
-                {(selectedGift.status === 'scheduled' || selectedGift.status === 'claimable') && (
+                {['pending', 'unclaimed'].includes(selectedGift.status) && !isEditingRecipient && (
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => handleResend(selectedGift)}
+                      disabled={isResending}
+                      className="flex-1 h-12 bg-[var(--v2-primary)] text-white font-bold rounded-2xl flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50"
+                    >
+                      <span className="v2-icon">{isResending ? 'progress_activity' : 'send'}</span>
+                      {isResending ? 'Sending...' : 'Resend'}
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setIsEditingRecipient(true);
+                        setNewRecipientEmail(selectedGift.recipient || '');
+                      }}
+                      className="flex-1 h-12 bg-[var(--v2-surface-container-high)] text-[var(--v2-on-surface)] font-bold rounded-2xl flex items-center justify-center gap-2 hover:bg-[var(--v2-surface-container-highest)] transition-colors"
+                    >
+                      <span className="v2-icon">edit</span>
+                      Edit Recipient
+                    </button>
+                  </div>
+                )}
+                {(selectedGift.status === 'scheduled') && (
                   <button className="w-full h-12 bg-[var(--v2-error-container)] text-[var(--v2-on-error-container)] font-bold rounded-2xl flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
                     <span className="v2-icon">cancel</span>
                     Cancel Gift

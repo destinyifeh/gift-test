@@ -298,9 +298,10 @@ export class GiftService {
     });
 
 
+    const siteUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const claimUrl = `${siteUrl}/claim/${data.claimableType === 'money' ? 'cash/' : 'gift-card/'}${gift.claimToken}`;
+
     if (data.deliveryMethod === 'email' && data.recipientEmail) {
-      const siteUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-      const claimUrl = `${siteUrl}/claim/${data.claimableType === 'money' ? 'cash/' : 'gift-card/'}${gift.claimToken}`;
       
       try {
         console.log(`[GiftService] Attempting to send gift email to: ${data.recipientEmail}`);
@@ -348,11 +349,20 @@ export class GiftService {
       }
     }
 
-    return gift;
+    return {
+      success: true,
+      data: {
+        ...gift,
+        claimUrl,
+        claimToken: gift.claimToken,
+      },
+    };
   }
 
   async fetchGiftByCode(code: string) {
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(code.trim());
+    console.log(`[GiftService] Fetching gift with code: "${code}" (isUuid: ${isUuid})`);
+
     let gift = await (this.prisma as any).directGift.findFirst({
       where: isUuid ? { id: code.trim() } : { 
         OR: [
@@ -362,17 +372,13 @@ export class GiftService {
       },
       include: {
         user: { select: { displayName: true, email: true } },
-        product: {
-          include: {
-            vendor: { select: { businessName: true, displayName: true, avatarUrl: true } }
-          }
-        },
         giftCard: true,
       }
     });
 
     // If not found in DirectGift, check Campaign table
     if (!gift) {
+      console.log(`[GiftService] Gift not found in DirectGift, checking Campaign table for: "${code}"`);
       gift = await (this.prisma as any).campaign.findFirst({
         where: isUuid ? { id: code.trim() } : { 
           OR: [
@@ -382,20 +388,21 @@ export class GiftService {
         },
         include: {
           user: { select: { displayName: true, email: true, avatarUrl: true } },
-          product: {
-            include: {
-              vendor: { select: { businessName: true, displayName: true, avatarUrl: true } }
-            }
-          },
           giftCard: true,
         }
       });
       if (gift) {
+        console.log(`[GiftService] Found matching record in Campaign table (ID: ${gift.id})`);
         (gift as any).isCampaign = true;
       }
     }
 
-    if (!gift) throw new NotFoundException('Gift not found or invalid code');
+    if (!gift) {
+      console.error(`[GiftService] Gift NOT FOUND for code: "${code}"`);
+      throw new NotFoundException('Gift not found or invalid code');
+    }
+
+    console.log(`[GiftService] Successfully found gift record (ID: ${gift.id}, claimableType: ${gift.claimableType})`);
 
     return {
       ...gift,
@@ -468,30 +475,18 @@ export class GiftService {
           userId,
           amount: amountToClaimBigInt,
           currency: gift.currency || 'NGN',
-          type: isMoney ? 'creator_support' : 'receipt',
+          type: 'receipt',
           status: 'success',
           reference: `claim-${code}-${Date.now()}`,
           description: `Claimed ${isMoney ? 'cash gift' : 'gift card'}: ${code}`,
         }
       });
 
-      // 3. If money, also update balance and record creator support
+      // 3. If money, also update balance
       if (isMoney) {
         await (tx as any).user.update({
           where: { id: userId },
           data: { userWallet: { increment: amountToClaimBigInt } }
-        });
-
-        await (tx as any).creatorSupport.create({
-          data: {
-            userId,
-            transactionId: transaction.id,
-            amount: amountToClaimNum,
-            currency: gift.currency || 'NGN',
-            donorName: gift.senderName || 'A Friend',
-            donorEmail: gift.senderEmail || '',
-            message: gift.message || 'Claimed cash gift',
-          }
         });
       }
 

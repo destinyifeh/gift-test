@@ -88,8 +88,7 @@ export default function ClaimCashPage() {
               Cash Gift Not Found
             </h1>
             <p className="text-[var(--v2-on-surface-variant)] mb-8">
-              This cash gift code is invalid or has already been claimed. Please check the link and try
-              again.
+              This cash gift link is no longer valid. The sender may have updated the recipient information.
             </p>
             <Link
               href="/"

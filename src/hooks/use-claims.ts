@@ -6,11 +6,18 @@ export function useGiftByCode(code: string) {
   return useQuery({
     queryKey: ['gift', code],
     queryFn: async () => {
-      if (!code) return null;
-      const res = await api.get(`/gifts/code/${code}`);
-      return res.data;
+      try {
+        if (!code) return null;
+        const res = await api.get(`/gifts/code/${code}`);
+        return res.data;
+      } catch (err: any) {
+        if (err.response?.status === 404) return null;
+        throw err;
+      }
     },
     enabled: !!code,
+    retry: false,
+    staleTime: 0,
   });
 }
 
@@ -38,10 +45,17 @@ export function useFlexCardByToken(token: string) {
   return useQuery({
     queryKey: ['flex-card', token],
     queryFn: async () => {
-      const res = await api.get(`/gifts/flex-card/${token}`);
-      return res.data;
+      try {
+        const res = await api.get(`/gifts/flex-card/${token}`);
+        return res.data;
+      } catch (err: any) {
+        if (err.response?.status === 404) return null;
+        throw err;
+      }
     },
     enabled: !!token,
+    retry: false,
+    staleTime: 0,
   });
 }
 
@@ -83,10 +97,17 @@ export function useUserGiftCardByToken(token: string) {
   return useQuery({
     queryKey: ['user-gift-card', token],
     queryFn: async () => {
-      const res = await api.get(`/user-gift-cards/token/${token}`);
-      return res.data;
+      try {
+        const res = await api.get(`/user-gift-cards/token/${token}`);
+        return res.data;
+      } catch (err: any) {
+        if (err.response?.status === 404) return null;
+        throw err;
+      }
     },
     enabled: !!token,
+    retry: false,
+    staleTime: 0,
   });
 }
 

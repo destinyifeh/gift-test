@@ -1,6 +1,6 @@
 import api from '@/lib/api-client';
 import {fetchUnclaimedGifts} from '@/lib/server/actions/analytics';
-import {useQuery} from '@tanstack/react-query';
+import {useQuery, useMutation} from '@tanstack/react-query';
 
 export function useDashboardAnalytics() {
   return useQuery({
@@ -117,6 +117,24 @@ export function useMyGifts(page: number = 1, limit: number = 10) {
     queryKey: ['my-gifts', page, limit],
     queryFn: async () => {
       const res = await api.get(`/analytics/gifts-received?page=${page}&limit=${limit}`);
+      return res.data;
+    },
+  });
+}
+
+export function useResendGift() {
+  return useMutation({
+    mutationFn: async (data: { giftId: string; giftType: string }) => {
+      const res = await api.post('/analytics/resend-gift', data);
+      return res.data;
+    },
+  });
+}
+
+export function useEditRecipient() {
+  return useMutation({
+    mutationFn: async (data: { giftId: string; giftType: string; email?: string; phone?: string }) => {
+      const res = await api.patch('/analytics/edit-recipient', data);
       return res.data;
     },
   });

@@ -82,7 +82,7 @@ const statusConfig: Record<string, {bg: string; text: string; label: string}> =
   };
 
 type SortOption = 'recent' | 'oldest' | 'highest' | 'lowest';
-type TypeFilter = 'all' | 'giftcard' | 'voucher' | 'experience';
+type TypeFilter = 'all' | 'cash' | 'flex' | 'giftcard';
 
 function BalanceBreakdown({
   currentBalance,
@@ -333,10 +333,23 @@ export function V2MyGiftsTab() {
   // Apply Type Filtering
   if (typeFilter !== 'all') {
     filteredGifts = filteredGifts.filter((g: any) => {
+      // 1. Cash Gifts (Direct wallet additions)
+      if (typeFilter === 'cash') {
+        return g.assetType === 'gift' && (g.raw.claimableType === 'money' || (g.raw.type?.toLowerCase() === 'cash' || g.raw.title?.toLowerCase().includes('cash')));
+      }
+
+      // 2. Flex Cards (Gifthance Universal Cards)
+      if (typeFilter === 'flex') {
+        return g.assetType === 'flex';
+      }
+
+      // 3. Vendor Gift Cards (Brand-specific)
+      if (typeFilter === 'giftcard') {
+        return (g.assetType === 'gift' && g.raw.claimableType === 'gift-card') || g.assetType === 'vendor' || (g.raw.type?.toLowerCase() === 'giftcard');
+      }
+
+      // 4. Fallback for legacy types (should ideally be mapped above)
       const gType = g.assetType === 'gift' ? (g.type?.toLowerCase() || 'giftcard') : g.assetType;
-      // Map 'flex' and 'vendor' to 'giftcard' for unified filtering if needed, 
-      // but let's keep them distinct for now or align with typeLabels
-      if (typeFilter === 'giftcard') return ['giftcard', 'flex', 'vendor'].includes(gType);
       return gType === typeFilter;
     });
   }
@@ -359,9 +372,9 @@ export function V2MyGiftsTab() {
 
   const typeLabels: Record<TypeFilter, string> = {
     all: 'All Types',
+    cash: 'Cash Gifts',
+    flex: 'Flex Cards',
     giftcard: 'Gift Cards',
-    voucher: 'Vouchers',
-    experience: 'Experiences',
   };
 
   const sortLabels: Record<SortOption, string> = {

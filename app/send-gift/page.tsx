@@ -168,7 +168,7 @@ export default function V2SendGiftPage() {
               });
 
               if (flexResult.success && flexResult.data) {
-                setCampaignSlug(flexResult.data.claimToken || flexResult.data.code);
+                setCampaignSlug(flexResult.data.claimToken || flexResult.data.giftCode || flexResult.data.code);
                 setSubmitted(true);
               } else {
                 toast.error(flexResult.error || 'Payment successful but failed to create Flex Card. Please contact support.');
@@ -236,7 +236,11 @@ export default function V2SendGiftPage() {
             const result = await createDirectGift(payload as any);
 
             if (result.success && result.data) {
-              setCampaignSlug(deliveryType === 'claim-link' ? result.data.giftCode : (result.data.campaignShortId || result.data.campaign_short_id || ''));
+              // Standardize on claimToken for cash/money gifts to match the email link construction
+              const giftData = result.data;
+              const tokenToUse = giftData.claimToken || giftData.giftCode || (giftData.campaignShortId || giftData.campaign_short_id || '');
+              
+              setCampaignSlug(tokenToUse);
               setSubmitted(true);
               toast.success('Gift sent successfully!');
             } else {
